@@ -1,0 +1,12 @@
+diff -Nuar -Nuar db-6.0.30/dist/Makefile.in db-6.0.30-fix/dist/Makefile.in
+--- db-6.0.30/dist/Makefile.in	2014-01-24 19:09:41.000000000 +0000
++++ db-6.0.30-fix/dist/Makefile.in	2014-11-01 12:46:17.015097263 +0000
+@@ -898,7 +898,7 @@
+ 
+ # Shared SQL library.
+ $(libsqlso_target): $(SQL_OBJS)
+-	$(SOLINK) $(SOFLAGS) $(LDFLAGS) -o $@ $(SQL_OBJS) $(LIBCSO_LIBS)
++	$(SOLINK) $(SOFLAGS) $(LDFLAGS) -o $@ $(SQL_OBJS) $(LIBCSO_LIBS) @SQL_LIBS@
+ 	$(RM) $(libsql)
+ 	$(LN) -s .libs/$(libsql_version) $(libsql)
+ 

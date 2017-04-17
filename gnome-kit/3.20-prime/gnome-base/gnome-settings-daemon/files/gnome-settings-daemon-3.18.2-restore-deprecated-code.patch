@@ -1,0 +1,717 @@
+diff '--exclude=.git' -urN a/config.h.in b/config.h.in
+--- a/config.h.in	2015-11-10 08:08:29.000000000 -0500
++++ b/config.h.in	2016-01-16 00:48:36.937569865 -0500
+@@ -1,5 +1,8 @@
+ /* config.h.in.  Generated from configure.ac by autoheader.  */
+ 
++/* Define if we should build deprecated functionalty */
++#undef ENABLE_DEPRECATED
++
+ /* always defined to indicate that i18n is enabled */
+ #undef ENABLE_NLS
+ 
+diff '--exclude=.git' -urN a/configure b/configure
+--- a/configure	2015-11-10 08:08:25.000000000 -0500
++++ b/configure	2016-01-16 00:48:36.944569823 -0500
+@@ -714,6 +714,8 @@
+ GLIB_COMPILE_SCHEMAS
+ gsettingsschemadir
+ GSETTINGS_DISABLE_SCHEMAS_COMPILE
++ENABLE_DEPRECATED_FALSE
++ENABLE_DEPRECATED_TRUE
+ GLIB_MKENUMS
+ GLIB_GENMARSHAL
+ GSD_PLUGIN_LDFLAGS
+@@ -915,6 +917,7 @@
+ enable_nls
+ enable_compile_warnings
+ enable_iso_c
++enable_deprecated
+ enable_schemas_compile
+ enable_gudev
+ enable_wayland
+@@ -1634,6 +1637,7 @@
+   --enable-compile-warnings=[no/minimum/yes/maximum/error]
+                           Turn on compiler warnings
+   --enable-iso-c          Try to warn if code is not ISO C
++  --enable-deprecated     build deprecated functionality
+   --disable-schemas-compile
+                           Disable regeneration of gschemas.compiled on install
+   --disable-gudev         Disable GUdev support (not optional on Linux
+@@ -17597,6 +17601,28 @@
+ 
+ 
+ 
++# Build deprecated functionality
++# Check whether --enable-deprecated was given.
++if test "${enable_deprecated+set}" = set; then :
++  enableval=$enable_deprecated; enable_deprecated=$enableval
++else
++  enable_deprecated=no
++fi
++
++if test "${enable_deprecated}" != no; then
++
++$as_echo "#define ENABLE_DEPRECATED 1" >>confdefs.h
++
++fi
++ if test x$enable_deprecated = xyes; then
++  ENABLE_DEPRECATED_TRUE=
++  ENABLE_DEPRECATED_FALSE='#'
++else
++  ENABLE_DEPRECATED_TRUE='#'
++  ENABLE_DEPRECATED_FALSE=
++fi
++
++
+ 
+ 
+ 
+@@ -21618,6 +21644,10 @@
+   ac_config_commands="$ac_config_commands po/stamp-it"
+ 
+ 
++if test -z "${ENABLE_DEPRECATED_TRUE}" && test -z "${ENABLE_DEPRECATED_FALSE}"; then
++  as_fn_error $? "conditional \"ENABLE_DEPRECATED\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ if test -z "${HAVE_GUDEV_TRUE}" && test -z "${HAVE_GUDEV_FALSE}"; then
+   as_fn_error $? "conditional \"HAVE_GUDEV\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+@@ -24151,6 +24181,7 @@
+         cflags:                   ${CFLAGS}
+         Maintainer mode:          ${USE_MAINTAINER_MODE}
+ 
++        Enable deprecated stuff:  ${enable_deprecated}
+         LCMS DICT support:        ${have_new_lcms}
+         NetworkManager support:   ${enable_network_manager}
+         Libnotify support:        ${have_libnotify}
+diff '--exclude=.git' -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2015-11-10 08:08:14.000000000 -0500
++++ b/configure.ac	2016-01-16 00:48:36.944569823 -0500
+@@ -90,6 +90,15 @@
+ AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
+ AC_PATH_PROG([GLIB_MKENUMS],[glib-mkenums])
+ 
++# Build deprecated functionality
++AC_ARG_ENABLE(deprecated, [  --enable-deprecated     build deprecated functionality],
++             enable_deprecated=$enableval,
++             enable_deprecated=no)
++if test "${enable_deprecated}" != no; then
++  AC_DEFINE(ENABLE_DEPRECATED, 1, [Define if we should build deprecated functionalty])
++fi
++AM_CONDITIONAL(ENABLE_DEPRECATED, test x$enable_deprecated = xyes)
++
+ dnl ================================================================
+ dnl GSettings stuff
+ dnl ================================================================
+@@ -576,6 +585,7 @@
+         cflags:                   ${CFLAGS}
+         Maintainer mode:          ${USE_MAINTAINER_MODE}
+ 
++        Enable deprecated stuff:  ${enable_deprecated}
+         LCMS DICT support:        ${have_new_lcms}
+         NetworkManager support:   ${enable_network_manager}
+         Libnotify support:        ${have_libnotify}
+diff '--exclude=.git' -urN a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in.in b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in.in
+--- a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in.in	2015-11-10 08:00:41.000000000 -0500
++++ b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in.in	2016-01-16 01:42:37.438365457 -0500
+@@ -50,5 +50,10 @@
+       <summary>Power button action</summary>
+       <description>The action to take when the system power button is pressed. This action is hard-coded (and the setting ignored) on virtual machines (power off) and tablets (suspend).</description>
+     </key>
++    <key name="critical-battery-action" enum="org.gnome.settings-daemon.GsdPowerActionType">
++      <default>'hibernate'</default>
++      <summary>Battery critical low action</summary>
++      <description>The action to take when the battery is critically low.</description>
++    </key>
+   </schema>
+ </schemalist>
+diff '--exclude=.git' -urN a/plugins/common/Makefile.am b/plugins/common/Makefile.am
+--- a/plugins/common/Makefile.am	2015-10-12 06:44:00.000000000 -0400
++++ b/plugins/common/Makefile.am	2016-01-16 00:48:36.945569817 -0500
+@@ -35,6 +35,8 @@
+ 	gsd-keygrab.h		\
+ 	gsd-input-helper.c	\
+ 	gsd-input-helper.h	\
++	gsd-power-helper.c	\
++	gsd-power-helper.h	\
+ 	gsd-settings-migrate.c	\
+ 	gsd-settings-migrate.h	\
+ 	gsd-shell-helper.c	\
+diff '--exclude=.git' -urN a/plugins/common/Makefile.in b/plugins/common/Makefile.in
+--- a/plugins/common/Makefile.in	2015-11-10 08:08:25.000000000 -0500
++++ b/plugins/common/Makefile.in	2016-01-16 00:48:36.946569811 -0500
+@@ -118,6 +118,7 @@
+ 	gsd-device-manager-x11.c gsd-device-manager-x11.h \
+ 	gsd-device-mapper.c gsd-device-mapper.h gsd-keygrab.c \
+ 	gsd-keygrab.h gsd-input-helper.c gsd-input-helper.h \
++	gsd-power-helper.c gsd-power-helper.h \
+ 	gsd-settings-migrate.c gsd-settings-migrate.h \
+ 	gsd-shell-helper.c gsd-shell-helper.h \
+ 	gsd-device-manager-udev.c gsd-device-manager-udev.h
+@@ -128,6 +129,7 @@
+ 	libcommon_la-gsd-device-manager-x11.lo \
+ 	libcommon_la-gsd-device-mapper.lo libcommon_la-gsd-keygrab.lo \
+ 	libcommon_la-gsd-input-helper.lo \
++	libcommon_la-gsd-power-helper.lo \
+ 	libcommon_la-gsd-settings-migrate.lo \
+ 	libcommon_la-gsd-shell-helper.lo $(am__objects_1)
+ libcommon_la_OBJECTS = $(am_libcommon_la_OBJECTS)
+@@ -483,6 +485,7 @@
+ 	gsd-device-manager-x11.c gsd-device-manager-x11.h \
+ 	gsd-device-mapper.c gsd-device-mapper.h gsd-keygrab.c \
+ 	gsd-keygrab.h gsd-input-helper.c gsd-input-helper.h \
++	gsd-power-helper.c gsd-power-helper.h \
+ 	gsd-settings-migrate.c gsd-settings-migrate.h \
+ 	gsd-shell-helper.c gsd-shell-helper.h $(am__append_1)
+ libcommon_la_CPPFLAGS = \
+@@ -650,6 +653,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-device-mapper.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-input-helper.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-keygrab.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-power-helper.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-settings-migrate.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcommon_la-gsd-shell-helper.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_egg_key_parsing-test-egg-key-parsing.Po@am__quote@
+@@ -724,6 +728,13 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcommon_la_CPPFLAGS) $(CPPFLAGS) $(libcommon_la_CFLAGS) $(CFLAGS) -c -o libcommon_la-gsd-settings-migrate.lo `test -f 'gsd-settings-migrate.c' || echo '$(srcdir)/'`gsd-settings-migrate.c
+ 
++libcommon_la-gsd-power-helper.lo: gsd-power-helper.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcommon_la_CPPFLAGS) $(CPPFLAGS) $(libcommon_la_CFLAGS) $(CFLAGS) -MT libcommon_la-gsd-power-helper.lo -MD -MP -MF $(DEPDIR)/libcommon_la-gsd-power-helper.Tpo -c -o libcommon_la-gsd-power-helper.lo `test -f 'gsd-power-helper.c' || echo '$(srcdir)/'`gsd-power-helper.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcommon_la-gsd-power-helper.Tpo $(DEPDIR)/libcommon_la-gsd-power-helper.Plo
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='gsd-power-helper.c' object='libcommon_la-gsd-power-helper.lo' libtool=yes @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcommon_la_CPPFLAGS) $(CPPFLAGS) $(libcommon_la_CFLAGS) $(CFLAGS) -c -o libcommon_la-gsd-power-helper.lo `test -f 'gsd-power-helper.c' || echo '$(srcdir)/'`gsd-power-helper.c
++
+ libcommon_la-gsd-shell-helper.lo: gsd-shell-helper.c
+ @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcommon_la_CPPFLAGS) $(CPPFLAGS) $(libcommon_la_CFLAGS) $(CFLAGS) -MT libcommon_la-gsd-shell-helper.lo -MD -MP -MF $(DEPDIR)/libcommon_la-gsd-shell-helper.Tpo -c -o libcommon_la-gsd-shell-helper.lo `test -f 'gsd-shell-helper.c' || echo '$(srcdir)/'`gsd-shell-helper.c
+ @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libcommon_la-gsd-shell-helper.Tpo $(DEPDIR)/libcommon_la-gsd-shell-helper.Plo
+diff '--exclude=.git' -urN a/plugins/common/gsd-power-helper.c b/plugins/common/gsd-power-helper.c
+--- a/plugins/common/gsd-power-helper.c	1969-12-31 19:00:00.000000000 -0500
++++ b/plugins/common/gsd-power-helper.c	2016-01-16 00:48:36.946569811 -0500
+@@ -0,0 +1,139 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2012 Bastien Nocera <hadess@hadess.net>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ */
++
++#include "config.h"
++
++#ifdef ENABLE_DEPRECATED
++#include "gsd-power-helper.h"
++#endif /* ENABLE_DEPRECATED */
++
++#define CONSOLEKIT_DBUS_NAME                    "org.freedesktop.ConsoleKit"
++#define CONSOLEKIT_DBUS_PATH_MANAGER            "/org/freedesktop/ConsoleKit/Manager"
++#define CONSOLEKIT_DBUS_INTERFACE_MANAGER       "org.freedesktop.ConsoleKit.Manager"
++
++#ifdef ENABLE_DEPRECATED
++static void
++consolekit_stop_cb (GObject *source_object,
++                    GAsyncResult *res,
++                    gpointer user_data)
++{
++        GVariant *result;
++        GError *error = NULL;
++
++        result = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
++                                           res,
++                                           &error);
++        if (result == NULL) {
++                g_warning ("couldn't stop using ConsoleKit: %s",
++                           error->message);
++                g_error_free (error);
++        } else {
++                g_variant_unref (result);
++        }
++}
++
++static void
++consolekit_stop (void)
++{
++        GError *error = NULL;
++        GDBusProxy *proxy;
++
++        /* power down the machine in a safe way */
++        proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
++                                               G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
++                                               NULL,
++                                               CONSOLEKIT_DBUS_NAME,
++                                               CONSOLEKIT_DBUS_PATH_MANAGER,
++                                               CONSOLEKIT_DBUS_INTERFACE_MANAGER,
++                                               NULL, &error);
++        if (proxy == NULL) {
++                g_warning ("cannot connect to ConsoleKit: %s",
++                           error->message);
++                g_error_free (error);
++                return;
++        }
++        g_dbus_proxy_call (proxy,
++                           "Stop",
++                           NULL,
++                           G_DBUS_CALL_FLAGS_NONE,
++                           -1, NULL,
++                           consolekit_stop_cb, NULL);
++        g_object_unref (proxy);
++}
++static void
++upower_sleep_cb (GObject *source_object,
++                 GAsyncResult *res,
++                 gpointer user_data)
++{
++        GVariant *result;
++        GError *error = NULL;
++
++        result = g_dbus_proxy_call_finish (G_DBUS_PROXY (source_object),
++                                           res,
++                                           &error);
++        if (result == NULL) {
++                g_warning ("couldn't sleep using UPower: %s",
++                           error->message);
++                g_error_free (error);
++        } else {
++                g_variant_unref (result);
++        }
++}
++
++static void
++upower_suspend (GDBusProxy *upower_proxy)
++{
++        g_dbus_proxy_call (upower_proxy,
++                           "Suspend",
++                           NULL,
++                           G_DBUS_CALL_FLAGS_NONE,
++                           -1, NULL,
++                           upower_sleep_cb, NULL);
++}
++
++static void
++upower_hibernate (GDBusProxy *upower_proxy)
++{
++        g_dbus_proxy_call (upower_proxy,
++                           "Hibernate",
++                           NULL,
++                           G_DBUS_CALL_FLAGS_NONE,
++                           -1, NULL,
++                           upower_sleep_cb, NULL);
++}
++
++void
++gsd_power_suspend (GDBusProxy *upower_proxy)
++{
++	upower_suspend (upower_proxy);
++}
++
++void
++gsd_power_poweroff (void)
++{
++	consolekit_stop ();
++}
++
++void
++gsd_power_hibernate (GDBusProxy *upower_proxy)
++{
++	upower_hibernate (upower_proxy);
++}
++#endif /* ENABLE_DEPRECATED */
+diff '--exclude=.git' -urN a/plugins/common/gsd-power-helper.h b/plugins/common/gsd-power-helper.h
+--- a/plugins/common/gsd-power-helper.h	1969-12-31 19:00:00.000000000 -0500
++++ b/plugins/common/gsd-power-helper.h	2016-01-16 00:48:36.946569811 -0500
+@@ -0,0 +1,35 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2012 Bastien Nocera <hadess@hadess.net>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ */
++
++#ifndef __GSD_POWER_HELPER_H
++#define __GSD_POWER_HELPER_H
++
++#include <glib.h>
++
++G_BEGIN_DECLS
++
++#include <gio/gio.h>
++
++void gsd_power_suspend   (GDBusProxy *upower_proxy);
++void gsd_power_hibernate (GDBusProxy *upower_proxy);
++void gsd_power_poweroff  (void);
++
++G_END_DECLS
++
++#endif /* __GSD_POWER_HELPER_H */
+diff '--exclude=.git' -urN a/plugins/media-keys/gsd-media-keys-manager.c b/plugins/media-keys/gsd-media-keys-manager.c
+--- a/plugins/media-keys/gsd-media-keys-manager.c	2015-11-10 08:05:30.000000000 -0500
++++ b/plugins/media-keys/gsd-media-keys-manager.c	2016-01-16 00:48:36.947569805 -0500
+@@ -57,6 +57,9 @@
+ #include "shell-key-grabber.h"
+ #include "gsd-screenshot-utils.h"
+ #include "gsd-input-helper.h"
++#ifdef ENABLE_DEPRECATED
++#include "gsd-power-helper.h"
++#endif /* ENABLE_DEPRECATED */
+ #include "gsd-enums.h"
+ #include "gsd-shell-helper.h"
+ 
+@@ -65,6 +68,12 @@
+ #include "gvc-mixer-control.h"
+ #include "gvc-mixer-sink.h"
+ 
++#ifdef ENABLE_DEPRECATED
++#define UPOWER_DBUS_NAME                        "org.freedesktop.UPower"
++#define UPOWER_DBUS_PATH                        "/org/freedesktop/UPower"
++#define UPOWER_DBUS_INTERFACE                   "org.freedesktop.UPower"
++#endif /* ENABLE_DEPRECATED */
++
+ #define GSD_MEDIA_KEYS_DBUS_PATH GSD_DBUS_PATH "/MediaKeys"
+ #define GSD_MEDIA_KEYS_DBUS_NAME GSD_DBUS_NAME ".MediaKeys"
+ 
+@@ -189,6 +198,11 @@
+         GDBusProxy      *logind_proxy;
+         gint             inhibit_keys_fd;
+ 
++#ifdef ENABLE_DEPRECATED
++		/* upower stuff */
++        GDBusProxy      *upower_proxy;
++#endif /* ENABLE_DEPRECATED */
++
+         GList           *media_players;
+ 
+         GDBusNodeInfo   *introspection_data;
+@@ -1808,17 +1822,34 @@
+ {
+         switch (action_type) {
+         case GSD_POWER_ACTION_SUSPEND:
++#ifdef ENABLE_DEPRECATED
++                do_lock_screensaver (manager);
++
++                gsd_power_suspend (manager->priv->upower_proxy);
++#else
+                 power_action (manager, "Suspend", !in_lock_screen);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_INTERACTIVE:
+                 if (!in_lock_screen)
+                         gnome_session_shutdown (manager);
+                 break;
+         case GSD_POWER_ACTION_SHUTDOWN:
++#ifdef ENABLE_DEPRECATED
++                if (!in_lock_screen)
++                        gnome_session_shutdown (manager);
++#else
+                 power_action (manager, "PowerOff", !in_lock_screen);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_HIBERNATE:
++#ifdef ENABLE_DEPRECATED
++                do_lock_screensaver (manager);
++
++                gsd_power_hibernate (manager->priv->upower_proxy);
++#else
+                 power_action (manager, "Hibernate", !in_lock_screen);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_BLANK:
+         case GSD_POWER_ACTION_LOGOUT:
+@@ -2499,6 +2530,10 @@
+         g_clear_object (&priv->screencast_proxy);
+         g_clear_pointer (&priv->chassis_type, g_free);
+ 
++#ifdef ENABLE_DEPRECATED
++        g_clear_object (&manager->priv->upower_proxy);
++#endif /* ENABLE_DEPRECATED */
++
+         if (priv->cancellable != NULL) {
+                 g_cancellable_cancel (priv->cancellable);
+                 g_clear_object (&priv->cancellable);
+@@ -2686,6 +2721,24 @@
+         }
+ }
+ 
++#ifdef ENABLE_DEPRECATED
++static void
++upower_proxy_ready_cb (GObject             *source_object,
++                      GAsyncResult        *res,
++                      gpointer             user_data)
++{
++        GError *error = NULL;
++        GsdMediaKeysManager *manager = GSD_MEDIA_KEYS_MANAGER (user_data);
++
++        manager->priv->upower_proxy = g_dbus_proxy_new_for_bus_finish (res, &error);
++        if (manager->priv->upower_proxy == NULL) {
++                g_warning ("Could not connect to UPower: %s",
++                           error->message);
++                g_error_free (error);
++        }
++}
++#endif /* ENABLE_DEPRECATED */
++
+ static void
+ power_screen_ready_cb (GObject             *source_object,
+                        GAsyncResult        *res,
+@@ -2803,6 +2856,19 @@
+                    manager->priv->bus_cancellable,
+                    (GAsyncReadyCallback) on_bus_gotten,
+                    manager);
++
++#ifdef ENABLE_DEPRECATED
++        /* connect to UPower for async power operations */
++        g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
++                                  G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
++                                  NULL,
++                                  UPOWER_DBUS_NAME,
++                                  UPOWER_DBUS_PATH,
++                                  UPOWER_DBUS_INTERFACE,
++                                  NULL,
++                                  upower_proxy_ready_cb,
++                                  manager);
++#endif /* ENABLE_DEPRECATED */
+ }
+ 
+ GsdMediaKeysManager *
+diff '--exclude=.git' -urN a/plugins/power/gsd-power-manager.c b/plugins/power/gsd-power-manager.c
+--- a/plugins/power/gsd-power-manager.c	2015-10-12 06:43:47.000000000 -0400
++++ b/plugins/power/gsd-power-manager.c	2016-01-16 00:59:58.972360955 -0500
+@@ -49,6 +49,9 @@
+ #include "gnome-settings-bus.h"
+ #include "gsd-enums.h"
+ #include "gsd-power-manager.h"
++#ifdef ENABLE_DEPRECATED
++#include "gsd-power-helper.h"
++#endif /* ENABLE_DEPRECATED */
+ 
+ #define UPOWER_DBUS_NAME                        "org.freedesktop.UPower"
+ #define UPOWER_DBUS_PATH                        "/org/freedesktop/UPower"
+@@ -184,6 +187,11 @@
+         gboolean                 is_virtual_machine;
+         gboolean                 is_tablet;
+ 
++#ifdef ENABLE_DEPRECATED
++		/* upower stuff */
++        GDBusProxy              *upower_proxy;
++#endif /* ENABLE_DEPRECATED */
++
+         /* Idles */
+         GnomeIdleMonitor        *idle_monitor;
+         guint                    idle_dim_id;
+@@ -1055,24 +1063,63 @@
+ }
+ 
+ static void
++lock_screensaver (GsdPowerManager *manager)
++{
++        gboolean do_lock;
++
++        do_lock = g_settings_get_boolean (manager->priv->settings_screensaver,
++                                          "lock-enabled");
++        if (!do_lock) {
++                g_dbus_proxy_call_sync (G_DBUS_PROXY (manager->priv->screensaver_proxy),
++                                        "SetActive",
++                                        g_variant_new ("(b)", TRUE),
++                                        G_DBUS_CALL_FLAGS_NONE,
++                                        -1, NULL, NULL);
++                return;
++        }
++
++        g_dbus_proxy_call_sync (G_DBUS_PROXY (manager->priv->screensaver_proxy),
++                                "Lock",
++                                NULL,
++                                G_DBUS_CALL_FLAGS_NONE,
++                                -1, NULL, NULL);
++}
++
++static void
+ do_power_action_type (GsdPowerManager *manager,
+                       GsdPowerActionType action_type)
+ {
+         switch (action_type) {
+         case GSD_POWER_ACTION_SUSPEND:
++#ifdef ENABLE_DEPRECATED
++                lock_screensaver (manager);
++
++                gsd_power_suspend (manager->priv->upower_proxy);
++#else
+                 action_suspend (manager);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_INTERACTIVE:
+                 gnome_session_shutdown (manager);
+                 break;
+         case GSD_POWER_ACTION_HIBERNATE:
++#ifdef ENABLE_DEPRECATED
++                lock_screensaver (manager);
++
++                gsd_power_hibernate (manager->priv->upower_proxy);
++#else
+                 action_hibernate (manager);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_SHUTDOWN:
+                 /* this is only used on critically low battery where
+                  * hibernate is not available and is marginally better
+                  * than just powering down the computer mid-write */
++#ifdef ENABLE_DEPRECATED
++                gsd_power_poweroff ();
++#else
+                 action_poweroff (manager);
++#endif /* ENABLE_DEPRECATED */
+                 break;
+         case GSD_POWER_ACTION_BLANK:
+                 backlight_disable (manager);
+@@ -1261,29 +1308,6 @@
+ }
+ 
+ static void
+-lock_screensaver (GsdPowerManager *manager)
+-{
+-        gboolean do_lock;
+-
+-        do_lock = g_settings_get_boolean (manager->priv->settings_screensaver,
+-                                          "lock-enabled");
+-        if (!do_lock) {
+-                g_dbus_proxy_call_sync (G_DBUS_PROXY (manager->priv->screensaver_proxy),
+-                                        "SetActive",
+-                                        g_variant_new ("(b)", TRUE),
+-                                        G_DBUS_CALL_FLAGS_NONE,
+-                                        -1, NULL, NULL);
+-                return;
+-        }
+-
+-        g_dbus_proxy_call_sync (G_DBUS_PROXY (manager->priv->screensaver_proxy),
+-                                "Lock",
+-                                NULL,
+-                                G_DBUS_CALL_FLAGS_NONE,
+-                                -1, NULL, NULL);
+-}
+-
+-static void
+ do_lid_closed_action (GsdPowerManager *manager)
+ {
+         /* play a sound, using sounds from the naming spec */
+@@ -1307,7 +1331,15 @@
+                         /* We put the screensaver on * as we're not suspending,
+                          * but the lid is closed */
+                         lock_screensaver (manager);
++#ifdef ENABLE_DEPRECATED
++                } else {
++                        lock_screensaver (manager);
++
++                        gsd_power_suspend (manager->priv->upower_proxy);
++                }
++#else
+                 }
++#endif /* ENABLE_DEPRECATED */
+         }
+ }
+ 
+@@ -1949,6 +1981,24 @@
+                 handle_wake_up_screen (GSD_POWER_MANAGER (user_data));
+ }
+ 
++#ifdef ENABLE_DEPRECATED
++static void
++upower_proxy_ready_cb (GObject             *source_object,
++                      GAsyncResult        *res,
++                      gpointer             user_data)
++{
++        GError *error = NULL;
++        GsdPowerManager *manager = GSD_POWER_MANAGER (user_data);
++
++        manager->priv->upower_proxy = g_dbus_proxy_new_for_bus_finish (res, &error);
++        if (manager->priv->upower_proxy == NULL) {
++                g_warning ("Could not connect to UPower: %s",
++                           error->message);
++                g_error_free (error);
++        }
++}
++#endif /* ENABLE_DEPRECATED */
++
+ static void
+ power_keyboard_proxy_ready_cb (GObject             *source_object,
+                                GAsyncResult        *res,
+@@ -2591,6 +2641,18 @@
+         if (manager->priv->lid_is_present)
+                 manager->priv->lid_is_closed = up_client_get_lid_is_closed (manager->priv->up_client);
+ 
++#ifdef ENABLE_DEPRECATED
++        /* connect to UPower for async power operations */
++        g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
++                                  G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES,
++                                  NULL,
++                                  UPOWER_DBUS_NAME,
++                                  UPOWER_DBUS_PATH,
++                                  UPOWER_DBUS_INTERFACE,
++                                  NULL,
++                                  upower_proxy_ready_cb,
++                                  manager);
++#else
+         /* Set up the logind proxy */
+         manager->priv->logind_proxy =
+                 g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+@@ -2605,6 +2667,7 @@
+                 g_debug ("No systemd (logind) support, disabling plugin");
+                 return FALSE;
+         }
++#endif /* ENABLE_DEPRECATED */
+ 
+         /* Check for XTEST support */
+         if (supports_xtest () == FALSE) {
+@@ -2694,6 +2757,9 @@
+         }
+         g_clear_object (&manager->priv->device_composite);
+ 
++#ifdef ENABLE_DEPRECATED
++        g_clear_object (&manager->priv->upower_proxy);
++#endif /* ENABLE_DEPRECATED */
+         g_clear_object (&manager->priv->screensaver_proxy);
+ 
+         play_loop_stop (&manager->priv->critical_alert_timeout_id);
+diff '--exclude=.git' -urN a/plugins/power/test.py b/plugins/power/test.py
+--- a/plugins/power/test.py	2015-10-12 06:43:47.000000000 -0400
++++ b/plugins/power/test.py	2016-01-16 01:42:37.438365457 -0500
+@@ -86,7 +86,6 @@
+         # start power plugin
+         self.settings_gsd_power['active'] = False
+         # As hibernate is not available, suspend by default on critical
+-        # FIXME
+         self.settings_gsd_power['critical-battery-action'] = 'suspend'
+         Gio.Settings.sync()
+         self.plugin_log_write = open(os.path.join(self.workdir, 'plugin_power.log'), 'wb')
+@@ -502,7 +501,6 @@
+         self.settings_session['idle-delay'] = 2
+         self.settings_gsd_power['sleep-inactive-battery-timeout'] = 5
+         # Hibernate isn't possible, so it should end up suspending
+-        # FIXME
+         self.settings_gsd_power['critical-battery-action'] = 'hibernate'
+ 
+         # wait for idle delay; should not yet hibernate

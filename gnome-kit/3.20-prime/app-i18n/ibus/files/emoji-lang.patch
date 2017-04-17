@@ -1,0 +1,24 @@
+diff -Nuar ibus-1.5.15/src/Makefile.am ibus-1.5.15-fixed/src/Makefile.am
+--- ibus-1.5.15/src/Makefile.am	2017-03-06 16:06:37.000000000 +0000
++++ ibus-1.5.15-fixed/src/Makefile.am	2017-03-16 12:18:31.081992172 +0000
+@@ -244,6 +244,8 @@
+ 
+ dicts/emoji-en.dict: emoji-parser
+ 	$(AM_V_at)for f in $(LANG_FILES) ; do \
++		echo "test $(wildcard $(EMOJI_ANNOTATION_DIR)/*.xml)"; \
++		echo "test $(basename $(notdir $(wildcard $(EMOJI_ANNOTATION_DIR)/*.xml)))"; \
+ 	    if test x"$$f" = xen ; then \
+ 	        $(builddir)/emoji-parser \
+ 	            --xml $(EMOJI_ANNOTATION_DIR)/$$f.xml \
+diff -Nuar ibus-1.5.15/src/Makefile.in ibus-1.5.15-fixed/src/Makefile.in
+--- ibus-1.5.15/src/Makefile.in	2017-03-06 16:07:18.000000000 +0000
++++ ibus-1.5.15-fixed/src/Makefile.in	2017-03-16 12:17:31.937948913 +0000
+@@ -1365,6 +1365,8 @@
+ 
+ @ENABLE_EMOJI_DICT_TRUE@dicts/emoji-en.dict: emoji-parser
+ @ENABLE_EMOJI_DICT_TRUE@	$(AM_V_at)for f in $(LANG_FILES) ; do \
++@ENABLE_EMOJI_DICT_TRUE@        echo "test $(wildcard $(EMOJI_ANNOTATION_DIR)/*.xml)"; \
++@ENABLE_EMOJI_DICT_TRUE@        echo "test  $(basename $(notdir $(wildcard $(EMOJI_ANNOTATION_DIR)/*.xml)))"; \
+ @ENABLE_EMOJI_DICT_TRUE@	    if test x"$$f" = xen ; then \
+ @ENABLE_EMOJI_DICT_TRUE@	        $(builddir)/emoji-parser \
+ @ENABLE_EMOJI_DICT_TRUE@	            --xml $(EMOJI_ANNOTATION_DIR)/$$f.xml \

@@ -1,0 +1,126 @@
+diff -urN gnome-shell-3.12.2-patched/js/misc/loginManager.js gnome-shell-3.12.2-patched-hibernate/js/misc/loginManager.js
+--- gnome-shell-3.12.2-patched/js/misc/loginManager.js	2014-07-18 10:31:27.437959166 -0400
++++ gnome-shell-3.12.2-patched-hibernate/js/misc/loginManager.js	2014-07-18 10:31:25.820959299 -0400
+@@ -248,6 +248,13 @@
+         }));
+     },
+ 
++    canHibernate: function(asyncCallback) {
++        Mainloop.idle_add(Lang.bind(this, function() {
++            asyncCallback(this._upClient.get_can_hibernate());
++            return false;
++        }));
++    },
++
+     listSessions: function(asyncCallback) {
+         asyncCallback([]);
+     },
+@@ -258,6 +265,12 @@
+         this._upClient.suspend_sync(null);
+     },
+ 
++    hibernate: function() {
++        Main.screenShield.lock(true);
++
++        this._upClient.hibernate_sync(null);
++    },
++
+     inhibit: function(reason, callback) {
+         callback(null);
+     }
+diff -urN gnome-shell-3.12.2-patched/js/ui/status/system.js gnome-shell-3.12.2-patched-hibernate/js/ui/status/system.js
+--- gnome-shell-3.12.2-patched/js/ui/status/system.js	2014-05-06 08:29:28.000000000 -0400
++++ gnome-shell-3.12.2-patched-hibernate/js/ui/status/system.js	2014-07-12 17:50:41.646047395 -0400
+@@ -105,6 +105,7 @@
+         this._loginManager = LoginManager.getLoginManager();
+         this._haveShutdown = true;
+         this._haveSuspend = true;
++        this._haveHibernate = true;
+ 
+         this._userManager = AccountsService.UserManager.get_default();
+         this._user = this._userManager.get_user(GLib.get_user_name());
+@@ -141,6 +142,7 @@
+ 
+                 this._updateHaveShutdown();
+                 this._updateHaveSuspend();
++                this._updateHaveHibernate();
+             }));
+         this._lockdownSettings.connect('changed::' + DISABLE_LOG_OUT_KEY,
+                                        Lang.bind(this, this._updateHaveShutdown));
+@@ -167,8 +169,8 @@
+     _updateActionsVisibility: function() {
+         let visible = (this._settingsAction.visible ||
+                        this._orientationLockAction.visible ||
+-                       this._lockScreenAction.visible ||
+-                       this._altSwitcher.actor.visible);
++                       this._lockScreenAltSwitcher.actor.visible ||
++                       this._powerOffAltSwitcher.actor.visible);
+ 
+         this._actionsItem.actor.visible = visible;
+     },
+@@ -177,6 +179,7 @@
+         this._updateLockScreen();
+         this._updatePowerOff();
+         this._updateSuspend();
++        this._updateHibernate();
+         this._updateMultiUser();
+         this._settingsAction.visible = Main.sessionMode.allowSettings;
+         this._updateActionsVisibility();
+@@ -289,6 +292,22 @@
+         this._updateActionsVisibility();
+     },
+ 
++    _updateHaveHibernate: function() {
++        this._loginManager.canHibernate(Lang.bind(this, function(result) {
++            this._haveHibernate = result;
++            this._updateHibernate();
++        }));
++    },
++
++    _updateHibernate: function() {
++        let disabled = Main.sessionMode.isLocked ||
++                       (Main.sessionMode.isGreeter &&
++                        this._loginScreenSettings.get_boolean(DISABLE_RESTART_KEY));
++        this._hibernateAction.visible = this._haveHibernate && !disabled;
++        this._updateActionsVisibility();
++    },
++
++
+     _createActionButton: function(iconName, accessibleName) {
+         let icon = new St.Button({ reactive: true,
+                                    can_focus: true,
+@@ -344,16 +363,21 @@
+ 
+         this._lockScreenAction = this._createActionButton('changes-prevent-symbolic', _("Lock"));
+         this._lockScreenAction.connect('clicked', Lang.bind(this, this._onLockScreenClicked));
+-        item.actor.add(this._lockScreenAction, { expand: true, x_fill: false });
+ 
+         this._suspendAction = this._createActionButton('media-playback-pause-symbolic', _("Suspend"));
+         this._suspendAction.connect('clicked', Lang.bind(this, this._onSuspendClicked));
+ 
++        this._hibernateAction = this._createActionButton('document-save-as-symbolic', _("Hibernate"));
++        this._hibernateAction.connect('clicked', Lang.bind(this, this._onHibernateClicked));
++
+         this._powerOffAction = this._createActionButton('system-shutdown-symbolic', _("Power Off"));
+         this._powerOffAction.connect('clicked', Lang.bind(this, this._onPowerOffClicked));
+ 
+-        this._altSwitcher = new AltSwitcher(this._powerOffAction, this._suspendAction);
+-        item.actor.add(this._altSwitcher.actor, { expand: true, x_fill: false });
++        this._lockScreenAltSwitcher = new AltSwitcher(this._lockScreenAction, this._suspendAction);
++        item.actor.add(this._lockScreenAltSwitcher.actor, { expand: true, x_fill: false });
++
++        this._powerOffAltSwitcher = new AltSwitcher(this._powerOffAction, this._hibernateAction);
++        item.actor.add(this._powerOffAltSwitcher.actor, { expand: true, x_fill: false });
+ 
+         this._actionsItem = item;
+         this.menu.addMenuItem(item);
+@@ -406,4 +430,9 @@
+         this.menu.itemActivated();
+         this._loginManager.suspend();
+     },
++
++    _onHibernateClicked: function() {
++        this.menu.itemActivated();
++        this._loginManager.hibernate();
++    },
+ });

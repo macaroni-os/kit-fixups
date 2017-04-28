@@ -20,6 +20,7 @@ S=${WORKDIR}
 
 # TODO: check accessibility completeness
 # GDM-3.0 integrates very nicely with GNOME Shell
+# add ntfs and vfat support that is needed for USB mount. # FL-3731
 RDEPEND="
 	gnome-base/gnome-core-libs[cups?]
 	gnome-base/gnome-core-apps[cups?,bluetooth?,cdr?]
@@ -37,6 +38,8 @@ RDEPEND="
 		>=gnome-extra/mousetweaks-3.12.0 )
 	classic? ( gnome-extra/gnome-shell-extensions )
 	extras? ( gnome-base/gnome-extra-apps )
+	sys-fs/dosfstools
+	sys-fs/ntfs3g[ntfsprogs]
 "
 
 DEPEND=""

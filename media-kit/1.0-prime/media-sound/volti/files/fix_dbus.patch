@@ -1,0 +1,54 @@
+diff -ur ./volti-orig/volti-0.2.3/src/alsactrl.py ./volti-new/volti-0.2.3/src/alsactrl.py
+--- ./volti-orig/volti-0.2.3/src/alsactrl.py	2010-12-29 13:11:31.000000000 -0500
++++ ./volti-new/volti-0.2.3/src/alsactrl.py	2017-06-11 22:13:53.623845552 -0400
+@@ -45,7 +45,7 @@
+                 self.reopen(self.card_index, control)
+                 self._check_version()
+             except Exception, err:
+-                log.Error("can't open first available control for card %s\nerror: %s" % (
++                log.Warn("can't open first available control for card %s\nerror: %s" % (
+                     self.get_card_name(), str(err)))
+ 
+     def __del__(self):
+@@ -189,7 +189,12 @@
+     def get_mixers(self, card_index=0):
+         """ Returns mixers list """
+         mixers = []
+-        for mixer in alsa.mixers(card_index):
++        amixers = []
++        try:
++            amixers = alsa.mixers(card_index)
++        except alsa.ALSAAudioError:
++            pass
++        for mixer in amixers:
+             try:
+                 m = alsa.Mixer(control=mixer, cardindex=card_index)
+                 cap = m.volumecap()
+diff -ur ./volti-orig/volti-0.2.3/src/mixer.py ./volti-new/volti-0.2.3/src/mixer.py
+--- ./volti-orig/volti-0.2.3/src/mixer.py	2010-12-29 13:11:31.000000000 -0500
++++ ./volti-new/volti-0.2.3/src/mixer.py	2017-06-11 22:15:03.630844808 -0400
+@@ -139,7 +139,12 @@
+                         self.cp.get("card-%d" % card_index, "mask_control"))
+             except:
+                 self.control_mask[card_index] = 0
+-                for count, mixer in enumerate(alsa.mixers(card_index)):
++                amixers = []
++                try:
++                    amixers = alsa.mixers(card_index)
++                except alsa.ALSAAudioError:
++                    pass
++                for count, mixer in enumerate(amixers):
+                     self.control_mask[card_index] |= (1 << count)
+ 
+             n = 0
+diff -ur ./volti-orig/volti-0.2.3/volti ./volti-new/volti-0.2.3/volti
+--- ./volti-orig/volti-0.2.3/volti	2010-12-13 15:05:06.000000000 -0500
++++ ./volti-new/volti-0.2.3/volti	2017-06-11 22:09:11.228848554 -0400
+@@ -22,7 +22,6 @@
+ 
+ try:
+     import dbus
+-    import dbus._version
+     from dbus.mainloop.glib import DBusGMainLoop
+     assert dbus.version >= (0, 80, 0)
+ except ImportError, AssertionError:

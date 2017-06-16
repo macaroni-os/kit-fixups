@@ -1,0 +1,26 @@
+diff -Naur audacity-minsrc-2.1.3~/src/TrackPanel.cpp audacity-minsrc-2.1.3/src/TrackPanel.cpp
+--- audacity-minsrc-2.1.3~/src/TrackPanel.cpp	2017-03-08 13:15:50.000000000 +0000
++++ audacity-minsrc-2.1.3/src/TrackPanel.cpp	2017-05-13 01:53:22.376967099 +0000
+@@ -3699,12 +3699,12 @@
+          mViewInfo->PositionToTime(mMouseClickX);
+       bool trySnap = false;
+       double clipLeft = 0, clipRight = 0;
+-#ifdef USE_MIDI
+       if (mouseTrack->GetKind() == Track::Wave) {
+          WaveTrack *mtw = (WaveTrack *)mouseTrack;
+          desiredSlideAmount = rint(mtw->GetRate() * desiredSlideAmount) /
+             mtw->GetRate();  // set it to a sample point
+       }
++#ifdef USE_MIDI
+       // Adjust desiredSlideAmount using SnapManager
+       if (mSnapManager && mCapturedClipArray.size()) {
+          trySnap = true;
+@@ -3720,8 +3720,6 @@
+ #else
+       {
+          trySnap = true;
+-         desiredSlideAmount = rint(mouseTrack->GetRate() * desiredSlideAmount) /
+-            mouseTrack->GetRate();  // set it to a sample point
+          if (mSnapManager && mCapturedClip) {
+             clipLeft = mCapturedClip->GetStartTime() + desiredSlideAmount;
+             clipRight = mCapturedClip->GetEndTime() + desiredSlideAmount;

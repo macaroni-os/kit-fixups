@@ -1,0 +1,40 @@
+diff -ur volti-orig/volti-0.2.3/src/mixer.py volti-new/volti-0.2.3/src/mixer.py
+--- volti-orig/volti-0.2.3/src/mixer.py	2010-12-29 13:11:31.000000000 -0500
++++ volti-new/volti-0.2.3/src/mixer.py	2017-06-16 23:31:36.191420382 -0400
+@@ -232,13 +232,15 @@
+         ch, id = self.alsa_channels[card_index][channel]
+         mixer = alsa.Mixer(ch, id, card_index)
+         vol = mixer.getvolume()
++        if len(vol) == 0:
++            return (0, 0)
+         if len(vol) == 1:
+             return (vol[0], vol[0])
+         return (vol[0], vol[1])
+ 
+     def on_select_controls(self, widget=None):
+         card_index = self.notebook.get_current_page()
+-        dialog = SelectControls(self, self.cp, card_index)
++        dialog = SelectControls(self, self.cp, card_index, self.alsa_channels[card_index])
+ 
+     def show_hide_controls(self, card_index):
+         controls = self.card_hbox[card_index].get_children()
+@@ -263,7 +265,7 @@
+ 
+ class SelectControls(gtk.Window):
+     """ Select controls dialog """
+-    def __init__(self, parent=None, cp=None, card_index=0):
++    def __init__(self, parent=None, cp=None, card_index=0, channels=None):
+         gtk.Window.__init__(self)
+         self.connect('destroy', self.close)
+         self.set_title('Select Controls')
+@@ -278,7 +280,9 @@
+         self.cp = cp
+         self.main = parent
+         self.card_index = card_index
+-        self.mixers = alsa.mixers(self.card_index)
++        self.mixers = []
++        for channel, id in channels:
++            self.mixers.append(channel)
+ 
+         try:
+             self.main.control_mask[self.card_index] = int(

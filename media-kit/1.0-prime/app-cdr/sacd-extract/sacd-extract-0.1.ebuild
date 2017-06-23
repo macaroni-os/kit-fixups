@@ -7,7 +7,7 @@ HOMEPAGE=""
 
 DESCRIPTION="Super Audio CD ripping and management tools, including sacd-extract tool."
 HOMEPAGE="https://github.com/hank/sacd-ripper"
-LICENSE="GPL-3"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="*"
 RESTRICT="mirror"
@@ -16,7 +16,6 @@ GITHUB_USER="hank"
 GITHUB_TAG="86fe4ce1ae5971b1e7b5f374eb0cfe0174ba335d"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
-LICENSE="GPLv2+"
 IUSE=""
 
 DEPEND="dev-util/cmake"

@@ -44,6 +44,17 @@ ebuild, xorg-server-1.17.4-r1.ebuild.
 As of April 2, 2017, all known security vulnerabilities in the ``1.17-prime``
 branch have been addressed.
 
+`Freetype security backports`_
+``CVE-2016-10244`` - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10244
+The parse_charstrings function in type1/t1load.c in FreeType 2 before 2.7 does not ensure that a font contains a glyph name, which allows remote attackers to cause a denial of service (heap-based buffer over-read) or possibly have unspecified other impact via a crafted file.
+
+``CVE-2017-8105`` - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-8105
+FreeType 2 before 2017-03-24 has an out-of-bounds write caused by a heap-based buffer overflow related to the t1_decoder_parse_charstrings function in psaux/t1decode.c.
+
+``CVE-2017-8287`` - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-8287
+FreeType 2 before 2017-03-26 has an out-of-bounds write caused by a heap-based buffer overflow related to the t1_builder_close_contour function in psaux/psobjs.c.
+Upstream fixes backported into =media-libs/freetype-2.6.5-r1 ebuild.
+
 ---------------
 Reporting Bugs
 ---------------

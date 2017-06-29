@@ -332,6 +332,7 @@ src_configure() {
 		--with-pkgversion="$branding" \
 		--with-mpfr-include=${S}/mpfr/src \
 		--with-mpfr-lib=${WORKDIR}/objdir/mpfr/src/.libs \
+		MAKEINFO="missing" \
 		$confgcc \
 		|| die "configure fail"
 

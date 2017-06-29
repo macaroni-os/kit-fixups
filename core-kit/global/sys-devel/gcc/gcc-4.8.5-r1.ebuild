@@ -280,6 +280,7 @@ src_configure() {
 		--with-mpfr-include=${S}/mpfr/src \
 		--with-mpfr-lib=${WORKDIR}/objdir/mpfr/src/.libs \
 		$confgcc \
+		MAKEINFO="missing" \
 		|| die "configure fail"
 
 	# The --with-mpfr* lines above are used so that gcc-4.6.4 can find mpfr-3.1.2.

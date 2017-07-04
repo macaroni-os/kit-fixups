@@ -62,28 +62,36 @@ PDEPEND="
 
 REQUIRED_USE="epydoc? ( $(python_gen_useflags 'python2*') )"
 
-#SRC_ARCHIVES="https://dev.gentoo.org/~dolsen/releases/portage"
+SRC_ARCHIVES="https://dev.gentoo.org/~dolsen/releases/portage"
 
-#prefix_src_archives() {
-#	local x y
-#	for x in ${@}; do
-#		for y in ${SRC_ARCHIVES}; do
-#			echo ${y}/${x}
-#		done
-#	done
-#}
+prefix_src_archives() {
+	local x y
+	for x in ${@}; do
+		for y in ${SRC_ARCHIVES}; do
+			echo ${y}/${x}
+		done
+	done
+}
 
 TARBALL_PV=2.3.2
-SRC_URI="mirror://funtoo/${PN}-${TARBALL_PV}.tar.bz2"
-RESTRICT="mirror"
+SRC_URI="mirror://gentoo/${PN}-${TARBALL_PV}.tar.bz2
+	$(prefix_src_archives ${PN}-${TARBALL_PV}.tar.bz2)"
 S=$WORKDIR/portage-$TARBALL_PV
 
 pkg_setup() {
 	use epydoc && DISTUTILS_ALL_SUBPHASE_IMPLS=( python2.7 )
 }
 
-PATCHES=( "${FILESDIR}"/portage-revert-git-sync.patch )
+#The patches fix the following issues, in the following order:
+#FL-3333
+#FL-3687
+#FL-3755
 
+PATCHES=(
+	"${FILESDIR}/${PN}-revert-git-sync.patch"
+	"${FILESDIR}/${PN}-add-sync-branch.patch" 
+	"${FILESDIR}/${PN}-add-ceresia-distfile-mirrors.patch"
+)
 python_prepare_all() {
 	distutils-r1_python_prepare_all
 
@@ -124,13 +132,6 @@ python_prepare_all() {
 		sed -e "s|\(/usr/portage\)|${EPREFIX}\\1|" \
 			-e "s|^\(PORTAGE_TMPDIR=\"\)\(/var/tmp\"\)|\\1${EPREFIX}\\2|" \
 			-i cnf/make.globals || die "sed failed"
-
-		einfo "Adjusting repos.conf ..."
-		sed -e "s|^\(main-repo = \).*|\\1gentoo_prefix|" \
-			-e "s|^\\[gentoo\\]|[gentoo_prefix]|" \
-			-e "s|^\(location = \)\(/usr/portage\)|\\1${EPREFIX}\\2|" \
-			-e "s|^\(sync-uri = \).*|\\1rsync://prefix.gentooexperimental.org/gentoo-portage-prefix|" \
-			-i cnf/repos.conf || die "sed failed"
 
 		einfo "Adding FEATURES=force-prefix to make.globals ..."
 		echo -e '\nFEATURES="${FEATURES} force-prefix"' >> cnf/make.globals \
@@ -179,9 +180,6 @@ python_install() {
 
 python_install_all() {
 
-	insinto /etc/portage/repos.conf
-	doins ${FILESDIR}/gentoo
-
 	distutils-r1_python_install_all
 
 	local targets=()
@@ -202,6 +200,10 @@ python_install_all() {
 		einfo "Moving /usr/bin/${target} to /usr/sbin/${target}"
 		mv "${ED}usr/bin/${target}" "${ED}usr/sbin/${target}" || die "sbin scripts move failed!"
 	done
+}
+
+post_pkg_install() {
+	rm -rf "${ED}/usr/share/portage/config/repos.conf"
 }
 
 pkg_preinst() {
@@ -297,15 +299,4 @@ pkg_postinst() {
 				-exec chown -R portage:portage {} +
 		fi
 	fi
-
-	einfo ""
-	einfo "The 'websync' module has now been properly renamed to 'webrsync'"
-	einfo "Please update your repos.conf/gentoo.conf file if needed."
-	einfo ""
-	einfo "This release of portage removed the new squashfs sync module "
-	einfo "introduced in portage-2.2.19."
-	einfo "Look for it to be released as an installable portage module soon."
-	einfo "This will allow it to develop at it's own pace partially independant"
-	einfo "of portage"
-	einfo ""
 }

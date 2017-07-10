@@ -50,7 +50,6 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~s
 IUSE="afs bashlogger examples mem-scramble +net nls plugins +readline"
 
 DEPEND=">=sys-libs/ncurses-5.2-r2:0=
-	readline? ( >=sys-libs/readline-${READLINE_VER}:0= )
 	nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
 	!<sys-apps/portage-2.1.6.7_p1
@@ -124,7 +123,7 @@ src_configure() {
 	# be safe.
 	# Exact cached version here doesn't really matter as long as it
 	# is at least what's in the DEPEND up above.
-	export ac_cv_rl_version=${READLINE_VER%%_*}
+	# export ac_cv_rl_version=${READLINE_VER%%_*}
 
 	# Force linking with system curses ... the bundled termcap lib
 	# sucks bad compared to ncurses.  For the most part, ncurses

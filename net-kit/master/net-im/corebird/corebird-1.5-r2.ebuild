@@ -38,6 +38,9 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	sed -i -e "/highlighting/d" tests/Makefile.am || die
 	sed -i -e "/manpagedir/s/manpagedir.*/&\/man1/g" data/Makefile.am || die
+	eapply "${FILESDIR}"/${PN}-remove-vala-check.patch
+	eapply "${FILESDIR}"/${PN}-vala-gtk.patch
+	
 	eautoreconf
 	gnome2_src_prepare
 	vala_src_prepare

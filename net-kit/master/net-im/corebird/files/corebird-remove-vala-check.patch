@@ -1,0 +1,27 @@
+diff -Nuar corebird-1.5/configure.ac corebird-1.5-fixed/configure.ac
+--- corebird-1.5/configure.ac	2017-05-02 13:34:40.000000000 +0000
++++ corebird-1.5-fixed/configure.ac	2017-07-05 19:32:17.979540328 +0000
+@@ -82,14 +82,6 @@
+ AC_SUBST(CB_VALA_FLAGS)
+ 
+ 
+-# Check for valac >= 0.34, which binds gtk_popover_popup
+-# as well as if that function exists in gtk+
+-AM_PROG_VALAC([0.34.0], [
+-AC_CHECK_LIB([gtk-3], [gtk_popover_popup],
+-             [CB_VALA_FLAGS="$CB_VALA_FLAGS -D GTK322"],
+-            )
+-])
+-
+ AC_ARG_VAR([GLIB_COMPILE_RESOURCES],[the glib-compile-resources program])
+ AC_PATH_PROG([GLIB_COMPILE_RESOURCES],[glib-compile-resources],[])
+ if test -z "$GLIB_COMPILE_RESOURCES"; then
+@@ -171,7 +163,7 @@
+ echo "
+                 Corebird  $VERSION
+                   Prefix: ${prefix}
+-           Vala Compiler: ${VALAC} ${CB_VALA_FLAGS}
++           Vala Compiler: ${VALAC}
+            valac version: ${VALAC_VERSION}
+               C Compiler: ${CC} ${CFLAGS}
+                Debugging: $enable_debug

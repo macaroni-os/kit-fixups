@@ -1,0 +1,19 @@
+--- a/modules/profile.ego	2017-06-18 00:11:07.760000000 +0000
++++ b/modules/profile.ego	2017-06-18 00:11:04.180000000 +0000
+@@ -2,12 +2,15 @@
+ 
+ import os, sys
+ import portage
++import portage.repository.config
+ import json
+ 
+ # We are currently relying on portage.settings["PORTDIR"] to find the root location of the profile
+ # information.
++#portdir = portage.settings["PORTDIR"]
+ 
+-portdir = portage.settings["PORTDIR"]
++#New method that works with kits:
++portdir = portage.repository.config.load_repository_config(portage.settings).mainRepoLocation()
+ repodir = portdir + "/profiles"
+ egodescfile = repodir + "/profiles.ego.desc"
+ 

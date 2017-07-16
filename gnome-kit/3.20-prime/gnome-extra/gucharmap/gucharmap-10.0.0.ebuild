@@ -16,7 +16,6 @@ IUSE="debug +introspection test vala"
 REQUIRED_USE="vala? ( introspection )"
 
 COMMON_DEPEND="
-	=app-i18n/unicode-data-${PV}*
 	>=dev-libs/glib-2.32:2
 	>=x11-libs/pango-1.2.1[introspection?]
 	>=x11-libs/gtk+-3.16:3[introspection?]
@@ -24,6 +23,7 @@ COMMON_DEPEND="
 	!<gnome-extra/gucharmap-3:0
 "
 DEPEND="${RDEPEND}
+	=app-i18n/unicode-data-${PV}*
 	app-text/yelp-tools
 	dev-util/desktop-file-utils
 	>=dev-util/gtk-doc-am-1

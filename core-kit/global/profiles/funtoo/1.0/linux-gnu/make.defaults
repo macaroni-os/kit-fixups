@@ -30,6 +30,9 @@ COLLISION_IGNORE="${COLLISION_IGNORE} /lib/firmware/*"
 CONFIG_PROTECT="/etc"
 CONFIG_PROTECT_MASK="/etc/env.d /etc/gconf"
 
+# We don't want to remove /etc/portage/ and it's contents.
+UNINSTALL_IGNORE="${UNINSTALL_IGNORE} /etc/portage/*"
+
 # Variables that are set exclusively by the profile
 # and not by user configuration files.
 PROFILE_ONLY_VARIABLES="ARCH ELIBC KERNEL USERLAND"

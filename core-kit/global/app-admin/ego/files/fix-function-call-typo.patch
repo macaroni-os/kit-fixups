@@ -1,0 +1,11 @@
+--- a/modules/profile.ego	2017-07-18 23:19:22.386012029 +0000
++++ b/modules/profile.ego	2017-07-18 23:19:32.842063878 +0000
+@@ -268,7 +268,7 @@
+ 	def write(self):
+ 		if not self.parentfile:
+ 			return
+-		out = self.genProfileString()
++		out = self._genProfileString()
+ 		with open(self.parentfile,"w") as f:
+ 			f.write(out)
+ 

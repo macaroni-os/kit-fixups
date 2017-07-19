@@ -52,13 +52,7 @@ RDEPEND="
 			python2_7 pypy)
 	) )
 	!<app-admin/logrotate-3.8.0"
-PDEPEND="
-	!build? (
-		>=net-misc/rsync-2.6.4
-		userland_GNU? ( >=sys-apps/coreutils-6.4 )
-	)"
-# coreutils-6.4 rdep is for date format in emerge-webrsync #164532
-# NOTE: FEATURES=installsources requires debugedit and rsync
+PDEPEND="app-admin/ego"
 
 REQUIRED_USE="epydoc? ( $(python_gen_useflags 'python2*') )"
 

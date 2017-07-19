@@ -32,3 +32,12 @@ src_install() {
 	dosym ../share/ego/modules/profile.ego /usr/sbin/epro
 	doman ego.1 epro.1
 }
+
+pkg_postinst() {
+	if [ ! -e $ROOT/etc/portage/repos.conf ]; then
+		ln -s /var/git/meta-repo/repos.conf $ROOT/etc/portage/repos.conf
+	fi
+	if [ -e $ROOT/usr/share/portage/config/repos.conf ]; then
+		rm -f $ROOT/usr/share/portage/config/repos.conf
+	fi
+}

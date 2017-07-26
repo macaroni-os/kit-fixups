@@ -4,7 +4,7 @@
 
 EAPI=5
 
-inherit multilib eutils pax-utils
+inherit multilib eutils pax-utils toolchain-enable
 
 RESTRICT="strip"
 FEATURES=${FEATURES/multilib-strict/}
@@ -525,56 +525,5 @@ pkg_postinst() {
 	# hack from gentoo - should probably be handled better:
 	cp "${ROOT}/${DATAPATH}"/c{89,99} "${ROOT}"/usr/bin/ 2>/dev/null
 
-	# Here, we will auto-enable the new compiler if none is currently enabled, or
-	# if this is an _._.x upgrade to an already-installed compiler.
-
-	# One exception is if multislot is enabled in USE, which allows ie. 4.6.9
-	# and 4.6.10 to exist alongside one another. In this case, the user must
-	# enable this compiler manually.
-
-	local do_config="yes"
-	curr_gcc_config=$(env -i ROOT="${ROOT}" gcc-config -c ${CTARGET} 2>/dev/null)
-	if [ -n "$curr_gcc_config" ]; then
-		CURR_GCC_CONFIG_VER="$(gcc-config -S ${curr_gcc_config} | awk '{print $2}')"
-		CURR_MAJOR="${CURR_GCC_CONFIG_VER%%.*}"
-		MAJOR="${GCC_CONFIG_VER%%.*}"
-		if [ "${CURR_MAJOR}" -gt "${MAJOR}" ]; then
-			do_config="yes"
-		elif [ "${CURR_MAJOR}" -lt "${MAJOR}" ]; then
-			do_config="no"
-		else
-			# major versions match -- but if minor version of existing is greater, don't do gcc config
-			CURR_MINOR="${CURR_MAJOR%%.*}"
-			MINOR="${MAJOR%%.*}"
-			if [ "${CURR_MINOR}" -gt "${MINOR}" ]; then
-				do_config="yes"
-			elif [ "${CURR_MINOR}" -lt "${MINOR}" ]; then
-				do_config="no"
-			else
-				# minor versions match -- look at the x.x.Z release to figure out whether to auto-enable
-				CURR_REL="${CURR_MINOR%%.*}"
-				REL="${MINOR%%.}"
-				if [ "${CURR_REL}" -gt "${REL}" ]; then
-					do_config="yes"
-				elif [ "${CURR_REL}" -gt "${REL}" ]; then
-					do_config="no"
-				fi
-			fi
-		fi
-	fi
-
-	if [ "$do_config" == "yes" ]; then
-		gcc-config ${CTARGET}-${GCC_CONFIG_VER}
-	else
-		einfo "This does not appear to be a regular upgrade of gcc, so"
-		einfo "gcc ${GCC_CONFIG_VER} will not be automatically enabled as the"
-		einfo "default system compiler."
-		echo
-		einfo "If you would like to make ${GCC_CONFIG_VER} the default system"
-		einfo "compiler, then perform the following steps as root:"
-		echo
-		einfo "gcc-config ${CTARGET}-${GCC_CONFIG_VER}"
-		einfo "source /etc/profile"
-		echo
-	fi
+	compiler_auto_enable ${PV} ${CTARGET}
 }

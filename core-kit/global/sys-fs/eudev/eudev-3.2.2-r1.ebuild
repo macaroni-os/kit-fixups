@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -11,7 +10,7 @@ GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"
 GITHUB_TAG="v${PV}-funtoo"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 
 DESCRIPTION="Linux dynamic and persistent device naming support (aka userspace devfs)"
 HOMEPAGE="https://github.com/funtoo/eudev"

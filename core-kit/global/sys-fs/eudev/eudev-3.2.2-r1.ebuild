@@ -31,7 +31,6 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.20
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 	)"
 DEPEND="${COMMON_DEPEND}
-	dev-libs/glib
 	dev-util/gperf
 	virtual/os-headers
 	virtual/pkgconfig

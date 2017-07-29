@@ -10,15 +10,15 @@ MY_PV="${MY_PV/rc/RC}"
 MY_P=VirtualBox-${MY_PV}
 DESCRIPTION="VirtualBox kernel modules and user-space tools for Gentoo guests"
 HOMEPAGE="http://www.virtualbox.org/"
-SRC_URI="http://download.virtualbox.org/virtualbox/${MY_PV}/${MY_P}.tar.bz2"
+SRC_URI="http://download.virtualbox.org/virtualbox/${MY_PV}/${MY_P}.tar.bz2
+	https://dev.gentoo.org/~polynomial-c/virtualbox/patchsets/virtualbox-5.1.24-patches-01.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="X"
 
-RDEPEND="X? ( ~x11-drivers/xf86-video-virtualbox-${PV}
-		x11-apps/xrandr
+RDEPEND="X? ( x11-apps/xrandr
 		x11-apps/xrefresh
 		x11-libs/libXmu
 		x11-libs/libX11
@@ -39,15 +39,18 @@ DEPEND="${RDEPEND}
 	sys-power/iasl
 	X? ( x11-proto/renderproto )
 	!X? ( x11-proto/xproto )"
+PDEPEND="X? ( ~x11-drivers/xf86-video-virtualbox-${PV} )"
 
 BUILD_TARGETS="all"
 BUILD_TARGET_ARCH="${ARCH}"
-MODULE_NAMES="vboxguest(misc:${WORKDIR}/vboxguest:${WORKDIR}/vboxguest)
-		vboxsf(misc:${WORKDIR}/vboxsf:${WORKDIR}/vboxsf)"
 
 S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
+	MODULE_NAMES="vboxguest(misc:${WORKDIR}/vboxguest:${WORKDIR}/vboxguest)
+		vboxsf(misc:${WORKDIR}/vboxsf:${WORKDIR}/vboxsf)"
+	use X && MODULE_NAMES+=" vboxvideo(misc:${WORKDIR}/vboxvideo::${WORKDIR}/vboxvideo)"
+
 	linux-mod_pkg_setup
 	BUILD_PARAMS="KERN_DIR=${KV_OUT_DIR} KERNOUT=${KV_OUT_DIR}"
 	enewgroup vboxguest
@@ -89,6 +92,8 @@ src_prepare() {
 
 	# Remove pointless GCC version check
 	sed -e '/^check_gcc$/d' -i configure || die
+
+	eapply "${WORKDIR}/patches"
 
 	eapply_user
 }

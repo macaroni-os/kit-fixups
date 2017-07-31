@@ -2,7 +2,7 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_4 )
 
 inherit multilib python-single-r1 mount-boot
 
@@ -10,7 +10,7 @@ DESCRIPTION="Funtoo Core Boot Framework for global boot loader configuration"
 HOMEPAGE="http://www.funtoo.org/Package:Boot-Update"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 RESTRICT="mirror"
 GITHUB_REPO="boot-update"
 GITHUB_USER="funtoo"
@@ -21,7 +21,7 @@ http://www.memtest.org/download/5.01/memtest86+-5.01.bin.gz"
 IUSE=""
 
 DEPEND="${PYTHON_DEPS}"
-RDEPEND="${DEPEND} >=sys-boot/grub-2.00-r5[binfont]"
+RDEPEND="${DEPEND} >=sys-boot/grub-2.00-r5[binfont] x86? ( sys-firmware/intel-micrococde )"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 src_unpack() {

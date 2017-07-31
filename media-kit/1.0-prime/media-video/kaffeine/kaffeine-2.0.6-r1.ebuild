@@ -55,7 +55,7 @@ src_prepare() {
 		-e "/find_package(KF5DocTools CONFIG REQUIRED)/d" \
 		-e "/kdoctools_install(po)/d" \
 		CMakeLists.txt || die
-	eapply ${FILESDIR}/${PN}-ki18n.patch
+	eapply ${FILESDIR}/${PN}-2.0.6-ki18n.patch
 }
 
 src_configure() {

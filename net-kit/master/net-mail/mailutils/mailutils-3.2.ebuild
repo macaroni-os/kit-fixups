@@ -17,7 +17,6 @@ KEYWORDS="~amd64 ~arm64 ~hppa ~ppc ~x86 ~ppc-macos ~x64-macos ~x86-macos"
 IUSE="berkdb bidi +clients emacs gdbm sasl guile ipv6 kerberos kyotocabinet ldap \
 	mysql nls pam postgres python servers ssl static-libs +threads tcpd \
 	tokyocabinet xemacs"
-REQUIRED_USE="?? ( emacs xemacs )"
 
 RDEPEND="!mail-client/nmh
 	!mail-filter/libsieve
@@ -50,7 +49,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )
-	servers? ( tcpd )"
+	servers? ( tcpd )
+	?? ( emacs xemacs )"
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -76,7 +76,6 @@ src_prepare() {
 src_configure() {
 	append-flags -fno-strict-aliasing
 
-	# maildir is the Gentoo default
 	local emacs
 	if use emacs; then
 		emacs="${EPREFIX}/usr/bin/emacs"
@@ -86,6 +85,7 @@ src_configure() {
 		emacs="no"
 	fi
 
+	# maildir is the Gentoo default
 	econf MU_DEFAULT_SCHEME=maildir \
 		EMACS="${emacs}" \
 		CURSES_LIBS="$($(tc-getPKG_CONFIG) --libs ncurses)" \

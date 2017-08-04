@@ -1,3 +1,4 @@
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -82,12 +83,12 @@ $(printf 'libreoffice_extensions_%s ' ${LO_EXTS})"
 LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
 [[ ${PV} == *9999* ]] || \
-KEYWORDS="*"
+KEYWORDS="amd64 ~arm x86 ~amd64-linux ~x86-linux"
 
 COMMON_DEPEND="${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
-	app-text/hunspell
+	app-text/hunspell:=
 	>=app-text/libabw-0.1.0
 	>=app-text/libebook-0.1
 	>=app-text/libetonyek-0.1
@@ -131,7 +132,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	net-nds/openldap
 	sci-mathematics/lpsolve
 	virtual/jpeg:0
-	x11-libs/cairo[X,-xlib-xcb(-)]
+	x11-libs/cairo[X]
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
@@ -147,7 +148,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 		gnome-extra/evolution-data-server
 	)
 	firebird? ( >=dev-db/firebird-2.5 )
-	gltf? ( media-libs/libgltf )
+	gltf? ( =media-libs/libgltf-0.0* )
 	gnome? ( gnome-base/dconf )
 	gstreamer? (
 		media-libs/gstreamer:1.0
@@ -243,6 +244,9 @@ PATCHES=(
 
 	# not upstreamable stuff
 	"${FILESDIR}/${PN}-5.2-system-pyuno.patch"
+
+	# TODO: upstream
+	"${FILESDIR}/${PN}-5.2.5.1-glibc-2.24.patch"
 )
 
 pkg_pretend() {
@@ -354,6 +358,14 @@ src_prepare() {
 	if use branding; then
 		# hack...
 		mv -v "${WORKDIR}/branding-intro.png" "${S}/icon-themes/galaxy/brand/intro.png" || die
+	fi
+
+	# Don't list pdfimport support in desktop when built with none, bug # 605464
+	if ! use pdfimport; then
+		sed -i \
+			-e ":MimeType: s:application/pdf;::" \
+			-e ":Keywords: s:pdf;::" \
+			sysui/desktop/menus/draw.desktop || die
 	fi
 }
 

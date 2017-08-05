@@ -53,3 +53,10 @@ src_install() {
 	dodoc -r doc/html
 	find "${ED}" \( -name "*.a" -o -name "*.la" \) -delete || die
 }
+
+pkg_postinst() {
+	# reload udev related attributes, so that libinput is functional. #FL-3927
+	udevadm hwdb --update --root="${ROOT%/}"
+}
+
+}

@@ -1,0 +1,395 @@
+# Copyright 1999-2017 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Id: $
+
+inherit config multilib
+
+DESCRIPTION="Manage active PostgreSQL client applications and libraries"
+MAINTAINER="pgsql-bugs@gentoo.org"
+VERSION="2.0"
+
+# We do a lot of things in /usr and it's a bit of a pain to write this
+# constantly.
+USR_PATH="${EROOT%/}/usr"
+
+# This list of files/directories are the symbolic link targets that need to be
+# created when a slot is set.
+#
+# If you change this list, remember to change include_sources in do_set. And,
+# they must be listed in the same order.
+INCLUDE_TARGETS=(
+	"${USR_PATH}"/include/postgresql
+	"${USR_PATH}"/include/libpq-fe.h
+	"${USR_PATH}"/include/pg_config_ext.h
+	"${USR_PATH}"/include/pg_config_manual.h
+	"${USR_PATH}"/include/libpq
+	"${USR_PATH}"/include/postgres_ext.h
+)
+
+active_slot() {
+    # ${USR_PATH}/share/postgresql is a symlink to the active
+    # slot. See if it's there, then find out where it links to.
+	if [[ -h "${USR_PATH}/share/postgresql" ]] ; then
+		canonicalise "${USR_PATH}/share/postgresql" | \
+			sed -re 's#.*([1-9][0-9.]+)$#\1#'
+	else
+		echo "(none)"
+	fi
+}
+
+lib_dir() {
+	local lib_list=$(list_libdirs)
+	if [[ ${lib_list} =~ .*lib64.* && \
+		-n $(ls -d ${USR_PATH}/lib64/postgresql-*/lib64 2> /dev/null) ]] ; then
+		echo "lib64"
+	elif [[ ${lib_list} =~ .*lib32.* && \
+		-n $(ls -d ${USR_PATH}/lib32/postgresql-*/lib32 2> /dev/null) ]] ; then
+		echo "lib32"
+	elif [[ ${lib_list} =~ .*libx32.* && \
+		-n $(ls -d ${USR_PATH}/libx32/postgresql-*/libx32 2> /dev/null) ]] ; then
+		echo "libx32"
+	else
+		echo "lib"
+	fi
+}
+
+### Finder Function ###
+# Takes two arguments:
+#   - Absolute path to directory to search
+#   - Pattern to search for
+finder() {
+	local source_dir=$1
+	local pattern=$2
+
+	# Prevent passed patterns from being globbed
+	# If this module is run in /usr, '-name lib*' ends up globbing 'lib*',
+	# passing to 'find' the pattern '-name lib lib32 lib64' and find interprets
+	# those as path arguments causing failure.
+	set -f
+	find -L "${source_dir}" -maxdepth 1 -mindepth 1 ${pattern}
+	set +f
+}
+
+### Linker Function ###
+# Takes four arguments:
+#   - Full source path (e.g. /usr/lib/postgresql-9.0/lib)
+#   - Pattern to search for
+#   - Full target directory path (e.g. /usr/bin)
+#   - Suffix (Optional) (e.g 84 to make /usr/bin/psql84)
+linker() {
+	local source_dir=$1
+	local pattern=$2
+	local target_dir=$3
+	local suffix=$4
+	local link_source
+	local findings
+	local rel_source
+
+	findings=$(finder "${source_dir}" "${pattern}")
+
+	for link_source in ${findings} ; do
+		local link_target="${target_dir%/}/$(basename ${link_source})${suffix}"
+
+		# For good measure, remove target before creating the symlink
+		[[ -h ${link_target} ]] && rm -f "${link_target}"
+		[[ -e ${link_target} ]] && \
+			die -q "The target '${link_target}' still exists and could not be removed!"
+
+		# Create relative links so that they work both here and inside the new
+		# root if $ROOT is not "/".
+		rel_source=$(relative_name "${link_source}" "${target_dir}")
+		ln -nfs "${rel_source}" "${link_target}" || die -q "Unable to create link!"
+	done
+}
+
+### Get Slots Function ###
+# Find all available slots in the preferred lib_dir() and return them.
+get_slots() {
+	local slot
+	local found_slots
+
+	for slot in $(find "${USR_PATH}/$(lib_dir)/" \
+					   -mindepth 1 -maxdepth 1 -type d -name 'postgresql-*' | \
+						 sed -re 's#.*([1-9][0-9.]+)$#\1#' | sort -n)
+	do
+		# Check that pg_config exists for this slot, otherwise we have
+		# a false positive.
+		[[ -x "${USR_PATH}/$(lib_dir)/postgresql-${slot}/bin/pg_config" ]] && \
+			found_slots+=( ${slot} )
+	done
+
+	echo ${found_slots[@]}
+}
+
+### List Action ###
+describe_list() {
+	echo "List available PostgreSQL slots."
+}
+
+do_list() {
+	if $(is_output_mode brief) ; then
+		echo $(get_slots)
+	else
+		write_list_start "Available PostgreSQL Slots"
+
+		local provider
+		local slot
+		local bindir
+		for slot in $(get_slots) ; do
+			bindir="${USR_PATH}/$(lib_dir)/postgresql-${slot}/bin"
+
+			# The output of `pg_config --version` also includes "PostgreSQL" in
+			# the string, which is a bit redundant.
+			provider=$("${bindir}"/pg_config --version | \
+							  sed 's/[^0-9]*\(.*\)/\1/')
+
+			# Unless a file exists that's controlled by the 'server' use flag,
+			# report that it's client only.
+			[[ -e "${bindir}/postmaster" ]] || provider+=' (Clients Only)'
+
+			case "${slot}" in
+				"$(active_slot)" )
+					write_kv_list_entry \
+						"$(highlight_marker ${slot})" "${provider}";;
+				* )
+					write_kv_list_entry "${slot}" "${provider}";;
+			esac
+		done
+
+		[[ -z "$(get_slots)" ]] && write_warning_msg "No slots available."
+	fi
+}
+
+### Show Action ###
+describe_show() {
+	echo "Show which slot is currently active."
+}
+
+do_show() {
+	echo $(active_slot)
+}
+
+### Show Service Action ###
+# Here for backwards compatibility with ebuilds
+describe_show-service()  {
+	echo "Deprecated. For ebuild use; returns no useful information."
+}
+
+do_show-service() {
+	echo 1
+}
+
+### Set Action ###
+describe_set() {
+	echo "Create symbolic links for PostgreSQL libraries and applications."
+}
+
+do_set() {
+	local slot=$1
+
+	if [[ ! -d ${USR_PATH}/$(lib_dir)/postgresql-${slot} ]] ; then
+		die -q "Not a valid slot."
+	fi
+
+	# If there's an active slot, unset that one first
+	local active_slot=$(active_slot)
+	if [[ "${active_slot}" != "(none)" ]] ; then
+		echo -ne "Unsetting ${active_slot} as default..."
+		do_unset ${active_slot}
+		echo "done."
+	fi
+
+	echo -ne "Setting ${slot} as the default..."
+
+	# Sources for header files
+	# Targets are listed in the global variable INCLUDE_TARGETS.
+	#
+	# If you change this list, you must change the INCLUDE_TARGETS list,
+	# too. And, they must be listed in the same order.
+	local include_sources=(
+		"${USR_PATH}"/include/postgresql-${slot}
+		"${USR_PATH}"/include/postgresql-${slot}/libpq-fe.h
+		"${USR_PATH}"/include/postgresql-${slot}/pg_config_ext.h
+		"${USR_PATH}"/include/postgresql-${slot}/pg_config_manual.h
+		"${USR_PATH}"/include/postgresql-${slot}/libpq
+		"${USR_PATH}"/include/postgresql-${slot}/postgres_ext.h
+	)
+
+	# The linker function cannot accommodate this special purpose.
+	local rel_source
+	local i
+	for (( i=0; $i < ${#include_sources[@]}; i++ )) ; do
+		# Some headers are present only in specific versions of PostgreSQL
+		[[ -e ${include_sources[$i]} ]] || continue
+
+		# Create relative links so that they work both here and inside a new
+		# root if $ROOT is not "/"
+		rel_source=$(relative_name "${include_sources[$i]}" "$(dirname "${INCLUDE_TARGETS[$i]}")")
+
+		ln -nfs "$rel_source" "${INCLUDE_TARGETS[$i]}" || \
+			die -q "Unable to create link! $rel_source -> ${INCLUDE_TARGETS[$i]}"
+	done
+
+	# Link modules to /usr/lib{,32,64}/
+	local x
+	for x in $(list_libdirs) ; do
+		if [[ -d "${USR_PATH}/${x}/postgresql-${slot}/${x}" ]] ; then
+			# 'linker' function doesn't work for linking directories.
+			# Default lib path - create a relative link
+			ln -nfs "postgresql-${slot}/${x}" "${USR_PATH}/${x}/postgresql"
+
+			# Linker works for files
+			linker "${USR_PATH}/${x}/postgresql-${slot}/${x}/" \
+				"-name lib*" "${USR_PATH}/${x}"
+		fi
+	done
+
+	# Link binaries to /usr/bin/
+	linker "${USR_PATH}/$(lib_dir)/postgresql-${slot}/bin/" \
+		"" "${USR_PATH}/bin"
+
+	# Link pkg-config metadata files
+	linker "${USR_PATH}/$(lib_dir)/postgresql-${slot}/$(lib_dir)/pkgconfig/" \
+		"" "${USR_PATH}/share/pkgconfig/"
+
+	# Link man pages
+	local mandir mansec
+	for mandir in "${USR_PATH}"/share/postgresql-${slot}/man/man{1,3,7} ; do
+		mansec=$(basename "${mandir}")
+		linker "${mandir}" "" "${USR_PATH}/share/man/${mansec}"
+	done
+
+	# Default share path - use a relative link here by just specifying the
+	# base name
+	ln -nfs "postgresql-${slot}" "${USR_PATH}/share/postgresql"
+
+	echo "success!"
+}
+
+### Unset Action ###
+describe_unset() {
+	echo "Remove symbolic links."
+}
+
+# Undo everything done by do_set().
+do_unset() {
+	local slot=$1
+	if [[ ${slot} != $(active_slot) ]] ; then
+		echo "Slot already inactive; no work to do."
+		return 0
+	fi
+
+	# Start with some known locations that are, or will contain, symlinks.
+	local paths=(
+		"${INCLUDE_TARGETS[@]}"
+		"${USR_PATH}"/share/man/man{1,3,7}
+		"${USR_PATH}/share/postgresql"
+		"${USR_PATH}/bin"
+		"${USR_PATH}/share/pkgconfig"
+	)
+
+	local lib
+	for lib in $(list_libdirs) ; do
+		# If $libdir is a symlink, it will point to a real lib directory that
+		# will be or has been added in this loop.
+		[[ -h "${USR_PATH}/${lib}" ]] && continue
+
+		# If the $libdir/postgresql symlink exists, then there are certainly
+		# others within that same directory that must be cleaned up.
+		if [[ -h "${USR_PATH}/${lib}/postgresql" ]] ; then
+			paths+=( "${USR_PATH}/${lib}" )
+		fi
+	done
+
+	local l path
+	for path in "${paths[@]}" ; do
+		# If path is a link that belongs to the slot in question, it can be
+		# removed without invoking find.
+		if [[ -h "${path}" && \
+					$(canonicalise "${path}") == *postgresql-${slot}* ]] ; then
+			rm "${path}" || write_warning_msg "Couldn't remove: ${path}"
+			continue
+		fi
+
+		# If path is a real directory, symlinks need to be found within it.
+		for l in $(find "${path}" -mindepth 1 -maxdepth 1 -type l) ; do
+			# Skip the slot specific links (e.g., psql96) in /usr/bin and
+			# /usr/share/man as they're managed by their ebuilds
+			[[ ${l} == ${USR_PATH}/bin/*${slot/.} ]] && continue
+			[[ ${l} == ${USR_PATH}/share/man/man?/*${slot/.}* ]] && continue
+
+			# Get the file path that the link is pointing to. If it has the
+			# string "postgresql-${slot}" somewhere in it, then it's a link that
+			# needs to be removed.
+			if [[ $(canonicalise "${l}") == *postgresql-${slot}* ]] ; then
+				rm "${l}" || write_warning_msg "Couldn't remove: ${l}"
+			fi
+		done
+	done
+}
+
+### Update Action ###
+describe_update() {
+	echo "Refreshes all symbolic links managed by this module"
+}
+
+do_update() {
+	## ANTIQUITY CLEAN UP ##
+	#
+	# Older versions of this module generated state and environment files of
+	# some sort or another. They're useless now and are just a waste of space.
+
+	# Environment files that have been generated by older ebuilds and
+	# previous versions of this module serve no purpose now.
+	rm -f "${EROOT%/}"/etc/env.d/50postgresql*
+
+	local etc_path="${EROOT%/}/etc/eselect/postgresql"
+	if [[ -d ${etc_path} ]] ; then
+		# Remove some files outright as they're entirely useless now.
+		#   ${etc_path}/active: Contents was the active slot (e.g.,
+		#       9.5), or it was a symlink to another file that was then
+		#       canonicalised and parsed to get the active slot
+		#   ${etc_path}/service: Told the initscript which slot to
+		#       start. We now have separate scripts for each slot
+		#   ${etc_path}/active.links*: Contained a list of symlinks
+		#       created. We now search the known directories for the
+		#       symlinks as only this module manage them.
+		local f
+		for f in "${etc_path}"/active* "${etc_path}/service" ; do
+			if [[ -e "${f}" ]] ; then
+				rm "${f}" || write_warning_msg "Can't remove: '${f}'"
+			fi
+		done
+
+		local unused_files
+		unused_file=( $(find "${etc_path}" -type f -not -name '.keep*') )
+		if [[ -n "${unused_file[@]}" ]] ; then
+			write_warning_msg "You have unused files that should be removed:"
+			for f in ${unused_file[@]} ; do
+				write_warning_msg $f
+			done
+		else
+			echo "It should be safe for you to remove '${etc_path}'"
+		fi
+	fi
+	## End Antiquity Clean Up
+
+	local active_slot=$(active_slot)
+	local slots=($(get_slots))
+
+	if [[ ${slots[@]} =~ ${active_slot} ]] ; then
+		# If active_slot is in the slots list, set it again as the installation
+		# may have changed.
+		do_set ${active_slot}
+	elif [[ ${#slots[@]} -ne 0 ]] ; then
+		# If $slots is not empty and active_slot is not in the list, set the
+		# highest slot available.
+		do_set ${slots[-1]}
+	elif [[ ${active_slot} != "(none)" ]] ; then
+		# If slots is empty, but active_slot still has a value, an unset must
+		# happen as the links are now pointing to nothing.
+		do_unset ${active_slot}
+	else
+		echo "Apparently, I have nothing to do."
+	fi
+}

@@ -58,5 +58,3 @@ pkg_postinst() {
 	# reload udev related attributes, so that libinput is functional. #FL-3927
 	udevadm hwdb --update --root="${ROOT%/}"
 }
-
-}

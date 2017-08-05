@@ -21,7 +21,7 @@ http://www.memtest.org/download/5.01/memtest86+-5.01.bin.gz"
 IUSE=""
 
 DEPEND="${PYTHON_DEPS}"
-RDEPEND="${DEPEND} >=sys-boot/grub-2.00-r5[binfont] x86? ( sys-firmware/intel-micrococde )"
+RDEPEND="${DEPEND} >=sys-boot/grub-2.00-r5[binfont] x86? ( sys-firmware/intel-microcode )"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 src_unpack() {

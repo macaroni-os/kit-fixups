@@ -12,7 +12,7 @@ KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~spa
 IUSE=""
 
 RDEPEND="app-admin/eselect"
-
+S=${WORKDIR}
 # All dev-db/postgresql ebuilds from 10.0 on are well supported. Earlier
 # ebuilds may present some quality of life issues.
 PDEPEND="

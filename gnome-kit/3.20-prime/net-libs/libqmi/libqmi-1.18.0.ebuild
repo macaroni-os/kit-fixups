@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -23,6 +22,7 @@ RDEPEND=">=dev-libs/glib-2.32
 	mbim? ( >=net-libs/libmbim-1.14.0 )"
 DEPEND="${RDEPEND}
 	doc? ( dev-util/gtk-doc )
+	virtual/libgudev
 	virtual/pkgconfig"
 [[ ${PV} == "9999" ]] && DEPEND+=" dev-util/gtk-doc" #469214
 

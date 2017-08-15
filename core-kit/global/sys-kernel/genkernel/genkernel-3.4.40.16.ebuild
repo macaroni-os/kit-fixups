@@ -38,7 +38,7 @@ then
 	inherit git-2 bash-completion-r1 eutils
 	S="${WORKDIR}/${PN}"
 	SRC_URI="${COMMON_URI}"
-	KEYWORDS="*"
+	KEYWORDS=""
 else
 	inherit bash-completion-r1 eutils
 	SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz

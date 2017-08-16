@@ -7,7 +7,7 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE=""
 RESTRICT="mirror"
 GITHUB_REPO="$PN"

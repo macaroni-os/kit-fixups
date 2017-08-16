@@ -8,7 +8,7 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
+IUSE="zsh-completion"
 RESTRICT="mirror"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"
@@ -31,6 +31,11 @@ src_install() {
 	dobin $S/ego
 	dosym ../share/ego/modules/profile.ego /usr/sbin/epro
 	doman ego.1 epro.1
+
+	if use zsh-completion; then
+		insinto /usr/share/zsh/site-functions
+		doins contrib/completion/zsh/_ego
+	fi
 }
 
 pkg_postinst() {

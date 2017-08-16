@@ -16,7 +16,7 @@ GITHUB_TAG="${PV}"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 DEPEND=""
-RDEPEND="=dev-lang/python-3*"
+RDEPEND="=dev-lang/python-3* dev-python/appi:0/0.1"
 
 src_unpack() {
 	unpack ${A}

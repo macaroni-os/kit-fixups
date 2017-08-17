@@ -22,6 +22,7 @@ CDEPEND="
 	>=x11-apps/rgb-1.0.3
 	>=x11-apps/xauth-1.0.3
 	x11-apps/xkbcomp
+	!>=x11-drivers/xf86-input-evdev-2.10
 	>=x11-libs/libdrm-2.4.46
 	>=x11-libs/libpciaccess-0.12.901
 	>=x11-libs/libXau-1.0.4

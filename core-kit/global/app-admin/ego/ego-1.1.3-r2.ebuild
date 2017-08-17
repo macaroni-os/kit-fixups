@@ -12,7 +12,7 @@ IUSE="zsh-completion"
 RESTRICT="mirror"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"
-GITHUB_TAG="${PV}"
+GITHUB_TAG="${PVR}"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 DEPEND=""

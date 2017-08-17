@@ -7,8 +7,8 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
-IUSE=""
+KEYWORDS="*"
+IUSE="zsh-completion"
 RESTRICT="mirror"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"
@@ -16,7 +16,7 @@ GITHUB_TAG="${PV}"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 DEPEND=""
-RDEPEND="=dev-lang/python-3*"
+RDEPEND="=dev-lang/python-3* dev-python/appi:0/0.1"
 
 src_unpack() {
 	unpack ${A}
@@ -31,6 +31,11 @@ src_install() {
 	dobin $S/ego
 	dosym ../share/ego/modules/profile.ego /usr/sbin/epro
 	doman ego.1 epro.1
+
+	if use zsh-completion; then
+		insinto /usr/share/zsh/site-functions
+		doins contrib/completion/zsh/_ego
+	fi
 }
 
 pkg_postinst() {

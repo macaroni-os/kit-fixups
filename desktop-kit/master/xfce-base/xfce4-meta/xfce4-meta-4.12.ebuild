@@ -24,7 +24,7 @@ RDEPEND=">=x11-themes/gtk-engines-xfce-3:0
 	terminal? ( >=x11-terms/xfce4-terminal-0.6.3 )
 	ristretto? ( media-gfx/ristretto )
 	tumbler? ( xfce-extra/tumbler )
-	mixer? ( xfce-extra/xfce4-mixer )
+	mixer? ( xfce4-pulseaudio-plugin )
 	xfburn? ( app-cdr/xfburn )
 	!minimal? (
 		media-fonts/dejavu

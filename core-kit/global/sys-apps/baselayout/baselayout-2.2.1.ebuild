@@ -164,11 +164,9 @@ src_install() {
 	keepdir /usr/local/sbin
 	keepdir /usr/local/share
 	keepdir /usr/local/share/doc
-
 	keepdir /usr/local/share/man
-	dosym /usr/share/man /usr/local/share/man
-
 	keepdir /usr/local/src
+	
 	keepdir /usr/sbin
 	keepdir /usr/share/doc
 	keepdir /usr/share/info

@@ -4,9 +4,6 @@ mail-client/mutt tokyocabinet -berkdb -gdbm
 # QA-473: enable text USE for app-text/xmlto
 app-text/xmlto text
 
-# FL-2672: set python_single_target_python3.3 in gnome-music.
-media-sound/gnome-music python_single_target_python3_3 -python_single_target_python3_4
-
 # FL-2625: enable virt-network in libvirt to ease networking setup
 app-emulation/libvirt virt-network
 
@@ -21,9 +18,6 @@ media-video/mjpegtools -v4l
 
 # FL-1437
 media-video/ffmpeg threads
-
-# FL-1867, enable python single target for intel-gpu-utils
-x11-apps/intel-gpu-tools python_single_target_python3_3
 
 # FL-1808, enable xft USE in rxvt-unicode by default:
 x11-terms/rxvt-unicode xft

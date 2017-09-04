@@ -14,5 +14,5 @@ SLOT="0"
 KEYWORDS="*"
 IUSE=""
 
-DEPEND=""
+DEPEND="dev-python/setuptools[$PYTHON_USEDEP]"
 RDEPEND=""

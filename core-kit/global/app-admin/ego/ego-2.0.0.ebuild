@@ -40,7 +40,8 @@ src_install() {
 	dosym ego /usr/bin/epro
 	dosym ego /usr/bin/edoc
 	doman ego.1 epro.1
-
+	insinto /etc
+	doins $FILESDIR/ego.conf
 	if use zsh-completion; then
 		insinto /usr/share/zsh/site-functions
 		doins contrib/completion/zsh/_ego

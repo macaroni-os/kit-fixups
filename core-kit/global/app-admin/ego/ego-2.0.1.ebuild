@@ -55,4 +55,5 @@ pkg_postinst() {
 	if [ -e $ROOT/usr/share/portage/config/repos.conf ]; then
 		rm -f $ROOT/usr/share/portage/config/repos.conf
 	fi
+	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
 }

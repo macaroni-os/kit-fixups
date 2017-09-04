@@ -35,10 +35,10 @@ src_install() {
 	insinto /usr/share/ego/modules-info
 	doins $S/modules-info/*
 	insinto /usr/share/ego/python
-	doins $$/python/*.py
+	doins $S/python/*.py
 	dobin $S/ego
-	dosym ego /usr/sbin/epro
-	dosym ego /usr/sbin/edoc
+	dosym ego /usr/bin/epro
+	dosym ego /usr/bin/edoc
 	doman ego.1 epro.1
 
 	if use zsh-completion; then

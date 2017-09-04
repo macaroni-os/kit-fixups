@@ -15,9 +15,9 @@ S_PV="$(replace_version_separator 3 '_')"
 AT_x86="jdk-${MY_PV}-linux-i586.tar.gz"
 AT_amd64="jdk-${MY_PV}-linux-x64.tar.gz"
 #AT_arm_hflt="jdk-${MY_PV}-linux-arm-vfp-hflt.tar.gz"
-AT_arm_hflt="jdk-7u60-linux-arm-vfp-hflt.tar.gz"
+#AT_arm_hflt="jdk-7u60-linux-arm-vfp-hflt.tar.gz"
 #AT_arm_sflt="jdk-${MY_PV}-linux-arm-vfp-sflt.tar.gz"
-AT_arm_sflt="jdk-7u60-linux-arm-vfp-sflt.tar.gz"
+#AT_arm_sflt="jdk-7u60-linux-arm-vfp-sflt.tar.gz"
 
 FXDEMOS_linux="javafx_samples-${FX_VERSION}-linux.zip"
 
@@ -26,7 +26,7 @@ FXDEMOS_linux="javafx_samples-${FX_VERSION}-linux.zip"
 #DEMOS_arm_hflt="jdk-${MY_PV}-linux-arm-vfp-hflt-demos.tar.gz"
 #DEMOS_arm_hflt="jdk-7u60-linux-arm-vfp-hflt-demos.tar.gz"
 #DEMOS_arm_sflt="jdk-${MY_PV}-linux-arm-vfp-sflt-demos.tar.gz"
-DEMOS_arm_sflt="jdk-7u60-linux-arm-vfp-sflt-demos.tar.gz"
+#DEMOS_arm_sflt="jdk-7u60-linux-arm-vfp-sflt-demos.tar.gz"
 
 JCE_DIR="UnlimitedJCEPolicy"
 JCE_FILE="${JCE_DIR}JDK7.zip"
@@ -37,7 +37,6 @@ MIR_URI="mirror://funtoo/oracle-java"
 SRC_URI="
 	amd64? ( ${MIR_URI}/${AT_amd64} )
 	x86? ( ${MIR_URI}/${AT_x86} )
-	arm? ( ${MIR_URI}/${AT_arm_sflt} ${MIR_URI}/${AT_arm_hflt} )
 	jce? ( ${MIR_URI}/${JCE_FILE} )"
 
 LICENSE="Oracle-BCLA-JavaSE"
@@ -70,43 +69,9 @@ DEPEND="${COMMON_DEP}
 
 S="${WORKDIR}"/jdk${S_PV}
 
-check_tarballs_available() {
-	local uri=$1; shift
-	local dl= unavailable=
-	for dl in "${@}"; do
-		[[ ! -f "${DISTDIR}/${dl}" ]] && unavailable+=" ${dl}"
-	done
-
-	if [[ -n "${unavailable}" ]]; then
-		if [[ -z ${_check_tarballs_available_once} ]]; then
-			einfo
-			einfo "Oracle requires you to download the needed files manually after"
-			einfo "accepting their license through a javascript capable web browser."
-			einfo
-			_check_tarballs_available_once=1
-		fi
-		einfo "Download the following files:"
-		for dl in ${unavailable}; do
-			einfo "  ${dl}"
-		done
-		einfo "at '${uri}'"
-		einfo "and move them to '${DISTDIR}'"
-		einfo
-	fi
-}
-
 src_unpack() {
-	# Special case for ARM soft VS hard float.
-	if use arm ; then
-		if [[ ${CHOST} == *-hardfloat-* ]] ; then
-			unpack jdk-${MY_PV}-linux-arm-vfp-hflt.tar.gz
-		else
-			unpack jdk-${MY_PV}-linux-arm-vfp-sflt.tar.gz
-		fi
 		use jce && unpack ${JCE_FILE}
-	else
 		default
-	fi
 }
 
 src_prepare() {
@@ -169,7 +134,6 @@ src_install() {
 		cp -p src.zip "${ddest}" || die
 	fi
 
-	if use !arm && use !x86-macos && use !x64-macos ; then
 		# Install desktop file for the Java Control Panel.
 		# Using ${PN}-${SLOT} to prevent file collision with jre and or
 		# other slots.  make_desktop_entry can't be used as ${P} would
@@ -184,7 +148,6 @@ src_install() {
 			jre/lib/desktop/applications/sun_java.desktop \
 			> "${T}"/jcontrol-${PN}-${SLOT}.desktop || die
 		domenu "${T}"/jcontrol-${PN}-${SLOT}.desktop
-	fi
 
 	# Prune all fontconfig files so libfontconfig will be used and only install
 	# a Gentoo specific one if fontconfig is disabled.
@@ -203,9 +166,6 @@ src_install() {
 	# see bug #207282
 	einfo "Creating the Class Data Sharing archives"
 	case ${ARCH} in
-		arm|ia64)
-			${ddest}/bin/java -client -Xshare:dump || die
-			;;
 		x86)
 			${ddest}/bin/java -client -Xshare:dump || die
 			# limit heap size for large memory on x86 #467518
@@ -219,32 +179,6 @@ src_install() {
 
 	# Remove empty dirs we might have copied
 	find "${D}" -type d -empty -exec rmdir -v {} + || die
-
-	if use x86-macos || use x64-macos ; then
-		# fix misc install_name issues
-		pushd "${ddest}"/jre/lib > /dev/null || die
-		local lib needed nlib npath
-		for lib in \
-				libJObjC libdecora-sse libglass libjavafx-{font,iio} \
-				libjfxmedia libjfxwebkit libprism-es2 ;
-		do
-			lib=${lib}.dylib
-			einfo "Fixing self-reference of ${lib}"
-			install_name_tool \
-				-id "${EPREFIX}${dest}/jre/lib/${lib}" \
-				"${lib}"
-		done
-		popd > /dev/null
-		for nlib in jdk1{5,6} ; do
-			install_name_tool -change \
-				/usr/lib/libgcc_s_ppc64.1.dylib \
-				$($(tc-getCC) -print-file-name=libgcc_s_ppc64.1.dylib) \
-				"${ddest}"/lib/visualvm/profiler/lib/deployed/${nlib}/mac/libprofilerinterface.jnilib
-			install_name_tool -id \
-				"${EPREFIX}${dest}"/lib/visualvm/profiler/lib/deployed/${nlib}/mac/libprofilerinterface.jnilib \
-				"${ddest}"/lib/visualvm/profiler/lib/deployed/${nlib}/mac/libprofilerinterface.jnilib
-		done
-	fi
 
 	set_java_env
 	java-vm_revdep-mask

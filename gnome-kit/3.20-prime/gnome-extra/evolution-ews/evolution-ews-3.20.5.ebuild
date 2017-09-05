@@ -18,8 +18,8 @@ RDEPEND="
 	>=dev-libs/glib-2.40:2
 	dev-libs/libical:0=
 	>=dev-libs/libxml2-2
-	>=gnome-extra/evolution-data-server-${PV}:0=
-	>=mail-client/evolution-${PV}:2.0
+	>=gnome-extra/evolution-data-server-3.20.5
+	>=mail-client/evolution-3.20.5
 	>=net-libs/libsoup-2.42:2.4
 	>=x11-libs/gtk+-3:3
 "

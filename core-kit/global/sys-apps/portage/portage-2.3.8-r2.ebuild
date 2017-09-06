@@ -76,7 +76,7 @@ SRC_URI="mirror://gentoo/${PN}-${TARBALL_PV}.tar.bz2
 pkg_setup() {
 	if use fast; then
 	PATCHES+=( 
-		"${FILESDIR}/${PN}-2.3.8-fast.patch" 
+		"${FILESDIR}/${PN}-2.3.8-fast-1.1.patch" 
 	)
 	fi
 }

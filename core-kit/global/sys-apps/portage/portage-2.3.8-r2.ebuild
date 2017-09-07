@@ -2,11 +2,8 @@
 
 EAPI=5
 
-PYTHON_COMPAT=(
-	pypy
-	python3_4 python3_5 python3_6
-	python2_7
-)
+PYTHON_COMPAT=( python3_4 python3_5 python3_6 )
+
 PYTHON_REQ_USE='bzip2(+),threads(+)'
 
 inherit python-single-r1
@@ -19,7 +16,7 @@ KEYWORDS=""
 SLOT="0"
 IUSE="build doc +fast +ipc linguas_ru selinux xattr"
 
-DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
+DEPEND="
 	>=app-arch/tar-1.27
 	>=sys-apps/sed-4.0.5 sys-devel/patch
 	doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 )"
@@ -42,21 +39,15 @@ RDEPEND="
 	elibc_musl? ( >=sys-apps/sandbox-2.2 )
 	elibc_uclibc? ( >=sys-apps/sandbox-2.2 )
 	>=app-misc/pax-utils-0.1.17
-	selinux? ( >=sys-libs/libselinux-2.0.94[python,${PYTHON_USEDEP}] )
-	xattr? ( kernel_linux? (
-		>=sys-apps/install-xattr-0.3
-		$(python_gen_cond_dep 'dev-python/pyxattr[${PYTHON_USEDEP}]' \
-			python2_7 pypy)
-	) )
+	selinux? ( >=sys-libs/libselinux-2.0.94[python] )
+	xattr? ( >=sys-apps/install-xattr-0.3 )
 	!<app-admin/logrotate-3.8.0"
 PDEPEND="
 	!build? (
 		>=net-misc/rsync-2.6.4
 		userland_GNU? ( >=sys-apps/coreutils-6.4 )
 	)
-	>=app-admin/ego-1.1.3-r3"
-# coreutils-6.4 rdep is for date format in emerge-webrsync #164532
-# NOTE: FEATURES=installsources requires debugedit and rsync
+	>=app-admin/ego-2.0.7"
 
 SRC_ARCHIVES="https://dev.gentoo.org/~zmedico/portage/archives"
 

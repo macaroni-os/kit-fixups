@@ -21,9 +21,12 @@ LICENSE="MIT"
 SLOT="0"
 IUSE="test"
 
-RDEPEND="
-"
-DEPEND="${RDEPEND}
+# at least one core dev-python ebuild that uses setuptools also uses pkg-config to
+# locate various things. So it is prudent to ensure that pkg-config is installed
+# along with setuptools.
+
+RDEPEND="virtual/pkgconfig"
+DEPEND="
 	app-arch/unzip
 	test? (
 		dev-python/pip[${PYTHON_USEDEP}]

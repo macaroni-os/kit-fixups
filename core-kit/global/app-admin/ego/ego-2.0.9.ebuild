@@ -56,4 +56,7 @@ pkg_postinst() {
 		rm -f $ROOT/usr/share/portage/config/repos.conf
 	fi
 	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
+	if [ "$ROOT" = "/" ]; then
+	    /usr/bin/epro update
+	fi
 }

@@ -6,7 +6,6 @@ PYTHON_COMPAT=( python2_7 )
 VALA_USE_DEPEND="vapigen"
 # Vapigen is needed for the vala binding
 # Valac is needed when building from git for the engine
-UPSTREAM_VER=
 
 inherit autotools bash-completion-r1 eutils flag-o-matic gnome2-utils multilib python-single-r1 readme.gentoo-r1 vala virtualx
 
@@ -26,12 +25,12 @@ REQUIRED_USE="
 		${PYTHON_REQUIRED_USE}
 		|| ( deprecated ( gtk3 introspection ) ) )" #342903
 
-[[ -n ${UPSTREAM_VER} ]] && \
-	UPSTRAM_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P}-upstream-patches-${UPSTREAM_VER}.tar.xz"
+#[[ -n ${UPSTREAM_VER} ]] && \
+#	UPSTRAM_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P}-upstream-patches-${UPSTREAM_VER}.tar.xz"
 
-SRC_URI="https://github.com/ibus/ibus/releases/download/${PV}/${P}.tar.gz
-	${UPSTRAM_PATCHSET_URI} https://github.com/Ranks/emojione/archive/${EMOJIONE_TAG}.tar.gz -> emojione-${EMOJIONE_TAG}.tar.gz
-	https://github.com/fujiwarat/cldr-emoji-annotation/archive/${CLDR_EMOJIONE_TAG}.tar.gz -> cldr-emoji-annotation-${CLDR_EMOJIONE_TAG}.tar.gz"
+SRC_URI="http://build.funtoo.org/distfiles/${P}.tar.gz
+https://github.com/Ranks/emojione/archive/${EMOJIONE_TAG}.tar.gz -> emojione-${EMOJIONE_TAG}.tar.gz
+https://github.com/fujiwarat/cldr-emoji-annotation/archive/${CLDR_EMOJIONE_TAG}.tar.gz -> cldr-emoji-annotation-${CLDR_EMOJIONE_TAG}.tar.gz"
 
 COMMON_DEPEND="
 	>=dev-libs/glib-2.26:2

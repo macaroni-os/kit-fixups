@@ -87,7 +87,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.8-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.8-backtrack-is-incredibly-slow.patch"
 	"${FILESDIR}/${PN}-2.3.8-fast-1.3.patch"
-	"${FILESDIR}/${PN}-2.3.8-repo-search.patch"
+	"${FILESDIR}/${PN}-2.3.8-repo-search-1.1.patch"
 )
 
 python_prepare_all() {

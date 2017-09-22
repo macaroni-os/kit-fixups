@@ -1,16 +1,3 @@
-# FL-3722: FL-3671: add genkernel, masked for testing
-=sys-kernel/genkernel-3.4.40.15
-
-# keep masks for boost-1.63:
->=dev-util/boost-build-1.63.0
->=dev-libs/boost-1.63.0
-
-# mask debian-sources for testing:
->=sys-kernel/debian-sources-4.9.2
-
-# mask blender-2.78. needs boost-1.62 unmask, python-3.5 unmask and hence various manual python_targets changes, which is untested. let's keep it masked for awhile.
->=media-gfx/blender-2.78
-
 # mask screen-4.4.0 for testing
 >=app-misc/screen-4.4.0
 

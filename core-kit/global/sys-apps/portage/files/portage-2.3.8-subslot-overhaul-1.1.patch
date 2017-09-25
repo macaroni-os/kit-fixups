@@ -1,6 +1,6 @@
 diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-subslot-overhaul/pym/_emerge/depgraph.py
---- portage-2.3.8/pym/_emerge/depgraph.py	2017-09-25 01:58:44.513366667 -0600
-+++ portage-2.3.8-subslot-overhaul/pym/_emerge/depgraph.py	2017-09-25 01:59:13.385367629 -0600
+--- portage-2.3.8/pym/_emerge/depgraph.py	2017-09-25 02:07:03.829383310 -0600
++++ portage-2.3.8-subslot-overhaul/pym/_emerge/depgraph.py	2017-09-25 02:07:48.273384791 -0600
 @@ -207,10 +207,12 @@
  			self.rebuild_if_unbuilt)
  
@@ -1834,3 +1834,138 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-subslot-overhaul/p
  		return True
  
  	def _iter_virt_update(self, pkg, atom_set):
+diff -urN portage-2.3.8/pym/_emerge/resolver/package_tracker.py portage-2.3.8-subslot-overhaul/pym/_emerge/resolver/package_tracker.py
+--- portage-2.3.8/pym/_emerge/resolver/package_tracker.py	2017-08-16 18:06:53.000000000 -0600
++++ portage-2.3.8-subslot-overhaul/pym/_emerge/resolver/package_tracker.py	2017-09-25 02:08:03.745385307 -0600
+@@ -7,6 +7,7 @@
+ import collections
+ 
+ import portage
++from _emerge.Package import Package
+ portage.proxy.lazyimport.lazyimport(globals(),
+ 	'portage.dep:Atom,match_from_list',
+ 	'portage.util:cmp_sort_key',
+@@ -44,11 +45,12 @@
+ 		3) Packages that block each other.
+ 	"""
+ 
+-	def __init__(self, soname_deps=False):
++	def __init__(self, dynamic_config, soname_deps=False):
+ 		"""
+ 		@param soname_deps: enable soname match support
+ 		@type soname_deps: bool
+ 		"""
++		self._dynamic_config = dynamic_config
+ 		# Mapping from package keys to set of packages.
+ 		self._cp_pkg_map = collections.defaultdict(list)
+ 		self._cp_vdb_pkg_map = collections.defaultdict(list)
+@@ -89,7 +91,7 @@
+ 
+ 		self._replacing[pkg] = []
+ 		for installed in self._cp_vdb_pkg_map.get(cp_key, []):
+-			if installed.slot_atom == pkg.slot_atom or \
++			if installed.slot == pkg.slot or \
+ 				installed.cpv == pkg.cpv:
+ 				self._replacing[pkg].append(installed)
+ 				self._replaced_by[installed].append(pkg)
+@@ -127,6 +129,44 @@
+ 
+ 		self._match_cache.pop(cp_key, None)
+ 
++	def get_subslot_rebuilds(self):
++
++		# self._multi_pkgs contains an indexed list of cp_keys for which we have multiple packages that are installed
++		# or wanting to be installed. We look at this list to identify the scenario where we are doing sub-slot upgrades.
++		# Once we detect a sub-slot upgrade, we query the digraph to find nodes dependent on us, and these are packages
++		# that should be rebuilt. We return this information to the caller:
++
++		subslot_rebuilds = []
++
++		# subslot_rebuilds has list elements in the following format:
++		# ( new_subslot_package_to_be_merged_triggering_rebuild, package_that_needs_rebuilding )
++
++		for cp_key in self._multi_pkgs:
++				# for each multi-package:
++				slot_map = collections.defaultdict(list)
++				for pkg in self._cp_pkg_map[cp_key]:
++					slot_key = pkg.root, pkg.slot
++					slot_map[slot_key].append(pkg)
++
++				for slot_key in slot_map:
++					slot_pkgs = slot_map[slot_key]
++					if len(slot_pkgs) > 1:
++						# we have two packages occupying the same slot. Potential slot rebuild
++						to_be_merged = [x for x in slot_pkgs if not x.installed]
++						if len(to_be_merged) == 1:
++							desired_sub_slot = to_be_merged[0].sub_slot
++							for pkg in slot_pkgs:
++								if not pkg.installed:
++									continue
++								if desired_sub_slot != pkg.sub_slot:
++									# we will need to rebuild parents of this dep since they don't have the right sub-slot
++									for node in self._dynamic_config.digraph.parent_nodes(pkg):
++										if isinstance(node, Package):
++											subslot_rebuilds.append((to_be_merged[0],node))
++
++		return subslot_rebuilds
++
++
+ 	def remove_pkg(self, pkg):
+ 		"""
+ 		Removes the package from the tracker.
+@@ -188,6 +228,7 @@
+ 			return iter(self._provides_index.get((root, atom), []))
+ 
+ 		cp_key = root, atom.cp
++
+ 		cache_key = root, atom, atom.unevaluated_atom, installed
+ 		try:
+ 			return iter(self._match_cache.get(cp_key, {})[cache_key])
+@@ -209,7 +250,7 @@
+ 
+ 	def conflicts(self):
+ 		"""
+-		Iterates over the curently existing conflicts.
++		Iterates over the currently existing conflicts.
+ 		"""
+ 		if self._conflicts_cache is None:
+ 			self._conflicts_cache = []
+@@ -220,21 +261,29 @@
+ 				slot_map = collections.defaultdict(list)
+ 				cpv_map = collections.defaultdict(list)
+ 				for pkg in self._cp_pkg_map[cp_key]:
+-					slot_key = pkg.root, pkg.slot_atom
++					slot_key = pkg.root, pkg.slot
+ 					cpv_key = pkg.root, pkg.cpv
+ 					slot_map[slot_key].append(pkg)
+ 					cpv_map[cpv_key].append(pkg)
+ 
+-				# Slot conflicts.
++				# Slot conflicts. The code below is designed to find very obvious slot conflicts -- multiple packages
++				# with the same slot that are installed in the same root.
++
+ 				for slot_key in slot_map:
+ 					slot_pkgs = slot_map[slot_key]
+-					if len(slot_pkgs) > 1:
+-						self._conflicts_cache.append(PackageConflict(
+-							description = "slot conflict",
+-							root = slot_key[0],
+-							atom = slot_key[1],
+-							pkgs = tuple(slot_pkgs),
+-							))
++					key_count = collections.defaultdict(list)
++					for pkg in slot_pkgs:
++						# we index like this (with sub-slot) which causes the code to ignore sub-slot changes,
++						# which are not truly package conflicts and are handled elsewhere...
++						key_count[pkg.slot+"/"+pkg.sub_slot].append(pkg)
++					for slotsub, pkglist in key_count.items():
++						if len(pkglist) > 1:
++							self._conflicts_cache.append(PackageConflict(
++								description = "slot conflict",
++								root = slot_key[0],
++								atom = slot_key[1],
++								pkgs = tuple(pkglist),
++ 							))
+ 
+ 				# CPV conflicts.
+ 				for cpv_key in cpv_map:

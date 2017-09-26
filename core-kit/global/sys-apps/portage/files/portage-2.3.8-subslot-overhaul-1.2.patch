@@ -1,6 +1,6 @@
 diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/_emerge/depgraph.py
---- portage-2.3.8/pym/_emerge/depgraph.py	2017-09-25 23:00:34.627890244 -0600
-+++ portage-2.3.8-slot-overhaul/pym/_emerge/depgraph.py	2017-09-25 22:39:01.267847134 -0600
+--- portage-2.3.8/pym/_emerge/depgraph.py	2017-09-25 23:17:07.063923324 -0600
++++ portage-2.3.8-slot-overhaul/pym/_emerge/depgraph.py	2017-09-25 23:16:31.867922151 -0600
 @@ -1,6 +1,36 @@
  # Copyright 1999-2017 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -38,15 +38,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  from __future__ import division, print_function, unicode_literals
  
  import collections
-@@ -83,7 +113,6 @@
- from _emerge.resolver.backtracking import Backtracker, BacktrackParameter
- from _emerge.resolver.DbapiProvidesIndex import DbapiProvidesIndex
- from _emerge.resolver.package_tracker import PackageTracker, PackageTrackerDbapiWrapper
--from _emerge.resolver.slot_collision import slot_conflict_handler
- from _emerge.resolver.circular_dependency import circular_dependency_handler
- from _emerge.resolver.output import Display, format_unmatched_atom
- 
-@@ -207,10 +236,12 @@
+@@ -207,10 +237,12 @@
  			self.rebuild_if_unbuilt)
  
  	def add(self, dep_pkg, dep):
@@ -59,7 +51,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		if (self.rebuild and isinstance(parent, Package) and
  			parent.built and priority.buildtime and
  			isinstance(dep_pkg, Package) and
-@@ -220,6 +251,7 @@
+@@ -220,6 +252,7 @@
  
  	def _needs_rebuild(self, dep_pkg):
  		"""Check whether packages that depend on dep_pkg need to be rebuilt."""
@@ -67,7 +59,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		dep_root_slot = (dep_pkg.root, dep_pkg.slot_atom)
  		if dep_pkg.built or dep_root_slot in self.orig_rebuild_list:
  			return False
-@@ -248,9 +280,11 @@
+@@ -248,9 +281,11 @@
  		return True
  
  	def _trigger_rebuild(self, parent, build_deps):
@@ -79,7 +71,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		trees = self._frozen_config.trees
  		reinstall = False
  		for slot_atom, dep_pkg in build_deps.items():
-@@ -451,7 +485,7 @@
+@@ -451,7 +486,7 @@
  		self._complete_mode = False
  		self._slot_operator_deps = {}
  		self._installed_sonames = collections.defaultdict(list)
@@ -88,7 +80,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			soname_deps=depgraph._frozen_config.soname_deps_enabled)
  		# Track missed updates caused by solved conflicts.
  		self._conflict_missed_update = collections.defaultdict(dict)
-@@ -476,7 +510,7 @@
+@@ -476,7 +511,7 @@
  			self._graph_trees[myroot]["graph_db"]   = graph_tree.dbapi
  			self._graph_trees[myroot]["graph"]      = self.digraph
  			self._graph_trees[myroot]["want_update_pkg"] = depgraph._want_update_pkg
@@ -97,7 +89,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			def filtered_tree():
  				pass
  			filtered_tree.dbapi = _dep_check_composite_db(depgraph, myroot)
-@@ -504,7 +538,6 @@
+@@ -504,7 +539,6 @@
  			self._filtered_trees[myroot]["vartree"] = \
  				depgraph._frozen_config.trees[myroot]["vartree"]
  			self._filtered_trees[myroot]["want_update_pkg"] = depgraph._want_update_pkg
@@ -105,7 +97,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  
  			dbs = []
  			#               (db, pkg_type, built, installed, db_keys)
-@@ -663,187 +696,6 @@
+@@ -663,187 +697,6 @@
  		if self._frozen_config.spinner:
  			self._frozen_config.spinner.update()
  
@@ -293,7 +285,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _show_abi_rebuild_info(self):
  
  		if not self._forced_rebuilds:
-@@ -1214,1003 +1066,6 @@
+@@ -1214,1003 +1067,6 @@
  			writemsg(line + '\n', noiselevel=-1)
  		writemsg('\n', noiselevel=-1)
  
@@ -1297,7 +1289,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _in_blocker_conflict(self, pkg):
  		"""
  		Check if pkg is involved in a blocker conflict. This method
-@@ -2241,21 +1096,6 @@
+@@ -2241,21 +1097,6 @@
  
  		return False
  
@@ -1319,7 +1311,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _select_atoms_probe(self, root, pkg):
  		selected_atoms = []
  		use = self._pkg_use_enabled(pkg)
-@@ -2377,45 +1217,6 @@
+@@ -2377,45 +1218,6 @@
  
  		return None
  
@@ -1365,7 +1357,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _reinstall_for_flags(self, pkg, forced_flags,
  		orig_use, orig_iuse, cur_use, cur_iuse):
  		"""Return a set of flags that trigger reinstallation, or None if there
-@@ -2593,13 +1394,14 @@
+@@ -2593,13 +1395,14 @@
  
  			# Slot collision nodes are not allowed to block other packages since
  			# blocker validation is only able to account for one package per slot.
@@ -1384,7 +1376,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  				if dep.parent.onlydeps:
  					# It's safe to ignore blockers if the
  					# parent is an --onlydeps node.
-@@ -2615,17 +1417,15 @@
+@@ -2615,17 +1418,15 @@
  		if dep.child is None:
  			dep_pkg, existing_node = self._select_package(dep.root, dep.atom,
  				onlydeps=dep.onlydeps)
@@ -1403,7 +1395,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  				return 1
  
  			# NOTE: For removal actions, allow_unsatisfied is always
-@@ -2636,87 +1436,7 @@
+@@ -2636,87 +1437,7 @@
  				self._dynamic_config._unsatisfied_deps.append(dep)
  				return 1
  
@@ -1491,7 +1483,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		self._rebuild.add(dep_pkg, dep)
  
  		ignore = dep.collapsed_priority.ignored and \
-@@ -2725,25 +1445,12 @@
+@@ -2725,25 +1446,12 @@
  			return 0
  		return 1
  
@@ -1518,7 +1510,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		debug = "--debug" in self._frozen_config.myopts
  		myparent = None
  		priority = None
-@@ -2785,7 +1492,6 @@
+@@ -2785,7 +1493,6 @@
  		# Ensure that the dependencies of the same package
  		# are never processed more than once.
  		previously_added = pkg in self._dynamic_config.digraph
@@ -1526,7 +1518,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		pkgsettings = self._frozen_config.pkgsettings[pkg.root]
  
  		arg_atoms = None
-@@ -2815,7 +1521,6 @@
+@@ -2815,7 +1522,6 @@
  
  				if arg_atoms:
  					for parent_atom in arg_atoms:
@@ -1534,7 +1526,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  						self._add_parent_atom(pkg, parent_atom)
  
  				atom = dep.atom
-@@ -2830,39 +1535,6 @@
+@@ -2830,39 +1536,6 @@
  
  		if not pkg.onlydeps:
  
@@ -1574,7 +1566,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			if not previously_added:
  				self._dynamic_config._package_tracker.add_pkg(pkg)
  				self._dynamic_config._filtered_trees[pkg.root]["porttree"].dbapi._clear_cache()
-@@ -2902,6 +1574,7 @@
+@@ -2902,6 +1575,7 @@
  			if dep.atom is not None and dep.parent is not None:
  				self._add_parent_atom(pkg, (dep.parent, dep.atom))
  
@@ -1582,7 +1574,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		if arg_atoms:
  			for parent_atom in arg_atoms:
  				parent, atom = parent_atom
-@@ -2985,65 +1658,6 @@
+@@ -2985,65 +1659,6 @@
  					return False
  		return True
  
@@ -1648,7 +1640,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _check_masks(self, pkg):
  
  		slot_key = (pkg.root, pkg.slot_atom)
-@@ -3257,6 +1871,7 @@
+@@ -3257,6 +1872,7 @@
  		Don't ignore dependencies if pkg has a slot operator dependency on the child
  		and the child has changed slot/sub_slot.
  		"""
@@ -1656,7 +1648,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		if not mypriority.satisfied:
  			return False
  		slot_operator_rebuild = False
-@@ -3324,7 +1939,6 @@
+@@ -3324,7 +1940,6 @@
  		reinstall_atoms = self._frozen_config.reinstall_atoms
  		for atom, child in self._minimize_children(
  			pkg, dep_priority, root_config, selected_atoms[pkg]):
@@ -1664,7 +1656,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			# If this was a specially generated virtual atom
  			# from dep_check, map it back to the original, in
  			# order to avoid distortion in places like display
-@@ -3364,7 +1978,6 @@
+@@ -3364,7 +1979,6 @@
  			dep = Dependency(atom=atom,
  				blocker=atom.blocker, child=child, depth=depth, parent=pkg,
  				priority=mypriority, root=dep_root)
@@ -1672,7 +1664,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			# In some cases, dep_check will return deps that shouldn't
  			# be processed any further, so they are identified and
  			# discarded here. Try to discard as few as possible since
-@@ -3511,11 +2124,11 @@
+@@ -3511,11 +2125,11 @@
  		"""
  		Selects packages to satisfy the given atoms, and minimizes the
  		number of selected packages. This serves to identify and eliminate
@@ -1686,7 +1678,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  
  		for atom in atoms:
  			if atom.blocker:
-@@ -3526,80 +2139,8 @@
+@@ -3526,80 +2140,8 @@
  			if dep_pkg is None:
  				yield (atom, None)
  				continue
@@ -1769,7 +1761,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  
  	def _queue_disjunctive_deps(self, pkg, dep_root, dep_priority, dep_struct):
  		"""
-@@ -4097,7 +2638,7 @@
+@@ -4097,7 +2639,7 @@
  
  	def _resolve(self, myfavorites):
  		"""Given self._dynamic_config._initial_arg_list, pull in the root nodes,
@@ -1778,7 +1770,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		a favorite list."""
  		debug = "--debug" in self._frozen_config.myopts
  		onlydeps = "--onlydeps" in self._frozen_config.myopts
-@@ -4485,6 +3026,7 @@
+@@ -4485,6 +3027,7 @@
  		added to the graph or those that are installed and have
  		not been scheduled for replacement.
  		"""
@@ -1786,7 +1778,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		kwargs["trees"] = self._dynamic_config._graph_trees
  		return self._select_atoms_highest_available(*pargs, **kwargs)
  
-@@ -4493,6 +3035,9 @@
+@@ -4493,6 +3036,9 @@
  		"""This will raise InvalidDependString if necessary. If trees is
  		None then self._dynamic_config._filtered_trees is used."""
  
@@ -1796,7 +1788,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		if not isinstance(depstring, list):
  			eapi = None
  			is_valid_flag = None
-@@ -4618,7 +3163,6 @@
+@@ -4618,7 +3164,6 @@
  							# when necessary.
  							continue
  						node_stack.append((child_node, node, child_atom))
@@ -1804,7 +1796,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		return selected_atoms
  
  	def _expand_virt_from_graph(self, root, atom):
-@@ -5449,9 +3993,9 @@
+@@ -5449,9 +3994,9 @@
  		# the newly built package still won't have the expected slot.
  		# Therefore, assume that such SLOT dependencies are already
  		# satisfied rather than forcing a rebuild.
@@ -1815,7 +1807,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			if "remove" in self._dynamic_config.myparams:
  				# We need to search the portdbapi, which is not in our
  				# normal dbs list, in order to find the real SLOT.
-@@ -5555,6 +4099,13 @@
+@@ -5555,6 +4100,13 @@
  
  	def _want_update_pkg(self, parent, pkg):
  
@@ -1829,7 +1821,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		if self._frozen_config.excluded_pkgs.findAtomForPackage(pkg,
  			modified_use=self._pkg_use_enabled(pkg)):
  			return False
-@@ -5767,7 +4318,6 @@
+@@ -5767,7 +4319,6 @@
  			# This ensures that we can fall back to an installed package
  			# that may have been rejected in the autounmask path above.
  			return default_selection
@@ -1837,7 +1829,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		return pkg, existing
  
  	def _pkg_visibility_check(self, pkg, autounmask_level=None, trust_graph=True):
-@@ -5964,6 +4514,9 @@
+@@ -5964,6 +4515,9 @@
  		return new_use
  
  	def _wrapped_select_pkg_highest_available_imp(self, root, atom, onlydeps=False, autounmask_level=None, parent=None):
@@ -1847,7 +1839,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		root_config = self._frozen_config.roots[root]
  		pkgsettings = self._frozen_config.pkgsettings[root]
  		dbs = self._dynamic_config._filtered_trees[root]["dbs"]
-@@ -6007,7 +4560,7 @@
+@@ -6007,7 +4561,7 @@
  		# represented by the found_available_arg flag.
  		found_available_arg = False
  		packages_with_invalid_use_config = []
@@ -1856,7 +1848,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			if existing_node:
  				break
  			for db, pkg_type, built, installed, db_keys in dbs:
-@@ -6031,6 +4584,7 @@
+@@ -6031,6 +4585,7 @@
  					if pkg in self._dynamic_config._runtime_pkg_mask:
  						# The package has been masked by the backtracking logic
  						continue
@@ -1864,7 +1856,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  					root_slot = (pkg.root, pkg.slot_atom)
  					if pkg.built and root_slot in self._rebuild.rebuild_list:
  						continue
-@@ -6223,7 +4777,8 @@
+@@ -6223,7 +4778,8 @@
  					# from this repo are ignored, so this so the loop
  					# will always end with a break statement below
  					# this point.
@@ -1874,7 +1866,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  						# Use reversed iteration in order to get
  						# descending order here, so that the highest
  						# version involved in a slot conflict is
-@@ -6352,12 +4907,6 @@
+@@ -6352,12 +4908,6 @@
  		if not matched_packages:
  			return None, None
  
@@ -1887,7 +1879,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		# Filter out any old-style virtual matches if they are
  		# mixed with new-style virtual matches.
  		cp = atom_cp
-@@ -6700,20 +5249,6 @@
+@@ -6700,20 +5250,6 @@
  				# (possibly solvable via backtracking).
  				pkg = matches[-1] # highest match
  
@@ -1908,7 +1900,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  				if not self._add_pkg(pkg, dep):
  					return 0
  				if not self._create_graph(allow_unsatisfied=True):
-@@ -7155,7 +5690,25 @@
+@@ -7155,7 +5691,25 @@
  				DeprecationWarning, stacklevel=2)
  
  		while self._dynamic_config._serialized_tasks_cache is None:
@@ -1935,7 +1927,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			try:
  				self._dynamic_config._serialized_tasks_cache, self._dynamic_config._scheduler_graph = \
  					self._serialize_tasks()
-@@ -7271,19 +5824,6 @@
+@@ -7271,19 +5825,6 @@
  			self._frozen_config._trees_orig[
  				root_config.root]["root_config"] = root_config
  
@@ -1955,7 +1947,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  	def _serialize_tasks(self):
  
  		debug = "--debug" in self._frozen_config.myopts
-@@ -8654,8 +7194,7 @@
+@@ -8654,8 +7195,7 @@
  		if not unresolved_conflicts:
  			self._show_missed_update()
  
@@ -1965,7 +1957,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  			self._show_abi_rebuild_info()
  
  		self._show_ignored_binaries()
-@@ -9155,23 +7694,6 @@
+@@ -9155,23 +7695,6 @@
  				# are more likely to be useful.
  				return True
  
@@ -1989,7 +1981,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		return False
  
  	def _have_autounmask_changes(self):
-@@ -9251,76 +7773,9 @@
+@@ -9251,76 +7774,9 @@
  		atom_set = InternalPackageSet(initial_atoms=(atom,))
  		ret = []
  		pkg, existing = self._depgraph._select_package(self._root, atom)
@@ -2066,7 +2058,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		self._match_cache[cache_key] = ret
  		for pkg in ret:
  			self._cpv_pkg_map[pkg.cpv] = pkg
-@@ -9360,42 +7815,6 @@
+@@ -9360,42 +7816,6 @@
  				# for bug #526160.
  				return False
  
@@ -2109,7 +2101,7 @@ diff -urN portage-2.3.8/pym/_emerge/depgraph.py portage-2.3.8-slot-overhaul/pym/
  		return True
  
  	def _iter_virt_update(self, pkg, atom_set):
-@@ -9544,50 +7963,14 @@
+@@ -9544,50 +7964,14 @@
  
  		mydepgraph = depgraph(settings, trees, myopts, myparams, spinner,
  			frozen_config=frozen_config,

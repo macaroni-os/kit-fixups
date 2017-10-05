@@ -59,4 +59,9 @@ pkg_postinst() {
 	if [ "$ROOT" = "/" ]; then
 	    /usr/bin/epro update
 	fi
+	# Temporary fix due to older versions of ego setting some root ownerships
+	# under /var/git/meta-repo. This fix was introduced in version 2.0.13 and
+	# can be removed in January 2018 when we can assume it was applied to the
+	# vast majority of Funtoo stations.
+	chown -R portage:portage $ROOT/var/git/meta-repo
 }

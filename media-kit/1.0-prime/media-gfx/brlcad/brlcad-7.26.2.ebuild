@@ -103,4 +103,4 @@ src_install() {
 
 	dosym /opt/brlcad/bin/mged /usr/bin/mged
 	dosym /opt/brlcad/bin/mged /usr/bin/brlcad
-
+}

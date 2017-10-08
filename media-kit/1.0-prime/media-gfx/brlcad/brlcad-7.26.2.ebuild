@@ -2,7 +2,7 @@
 
 EAPI=5
 
-inherit cmake-utils eutils java-pkg-2 flag-o-matic
+inherit cmake-utils eutils flag-o-matic
 
 DESCRIPTION="Constructive solid geometry modeling system"
 HOMEPAGE="http://brlcad.org/"
@@ -15,17 +15,16 @@ IUSE="benchmarks debug doc examples opengl smp"
 
 RESTRICT="mirror"
 
-RDEPEND="media-libs/libpng
+RDEPEND="
+	dev-libs/expat
+	media-libs/fontconfig
+	media-libs/libpng
+	media-libs/urt
 	sys-libs/zlib
 	>=sci-libs/tnt-3
 	sci-libs/jama
-	=dev-lang/tcl-8.5*
-	=dev-lang/tk-8.5*
-	dev-tcltk/iwidgets
-	dev-tcltk/tkimg
-	dev-tcltk/tkpng
 	sys-libs/libtermcap-compat
-	media-libs/urt
+	x11-libs/libdrm
 	x11-libs/libXt
 	x11-libs/libXi
 	"
@@ -33,22 +32,15 @@ RDEPEND="media-libs/libpng
 DEPEND="${RDEPEND}
 	sys-devel/bison
 	sys-devel/flex
-	dev-tcltk/tktable
 	>=virtual/jdk-1.5
 	doc? (
 		dev-libs/libxslt
 		app-doc/doxygen
 	)"
-BRLCAD_DIR="${EPREFIX}/usr/${PN}"
-
-src_prepare() {
-	epatch "${FILESDIR}"/${P}-cmake.patch
-	cmake-utils_src_prepare
-}
+BRLCAD_DIR="/opt/${PN}"
 
 src_configure() {
-filter-flags -std=c++0x
-append-ldflags $(no-as-needed)
+	append-cflags "-w"
 	if use debug; then
 		CMAKE_BUILD_TYPE=Debug
 		else
@@ -58,15 +50,17 @@ append-ldflags $(no-as-needed)
 		-DCMAKE_INSTALL_PREFIX="${BRLCAD_DIR}"
 		-DBRLCAD_ENABLE_STRICT=OFF
 		-DBRLCAD-ENABLE_COMPILER_WARNINGS=OFF
-		-DBRLCAD_FLAGS_OPTIMIZATION=ON
+		-DBRLCAD_FLAGS_OPTIMIZATION=OFF
+		-DBRLCAD_BUILD_STATIC_LIBS=OFF 
 		-DBRLCAD_ENABLE_X11=ON
+		-DBRLCAD_BUNDLED_LIBS=ON
 		)
 
 			# use flag triggered options
 	if use debug; then
-		mycmakeargs += "-DCMAKE_BUILD_TYPE=Debug"
+		mycmakeargs+=( "-DCMAKE_BUILD_TYPE=Debug" )
 	else
-		mycmakeargs += "-DCMAKE_BUILD_TYPE=Release"
+		mycmakeargs+=( "-DCMAKE_BUILD_TYPE=Release" )
 	fi
 	mycmakeargs+=(
 		$(cmake-utils_use opengl BRLCAD_ENABLE_OPENGL)
@@ -107,6 +101,6 @@ src_install() {
 	insinto /usr/share/applications
 	doins ${FILESDIR}/${PN}.desktop
 
-	dosym /usr/brlcad/bin/mged /usr/bin/brlcad
-	dosym /usr/brlcad/bin/mged /usr/bin/mged
-}
+	dosym /opt/brlcad/bin/mged /usr/bin/mged
+	dosym /opt/brlcad/bin/mged /usr/bin/brlcad
+

@@ -10,7 +10,8 @@ to be a part of the Funtoo Linux kits system.
 
 The ``1.17-prime`` branch of xorg-kit is the initial, stable curated branch of xorg for Funtoo. By 'curated', we mean
 that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and will
-be continuing to maintain.
+be continuing to maintain. ``1.19-prime`` is also available.
+
 
 The ``-prime`` suffix indicates that we consider this branch to be production-quality, enterprise class stability and
 will be only incorporating bug fixes for specific issues and security backports. We will *not* be bumping versions of
@@ -24,12 +25,10 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
-`X.org October 4, 2017 Security Advisory`_
-The X.Org Foundation today published fixes for CVE-2017-13721 & CVE-2017-13723
-as part of the xorg-server 1.19.4 release.
-Funtoo Linux has backported fixes for these issues from xorg-server-1.19.4 into xorg-server-1.17.4-r2 ebuild.
+`X.org October 4, 2017 Security Advisory`_ The X.Org Foundation today published fixes for CVE-2017-13721 &
+CVE-2017-13723 as part of the xorg-server 1.19.4 release. Funtoo Linux has backported fixes for these issues from
+xorg-server-1.19.4 into xorg-server-1.17.4-r2 ebuild.
 https://lists.x.org/archives/xorg-announce/2017-October/002809.html
-
 
 `X.org October 4, 2016 Security Advisory`_ notes a number of packages that do not perform sufficient validation of input
 data. The ``1.17-prime`` branch is not using any versions of packages affected by these issues.

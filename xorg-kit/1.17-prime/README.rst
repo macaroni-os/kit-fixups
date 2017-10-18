@@ -28,7 +28,6 @@ Security Fixes
 `X.org October 4, 2017 Security Advisory`_ The X.Org Foundation today published fixes for CVE-2017-13721 &
 CVE-2017-13723 as part of the xorg-server 1.19.4 release. Funtoo Linux has backported fixes for these issues from
 xorg-server-1.19.4 into xorg-server-1.17.4-r2 ebuild.
-https://lists.x.org/archives/xorg-announce/2017-October/002809.html
 
 `X.org October 4, 2016 Security Advisory`_ notes a number of packages that do not perform sufficient validation of input
 data. The ``1.17-prime`` branch is not using any versions of packages affected by these issues.
@@ -40,7 +39,9 @@ xorg-server-1.19.2 and integrated them into a new ebuild, xorg-server-1.17.4-r1.
 
 As of April 2, 2017, all known security vulnerabilities in the ``1.17-prime`` branch have been addressed.
 
-`Freetype security backports`_
+---------------------------
+Freetype Security Backports
+---------------------------
 
 ``CVE-2016-10244`` - https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10244 The parse_charstrings function in
 type1/t1load.c in FreeType 2 before 2.7 does not ensure that a font contains a glyph name, which allows remote attackers
@@ -63,5 +64,6 @@ Thank you! :)
 
 .. _X41 D-Sec GmbH: https://www.x41-dsec.de/lab/advisories/x41-2017-001-xorg/
 .. _X.org October 4, 2016 Security Advisory: https://www.x.org/wiki/Development/Security/Advisory-2016-10-04/
+.. _X.org October 4, 2017 Security Advisory: https://lists.x.org/archives/xorg-announce/2017-October/002809.html
 
 

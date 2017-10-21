@@ -245,9 +245,6 @@ pkg_postinst() {
 		ewarn "git repositories.  There have been too many problems and"
 		ewarn "performance issues.  See bugs 552814, 559008"
 	fi
-	ewarn "Don't worry! --"
-	ewarn "Funtoo's downgrade to Portage-2.3.8 is intentional. We are syncing with upstream versions."
-	echo
 	if [ ! -d $ROOT/var/cache/portage ]; then
 		echo
 		ewarn "SOMEWHAT IMPORTANT:"

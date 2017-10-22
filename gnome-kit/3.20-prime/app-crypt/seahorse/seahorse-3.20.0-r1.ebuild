@@ -1,7 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-GNOME2_EAUTORECONF="yes"
 inherit gnome2
 
 DESCRIPTION="A GNOME application for managing encryption keys"
@@ -45,7 +44,8 @@ src_prepare() {
 	sed -e '/CFLAGS="$CFLAGS -g/d' \
 		-e '/CFLAGS="$CFLAGS -O0/d' \
 		-i configure.ac configure || die "sed 1 failed"
-	eapply "${FILESDIR}"/${PN}-3.20.0-gnupg-2.2.patch
+	sed -e 's/GNUPG_ACCEPTED="2.0.12 2.1.4"/GNUPG_ACCEPTED="2.0.12 2.1.4 2.2.0"/g' \
+		-i configure.ac configure || die "sed failed"
 	gnome2_src_prepare
 }
 

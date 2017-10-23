@@ -1,0 +1,58 @@
+From 308e0361236e571ce4ec7f402e2921527448fc58 Mon Sep 17 00:00:00 2001
+From: Viktor Odintsev <ninetls@xfce.org>
+Date: Sat, 21 Oct 2017 08:39:19 +0000
+Subject: [PATCH] Fix deprecation methods usage for GTK <= 3.20
+
+---
+ panel-plugin/notification-plugin.c | 5 +++++
+ xfce4-notifyd/xfce-notify-daemon.c | 4 ++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/panel-plugin/notification-plugin.c b/panel-plugin/notification-plugin.c
+index 4d6412f..bb7b9ba 100644
+--- a/panel-plugin/notification-plugin.c
++++ b/panel-plugin/notification-plugin.c
+@@ -81,6 +81,7 @@ void
+ notification_plugin_popup_menu (NotificationPlugin *notification_plugin)
+ {
+   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (notification_plugin->button), TRUE);
++#if GTK_CHECK_VERSION (3, 22, 0)
+   gtk_menu_popup_at_widget (GTK_MENU (notification_plugin->menu),
+                             notification_plugin->button,
+                             xfce_panel_plugin_get_orientation (notification_plugin->plugin) == GTK_ORIENTATION_VERTICAL
+@@ -88,6 +89,10 @@ notification_plugin_popup_menu (NotificationPlugin *notification_plugin)
+                             xfce_panel_plugin_get_orientation (notification_plugin->plugin) == GTK_ORIENTATION_VERTICAL
+                             ? GDK_GRAVITY_EAST : GDK_GRAVITY_SOUTH,
+                             NULL);
++#else
++  gtk_menu_popup (GTK_MENU (notification_plugin->menu), NULL, NULL,
++                  xfce_panel_plugin_position_menu, notification_plugin, 0, 0);
++#endif
+   xfce_panel_plugin_register_menu (notification_plugin->plugin,
+                                    GTK_MENU (notification_plugin->menu));
+ }
+diff --git a/xfce4-notifyd/xfce-notify-daemon.c b/xfce4-notifyd/xfce-notify-daemon.c
+index e5ff963..0d547d0 100644
+--- a/xfce4-notifyd/xfce-notify-daemon.c
++++ b/xfce4-notifyd/xfce-notify-daemon.c
+@@ -216,7 +216,7 @@ xfce_notify_daemon_get_primary_monitor (GdkScreen *screen)
+ 
+     return xfce_notify_daemon_get_monitor_index (display, monitor);
+ #else
+-    return gdk_screen_get_primary_monitor(widget_screen);
++    return gdk_screen_get_primary_monitor (screen);
+ #endif
+ }
+ 
+@@ -231,7 +231,7 @@ xfce_notify_daemon_get_monitor_at_point (GdkScreen *screen,
+ 
+     return xfce_notify_daemon_get_monitor_index (display, monitor);
+ #else
+-    return gdk_screen_get_monitor_at_point(widget_screen);
++    return gdk_screen_get_monitor_at_point (screen, x, y);
+ #endif
+ }
+ 
+-- 
+2.7.4
+

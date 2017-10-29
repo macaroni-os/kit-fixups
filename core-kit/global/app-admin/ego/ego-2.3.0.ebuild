@@ -35,7 +35,8 @@ src_install() {
 	insinto /usr/share/ego/modules-info
 	doins $S/modules-info/*
 	insinto /usr/share/ego/python
-	doins $S/python/*.py
+	doins -r $S/python/*
+	rm -rf $D/usr/share/ego/python/test
 	dobin $S/ego
 	dosym ego /usr/bin/epro
 	dosym ego /usr/bin/edoc
@@ -57,7 +58,7 @@ pkg_postinst() {
 	fi
 	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
 	if [ "$ROOT" = "/" ]; then
-	    /usr/bin/epro update
+		/usr/bin/epro update
 	fi
 	# Temporary fix due to older versions of ego setting some root ownerships
 	# under /var/git/meta-repo. This fix was introduced in version 2.0.13 and

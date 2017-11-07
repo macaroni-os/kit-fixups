@@ -23,13 +23,13 @@ HOMEPAGE="https://www.mesa3d.org/"
 if [[ $PV == 9999 ]]; then
 	SRC_URI=""
 else
-	SRC_URI="https://mesa.freedesktop.org/archive/${MY_P}.tar.xz"
+	SRC_URI="mirror://funtoo/${MY_P}.tar.xz"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="MIT"
 SLOT="0"
-RESTRICT="!bindist? ( bindist )"
+RESTRICT="!bindist? ( bindist ) mirror"
 
 RADEON_CARDS="r100 r200 r300 r600 radeon radeonsi"
 VIDEO_CARDS="${RADEON_CARDS} freedreno i915 i965 imx intel nouveau vc4 virgl vivante vmware"

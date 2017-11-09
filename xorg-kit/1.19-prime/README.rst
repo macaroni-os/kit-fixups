@@ -25,7 +25,9 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
-Information to be added here for relevant security fixes as they are applied to the kit.
+`xorg-server-1.19.5 backports`_ Adam Jackson ajax@redhat.com: "One regression fix since 1.19.4 (mea culpa), and fixes
+for CVEs 2017-12176 through 2017-12187." Funtoo Linux has backported security fixes for these issues from
+xorg-server-1.19.5 into xorg-server-1.19.3-r1 ebuild.
 
 ---------------
 Reporting Bugs
@@ -33,3 +35,5 @@ Reporting Bugs
 
 To report bugs or suggest improvements to xorg-kit, please use the Funtoo Linux bug tracker at https://bugs.funtoo.org.
 Thank you! :)
+
+.. _xorg-server-1.19.5 backports: https://lists.x.org/archives/xorg-devel/2017-October/054871.html

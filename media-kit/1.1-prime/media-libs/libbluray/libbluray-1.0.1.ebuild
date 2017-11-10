@@ -10,23 +10,21 @@ else
 	SRC_URI="https://ftp.videolan.org/pub/videolan/libbluray/${PV}/${P}.tar.bz2"
 fi
 
-inherit autotools java-pkg-opt-2 flag-o-matic eutils multilib-minimal
+inherit autotools java-utils-2 flag-o-matic eutils multilib-minimal
 
 DESCRIPTION="Blu-ray playback libraries"
 HOMEPAGE="https://www.videolan.org/developers/libbluray.html"
 
 LICENSE="LGPL-2.1"
 SLOT="0/2"
-IUSE="aacs bdplus +fontconfig +java static-libs +truetype utils +xml"
+IUSE="aacs bdplus +fontconfig static-libs +truetype utils +xml"
 
 COMMON_DEPEND="
 	xml? ( >=dev-libs/libxml2-2.9.1-r4[${MULTILIB_USEDEP}] )
 	fontconfig? ( >=media-libs/fontconfig-2.10.92[${MULTILIB_USEDEP}] )
-	java? (
-		>=virtual/jdk-1.6
-		dev-java/ant-core
-	)	
 	truetype? ( >=media-libs/freetype-2.5.0.1:2[${MULTILIB_USEDEP}] )
+	>=virtual/jdk-1.6
+	dev-java/ant-core
 "
 RDEPEND="
 	${COMMON_DEPEND}
@@ -43,23 +41,20 @@ DOCS=( ChangeLog README.txt )
 src_prepare() {
 	default
 
-	if use java ; then
-		export JDK_HOME="$(java-config -g JAVA_HOME)"
+	export JDK_HOME="$(java-config -g JAVA_HOME)"
 
-		# don't install a duplicate jar file
-		sed -i '/^jar_DATA/d' Makefile.am || die
-
-		java-pkg-opt-2_src_prepare
-	fi
-
+	# don't install a duplicate jar file
+	sed -i '/^jar_DATA/d' Makefile.am || die
+	
+	java-utils-2_src_prepare
 	eautoreconf
 }
 
 multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf \
 		--disable-optimizations \
+		--enable-bdjava-jar \
 		$(multilib_native_use_enable utils examples) \
-		$(multilib_native_use_enable java bdjava-jar) \
 		$(use_with fontconfig) \
 		$(use_with truetype freetype) \
 		$(use_enable static-libs static) \
@@ -72,14 +67,10 @@ multilib_src_install() {
 	if multilib_is_native_abi && use utils; then
 		cd .libs/
 		dobin index_dump mobj_dump mpls_dump bd_info bdsplice clpi_dump hdmv_test libbluray_test list_titles sound_dump
-		if use java; then
-			dobin bdj_test
-		fi
+		dobin bdj_test
 	fi
 
-	if multilib_is_native_abi && use java; then
-		java-pkg_dojar "${BUILD_DIR}"/.libs/${PN}-j2se-*.jar
-	fi
+	java-pkg_dojar "${BUILD_DIR}"/.libs/${PN}-j2se-*.jar
 }
 
 multilib_src_install_all() {

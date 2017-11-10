@@ -12,7 +12,7 @@ HOMEPAGE="http://www.gtk.org/"
 
 LICENSE="LGPL-2+"
 SLOT="3"
-IUSE="aqua broadway cloudprint colord cups examples +introspection test vim-syntax wayland X xinerama"
+IUSE="aqua broadway cloudprint colord cups examples +introspection test vim-syntax wayland +X xinerama"
 REQUIRED_USE="
 	|| ( aqua wayland X )
 	xinerama? ( X )
@@ -31,7 +31,7 @@ COMMON_DEPEND="
 	>=dev-libs/atk-2.15[introspection?,${MULTILIB_USEDEP}]
 	>=dev-libs/glib-2.45.8:2[${MULTILIB_USEDEP}]
 	media-libs/fontconfig[${MULTILIB_USEDEP}]
-	>=media-libs/libepoxy-1.0[${MULTILIB_USEDEP}]
+	>=media-libs/libepoxy-1.0[X(+)?,${MULTILIB_USEDEP}]
 	>=x11-libs/cairo-1.14[aqua?,glib,svg,X?,${MULTILIB_USEDEP}]
 	>=x11-libs/gdk-pixbuf-2.30:2[introspection?,X?,${MULTILIB_USEDEP}]
 	>=x11-libs/pango-1.37.3[introspection?,${MULTILIB_USEDEP}]

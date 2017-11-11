@@ -1,0 +1,412 @@
+commit 8d9bf479441d9d7a44a86b69026a7e9d431d3ade
+Author: Justin Mitchell <jumitche@redhat.com>
+Date:   Tue Nov 7 09:28:25 2017 -0500
+
+    nfs-utils: Restore ABI compat with pre-merge libnfsidmap
+    
+    Prior to merge libnfsidmap leaked many private symbols that were
+    not defined in its API, creating an accidental ABI.
+    This patch renames and unhides symbols in order to match that ABI
+    until a cleaned up API can be established and released.
+    
+    Signed-off-by: Steve Dickson <steved@redhat.com>
+
+diff --git a/support/include/conffile.h b/support/include/conffile.h
+index d4cb6b4..ad20067 100644
+--- a/support/include/conffile.h
++++ b/support/include/conffile.h
+@@ -60,7 +60,7 @@ extern _Bool    conf_get_bool(const char *, const char *, _Bool);
+ extern char    *conf_get_str(const char *, const char *);
+ extern char    *conf_get_str_with_def(const char *, const char *, char *);
+ extern char    *conf_get_section(const char *, const char *, const char *);
+-extern void     conf_init(const char *);
++extern void     conf_init_file(const char *);
+ extern void     conf_cleanup(void);
+ extern int      conf_match_num(const char *, const char *, int);
+ extern int      conf_remove(int, const char *, const char *);
+diff --git a/support/nfs/Makefile.am b/support/nfs/Makefile.am
+index c037c46..e573b69 100644
+--- a/support/nfs/Makefile.am
++++ b/support/nfs/Makefile.am
+@@ -7,10 +7,10 @@ libnfs_la_SOURCES = exports.c rmtab.c xio.c rpcmisc.c rpcdispatch.c \
+ 		   xcommon.c wildmat.c mydaemon.c \
+ 		   rpc_socket.c getport.c \
+ 		   svc_socket.c cacheio.c closeall.c nfs_mntent.c \
+-		   svc_create.c atomicio.c strlcpy.c strlcat.c
++		   svc_create.c atomicio.c strlcat.c
+ libnfs_la_LIBADD = libnfsconf.la
+ 
+-libnfsconf_la_SOURCES = conffile.c xlog.c
++libnfsconf_la_SOURCES = conffile.c xlog.c strlcpy.c
+ 
+ MAINTAINERCLEANFILES = Makefile.in
+ 
+diff --git a/support/nfs/conffile.c b/support/nfs/conffile.c
+index 9c5ed8e..dce8148 100644
+--- a/support/nfs/conffile.c
++++ b/support/nfs/conffile.c
+@@ -53,11 +53,9 @@
+ #include "conffile.h"
+ #include "xlog.h"
+ 
+-#pragma GCC visibility push(hidden)
+-
+ static void conf_load_defaults(void);
+-static char * conf_load(const char *path);
+-static int conf_set(int , const char *, const char *, const char *, 
++static char * conf_readfile(const char *path);
++int conf_set(int , const char *, const char *, const char *, 
+ 	const char *, int , int );
+ static void conf_parse(int trans, char *buf, 
+ 	char **section, char **subsection);
+@@ -79,12 +77,10 @@ TAILQ_HEAD (conf_trans_head, conf_trans) conf_trans_queue;
+ /*
+  * Radix-64 Encoding.
+  */
+-#if 0
+-static const uint8_t bin2asc[]
++const uint8_t bin2asc[]
+   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+-#endif
+ 
+-static const uint8_t asc2bin[] =
++const uint8_t asc2bin[] =
+ {
+   255, 255, 255, 255, 255, 255, 255, 255,
+   255, 255, 255, 255, 255, 255, 255, 255,
+@@ -370,7 +366,7 @@ conf_parse_line(int trans, char *line, int lineno, char **section, char **subsec
+ 
+ 	if (strcasecmp(line, "include")==0) {
+ 		/* load and parse subordinate config files */
+-		char * subconf = conf_load(val);
++		char * subconf = conf_readfile(val);
+ 		if (subconf == NULL) {
+ 			xlog_warn("config file error: line %d: "
+ 			"error loading included config", lineno);
+@@ -435,7 +431,7 @@ conf_load_defaults(void)
+ }
+ 
+ static char *
+-conf_load(const char *path)
++conf_readfile(const char *path)
+ {
+ 	struct stat sb;
+ 	if ((stat (path, &sb) == 0) || (errno != ENOENT)) {
+@@ -444,19 +440,19 @@ conf_load(const char *path)
+ 		int fd = open (path, O_RDONLY, 0);
+ 
+ 		if (fd == -1) {
+-			xlog_warn("conf_reinit: open (\"%s\", O_RDONLY) failed", path);
++			xlog_warn("conf_readfile: open (\"%s\", O_RDONLY) failed", path);
+ 			return NULL;
+ 		}
+ 
+ 		new_conf_addr = malloc(sz+1);
+ 		if (!new_conf_addr) {
+-			xlog_warn("conf_reinit: malloc (%lu) failed", (unsigned long)sz);
++			xlog_warn("conf_readfile: malloc (%lu) failed", (unsigned long)sz);
+ 			goto fail;
+ 		}
+ 
+ 		/* XXX I assume short reads won't happen here.  */
+ 		if (read (fd, new_conf_addr, sz) != (int)sz) {
+-			xlog_warn("conf_reinit: read (%d, %p, %lu) failed",
++			xlog_warn("conf_readfile: read (%d, %p, %lu) failed",
+ 				fd, new_conf_addr, (unsigned long)sz);
+ 			goto fail;
+ 		}
+@@ -493,15 +489,19 @@ static void conf_free_bindings(void)
+ 	}
+ }
+ 
++#pragma GCC visibility push(hidden)
++/* these are the real fuinctions, hidden from being exported
++ * by libnfsidmap ABI compatability */
++
+ /* Open the config file and map it into our address space, then parse it.  */
+ static void
+-conf_reinit(const char *conf_file)
++conf_load_file(const char *conf_file)
+ {
+ 	int trans;
+ 	char * conf_data;
+ 
+ 	trans = conf_begin();
+-	conf_data = conf_load(conf_file);
++	conf_data = conf_readfile(conf_file);
+ 
+ 	if (conf_data == NULL)
+ 		return;
+@@ -526,7 +526,7 @@ conf_reinit(const char *conf_file)
+ }
+ 
+ void
+-conf_init (const char *conf_file)
++conf_init_file(const char *conf_file)
+ {
+ 	unsigned int i;
+ 
+@@ -536,7 +536,7 @@ conf_init (const char *conf_file)
+ 	TAILQ_INIT (&conf_trans_queue);
+ 
+ 	if (conf_file == NULL) conf_file=NFS_CONFFILE;
+-	conf_reinit(conf_file);
++	conf_load_file(conf_file);
+ }
+ 
+ /* 
+@@ -560,6 +560,8 @@ conf_cleanup(void)
+ 	TAILQ_INIT(&conf_trans_queue);
+ }
+ 
++#pragma GCC visibility pop
++
+ /*
+  * Return the numeric value denoted by TAG in section SECTION or DEF
+  * if that tag does not exist.
+@@ -575,6 +577,7 @@ conf_get_num(const char *section, const char *tag, int def)
+ 	return def;
+ }
+ 
++#pragma GCC visibility push(hidden)
+ /*
+  * Return the Boolean value denoted by TAG in section SECTION, or DEF
+  * if that tags does not exist.
+@@ -606,6 +609,7 @@ conf_get_bool(const char *section, const char *tag, _Bool def)
+ 		return false;
+ 	return def;
+ }
++#pragma GCC visibility pop
+ 
+ /* Validate X according to the range denoted by TAG in section SECTION.  */
+ int
+@@ -651,6 +655,7 @@ conf_get_str_with_def(const char *section, const char *tag, char *def)
+ 	return result;
+ }
+ 
++#pragma GCC visibility push(hidden)
+ /*
+  * Find a section that may or may not have an argument
+  */
+@@ -682,6 +687,7 @@ retry:
+ 	}
+ 	return 0;
+ }
++#pragma GCC visibility pop
+ 
+ /*
+  * Build a list of string values out of the comma separated value denoted by
+@@ -876,7 +882,7 @@ conf_trans_node(int transaction, enum conf_op op)
+ }
+ 
+ /* Queue a set operation.  */
+-static int
++int
+ conf_set(int transaction, const char *section, const char *arg,
+ 	const char *tag, const char *value, int override, int is_default)
+ {
+diff --git a/support/nfsidmap/libnfsidmap.c b/support/nfsidmap/libnfsidmap.c
+index 931387a..40011ee 100644
+--- a/support/nfsidmap/libnfsidmap.c
++++ b/support/nfsidmap/libnfsidmap.c
+@@ -89,6 +89,10 @@ gid_t nobody_gid = (gid_t)-1;
+ #define NFS4DNSTXTREC "_nfsv4idmapdomain"
+ #endif
+ 
++/* DEPRECATED these are for ABI compatibility only */
++char * conf_path = PATH_IDMAPDCONF;
++void conf_reinit(void);
++void conf_init(void);
+ 
+ /* Default logging fuction */
+ static void default_logger(const char *fmt, ...)
+@@ -342,7 +346,6 @@ int nfs4_init_name_mapping(char *conffile)
+ 	char *nobody_user, *nobody_group;
+ 	char *nostrip;
+ 	char *reformatgroup;
+-	char *conf_path;
+ 
+ 	/* XXX: need to be able to reload configurations... */
+ 	if (nfs4_plugins) /* already succesfully initialized */
+@@ -351,7 +354,7 @@ int nfs4_init_name_mapping(char *conffile)
+ 		conf_path = conffile;
+ 	else
+ 		conf_path = PATH_IDMAPDCONF;
+-	conf_init(conf_path);
++	conf_init_file(conf_path);
+ 	default_domain = conf_get_str("General", "Domain");
+ 	if (default_domain == NULL) {
+ 		dflt = 1;
+@@ -710,3 +713,13 @@ void nfs4_set_debug(int dbg_level, void (*logger)(const char *, ...))
+ 	idmap_verbosity = dbg_level;
+ }
+ 
++void conf_reinit(void)
++{
++	conf_init_file(conf_path);
++}
++
++void conf_init(void)
++{
++	conf_init_file(conf_path);
++}
++
+diff --git a/systemd/rpc-pipefs-generator.c b/systemd/rpc-pipefs-generator.c
+index 59eee87..6e1d69c 100644
+--- a/systemd/rpc-pipefs-generator.c
++++ b/systemd/rpc-pipefs-generator.c
+@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	s = conf_get_str("general", "pipefs-directory");
+ 	if (!s)
+ 		exit(0);
+diff --git a/utils/blkmapd/device-discovery.c b/utils/blkmapd/device-discovery.c
+index 29bafb2..cae8c8d 100644
+--- a/utils/blkmapd/device-discovery.c
++++ b/utils/blkmapd/device-discovery.c
+@@ -456,7 +456,7 @@ int main(int argc, char **argv)
+ 	char *xrpcpipe_dir = NULL;
+ 
+ 	strncpy(rpcpipe_dir, RPCPIPE_DIR, sizeof(rpcpipe_dir));
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	CONF_SAVE(xrpcpipe_dir, conf_get_str("general", "pipefs-directory"));
+ 	if (xrpcpipe_dir != NULL)
+ 		strlcpy(rpcpipe_dir, xrpcpipe_dir, sizeof(rpcpipe_dir));
+diff --git a/utils/exportfs/exportfs.c b/utils/exportfs/exportfs.c
+index beed1b3..448f195 100644
+--- a/utils/exportfs/exportfs.c
++++ b/utils/exportfs/exportfs.c
+@@ -107,7 +107,7 @@ main(int argc, char **argv)
+ 	xlog_stderr(1);
+ 	xlog_syslog(0);
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	xlog_from_conffile("exportfs");
+ 
+ 	/* NOTE: following uses "mountd" section of nfs.conf !!!! */
+diff --git a/utils/gssd/gssd.c b/utils/gssd/gssd.c
+index 053a223..2c14e5f 100644
+--- a/utils/gssd/gssd.c
++++ b/utils/gssd/gssd.c
+@@ -842,7 +842,7 @@ read_gss_conf(void)
+ {
+ 	char *s;
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	use_memcache = conf_get_bool("gssd", "use-memcache", use_memcache);
+ 	root_uses_machine_creds = conf_get_bool("gssd", "use-machine-creds",
+ 						root_uses_machine_creds);
+diff --git a/utils/idmapd/idmapd.c b/utils/idmapd/idmapd.c
+index 4cbe148..2b9ecea 100644
+--- a/utils/idmapd/idmapd.c
++++ b/utils/idmapd/idmapd.c
+@@ -252,7 +252,7 @@ main(int argc, char **argv)
+ 			warn("Skipping configuration file \"%s\"", conf_path);
+ 			conf_path = NULL;
+ 		} else {
+-			conf_init(conf_path);
++			conf_init_file(conf_path);
+ 			verbose = conf_get_num("General", "Verbosity", 0);
+ 			cache_entry_expiration = conf_get_num("General",
+ 					"Cache-Expiration", DEFAULT_IDMAP_CACHE_EXPIRY);
+@@ -264,13 +264,13 @@ main(int argc, char **argv)
+ 		}
+ 	} else {
+ 		conf_path = NFS_CONFFILE;
+-		conf_init(conf_path);
++		conf_init_file(conf_path);
+ 		CONF_SAVE(xpipefsdir, conf_get_str("General", "Pipefs-Directory"));
+ 		if (xpipefsdir != NULL)
+ 			strlcpy(pipefsdir, xpipefsdir, sizeof(pipefsdir));
+ 
+ 		conf_path = _PATH_IDMAPDCONF;
+-		conf_init(conf_path);
++		conf_init_file(conf_path);
+ 		verbose = conf_get_num("General", "Verbosity", 0);
+ 		cache_entry_expiration = conf_get_num("General",
+ 				"cache-expiration", DEFAULT_IDMAP_CACHE_EXPIRY);
+diff --git a/utils/mount/mount_config.h b/utils/mount/mount_config.h
+index e4f8511..7cc72fc 100644
+--- a/utils/mount/mount_config.h
++++ b/utils/mount/mount_config.h
+@@ -32,7 +32,7 @@ static inline void mount_config_init(char *program)
+ 	/*
+ 	 * Read the the default mount options
+ 	 */
+-	conf_init(MOUNTOPTS_CONFFILE);
++	conf_init_file(MOUNTOPTS_CONFFILE);
+ }
+ 
+ static inline char *mount_config_opts(char *spec,
+diff --git a/utils/mountd/mountd.c b/utils/mountd/mountd.c
+index 829f803..4c68702 100644
+--- a/utils/mountd/mountd.c
++++ b/utils/mountd/mountd.c
+@@ -679,7 +679,7 @@ main(int argc, char **argv)
+ 	else
+ 		progname = argv[0];
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	xlog_from_conffile("mountd");
+ 	manage_gids = conf_get_bool("mountd", "manage-gids", manage_gids);
+ 	descriptors = conf_get_num("mountd", "descriptors", descriptors);
+diff --git a/utils/nfsd/nfsd.c b/utils/nfsd/nfsd.c
+index f973203..f41a2de 100644
+--- a/utils/nfsd/nfsd.c
++++ b/utils/nfsd/nfsd.c
+@@ -80,7 +80,7 @@ main(int argc, char **argv)
+ 	xlog_syslog(0);
+ 	xlog_stderr(1);
+ 
+-	conf_init(NFS_CONFFILE); 
++	conf_init_file(NFS_CONFFILE); 
+ 	xlog_from_conffile("nfsd");
+ 	count = conf_get_num("nfsd", "threads", count);
+ 	grace = conf_get_num("nfsd", "grace-time", grace);
+diff --git a/utils/nfsdcltrack/nfsdcltrack.c b/utils/nfsdcltrack/nfsdcltrack.c
+index 7830cf4..76b06d2 100644
+--- a/utils/nfsdcltrack/nfsdcltrack.c
++++ b/utils/nfsdcltrack/nfsdcltrack.c
+@@ -564,7 +564,7 @@ main(int argc, char **argv)
+ 	xlog_syslog(1);
+ 	xlog_stderr(0);
+ 
+-	conf_init(NFS_CONFFILE); 
++	conf_init_file(NFS_CONFFILE); 
+ 	xlog_from_conffile("nfsdcltrack");
+ 	val = conf_get_str("nfsdcltrack", "storagedir");
+ 	if (val)
+diff --git a/utils/statd/sm-notify.c b/utils/statd/sm-notify.c
+index d961dc0..6d19ec1 100644
+--- a/utils/statd/sm-notify.c
++++ b/utils/statd/sm-notify.c
+@@ -494,7 +494,7 @@ main(int argc, char **argv)
+ 	else
+ 		progname = argv[0];
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	xlog_from_conffile("sm-notify");
+ 	opt_max_retry = conf_get_num("sm-notify", "retry-time", opt_max_retry / 60) * 60;
+ 	opt_srcport = conf_get_str("sm-notify", "outgoing-port");
+diff --git a/utils/statd/statd.c b/utils/statd/statd.c
+index 1443715..197d853 100644
+--- a/utils/statd/statd.c
++++ b/utils/statd/statd.c
+@@ -273,7 +273,7 @@ int main (int argc, char **argv)
+ 	/* Set hostname */
+ 	MY_NAME = NULL;
+ 
+-	conf_init(NFS_CONFFILE);
++	conf_init_file(NFS_CONFFILE);
+ 	xlog_from_conffile("statd");
+ 	out_port = conf_get_num("statd", "outgoing-port", out_port);
+ 	port = conf_get_num("statd", "port", port);

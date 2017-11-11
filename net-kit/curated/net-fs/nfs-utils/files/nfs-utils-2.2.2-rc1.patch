@@ -1,0 +1,42 @@
+diff --git a/.gitignore b/.gitignore
+index 540737d..f17db9c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -35,6 +35,7 @@ support/include/stamp-h1
+ *.o
+ *.lo
+ *.la
++*.pc
+ .libs
+ lib*.a
+ test-driver
+diff --git a/configure.ac b/configure.ac
+index 9b2a502..c7651f2 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -441,6 +441,8 @@ if test -n "$path_plugins" ; then
+ fi
+ AM_CONDITIONAL(PATH_PLUGINS, test -n "$path_plugins")
+ 
++AC_SUBST(AM_CPPFLAGS, "$AM_CPPFLAGS -I../../support/nfsidmap")
++
+ dnl Check for IPv6 support
+ AC_IPV6
+ 
+diff --git a/support/nfsidmap/libnfsidmap.pc b/support/nfsidmap/libnfsidmap.pc
+deleted file mode 100644
+index 5ec28ae..0000000
+--- a/support/nfsidmap/libnfsidmap.pc
++++ /dev/null
+@@ -1,11 +0,0 @@
+-prefix=/usr
+-exec_prefix=${prefix}
+-libdir=${exec_prefix}/lib64
+-includedir=${prefix}/include
+-
+-Name: libnfsidmap
+-Description: Library that handles mapping between names and ids for NFSv4.
+-Requires:
+-Version: 2.1.1
+-Libs: -L${exec_prefix}/lib64 -lnfsidmap
+-Cflags: -I${prefix}/include

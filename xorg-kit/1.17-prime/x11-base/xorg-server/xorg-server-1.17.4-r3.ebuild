@@ -1,6 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 
@@ -15,7 +13,8 @@ KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~
 IUSE_SERVERS="dmx kdrive xephyr xnest xorg xvfb"
 IUSE="${IUSE_SERVERS} glamor ipv6 libressl minimal nptl selinux +suid systemd tslib +udev unwind wayland"
 
-CDEPEND=">=app-eselect/eselect-opengl-1.3.0
+CDEPEND="
+	>=app-eselect/eselect-opengl-1.3.0
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl )
 	media-libs/freetype
@@ -23,6 +22,7 @@ CDEPEND=">=app-eselect/eselect-opengl-1.3.0
 	>=x11-apps/rgb-1.0.3
 	>=x11-apps/xauth-1.0.3
 	x11-apps/xkbcomp
+	!>=x11-drivers/xf86-input-evdev-2.10
 	>=x11-libs/libdrm-2.4.46
 	>=x11-libs/libpciaccess-0.12.901
 	>=x11-libs/libXau-1.0.4
@@ -83,6 +83,7 @@ CDEPEND=">=app-eselect/eselect-opengl-1.3.0
 	)"
 
 DEPEND="${CDEPEND}
+	dev-libs/libbsd
 	sys-devel/flex
 	>=x11-proto/bigreqsproto-1.1.0
 	>=x11-proto/compositeproto-0.4
@@ -136,9 +137,9 @@ REQUIRED_USE="!minimal? (
 	)
 	xephyr? ( kdrive )"
 
-#UPSTREAMED_PATCHES=(
-#	"${WORKDIR}/patches/"
-#)
+UPSTREAMED_PATCHES=(
+	"${FILESDIR}/1.17/CVE-backports"
+)
 
 PATCHES=(
 	"${UPSTREAMED_PATCHES[@]}"
@@ -146,6 +147,11 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.12-unloadsubmodule.patch
 	# needed for new eselect-opengl, bug #541232
 	"${FILESDIR}"/${PN}-1.17-support-multiple-Files-sections.patch
+	"${FILESDIR}"/${PN}-1.17.4-CVE-2017-2624.patch
+	
+	# upstream security fixes backports.
+	"${FILESDIR}"/${PN}-1.17.4-CVE-2017-13721.patch
+	"${FILESDIR}"/${PN}-1.17.4-CVE-2017-13723.patch
 )
 
 pkg_pretend() {

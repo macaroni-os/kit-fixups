@@ -138,7 +138,7 @@ REQUIRED_USE="!minimal? (
 	xephyr? ( kdrive )"
 
 #UPSTREAMED_PATCHES=(
-#	"${WORKDIR}/patches/"
+#	"${FILESDIR}/1.17/CVE-backports"
 #)
 
 PATCHES=(

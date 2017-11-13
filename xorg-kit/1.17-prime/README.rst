@@ -25,6 +25,15 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+As of November 17, 2017, all known security vulnerabilities in the ``1.17-prime`` branch have been addressed.
+
+November 17, 2017: ``libXfont backports`` - ``x11-libs/libXfont-1.5.3`` and ``x11-libs/libXfont-2.0.2`` have been added
+to address ``CVE-2017-13720`` and ``CVE-2017-13722``.
+
+November 17, 2017: `xorg-server-1.19.5 backports`_ Adam Jackson ajax@redhat.com: "One regression fix since 1.19.4 (mea
+culpa), and fixes for CVEs 2017-12176 through 2017-12187." Funtoo Linux has backported security fixes for these issues
+from ``xorg-server-1.19.5`` into ``xorg-server-1.17.4-r3`` ebuild.
+
 `X.org October 4, 2017 Security Advisory`_ The X.Org Foundation today published fixes for CVE-2017-13721 &
 CVE-2017-13723 as part of the xorg-server 1.19.4 release. Funtoo Linux has backported fixes for these issues from
 xorg-server-1.19.4 into xorg-server-1.17.4-r2 ebuild.
@@ -36,8 +45,6 @@ data. The ``1.17-prime`` branch is not using any versions of packages affected b
 entropy usage in various places. Red Hat has declined to fix these in Red Hat Enterprise Linux as they do not impact
 most users' systems based on their default configuration. Funtoo Linux has backported fixes for these issues from
 xorg-server-1.19.2 and integrated them into a new ebuild, xorg-server-1.17.4-r1.ebuild.
-
-As of April 2, 2017, all known security vulnerabilities in the ``1.17-prime`` branch have been addressed.
 
 ---------------------------
 Freetype Security Backports

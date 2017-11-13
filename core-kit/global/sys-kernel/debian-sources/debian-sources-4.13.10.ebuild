@@ -76,6 +76,9 @@ src_prepare() {
 	## FL-3381. enable IKCONFIG
 	epatch "${FILESDIR}"/${P}-ikconfig.patch
 	
+	## FL-4424: enable legacy support for MCELOG.
+	epatch "${FILESDIR}"/${PN}-4.13.10-mcelog.patch
+	
 	local opts
 	opts="standard"
 	local myarch="amd64"

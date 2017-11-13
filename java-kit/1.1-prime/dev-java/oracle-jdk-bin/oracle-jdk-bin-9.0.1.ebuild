@@ -45,7 +45,7 @@ SRC_URI="
 
 LICENSE="Oracle-BCLA-JavaSE"
 SLOT="$(get_version_component_range 1)"
-KEYWORDS="arm64"
+KEYWORDS="amd64"
 IUSE="alsa commercial cups doc examples +fontconfig headless-awt javafx nsplugin selinux source"
 REQUIRED_USE="javafx? ( alsa fontconfig )"
 

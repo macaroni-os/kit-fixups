@@ -9,7 +9,7 @@ DOC_PV="2.1.3"
 DESCRIPTION="Free crossplatform audio editor"
 HOMEPAGE="http://web.audacityteam.org/"
 SRC_URI="https://dev.gentoo.org/~polynomial-c/dist/${MY_P}.tar.xz
-	doc? ( https://dev.gentoo.org/~polynomial-c/dist/${PN}-help-${PV}.zip )"
+	doc? ( https://dev.gentoo.org/~polynomial-c/dist/${PN}-help-${DOC_PV}.zip )"
 	# wget doesn't seem to work on FossHub links, so we mirror
 
 LICENSE="GPL-2"

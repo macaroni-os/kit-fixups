@@ -179,7 +179,7 @@ src_install() {
 	# Remove empty dirs we might have copied.
 	find "${D}" -type d -empty -exec rmdir -v {} + || die
 
-	java-vm_install-env "${FILESDIR}"/${PN}.env.sh
+	java-vm_install-env "${FILESDIR}"/${PN}-9.env
 	java-vm_revdep-mask
 	java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
 }

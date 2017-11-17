@@ -1,3 +1,8 @@
+# Mask system-sqlite USE for the firefox-57. A rationale behind this is:
+# with firefox-57, external sqlite dep is set to 3.20.1. This version will require bump of app-misc/tracker from gnome kit and this is untested. When tested or gnome kit updated, mask can be removed.
+>=www-client/firefox-57.0 system-sqlite
+
+
 # mask autotrace USE for imagemagick. https://bugs.funtoo.org/browse/FL-3861
 media-gfx/imagemagick autotrace
 

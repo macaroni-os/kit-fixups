@@ -31,6 +31,7 @@ AT_amd64="jdk-${MY_PV}_linux-x64_bin.tar.gz"
 
 DESCRIPTION="Oracle's Java SE Development Kit"
 HOMEPAGE="http://jdk.java.net/$(get_version_component_range 1)/"
+MIR_URI="mirror://funtoo/oracle-java"
 SRC_URI="
 	amd64? ( ${MIR_URI}/${AT_amd64} )"
 #	arm? ( ${MIR_URI}/${AT_arm} )

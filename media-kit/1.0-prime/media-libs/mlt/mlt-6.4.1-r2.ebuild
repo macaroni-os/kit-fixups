@@ -27,9 +27,11 @@ COMMON_DEPEND="
 	sdl? ( >=media-libs/libsdl-1.2.10[X,opengl,video]
 		 >=media-libs/sdl-image-1.2.4 )
 	libsamplerate? ( >=media-libs/libsamplerate-0.1.2 )
-	jack? ( >=media-sound/jack-audio-connection-kit-0.121.3
-		media-libs/ladspa-sdk
-		>=dev-libs/libxml2-2.5 )
+	
+	jack? ( virtual/jack
+			media-libs/ladspa-sdk
+			>=dev-libs/libxml2-2.5 )
+	
 	fftw? ( sci-libs/fftw:3.0= )
 	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? ( x11-libs/gtk+:2

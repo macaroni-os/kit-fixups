@@ -28,6 +28,7 @@ S="$WORKDIR/${NAUT_A%.tar.bz2}"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RDEPEND="${PYTHON_DEPS}
+	!gnome-extra/nautilus-dropbox
 	gnome? ( gnome-base/nautilus
 	dev-libs/glib:2
 	dev-python/pygtk:2[${PYTHON_USEDEP}]

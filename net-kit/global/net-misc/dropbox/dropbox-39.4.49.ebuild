@@ -80,5 +80,6 @@ pkg_postinst () {
 	if use gnome; then
 		gnome2_pkg_postinst
 	fi
+	einfo "Type 'dropbox start -i' as the user you wish to enable dropbox to initialize dropbox."
 }
 

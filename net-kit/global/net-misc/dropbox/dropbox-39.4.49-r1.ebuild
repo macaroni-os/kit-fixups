@@ -26,11 +26,14 @@ RESTRICT="mirror"
 IUSE="gnome"
 
 pkg_setup() {
+	# tweak S depending on whether we are building nautilus-dropbox or not:
 	if use gnome; then
 		S="$WORKDIR/${NAUT_A%.tar.bz2}"
 	else
 		S="$WORKDIR"
 	fi
+	# get python-2.7 set up for configure:
+	python_setup
 }
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

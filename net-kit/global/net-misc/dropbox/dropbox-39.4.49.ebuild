@@ -17,14 +17,21 @@ SCRIPT_A="dropbox-python-setup-${GITHUB_TAG}.tar.gz"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${SCRIPT_A} 
 	x86? ( https://dl.dropboxusercontent.com/u/17/dropbox-lnx.x86-${PV}.tar.gz )
 	amd64? ( https://dl.dropboxusercontent.com/u/17/dropbox-lnx.x86_64-${PV}.tar.gz )
-	http://www.dropbox.com/download?dl=packages/$NAUT_A"
+	gnome? ( http://www.dropbox.com/download?dl=packages/$NAUT_A )"
 
 LICENSE="CC-BY-ND-3.0 FTL MIT LGPL-2 openssl dropbox"
 SLOT="0"
 KEYWORDS="amd64 x86 x86-linux"
 RESTRICT="mirror"
 IUSE="gnome"
-S="$WORKDIR/${NAUT_A%.tar.bz2}"
+
+pkg_setup() {
+	if use gnome; then
+		S="$WORKDIR/${NAUT_A%.tar.bz2}"
+	else
+		S="$WORKDIR"
+	fi
+}
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RDEPEND="${PYTHON_DEPS}
@@ -44,7 +51,9 @@ DEPEND="${RDEPEND} gnome? (
 	)"
 
 src_unpack() {
-	unpack ${NAUT_A}
+	if use gnome; then
+		unpack ${NAUT_A}
+	fi
 	unpack ${SCRIPT_A}
 }
 
@@ -62,6 +71,10 @@ src_compile() {
 	use gnome && gnome2_src_compile
 }
 
+src_configure() {
+	use gnome && gnome2_src_configure
+}
+
 src_install () {
 	if use gnome; then
 		gnome2_src_install
@@ -72,8 +85,6 @@ src_install () {
 	else 
 		newins ${DISTDIR}/dropbox-lnx.x86-${PV}.tar.gz dropbox-dist.tar.gz
 	fi
-	dobin ${FILESDIR}/dropbox-install
-	# install our improved dropbox script.
 	newbin "${WORKDIR}/${GITHUB_USER}-dropbox-python-setup"-???????/dropbox.py dropbox || die
 }
 

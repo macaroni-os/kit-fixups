@@ -51,10 +51,11 @@ src_unpack() {
 src_prepare() {
 	if use gnome; then
 		gnome2_src_prepare
-		epatch "${FILESDIR}"/nautilus-dropbox-0.7.0-system-rst2man.patch
+		eapply "${FILESDIR}"/nautilus-dropbox-0.7.0-system-rst2man.patch
 		sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/g' configure.in || die
 		AT_NOELIBTOOLIZE=yes eautoreconf
 	fi
+	default
 }
 
 src_compile() {

@@ -1,3 +1,6 @@
+# FL-4220: mask h323 use for the net-voip/yate. Requires new headers in from ptlib, which is not present in portage tree.
+net-voip/yate h323
+
 # Mask system-sqlite USE for the firefox-57. A rationale behind this is:
 # with firefox-57, external sqlite dep is set to 3.20.1. This version will require bump of app-misc/tracker from gnome kit and this is untested. When tested or gnome kit updated, mask can be removed.
 >=www-client/firefox-57.0 system-sqlite

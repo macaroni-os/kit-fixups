@@ -74,7 +74,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.5.2-certs.patch
 
 	## FL-3381. enable IKCONFIG
-	epatch "${FILESDIR}"/${P}-ikconfig.patch
+	epatch "${FILESDIR}"/${PN}-4.13.10-ikconfig.patch
 	
 	## FL-4424: enable legacy support for MCELOG.
 	epatch "${FILESDIR}"/${PN}-4.13.10-mcelog.patch

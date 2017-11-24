@@ -293,11 +293,11 @@ mods[standard]="access auth_basic autoindex browser charset empty_gif fastcgi
 	scgi ssi split_clients userid uwsgi"
 
 mods[optional]="addition auth_request dav degradation flv geoip gunzip gzip_static
-	image_filter mp4 perl random_index realip secure_link ssl stub_status sub xslt"
+	image_filter mp4 perl random_index realip secure_link ssl ssl_preread stub_status sub xslt"
 
 mods[mail]="imap pop3 smtp"
 
-IUSE="+aio +http +http2 +http-cache +pcre +poll +select	cpp_test debug google_perftools ipv6 libatomic libressl luajit pcre-jit 	ssl stream threads vim-syntax"
+IUSE="+aio +http +http2 +http-cache +pcre +poll +select	cpp_test debug google_perftools ipv6 libatomic libressl luajit pcre-jit ssl stream threads vim-syntax"
 
 for m in ${mods[upstream]} ; do
 	IUSE+=" +nginx_modules_http_${m}" ; done
@@ -481,7 +481,7 @@ src_configure() {
 
 	if use stream ; then
 		nginx_configure+=" --with-stream" && \
-		use ssl && nginx_configure+=" --with-stream_ssl_module"
+		use ssl && nginx_configure+=" --with-stream_ssl_module --with-stream_ssl_preread_module"
 	fi
 
 	for m in ${mods[upstream]}; do

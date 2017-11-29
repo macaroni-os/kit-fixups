@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit multilib
+inherit java-pkg-2 multilib
 
 DESCRIPTION="Advanced and fast VNC client/server with encryption and VirtualGL support."
 HOMEPAGE="https://www.turbovnc.org"

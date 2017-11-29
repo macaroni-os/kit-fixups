@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-PYTHON_COMPAT=( python3_{4,5,6} )
+EAPI=6
+PYTHON_COMPAT=( python3_{4..6} )
 
 inherit python-single-r1
 
@@ -10,7 +10,7 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="zsh-completion"
 RESTRICT="mirror"
 GITHUB_REPO="$PN"
@@ -35,11 +35,12 @@ src_install() {
 	insinto /usr/share/ego/modules-info
 	doins $S/modules-info/*
 	insinto /usr/share/ego/python
-	doins $S/python/*.py
+	doins -r $S/python/*
+	rm -rf $D/usr/share/ego/python/test
 	dobin $S/ego
 	dosym ego /usr/bin/epro
 	dosym ego /usr/bin/edoc
-	doman ego.1 epro.1
+	doman doc/*.[1-8]
 	insinto /etc
 	doins $FILESDIR/ego.conf
 	if use zsh-completion; then
@@ -57,6 +58,12 @@ pkg_postinst() {
 	fi
 	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
 	if [ "$ROOT" = "/" ]; then
-	    /usr/bin/epro update
+		/usr/bin/epro update
 	fi
+
+	# Temporary fix due to older versions of ego setting some root ownerships
+	# under /var/git/meta-repo. This fix was introduced in version 2.0.13 and
+	# can be removed in January 2018 when we can assume it was applied to the
+	# vast majority of Funtoo stations.
+	chown -R portage:portage $ROOT/var/git/meta-repo
 }

@@ -1,0 +1,13 @@
+--- a/desktop/build.gradle	2017-03-07 19:31:18.000000000 -0500
++++ b/desktop/build.gradle	2017-11-29 20:55:22.890771651 -0500
+@@ -107,9 +107,7 @@
+         def projs = configurations.compile.getAllDependencies().withType(ProjectDependency).collect{it.getDependencyProject()}
+         projs.each {
+             additionalSourceDirs files(it.sourceSets.main.java.srcDirs)
+-            additionalClassDirs files(it.sourceSets.main.output.classesDir).collect({
+-		File f -> fileTree(dir: f, exclude: ['org/apache/**','edu/**','org/geogebra/common/kernel/barycentric/**'])
+-	     })
++            additionalClassDirs fileTree(dir: it.sourceSets.main.output.classesDir, exclude: ['org/apache/**','edu/**','org/geogebra/common/kernel/barycentric/**'])
+         }
+     }
+ }

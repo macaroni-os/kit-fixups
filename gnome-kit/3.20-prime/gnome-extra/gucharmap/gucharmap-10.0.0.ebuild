@@ -15,15 +15,16 @@ KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd"
 IUSE="debug +introspection test vala"
 REQUIRED_USE="vala? ( introspection )"
 
-COMMON_DEPEND="
-	>=dev-libs/glib-2.32:2
-	>=x11-libs/pango-1.2.1[introspection?]
-	>=x11-libs/gtk+-3.16:3[introspection?]
-	introspection? ( >=dev-libs/gobject-introspection-0.9.0:= )
+RDEPEND="${DEPEND}
 	!<gnome-extra/gucharmap-3:0
 "
-DEPEND="${RDEPEND}
+DEPEND="
 	=app-i18n/unicode-data-${PV}*
+	>=dev-libs/glib-2.32:2
+	>=x11-libs/pango-1.2.1[introspection]
+	x11-libs/gdk-pixbuf[introspection]
+	>=x11-libs/gtk+-3.16:3[X,introspection]
+	introspection? ( >=dev-libs/gobject-introspection-0.9.0:= )
 	app-text/yelp-tools
 	dev-util/desktop-file-utils
 	>=dev-util/gtk-doc-am-1
@@ -57,3 +58,4 @@ src_configure() {
 		$(use_enable introspection) \
 		$(use_enable vala)
 }
+

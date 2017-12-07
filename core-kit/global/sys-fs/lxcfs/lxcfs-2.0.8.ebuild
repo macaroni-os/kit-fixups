@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit systemd vcs-snapshot versionator
+inherit vcs-snapshot versionator
 DESCRIPTION="FUSE filesystem for LXC"
 HOMEPAGE="https://linuxcontainers.org/lxcfs/introduction/"
 LICENSE="Apache-2.0"
@@ -34,7 +34,6 @@ DEPEND="
 	sys-apps/help2man
 	${RDEPEND}
 "
-PATCHES="${FILESDIR}/${P}-fusermount-path.patch"
 
 src_prepare() {
 	default
@@ -57,8 +56,7 @@ src_configure() {
 src_install() {
 	default
 	dodir /var/lib/lxcfs
-	newinitd "${FILESDIR}"/${P}.initd lxcfs
-	systemd_dounit config/init/systemd/lxcfs.service
+	newinitd "${FILESDIR}"/${PN}-2.0.6.initd lxcfs
 }
 
 pkg_preinst() {

@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,7 +9,7 @@ BASE_PACKAGENAME="bin"
 BASE_AMD64_URI="http://packages.gentooexperimental.org/packages/amd64-libreoffice/amd64-${BASE_PACKAGENAME}-"
 BASE_X86_URI="http://packages.gentooexperimental.org/packages/x86-libreoffice/x86-${BASE_PACKAGENAME}-"
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="threads,xml"
 
 inherit kde4-base java-pkg-opt-2 python-single-r1 pax-utils prefix versionator
@@ -60,16 +59,12 @@ BIN_COMMON_DEPEND="
 	app-text/hunspell:0/1.6
 	=app-text/libexttextcat-3.4*
 	=app-text/libmwaw-0.3*
-	dev-libs/boost:0/1.62.0
-	dev-libs/icu:0/58.1
-	>=media-gfx/graphite2-1.2.0
-	media-libs/glew:0/1.13
+	dev-libs/icu:0/58.2
+	>=media-gfx/graphite2-1.3.10
 	media-libs/harfbuzz:0/0.9.18[icu]
 	media-libs/libpng:0/16
-	>=sys-devel/gcc-5.4.0-r3
-	>=sys-libs/glibc-2.23
 	virtual/jpeg:62
-	kde? ( >=kde-frameworks/kdelibs-4.14.32:4 >=dev-qt/qtcore-4.8.7-r2:4 >=dev-qt/qtgui-4.8.7:4 )
+	kde? ( >=kde-frameworks/kdelibs-4.14.37:4 >=dev-qt/qtcore-4.8.7-r3:4 >=dev-qt/qtgui-4.8.7:4 )
 "
 
 # PLEASE place any restrictions that are specific to the binary builds
@@ -82,7 +77,8 @@ COMMON_DEPEND="
 	${PYTHON_DEPS}
 	app-arch/unzip
 	app-arch/zip
-	app-text/hunspell
+	app-crypt/gpgme[cxx]
+	app-text/hunspell:=
 	>=app-text/libabw-0.1.0
 	>=app-text/libebook-0.1
 	>=app-text/libetonyek-0.1
@@ -91,6 +87,7 @@ COMMON_DEPEND="
 	>=app-text/libmspub-0.1.0
 	>=app-text/libmwaw-0.3.1
 	>=app-text/libodfgen-0.1.0
+	app-text/libstaroffice
 	app-text/libwpd:0.10[tools]
 	app-text/libwpg:0.3
 	>=app-text/libwps-0.4
@@ -99,37 +96,41 @@ COMMON_DEPEND="
 	=dev-cpp/libcmis-0.5*
 	dev-db/unixODBC
 	dev-lang/perl
-	>=dev-libs/boost-1.55:=
+	dev-libs/boost:=
 	dev-libs/expat
 	dev-libs/hyphen
 	dev-libs/icu:=
-	=dev-libs/liborcus-0.11*
+	dev-libs/libassuan
+	dev-libs/libgpg-error
+	=dev-libs/liborcus-0.12*
 	dev-libs/librevenge
 	dev-libs/nspr
 	dev-libs/nss
 	>=dev-libs/openssl-1.0.0d:0
 	>=dev-libs/redland-1.0.16
+	>=dev-libs/xmlsec-1.2.24[nss]
 	media-gfx/graphite2
 	media-libs/fontconfig
 	media-libs/freetype:2
-	>=media-libs/glew-1.10:=
-	>=media-libs/harfbuzz-0.9.18:=[icu(+)]
+	>=media-libs/harfbuzz-0.9.42:=[graphite,icu]
 	media-libs/lcms:2
 	>=media-libs/libcdr-0.1.0
+	>=media-libs/libepoxy-1.3.1
 	>=media-libs/libfreehand-0.1.0
 	media-libs/libpagemaker
 	>=media-libs/libpng-1.4:0=
 	>=media-libs/libvisio-0.1.0
+	media-libs/libzmf
 	net-libs/neon
 	net-misc/curl
 	net-nds/openldap
 	sci-mathematics/lpsolve
-	virtual/jpeg:0
-	x11-libs/cairo[X,-xlib-xcb(-)]
+	x11-libs/cairo[X]
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
 	virtual/glu
+	virtual/jpeg:0
 	virtual/opengl
 	net-print/cups
 	dev-libs/dbus-glib
@@ -145,18 +146,18 @@ COMMON_DEPEND="
 	gnome? (
 		dev-libs/glib:2
 		dev-libs/gobject-introspection
-		>=x11-libs/gtk+-3.8:3
+		x11-libs/gtk+:3
 	)
 "
 
 RDEPEND="${COMMON_DEPEND}
 	!app-office/libreoffice
 	!app-office/openoffice
+	media-fonts/dejavu
 	media-fonts/liberation-fonts
 	media-fonts/libertine
-	media-fonts/urw-fonts
+	|| ( x11-misc/xdg-utils kde-plasma/kde-cli-tools )
 	java? ( >=virtual/jre-1.6 )
-	kde? ( $(add_kdeapps_dep kioclient) )
 "
 
 PDEPEND="
@@ -242,3 +243,4 @@ pkg_postinst() {
 pkg_postrm() {
 	kde4-base_pkg_postrm
 }
+

@@ -39,6 +39,8 @@ RDEPEND="
 		>=sys-apps/sed-4.0.5
 		app-shells/bash:0[readline]
 		>=app-admin/eselect-1.2
+		$(python_gen_cond_dep 'dev-python/pyblake2[${PYTHON_USEDEP}]' \
+			python{2_7,3_4,3_5} pypy)
 	)
 	elibc_FreeBSD? ( sys-freebsd/freebsd-bin )
 	elibc_glibc? ( >=sys-apps/sandbox-2.2 )
@@ -85,7 +87,8 @@ pkg_setup() {
 PATCHES=(
 	"${FILESDIR}/${PN}-2.4.3-remove-gentoo-repos-conf.patch"
 	"${FILESDIR}/${PN}-2.3.8-change-global-paths.patch"
-	"${FILESDIR}/${PN}-2.3.8-backtrack-is-incredibly-slow.patch"
+	"${FILESDIR}/${PN}-2.3.8-repo-search-1.1.patch"
+	"${FILESDIR}/${PN}-2.3.8-better-errors-1.1.patch"
 )
 
 python_prepare_all() {
@@ -183,8 +186,14 @@ python_install_all() {
 	distutils-r1_python_install_all
 
 	local targets=()
-	use doc && targets+=( install_docbook )
-	use epydoc && targets+=( install_epydoc )
+	use doc && targets+=(
+		install_docbook
+		--htmldir="${EPREFIX}/usr/share/doc/${PF}/html"
+	)
+	use epydoc && targets+=(
+		install_epydoc
+		--htmldir="${EPREFIX}/usr/share/doc/${PF}/html"
+	)
 
 	# install docs
 	if [[ ${targets[@]} ]]; then
@@ -232,14 +241,6 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	if ${SYNC_DEPTH_UPGRADE}; then
-		ewarn "Please note that this release no longer respects sync-depth for"
-		ewarn "git repositories.  There have been too many problems and"
-		ewarn "performance issues.  See bugs 552814, 559008"
-	fi
-	ewarn "Don't worry! --"
-	ewarn "Funtoo's downgrade to Portage-2.3.8 is intentional. We are syncing with upstream versions."
-	echo
 	if [ ! -d $ROOT/var/cache/portage ]; then
 		echo
 		ewarn "SOMEWHAT IMPORTANT:"

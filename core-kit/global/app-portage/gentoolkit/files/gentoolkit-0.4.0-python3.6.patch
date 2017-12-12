@@ -1,0 +1,50 @@
+From d3ef9ef1bebc7604db0e8c5c49e167e18300c9e9 Mon Sep 17 00:00:00 2001
+From: Paul Varner <fuzzyray@gentoo.org>
+Date: Fri, 5 May 2017 14:31:25 -0500
+Subject: revdep_rebuild/settings.py: Fix traceback error with Python3.6 (bug
+ 617498)
+
+The portage.root variable is using late binding. This breaks in Python3.6
+where the type is being checked before use in os.path.join(). This fix
+creates a new variable of the correct type from the value of portage.root
+instead of using portage.root directly.
+
+X-Gentoo-bug: 617498
+X-Gentoo-bug-url: https://bugs.gentoo.org/show_bug.cgi?id=617498
+Acked-by: Brian Dolbec <dolsen@gentoo.org>
+---
+ pym/gentoolkit/revdep_rebuild/settings.py | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/pym/gentoolkit/revdep_rebuild/settings.py b/pym/gentoolkit/revdep_rebuild/settings.py
+index 589ea29..9a00f45 100644
+--- a/pym/gentoolkit/revdep_rebuild/settings.py
++++ b/pym/gentoolkit/revdep_rebuild/settings.py
+@@ -15,12 +15,19 @@ import glob
+ import portage
+ from portage import _encodings, _unicode_decode, _unicode_encode
+ 
++if sys.version_info[0] >= 3:
++	_unicode = str
++else:
++	_unicode = unicode
++
++portage_root = _unicode(portage.root)
++
+ DEFAULTS = {
+-		'DEFAULT_LD_FILE': os.path.join(portage.root, 'etc/ld.so.conf'),
+-		'DEFAULT_ENV_FILE': os.path.join(portage.root, 'etc/profile.env'),
+-		'REVDEP_CONFDIR': os.path.join(portage.root, 'etc/revdep-rebuild/'),
+-		'PKG_DIR': os.path.join(portage.root, 'var/db/pkg/'),
+-		'DEFAULT_TMP_DIR': os.path.join(portage.root, '/tmp/revdep-rebuild' if os.getgid() else '/var/cache/revdep-rebuild'), #cache default location
++		'DEFAULT_LD_FILE': os.path.join(portage_root, 'etc/ld.so.conf'),
++		'DEFAULT_ENV_FILE': os.path.join(portage_root, 'etc/profile.env'),
++		'REVDEP_CONFDIR': os.path.join(portage_root, 'etc/revdep-rebuild/'),
++		'PKG_DIR': os.path.join(portage_root, 'var/db/pkg/'),
++		'DEFAULT_TMP_DIR': os.path.join(portage_root, '/tmp/revdep-rebuild' if os.getgid() else '/var/cache/revdep-rebuild'), #cache default location
+ 
+ 		# number of maximum allowed files to be parsed at once
+ 		'CMD_MAX_ARGS': 1000,
+-- 
+cgit v1.1
+

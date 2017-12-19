@@ -5,11 +5,10 @@ EAPI=6
 PYTHON_COMPAT=( python2_7 )
 inherit autotools flag-o-matic multilib-minimal python-any-r1 versionator
 
-MY_P="${P/mit-}"
-P_DIR=$(get_version_component_range 1-2)
 DESCRIPTION="MIT Kerberos V"
 HOMEPAGE="http://web.mit.edu/kerberos/www/"
-SRC_URI="http://web.mit.edu/kerberos/dist/krb5/${P_DIR}/${MY_P}.tar.gz"
+SRC_URI="mirror://funtoo/krb5-${PV}.tar.gz"
+RESTRICT="mirror"
 
 LICENSE="openafs-krb5-a BSD MIT OPENLDAP BSD-2 HPND BSD-4 ISC RSA CC-BY-SA-3.0 || ( BSD-2 GPL-2+ )"
 SLOT="0"
@@ -47,7 +46,7 @@ DEPEND="${CDEPEND}
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-kerberos )"
 
-S=${WORKDIR}/${MY_P}/src
+S=${WORKDIR}/krb5-${PV}/src
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/krb5-config
@@ -58,6 +57,7 @@ src_prepare() {
 	eapply -p2 "${FILESDIR}/${PN}-config_LDFLAGS.patch"
 	eapply -p0 "${FILESDIR}/${PN}-1.14.2-redeclared-ttyname.patch"
 	eapply "${FILESDIR}/${PN}-1.14.4-disable-nls.patch"
+	eapply "${FILESDIR}/CVE-2017-11368.patch"
 
 	# Make sure we always use the system copies.
 	rm -rf util/{et,ss,verto}

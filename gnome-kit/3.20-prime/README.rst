@@ -7,7 +7,7 @@ gnome-kit
 Gnome-kit contains the functionality of GNOME 3.20 for Funtoo Linux. It is designed to be a part of the Funtoo Linux
 kits system.
 
-The ``3.20-prime`` branch of gnome-kit is the initial, stable curated branch of xorg for Funtoo. By 'curated', we mean
+The ``3.20-prime`` branch of gnome-kit is the initial, stable curated branch of GNOME for Funtoo. By 'curated', we mean
 that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and will
 be continuing to maintain.
 
@@ -43,5 +43,5 @@ December 18, 2017
 Reporting Bugs
 ---------------
 
-To report bugs or suggest improvements to xorg-kit, please use the Funtoo Linux bug tracker at https://bugs.funtoo.org.
+To report bugs or suggest improvements to gnome-kit, please use the Funtoo Linux bug tracker at https://bugs.funtoo.org.
 Thank you! :)

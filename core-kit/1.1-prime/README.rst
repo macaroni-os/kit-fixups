@@ -22,13 +22,16 @@ Linux that you can rely on to be stable and perform consistently over an extende
 Security Fixes
 --------------
 
+December 21, 2017
+~~~~~~~~~~~~~~~~~
+- ``dev-libs/openssl`` has been updated to 1.0.2n to address CVE-2017-3735, CVE-2017-3736, CVE-2017-3737 and CVE-2017-3738.
+
+
 December 18, 2017
 ~~~~~~~~~~~~~~~~~
 
 - ``net-misc/rsync`` has been udpated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and CVE-2017-17434.
 
-
----------------
 Reporting Bugs
 ---------------
 

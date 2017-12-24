@@ -50,6 +50,12 @@ December 20, 2017
   CVE-2017-13803. See https://webkitgtk.org/security/WSA-2017-0008.html and
   https://webkitgtk.org/security/WSA-2017-0009.html for more information.
 
+December 21, 2017
+~~~~~~~~~~~~~~~~~
+
+- ``net-libs/webkit-gtk`` has been updated to 2.18.4 to address CVE-2017-13866, CVE-2017-13870, CVE-2017-7156 and
+  CVE-2017-13856.
+
 ---------------
 Reporting Bugs
 ---------------

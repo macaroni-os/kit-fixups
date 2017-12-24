@@ -17,7 +17,7 @@ IUSE="graph"
 
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
 RDEPEND="
-	>=net-analyzer/rrdtool-1.5.5
+	>=net-analyzer/rrdtool-1.5.5[-python]
 	graph? ( >=net-analyzer/rrdtool-1.5.5[graph] )
 "
 

@@ -1,0 +1,12 @@
+--- rrdtoolmodule.c.orig	2016-02-26 19:51:46.394588351 +0100
++++ rrdtoolmodule.c	2016-02-26 19:52:08.121425970 +0100
+@@ -26,6 +26,8 @@
+ #include <datetime.h>
+ #include <rrd.h>
+ 
++#define HAVE_RRD_GRAPH
++
+ /* Some macros to maintain compatibility between Python 2.x and 3.x */
+ #if PY_MAJOR_VERSION >= 3
+ #define HAVE_PY3K
+

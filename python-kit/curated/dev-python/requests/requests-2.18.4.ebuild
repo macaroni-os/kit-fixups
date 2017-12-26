@@ -20,8 +20,7 @@ IUSE="socks5 +ssl"
 RDEPEND="
 	>=dev-python/certifi-2017.4.17[${PYTHON_USEDEP}]
 	>=dev-python/chardet-3.0.2[${PYTHON_USEDEP}]
-	>=dev-python/idna-2.5[${PYTHON_USEDEP}]
-	<dev-python/idna-2.7[${PYTHON_USEDEP}]
+	=dev-python/idna-2.6*[${PYTHON_USEDEP}]
 	>=dev-python/urllib3-1.21.1[${PYTHON_USEDEP}]
 	socks5? ( >=dev-python/PySocks-1.5.6[${PYTHON_USEDEP}] )
 	ssl? (

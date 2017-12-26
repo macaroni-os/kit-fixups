@@ -1,0 +1,11 @@
+diff '--exclude=.git' -urN b/src/terminal-screen.c c/src/terminal-screen.c
+--- b/src/terminal-screen.c	2015-06-20 08:14:38.071988019 -0400
++++ c/src/terminal-screen.c	2015-06-20 02:51:12.254722000 -0400
+@@ -253,6 +253,7 @@
+   GTK_WIDGET_CLASS (terminal_screen_parent_class)->realize (widget);
+ 
+   terminal_screen_set_font (screen);
++  update_color_scheme (screen);
+ }
+ 
+ void

@@ -1,0 +1,12 @@
+DEFINED_PHASES=configure install prepare unpack
+DEPEND=>=net-misc/networkmanager-0.8.1 >=dev-libs/dbus-glib-0.74 =net-dialup/ppp-2.4.7* net-dialup/xl2tpd net-vpn/libreswan gnome? ( x11-libs/gtk+:3 gnome-base/gconf:2 gnome-base/gnome-keyring gnome-base/libglade:2.0 ) sys-devel/gettext dev-util/intltool virtual/pkgconfig app-arch/xz-utils dev-vcs/git >=app-portage/elt-patches-20170317 !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DESCRIPTION=NetworkManager L2TP - for L2TP and L2TP over IPSec VPN support.
+EAPI=5
+HOMEPAGE=https://github.com/nm-l2tp/network-manager-l2tp
+IUSE=gnome
+KEYWORDS=*
+LICENSE=GPL-2
+RDEPEND=>=net-misc/networkmanager-0.8.1 >=dev-libs/dbus-glib-0.74 =net-dialup/ppp-2.4.7* net-dialup/xl2tpd net-vpn/libreswan gnome? ( x11-libs/gtk+:3 gnome-base/gconf:2 gnome-base/gnome-keyring gnome-base/libglade:2.0 )
+SLOT=0
+_eclasses_=autotools	07e71b3b5690738ef7e8bc097077e00c	eutils	b83a2420b796f7c6eff682679d08fe25	git-2	7af5d170bfc02983b4bcd3167dc5edd4	gnome.org	ad34f378a3d57a6f2f2b8b4aaca4543e	libtool	e32ea84bf82cf8987965b574672dba93	multilib	97f470f374f2e94ccab04a2fb21d811e	toolchain-funcs	6eb35f81556258a4bc9182ad3dfd58ee	versionator	99ae9d758cbe7cfed19170e7d48f5a9c
+_md5_=6dbd3f9a98f08e32eec204bcf3aff228

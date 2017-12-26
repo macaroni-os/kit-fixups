@@ -1,0 +1,12 @@
+diff -ru gnome-bluetooth-3.25.91.old/meson.build gnome-bluetooth-3.25.91/meson.build
+--- gnome-bluetooth-3.25.91.old/meson.build	2017-08-28 21:20:12.000000000 +0300
++++ gnome-bluetooth-3.25.91/meson.build	2017-09-09 21:42:13.845105936 +0300
+@@ -175,8 +175,6 @@
+ 
+ subdir('po')
+ 
+-meson.add_install_script('meson_post_install.py', get_option('enable-icon-update') ? 'icon-update' : '')
+-
+ output = '\nConfigure summary:\n\n'
+ output += '        Compiler....................:  ' + cc.get_id() + '\n\n'
+ output += '        Compiler Flags..............:  ' + ' '.join(compiler_flags) + '\n'

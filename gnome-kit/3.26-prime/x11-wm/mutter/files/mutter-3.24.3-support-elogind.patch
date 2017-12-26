@@ -1,0 +1,58 @@
+diff '--exclude=.git' -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2017-06-23 05:38:36.000000000 -0400
++++ b/configure.ac	2017-06-28 17:47:35.294825823 -0400
+@@ -243,7 +243,21 @@
+ 
+ PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
+ 
+-MUTTER_NATIVE_BACKEND_MODULES="libdrm libsystemd libinput >= 1.4 gudev-1.0 gbm >= 10.3"
++PKG_CHECK_MODULES(ELOGIND, [libelogind], [have_elogind=yes], [have_elogind=no])
++
++if test x$have_elogind = xyes; then
++     AC_DEFINE(WITH_ELOGIND, 1, [Define if elogind is used])
++     libsystemd="libelogind"
++fi
++
++PKG_CHECK_MODULES(SYSTEMD, [libsystemd], [have_systemd=yes], [have_systemd=no])
++
++if test x$have_systemd = xyes; then
++     AC_DEFINE(WITH_SYSTEMD, 1, [Define if systemd is used])
++     libsystemd="libsystemd"
++fi
++
++MUTTER_NATIVE_BACKEND_MODULES="libdrm $libsystemd libinput >= 1.4 gudev-1.0 gbm >= 10.3"
+ 
+ AC_ARG_ENABLE(native-backend,
+   AS_HELP_STRING([--disable-native-backend], [disable mutter native (KMS) backend]),,
+diff '--exclude=.git' -urN a/src/backends/native/meta-launcher.c b/src/backends/native/meta-launcher.c
+--- a/src/backends/native/meta-launcher.c	2017-04-10 20:41:18.000000000 -0400
++++ b/src/backends/native/meta-launcher.c	2017-06-28 17:41:10.888770437 -0400
+@@ -35,7 +35,12 @@
+ #include <string.h>
+ #include <unistd.h>
+ 
++#ifdef WITH_ELOGIND
++#include <elogind/sd-login.h>
++#endif
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
++#endif
+ #include <gudev/gudev.h>
+ 
+ #include "dbus-utils.h"
+diff '--exclude=.git' -urN a/src/core/main.c b/src/core/main.c
+--- a/src/core/main.c	2017-05-16 13:33:52.000000000 -0400
++++ b/src/core/main.c	2017-06-28 17:41:29.191677878 -0400
+@@ -90,7 +90,12 @@
+ #ifdef HAVE_NATIVE_BACKEND
+ #include "backends/native/meta-backend-native.h"
+ #ifdef HAVE_WAYLAND
++#ifdef WITH_ELOGIND
++#include <elogind/sd-login.h>
++#endif
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
++#endif
+ #endif /* HAVE_WAYLAND */
+ #endif /* HAVE_NATIVE_BACKEND */
+ 

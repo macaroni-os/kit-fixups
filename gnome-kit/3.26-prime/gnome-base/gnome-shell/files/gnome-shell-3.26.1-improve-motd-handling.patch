@@ -1,0 +1,84 @@
+diff '--exclude=.git' -urN a/data/theme/gnome-shell.css b/data/theme/gnome-shell.css
+--- a/data/theme/gnome-shell.css	2017-10-04 12:14:12.000000000 -0400
++++ b/data/theme/gnome-shell.css	2017-10-11 17:20:34.474939875 -0400
+@@ -1644,6 +1644,12 @@
+ .login-dialog-button-box {
+   spacing: 5px; }
+ 
++.login-dialog-message {
++  font-family: DroidSansMono, DejaVuSansMono, monospace;
++  padding-top: 4px;
++  padding-bottom: 16px;
++  min-height: 2em; }
++
+ .login-dialog-message-warning {
+   color: #f57900; }
+ 
+@@ -1712,13 +1718,17 @@
+   padding-top: 24px;
+   padding-bottom: 12px;
+   spacing: 8px;
+-  width: 23em; }
++  max-width: 69em; }
+ 
+ .login-dialog-prompt-label {
+   color: #bebeb6;
+   font-size: 110%;
+   padding-top: 1em; }
+ 
++.login-dialog-prompt-entry {
++    width: 20em;
++}
++
+ .login-dialog-session-list-button StIcon {
+   icon-size: 1.25em; }
+ 
+diff '--exclude=.git' -urN a/js/gdm/authPrompt.js b/js/gdm/authPrompt.js
+--- a/js/gdm/authPrompt.js	2017-10-04 12:14:12.000000000 -0400
++++ b/js/gdm/authPrompt.js	2017-10-11 17:20:34.474939875 -0400
+@@ -113,7 +113,6 @@
+ 
+         this._message = new St.Label({ opacity: 0,
+                                        styleClass: 'login-dialog-message' });
+-        this._message.clutter_text.line_wrap = true;
+         this._message.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+         this.actor.add(this._message, { x_fill: false, x_align: St.Align.START, y_align: St.Align.START });
+ 
+diff '--exclude=.git' -urN a/js/gdm/util.js b/js/gdm/util.js
+--- a/js/gdm/util.js	2017-10-04 12:14:12.000000000 -0400
++++ b/js/gdm/util.js	2017-10-11 17:21:47.821263969 -0400
+@@ -35,8 +35,10 @@
+ var LOGO_KEY = 'logo';
+ var DISABLE_USER_LIST_KEY = 'disable-user-list';
+ 
+-// Give user 48ms to read each character of a PAM message
+-var USER_READ_TIME = 48
++// Give user 8ms of read time per character of PAM message but no less than 4,000ms and no more than 16,000ms
++var USER_READ_TIME_PER = 8
++var USER_READ_TIME_MIN = 4000
++var USER_READ_TIME_MAX = 16000
+ 
+ var MessageType = {
+     NONE: 0,
+@@ -239,8 +241,19 @@
+     },
+ 
+     _getIntervalForMessage: function(message) {
+-        // We probably could be smarter here
+-        return message.length * USER_READ_TIME;
++        // We probably could be smarter here by:
++        //  1. stripping out non-alphanumerical characters (e.g. cowsay); and
++        //  2. counting words instead of characters (i.e. based on the average 200wpm).
++        let user_read_time = message.length * USER_READ_TIME_PER;
++
++        if (user_read_time > USER_READ_TIME_MIN && user_read_time < USER_READ_TIME_MAX) {
++            return user_read_time;
++        }
++        else if (user_read_time <= USER_READ_TIME_MIN) {
++            return USER_READ_TIME_MIN;
++        }
++
++        return USER_READ_TIME_MAX;
+     },
+ 
+     finishMessageQueue: function() {

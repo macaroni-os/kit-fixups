@@ -1,0 +1,13 @@
+diff -ru gnome-tweak-tool-3.25.92.old/gtweak/tweaks/tweak_group_appearance.py gnome-tweak-tool-3.25.92/gtweak/tweaks/tweak_group_appearance.py
+--- gnome-tweak-tool-3.25.92.old/gtweak/tweaks/tweak_group_appearance.py	2017-09-05 10:36:14.000000000 +0300
++++ gnome-tweak-tool-3.25.92/gtweak/tweaks/tweak_group_appearance.py	2017-09-06 23:59:05.469018884 +0300
+@@ -87,7 +87,8 @@
+             **options)
+ 
+     def _get_valid_cursor_themes(self):
+-        dirs = ( os.path.join(gtweak.DATA_DIR, "icons"),
++        dirs = ( os.path.join(gtweak.DATA_DIR, "cursors", "xorg-x11"),
++                 os.path.join(gtweak.DATA_DIR, "icons"),
+                  os.path.join(GLib.get_user_data_dir(), "icons"),
+                  os.path.join(os.path.expanduser("~"), ".icons"))
+         valid = walk_directories(dirs, lambda d:

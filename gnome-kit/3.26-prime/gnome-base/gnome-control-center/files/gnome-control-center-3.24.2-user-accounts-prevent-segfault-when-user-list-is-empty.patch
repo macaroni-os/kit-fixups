@@ -1,0 +1,136 @@
+diff '--exclude=.git' -urN a/panels/user-accounts/data/user-accounts-dialog.ui b/panels/user-accounts/data/user-accounts-dialog.ui
+--- a/panels/user-accounts/data/user-accounts-dialog.ui	2017-05-10 04:10:21.000000000 -0400
++++ b/panels/user-accounts/data/user-accounts-dialog.ui	2017-05-19 09:01:55.941594260 -0400
+@@ -42,6 +42,11 @@
+       <column type="gchararray"/>
+     </columns>
+   </object>
++
++  <object class="GtkStack" id="stack">
++    <property name="visible">True</property>
++    <property name="visible-child">empty-state</property>
++    <child>
+       <object class="GtkOverlay" id="overlay">
+         <property name="visible">True</property>
+         <child type="overlay">
+@@ -435,6 +440,49 @@
+           </object>
+         </child>
+       </object>
++      <packing>
++        <property name="name">_users</property>
++      </packing>
++    </child>
++    <child>
++      <object class="GtkBox" id="empty-state">
++        <property name="visible">True</property>
++        <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
++        <property name="valign">GTK_ALIGN_CENTER</property>
++        <property name="spacing">12</property>
++        <style>
++          <class name="dim-label"/>
++        </style>
++        <child>
++          <object class="GtkImage">
++            <property name="visible">True</property>
++            <property name="icon_name">computer-fail-symbolic</property>
++            <property name="pixel_size">192</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkLabel">
++            <property name="visible">True</property>
++            <property name="label" translatable="yes" comments="Translators: This is the empty state page label which states that there are no users to show in the panel.">No Users Found</property>
++            <attributes>
++              <attribute name="weight" value="bold"/>
++              <attribute name="scale" value="1.6"/>
++            </attributes>
++          </object>
++        </child>
++        <child>
++          <object class="GtkLabel">
++            <property name="visible">True</property>
++            <property name="label" translatable="yes">Unlock (if needed) to add a user account.</property>
++          </object>
++        </child>
++      </object>
++      <packing>
++        <property name="name">_empty_state</property>
++      </packing>
++    </child>
++  </object>
++
+   <object class="GtkSizeGroup" id="user-icon-sizegroup">
+     <property name="mode">both</property>
+     <widgets>
+diff '--exclude=.git' -urN a/panels/user-accounts/um-user-panel.c b/panels/user-accounts/um-user-panel.c
+--- a/panels/user-accounts/um-user-panel.c	2017-05-10 04:10:21.000000000 -0400
++++ b/panels/user-accounts/um-user-panel.c	2017-05-19 09:01:55.941594260 -0400
+@@ -71,6 +71,7 @@
+         GSettings *login_screen_settings;
+ 
+         GtkWidget *headerbar_buttons;
++        GtkWidget *stack;
+         GtkWidget *main_box;
+         UmCarousel *carousel;
+         ActUser *selected_user;
+@@ -92,9 +93,14 @@
+         return (GtkWidget *)gtk_builder_get_object (d->builder, name);
+ }
+ 
++/* Headerbar button states. */
+ #define PAGE_LOCK "_lock"
+ #define PAGE_ADDUSER "_adduser"
+ 
++/* Panel states */
++#define PAGE_NO_USERS "_empty_state"
++#define PAGE_USERS "_users"
++
+ static void show_restart_notification (CcUserPanelPrivate *d, const gchar *locale);
+ static gint user_compare (gconstpointer i, gconstpointer u);
+ 
+@@ -273,6 +279,7 @@
+         UmCarouselItem *item;
+         GtkSettings *settings;
+         gboolean animations;
++        gboolean can_reload;
+ 
+         settings = gtk_settings_get_default ();
+ 
+@@ -286,12 +293,20 @@
+         list = act_user_manager_list_users (d->um);
+         g_debug ("Got %d users\n", g_slist_length (list));
+ 
++        can_reload = (list && getuid () != 0);
++        gtk_stack_set_visible_child_name (GTK_STACK (d->stack),
++                                          can_reload ? PAGE_USERS : PAGE_NO_USERS);
++
++        if (!can_reload)
++            return;
++
+         list = g_slist_sort (list, (GCompareFunc) sort_users);
+         for (l = list; l; l = l->next) {
+                 user = l->data;
+                 g_debug ("adding user %s\n", get_real_or_user_name (user));
+                 user_added (d->um, user, d);
+         }
++
+         g_slist_free (list);
+ 
+         if (selected_user) {
+@@ -1470,13 +1485,14 @@
+         }
+ 
+         d->headerbar_buttons = get_widget (d, "headerbar-buttons");
++        d->stack = get_widget (d, "stack");
+         d->login_screen_settings = settings_or_null ("org.gnome.login-screen");
+ 
+         d->password_dialog = um_password_dialog_new ();
+         button = get_widget (d, "user-icon-button");
+         d->photo_dialog = um_photo_dialog_new (button);
+         d->main_box = get_widget (d, "accounts-vbox");
+-        gtk_container_add (GTK_CONTAINER (self), get_widget (d, "overlay"));
++        gtk_container_add (GTK_CONTAINER (self), d->stack);
+         d->history_dialog = um_history_dialog_new ();
+         setup_main_window (self);
+ }

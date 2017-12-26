@@ -1,0 +1,111 @@
+From e832ea20712b5b857d0994dbc7b5a731274f0fcf Mon Sep 17 00:00:00 2001
+From: Zhu Hai <zhuhai.mail@163.com>
+Date: Fri, 17 Nov 2017 14:26:03 +0800
+Subject: [PATCH] wayland: check monitor before use to avoid crash
+
+When turning off the monitor, wayland backends would set window->monitor
+to a NULL value, and then still use it as normal. So if you or
+screensaver turn off the monitor, gnome-shell would crash.
+
+This patch adds some check of window->monitor's value to void
+null-reference, and assume monitor->scale to be '1' when there is no active
+monitor.
+
+Signed-off-by: Zhu Hai <zhuhai.mail@163.com>
+---
+ src/compositor/meta-window-actor.c   | 2 +-
+ src/core/window.c                    | 3 ++-
+ src/wayland/meta-wayland-xdg-shell.c | 2 +-
+ src/wayland/meta-window-wayland.c    | 2 +-
+ src/x11/window-x11.c                 | 8 ++++++--
+ 5 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 1184cd4..e2504e4 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -945,7 +945,7 @@ queue_send_frame_messages_timeout (MetaWindowActor *self)
+ {
+   MetaWindowActorPrivate *priv = self->priv;
+ 
+-  if (priv->send_frame_messages_timer != 0)
++  if (priv->send_frame_messages_timer != 0 || !priv->window->monitor)
+     return;
+ 
+   MetaDisplay *display = meta_window_get_display (priv->window);
+diff --git a/src/core/window.c b/src/core/window.c
+index dc60a66..aaa2352 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -2772,7 +2772,7 @@ meta_window_maximize_internal (MetaWindow        *window,
+   meta_window_recalc_features (window);
+   set_net_wm_state (window);
+ 
+-  if (window->monitor->in_fullscreen)
++  if (window->monitor && window->monitor->in_fullscreen)
+     meta_screen_queue_check_fullscreen (window->screen);
+ 
+   g_object_freeze_notify (G_OBJECT (window));
+@@ -3209,6 +3209,7 @@ meta_window_unmaximize (MetaWindow        *window,
+   gboolean unmaximize_horizontally, unmaximize_vertically;
+ 
+   g_return_if_fail (!window->override_redirect);
++  g_return_if_fail (window->monitor);
+ 
+   /* At least one of the two directions ought to be set */
+   unmaximize_horizontally = directions & META_MAXIMIZE_HORIZONTAL;
+diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
+index 99fc9ac..96182ce 100644
+--- a/src/wayland/meta-wayland-xdg-shell.c
++++ b/src/wayland/meta-wayland-xdg-shell.c
+@@ -234,7 +234,7 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
+   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
+     return;
+ 
+-  monitor_scale = surface->window->monitor->scale;
++  monitor_scale = surface->window->monitor ? surface->window->monitor->scale : 1;
+   meta_window_show_menu (surface->window, META_WINDOW_MENU_WM,
+                          surface->window->buffer_rect.x + (x * monitor_scale),
+                          surface->window->buffer_rect.y + (y * monitor_scale));
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index ed6e34b..ac1a4a2 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -67,7 +67,7 @@ G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
+ static int
+ get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monitor)
+ {
+-  if (meta_is_stage_views_scaled ())
++  if (meta_is_stage_views_scaled () || !logical_monitor)
+     return 1;
+   else
+     return meta_logical_monitor_get_scale (logical_monitor);
+diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
+index 4885f5f..bc3c89e 100644
+--- a/src/x11/window-x11.c
++++ b/src/x11/window-x11.c
+@@ -2092,7 +2092,11 @@ meta_window_move_resize_request (MetaWindow *window,
+       rect.width = width;
+       rect.height = height;
+ 
+-      meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
++      gboolean rect_equals = FALSE;
++      if (window->monitor) {
++        meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
++        rect_equals = meta_rectangle_equal (&rect, &monitor_rect);
++      }
+ 
+       /* Workaround braindead legacy apps that don't know how to
+        * fullscreen themselves properly - don't get fooled by
+@@ -2104,7 +2108,7 @@ meta_window_move_resize_request (MetaWindow *window,
+       if (meta_prefs_get_force_fullscreen() &&
+           !window->hide_titlebar_when_maximized &&
+           (window->decorated || !meta_window_is_client_decorated (window)) &&
+-          meta_rectangle_equal (&rect, &monitor_rect) &&
++          rect_equals &&
+           window->has_fullscreen_func &&
+           !window->fullscreen)
+         {
+-- 
+2.14.1
+

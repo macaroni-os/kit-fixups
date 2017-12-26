@@ -1,0 +1,56 @@
+diff '--exclude=.git' -urN a/js/ui/screenShield.js b/js/ui/screenShield.js
+--- a/js/ui/screenShield.js	2015-10-08 15:27:11.000000000 -0400
++++ b/js/ui/screenShield.js	2016-05-29 19:34:17.256003962 -0400
+@@ -33,6 +33,9 @@
+ const LOCK_ENABLED_KEY = 'lock-enabled';
+ const LOCK_DELAY_KEY = 'lock-delay';
+ 
++const SESSION_SCHEMA = 'org.gnome.desktop.session';
++const IDLE_DELAY_KEY = 'idle-delay';
++
+ const LOCKED_STATE_STR = 'screenShield.locked';
+ // fraction of screen height the arrow must reach before completing
+ // the slide up automatically
+@@ -523,6 +526,7 @@
+ 
+         this._settings = new Gio.Settings({ schema_id: SCREENSAVER_SCHEMA });
+         this._settings.connect('changed::' + LOCK_ENABLED_KEY, Lang.bind(this, this._syncInhibitor));
++        this._sessionSettings = new Gio.Settings({ schema_id: SESSION_SCHEMA });
+ 
+         this._isModal = false;
+         this._hasLockScreen = false;
+@@ -1093,8 +1097,23 @@
+     },
+ 
+     _completeLockScreenShown: function() {
+-        this._setActive(true);
+-        this.emit('lock-screen-shown');
++        let prevIsActive = this._isActive;
++        this._isActive = true;
++
++        let idleTimeout = this._sessionSettings.get_uint(IDLE_DELAY_KEY);
++
++        let id = Mainloop.timeout_add(1000 * idleTimeout, Lang.bind(this, function() {
++            if (this._isActive) {
++                if (prevIsActive != this._isActive)
++                    this.emit('active-changed');
++
++                this._syncInhibitor();
++
++                this.emit('lock-screen-shown');
++            }
++            return GLib.SOURCE_REMOVE;
++        }));
++        GLib.Source.set_name_by_id(id, '[gnome-shell] this._completeLockScreenShown');
+     },
+ 
+     // Some of the actors in the lock screen are heavy in
+@@ -1250,7 +1269,7 @@
+         }
+ 
+         this._resetLockScreen({ animateLockScreen: animate,
+-                                fadeToBlack: true });
++                                fadeToBlack: false });
+         global.set_runtime_state(LOCKED_STATE_STR, GLib.Variant.new('b', true));
+ 
+         // We used to set isActive and emit active-changed here,

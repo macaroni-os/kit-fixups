@@ -1,0 +1,146 @@
+diff '--exclude=.git' -urN a/common/gdm-common.c b/common/gdm-common.c
+--- a/common/gdm-common.c	2017-05-04 16:08:17.000000000 -0400
++++ b/common/gdm-common.c	2017-05-18 08:13:12.323531550 -0400
+@@ -39,7 +39,13 @@
+ #include "mkdtemp.h"
+ #endif
+ 
++#ifdef WITH_ELOGIND
++#include <elogind/sd-login.h>
++#endif
++
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
++#endif
+ 
+ #define GDM_DBUS_NAME                            "org.gnome.DisplayManager"
+ #define GDM_DBUS_LOCAL_DISPLAY_FACTORY_PATH      "/org/gnome/DisplayManager/LocalDisplayFactory"
+diff '--exclude=.git' -urN a/common/gdm-log.c b/common/gdm-log.c
+--- a/common/gdm-log.c	2017-05-04 16:08:17.000000000 -0400
++++ b/common/gdm-log.c	2017-05-22 14:13:50.354604527 -0400
+@@ -30,7 +30,9 @@
+ #include <unistd.h>
+ 
+ #include <syslog.h>
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-daemon.h>
++#endif
+ 
+ #include <glib.h>
+ #include <glib/gstdio.h>
+diff '--exclude=.git' -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2017-05-09 17:10:05.000000000 -0400
++++ b/configure.ac	2017-07-25 18:22:44.248689085 -0400
+@@ -902,15 +902,38 @@
+ CPPFLAGS="$xinerama_save_cppflags"
+ 
+ dnl ---------------------------------------------------------------------------
++dnl - Check for elogind support
++dnl ---------------------------------------------------------------------------
++
++PKG_CHECK_MODULES(ELOGIND,
++                  [libelogind],
++                  [have_elogind=yes], [have_elogind=no])
++
++AC_SUBST(ELOGIND_CFLAGS)
++AC_SUBST(ELOGIND_LIBS)
++
++if test "x$have_elogind" != "xno" ; then
++        AC_DEFINE(WITH_ELOGIND, 1, [Define to enable elogind support])
++fi
++
++dnl ---------------------------------------------------------------------------
+ dnl - Check for systemd support
+ dnl ---------------------------------------------------------------------------
+ 
+ PKG_CHECK_MODULES(SYSTEMD,
+-                  [libsystemd])
++                  [libsystemd],
++                  [have_systemd=yes], [have_systemd=no])
+ 
+ AC_SUBST(SYSTEMD_CFLAGS)
+ AC_SUBST(SYSTEMD_LIBS)
+ 
++SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS $ELOGIND_CFLAGS"
++SYSTEMD_LIBS="$SYSTEMD_LIBS $ELOGIND_LIBS"
++
++if test "x$have_systemd" != "xno" ; then
++        AC_DEFINE(WITH_SYSTEMD, 1, [Define to enable systemd support])
++fi
++
+ PKG_CHECK_MODULES(JOURNALD,
+                   [libsystemd],
+                   [have_journald=yes], [have_journald=no])
+diff '--exclude=.git' -urN a/daemon/gdm-manager.c b/daemon/gdm-manager.c
+--- a/daemon/gdm-manager.c	2017-05-09 17:09:48.000000000 -0400
++++ b/daemon/gdm-manager.c	2017-05-18 08:13:41.621367100 -0400
+@@ -36,7 +36,13 @@
+ 
+ #include <act/act-user-manager.h>
+ 
++#ifdef WITH_ELOGIND
++#include <elogind/sd-login.h>
++#endif
++
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
++#endif
+ 
+ #include "gdm-common.h"
+ 
+diff '--exclude=.git' -urN a/daemon/gdm-server.c b/daemon/gdm-server.c
+--- a/daemon/gdm-server.c	2017-05-05 10:40:44.000000000 -0400
++++ b/daemon/gdm-server.c	2017-05-22 14:14:12.451442254 -0400
+@@ -43,7 +43,9 @@
+ #include <linux/vt.h>
+ #endif
+ 
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-daemon.h>
++#endif
+ 
+ #ifdef ENABLE_SYSTEMD_JOURNAL
+ #include <systemd/sd-journal.h>
+diff '--exclude=.git' -urN a/daemon/gdm-session-worker-job.c b/daemon/gdm-session-worker-job.c
+--- a/daemon/gdm-session-worker-job.c	2017-05-04 16:08:17.000000000 -0400
++++ b/daemon/gdm-session-worker-job.c	2017-05-22 14:14:20.203385384 -0400
+@@ -36,7 +36,9 @@
+ #include <sys/prctl.h>
+ #endif
+ 
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-daemon.h>
++#endif
+ 
+ #ifdef ENABLE_SYSTEMD_JOURNAL
+ #include <systemd/sd-journal.h>
+diff '--exclude=.git' -urN a/daemon/gdm-session-worker.c b/daemon/gdm-session-worker.c
+--- a/daemon/gdm-session-worker.c	2017-05-04 16:08:17.000000000 -0400
++++ b/daemon/gdm-session-worker.c	2017-05-22 14:14:37.644257536 -0400
+@@ -49,7 +49,9 @@
+ 
+ #include <X11/Xauth.h>
+ 
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-daemon.h>
++#endif
+ 
+ #ifdef ENABLE_SYSTEMD_JOURNAL
+ #include <systemd/sd-journal.h>
+diff '--exclude=.git' -urN a/libgdm/gdm-user-switching.c b/libgdm/gdm-user-switching.c
+--- a/libgdm/gdm-user-switching.c	2017-05-04 16:08:17.000000000 -0400
++++ b/libgdm/gdm-user-switching.c	2017-05-18 08:15:57.722603804 -0400
+@@ -31,7 +31,13 @@
+ #include <glib-object.h>
+ #include <gio/gio.h>
+ 
++#ifdef WITH_ELOGIND
++#include <elogind/sd-login.h>
++#endif
++
++#ifdef WITH_SYSTEMD
+ #include <systemd/sd-login.h>
++#endif
+ 
+ #include "common/gdm-common.h"
+ #include "gdm-user-switching.h"

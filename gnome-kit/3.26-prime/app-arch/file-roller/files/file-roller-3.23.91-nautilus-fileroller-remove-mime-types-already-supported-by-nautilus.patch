@@ -1,0 +1,76 @@
+From aab1b7335c40b8b0e3d5a00cf8305dc53d48f3c8 Mon Sep 17 00:00:00 2001
+From: Carlos Soriano <csoriano@gnome.org>
+Date: Wed, 1 Mar 2017 21:16:14 +0100
+Subject: nautilus-fileroller: remove mime-types already supported by nautilus
+
+Remove support for the mime-types already handled by Nautilus' built-in
+support, as nautilus provides a more integrated user experience. This
+also avoids having 2 separate "Extract here" menu items in Nautilus.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=772765
+---
+ nautilus/nautilus-fileroller.c | 22 ----------------------
+ 1 file changed, 22 deletions(-)
+
+diff --git a/nautilus/nautilus-fileroller.c b/nautilus/nautilus-fileroller.c
+index 285c83d..7dcf676 100644
+--- a/nautilus/nautilus-fileroller.c
++++ b/nautilus/nautilus-fileroller.c
+@@ -146,37 +146,22 @@ static struct {
+ 	char     *mime_type;
+ 	gboolean  is_compressed;
+ } archive_mime_types[] = {
+-		{ "application/x-7z-compressed", TRUE },
+-		{ "application/x-7z-compressed-tar", TRUE },
+ 		{ "application/x-ace", TRUE },
+ 		{ "application/x-alz", TRUE },
+ 		{ "application/x-ar", TRUE },
+ 		{ "application/x-arj", TRUE },
+-		{ "application/x-bzip", TRUE },
+-		{ "application/x-bzip-compressed-tar", TRUE },
+-		{ "application/x-bzip1", TRUE },
+-		{ "application/x-bzip1-compressed-tar", TRUE },
+ 		{ "application/vnd.ms-cab-compressed", TRUE },
+ 		{ "application/x-cbr", TRUE },
+ 		{ "application/x-cbz", TRUE },
+ 		{ "application/x-cd-image", FALSE },
+-		{ "application/x-compress", TRUE },
+-		{ "application/x-compressed-tar", TRUE },
+-		{ "application/x-cpio", TRUE },
+ 		{ "application/x-deb", TRUE },
+ 		{ "application/vnd.debian.binary-package", TRUE },
+ 		{ "application/x-ear", TRUE },
+ 		{ "application/x-ms-dos-executable", FALSE },
+ 		{ "application/x-gtar", FALSE },
+-		{ "application/x-gzip", TRUE },
+ 		{ "application/x-gzpostscript", TRUE },
+ 		{ "application/x-java-archive", TRUE },
+-		{ "application/x-lha", TRUE },
+ 		{ "application/x-lhz", TRUE },
+-		{ "application/x-lzip", TRUE },
+-		{ "application/x-lzip-compressed-tar", TRUE },
+-		{ "application/x-lzma", TRUE },
+-		{ "application/x-lzma-compressed-tar", TRUE },
+ 		{ "application/x-lzop", TRUE },
+ 		{ "application/x-lzop-compressed-tar", TRUE },
+ 		{ "application/x-ms-wim", TRUE },
+@@ -184,16 +169,9 @@ static struct {
+ 		{ "application/x-rar-compressed", TRUE },
+ 		{ "application/x-rpm", TRUE },
+ 		{ "application/x-rzip", TRUE },
+-		{ "application/x-tar", FALSE },
+-		{ "application/x-tarz", TRUE },
+ 		{ "application/x-stuffit", TRUE },
+ 		{ "application/x-war", TRUE },
+-		{ "application/x-xz", TRUE },
+-		{ "application/x-xz-compressed-tar", TRUE },
+-		{ "application/x-zip", TRUE },
+-		{ "application/x-zip-compressed", TRUE },
+ 		{ "application/x-zoo", TRUE },
+-		{ "application/zip", TRUE },
+ 		{ "multipart/x-zip", TRUE },
+ 		{ NULL, FALSE }
+ };
+-- 
+cgit v0.12
+

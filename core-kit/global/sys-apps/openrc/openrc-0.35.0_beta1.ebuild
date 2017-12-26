@@ -9,7 +9,7 @@ HOMEPAGE="https://github.com/openrc/openrc/"
 
 EGIT_REPO_URI="https://github.com/OpenRC/${PN}.git"
 EGIT_COMMIT="7affff568a0aa83d732757c4699d4b94b7e3a9aa"
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="BSD-2"
 SLOT="0"

@@ -103,6 +103,7 @@ src_compile() {
 		--tempdir="${T}"/twork \
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/out/boot \
+		--disklabel \
 		--lvm \
 		--luks \
 		--mdadm \

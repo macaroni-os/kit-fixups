@@ -30,9 +30,9 @@ COMMON_DEPEND="
 	dev-libs/libgpg-error
 	>=net-libs/gnutls-3.0
 	>=x11-libs/cairo-1.2
-	>=x11-libs/gtk+-2.18:2
+	>=x11-libs/gtk+-2.18:2[introspection]
 	x11-libs/libX11
-	gtk3? ( >=x11-libs/gtk+-2.91.3:3 )
+	gtk3? ( >=x11-libs/gtk+-2.91.3:3[introspection] )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.4 )
 	pulseaudio? ( media-sound/pulseaudio )
 	python? (

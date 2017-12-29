@@ -127,6 +127,9 @@ src_install() {
 
 	dodir /bin
 	mv "${ED%/}"/{s,}bin/ip || die #330115
+	
+	# add compatibility symlink. FL-4602
+	dosym /bin/ip /sbin/ip
 
 	dolib.a lib/libnetlink.a
 	insinto /usr/include

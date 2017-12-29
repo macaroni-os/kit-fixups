@@ -1,6 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 inherit eutils flag-o-matic autotools
@@ -30,14 +28,14 @@ S=${WORKDIR}/${MY_P2}
 src_prepare() {
 	epatch \
 		"${FILESDIR}"/${P}-gentoo.patch \
-		"${FILESDIR}"/${P}-underlink.patch
+		"${FILESDIR}"/${P}-ldflags.patch \
+		"${FILESDIR}"/${P}-cppunit.patch
 	sed -e "s/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/" -i configure.ac || die
 	eautoreconf
 }
 
 src_configure() {
 	strip-flags # ftgl is sensitive - bug #112820
-	append-cxxflags -std=c++14
 	econf $(use_enable static-libs static)
 }
 

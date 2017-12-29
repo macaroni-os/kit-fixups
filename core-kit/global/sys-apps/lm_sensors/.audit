@@ -1,0 +1,44 @@
+Security
+========
+lm_sensors is not vulnerable to any known exploit.
+
+Known vulnerabilities
+---------------------
+
+lm_sensors: Insecure temporary file creation — GLSA 200508-19
+Unaffected versions >= 2.9.1-r1
+
+  References:
+    * https://security.gentoo.org/glsa/200508-19
+    pwmconfig in LM_sensors before 2.9.1 creates temporary files insecurely, which allows local users to overwrite arbitrary files via a symlink attack on the fancontrol temporary file. 
+      * https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2672
+
+Updates
+=======
+There are some updates in the source code that are adding only new sensors (definitions), that would maybe make sense to add as a new/bumped release.
+
+Updates Summary
+---------------
+SVN HEAD
+  sensors.1: Add reference to sensors-detect
+             Document -j option (json output)
+  sensors: Add support for json output
+  sensors-detect: Fix systemd paths
+                  Add detection of Fintek F81768
+                  Only probe I/O ports on x86
+                  Add detection of Nuvoton NCT6793D
+                  Add detection of Microchip MCP9808
+                  Mark F71868A as supported by the f71882fg driver
+                  Mark F81768D as supported by the f71882fg driver
+                  Mark F81866D as supported by the f71882fg driver
+                  Add detection of various ITE chips
+                  Add detection of Nuvoton NCT6795D
+                  Add detection of DDR4 SPD
+                  Add detection of ITE IT8987D
+                  Add detection of AMD Family 17h temperature sensors
+                  Add detection of AMD KERNCZ SMBus controller
+                  Add detection of various Intel SMBus controllers
+                  Add detection of Giantec GT30TS00
+                  Add detection of ONS CAT34TS02C and CAT34TS04
+                  Add detection of AMD Family 15h Model 60+ temperature sensors
+configs: Add sample configuration files.

@@ -22,6 +22,11 @@ Linux that you can rely on to be stable and perform consistently over an extende
 Security Fixes
 --------------
 
+December 28, 2017
+~~~~~~~~~~~~~~~~~
+
+- ``app-admin/sudo`` has been updated to 1.8.21_p2 to address CVE-2017-1000368 (CVE-2017-1000367 was already addresssed via patch.)
+
 December 21, 2017
 ~~~~~~~~~~~~~~~~~
 - ``dev-libs/openssl`` has been updated to 1.0.2n to address CVE-2017-3735, CVE-2017-3736, CVE-2017-3737 and CVE-2017-3738.

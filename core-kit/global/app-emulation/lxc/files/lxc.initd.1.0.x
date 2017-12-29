@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 CONTAINER=${SVCNAME#*.}
@@ -60,7 +60,6 @@ depend() {
 
 	config ${CONFIGFILE}
 	need localmount
-	use lxcfs
 
 	local _x _if
 	for _x in $(lxc_get_net_link_type); do
@@ -93,7 +92,7 @@ start() {
 	esac
 
 	ebegin "Starting ${CONTAINER}"
-	env -i ${setarch} $(which lxc-start) -l WARN -n ${CONTAINER} -f ${CONFIGFILE} -d -o /var/log/lxc/${CONTAINER}.log
+	env -i ${setarch} $(type -p lxc-start) -l WARN -n ${CONTAINER} -f ${CONFIGFILE} -d -o /var/log/lxc/${CONTAINER}.log
 	sleep 0.5
 
 	# lxc-start -d will _always_ report a correct startup, even if it

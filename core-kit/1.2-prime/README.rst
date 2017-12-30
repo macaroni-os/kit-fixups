@@ -1,12 +1,14 @@
 ===========================
 core-kit
 ===========================
-1.1-prime branch
+1.2-prime branch
 ---------------------------
 
 Core-kit contains the core ebuilds for Funtoo Linux. It is designed to be a part of the Funtoo Linux kits system.
 
-The ``1.1-prime`` branch of core-kit is deprecated. Please use ``1.0-prime`` as current stable curated 
+The ``1.2-prime`` branch of core-kit is marked as development branch. Please use ``1.0-prime`` 
+as 
+current stable curated 
 branch of core ebuilds for Funtoo. By 'curated', we
 mean that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and
 will be continuing to maintain.
@@ -19,6 +21,18 @@ functionality on anyone's system.
 Based on these policies, you should consider ``1.0-prime`` to be a reference implementation of core 
 packages for Funtoo
 Linux that you can rely on to be stable and perform consistently over an extended period of time.
+
+
+
+
+---------------
+Version updates
+---------------
+
+December 31, 2017
+~~~~~~~~~~~~~~~~~
+
+- ``sys-apps/coreutils`` has been updated to 8.25, 8.26, 8.28-r1
 
 --------------
 Security Fixes
@@ -39,11 +53,6 @@ December 18, 2017
 
 - ``net-misc/rsync`` has been updated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and 
 CVE-2017-17434.
-
-September 15, 2017
-~~~~~~~~~~~~~~~~~~
-
-- ``net-wireless/bluez`` was updated to 5.44-r1 to address CVE-2017-1000250 (blueborne vulnerability.)
 
 Reporting Bugs
 ---------------

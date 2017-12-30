@@ -1,0 +1,51 @@
+These package versions are not vulnerable
+
+Coreutils: Arbitrary code execution — GLSA 201612-22
+====================================================
+
+A vulnerability in Coreutils could lead to the execution of arbitrary code or a Denial of Service 
+condition.
+
+Affected Packages
+-----------------
+
+Package 	sys-apps/coreutils on all architectures
+Affected versions 	< 8.23
+Unaffected versions 	>= 8.23
+
+Background
+----------
+
+The GNU Core Utilities are the basic file, shell and text manipulation utilities of the GNU operating 
+system.
+
+Description
+-----------
+
+A memory corruption flaw in GNU Coreutils’ parse_datetime function was reported. Applications using 
+parse_datetime(), such as touch or date, may accepted untrusted input.
+
+Impact
+------
+
+A remote attacker could possibly execute arbitrary code with the privileges of the process, or cause a 
+Denial of Service condition.
+
+Workaround
+----------
+
+There is no known workaround at this time.
+
+Resolution
+----------
+
+All Coreutils users should upgrade to the latest version:
+
+ # emerge --sync
+ # emerge --ask --oneshot --verbose ">=sys-apps/coreutils-8.23"
+ 
+
+References
+----------
+
+  * CVE-2014-9471 https://nvd.nist.gov/nvd.cfm?cvename=CVE-2014-9471

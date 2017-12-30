@@ -42,7 +42,6 @@ RDEPEND="${PYTHON_DEPS}
 	gnome? ( gnome-base/nautilus
 	dev-libs/glib:2
 	dev-python/pygtk:2[${PYTHON_USEDEP}]
-	net-misc/dropbox
 	x11-libs/gtk+:2
 	x11-libs/libnotify
 	x11-libs/libXinerama )

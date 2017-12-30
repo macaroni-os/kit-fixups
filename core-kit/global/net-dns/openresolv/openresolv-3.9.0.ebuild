@@ -1,43 +1,34 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-
-inherit eutils
+EAPI=6
 
 DESCRIPTION="A framework for managing DNS information"
 HOMEPAGE="http://roy.marples.name/projects/openresolv"
-SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.bz2"
+SRC_URI="http://roy.marples.name/downloads/${PN}/${P}.tar.xz"
 
 LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
+IUSE="selinux"
 
 DEPEND="!net-dns/resolvconf-gentoo
 	!<net-dns/dnsmasq-2.40-r1"
-RDEPEND=""
+RDEPEND="selinux? ( sec-policy/selinux-resolvconf )"
 
 src_configure() {
 	econf \
-		--prefix= \
-		--rundir=/var/run \
-		--libexecdir=/lib/resolvconf \
-		--restartcmd="/lib/resolvconf/helpers/restartcmd \1"
-}
-
-src_install() {
-	default
-	exeinto /lib/resolvconf/helpers
-	doexe "${FILESDIR}"/restartcmd
+		--prefix="${EPREFIX}" \
+		--rundir="${EPREFIX}"/var/run \
+		--libexecdir="${EPREFIX}"/lib/resolvconf
 }
 
 pkg_config() {
-	if [ "${ROOT}" != "/" ]; then
+	if [[ ${ROOT} != / ]]; then
 		eerror "We cannot configure unless \$ROOT=/"
 		return 1
 	fi
 
-	if [ -n "$(resolvconf -l)" ]; then
+	if [[ -n "$(resolvconf -l)" ]]; then
 		einfo "${PN} already has DNS information"
 	else
 		ebegin "Copying /etc/resolv.conf to resolvconf -a dummy"

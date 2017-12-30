@@ -36,6 +36,10 @@ December 18, 2017
 
 - ``net-misc/rsync`` has been udpated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and CVE-2017-17434.
 
+September 15, 2017
+~~~~~~~~~~~~~~~~~~
+
+- ``net-wireless/bluez`` was updated to 5.44-r1 to address CVE-2017-1000250 (blueborne vulnerability.)
 
 ---------------
 Reporting Bugs

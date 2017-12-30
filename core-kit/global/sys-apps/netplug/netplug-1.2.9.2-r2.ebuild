@@ -1,6 +1,7 @@
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=4
+EAPI=6
 
 inherit eutils toolchain-funcs
 
@@ -10,35 +11,42 @@ SRC_URI="http://www.red-bean.com/~bos/netplug/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS="amd64 arm ~mips ppc ppc64 sparc x86"
 IUSE="debug doc"
 
 DEPEND="doc? ( app-text/ghostscript-gpl
 		media-gfx/graphviz )"
 RDEPEND=""
 
+PATCHES=(
+	# Remove nested functions, #116140
+	"${FILESDIR}/${PN}-1.2.9-remove-nest.patch"
+
+	# Ignore wireless events
+	"${FILESDIR}/${PN}-1.2.9-ignore-wireless.patch"
+
+	# Fix DOWNANDOUT problem #599400
+	"${FILESDIR}/${P}-downandout.patch"
+)
+
 src_prepare() {
 	# Remove debug flags from CFLAGS
 	if ! use debug; then
-		sed -i -e "s/ -ggdb3//" Makefile || die "sed failed"
+		sed -i -e "s/ -ggdb3//" Makefile || die
 	fi
 
 	# Remove -O3 and -Werror from CFLAGS
-	sed -i -e "s/ -O3//" -e "s/ -Werror//" Makefile || die "sed failed"
+	sed -i -e "s/ -O3//" -e "s/ -Werror//" Makefile || die
 
-	# Remove nested functions, #116140
-	epatch "${FILESDIR}/${PN}-1.2.9-remove-nest.patch"
-
-	# Ignore wireless events
-	epatch "${FILESDIR}/${PN}-1.2.9-ignore-wireless.patch"
+	default
 }
 
 src_compile() {
 	tc-export CC
-	emake CC="${CC}" || die "emake failed"
+	emake CC="${CC}"
 
 	if use doc; then
-		emake -C docs/ || die "emake failed"
+		emake -C docs/
 	fi
 }
 
@@ -52,11 +60,11 @@ src_install() {
 	newexe "${FILESDIR}/netplug-2-r1" netplug
 
 	dodir /etc/netplug
-	echo "eth*" > "${D}"/etc/netplug/netplugd.conf
+	echo "eth*" > "${D}"/etc/netplug/netplugd.conf || die
 
-	dodoc ChangeLog NEWS README TODO || die "dodoc failed"
+	dodoc ChangeLog NEWS README TODO
 
 	if use doc; then
-		dodoc docs/state-machine.ps || die "dodoc failed"
+		dodoc docs/state-machine.ps
 	fi
 }

@@ -62,6 +62,9 @@ psaux/t1decode.c.
 out-of-bounds write caused by a heap-based buffer overflow related to the t1_builder_close_contour function in
 psaux/psobjs.c. Upstream fixes backported into =media-libs/freetype-2.6.5-r1 ebuild.
 
+Additionally, ``CVE-2016-10328`` and ``CVE-2017-7864`` have been addressed by a freetype-2.6.5 upgrade to
+freetype-2.6.5-r1.
+
 ---------------
 Reporting Bugs
 ---------------

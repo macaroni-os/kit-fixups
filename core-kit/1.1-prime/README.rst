@@ -6,7 +6,8 @@ core-kit
 
 Core-kit contains the core ebuilds for Funtoo Linux. It is designed to be a part of the Funtoo Linux kits system.
 
-The ``1.1-prime`` branch of gnome-kit is the current, stable curated branch of core ebuilds for Funtoo. By 'curated', we
+The ``1.1-prime`` branch of core-kit is deprecated. Please use ``1.0-prime`` as current stable curated 
+branch of core ebuilds for Funtoo. By 'curated', we
 mean that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and
 will be continuing to maintain.
 
@@ -15,7 +16,8 @@ will be only incorporating bug fixes for specific issues and security backports.
 ebuilds unless absolutely necessary and we have very strong belief that they will not negatively impact the
 functionality on anyone's system.
 
-Based on these policies, you should consider ``1.1-prime`` to be a reference implementation of core packages for Funtoo
+Based on these policies, you should consider ``1.0-prime`` to be a reference implementation of core 
+packages for Funtoo
 Linux that you can rely on to be stable and perform consistently over an extended period of time.
 
 --------------
@@ -35,7 +37,8 @@ December 21, 2017
 December 18, 2017
 ~~~~~~~~~~~~~~~~~
 
-- ``net-misc/rsync`` has been udpated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and CVE-2017-17434.
+- ``net-misc/rsync`` has been updated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and 
+CVE-2017-17434.
 
 Reporting Bugs
 ---------------

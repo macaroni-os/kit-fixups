@@ -1,9 +1,6 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 MY_PN=${PN/iwl/iwlwifi-}
-
-
 
 DESCRIPTION="Intel (R) Centrino (R) Wireless-N 2200 ucode"
 HOMEPAGE="http://linuxwireless.org/en/users/Drivers/iwlwifi"

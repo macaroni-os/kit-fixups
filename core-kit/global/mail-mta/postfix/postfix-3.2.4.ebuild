@@ -1,40 +1,39 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
-inherit eutils flag-o-matic multilib pam ssl-cert toolchain-funcs user versionator
+EAPI=6
+inherit flag-o-matic pam toolchain-funcs user
 
 MY_PV="${PV/_rc/-RC}"
 MY_SRC="${PN}-${MY_PV}"
 MY_URI="ftp://ftp.porcupine.org/mirrors/postfix-release/official"
-VDA_PV="2.10.0"
-VDA_P="${PN}-vda-v13-${VDA_PV}"
-RC_VER="2.8"
+RC_VER="2.9"
 
 DESCRIPTION="A fast and secure drop-in replacement for sendmail"
 HOMEPAGE="http://www.postfix.org/"
-SRC_URI="${MY_URI}/${MY_SRC}.tar.gz
-	vda? ( http://vda.sourceforge.net/VDA/${VDA_P}.patch ) "
+SRC_URI="${MY_URI}/${MY_SRC}.tar.gz"
 
 LICENSE="IBM"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+berkdb cdb doc dovecot-sasl +eai hardened ldap ldap-bind lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl vda"
+IUSE="+berkdb cdb doc dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl"
 
 DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
-	berkdb? ( >=sys-libs/db-3.2 )
-	cdb? ( || ( >=dev-db/tinycdb-0.76 >=dev-db/cdb-0.75-r1 ) )
-	eai? ( dev-libs/icu )
+	berkdb? ( >=sys-libs/db-3.2:* )
+	cdb? ( || ( >=dev-db/tinycdb-0.76 >=dev-db/cdb-0.75-r4 ) )
+	eai? ( dev-libs/icu:= )
 	ldap? ( net-nds/openldap )
 	ldap-bind? ( net-nds/openldap[sasl] )
 	lmdb? ( >=dev-db/lmdb-0.9.11 )
 	mysql? ( virtual/mysql )
 	pam? ( virtual/pam )
-	postgres? ( dev-db/postgresql )
+	postgres? ( dev-db/postgresql:* )
 	sasl? (  >=dev-libs/cyrus-sasl-2 )
-	selinux? ( sec-policy/selinux-postfix )
 	sqlite? ( dev-db/sqlite:3 )
-	ssl? ( >=dev-libs/openssl-0.9.6g )"
+	ssl? (
+		!libressl? ( dev-libs/openssl:0 )
+		libressl? ( dev-libs/libressl )
+	)"
 
 RDEPEND="${DEPEND}
 	dovecot-sasl? ( net-mail/dovecot )
@@ -52,11 +51,10 @@ RDEPEND="${DEPEND}
 	!mail-mta/opensmtpd
 	!<mail-mta/ssmtp-2.64-r2
 	!>=mail-mta/ssmtp-2.64-r2[mta]
-	!net-mail/fastforward"
+	!net-mail/fastforward
+	selinux? ( sec-policy/selinux-postfix )"
 
-# No vda support for postfix-3.0
-REQUIRED_USE="ldap-bind? ( ldap sasl )
-		!vda"
+REQUIRED_USE="ldap-bind? ( ldap sasl )"
 
 S="${WORKDIR}/${MY_SRC}"
 
@@ -68,21 +66,14 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if use vda; then
-		epatch "${DISTDIR}"/${VDA_P}.patch
-	fi
-
+	default
 	sed -i -e "/^#define ALIAS_DB_MAP/s|:/etc/aliases|:/etc/mail/aliases|" \
 		src/util/sys_defs.h || die "sed failed"
-
 	# change default paths to better comply with portage standard paths
 	sed -i -e "s:/usr/local/:/usr/:g" conf/master.cf || die "sed failed"
-
-	# change to unix socket and use chrooted deamon
-	epatch "${FILESDIR}"/patches/funtoo.patch
-
-	# linux-4.x support
-	epatch "${FILESDIR}"/${PN}-linux4.patch
+	eapply -p0 "${FILESDIR}/${PN}-libressl.patch"
+	eapply -p0 "${FILESDIR}/${PN}-libressl-runtime.patch"
+	eapply "${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
 }
 
 src_configure() {
@@ -194,7 +185,7 @@ src_configure() {
 	sed -i -e "/^RANLIB/s/ranlib/$(tc-getRANLIB)/g" "${S}"/makedefs
 	sed -i -e "/^AR/s/ar/$(tc-getAR)/g" "${S}"/makedefs
 
-	emake makefiles shared=yes dynamicmaps=no \
+	emake makefiles shared=yes dynamicmaps=no pie=yes \
 		shlib_directory="/usr/$(get_libdir)/postfix/MAIL_VERSION" \
 		DEBUG="" CC="$(tc-getCC)" OPT="${CFLAGS}" CCARGS="${mycc}" AUXLIBS="${mylibs}" \
 		AUXLIBS_CDB="${AUXLIBS_CDB}" AUXLIBS_LDAP="${AUXLIBS_LDAP}" \
@@ -231,7 +222,7 @@ src_install () {
 	# Provide another link for legacy FSH
 	dosym /usr/sbin/sendmail /usr/$(get_libdir)/sendmail
 
-	# Install qshape tool and posttls-finger
+	# Install qshape and posttls-finger
 	dobin auxiliary/qshape/qshape.pl
 	doman man/man1/qshape.1
 	dobin bin/posttls-finger
@@ -242,6 +233,7 @@ src_install () {
 	doman man/man1/smtp-{source,sink}.1 man/man1/qmqp-{source,sink}.1
 
 	# Set proper permissions on required files/directories
+	dodir /var/lib/postfix
 	keepdir /var/lib/postfix
 	fowners -R postfix:postfix /var/lib/postfix
 	fperms 0750 /var/lib/postfix
@@ -268,7 +260,6 @@ src_install () {
 	use postgres || sed -i -e "s/postgresql //" "${D}/etc/init.d/postfix"
 
 	dodoc *README COMPATIBILITY HISTORY PORTING RELEASE_NOTES*
-	mv "${D}"/etc/postfix/{*.default,makedefs.out,*.proto} "${D}"/usr/share/doc/${PF}/
 	use doc && mv "${S}"/examples "${D}"/usr/share/doc/${PF}/
 
 	pamd_mimic_system smtp auth account
@@ -282,7 +273,7 @@ src_install () {
 	insinto /usr/include/postfix
 	doins include/*.h
 
-	# Remove unnecessary files
+	# Keep config_dir clean
 	rm -f "${D}"/etc/postfix/{*LICENSE,access,aliases,canonical,generic}
 	rm -f "${D}"/etc/postfix/{header_checks,relocated,transport,virtual}
 
@@ -291,40 +282,35 @@ src_install () {
 		sed -i -e /^compatibility_level/"s/^/#/" "${D}"/etc/postfix/main.cf || die
 	fi
 }
-
-add_init() {
-	local runl=$1
-	shift
-		if [ ! -e ${ROOT}etc/runlevels/${runl} ]
-		then
-			install -d -m0755 ${ROOT}etc/runlevels/${runl}
-		fi
-		for initd in $*
-		do
-			einfo "Auto-adding '${initd}' service to your ${runl} runlevel"
-			[[ -e ${ROOT}etc/runlevels/${runl}/${initd} ]] && continue
-			[[ ! -e ${ROOT}etc/init.d/${initd} ]] && die "initscript $initd not found; aborting"
-			ln -snf /etc/init.d/${initd} "${ROOT}etc/runlevels/${runl}/${initd}"
-		done
+add_service() {
+	local initd=$1
+	local runlevel=$2
+	elog "Auto-adding '${initd}' service to your ${runlevel} runlevel"
+	ln -snf /etc/init.d/${initd} "${EROOT}"etc/runlevels/${runlevel}/${initd}
 }
 
 pkg_postinst() {
-	# Do not install server.{key,pem) SSL certificates if they already exist
-	if use ssl && [[ ! -f "${ROOT}"/etc/ssl/postfix/server.key \
-		&& ! -f "${ROOT}"/etc/ssl/postfix/server.pem ]] ; then
-		SSL_ORGANIZATION="${SSL_ORGANIZATION:-Postfix SMTP Server}"
-		install_cert /etc/ssl/postfix/server
-		chown postfix:mail "${ROOT}"/etc/ssl/postfix/server.{key,pem}
-	fi
-
+	
 	if [[ ! -e /etc/mail/aliases.db ]] ; then
 		elog "Creating aliases database"
 		/usr/bin/newaliases
 	fi
 
-	# Change owner of /var/spool/postfix
-	chown root:0 "${ROOT}"var/spool/postfix
-	elog "Correcting permission of spool directory"
-	add_init default postfix
-	ewarn "Postfix automatically added to defaut runlevel. To start daemon, run /sbin/rc"
+add_service postfix default
+	ewarn "Postfix automatically added to defaut runlevel. To start daemon, run /sbin/openrc"
+}
+
+pkg_config() {
+	# configure tls
+	if use ssl ; then
+		if "${EROOT}"/usr/sbin/postfix tls all-default-client; then
+			elog "To configure client side TLS settings:"
+			elog "${EROOT}"usr/sbin/postfix tls enable-client
+		fi
+
+		if "${EROOT}"usr/sbin/postfix tls all-default-server; then
+			elog "Configuring server side TLS settings"
+			"${EROOT}"usr/sbin/postfix tls enable-server
+		fi
+	fi
 }

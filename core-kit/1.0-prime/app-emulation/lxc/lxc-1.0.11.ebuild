@@ -1,19 +1,17 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-MY_P="${P/_/-}"
-PYTHON_COMPAT=( python3_4 )
+PYTHON_COMPAT=( python3_{4,5,6} )
 DISTUTILS_OPTIONAL=1
 
 inherit autotools bash-completion-r1 distutils-r1 eutils linux-info versionator flag-o-matic systemd
 
 DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
-SRC_URI="https://github.com/lxc/lxc/archive/${MY_P}.tar.gz"
+SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
-KEYWORDS="amd64 ~arm ~arm64 ppc64 x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 
 LICENSE="LGPL-3"
 SLOT="0"
@@ -36,13 +34,11 @@ RDEPEND="${RDEPEND}
 
 CONFIG_CHECK="~CGROUPS ~CGROUP_DEVICE
 	~CPUSETS ~CGROUP_CPUACCT
-	~RESOURCE_COUNTERS
 	~CGROUP_SCHED
 
 	~NAMESPACES
 	~IPC_NS ~USER_NS ~PID_NS
 
-	~DEVPTS_MULTIPLE_INSTANCES
 	~CGROUP_FREEZER
 	~UTS_NS ~NET_NS
 	~VETH ~MACVLAN
@@ -81,8 +77,6 @@ ERROR_GRKERNSEC_PROC=":CONFIG_GRKERNSEC_PROC:  this GRSEC feature is incompatibl
 
 DOCS=(AUTHORS CONTRIBUTING MAINTAINERS NEWS README doc/FAQ.txt)
 
-S="${WORKDIR}/${PN}-${MY_P}"
-
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 src_prepare() {
@@ -91,7 +85,8 @@ src_prepare() {
 		epatch "${WORKDIR}"/patches/*
 	fi
 
-	epatch "${FILESDIR}"/${PN}-1.0.8-bash-completion.patch
+	epatch "${FILESDIR}"/${PN}-1.0.11-bash-completion.patch
+	epatch "${FILESDIR}"/${PN}-1.0.11-major.patch
 
 	eautoreconf
 }
@@ -149,14 +144,14 @@ src_install() {
 
 	# Gentoo-specific additions!
 	# Use initd.3 per #517144
-	newinitd "${FILESDIR}/${PN}.initd.3" ${PN}
+	newinitd "${FILESDIR}/${PN}.initd.1.0.x" ${PN}
 
 	# lxc-devsetup script
 	exeinto /usr/libexec/${PN}
 	doexe config/init/systemd/${PN}-devsetup
 	# Use that script with the systemd service (Similar to upstream
 	# Makefile.am
-	cp "${FILESDIR}"/${PN}_at.service ${PN}_at.service || die
+	cp "${FILESDIR}"/${PN}_at.service ${PN}_at.service.1.0.x || die
 	sed -i \
 		"/Restart=always/a ExecStartPre=/usr/libexec/${PN}/${PN}-devsetup" \
 		${PN}_at.service \

@@ -3,10 +3,11 @@
 
 DESCRIPTION="Manage Ruby symlinks"
 MAINTAINER="drobbins@funtoo.org"
-SVN_DATE="20161226"
-VERSION="20161226"
+SVN_DATE="20170723"
+VERSION="20170723"
 
 bindir=/usr/bin
+libdir=/usr/lib
 man1dir=/usr/share/man/man1
 
 find_targets() {
@@ -50,6 +51,13 @@ remove_symlinks() {
 		fi
 	done
 	# funtoo mod end
+	
+	# Remove unversioned legacy link set by ruby 1.8 and earlier
+	# see bug 582672
+	local link="${EROOT}${libdir}/libruby.so"
+	if [[ -e ${link} ]]; then
+			rm -f ${link}
+	fi
 }
 
 create_man_links() {

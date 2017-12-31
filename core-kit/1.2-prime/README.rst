@@ -6,33 +6,25 @@ core-kit
 
 Core-kit contains the core ebuilds for Funtoo Linux. It is designed to be a part of the Funtoo Linux kits system.
 
-The ``1.2-prime`` branch of core-kit is marked as development branch. Please use ``1.0-prime`` 
-as 
-current stable curated 
-branch of core ebuilds for Funtoo. By 'curated', we
-mean that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and
-will be continuing to maintain.
+The ``1.2-prime`` branch of core-kit is marked as *development branch*. Please use ``1.0-prime`` for production systems,
+not this branch.
 
-The ``-prime`` suffix indicates that we consider this branch to be production-quality, enterprise class stability and
-will be only incorporating bug fixes for specific issues and security backports. We will *not* be bumping versions of
-ebuilds unless absolutely necessary and we have very strong belief that they will not negatively impact the
-functionality on anyone's system.
+The ``-prime`` suffix indicates that the eventual goal is for this kit branch to reach production-quality and
+enterprise-class stability. Once this is achieved, we will only incorporate bug fixes for specific issues, and security
+backports. We will *not* be bumping versions of ebuilds unless absolutely necessary and we have very strong belief that
+they will not negatively impact the functionality on anyone's system.
 
-Based on these policies, you should consider ``1.0-prime`` to be a reference implementation of core 
-packages for Funtoo
-Linux that you can rely on to be stable and perform consistently over an extended period of time.
+You can track the stability rating of this branch by using the ``ego kit list`` command, which will display the current
+stability rating of this kit branch.
 
+--------------------
+Security Workarounds
+--------------------
 
-
-
----------------
-Version updates
----------------
-
-December 31, 2017
-~~~~~~~~~~~~~~~~~
-
-- ``sys-apps/coreutils`` has been updated to 8.25, 8.26, 8.28-r1
+- ``net-dns/avahi`` has a not-yet-fixed vulnerability -- CVE-2017-6519 -- affecting versions 0.7 (latest version) and
+  earlier.  Since no fix is currently available from the author, it is highly recommended that UDP multicast DNS traffic
+  destined for port 5353 is blocked by a firewall, or that avahi is configured to not listen on externally-connected
+  interfaces. See https://github.com/lathiat/avahi/issues/145
 
 --------------
 Security Fixes
@@ -47,12 +39,10 @@ December 21, 2017
 ~~~~~~~~~~~~~~~~~
 - ``dev-libs/openssl`` has been updated to 1.0.2n to address CVE-2017-3735, CVE-2017-3736, CVE-2017-3737 and CVE-2017-3738.
 
-
 December 18, 2017
 ~~~~~~~~~~~~~~~~~
 
-- ``net-misc/rsync`` has been updated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and 
-CVE-2017-17434.
+- ``net-misc/rsync`` has been updated to 3.1.2-r1 to address CVE-2017-16548, CVE-2017-17433 and CVE-2017-17434.
 
 Reporting Bugs
 ---------------

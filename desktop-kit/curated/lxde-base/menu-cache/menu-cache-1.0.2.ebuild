@@ -4,7 +4,7 @@ EAPI="5"
 
 inherit eutils multilib
 
-LIBFM="libfm-1.2.3"
+LIBFM="libfm-1.2.5"
 
 DESCRIPTION="A library creating and utilizing caches to speed up freedesktop.org application menus"
 HOMEPAGE="http://lxde.sourceforge.net/"
@@ -22,10 +22,6 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	virtual/pkgconfig"
 PDEPEND="x11-libs/libfm"
-
-src_prepare() {
-	epatch "${FILESDIR}"/${PN}-segfault-fix.patch
-}
 
 src_configure() {
 	pushd "${WORKDIR}/${LIBFM}" > /dev/null || die

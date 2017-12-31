@@ -18,6 +18,15 @@ functionality on anyone's system.
 Based on these policies, you should consider ``1.0-prime`` to be a reference implementation of core packages for Funtoo
 Linux that you can rely on to be stable and perform consistently over an extended period of time.
 
+--------------------
+Security Workarounds
+--------------------
+
+- ``net-dns/avahi`` has a not-yet-fixed vulnerability -- CVE-2017-6519 -- affecting versions 0.7 (latest version) and
+  earlier.  Since no fix is currently available from the author, it is highly recommended that UDP multicast DNS traffic
+  destined for port 5353 is blocked by a firewall, or that avahi is configured to not listen on externally-connected
+  interfaces. See https://github.com/lathiat/avahi/issues/145
+
 --------------
 Security Fixes
 --------------

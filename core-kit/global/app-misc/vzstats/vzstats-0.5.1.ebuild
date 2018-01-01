@@ -18,6 +18,7 @@ DEPEND="
 	sys-process/cronbase
 	net-misc/curl[ssl]
 	app-portage/gentoolkit
+	sys-cluster/vzctl
 	"
 RDEPEND="${DEPEND}"
 

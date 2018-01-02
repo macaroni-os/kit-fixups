@@ -95,32 +95,32 @@ src_unpack() {
 }
 
 PATCHES=(
-	# Build interp.o with EXTRA_KLIBCAFLAGS (.S source)
-	"${FILESDIR}"/${PN}-1.4.11-interp-flags.patch
-	# Fix usage of -s, bug #201006
-	"${FILESDIR}"/klibc-1.5.7-strip-fix-dash-s.patch
-	# The inline definition from sys/stat.h does not seem to get used
-	# So just copy it to make this compile for now
-	"${FILESDIR}"/klibc-2.0.2-mkfifo.patch
-	# Newer kernels have some headers in the uapi dir
-	"${FILESDIR}"/klibc-2.0.3-kernel-uapi.patch
+# Build interp.o with EXTRA_KLIBCAFLAGS (.S source)
+"${FILESDIR}"/${PN}-1.4.11-interp-flags.patch
+# Fix usage of -s, bug #201006
+"${FILESDIR}"/klibc-1.5.7-strip-fix-dash-s.patch
+# The inline definition from sys/stat.h does not seem to get used
+# So just copy it to make this compile for now
+"${FILESDIR}"/klibc-2.0.2-mkfifo.patch
+# Newer kernels have some headers in the uapi dir
+"${FILESDIR}"/klibc-2.0.3-kernel-uapi.patch
 )
 
 src_prepare() {
-	[[ ${PKV} ]] && eapply "${DISTDIR}"/patch-${PKV}.${K_TARBALL_SUFFIX}
+[[ ${PKV} ]] && eapply "${DISTDIR}"/patch-${PKV}.${K_TARBALL_SUFFIX}
 
-	# Symlink /usr/src/linux to ${S}/linux
-	ln -snf "${KS}" linux
-	#ln -snf "/usr" linux
+# Symlink /usr/src/linux to ${S}/linux
+ln -snf "${KS}" linux
+#ln -snf "/usr" linux
 
-	# Borrow the debian fixes too
-	for p in $(<"${WORKDIR}"/debian/patches/series) ; do
-		PATCHES+=( "${WORKDIR}/debian/patches/${p}" )
-	done
-	cd ../linux-4.4
-	eapply "${FILESDIR}"/klibc-2.0.4-force-no-pie.patch
-	cd ${S}
-	default
+# Borrow the debian fixes too
+for p in $(<"${WORKDIR}"/debian/patches/series) ; do
+	PATCHES+=( "${WORKDIR}/debian/patches/${p}" )
+done
+cd ../linux-4.4
+eapply "${FILESDIR}"/klibc-2.0.4-force-no-pie.patch
+cd ${S}
+default
 }
 
 # klibc has it's own ideas of arches
@@ -128,133 +128,133 @@ src_prepare() {
 # This functions maps from a Gentoo ARCH, to an arch that klibc expects
 # Look at klibc-${S}/usr/klibc/arch for a list of these arches
 klibc_arch() {
-	a="${1:${ARCH}}"
-	case ${a} in
-		amd64) echo x86_64;;
-		mips) die 'TODO: Use the $ABI' ;;
-		x86) echo i386;;
-		*) echo ${a} ;;
-	esac
+a="${1:${ARCH}}"
+case ${a} in
+	amd64) echo x86_64;;
+	mips) die 'TODO: Use the $ABI' ;;
+	x86) echo i386;;
+	*) echo ${a} ;;
+esac
 }
 
 src_compile() {
-	local myargs="all"
-	local myARCH="${ARCH}" myABI="${ABI}"
-	# TODO: For cross-compiling
-	# You should set ARCH and ABI here
-	CC="$(tc-getCC)"
-	LD="$(tc-getLD)"
-	HOSTCC="$(tc-getBUILD_CC)"
-	HOSTLD="$(tc-getBUILD_LD)"
-	KLIBCARCH="$(klibc_arch ${ARCH})"
-	KLIBCASMARCH="$(kernel_asm_arch ${ARCH})"
-	libdir="$(get_libdir)"
-	# This should be the defconfig corresponding to your userspace!
-	# NOT your kernel. PPC64-32ul would choose 'ppc' for example.
-	defconfig=$(kernel_defconfig ${ARCH})
-	unset ABI ARCH # Unset these, because they interfere
-	unset KBUILD_OUTPUT # we are using a private copy
+local myargs="all"
+local myARCH="${ARCH}" myABI="${ABI}"
+# TODO: For cross-compiling
+# You should set ARCH and ABI here
+CC="$(tc-getCC)"
+LD="$(tc-getLD)"
+HOSTCC="$(tc-getBUILD_CC)"
+HOSTLD="$(tc-getBUILD_LD)"
+KLIBCARCH="$(klibc_arch ${ARCH})"
+KLIBCASMARCH="$(kernel_asm_arch ${ARCH})"
+libdir="$(get_libdir)"
+# This should be the defconfig corresponding to your userspace!
+# NOT your kernel. PPC64-32ul would choose 'ppc' for example.
+defconfig=$(kernel_defconfig ${ARCH})
+unset ABI ARCH # Unset these, because they interfere
+unset KBUILD_OUTPUT # we are using a private copy
 
-	cd "${KS}"
-	emake ${defconfig} CC="${CC}" HOSTCC="${HOSTCC}" ARCH="${KLIBCASMARCH}" || die "No defconfig"
-	if [[ "${KLIBCARCH/arm}" != "${KLIBCARCH}" ]] && \
-	   [[ "${CHOST/eabi}" != "${CHOST}" ]]; then
-		# The delete and insert are seperate statements
-		# so that they are reliably used.
-		sed -i \
-		-e '/CONFIG_AEABI/d' \
-		-e '1iCONFIG_AEABI=y' \
-		-e '/CONFIG_OABI_COMPAT/d' \
-		-e '1iCONFIG_OABI_COMPAT=y' \
-		-e '1iCONFIG_ARM_UNWIND=y' \
-		"${KS}"/.config \
-		"${S}"/defconfig
-	fi
-	emake prepare CC="${CC}" HOSTCC="${HOSTCC}" ARCH="${KLIBCASMARCH}" || die "Failed to prepare kernel sources for header usage"
+cd "${KS}"
+emake ${defconfig} CC="${CC}" HOSTCC="${HOSTCC}" ARCH="${KLIBCASMARCH}" || die "No defconfig"
+if [[ "${KLIBCARCH/arm}" != "${KLIBCARCH}" ]] && \
+   [[ "${CHOST/eabi}" != "${CHOST}" ]]; then
+	# The delete and insert are seperate statements
+	# so that they are reliably used.
+	sed -i \
+	-e '/CONFIG_AEABI/d' \
+	-e '1iCONFIG_AEABI=y' \
+	-e '/CONFIG_OABI_COMPAT/d' \
+	-e '1iCONFIG_OABI_COMPAT=y' \
+	-e '1iCONFIG_ARM_UNWIND=y' \
+	"${KS}"/.config \
+	"${S}"/defconfig
+fi
+emake prepare CC="${CC}" HOSTCC="${HOSTCC}" ARCH="${KLIBCASMARCH}" || die "Failed to prepare kernel sources for header usage"
 
-	cd "${S}"
+cd "${S}"
 
-	use debug && myargs="${myargs} V=1"
-	use test && myargs="${myargs} test"
-	append-ldflags -z noexecstack
-	append-flags -nostdlib
-	append-flags -fno-pie
-	emake \
-		EXTRA_KLIBCAFLAGS="-Wa,--noexecstack" \
-		EXTRA_KLIBCLDFLAGS="-z noexecstack" \
-		HOSTLDFLAGS="-z noexecstack" \
-		KLIBCOPTFLAGS='-nostdlib' \
-		HOSTCC="${HOSTCC}" CC="${CC}" \
-		HOSTLD="${HOSTLD}" LD="${LD}" \
-		INSTALLDIR="/usr/${libdir}/klibc" \
-		KLIBCARCH=${KLIBCARCH} \
-		KLIBCASMARCH=${KLIBCASMARCH} \
-		SHLIBDIR="/${libdir}" \
-		libdir="/usr/${libdir}" \
-		mandir="/usr/share/man" \
-		T="${T}" \
-		$(use custom-cflags || echo SKIP_)HOSTCFLAGS="${CFLAGS}" \
-		$(use custom-cflags || echo SKIP_)HOSTLDFLAGS="${LDFLAGS}" \
-		$(use custom-cflags || echo SKIP_)KLIBCOPTFLAGS="${CFLAGS}" \
-		${myargs} || die "Compile failed!"
+use debug && myargs="${myargs} V=1"
+use test && myargs="${myargs} test"
+append-ldflags -z noexecstack
+append-flags -nostdlib
+append-flags -fno-pie
+emake \
+	EXTRA_KLIBCAFLAGS="-Wa,--noexecstack" \
+	EXTRA_KLIBCLDFLAGS="-z noexecstack" \
+	HOSTLDFLAGS="-z noexecstack" \
+	KLIBCOPTFLAGS='-nostdlib' \
+	HOSTCC="${HOSTCC}" CC="${CC}" \
+	HOSTLD="${HOSTLD}" LD="${LD}" \
+	INSTALLDIR="/usr/${libdir}/klibc" \
+	KLIBCARCH=${KLIBCARCH} \
+	KLIBCASMARCH=${KLIBCASMARCH} \
+	SHLIBDIR="/${libdir}" \
+	libdir="/usr/${libdir}" \
+	mandir="/usr/share/man" \
+	T="${T}" \
+	$(use custom-cflags || echo SKIP_)HOSTCFLAGS="${CFLAGS}" \
+	$(use custom-cflags || echo SKIP_)HOSTLDFLAGS="${LDFLAGS}" \
+	$(use custom-cflags || echo SKIP_)KLIBCOPTFLAGS="${CFLAGS}" \
+	${myargs} || die "Compile failed!"
 
-		#SHLIBDIR="/${libdir}" \
+	#SHLIBDIR="/${libdir}" \
 
-	ARCH="${myARCH}" ABI="${myABI}"
+ARCH="${myARCH}" ABI="${myABI}"
 }
 
 src_install() {
-	local myargs
-	local myARCH="${ARCH}" myABI="${ABI}"
-	# TODO: For cross-compiling
-	# You should set ARCH and ABI here
-	CC="$(tc-getCC)"
-	HOSTCC="$(tc-getBUILD_CC)"
-	KLIBCARCH="$(klibc_arch ${ARCH})"
-	KLIBCASMARCH="$(kernel_asm_arch ${ARCH})"
-	libdir="$(get_libdir)"
-	# This should be the defconfig corresponding to your userspace!
-	# NOT your kernel. PPC64-32ul would choose 'ppc' for example.
-	defconfig=$(kernel_defconfig ${ARCH})
+local myargs
+local myARCH="${ARCH}" myABI="${ABI}"
+# TODO: For cross-compiling
+# You should set ARCH and ABI here
+CC="$(tc-getCC)"
+HOSTCC="$(tc-getBUILD_CC)"
+KLIBCARCH="$(klibc_arch ${ARCH})"
+KLIBCASMARCH="$(kernel_asm_arch ${ARCH})"
+libdir="$(get_libdir)"
+# This should be the defconfig corresponding to your userspace!
+# NOT your kernel. PPC64-32ul would choose 'ppc' for example.
+defconfig=$(kernel_defconfig ${ARCH})
 
-	use debug && myargs="${myargs} V=1"
+use debug && myargs="${myargs} V=1"
 
-	local klibc_prefix
-	if tc-is-cross-compiler ; then
-		klibc_prefix=$("${S}/klcc/${KLIBCARCH}-klcc" -print-klibc-prefix)
-	else
-		klibc_prefix=$("${S}/klcc/klcc" -print-klibc-prefix)
-	fi
+local klibc_prefix
+if tc-is-cross-compiler ; then
+	klibc_prefix=$("${S}/klcc/${KLIBCARCH}-klcc" -print-klibc-prefix)
+else
+	klibc_prefix=$("${S}/klcc/klcc" -print-klibc-prefix)
+fi
 
-	unset ABI ARCH # Unset these, because they interfere
-	unset KBUILD_OUTPUT # we are using a private copy
+unset ABI ARCH # Unset these, because they interfere
+unset KBUILD_OUTPUT # we are using a private copy
 
-	emake \
-		EXTRA_KLIBCAFLAGS="-Wa,--noexecstack" \
-		EXTRA_KLIBCLDFLAGS="-z noexecstack" \
-		HOSTLDFLAGS="-z noexecstack" \
-		KLIBCOPTFLAGS='-nostdlib' \
-		HOSTCC="${HOSTCC}" CC="${CC}" \
-		HOSTLD="${HOSTLD}" LD="${LD}" \
-		INSTALLDIR="/usr/${libdir}/klibc" \
-		INSTALLROOT="${D}" \
-		KLIBCARCH=${KLIBCARCH} \
-		KLIBCASMARCH=${KLIBCASMARCH} \
-		SHLIBDIR="/${libdir}" \
-		libdir="/usr/${libdir}" \
-		mandir="/usr/share/man" \
-		T="${T}" \
-		$(use custom-cflags || echo SKIP_)HOSTCFLAGS="${CFLAGS}" \
-		$(use custom-cflags || echo SKIP_)HOSTLDFLAGS="${LDFLAGS}" \
-		$(use custom-cflags || echo SKIP_)KLIBCOPTFLAGS="${CFLAGS}" \
-		${myargs} \
-		install || die "Install failed!"
+emake \
+	EXTRA_KLIBCAFLAGS="-Wa,--noexecstack" \
+	EXTRA_KLIBCLDFLAGS="-z noexecstack" \
+	HOSTLDFLAGS="-z noexecstack" \
+	KLIBCOPTFLAGS='-nostdlib' \
+	HOSTCC="${HOSTCC}" CC="${CC}" \
+	HOSTLD="${HOSTLD}" LD="${LD}" \
+	INSTALLDIR="/usr/${libdir}/klibc" \
+	INSTALLROOT="${D}" \
+	KLIBCARCH=${KLIBCARCH} \
+	KLIBCASMARCH=${KLIBCASMARCH} \
+	SHLIBDIR="/${libdir}" \
+	libdir="/usr/${libdir}" \
+	mandir="/usr/share/man" \
+	T="${T}" \
+	$(use custom-cflags || echo SKIP_)HOSTCFLAGS="${CFLAGS}" \
+	$(use custom-cflags || echo SKIP_)HOSTLDFLAGS="${LDFLAGS}" \
+	$(use custom-cflags || echo SKIP_)KLIBCOPTFLAGS="${CFLAGS}" \
+	${myargs} \
+	install || die "Install failed!"
 
-		#SHLIBDIR="/${libdir}" \
+	#SHLIBDIR="/${libdir}" \
 
-	# klibc doesn't support prelinking, so we need to mask it
-	cat > "${T}/70klibc" <<-EOF
-		PRELINK_PATH_MASK="/usr/${libdir}/klibc"
+# klibc doesn't support prelinking, so we need to mask it
+cat > "${T}/70klibc" <<-EOF
+	PRELINK_PATH_MASK="/usr/${libdir}/klibc"
 	EOF
 
 	doenvd "${T}"/70klibc

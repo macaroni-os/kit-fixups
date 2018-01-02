@@ -23,7 +23,7 @@ diff --git a/src/eap_server/eap_server_pwd.c b/src/eap_server/eap_server_pwd.c
 index 3189105..2bfc3c2 100644
 --- a/src/eap_server/eap_server_pwd.c
 +++ b/src/eap_server/eap_server_pwd.c
-@@ -942,11 +942,21 @@ static void eap_pwd_process(struct eap_sm *sm, void *priv,
+@@ -920,11 +920,21 @@ static void eap_pwd_process(struct eap_s
  	 * the first fragment has a total length
  	 */
  	if (EAP_PWD_GET_LENGTH_BIT(lm_exch)) {

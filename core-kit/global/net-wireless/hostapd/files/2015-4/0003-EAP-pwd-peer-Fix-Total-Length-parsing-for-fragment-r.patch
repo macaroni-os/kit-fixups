@@ -23,7 +23,7 @@ diff --git a/src/eap_peer/eap_pwd.c b/src/eap_peer/eap_pwd.c
 index a629437..1d2079b 100644
 --- a/src/eap_peer/eap_pwd.c
 +++ b/src/eap_peer/eap_pwd.c
-@@ -866,11 +866,23 @@ eap_pwd_process(struct eap_sm *sm, void *priv, struct eap_method_ret *ret,
+@@ -812,11 +812,23 @@ eap_pwd_process(struct eap_sm *sm, void
  	 * if it's the first fragment there'll be a length field
  	 */
  	if (EAP_PWD_GET_LENGTH_BIT(lm_exch)) {

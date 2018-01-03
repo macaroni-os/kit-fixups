@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+January 2, 2018
+~~~~~~~~~~~~~~~
+
+- ``net-wireless/hostapd`` has been updated to 2.4-r2 to address CVE-2015-1863, CVE-2015-4141, CVE-2015-4142, CVE-2015-8041, CVE-2015-5314, CVE-2015-5316
+    CVE-2016-4476, CVE-2017-13077, CVE-2017-13078, CVE-2017-13079, CVE-2017-13080, CVE-2017-13081, CVE-2017-13082, CVE-2017-13086, CVE-2017-13087 and CVE-2017-13088.
+
 December 28, 2017
 ~~~~~~~~~~~~~~~~~
 

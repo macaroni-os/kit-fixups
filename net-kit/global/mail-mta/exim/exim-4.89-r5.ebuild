@@ -334,13 +334,6 @@ src_configure() {
 		EOC
 	fi
 
-	# Proxy Protocol
-	if use proxy; then
-		cat >> Makefile <<- EOC
-			SUPPORT_PROXY=yes
-		EOC
-	fi
-
 	#
 	# experimental features
 
@@ -384,6 +377,13 @@ src_configure() {
 	if use tpda; then
 		cat >> Makefile <<- EOC
 			EXPERIMENTAL_EVENT=yes
+		EOC
+	fi
+
+	# Proxy Protocol
+	if use proxy; then
+		cat >> Makefile <<- EOC
+			EXPERIMENTAL_PROXY=yes
 		EOC
 	fi
 
@@ -527,6 +527,7 @@ pkg_postinst() {
 		einfo "experimental-spec.txt."
 	fi
 	use tpda && einfo "TPDA/EVENT support is experimental"
+	use proxy && einfo "proxy support is experimental"
 	use dsn && einfo "DSN support is experimental"
 	elog "The obsolete acl condition 'demime' is removed, the replacements"
 	elog "are the ACLs acl_smtp_mime and acl_not_smtp_mime"

@@ -1,10 +1,11 @@
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
 inherit eutils toolchain-funcs multilib pam systemd
 
-IUSE="auth_tls dane dcc +dkim dlfunc dmarc +dnsdb doc dovecot-sasl dsn exiscan-acl gnutls ipv6 ldap libressl lmtp maildir mbx mysql nis pam perl pkcs11 postgres +prdr proxy radius redis sasl selinux socks spf sqlite srs ssl syslog tcpd tpda X elibc_glibc"
+IUSE="dane dcc +dkim dlfunc dmarc +dnsdb doc dovecot-sasl dsn exiscan-acl gnutls ipv6 ldap libressl lmtp maildir mbx mysql nis pam perl pkcs11 postgres +prdr proxy radius redis sasl selinux spf sqlite srs ssl syslog tcpd tpda X elibc_glibc"
 REQUIRED_USE="
 	dane? ( !gnutls )
 	dmarc? ( spf dkim )
@@ -23,7 +24,7 @@ HOMEPAGE="http://www.exim.org/"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="~*"
+KEYWORDS="alpha amd64 ~arm ~hppa ia64 ppc ppc64 ~sparc x86 ~x86-fbsd ~x86-solaris"
 
 COMMON_DEPEND=">=sys-apps/sed-4.0.5
 	>=sys-libs/db-3.2:=
@@ -58,6 +59,7 @@ COMMON_DEPEND=">=sys-apps/sed-4.0.5
 	sqlite? ( dev-db/sqlite )
 	radius? ( net-dialup/freeradius-client )
 	virtual/libiconv
+	elibc_glibc? ( net-libs/libnsl )
 	"
 	# added X check for #57206
 DEPEND="${COMMON_DEPEND}
@@ -94,6 +96,10 @@ src_prepare() {
 	epatch "${FILESDIR}"/exim-4.89-as-needed-ldflags.patch # 352265, 391279
 	epatch "${FILESDIR}"/exim-4.76-crosscompile.patch # 266591
 	epatch "${FILESDIR}"/exim-4.89-CVE-2017-1000369.patch # 622212
+	epatch "${FILESDIR}"/${P}-transport-crash.patch # from git/in next release
+	epatch "${FILESDIR}"/${P}-address-expando-crash.patch # from git/in next release
+	epatch "${FILESDIR}"/${P}-CVE-2017-16943.patch # from git/in next release
+	epatch "${FILESDIR}"/${P}-CVE-2017-16944.patch # from git/in next release
 
 	if use maildir ; then
 		epatch "${FILESDIR}"/exim-4.20-maildir.patch
@@ -328,6 +334,13 @@ src_configure() {
 		EOC
 	fi
 
+	# Proxy Protocol
+	if use proxy; then
+		cat >> Makefile <<- EOC
+			SUPPORT_PROXY=yes
+		EOC
+	fi
+
 	#
 	# experimental features
 
@@ -371,13 +384,6 @@ src_configure() {
 	if use tpda; then
 		cat >> Makefile <<- EOC
 			EXPERIMENTAL_EVENT=yes
-		EOC
-	fi
-
-	# Proxy Protocol
-	if use proxy; then
-		cat >> Makefile <<- EOC
-			SUPPORT_PROXY=yes
 		EOC
 	fi
 
@@ -430,22 +436,6 @@ src_configure() {
 			AUTH_LIBS += -lfreeradius-client
 		EOC
 	fi
-	
-	# Requested features. FL-3885.
-	# TLS authentification
-	if use auth_tls; then
-		cat >> Makefile <<- EOC
-			AUTH_TLS=yes
-		EOC
-	fi
-
-	# SOCKS support
-	if use socks; then
-		cat >> Makefile <<- EOC
-			SUPPORT_SOCKS=yes
-		EOC
-	fi
-
 }
 
 src_compile() {
@@ -537,7 +527,6 @@ pkg_postinst() {
 		einfo "experimental-spec.txt."
 	fi
 	use tpda && einfo "TPDA/EVENT support is experimental"
-	use proxy && einfo "proxy support is experimental"
 	use dsn && einfo "DSN support is experimental"
 	elog "The obsolete acl condition 'demime' is removed, the replacements"
 	elog "are the ACLs acl_smtp_mime and acl_not_smtp_mime"

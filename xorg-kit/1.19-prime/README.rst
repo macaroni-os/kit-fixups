@@ -25,6 +25,12 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+January 4, 2018
+~~~~~~~~~~~~~~~
+
+- ``x11-base/xorg-server`` has been updated to 1.19.3-r2 to address CVE-2017-13721 and CVE-2017-13723.
+
+
 As of November 17, 2017, all known security vulnerabilities in the ``1.19-prime`` branch have been addressed.
 
 November 17, 2017: ``libXfont backports`` - ``x11-libs/libXfont-1.5.3`` and ``x11-libs/libXfont-2.0.2`` have been added

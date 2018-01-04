@@ -1,18 +1,17 @@
-# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit qmake-utils systemd toolchain-funcs
+inherit eutils qmake-utils toolchain-funcs readme.gentoo-r1
 
 DESCRIPTION="IEEE 802.1X/WPA supplicant for secure wireless transfers"
-HOMEPAGE="http://hostap.epitest.fi/wpa_supplicant/"
-SRC_URI="http://hostap.epitest.fi/releases/${P}.tar.gz"
+HOMEPAGE="https://w1.fi/wpa_supplicant/"
+SRC_URI="https://w1.fi/releases/${P}.tar.gz"
 LICENSE="|| ( GPL-2 BSD )"
 
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="ap dbus gnutls eap-sim fasteap +hs2-0 libressl p2p ps3 qt5 readline selinux smartcard ssl tdls uncommon-eap-types wimax wps kernel_linux kernel_FreeBSD"
+KEYWORDS="*"
+IUSE="ap dbus eap-sim eapol_test fasteap gnutls +hs2-0 libressl p2p privsep ps3 qt5 readline selinux smartcard ssl tdls uncommon-eap-types wimax wps kernel_linux kernel_FreeBSD"
 REQUIRED_USE="fasteap? ( !ssl ) smartcard? ( ssl )"
 
 CDEPEND="dbus? ( sys-apps/dbus )
@@ -51,6 +50,14 @@ RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-networkmanager )
 "
 
+DOC_CONTENTS="
+	If this is a clean installation of wpa_supplicant, you
+	have to create a configuration file named
+	${EROOT%/}/etc/wpa_supplicant/wpa_supplicant.conf
+	An example configuration file is available for reference in
+	${EROOT%/}/usr/share/doc/${PF}/
+"
+
 S="${WORKDIR}/${P}/${PN}"
 
 Kconfig_style_config() {
@@ -64,6 +71,9 @@ Kconfig_style_config() {
 			sed -i "/^# *$CONFIG_PARAM=/s/^# *//" .config || echo "Kconfig_style_config error uncommenting $CONFIG_PARAM"
 			#set item = $setting (defaulting to y)
 			sed -i "/^$CONFIG_PARAM/s/=.*/=$setting/" .config || echo "Kconfig_style_config error setting $CONFIG_PARAM=$setting"
+			if [ -z "$( grep ^$CONFIG_PARAM= .config )" ] ; then
+				echo "$CONFIG_PARAM=$setting" >>.config
+			fi
 		else
 			#ensure item commented out
 			sed -i "/^$CONFIG_PARAM/s/$CONFIG_PARAM/# $CONFIG_PARAM/" .config || echo "Kconfig_style_config error commenting $CONFIG_PARAM"
@@ -121,6 +131,16 @@ src_prepare() {
 
 	# bug (596332)
 	eapply "${FILESDIR}/${P}-libressl.patch"
+
+	# https://w1.fi/security/2017-1/wpa-packet-number-reuse-with-replayed-messages.txt
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0001-hostapd-Avoid-key-reinstallation-in-FT-handshake.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0002-Prevent-reinstallation-of-an-already-in-use-group-ke.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0003-Extend-protection-of-GTK-IGTK-reinstallation-of-WNM-.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0004-Prevent-installation-of-an-all-zero-TK.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0005-Fix-PTK-rekeying-to-generate-a-new-ANonce.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0006-TDLS-Reject-TPK-TK-reconfiguration.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0007-WNM-Ignore-WNM-Sleep-Mode-Response-without-pending-r.patch"
+	eapply "${FILESDIR}/2017-1/rebased-v2.6-0008-FT-Do-not-allow-multiple-Reassociation-Response-fram.patch"
 }
 
 src_configure() {
@@ -153,6 +173,7 @@ src_configure() {
 	Kconfig_style_config EAP_LEAP
 	Kconfig_style_config EAP_MSCHAPV2
 	Kconfig_style_config EAP_PEAP
+	Kconfig_style_config EAP_PWD
 	Kconfig_style_config EAP_TLS
 	Kconfig_style_config EAP_TTLS
 
@@ -167,6 +188,10 @@ src_configure() {
 		Kconfig_style_config CTRL_IFACE_DBUS
 		Kconfig_style_config CTRL_IFACE_DBUS_NEW
 		Kconfig_style_config CTRL_IFACE_DBUS_INTRO
+	fi
+
+	if use eapol_test ; then
+		Kconfig_style_config EAPOL_TEST
 	fi
 
 	# Enable support for writing debug info to a log file and syslog.
@@ -270,8 +295,21 @@ src_configure() {
 		Kconfig_style_config AP
 	fi
 
+	# Enable essentials for AP/P2P
+	if use ap || use p2p ; then
+		# Enabling HT support (802.11n)
+		Kconfig_style_config IEEE80211N
+
+		# Enabling VHT support (802.11ac)
+		Kconfig_style_config IEEE80211AC
+	fi
+
 	# Enable mitigation against certain attacks against TKIP
 	Kconfig_style_config DELAYED_MIC_ERROR_REPORT
+
+	if use privsep ; then
+		Kconfig_style_config PRIVSEP
+	fi
 
 	# If we are using libnl 2.0 and above, enable support for it
 	# Bug 382159
@@ -301,18 +339,23 @@ src_compile() {
 		einfo "Building wpa_gui"
 		emake -C "${S}"/wpa_gui-qt4
 	fi
+
+	if use eapol_test ; then
+		emake eapol_test
+	fi
 }
 
 src_install() {
 	dosbin wpa_supplicant
+	use privsep && dosbin wpa_priv
 	dobin wpa_cli wpa_passphrase
 
 	# baselayout-1 compat
 	if has_version "<sys-apps/baselayout-2.0.0"; then
 		dodir /sbin
-		dosym /usr/sbin/wpa_supplicant /sbin/wpa_supplicant
+		dosym ../usr/sbin/wpa_supplicant /sbin/wpa_supplicant
 		dodir /bin
-		dosym /usr/bin/wpa_cli /bin/wpa_cli
+		dosym ../usr/bin/wpa_cli /bin/wpa_cli
 	fi
 
 	if has_version ">=sys-apps/openrc-0.5.0"; then
@@ -323,6 +366,7 @@ src_install() {
 	exeinto /etc/wpa_supplicant/
 	newexe "${FILESDIR}/wpa_cli.sh" wpa_cli.sh
 
+	readme.gentoo_create_doc
 	dodoc ChangeLog {eap_testing,todo}.txt README{,-WPS} \
 		wpa_supplicant.conf
 
@@ -335,6 +379,8 @@ src_install() {
 		dobin wpa_gui-qt4/wpa_gui
 		doicon wpa_gui-qt4/icons/wpa_gui.svg
 		make_desktop_entry wpa_gui "WPA Supplicant Administration GUI" "wpa_gui" "Qt;Network;"
+	else
+		rm "${ED}"/usr/share/man/man8/wpa_gui.8
 	fi
 
 	use wimax && emake DESTDIR="${D}" -C ../src/eap_peer install
@@ -347,39 +393,20 @@ src_install() {
 		doins fi.epitest.hostap.WPASupplicant.service fi.w1.wpa_supplicant1.service
 		popd > /dev/null || die
 
-		# This unit relies on dbus support, bug 538600.
-		systemd_dounit systemd/wpa_supplicant.service
 	fi
 
-	systemd_dounit "systemd/wpa_supplicant@.service"
-	systemd_dounit "systemd/wpa_supplicant-nl80211@.service"
-	systemd_dounit "systemd/wpa_supplicant-wired@.service"
+	if use eapol_test ; then
+		dobin eapol_test
+	fi
+
 }
 
 pkg_postinst() {
-	elog "If this is a clean installation of wpa_supplicant, you"
-	elog "have to create a configuration file named"
-	elog "${EROOT%/}/etc/wpa_supplicant/wpa_supplicant.conf"
-	elog
-	elog "An example configuration file is available for reference in"
-	elog "${EROOT%/}/usr/share/doc/${PF}/"
+	readme.gentoo_print_elog
 
 	if [[ -e "${EROOT%/}"/etc/wpa_supplicant.conf ]] ; then
 		echo
 		ewarn "WARNING: your old configuration file ${EROOT%/}/etc/wpa_supplicant.conf"
 		ewarn "needs to be moved to ${EROOT%/}/etc/wpa_supplicant/wpa_supplicant.conf"
 	fi
-
-	# Mea culpa, feel free to remove that after some time --mgorny.
-	local fn
-	for fn in wpa_supplicant{,@wlan0}.service; do
-		if [[ -e "${EROOT%/}"/etc/systemd/system/network.target.wants/${fn} ]]
-		then
-			ebegin "Moving ${fn} to multi-user.target"
-			mv "${EROOT%/}"/etc/systemd/system/network.target.wants/${fn} \
-				"${EROOT%/}"/etc/systemd/system/multi-user.target.wants/ || die
-			eend ${?} \
-				"Please try to re-enable ${fn}"
-		fi
-	done
 }

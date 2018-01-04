@@ -18,7 +18,7 @@ As you can see there are directories for every kit. These directories can contai
    These directories with fixes get applied over master, but only for selected branch.
 
 Note for developers: If a kit is following master (doesn't have any branches), then it shouldn't have any branches
-   folders.
+folders.
 
 Do you want to help?
 --------------------

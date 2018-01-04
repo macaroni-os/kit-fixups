@@ -1,13 +1,16 @@
 Kit-Fixups Repository
 =====================
 
-This is repository of categories and packages that are "forked" from official Gentoo repository and our versions and
-fix-ups are applied over the Gentoo repository when we generate our tree.
+This repository holds Funtoo's custom ebuilds, profiles and fixes for branches that are necessary for maintenance
+of branches during their lifespan.
+
+These fix-ups are applied over the Gentoo repository when Funtoo's repository gets generated using the
+merge-scripts [1]_.
 
 How is it structured?
 ---------------------
 
-As you can see there are directories for every kit. These directories can contain subdirectories which are ment for:
+As you can see there are directories for every kit. These directories can contain subdirectories which are meant for:
 
 - global
    These directories contain fixes and package ebuilds that get applied to all our branches. Global fixes get
@@ -32,3 +35,5 @@ You could help us search for packages that have security flaws and report them i
 `bug tracker <https://bugs.funtoo.org>`_.
 
 Thank you very much in advance.
+
+.. [1] https://github.com/funtoo/merge-scripts

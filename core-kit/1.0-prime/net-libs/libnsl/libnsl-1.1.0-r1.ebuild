@@ -16,4 +16,4 @@ KEYWORDS="*"
 IUSE=""
 
 DEPEND=""
-RDEPEND="${DEPEND} <sys-libs/glibc-2.26"
+RDEPEND="${DEPEND} =sys-libs/glibc-2.23*"

@@ -2,12 +2,11 @@
 glibc-2.26 update
 ===========================
 glibc-2.26 has significant changes such as:
-- old NSL library is deprecated and libnss_compat.so removed
+- old NSL library is deprecated, headers removed. Only libnsl.so.1 provided for compatibility with older binaries. Newer library version and headers are provided by net-libs/libnsl.
 - lowest supported kernel is linux-3.2, means that any projects that require older kernel, supposed to not update glibc.
-- old RPC support now depreacted and disabled by default.
+- old RPC support now depreacted and disabled by default. RPC now prvided by net-libs/libtirpc and net-libs/rpcsvc-proto.
 
-Due to fact libnss_compat is removed and ``/etc/nsswitch.conf`` has not changed since 2006, users must perform manual changes.
-before updating from glibc-2.23 to glibc-2.26.
+Due to the fact libnss_compat is removed in glibc-2.26 and ``/etc/nsswitch.conf`` installed by old glibc version containing the configuration no longer working with new glibc, users must perform manual changes before updating from glibc-2.23 to glibc-2.26.
 
 Example of old ``/etc/nsswitch.conf``:
 
@@ -19,7 +18,7 @@ group:       compat
 ...
 
 
-Edit the file to look like below.
+Edit the file to look like shown below.
 Example of new ``/etc/nsswitch.conf`` user need for a clean update:
 
 # cat /etc/nsswitch.conf

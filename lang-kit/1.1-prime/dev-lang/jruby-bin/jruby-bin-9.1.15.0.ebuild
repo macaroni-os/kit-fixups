@@ -11,6 +11,8 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 
+S="${WORKDIR}/jruby-${PV}"
+
 DEPEND=""
 RDEPEND="${DEPEND}
 	app-shells/bash
@@ -18,12 +20,13 @@ RDEPEND="${DEPEND}
 "
 src_install() {
 	dodir /opt/${PN}
-	mv ${WORKDIR}/* ${ED}/opt/${PN}
-	find ${ED}/opt/${PN}/${P} -regextype posix-extended -regex '.*\.(bat|dll|exe)' -delete
-	rm -r ${ED}/opt/${PN}/${P}/lib/jni/{Darwin,*-SunOS,*-Windows,*-AIX,*-*BSD} || die "rm failed"
-	rm -r ${ED}/opt/${PN}/${P}/lib/ruby/stdlib/ffi/platform/{*-darwin,*-solaris,*-windows,*-aix,*-*bsd,*-cygwin} || die "rm failed"
+	insinto /opt/${PN}
+	doins -r *
+	find ${ED}/opt/${PN}/ -regextype posix-extended -regex '.*\.(bat|dll|exe)' -delete
+	rm -r ${ED}/opt/${PN}/lib/jni/{Darwin,*-SunOS,*-Windows,*-AIX,*-*BSD,} || die "rm failed"
+	rm -r ${ED}/opt/${PN}/lib/ruby/stdlib/ffi/platform/{*-darwin,*-solaris,*-windows,*-aix,*-*bsd,*-cygwin} || die "rm failed"
 
 	for f in jruby{,c} jirb{,_swing} jgem; do
-		dosym /opt/${PN}/${P}/bin/${f} /usr/bin/${f}
+		dosym /opt/${PN}/bin/${f} /usr/bin/${f}
 	done
 }

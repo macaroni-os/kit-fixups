@@ -2,8 +2,8 @@
 
 EAPI="6"
 GNOME2_LA_PUNT="yes"
-
-inherit autotools gnome2 systemd
+GNOME2_EAUTORECONF="yes"
+inherit gnome2 systemd
 
 DESCRIPTION="Virtual filesystem implementation for gio"
 HOMEPAGE="https://wiki.gnome.org/Projects/gvfs"
@@ -12,13 +12,14 @@ LICENSE="LGPL-2+"
 SLOT="0"
 KEYWORDS="*"
 
-IUSE="afp archive bluray cdda fuse google gnome-keyring gnome-online-accounts gphoto2 gtk +http ios mtp nfs policykit samba systemd test +udev udisks zeroconf"
+IUSE="afp archive bluray cdda elogind fuse google gnome-keyring gnome-online-accounts gphoto2 gtk +http ios mtp nfs policykit samba systemd test +udev udisks zeroconf"
 REQUIRED_USE="
 	cdda? ( udev )
+	elogind? ( !systemd udisks )
 	google? ( gnome-online-accounts )
 	mtp? ( udev )
 	udisks? ( udev )
-	systemd? ( udisks )
+	systemd? ( !elogind udisks )
 "
 
 # Tests with multiple failures, this is being handled upstream at:
@@ -33,6 +34,7 @@ RDEPEND="
 	afp? ( >=dev-libs/libgcrypt-1.2.2:0= )
 	archive? ( app-arch/libarchive:= )
 	bluray? ( media-libs/libbluray:= )
+	elogind? ( >=sys-auth/elogind-229:0= )
 	fuse? ( >=sys-fs/fuse-2.8.0:0 )
 	gnome-keyring? ( app-crypt/libsecret )
 	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.7.1:= )
@@ -88,9 +90,6 @@ src_prepare() {
 			-e 's/burn.mount.in/ /' \
 			-e 's/burn.mount/ /' \
 			-i daemon/Makefile.am || die
-
-		# Uncomment when eautoreconf stops being needed always
-		eautoreconf
 	fi
 
 	gnome2_src_prepare
@@ -109,6 +108,7 @@ src_configure() {
 		$(use_enable archive) \
 		$(use_enable bluray) \
 		$(use_enable cdda) \
+		$(use_enable elogind libelogind) \
 		$(use_enable fuse) \
 		$(use_enable gnome-keyring keyring) \
 		$(use_enable gnome-online-accounts goa) \

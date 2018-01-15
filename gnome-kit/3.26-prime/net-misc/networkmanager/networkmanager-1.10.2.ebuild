@@ -15,7 +15,7 @@ HOMEPAGE="https://wiki.gnome.org/Projects/NetworkManager"
 LICENSE="GPL-2+"
 SLOT="0" # add subslot if libnm-util.so.2 or libnm-glib.so.4 bumps soname version
 
-IUSE="audit bluetooth connection-sharing consolekit +dhclient dhcpcd elogind gnutls +introspection json kernel_linux +nss +modemmanager ncurses ofono ovs policykit +ppp resolvconf selinux systemd teamd test vala +wext +wifi"
+IUSE="audit bluetooth connection-sharing consolekit +dhclient elogind gnutls +introspection json kernel_linux +nss +modemmanager ncurses ofono ovs policykit +ppp resolvconf selinux systemd teamd test vala +wext +wifi"
 
 REQUIRED_USE="
 	modemmanager? ( ppp )
@@ -48,7 +48,6 @@ COMMON_DEPEND="
 		net-firewall/iptables )
 	consolekit? ( >=sys-auth/consolekit-1.0.0 )
 	dhclient? ( >=net-misc/dhcp-4[client] )
-	dhcpcd? ( net-misc/dhcpcd )
 	elogind? ( >=sys-auth/elogind-219 )
 	gnutls? (
 		dev-libs/libgcrypt:0=[${MULTILIB_USEDEP}]
@@ -162,6 +161,7 @@ multilib_src_configure() {
 		# maintain and fix it
 		--disable-ifnet
 		--disable-qt
+		--without-dhcpcd
 		--without-netconfig
 		--with-dbus-sys-dir=/etc/dbus-1/system.d
 		# We need --with-libnm-glib (and dbus-glib dep) as reverse deps are
@@ -178,7 +178,6 @@ multilib_src_configure() {
 		$(multilib_native_use_with audit libaudit)
 		$(multilib_native_use_enable bluetooth bluez5-dun)
 		$(use_with dhclient)
-		$(use_with dhcpcd)
 		$(multilib_native_use_enable introspection)
 		$(use_enable json json-validation)
 		$(multilib_native_use_enable ppp)

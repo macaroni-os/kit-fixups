@@ -24,6 +24,12 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+January 11, 2018
+~~~~~~~~~~~~~~~~
+
+- ``net-libs/webkit-gtk`` has been updated to 2.18.5 to address CVE-2017-5753 and CVE-2017-5715.
+
+
 December 18, 2017
 ~~~~~~~~~~~~~~~~~
 

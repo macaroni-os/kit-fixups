@@ -30,6 +30,11 @@ Security Workarounds
 Security Fixes
 --------------
 
+January 13, 2018
+~~~~~~~~~~~~~~~~
+
+- ``dev-libs/libxml2`` has been update to 2.9.7-r1 to address CVE-2017-16392, CVE-2017-16391, CVE-2017-9049 and CVE-2017-8872.
+
 December 28, 2017
 ~~~~~~~~~~~~~~~~~
 

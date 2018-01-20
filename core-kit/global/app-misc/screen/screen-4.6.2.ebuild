@@ -35,6 +35,7 @@ DEPEND="${CDEPEND}
 PATCHES=(
 	# Don't use utempter even if it is found on the system.
 	"${FILESDIR}"/${PN}-4.3.0-no-utempter.patch
+	"${FILESDIR}"/${P}-utmp-exit.patch # Fix building on uclibc, bug #562752 
 )
 
 pkg_setup() {

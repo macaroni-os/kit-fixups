@@ -1,0 +1,14 @@
+diff -Nuar v4l-utils-1.14.1/contrib/test/Makefile.am v4l-utils-1.14.1-fixed/contrib/test/Makefile.am
+--- v4l-utils-1.14.1/contrib/test/Makefile.am	2017-12-27 15:51:17.000000000 +0200
++++ v4l-utils-1.14.1-fixed/contrib/test/Makefile.am	2018-01-21 19:14:24.577489053 +0200
+@@ -17,8 +17,10 @@
+ endif
+ 
+ if HAVE_SDL
++if HAVE_JPEG
+ noinst_PROGRAMS += sdlcam
+ endif
++endif
+ 
+ driver_test_SOURCES = driver-test.c
+ driver_test_LDADD = ../../utils/libv4l2util/libv4l2util.la

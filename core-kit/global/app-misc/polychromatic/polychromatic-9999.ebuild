@@ -24,7 +24,7 @@ RDEPEND="$PYTHON_DEPS
 	net-libs/webkit-gtk[introspection]
 "
 DEPEND="${RDEPEND}
-	>=dev-python/lesscpy-0.12.0"
+	>=dev-python/lesscpy-0.11"
 
 src_install() {
 	emake LESSC=lesscpy PREFIX=/usr DESTDIR="${D}" install

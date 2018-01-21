@@ -4,7 +4,7 @@
 EAPI=6
 PYTHON_COMPAT=( python{2_7,3_{4,5,6}} )
 
-inherit cmake-utils python-any-r1
+inherit cmake-utils flag-o-matic python-any-r1
 
 DESCRIPTION="Encrypted FUSE filesystem that conceals metadata"
 HOMEPAGE="https://www.cryfs.org/"
@@ -37,6 +37,7 @@ DEPEND="${RDEPEND}
 	${PYTHON_DEPS}"
 
 src_prepare() {
+	filter-flags -mno-aes
 	# remove tests that require internet access to comply with Gentoo policy
 	sed -i -e '/CurlHttpClientTest.cpp/d' -e '/FakeHttpClientTest.cpp/d' test/cpp-utils/CMakeLists.txt || die
 

@@ -1,6 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 GNOME2_LA_PUNT="yes"
@@ -16,15 +14,15 @@ SRC_URI="https://telepathy.freedesktop.org/releases/${PN}/${P}.tar.gz"
 LICENSE="LGPL-2.1+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
-IUSE="debug elogind networkmanager" # test
+IUSE="debug +deprecated elogind networkmanager" # test
 
 RDEPEND="
 	>=dev-libs/dbus-glib-0.82
 	>=dev-libs/glib-2.46:2
 	>=sys-apps/dbus-0.95
 	>=net-libs/telepathy-glib-0.20
+	deprecated? ( sys-power/upower[deprecated] )
 	networkmanager? ( >=net-misc/networkmanager-1:= )
-	elogind? ( sys-auth/elogind )
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
@@ -51,7 +49,7 @@ src_configure() {
 	# creds is not available
 	gnome2_src_configure \
 		--disable-static \
-		--disable-upower \
 		$(use_enable debug) \
+		$(use_enable deprecated) \
 		$(use_with networkmanager connectivity nm)
 }

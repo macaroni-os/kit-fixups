@@ -3,7 +3,7 @@
 
 EAPI=6
 
-inherit cmake-utils toolchain-funcs xdg-utils
+inherit cmake-utils flag-o-matic toolchain-funcs xdg-utils
 
 if [[ "${PV}" == "9999" ]] ; then
 	inherit git-r3
@@ -77,6 +77,9 @@ src_prepare() {
 	if [[ ${CC} == clang ]] ; then
 		sed -i -e 's/-fno-check-new//' cmake/modules/PopplerMacros.cmake || die
 	fi
+	
+	# gcc magic. FL-4732
+	append-cxxflags -std=c++11
 }
 
 src_configure() {

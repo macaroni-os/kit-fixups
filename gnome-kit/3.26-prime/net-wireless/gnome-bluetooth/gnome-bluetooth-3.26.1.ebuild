@@ -29,6 +29,7 @@ DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xml-dtd:4.1.2
 	dev-libs/libxml2:2
 	dev-util/gdbus-codegen
+	dev-util/gtk-doc
 	>=dev-util/gtk-doc-am-1.9
 	>=dev-util/intltool-0.40.0
 	dev-util/itstool

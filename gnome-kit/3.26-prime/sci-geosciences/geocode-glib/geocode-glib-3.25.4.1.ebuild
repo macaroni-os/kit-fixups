@@ -37,3 +37,13 @@ src_configure() {
 	)
 	meson_src_configure
 }
+
+src_compile() {
+	export MAKEOPTS="-j1"
+	meson_src_compile
+}
+
+src_install() {
+        export MAKEOPTS="-j1"
+        meson_src_install
+}

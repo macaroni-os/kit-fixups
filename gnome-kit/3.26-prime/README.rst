@@ -17,6 +17,11 @@ Security fixes
 January 24, 2018
 ~~~~~~~~~~~~~~~~
 
+- ``net-libs/webkit-gtk`` has been updated to 2.18.6 to address CVE-2018-4088, CVE-2018-4089, CVE-2018-4096, CVE-2017-7153, CVE-2017-7160, CVE-2017-7161, CVE-2017-7165, CVE-2017-13884 and CVE-2017-13885.
+
+January 24, 2018
+~~~~~~~~~~~~~~~~
+
 - ``app-text/poppler`` has been updated to 0.56.0-r2 to address CVE-2017-2820, CVE-2017-7515, CVE-2017-9083 and CVE-2017-9865.
 
 ---------------

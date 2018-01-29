@@ -106,6 +106,19 @@ fi
 #
 # the phases
 #
+pkg_setup() {
+	# glibc nsswitch update logic. only required for updating from older versions of glibc to >=2.26
+	if [[ -e ${EROOT}/etc/nsswitch.conf ]] ; then
+		local entry
+		for entry in passwd group shadow; do
+			if ! egrep -q "^[ \t]*${entry}:.*files" "${EROOT}"/etc/nsswitch.conf; then
+				sed -i -e 's/\ncompat\b/& files/' ${EROOT}/etc/nsswitch.conf || die "sed failed"
+			else
+				:
+			fi
+		done
+	fi
+}
 
 pkg_pretend() {
 	# Make sure devpts is mounted correctly for use w/out setuid pt_chown
@@ -190,20 +203,6 @@ pkg_pretend() {
 		fi
 	fi
 
-	# Check for sanity of /etc/nsswitch.conf
-	if [[ -e ${EROOT}/etc/nsswitch.conf ]] ; then
-		local entry
-		for entry in passwd group shadow; do
-			if ! egrep -q "^[ \t]*${entry}:.*files" "${EROOT}"/etc/nsswitch.conf; then
-				eerror "Your ${EROOT}/etc/nsswitch.conf is out of date."
-				eerror "Please make sure you have 'files' entries for"
-				eerror "'passwd:', 'group:' and 'shadow:' databases."
-				eerror "For more details see:"
-				eerror "https://github.com/funtoo/core-kit/GLIBC_UPDATE.rst"
-				die "nsswitch.conf has no 'files' provider in '${entry}'."
-			fi
-		done
-	fi
 }
 
 src_unpack() {

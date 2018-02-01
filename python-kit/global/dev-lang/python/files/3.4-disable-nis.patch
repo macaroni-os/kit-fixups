@@ -1,0 +1,22 @@
+diff -Nuar Python-3.4.6/setup.py Python-3.4.6-fixed/setup.py
+--- Python-3.4.6/setup.py	2017-01-17 07:57:47.000000000 -0000
++++ Python-3.4.6-fixed/setup.py	2018-02-01 06:46:54.774812905 -0000
+@@ -1253,17 +1253,7 @@
+             # Jeremy Hylton's rlimit interface
+             exts.append( Extension('resource', ['resource.c']) )
+ 
+-            # Sun yellow pages. Some systems have the functions in libc.
+-            if (host_platform not in ['cygwin', 'qnx6'] and
+-                find_file('rpcsvc/yp_prot.h', inc_dirs, []) is not None):
+-                if (self.compiler.find_library_file(lib_dirs, 'nsl')):
+-                    libs = ['nsl']
+-                else:
+-                    libs = []
+-                exts.append( Extension('nis', ['nismodule.c'],
+-                                       libraries = libs) )
+-            else:
+-                missing.append('nis')
++            missing.append('nis')
+         else:
+             missing.extend(['nis', 'resource', 'termios'])
+ 

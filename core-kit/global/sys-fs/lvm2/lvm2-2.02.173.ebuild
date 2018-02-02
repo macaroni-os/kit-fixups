@@ -12,7 +12,7 @@ SRC_URI="ftp://sourceware.org/pub/lvm2/${PN/lvm/LVM}.${PV}.tgz
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS=""
-IUSE="readline static static-libs systemd clvm cman corosync lvm1 lvm2create_initrd openais sanlock selinux +udev +thin device-mapper-only"
+IUSE="readline +static static-libs systemd clvm cman corosync lvm1 lvm2create_initrd openais sanlock selinux +udev +thin device-mapper-only"
 REQUIRED_USE="device-mapper-only? ( !clvm !cman !corosync !lvm1 !lvm2create_initrd !openais !sanlock !thin )
 	systemd? ( udev )
 	clvm? ( !systemd )"
@@ -118,6 +118,9 @@ src_prepare() {
 	# Without thin-privision-tools, there is nothing to install for target install_man7:
 	use thin || { sed -i -e '/^install_lvm2/s:install_man7::' man/Makefile.in || die; }
 
+	#fix libm linking with static libdevmapper binary
+	eapply "${MYDIR}"/${P}-static-libm.patch
+	
 	eautoreconf
 }
 

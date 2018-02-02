@@ -1,0 +1,12 @@
+diff -Nuar LVM2.2.02.173/make.tmpl.in LVM2.2.02.173-fixed/make.tmpl.in
+--- LVM2.2.02.173/make.tmpl.in	2018-02-02 10:18:15.120000000 +0000
++++ LVM2.2.02.173-fixed/make.tmpl.in	2018-02-02 10:41:27.968000000 +0000
+@@ -54,7 +54,7 @@
+ 
+ LIBS = @LIBS@
+ # Extra libraries always linked with static binaries
+-STATIC_LIBS = $(SELINUX_STATIC_LIBS) $(UDEV_STATIC_LIBS) $(BLKID_STATIC_LIBS)
++STATIC_LIBS = $(SELINUX_STATIC_LIBS) $(UDEV_STATIC_LIBS) $(BLKID_STATIC_LIBS) $(M_LIBS)
+ DEFS += @DEFS@
+ # FIXME set this only where it's needed, not globally?
+ CFLAGS ?= @COPTIMISE_FLAG@ @CFLAGS@

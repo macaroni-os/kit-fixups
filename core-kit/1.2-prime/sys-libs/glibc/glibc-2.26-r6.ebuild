@@ -100,7 +100,7 @@ else
 		virtual/os-headers
 	"
 	RDEPEND+=" vanilla? ( !sys-libs/timezone-data )"
-	PDEPEND+=" !vanilla? ( sys-libs/timezone-data )"
+	PDEPEND+=" !vanilla? ( sys-libs/timezone-data ) net-libs/libnsl net-libs/rpcsvc-proto"
 fi
 
 #

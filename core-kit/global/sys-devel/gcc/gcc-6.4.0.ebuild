@@ -14,7 +14,7 @@ IUSE="$IUSE cxx nls vanilla doc multilib altivec libssp ssp pie pch hardened gra
 
 SLOT="${PV}"
 
-GENTOO_PATCH_VER="1.1"
+GENTOO_PATCH_VER="1.3"
 GENTOO_PATCH_A="gcc-${PV}-patches-${GENTOO_PATCH_VER}.tar.bz2"
 
 GMP_VER="6.1.2"

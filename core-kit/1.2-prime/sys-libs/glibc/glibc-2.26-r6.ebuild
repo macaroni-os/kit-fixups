@@ -106,19 +106,6 @@ fi
 #
 # the phases
 #
-pkg_setup() {
-	# glibc nsswitch update logic. only required for updating from older versions of glibc to >=2.26
-	if [[ -e ${EROOT}/etc/nsswitch.conf ]] ; then
-		local entry
-		for entry in passwd group shadow; do
-			if ! egrep -q "^[ \t]*${entry}:.*files" "${EROOT}"/etc/nsswitch.conf; then
-				sed -i -e 's/\ncompat\b/& files/' ${EROOT}/etc/nsswitch.conf || die "sed failed"
-			else
-				:
-			fi
-		done
-	fi
-}
 
 pkg_pretend() {
 	# Make sure devpts is mounted correctly for use w/out setuid pt_chown
@@ -785,6 +772,20 @@ src_install() {
 }
 
 pkg_preinst() {
+
+	# glibc nsswitch update logic. only required for updating from older versions of glibc to >=2.26
+        if [[ -e ${EROOT}/etc/nsswitch.conf ]] ; then
+                local entry
+                for entry in passwd group shadow; do
+                        if ! egrep -q "^[ \t]*${entry}:.*files" "${EROOT}"/etc/nsswitch.conf; then
+							sed -i -e 's/compat\w*$/compat files/' "${EROOT}"/etc/nsswitch.conf || die "sed failed"
+                        else
+                            :
+                        fi
+                done
+        fi
+
+
 	# nothing to do if just installing headers
 	just_headers && return
 

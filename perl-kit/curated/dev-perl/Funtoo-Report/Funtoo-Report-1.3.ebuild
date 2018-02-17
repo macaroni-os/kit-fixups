@@ -2,25 +2,24 @@
 
 EAPI="5"
 
-inherit perl-module git-r3
+inherit perl-module
 
+COMMIT_ID="369fd109db2588dda749230a0b556ac3b14e7c32"
 DESCRIPTION="Anonymous reporting tool for Funtoo Linux"
 HOMEPAGE="https://github.com/haxmeister/funtoo-reporter"
-SRC_URI=""
-EGIT_REPO_URI="https://github.com/haxmeister/funtoo-reporter.git"
-EGIT_COMMIT="25d2732c2461829544c76f7018475bb502e031ab"
+SRC_URI="https://github.com/haxmeister/funtoo-reporter/archive/${COMMIT_ID}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
 
-DEPEND="
+RDEPEND="
 		dev-perl/JSON
 		dev-perl/Search-Elasticsearch
 "
 
-S="${WORKDIR}/${PN}-${PV}"
+S="${WORKDIR}/funtoo-reporter-${COMMIT_ID}"
 
 src_install() {
 	mydoc="README.md"

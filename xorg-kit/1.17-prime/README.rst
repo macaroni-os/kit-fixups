@@ -75,5 +75,6 @@ Thank you! :)
 .. _X41 D-Sec GmbH: https://www.x41-dsec.de/lab/advisories/x41-2017-001-xorg/
 .. _X.org October 4, 2016 Security Advisory: https://www.x.org/wiki/Development/Security/Advisory-2016-10-04/
 .. _X.org October 4, 2017 Security Advisory: https://lists.x.org/archives/xorg-announce/2017-October/002809.html
+.. _xorg-server-1.19.5 backports: https://lists.x.org/archives/xorg-announce/2017-October/002814.html
 
 

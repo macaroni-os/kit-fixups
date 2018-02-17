@@ -8,7 +8,7 @@ Xorg-kit is an overlay containing all core ebuilds related to xorg for Funtoo Li
 systems as an overlay, providing the ability for users to control what branch of xorg-kit they are using. It is designed
 to be a part of the Funtoo Linux kits system.
 
-The ``1.19-prime`` branch of xorg-kit is the initial, stable curated branch of xorg for Funtoo. By 'curated', we mean
+The ``1.19-prime`` branch of xorg-kit is the current, stable curated branch of xorg for Funtoo. By 'curated', we mean
 that the overlay is a fork of a collection of ebuilds from Gentoo Linux that we have found particularly stable and will
 be continuing to maintain.
 
@@ -28,7 +28,7 @@ Security Fixes
 January 4, 2018
 ~~~~~~~~~~~~~~~
 
-- ``x11-base/xorg-server`` has been updated to 1.19.3-r2 to address CVE-2017-13721 and CVE-2017-13723.
+``x11-base/xorg-server`` has been updated to 1.19.3-r2 to address CVE-2017-13721 and CVE-2017-13723.
 
 
 As of November 17, 2017, all known security vulnerabilities in the ``1.19-prime`` branch have been addressed.

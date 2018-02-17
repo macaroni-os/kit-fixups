@@ -6,8 +6,8 @@ core-kit
 
 Core-kit contains the core ebuilds for Funtoo Linux. It is designed to be a part of the Funtoo Linux kits system.
 
-The ``1.2-prime`` branch of core-kit is marked as *development branch*. Please use ``1.0-prime`` for production systems,
-not this branch.
+The ``1.2-prime`` branch of core-kit is currently marked as *development branch*. Please use ``1.0-prime`` for
+production systems, not this branch.
 
 The ``-prime`` suffix indicates that the eventual goal is for this kit branch to reach production-quality and
 enterprise-class stability. Once this is achieved, we will only incorporate bug fixes for specific issues, and security

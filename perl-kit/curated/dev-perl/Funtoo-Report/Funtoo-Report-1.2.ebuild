@@ -4,14 +4,14 @@ EAPI="5"
 
 inherit perl-module
 
-COMMIT_ID="369fd109db2588dda749230a0b556ac3b14e7c32"
+COMMIT_ID="25d2732c2461829544c76f7018475bb502e031ab"
 DESCRIPTION="Anonymous reporting tool for Funtoo Linux"
 HOMEPAGE="https://github.com/haxmeister/funtoo-reporter"
 SRC_URI="https://github.com/haxmeister/funtoo-reporter/archive/${COMMIT_ID}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE=""
 
 RDEPEND="

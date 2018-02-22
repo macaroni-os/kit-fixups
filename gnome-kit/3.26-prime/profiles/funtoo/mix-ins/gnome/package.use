@@ -1,16 +1,9 @@
+# currently not happy with tracker:
+dev-libs/folks -tracker
+
+net-misc/networkmanager modemmanager ppp bluetooth connection-sharing upower wifi -consolekit
 media-libs/cogl gles2
-# required by gnome-extra/gnome-clocks-3.26.1::gnome-kit
-# required by gnome-base/gnome-extra-apps-3.26.0::gnome-kit
-# required by gnome-base/gnome-3.26.0::gnome-kit[extras]
-# required by @selected
-# required by @world (argument)
-dev-libs/libgweather vala
-# required by gnome-extra/gnome-clocks-3.26.1::gnome-kit
-# required by gnome-base/gnome-extra-apps-3.26.0::gnome-kit
-# required by gnome-base/gnome-3.26.0::gnome-kit[extras]
-# required by @selected
-# required by @world (argument)
-media-libs/gsound vala
+
 # required by gnome-base/gnome-shell-3.26.2::gnome-kit
 # required by x11-terms/gnome-terminal-3.26.2::gnome-kit[gnome-shell]
 # required by gnome-base/gnome-core-apps-3.26.0::gnome-kit
@@ -19,12 +12,7 @@ media-libs/gsound vala
 # required by @world (argument)
 #x11-wm/mutter -kms deprecated-background
 x11-wm/mutter -deprecated-background
-# required by gnome-extra/gnome-contacts-3.26-r1::gnome-kit
-# required by gnome-base/gnome-core-apps-3.26.0::gnome-kit
-# required by gnome-base/gnome-3.26.0::gnome-kit
-# required by @selected
-# required by @world (argument)
-net-libs/gnome-online-accounts vala
+
 # required by media-gfx/graphviz-2.40.1-r1::media-kit
 # required by dev-lang/vala-0.38.4::gnome-kit
 # required by media-video/cheese-3.26.0::gnome-kit
@@ -34,9 +22,6 @@ net-libs/gnome-online-accounts vala
 # required by @selected
 # required by @world (argument)
 media-libs/gd fontconfig
-media-libs/cogl -wayland
-
-
 
 # enable threads USE for dev-libs/boehm-gc as wanted by gnome ebuilds
 dev-libs/boehm-gc threads
@@ -57,7 +42,6 @@ media-libs/gegl cairo raw
 # FL-1940: prefer gstreamer for app-misc/tracker
 app-misc/tracker -ffmpeg
 
-app-crypt/gcr vala
 app-emulation/qemu spice
 media-plugins/grilo-plugins upnp-av
 
@@ -72,12 +56,12 @@ gnome-base/nautilus sendto
 gnome-extra/nm-applet bluetooth modemmanager
 mail-client/evolution spell
 net-im/empathy spell
-net-misc/networkmanager bluetooth connection-sharing upower wifi
+
 
 # Required by GNOME for a clean emerge.
 gnome-base/gvfs udisks
 media-libs/grilo playlist
-net-misc/networkmanager modemmanager ppp
+
 
 # eds is a problematic flag, causing many package to fail. It does allow
 # to build gnome clean but leading to pidgin failures. FL-347
@@ -85,8 +69,8 @@ net-im/pidgin -eds
 
 # Required by gnome, for FL-343
 media-libs/gst-plugins-base theora
-dev-libs/folks vala
-gnome-extra/evolution-data-server vala
+
+gnome-extra/evolution-data-server
 
 # Required by gnome-base/gvfs and sys-fs/udisks
 sys-fs/udev extras gudev
@@ -132,9 +116,6 @@ net-libs/libproxy python
 
 # Required by net-misc/vinagre-3
 net-libs/gtk-vnc gtk3
-
-# Required by dev-libs/folks[libsocialweb]
-net-libs/libsocialweb vala
 
 # The following are required by ekiga-3
 net-libs/opal sip

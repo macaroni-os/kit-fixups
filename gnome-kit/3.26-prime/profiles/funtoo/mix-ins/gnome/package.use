@@ -1,5 +1,42 @@
-# https://bugs.funtoo.org/browse/FL-4564. enable egl USE for the media-plugins-bad:
->=media-libs/gst-plugins-bad-1.12.3 egl
+media-libs/cogl gles2
+# required by gnome-extra/gnome-clocks-3.26.1::gnome-kit
+# required by gnome-base/gnome-extra-apps-3.26.0::gnome-kit
+# required by gnome-base/gnome-3.26.0::gnome-kit[extras]
+# required by @selected
+# required by @world (argument)
+dev-libs/libgweather vala
+# required by gnome-extra/gnome-clocks-3.26.1::gnome-kit
+# required by gnome-base/gnome-extra-apps-3.26.0::gnome-kit
+# required by gnome-base/gnome-3.26.0::gnome-kit[extras]
+# required by @selected
+# required by @world (argument)
+media-libs/gsound vala
+# required by gnome-base/gnome-shell-3.26.2::gnome-kit
+# required by x11-terms/gnome-terminal-3.26.2::gnome-kit[gnome-shell]
+# required by gnome-base/gnome-core-apps-3.26.0::gnome-kit
+# required by gnome-base/gnome-3.26.0::gnome-kit
+# required by @selected
+# required by @world (argument)
+#x11-wm/mutter -kms deprecated-background
+x11-wm/mutter -deprecated-background
+# required by gnome-extra/gnome-contacts-3.26-r1::gnome-kit
+# required by gnome-base/gnome-core-apps-3.26.0::gnome-kit
+# required by gnome-base/gnome-3.26.0::gnome-kit
+# required by @selected
+# required by @world (argument)
+net-libs/gnome-online-accounts vala
+# required by media-gfx/graphviz-2.40.1-r1::media-kit
+# required by dev-lang/vala-0.38.4::gnome-kit
+# required by media-video/cheese-3.26.0::gnome-kit
+# required by gnome-extra/gnome-contacts-3.26-r1::gnome-kit[v4l]
+# required by gnome-base/gnome-core-apps-3.26.0::gnome-kit
+# required by gnome-base/gnome-3.26.0::gnome-kit
+# required by @selected
+# required by @world (argument)
+media-libs/gd fontconfig
+media-libs/cogl -wayland
+
+
 
 # enable threads USE for dev-libs/boehm-gc as wanted by gnome ebuilds
 dev-libs/boehm-gc threads
@@ -13,23 +50,17 @@ media-libs/gegl cairo raw
 # for gnome-3.20
 >=virtual/libintl-0-r2 abi_x86_32
 >=dev-libs/libpcre-8.39 abi_x86_32
-x11-wm/mutter -kms -deprecated-background
 
-# for 3.16
->=media-libs/clutter-1.22.4 egl
 >=www-servers/apache-2.4.16 apache2_mpms_prefork apache2_modules_auth_digest
 >=gnome-base/gnome-control-center-3.16.3 networkmanager
 
 # FL-1940: prefer gstreamer for app-misc/tracker
 app-misc/tracker -ffmpeg
 
-# Required by GNOME 3.14 (extras) for a clean emerge.
 app-crypt/gcr vala
 app-emulation/qemu spice
 media-plugins/grilo-plugins upnp-av
 
-# Required by GNOME 3.14 (base) for a clean emerge.
-media-libs/cogl gles2
 media-libs/mesa gles2
 virtual/notification-daemon
 x11-libs/libxcb xkb
@@ -41,7 +72,7 @@ gnome-base/nautilus sendto
 gnome-extra/nm-applet bluetooth modemmanager
 mail-client/evolution spell
 net-im/empathy spell
-net-misc/networkmanager bluetooth connection-sharing wifi
+net-misc/networkmanager bluetooth connection-sharing upower wifi
 
 # Required by GNOME for a clean emerge.
 gnome-base/gvfs udisks
@@ -54,7 +85,7 @@ net-im/pidgin -eds
 
 # Required by gnome, for FL-343
 media-libs/gst-plugins-base theora
-dev-libs/folks vala -tracker
+dev-libs/folks vala
 gnome-extra/evolution-data-server vala
 
 # Required by gnome-base/gvfs and sys-fs/udisks
@@ -76,8 +107,6 @@ dev-lang/python sqlite
 # Required for app-text/evince
 app-text/poppler cairo
 
-# Required by sys-auth/polkit[-systemd]
-sys-auth/consolekit policykit
 sys-auth/pambase elogind
 
 # Required by media-libs/libcanberra[udev]
@@ -130,6 +159,3 @@ gnome-extra/nm-applet bluetooth
 
 # Required by app-misc/tracker
 media-gfx/imagemagick png jpeg
-dev-libs/gsound vala
-net-libs/gnome-online-accounts vala
-media-libs/gd fontconfig

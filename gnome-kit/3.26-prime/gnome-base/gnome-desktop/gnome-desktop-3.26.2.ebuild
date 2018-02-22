@@ -9,7 +9,7 @@ HOMEPAGE="https://git.gnome.org/browse/gnome-desktop"
 
 LICENSE="GPL-2+ FDL-1.1+ LGPL-2+"
 SLOT="3/12" # subslot = libgnome-desktop-3 soname version
-KEYWORDS=""
+KEYWORDS="*"
 
 IUSE="debug +introspection udev"
 

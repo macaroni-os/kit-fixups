@@ -15,7 +15,7 @@ IUSE="+introspection"
 
 RDEPEND="
 	>=dev-libs/glib-2.43.4:2
-	>=dev-libs/libical-0.43
+	=dev-libs/libical-2*:=
 	>=dev-libs/libpeas-1.17
 	>=gnome-extra/evolution-data-server-3.17.1:=[gtk]
 	>=net-libs/gnome-online-accounts-3.2:=

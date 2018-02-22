@@ -23,31 +23,13 @@
 # https://bugs.gentoo.org/show_bug.cgi?id=619040
 media-gfx/autotrace
 
-# mask release candidates of llvm:
->=dev-util/lldb-4.0.0
->=sys-devel/llvm-common-4.0.0
-=sys-devel/lld-4.0.0_rc*
->=sys-devel/clang-4.0.0
->=sys-devel/llvm-4.0.0
->=sys-devel/clang-runtime-4.0.0
->=app-vim/llvm-vim-4.0.0
->=sys-devel/llvmgold-4
->=dev-libs/libclc-0.2.0_pre20170118
->=sys-libs/libcxx-4.0.0
-
 # mask dev-util/gperf-3.1 bump. breaks reverse deps, such as eudev and maybe many others.
 # https://bugs.funtoo.org/browse/FL-3469
 # https://bugs.gentoo.org/show_bug.cgi?id=604878
 >=dev-util/gperf-3.1
 
-# revert gentoo's unmask of sandbox-2.11. It's unmasked without finishing the debugging in here. https://bugs.gentoo.org/show_bug.cgi?id=578582. this version breaks firefox buildig, found on #funtoo.
-=sys-apps/sandbox-2.11*
-
 # mask gcc-jdk. we do not have gcc[gcj] support.
 dev-java/gcj-jdk
-
-# mask rc version of readline. Just for precaution
->=sys-libs/readline-7.0
 
 # mask of iptables-1.6 and newer. This is first release in 8 years after 1.4. it brings certain incompatible changes. FL-3093
 >=net-firewall/iptables-1.6

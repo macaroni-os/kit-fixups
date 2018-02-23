@@ -20,7 +20,7 @@ RESTRICT="test"
 RDEPEND="
 	dev-db/sqlite:3=
 	>=dev-libs/glib-2.46:2
-	=dev-libs/libical-2*:0=
+	dev-libs/libical:0/2
 	>=dev-libs/libmspack-0.4
 	>=dev-libs/libxml2-2
 	>=gnome-extra/evolution-data-server-${PV}:0=

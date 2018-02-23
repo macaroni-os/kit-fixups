@@ -43,7 +43,7 @@ COMMON_DEPEND="
 	>=app-text/iso-codes-0.49
 	dev-libs/atk
 	gnome-base/dconf
-	=dev-libs/libical-2*:=
+	dev-libs/libical:0/2
 	x11-libs/libSM
 	x11-libs/libICE
 

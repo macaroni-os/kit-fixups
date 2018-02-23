@@ -32,7 +32,7 @@ RDEPEND="
 	>=dev-db/sqlite-3.7.17:=
 	>=dev-libs/glib-2.46:2
 	>=dev-libs/libgdata-0.10:=
-	=dev-libs/libical-2*:=
+	dev-libs/libical:0/2
 	>=dev-libs/libxml2-2
 	>=dev-libs/nspr-4.4:=
 	>=dev-libs/nss-3.9:=

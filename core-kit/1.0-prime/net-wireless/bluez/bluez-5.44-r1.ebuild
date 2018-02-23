@@ -31,7 +31,7 @@ CDEPEND="
 	>=sys-apps/hwids-20121202.2
 	alsa? ( media-libs/alsa-lib )
 	cups? ( net-print/cups:= )
-	obex? ( dev-libs/libical:= )
+	obex? ( dev-libs/libical:0/2 )
 	readline? ( sys-libs/readline:= )
 	systemd? ( sys-apps/systemd )
 	udev? ( >=virtual/udev-172 )

@@ -34,7 +34,7 @@ CDEPEND="
 	mesh? (
 		dev-libs/json-c:=
 		sys-libs/readline:0= )
-	obex? ( dev-libs/libical:= )
+	obex? ( =dev-libs/libical2*:= )
 	readline? ( sys-libs/readline:0= )
 	systemd? ( sys-apps/systemd )
 	udev? ( >=virtual/udev-172 )

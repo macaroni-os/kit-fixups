@@ -23,7 +23,7 @@ IUSE="+bijiben boxes builder california empathy epiphany +evolution flashback +f
 RDEPEND="
 	>=gnome-base/gnome-core-libs-${PV}
 
-	>=app-admin/gnome-system-log-20170809
+	>=app-admin/gnome-system-log-3.9.90
 	>=app-arch/file-roller-${PV}
 	>=app-dicts/gnome-dictionary-${PV}
 	>=gnome-base/dconf-editor-3.23.4

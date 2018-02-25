@@ -17,6 +17,7 @@ RDEPEND="
 		gnome-extra/gnome-shell-extensions
 		gnome-base/gnome-shell
 	)
+	!<=gnome-base/gnome-shell-3.21
 "
 DEPEND="${RDEPEND}"
 

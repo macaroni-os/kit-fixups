@@ -16,9 +16,11 @@ IUSE="test"
 RESTRICT="test"
 
 RDEPEND="
+	dev-python/appdirs[${PYTHON_USEDEP}]
 	dev-python/keyring[${PYTHON_USEDEP}]
 	dev-python/pyyaml[${PYTHON_USEDEP}]
 	dev-python/minidb[${PYTHON_USEDEP}]
+	dev-python/pycodestyle[${PYTHON_USEDEP}]
 	dev-python/requests[${PYTHON_USEDEP}]
 	|| ( www-client/lynx app-text/html2text )
 "

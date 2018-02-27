@@ -30,7 +30,6 @@ COMMON_DEPEND="
 "
 RDEPEND="${COMMON_DEPEND}
 	!<x11-themes/gnome-themes-standard-3.14
-	x11-libs/gtk+:3
 "
 DEPEND="${COMMON_DEPEND}
 	sys-devel/gettext

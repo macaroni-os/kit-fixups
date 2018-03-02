@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -28,6 +27,12 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 DOCS=( AUTHORS NEWS README TODO )
+
+src_prepare() {
+	eapply "${FILESDIR}"/${PN}-gtk-3.20.patch
+	eapply "${FILESDIR}"/${PN}-hyperlinks.patch #FL-4824
+	default
+}
 
 pkg_postinst() {
 	gnome2_icon_cache_update

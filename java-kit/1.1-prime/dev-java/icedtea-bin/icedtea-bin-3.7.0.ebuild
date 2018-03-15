@@ -64,8 +64,7 @@ RDEPEND=">=dev-libs/glib-2.42:2%
 		>=x11-libs/libXtst-1.2%
 	)"
 
-RDEPEND=">=sys-devel/gcc-6.4.0[multilib?]
-	>=sys-libs/glibc-2.25[multilib?]
+RDEPEND="
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-java )
 	multilib? ( ${RDEPEND//%/[${MULTILIB_USEDEP}]} )

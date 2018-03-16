@@ -52,7 +52,7 @@ DEPEND="${RDEPEND}
 	>=sys-devel/autoconf-2.65
 	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )"
-PDEPEND=">=app-eselect/eselect-python-20140125-r1"
+PDEPEND=">=app-eselect/eselect-python-20140125-r1 dev-python/setuptools"
 
 S="${WORKDIR}/${MY_P}"
 

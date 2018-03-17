@@ -15,8 +15,8 @@ GITHUB_USER="funtoo"
 GITHUB_TAG="1.1"
 SCRIPT_A="dropbox-python-setup-${GITHUB_TAG}.tar.gz"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${SCRIPT_A} 
-	x86? ( https://dl.dropboxusercontent.com/u/17/dropbox-lnx.x86-${PV}.tar.gz )
-	amd64? ( https://dl.dropboxusercontent.com/u/17/dropbox-lnx.x86_64-${PV}.tar.gz )
+	x86? ( https://build.funtoo.org/distfiles/dropbox-lnx.x86-${PV}.tar.gz )
+	amd64? ( https://build.funtoo.org/distfiles/dropbox-lnx.x86_64-${PV}.tar.gz )
 	gnome? ( http://www.dropbox.com/download?dl=packages/$NAUT_A )"
 
 LICENSE="CC-BY-ND-3.0 FTL MIT LGPL-2 openssl dropbox"

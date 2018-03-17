@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+March 17, 2018
+~~~~~~~~~~~~~~
+
+- ``sys-apps/util-linux`` has been updated to 2.29.2-r2 to address CVE-2018-7738.
+
+
 January 24, 2018
 ~~~~~~~~~~~~~~~~
 

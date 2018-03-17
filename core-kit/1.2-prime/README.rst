@@ -30,10 +30,20 @@ Security Workarounds
 Security Fixes
 --------------
 
+March 17, 2018
+~~~~~~~~~~~~~~
+
+- ``sys-apps/util-linux`` has been update to 2.31.1-r1 to address CVE-2018-7738.
+
+March 16, 2018
+~~~~~~~~~~~~~~
+
+- ``sys-apps/shadow`` has been updated to 4.5-r1 to address CVE-2018-7169.
+
 January 13, 2018
 ~~~~~~~~~~~~~~~~
 
-- ``dev-libs/libxml2`` has been update to 2.9.7-r1 to address CVE-2017-16392, CVE-2017-16391, CVE-2017-9049 and CVE-2017-8872.
+- ``dev-libs/libxml2`` has been updated to 2.9.7-r1 to address CVE-2017-16392, CVE-2017-16391, CVE-2017-9049 and CVE-2017-8872.
 
 December 28, 2017
 ~~~~~~~~~~~~~~~~~

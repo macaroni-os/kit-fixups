@@ -161,7 +161,9 @@ src_prepare() {
 	eapply "${FILESDIR}"/${PN}-2.4.9-gcc-6.patch
 
 	# ICU-60 fixes:
+	if has_version ">=dev-libs/icu-59"; then
 	eapply "${FILESDIR}"/${P}-icu60.patch
+	fi
 
 	AT_M4DIR=Source/autotools eautoreconf
 

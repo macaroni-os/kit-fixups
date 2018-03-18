@@ -92,7 +92,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.8-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.8-repo-search-1.1.patch"
 	"${FILESDIR}/${PN}-2.3.8-better-errors-1.2.patch"
-	"${FILESDIR}/${PN}-2.3.18-ebuild-nodie.patch"
+	"${FILESDIR}/${PN}-2.3.24-ebuild-nodie.patch"
 )
 
 python_prepare_all() {

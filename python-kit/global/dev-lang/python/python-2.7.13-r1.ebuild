@@ -65,7 +65,7 @@ DEPEND="${RDEPEND}
 	!sys-devel/gcc[libffi(-)]"
 RDEPEND+=" !build? ( app-misc/mime-types )
 	doc? ( dev-python/python-docs:${SLOT} )"
-PDEPEND=">=app-eselect/eselect-python-20140125-r1 dev-python/setuptools"
+PDEPEND=">=app-eselect/eselect-python-20140125-r1 dev-python/setuptools[python_targets_python2_7]"
 
 S="${WORKDIR}/${MY_P}"
 

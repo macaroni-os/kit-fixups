@@ -29,7 +29,8 @@ RDEPEND="
 "
 
 src_install() {
-	newins "${FILESDIR}/funtoo-report.conf" /etc/funtoo-report.conf
+	insinto /etc
+	doins "${FILESDIR}/funtoo-report.conf"
 	dodoc README.md
 	perl-module_src_install
 }

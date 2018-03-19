@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+March 19, 2018
+~~~~~~~~~~~~~~
+
+- ``net-misc/openssh`` has been updated to 7.5_p1-r4 to address CVE-2017-15906.
+
+
 March 17, 2018
 ~~~~~~~~~~~~~~
 

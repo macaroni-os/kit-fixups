@@ -25,6 +25,13 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+March 20, 2018
+~~~~~~~~~~~~~
+
+- ``x11-libs/libXfont`` has been updated to 1.5.4 to address CVE-2017-16611.
+
+- ``x11-libs/libXfont2`` has been updated to 2.0.3 to address CVE-2017-16611.
+
 As of November 17, 2017, all known security vulnerabilities in the ``1.17-prime`` branch have been addressed.
 
 November 17, 2017: ``libXfont backports`` - ``x11-libs/libXfont-1.5.3`` and ``x11-libs/libXfont-2.0.2`` have been added

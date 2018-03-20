@@ -1,15 +1,14 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-inherit python-single-r1 systemd udev user multilib-minimal
+inherit python-single-r1 udev user multilib-minimal
 
 DESCRIPTION="PC/SC Architecture smartcard middleware library"
 HOMEPAGE="https://pcsclite.alioth.debian.org/"
 
-STUPID_NUM="4203"
+STUPID_NUM="4235"
 MY_P="${PN}-${PV/_/-}"
 SRC_URI="https://alioth.debian.org/download.php/file/${STUPID_NUM}/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
@@ -18,30 +17,26 @@ S="${WORKDIR}/${MY_P}"
 # upstream.
 LICENSE="BSD ISC MIT GPL-3+ GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~m68k ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~m68k ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
 
 # This is called libusb so that it doesn't fool people in thinking that
 # it is _required_ for USB support. Otherwise they'll disable udev and
 # that's going to be worse.
-IUSE="python libusb policykit selinux +udev"
+IUSE="python policykit selinux"
 
-REQUIRED_USE="^^ ( udev libusb ) \
-	python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 # No dependencies need the MULTILIB_DEPS because the libraries are actually
 # standalone, the deps are only needed for the daemon itself.
-CDEPEND="libusb? ( virtual/libusb:1 )
-	udev? ( virtual/udev )
+CDEPEND="virtual/udev
 	policykit? ( >=sys-auth/polkit-0.111 )
 	python? ( ${PYTHON_DEPS} )"
 DEPEND="${CDEPEND}
 	virtual/pkgconfig"
 RDEPEND="${CDEPEND}
-	!<app-crypt/ccid-1.4.1-r1
-	!<sys-apps/baselayout-2
-	!<sys-apps/openrc-0.11.8
 	selinux? ( sec-policy/selinux-pcscd )
 "
+PDEPEND="app-crypt/ccid"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.8.11-polkit-pcscd.patch
@@ -59,11 +54,11 @@ pkg_setup() {
 multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf \
 		--disable-maintainer-mode \
+		--disable-libsystemd \
+		--enable-filter \
+		--enable-libudev \
 		--enable-usbdropdir="${EPREFIX}/usr/$(get_libdir)/readers/usb" \
 		--enable-ipcdir=/run/pcscd \
-		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
-		$(multilib_native_use_enable udev libudev) \
-		$(multilib_native_use_enable libusb) \
 		$(multilib_native_use_enable policykit polkit)
 }
 
@@ -71,11 +66,9 @@ multilib_src_install_all() {
 	einstalldocs
 
 	newinitd "${FILESDIR}"/pcscd-init.7 pcscd
-
-	if use udev; then
-		insinto "$(get_udevdir)"/rules.d
-		doins "${FILESDIR}"/99-pcscd-hotplug.rules
-	fi
+	
+	insinto "$(get_udevdir)"/rules.d
+	doins "${FILESDIR}"/99-pcscd-hotplug.rules
 
 	for f in "${ED}/usr/bin/pcsc-spy"; do
 		if use python; then
@@ -98,11 +91,9 @@ pkg_postinst() {
 	elog "pass further options to pcscd, create a file and set the"
 	elog "EXTRA_OPTS variable."
 	elog ""
-	if use udev; then
-		elog "Hotplug support is provided by udev rules; you only need to tell"
-		elog "the init system to hotplug it, by setting this variable in"
-		elog "/etc/rc.conf:"
-		elog ""
-		elog "    rc_hotplug=\"pcscd\""
-	fi
+	elog "Hotplug support is provided by udev rules; you only need to tell"
+	elog "the init system to hotplug it, by setting this variable in"
+	elog "/etc/rc.conf:"
+	elog ""
+	elog "    rc_hotplug=\"pcscd\""
 }

@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -23,23 +22,20 @@ KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~m68k ppc ppc64 ~s390 ~sh ~sparc x86
 # This is called libusb so that it doesn't fool people in thinking that
 # it is _required_ for USB support. Otherwise they'll disable udev and
 # that's going to be worse.
-IUSE="python libusb policykit selinux +udev"
+IUSE="python policykit selinux +udev"
 
-REQUIRED_USE="^^ ( udev libusb ) \
-	python? ( ${PYTHON_REQUIRED_USE} )"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 # No dependencies need the MULTILIB_DEPS because the libraries are actually
 # standalone, the deps are only needed for the daemon itself.
-CDEPEND="libusb? ( virtual/libusb:1 )
-	udev? ( virtual/udev )
+CDEPEND="virtual/libusb:1
+	virtual/udev
 	policykit? ( >=sys-auth/polkit-0.111 )
 	python? ( ${PYTHON_DEPS} )"
 DEPEND="${CDEPEND}
 	virtual/pkgconfig"
 RDEPEND="${CDEPEND}
-	!<app-crypt/ccid-1.4.1-r1
-	!<sys-apps/baselayout-2
-	!<sys-apps/openrc-0.11.8
+	>=app-crypt/ccid-1.4.20
 	selinux? ( sec-policy/selinux-pcscd )
 "
 
@@ -59,11 +55,11 @@ pkg_setup() {
 multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf \
 		--disable-maintainer-mode \
+		--enable-libusb \
+		--enable-libudev \
 		--enable-usbdropdir="${EPREFIX}/usr/$(get_libdir)/readers/usb" \
 		--enable-ipcdir=/run/pcscd \
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
-		$(multilib_native_use_enable udev libudev) \
-		$(multilib_native_use_enable libusb) \
 		$(multilib_native_use_enable policykit polkit)
 }
 
@@ -71,11 +67,9 @@ multilib_src_install_all() {
 	einstalldocs
 
 	newinitd "${FILESDIR}"/pcscd-init.7 pcscd
-
-	if use udev; then
-		insinto "$(get_udevdir)"/rules.d
-		doins "${FILESDIR}"/99-pcscd-hotplug.rules
-	fi
+	
+	insinto "$(get_udevdir)"/rules.d
+	doins "${FILESDIR}"/99-pcscd-hotplug.rules
 
 	for f in "${ED}/usr/bin/pcsc-spy"; do
 		if use python; then

@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+March 21, 2018
+~~~~~~~~~~~~~~
+
+- ``net-misc/rsync`` has been updated to 3.1.2-r2 to provide more complete resolution to issues CVE-2017-16548, CVE-2017-17433 andCVE-2017-17434.
+
+
 March 19, 2018
 ~~~~~~~~~~~~~~
 

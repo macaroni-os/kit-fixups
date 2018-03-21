@@ -28,18 +28,32 @@ RDEPEND="
 		sys-apps/pciutils
 "
 
+src_compile() {
+	pod2man funtoo-report > funtoo-report.1 || die "pod2man failed"
+	pod2man lib/Funtoo/Report.pm > Funtoo::Report.3 || die "pod2man failed"
+}
+
 src_install() {
 	insinto /etc
 	doins "${FILESDIR}/funtoo-report.conf"
 	dodoc README.md
+	doman funtoo-report.1
+	doman Funtoo::Report.3
 	perl-module_src_install
 }
 
 pkg_postinst() {
-        elog "The Funtoo Reporter comes with a default config file that can be found in /etc/funtoo-report.conf"
-        elog "You can review what information gets submitted and generate/update your config file"
-        elog "using the tool directly by issuing:"
-        echo
-        elog "funtoo-report config-update"
-        echo
+	elog "The Funtoo Reporter comes with a default config file that can be found in /etc/funtoo-report.conf"
+	elog "You can review what information gets submitted and generate/update your config file"
+	elog "using the tool directly by issuing:"
+	echo
+	elog "funtoo-report config-update"
+	echo
+	elog "You can setup a cron job to submit your information on regular basis."
+	elog "The data collected are submitted with a timestamp, so we can follow the changes (kits used, profile usage ...) in time."
+	elog "Here is a sample cron job definition to put into your crontab:"
+	echo
+	elog "0 * * * * /usr/bin/funtoo-report send"
+	echo
+	elog "This would send data every hour to our database."
 }

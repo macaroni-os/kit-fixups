@@ -42,4 +42,11 @@ pkg_postinst() {
         echo
         elog "funtoo-report config-update"
         echo
+	elog "You can setup a cron job to submit your information on regular basis."
+	elog "The data collected are submitted with a timestamp, so we can follow the changes (kits used, profile usage ...) in time."
+	elog "Here is a sample cron job definition to put into your crontab:"
+	echo
+	elog "0 * * * * /usr/bin/funtoo-report send"
+	echo
+	elog "This would send data every hour to our database."
 }

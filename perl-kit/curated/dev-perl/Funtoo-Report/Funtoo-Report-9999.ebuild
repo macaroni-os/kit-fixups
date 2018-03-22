@@ -30,7 +30,7 @@ RDEPEND="
 
 src_compile() {
 	pod2man funtoo-report > funtoo-report.1 || die "pod2man failed"
-	pod2man lib/Funtoo/Report.pm > Funtoo::Report.3 || die "pod2man failed"
+	pod2man lib/Funtoo/Report.pm > funtoo-report.3 || die "pod2man failed"
 }
 
 src_install() {
@@ -38,7 +38,7 @@ src_install() {
 	doins "${FILESDIR}/funtoo-report.conf"
 	dodoc README.md
 	doman funtoo-report.1
-	doman Funtoo::Report.3
+	doman funtoo-report.3
 	perl-module_src_install
 }
 
@@ -53,7 +53,7 @@ pkg_postinst() {
 	elog "The data collected are submitted with a timestamp, so we can follow the changes (kits used, profile usage ...) in time."
 	elog "Here is a sample cron job definition to put into your crontab:"
 	echo
-	elog "0 * * * * /usr/bin/funtoo-report send"
+	elog "0 * * * * /usr/bin/funtoo-report -s"
 	echo
 	elog "This would send data every hour to our database."
 }

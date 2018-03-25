@@ -28,7 +28,7 @@ RESTRICT="mirror"
 
 DEPEND=""
 RDEPEND="$PYTHON_DEPS
-dev-python/appi:0/0.1[${PYTHON_USEDEP}]
+dev-python/appi:0/0.2[${PYTHON_USEDEP}]
 dev-python/requests[${PYTHON_USEDEP}]
 dev-python/mwparserfromhell[${PYTHON_USEDEP}]"
 

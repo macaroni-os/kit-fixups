@@ -5,7 +5,7 @@ EAPI=5
 inherit check-reqs eutils mount-boot
 
 SLOT=$PVR
-CKV=4.14.2
+CKV=4.15.11
 KV_FULL=${PN}-${PVR}
 EXTRAVERSION=-1
 MODVER=${CKV}${EXTRAVERSION}
@@ -14,9 +14,10 @@ PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 # based on : http://packages.ubuntu.com/maverick/linux-image-2.6.35-22-server
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="binary"
-DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )"
+DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
+		dev-libs/elfutils"
 RDEPEND="!=sys-kernel/debian-sources-4.11.11"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 HOMEPAGE="http://www.debian.org"

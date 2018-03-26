@@ -5,7 +5,7 @@ EAPI=5
 inherit check-reqs eutils mount-boot
 
 SLOT=$PVR
-CKV=4.13.13
+CKV=4.14.17
 KV_FULL=${PN}-${PVR}
 EXTRAVERSION=-1
 MODVER=${CKV}${EXTRAVERSION}
@@ -16,7 +16,8 @@ RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS=""
 IUSE="binary"
-DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )"
+DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
+		dev-libs/elfutils"
 RDEPEND="!=sys-kernel/debian-sources-4.11.11"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 HOMEPAGE="http://www.debian.org"

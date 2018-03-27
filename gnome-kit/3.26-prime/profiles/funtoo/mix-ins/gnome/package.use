@@ -1,3 +1,9 @@
+# ebuilds that require vala USE for clean gnome install, i.e emerge gnome. vala USE in make.conf results in circular deps. package.use for certain ebuilds appears resolving it.
+>=dev-libs/libgweather-3.26.1 vala
+>=net-libs/gnome-online-accounts-3.26.2 vala
+>=gnome-extra/evolution-data-server-3.26.3 vala
+>=media-libs/gsound-1.0.2-r1 vala
+
 # currently not happy with tracker:
 dev-libs/folks -tracker
 

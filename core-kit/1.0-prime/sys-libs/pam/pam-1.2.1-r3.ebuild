@@ -29,7 +29,7 @@ DEPEND="${RDEPEND}
 	nls? ( sys-devel/gettext )
 	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )"
 PDEPEND="sys-auth/pambase
-	vim-syntax? ( app-vim/pam-syntax )"
+	vim-syntax? ( app-editors/vim )"
 RDEPEND="${RDEPEND}
 	!<sys-apps/openrc-0.11.8
 	!sys-auth/openpam

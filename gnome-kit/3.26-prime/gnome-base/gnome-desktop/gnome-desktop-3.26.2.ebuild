@@ -38,6 +38,7 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-util/intltool-0.40.6
 	dev-util/itstool
 	sys-devel/gettext
+	sys-libs/libseccomp
 	x11-proto/xproto
 	virtual/pkgconfig
 "

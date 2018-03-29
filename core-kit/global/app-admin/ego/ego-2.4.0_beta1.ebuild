@@ -29,14 +29,6 @@ src_unpack() {
 	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
 }
 
-# FL-4450.  below patch is a git head backport to fix the parent problem. prepare phase need removed with new ego tag release. GITHUB_TAG need change back then, as well
-src_prepare() {
-	pushd "${S}" &>/dev/null
-	eapply "${FILESDIR}"/${PN}-2.3.3-parent.patch
-	popd &>/dev/null
-	default
-}
-
 src_install() {
 	exeinto /usr/share/ego/modules
 	doexe $S/modules/*.ego

@@ -25,6 +25,12 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+March 29, 2018
+~~~~~~~~~~~~~~
+
+- ``x11-libs/libXcursror`` has been updated to 1.1.14-r1 to address CVE-2017-16612.
+
+
 March 20, 2018
 ~~~~~~~~~~~~~
 

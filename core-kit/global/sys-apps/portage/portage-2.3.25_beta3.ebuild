@@ -15,7 +15,7 @@ DESCRIPTION="Portage is the package management and distribution system for Gento
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 SLOT="0"
 IUSE="build doc epydoc +ipc linguas_ru +native-extensions selinux xattr"
 
@@ -91,7 +91,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.4.3-remove-gentoo-repos-conf.patch"
 	"${FILESDIR}/${PN}-2.3.8-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.8-repo-search-1.1.patch"
-	"${FILESDIR}/${PN}-2.3.8-better-errors-1.2.patch"
+	"${FILESDIR}/${PN}-2.3.8-better-errors-1.3.patch"
 	"${FILESDIR}/${PN}-2.3.24-ebuild-nodie.patch"
 )
 
@@ -118,6 +118,9 @@ python_prepare_all() {
 		echo -e '\nFEATURES="${FEATURES} xattr"' >> cnf/make.globals \
 			|| die "failed to append to make.globals"
 	fi
+
+	echo "Enabling fastpull-us..."
+	sed -e "s|^GENTOO_MIRRORS=.*$|GENTOO_MIRRORS=https://fastpull-us.funtoo.org|" -i cnf/make.globals || die "sed failed"
 
 	if [[ -n ${EPREFIX} ]] ; then
 		einfo "Setting portage.const.EPREFIX ..."

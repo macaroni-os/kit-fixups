@@ -1,0 +1,115 @@
+diff --git a/sysdeps/unix/sysv/linux/ttyname.c b/sysdeps/unix/sysv/linux/ttyname.c
+index e2686b5a23..5909cb765f 100644
+--- a/sysdeps/unix/sysv/linux/ttyname.c
++++ b/sysdeps/unix/sysv/linux/ttyname.c
+@@ -28,6 +28,8 @@
+ 
+ #include <_itoa.h>
+ 
++#include "ttyname.h"
++
+ #if 0
+ /* Is this used anywhere?  It is not exported.  */
+ char *__ttyname;
+@@ -170,12 +172,18 @@ ttyname (int fd)
+ #ifdef _STATBUF_ST_RDEV
+ 	  && S_ISCHR (st1.st_mode)
+ 	  && st1.st_rdev == st.st_rdev
+-#else
+-	  && st1.st_ino == st.st_ino
+-	  && st1.st_dev == st.st_dev
+ #endif
+-	  )
++	  && st1.st_ino == st.st_ino
++	  && st1.st_dev == st.st_dev)
+ 	return ttyname_buf;
++
++      /* If the link doesn't exist, then it points to a device in another
++	 namespace. */
++      if (is_pty (&st))
++	{
++	  __set_errno (ENODEV);
++	  return NULL;
++	}
+     }
+ 
+   if (__xstat64 (_STAT_VER, "/dev/pts", &st1) == 0 && S_ISDIR (st1.st_mode))
+diff --git a/sysdeps/unix/sysv/linux/ttyname.h b/sysdeps/unix/sysv/linux/ttyname.h
+new file mode 100644
+index 0000000000..2e415e4e9c
+--- /dev/null
++++ b/sysdeps/unix/sysv/linux/ttyname.h
+@@ -0,0 +1,34 @@
++/* Copyright (C) 2016-2017 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public License as
++   published by the Free Software Foundation; either version 2.1 of the
++   License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; see the file COPYING.LIB.  If
++   not, see <http://www.gnu.org/licenses/>.  */
++
++#include <unistd.h>
++#include <sys/sysmacros.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++
++/* Return true if this is a UNIX98 pty device, as defined in
++   linux/Documentation/devices.txt.  */
++static inline int
++is_pty (struct stat64 *sb)
++{
++#ifdef _STATBUF_ST_RDEV
++  int m = major (sb->st_rdev);
++  return (136 <= m && m <= 143);
++#else
++  return false;
++#endif
++}
+diff --git a/sysdeps/unix/sysv/linux/ttyname_r.c b/sysdeps/unix/sysv/linux/ttyname_r.c
+index 10b170a8b5..dc863526ba 100644
+--- a/sysdeps/unix/sysv/linux/ttyname_r.c
++++ b/sysdeps/unix/sysv/linux/ttyname_r.c
+@@ -28,6 +28,8 @@
+ 
+ #include <_itoa.h>
+ 
++#include "ttyname.h"
++
+ static int getttyname_r (char *buf, size_t buflen,
+ 			 dev_t mydev, ino64_t myino, int save,
+ 			 int *dostat) internal_function;
+@@ -152,12 +154,19 @@ __ttyname_r (int fd, char *buf, size_t buflen)
+ #ifdef _STATBUF_ST_RDEV
+ 	  && S_ISCHR (st1.st_mode)
+ 	  && st1.st_rdev == st.st_rdev
+-#else
+-	  && st1.st_ino == st.st_ino
+-	  && st1.st_dev == st.st_dev
+ #endif
+-	  )
++	  && st1.st_ino == st.st_ino
++	  && st1.st_dev == st.st_dev)
+ 	return 0;
++
++      /* If the link doesn't exist, then it points to a device in another
++       * namespace.
++       */
++      if (is_pty (&st))
++	{
++	  __set_errno (ENODEV);
++	  return ENODEV;
++	}
+     }
+ 
+   /* Prepare the result buffer.  */
+-- 
+2.15.1

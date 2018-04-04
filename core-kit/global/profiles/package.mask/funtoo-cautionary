@@ -6,11 +6,6 @@
 # Mask it as a warning to users
 dev-java/sbt
 
-# Also override the xorg-drivers mask:
--<x11-base/xorg-drivers-1.19
-# FL-4365: override gentoo mask for xorg-server-1.17, which is not applicable to Funtoo
--<x11-base/xorg-server-1.19.2
-
 # FL-3585: mask kino which is dead project and shouldn't be used. http://www.kinodv.org/
 media-video/kino
 
@@ -41,9 +36,6 @@ sys-apps/makedev
 # FL-2020, FL-2015, mask very latest libevent, breaks packages.
 >=dev-libs/libevent-2.1
 
-#FL-2936, FL-2161: mask samba-4.1
-=net-fs/samba-4.1*
-
 # FL-1703: these versions of crossdev is a forkbomb(s)
 >=sys-devel/crossdev-20140917
 
@@ -70,17 +62,6 @@ app-benchmarks/phoronix-test-suite
 # Not currently maintained, last commit near 1 yr ago
 # ZFSOnLinux is a muche more viable and mature replacement 
 sys-fs/zfs-fuse
-
-# Oleg Vinichenko (4 Nov 2012)
-# mask dangerous baselayout-2.2.0-r2
-=sys-apps/baselayout-2.2.0-r2
-
-# Adrien Dessemond (09 May 2012)
-# Python 2.7.4-pre and 3.2.4-pre versions are problematic to fetch from upstrea$
-# and per their nature should not be in Funtoo stable anyway
-=dev-lang/python-3.4_pre*
-=dev-lang/python-2.7.6_pre*
-=dev-lang/python-3.3.3_pre*
 
 # DO NOT USE this one the ebuild does not include kernel revision dependencies (>= 2.6.38 REQUIRED) and it can affect many of our users 
 # See bug #359445

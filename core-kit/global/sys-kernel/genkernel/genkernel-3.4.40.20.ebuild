@@ -19,13 +19,13 @@ RH_HOME="ftp://sources.redhat.com/pub"
 DM_HOME="http://people.redhat.com/~heinzm/sw/dmraid/src"
 BB_HOME="http://www.busybox.net/downloads"
 
-COMMON_URI="mirror://funtoo/genkernel/dmraid-${VERSION_DMRAID}.tar.bz2
-		mirror://funtoo/genkernel/busybox-${VERSION_BUSYBOX}.tar.bz2
-		mirror://funtoo/genkernel/open-iscsi-${VERSION_ISCSI}.tar.gz
-		mirror://funtoo/genkernel/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz
-		mirror://funtoo/genkernel/fuse-${VERSION_FUSE}.tar.gz
-		mirror://funtoo/genkernel/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2
-		mirror://funtoo/genkernel/gnupg-${VERSION_GPG}.tar.bz2"
+COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
+		mirror://funtoo/busybox-${VERSION_BUSYBOX}.tar.bz2
+		mirror://funtoo/open-iscsi-${VERSION_ISCSI}.tar.gz
+		mirror://funtoo/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz
+		mirror://funtoo/fuse-${VERSION_FUSE}.tar.gz
+		mirror://funtoo/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2
+		mirror://funtoo/gnupg-${VERSION_GPG}.tar.bz2"
 
 GITHUB_REPO="${PN}"
 GITHUB_USER="funtoo"

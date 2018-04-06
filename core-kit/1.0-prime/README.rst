@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+April 7, 2018
+~~~~~~~~~~~~~
+
+- ``sys-libs/glibc`` has been updated to 2.23-r8 to address CVE-2017-1000408, CVE-2017-1000409, CVE-2017-15670(15671), CVE-2017-15804, CVE-2018-1000001 and CVE-2018-6485(6551).
+
+
 March 21, 2018
 ~~~~~~~~~~~~~~
 

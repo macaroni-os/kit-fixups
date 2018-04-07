@@ -1,0 +1,95 @@
+From 8ed97c51eeaaf3c678f6b5a9b96cc03995fd0c03 Mon Sep 17 00:00:00 2001
+From: Khem Raj <raj.khem@gmail.com>
+Date: Wed, 14 Dec 2016 16:11:05 -0800
+Subject: [PATCH 1/2] Avoid conflicts with integer width macros from TS
+ 18661-1:2014
+
+glibc 2.25+ has now defined these macros in <limits.h>
+https://sourceware.org/git/?p=glibc.git;a=commit;h=5b17fd0da62bf923cb61d1bb7b08cf2e1f1f9c1a
+
+Create an alias for FC_CHAR_WIDTH for ABI compatibility
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ fontconfig/fontconfig.h | 3 ++-
+ src/fcobjs.h            | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/fontconfig/fontconfig.h b/fontconfig/fontconfig.h
+index 2258251..aace1e9 100644
+--- a/fontconfig/fontconfig.h
++++ b/fontconfig/fontconfig.h
+@@ -123,7 +123,8 @@ typedef int		FcBool;
+ #define FC_USER_CACHE_FILE	    ".fonts.cache-" FC_CACHE_VERSION
+ 
+ /* Adjust outline rasterizer */
+-#define FC_CHAR_WIDTH	    "charwidth"	/* Int */
++#define FC_CHARWIDTH	    "charwidth"	/* Int */
++#define FC_CHAR_WIDTH	    FC_CHARWIDTH
+ #define FC_CHAR_HEIGHT	    "charheight"/* Int */
+ #define FC_MATRIX	    "matrix"    /* FcMatrix */
+ 
+diff --git a/src/fcobjs.h b/src/fcobjs.h
+index a0ee079..ffafd57 100644
+--- a/src/fcobjs.h
++++ b/src/fcobjs.h
+@@ -51,7 +51,7 @@ FC_OBJECT (DPI,			FcTypeDouble,	NULL)
+ FC_OBJECT (RGBA,		FcTypeInteger,	NULL)
+ FC_OBJECT (SCALE,		FcTypeDouble,	NULL)
+ FC_OBJECT (MINSPACE,		FcTypeBool,	NULL)
+-FC_OBJECT (CHAR_WIDTH,		FcTypeInteger,	NULL)
++FC_OBJECT (CHARWIDTH,		FcTypeInteger,	NULL)
+ FC_OBJECT (CHAR_HEIGHT,		FcTypeInteger,	NULL)
+ FC_OBJECT (MATRIX,		FcTypeMatrix,	NULL)
+ FC_OBJECT (CHARSET,		FcTypeCharSet,	FcCompareCharSet)
+
+From 25fbd91e1960aa2314b078d521fd3e7762094283 Mon Sep 17 00:00:00 2001
+From: Dan Aloni <alonid@gmail.com>
+Date: Fri, 8 Sep 2017 15:47:31 +0300
+Subject: [PATCH 2/2] src/fcobjshash{h,gperf}: another glibc conflict fix
+
+This continues the upstream fix cce8d675317398f7c:
+
+commit cce8d675317398f7c5e6ce636485d2577f221008
+Author: Khem Raj <raj.khem@gmail.com>
+Date:   Wed Dec 14 16:11:05 2016 -0800
+
+    Avoid conflicts with integer width macros from TS 18661-1:2014
+
+    glibc 2.25+ has now defined these macros in <limits.h>
+    https://sourceware.org/git/?p=glibc.git;a=commit;h=5b17fd0da62bf923cb61d1bb7b08cf2e1f1f9c1a
+
+    Create an alias for FC_CHAR_WIDTH for ABI compatibility
+
+    Signed-off-by: Khem Raj <raj.khem@gmail.com>
+---
+ src/fcobjshash.gperf | 2 +-
+ src/fcobjshash.h     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/fcobjshash.gperf b/src/fcobjshash.gperf
+index f653413..f13b07f 100644
+--- a/src/fcobjshash.gperf
++++ b/src/fcobjshash.gperf
+@@ -44,7 +44,7 @@ int id;
+ "rgba",FC_RGBA_OBJECT
+ "scale",FC_SCALE_OBJECT
+ "minspace",FC_MINSPACE_OBJECT
+-"charwidth",FC_CHAR_WIDTH_OBJECT
++"charwidth",FC_CHARWIDTH_OBJECT
+ "charheight",FC_CHAR_HEIGHT_OBJECT
+ "matrix",FC_MATRIX_OBJECT
+ "charset",FC_CHARSET_OBJECT
+diff --git a/src/fcobjshash.h b/src/fcobjshash.h
+index 414059e..6f64245 100644
+--- a/src/fcobjshash.h
++++ b/src/fcobjshash.h
+@@ -275,7 +275,7 @@ FcObjectTypeLookup (register const char *str, register unsigned int len)
+ #line 26 "fcobjshash.gperf"
+       {(int)(long)&((struct FcObjectTypeNamePool_t *)0)->FcObjectTypeNamePool_str40,FC_WIDTH_OBJECT},
+ #line 47 "fcobjshash.gperf"
+-      {(int)(long)&((struct FcObjectTypeNamePool_t *)0)->FcObjectTypeNamePool_str41,FC_CHAR_WIDTH_OBJECT},
++      {(int)(long)&((struct FcObjectTypeNamePool_t *)0)->FcObjectTypeNamePool_str41,FC_CHARWIDTH_OBJECT},
+ #line 48 "fcobjshash.gperf"
+       {(int)(long)&((struct FcObjectTypeNamePool_t *)0)->FcObjectTypeNamePool_str42,FC_CHAR_HEIGHT_OBJECT},
+ #line 44 "fcobjshash.gperf"

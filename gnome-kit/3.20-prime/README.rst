@@ -24,6 +24,11 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+April 10, 2018
+~~~~~~~~~~~~~~
+
+- ``app-text/poppler`` has been updated to 0.52.0-r2 to address CVE-2017-1000456.
+
 January 28, 2018
 ~~~~~~~~~~~~~~~~
 

@@ -1,0 +1,23 @@
+From 50e568df2ca8252019460a7d43cb83efa600d02d Mon Sep 17 00:00:00 2001
+From: Michael Drake <tlsa@netsurf-browser.org>
+Date: Sun, 22 Oct 2017 12:21:27 +0000
+Subject: Squash GCC7 -Wimplicit-fallthrough warnings.
+
+---
+diff --git a/src/lzw.c b/src/lzw.c
+index 743f4d3..d65f77e 100644
+--- a/src/lzw.c
++++ b/src/lzw.c
+@@ -167,8 +167,8 @@ static inline lzw_result lzw__next_code(
+ 		/* Fast path: code fully inside this sub-block */
+ 		const uint8_t *data = ctx->sb_data + (ctx->sb_bit >> 3);
+ 		switch (byte_advance) {
+-			case 2: code |= data[2] << 16;
+-			case 1: code |= data[1] <<  8;
++			case 2: code |= data[2] << 16; /* Fall through */
++			case 1: code |= data[1] <<  8; /* Fall through */
+ 			case 0: code |= data[0] <<  0;
+ 		}
+ 		ctx->sb_bit += code_size;
+--
+cgit v0.9.0.3-65-g4555

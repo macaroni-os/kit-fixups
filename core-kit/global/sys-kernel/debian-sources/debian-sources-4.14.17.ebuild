@@ -15,8 +15,10 @@ RESTRICT="binchecks strip mirror"
 # based on : http://packages.ubuntu.com/maverick/linux-image-2.6.35-22-server
 LICENSE="GPL-2"
 KEYWORDS=""
-IUSE="binary"
+IUSE="binary btrfs zfs"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
+		btrfs? ( sys-fs/btrfs-progs )
+		zfs? ( sys-fs/zfs )
 		dev-libs/elfutils"
 RDEPEND="!=sys-kernel/debian-sources-4.11.11"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
@@ -113,6 +115,8 @@ src_compile() {
 		--luks \
 		--mdadm \
 		--iscsi \
+		$(usex btrfs --btrfs --no-btrfs) \
+		$(usex zfs --zfs --no-zfs) \
 		--module-prefix="${WORKDIR}"/out \
 		all || die "genkernel failed"
 }

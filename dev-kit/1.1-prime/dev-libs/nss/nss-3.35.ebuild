@@ -5,7 +5,7 @@ EAPI=6
 
 inherit eutils flag-o-matic multilib toolchain-funcs multilib-minimal
 
-NSPR_VER="4.13.1"
+NSPR_VER="4.16"
 RTM_NAME="NSS_${PV//./_}_RTM"
 # Rev of https://git.fedorahosted.org/cgit/nss-pem.git
 PEM_GIT_REV="429b0222759d8ad8e6dcd29e62875ae3efd69116"
@@ -19,7 +19,7 @@ SRC_URI="https://archive.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/$
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
 IUSE="cacert +nss-pem utils"
 CDEPEND=">=dev-db/sqlite-3.8.2[${MULTILIB_USEDEP}]
 	>=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}]"
@@ -27,7 +27,8 @@ DEPEND=">=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
 	>=dev-libs/nspr-${NSPR_VER}[${MULTILIB_USEDEP}]
 	${CDEPEND}"
 RDEPEND=">=dev-libs/nspr-${NSPR_VER}[${MULTILIB_USEDEP}]
-	${CDEPEND}"
+	${CDEPEND}
+"
 
 RESTRICT="test"
 
@@ -39,7 +40,7 @@ MULTILIB_CHOST_TOOLS=(
 
 PATCHES=(
 	# Custom changes for gentoo
-	"${FILESDIR}/${PN}-3.28-gentoo-fixups.patch"
+	"${FILESDIR}/${PN}-3.32-gentoo-fixups.patch"
 	"${FILESDIR}/${PN}-3.21-gentoo-fixup-warnings.patch"
 	"${FILESDIR}/${PN}-3.23-hppa-byte_order.patch"
 )
@@ -62,6 +63,9 @@ src_prepare() {
 			"${DISTDIR}/${PN}-cacert-class1-class3.patch"
 		)
 	fi
+	# bug 646382
+	# https://bugzilla.mozilla.org/show_bug.cgi?id=1432455
+	PATCHES+=( "${FILESDIR}"/${P}-Hacl_Poly1305_64-aarch64.patch )
 
 	default
 
@@ -251,26 +255,28 @@ multilib_src_install() {
 	pushd dist >/dev/null || die
 
 	dodir /usr/$(get_libdir)
-	cp -L */lib/*$(get_libname) "${ED}"/usr/$(get_libdir) || die "copying shared libs failed"
-	cp -L */lib/libcrmf.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
-	cp -L */lib/libfreebl.a "${ED}"/usr/$(get_libdir) || die "copying libs failed"
+	cp -L */lib/*$(get_libname) "${ED%/}"/usr/$(get_libdir) || die "copying shared libs failed"
+	local i
+	for i in crmf freebl nssb nssckfw ; do
+		cp -L */lib/lib${i}.a "${ED%/}"/usr/$(get_libdir) || die "copying libs failed"
+	done
 
 	# Install nss-config and pkgconfig file
 	dodir /usr/bin
-	cp -L */bin/nss-config "${ED}"/usr/bin || die
+	cp -L */bin/nss-config "${ED%/}"/usr/bin || die
 	dodir /usr/$(get_libdir)/pkgconfig
-	cp -L */lib/pkgconfig/nss.pc "${ED}"/usr/$(get_libdir)/pkgconfig || die
+	cp -L */lib/pkgconfig/nss.pc "${ED%/}"/usr/$(get_libdir)/pkgconfig || die
 
 	# create an nss-softokn.pc from nss.pc for libfreebl and some private headers
 	# bug 517266
 	sed 	-e 's#Libs:#Libs: -lfreebl#' \
 		-e 's#Cflags:#Cflags: -I${includedir}/private#' \
-		*/lib/pkgconfig/nss.pc >"${ED}"/usr/$(get_libdir)/pkgconfig/nss-softokn.pc \
+		*/lib/pkgconfig/nss.pc >"${ED%/}"/usr/$(get_libdir)/pkgconfig/nss-softokn.pc \
 		|| die "could not create nss-softokn.pc"
 
 	# all the include files
 	insinto /usr/include/nss
-	doins public/nss/*.h
+	doins public/nss/*.{h,api}
 	insinto /usr/include/nss/private
 	doins private/nss/{blapi,alghmac}.h
 
@@ -307,7 +313,7 @@ multilib_src_install() {
 	# shlibsign after prelink.
 	dodir /etc/prelink.conf.d
 	printf -- "-b ${EPREFIX}/usr/$(get_libdir)/lib%s.so\n" ${NSS_CHK_SIGN_LIBS} \
-		> "${ED}"/etc/prelink.conf.d/nss.conf
+		> "${ED%/}"/etc/prelink.conf.d/nss.conf
 }
 
 pkg_postinst() {

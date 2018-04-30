@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit perl-module
+inherit perl-module bash-completion-r1
 
 DESCRIPTION="Anonymous reporting tool for Funtoo Linux"
 HOMEPAGE="https://github.com/haxmeister/funtoo-reporter"
@@ -22,7 +22,7 @@ fi
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="${IUSE}"
+IUSE="${IUSE} bash-completion zsh-completion"
 
 RDEPEND="
 	dev-perl/JSON
@@ -45,6 +45,15 @@ src_install() {
 	dodoc README.md
 	doman funtoo-report.1
 	doman funtoo-report.3
+        # Install bash completion files
+        if use bash-completion; then
+                newbashcomp share/bash-completion/funtoo-report.bash funtoo-report
+        fi
+        # Install zsh completion files
+        if use zsh-completion; then
+                insinto /usr/share/zsh/site-functions
+                doins share/zsh-completion/_funtoo-report
+        fi
 	perl-module_src_install
 }
 

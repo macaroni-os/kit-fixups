@@ -33,7 +33,7 @@ Security Fixes
 March 17, 2018
 ~~~~~~~~~~~~~~
 
-- ``sys-apps/util-linux`` has been update to 2.31.1-r1 to address CVE-2018-7738.
+- ``sys-apps/util-linux`` has been updated to 2.31.1-r1 to address CVE-2018-7738.
 
 March 16, 2018
 ~~~~~~~~~~~~~~

@@ -79,6 +79,8 @@ DEPEND="${COMMON_DEPEND}
 	dev-libs/gobject-introspection-common
 	gnome-base/gnome-common
 "
+PATCHES=( "${FILESDIR}"/${P}-parallel-build.patch )
+
 # eautoreconf needs:
 #	app-text/yelp-tools
 #	dev-libs/gobject-introspection-common
@@ -127,7 +129,7 @@ src_configure() {
 	# pylint is checked unconditionally, but is only used for make check
 	# appstream-util overriding necessary until upstream fixes their macro
 	# to respect configure switch
-	local emasonargs=(
+	local emesonargs=(
 		-D enable-easy-codec-installation=yes
 		-D enable-python=$(usex python yes no)
 		-D enable-introspection=$(usex introspection yes no)

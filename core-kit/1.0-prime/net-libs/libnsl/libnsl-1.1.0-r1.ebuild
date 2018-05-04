@@ -2,7 +2,9 @@
 
 EAPI=6
 
-# this is workaround ebuild to sort dependency block introduced with gentoo glib'c unofficial library split (libnsl is a split of glibc's libnsl). Not applicable to Funtoo.
+inherit multilib-build
+
+# this is workaround ebuild to sort dependency block introduced with gentoo glib'c library split (libnsl is a split of glibc's libnsl).
 # https://github.com/thkukuk/libnsl
 # https://bugs.funtoo.org/browse/FL-4436
 

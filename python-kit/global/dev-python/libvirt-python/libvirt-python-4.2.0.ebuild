@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,7 +16,7 @@ if [[ ${PV} = *9999* ]]; then
 	KEYWORDS=""
 	RDEPEND="app-emulation/libvirt:=[-python(-)]"
 else
-	SRC_URI="https://libvirt.org/sources/python/${MY_P}.tar.gz"
+	SRC_URI="http://libvirt.org/sources/python/${MY_P}.tar.gz"
 	KEYWORDS="~amd64 ~arm64 ~x86"
 	RDEPEND="app-emulation/libvirt:0/${PV}"
 fi

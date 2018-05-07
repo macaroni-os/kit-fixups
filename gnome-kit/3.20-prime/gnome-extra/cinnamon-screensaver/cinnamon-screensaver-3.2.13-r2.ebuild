@@ -3,7 +3,7 @@
 # $Id$
 
 EAPI=6
-PYTHON_COMPAT=( python3_4 )
+PYTHON_COMPAT=( python{3_4,3_5,3_6} )
 
 inherit autotools gnome2 multilib python-single-r1
 
@@ -13,7 +13,7 @@ SRC_URI="https://github.com/linuxmint/cinnamon-screensaver/archive/${PV}.tar.gz 
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="debug doc pam"
+IUSE="debug doc pam systemd"
 KEYWORDS="~amd64 ~x86"
 
 COMMON_DEPEND="

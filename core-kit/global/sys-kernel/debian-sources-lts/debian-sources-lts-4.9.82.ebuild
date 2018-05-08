@@ -74,14 +74,20 @@ src_prepare() {
 
 	## FL-3381. enable IKCONFIG
 	epatch "${FILESDIR}"/ikconfig.patch
-
-	local opts
-	opts="standard"
-	local myarch="amd64"
-	[ "$REAL_ARCH" = "x86" ] && myarch="i386" && opts="$opts 686-pae"
+	local arch featureset subarch
+	featureset="standard"
+	if [[ ${REAL_ARCH} == x86 ]]; then
+		arch="i386"
+		subarch="686-pae"
+	elif [[ ${REAL_ARCH} == amd64 ]]; then
+		arch="amd64"
+		subarch="amd64"
+	else
+	die "Architecture not handled in ebuild"
+	fi
 	cp "${FILESDIR}"/config-extract . || die
 	chmod +x config-extract || die
-	./config-extract ${myarch} ${opts} || die
+	./config-extract ${arch} ${featureset} ${subarch} || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
 	#make -s include/linux/version.h || die "make include/linux/version.h failed"

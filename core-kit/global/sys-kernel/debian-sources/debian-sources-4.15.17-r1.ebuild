@@ -20,7 +20,7 @@ DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
 		btrfs? ( sys-fs/btrfs-progs )
 		zfs? ( sys-fs/zfs )
 		dev-libs/elfutils"
-RDEPEND="!=sys-kernel/debian-sources-4.11.11"
+RDEPEND="!=sys-kernel/debian-sources-4.15.17"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 HOMEPAGE="http://www.debian.org"
 SRC_URI="mirror://funtoo/${KERNEL_ARCHIVE} mirror://funtoo/${PATCH_ARCHIVE}"

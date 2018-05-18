@@ -122,7 +122,7 @@ pkg_setup() {
 
 pkg_pretend() {
 	# Make sure devpts is mounted correctly for use w/out setuid pt_chown
-	check_devpts
+	# check_devpts # Commented out as per FL-5151 (Palica) 20180518
 
 	# Prevent native builds from downgrading
 	if [[ ${MERGE_TYPE} != "buildonly" ]] && \

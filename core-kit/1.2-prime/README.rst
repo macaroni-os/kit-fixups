@@ -33,6 +33,9 @@ Security Fixes
 May 19, 2018
 ~~~~~~~~~~~~
 
+- ``net-misc/rsync``  has been updated to 3.1.3 to address CVE-2018-5764.
+
+
 - ``sys-libs/ncurses`` has been updated to 6.0-r3 to address security vulnerabilites: CVE-2017-13728 to 13334, CVE-2017-10684, CVE-2017-10685, CVE-2017-16879, CVE-2017-11112, CVE-2017-11113.
 
 

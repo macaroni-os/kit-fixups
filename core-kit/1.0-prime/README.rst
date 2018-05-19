@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+May 19, 2018
+~~~~~~~~~~~~
+
+- ``sys-libs/ncurses`` has been updated to 6.0-r2 to address security vulnerabilites: CVE-2017-13728 to 13334, CVE-2017-10684, CVE-2017-10685, CVE-2017-16879, CVE-2017-11112, CVE-2017-11113.
+
+
 April 7, 2018
 ~~~~~~~~~~~~~
 

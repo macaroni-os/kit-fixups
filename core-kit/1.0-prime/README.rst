@@ -31,6 +31,11 @@ Security Workarounds
 Security Fixes
 --------------
 
+May 20, 2018
+~~~~~~~~~~~~
+
+- ``net-misc/curl`` has been updated to 7.60.0 to address CVE-2018-1000005, CVE-2018-1000007, CVE-2018-1000120, CVE-2018-1000121 and CVE-2018-1000122.
+
 May 19, 2018
 ~~~~~~~~~~~~
 

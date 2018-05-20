@@ -48,6 +48,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 
 src_prepare() {
-	eapply "${FILESDIR}"/${PN}-17.08.2-ultimatekey.patch
+	eapply "${FILESDIR}"/${PN}-17.12.3-ultimatekey.patch
 	default
 }

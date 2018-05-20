@@ -1,0 +1,70 @@
+diff -Nuar kgpg-17.12.3/transactions/kgpgchangedisable.cpp kgpg-17.12.3-fixed/transactions/kgpgchangedisable.cpp
+--- kgpg-17.12.3/transactions/kgpgchangedisable.cpp	2018-03-02 00:56:16.000000000 +0200
++++ kgpg-17.12.3-fixed/transactions/kgpgchangedisable.cpp	2018-05-20 14:27:14.747489708 +0300
+@@ -45,12 +45,3 @@
+ 
+ 	return true;
+ }
+-
+-bool
+-KGpgChangeDisable::nextLine(const QString &line)
+-{
+-	if(keyConsidered(line, QStringList(getKeyid())))
+-		return false;
+-
+-	return KGpgEditKeyTransaction::nextLine(line);
+-}
+diff -Nuar kgpg-17.12.3/transactions/kgpgchangedisable.h kgpg-17.12.3-fixed/transactions/kgpgchangedisable.h
+--- kgpg-17.12.3/transactions/kgpgchangedisable.h	2018-03-02 00:56:16.000000000 +0200
++++ kgpg-17.12.3-fixed/transactions/kgpgchangedisable.h	2018-05-20 14:28:05.591490916 +0300
+@@ -35,7 +35,6 @@
+ 
+ protected:
+ 	bool preStart() Q_DECL_OVERRIDE;
+-	bool nextLine(const QString &line) Q_DECL_OVERRIDE;
+ };
+ 
+ #endif // KGPGCHANGEDISABLE_H
+diff -Nuar kgpg-17.12.3/transactions/kgpgdelkey.cpp kgpg-17.12.3-fixed/transactions/kgpgdelkey.cpp
+--- kgpg-17.12.3/transactions/kgpgdelkey.cpp	2018-03-02 00:56:16.000000000 +0200
++++ kgpg-17.12.3-fixed/transactions/kgpgdelkey.cpp	2018-05-20 14:29:42.031493208 +0300
+@@ -52,9 +52,7 @@
+ bool
+ KGpgDelKey::nextLine(const QString &line)
+ {
+-	if (keyConsidered(line, fingerprints)) {
+-		// nothing
+-	} else if (!line.startsWith(QLatin1String("[GNUPG:] GOT_IT")))
++	if (!line.startsWith(QLatin1String("[GNUPG:] GOT_IT")))
+ 		setSuccess(KGpgTransaction::TS_MSG_SEQUENCE);
+ 
+ 	return false;
+diff -Nuar kgpg-17.12.3/transactions/kgpgsignkey.cpp kgpg-17.12.3-fixed/transactions/kgpgsignkey.cpp
+--- kgpg-17.12.3/transactions/kgpgsignkey.cpp	2018-03-02 00:56:16.000000000 +0200
++++ kgpg-17.12.3-fixed/transactions/kgpgsignkey.cpp	2018-05-20 14:31:09.851495295 +0300
+@@ -38,10 +38,6 @@
+ bool
+ KGpgSignKey::nextLine(const QString &line)
+ {
+-	if (keyConsidered(line, QStringList()))
+-		// could be any private key, so just ignore them
+-		return false;
+-
+ 	switch (KGpgSignTransactionHelper::nextLine(line)) {
+ 	case KGpgSignTransactionHelper::handledFalse:
+ 		return false;
+diff -Nuar kgpg-17.12.3/transactions/kgpgtransactionprivate.cpp kgpg-17.12.3-fixed/transactions/kgpgtransactionprivate.cpp
+--- kgpg-17.12.3/transactions/kgpgtransactionprivate.cpp	2018-03-02 00:56:16.000000000 +0200
++++ kgpg-17.12.3-fixed/transactions/kgpgtransactionprivate.cpp	2018-05-20 14:32:57.479497853 +0300
+@@ -70,8 +70,9 @@
+ #endif /* KGPG_DEBUG_TRANSACTIONS */
+ 
+ 		static const QString getBool = QLatin1String("[GNUPG:] GET_BOOL ");
+-
+-		if (line.startsWith(QLatin1String("[GNUPG:] USERID_HINT "))) {
++		if (m_parent->keyConsidered(line, QStringList())) {
++			// already handled by keyConsidered - skip the line
++		} else if (line.startsWith(QLatin1String("[GNUPG:] USERID_HINT "))) {
+ 			m_parent->addIdHint(line);
+ 		} else if (line.startsWith(QLatin1String("[GNUPG:] BAD_PASSPHRASE "))) {
+ 			// the MISSING_PASSPHRASE line comes first, in that case ignore a

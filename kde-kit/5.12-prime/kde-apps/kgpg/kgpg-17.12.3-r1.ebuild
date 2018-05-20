@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -10,7 +10,7 @@ inherit kde5
 DESCRIPTION="Frontend for GnuPG, a powerful encryption utility by KDE"
 HOMEPAGE="https://www.kde.org/applications/utilities/kgpg
 https://utils.kde.org/projects/kgpg"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE=""
 
 COMMON_DEPEND="
@@ -46,7 +46,8 @@ DEPEND="${COMMON_DEPEND}
 RDEPEND="${COMMON_DEPEND}
 	app-crypt/gnupg
 "
+
 src_prepare() {
-	eapply "${FILESDIR}"/${P}-ultimatekey.patch
+	eapply "${FILESDIR}"/${PN}-17.08.2-ultimatekey.patch
 	default
 }

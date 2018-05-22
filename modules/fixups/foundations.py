@@ -3,14 +3,16 @@
 
 from enum import Enum
 
+
 class KitStabilityRating(Enum):
-	PRIME = 0               # Kit is enterprise-quality
-	NEAR_PRIME = 1          # Kit is approaching enterprise-quality
-	BETA = 2                # Kit is in beta
-	ALPHA = 3               # Kit is in alpha
-	DEV = 4                 # Kit is newly created and in active development
-	CURRENT = 10            # Kit follows Gentoo currrent
-	DEPRECATED = 11         # Kit is deprecated/retired
+	PRIME = 0  # Kit is enterprise-quality
+	NEAR_PRIME = 1  # Kit is approaching enterprise-quality
+	BETA = 2  # Kit is in beta
+	ALPHA = 3  # Kit is in alpha
+	DEV = 4  # Kit is newly created and in active development
+	CURRENT = 10  # Kit follows Gentoo currrent
+	DEPRECATED = 11  # Kit is deprecated/retired
+
 
 def KitRatingString(kit_enum):
 	if kit_enum is KitStabilityRating.PRIME:
@@ -27,6 +29,7 @@ def KitRatingString(kit_enum):
 		return "current"
 	elif kit_enum is KitStabilityRating.DEPRECATED:
 		return "deprecated"
+
 
 # KIT DESIGN AND DEVELOPER DOCS
 
@@ -99,7 +102,6 @@ def KitRatingString(kit_enum):
 # as 'funtoo_prime'.
 
 
-
 # Next release is 1.2-prime and will be based on a 'master' snapshot until it is near release, at which point the
 # tree will be frozen.
 
@@ -151,7 +153,6 @@ def KitRatingString(kit_enum):
 # nokit                                             master
 
 
-
 # It has already been explained how when we apply package-set rules, we process the kit_source repositories in order and
 # after we find a catpkg that matches, any matches in successive repositories for catpkgs that we have already copied
 # over to the destination kit are *ignored*. This is implemented using a dictionary called "kitted_catpkgs".  Once a
@@ -162,75 +163,48 @@ class KitFoundation:
 	kit_groups = {
 		'prime': [
 			{'name': 'core-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
-			{'name': 'core-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected',
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'core-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.BETA},
 			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
 			{'name': 'security-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
-			{'name': 'security-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected',
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected',
-			 'stability': KitStabilityRating.BETA},
-			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'default': False,
-			 'stability': KitStabilityRating.PRIME},
-			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'default': True,
-			 'stability': KitStabilityRating.PRIME},  # MK2
+			{'name': 'security-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.BETA},
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'default': False, 'stability': KitStabilityRating.PRIME},
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'default': True},
-			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'default': False,
-			 'stability': KitStabilityRating.DEV},
-			{'name': 'kde-kit', 'branch': '5.10-prime', 'source': 'funtoo_mk3_prime', 'default': False,
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'kde-kit', 'branch': '5.11-prime', 'source': 'funtoo_prime_kde',
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_prime_kde_late', 'default': True,
-			 'stability': KitStabilityRating.PRIME},
-			{'name': 'media-kit', 'branch': '1.0-prime', 'source': 'funtoo_prime_media', 'default': False,
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'media-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_prime', 'default': True,
-			 'stability': KitStabilityRating.PRIME},  # MK3
-			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'default': False, 'stability': KitStabilityRating.DEV},
+			{'name': 'kde-kit', 'branch': '5.10-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'kde-kit', 'branch': '5.11-prime', 'source': 'funtoo_prime_kde', 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_prime_kde_late', 'default': True, 'stability': KitStabilityRating.PRIME},
+			{'name': 'media-kit', 'branch': '1.0-prime', 'source': 'funtoo_prime_media', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'media-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK3
+			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'default': True},
-			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False,
-			 'stability': KitStabilityRating.DEV},
-			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True,
-			 'stability': KitStabilityRating.PRIME},
+			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEV},
+			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.PRIME},
 			{'name': 'python-kit', 'branch': '3.4-prime', 'source': 'funtoo_prime', 'default': True},
-			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False,
-			 'stability': KitStabilityRating.PRIME},  # MK2
-			{'name': 'python-kit', 'branch': '3.6.3-prime', 'source': 'funtoo_mk3_prime', 'default': False,
-			 'stability': KitStabilityRating.DEPRECATED},  # MK3
+			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False, 'stability': KitStabilityRating.PRIME},  # MK2
+			{'name': 'python-kit', 'branch': '3.6.3-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},  # MK3
 			{'name': 'php-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
 			# We will freeze when 7.2.0 is released...
 			{'name': 'java-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'java-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'java-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'ruby-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'ruby-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'ruby-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'haskell-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'haskell-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
-			{'name': 'ml-lang-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': False,
-			 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'ml-lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'default': True,
-			 'stability': KitStabilityRating.PRIME},
+			{'name': 'haskell-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
+			{'name': 'ml-lang-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'ml-lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'default': True, 'stability': KitStabilityRating.PRIME},
 			{'name': 'lisp-scheme-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'lisp-scheme-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'lisp-scheme-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'lang-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
-			{'name': 'llvm-kit', 'branch': '1.2-prime', 'source': 'funtoo_prime_llvm', 'default': True,
-			 'stability': KitStabilityRating.PRIME},
+			{'name': 'lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
+			{'name': 'llvm-kit', 'branch': '1.2-prime', 'source': 'funtoo_prime_llvm', 'default': True, 'stability': KitStabilityRating.PRIME},
 			{'name': 'dev-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime',
-			 'stability': KitStabilityRating.BETA},
+			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
 			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
 			{'name': 'text-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
@@ -239,7 +213,6 @@ class KitFoundation:
 			{'name': 'nokit', 'branch': 'master', 'source': 'funtoo_current', 'default': True}
 		]
 	}
-
 	python_kit_settings = {
 		#	branch / primary python / alternate python / python mask (if any)
 		'master': {
@@ -388,7 +361,7 @@ class KitFoundation:
 		return {
 			# use gentoo-staging-2017 dirname to avoid conflicts with ports-2012 generation
 			"gentoo-staging": {"url": self.config.gentoo_staging, "dirname": "gentoo-staging-2017"},
-			"gentoo-staging-underlay": { "url": self.config.gentoo_staging, "dirname": "gentoo-staging-2017-underlay"},
+			"gentoo-staging-underlay": {"url": self.config.gentoo_staging, "dirname": "gentoo-staging-2017-underlay"},
 			"faustoo": {"url": "https://github.com/fmoro/faustoo.git", "eclasses": [
 				"waf",
 				"googlecode"
@@ -441,6 +414,5 @@ class KitFoundation:
 			          },
 		}
 
-	def __init__(self,config):
+	def __init__(self, config):
 		self.config = config
-

@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+May 24, 2018
+~~~~~~~~~~~~
+
+- ``sys-apps/shadow`` has been updated to 4.2.1-r3 to address CVE-2018-7169.
+
+
 May 20, 2018
 ~~~~~~~~~~~~
 

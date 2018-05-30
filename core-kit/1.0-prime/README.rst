@@ -31,6 +31,11 @@ Security Workarounds
 Security Fixes
 --------------
 
+May 30, 2018
+~~~~~~~~~~~~
+
+- ``dev-vcs/git`` has been updated to 2.15.2 to address CVE-2018-11233 and CVE-2018-11235.
+
 May 24, 2018
 ~~~~~~~~~~~~
 

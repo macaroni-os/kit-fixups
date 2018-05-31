@@ -31,6 +31,11 @@ Security Workarounds
 Security Fixes
 --------------
 
+May 31, 2018
+~~~~~~~~~~~~
+
+- ``sys-process/procps`` has been updated to 3.3.12-r2 to address CVE-2018-1122, CVE-2018-1123 and CVE-2018-1124.
+
 May 30, 2018
 ~~~~~~~~~~~~
 

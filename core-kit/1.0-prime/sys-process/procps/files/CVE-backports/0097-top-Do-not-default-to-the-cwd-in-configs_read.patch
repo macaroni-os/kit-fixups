@@ -1,0 +1,68 @@
+From 3cf9b0f403f758a2cfdc6f52f76c261b0f6ce924 Mon Sep 17 00:00:00 2001
+From: Qualys Security Advisory <qsa@qualys.com>
+Date: Thu, 1 Jan 1970 00:00:00 +0000
+Subject: [PATCH 097/126] top: Do not default to the cwd in configs_read().
+
+If the HOME environment variable is not set, or not absolute, use the
+home directory returned by getpwuid(getuid()), if set and absolute
+(instead of the cwd "."); otherwise, set p_home to NULL.
+
+To keep the changes to a minimum, we rely on POSIX, which requires that
+fopen() fails with ENOENT if the pathname (Rc_name) is an empty string.
+This integrates well into the existing code, and makes write_rcfile()
+work without a change.
+
+Also, it makes the code in configs_read() easier to follow: only set and
+use p_home if safe, and only set Rc_name if safe (in all the other cases
+it is the empty string, and the fopen() calls fail). Plus, check for
+snprintf() truncation (and if it happens, reset Rc_name to the empty
+string).
+
+Important note: top.1 should probably be updated, since it mentions the
+fallback to the current working directory.
+[carnil: Backport to 3.3.12: p_home -> p, context]
+---
+ top/top.c | 33 ++++++++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
+
+--- a/top/top.c
++++ b/top/top.c
+@@ -3423,6 +3423,19 @@ static int config_cvt (WIN_t *q) {
+    return 0;
+ } // end: config_cvt
+ 
++static int snprintf_Rc_name (const char *const format, ...) __attribute__((format(printf,1,2)));
++static int snprintf_Rc_name (const char *const format, ...) {
++   int len;
++   va_list ap;
++   va_start(ap, format);
++   len = vsnprintf(Rc_name, sizeof(Rc_name), format, ap);
++   va_end(ap);
++   if (len <= 0 || (size_t)len >= sizeof(Rc_name)) {
++      Rc_name[0] = '\0';
++      return 0;
++   }
++   return len;
++}
+ 
+         /*
+          * Build the local RC file name then try to read both of 'em.
+@@ -3445,8 +3458,17 @@ static void configs_read (void) {
+    FILE *fp;
+    int i;
+ 
++   Rc_name[0] = '\0'; // "fopen() shall fail if pathname is an empty string."
+    p = getenv("HOME");
+-   snprintf(Rc_name, sizeof(Rc_name), "%s/.%src", (p && *p) ? p : ".", Myname);
++   if (!p || p[0] != '/') {
++      const struct passwd *const pwd = getpwuid(getuid());
++      if (!pwd || !(p = pwd->pw_dir) || p[0] != '/') {
++         p = NULL;
++      }
++   }
++   if (p) {
++      snprintf_Rc_name("%s/.%src", p, Myname);
++   }
+ 
+    fp = fopen(SYS_RCFILESPEC, "r");
+    if (fp) {

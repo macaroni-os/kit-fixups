@@ -12,6 +12,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="
+	!=x11-drivers/xf86-video-virtualbox-.5.1*
 	>=x11-base/xorg-server-1.8:=[-minimal]
 	x11-libs/libXcomposite
 	x11-libs/libpciaccess

@@ -624,7 +624,7 @@ src_install() {
 	insinto "${EROOT}etc/${PN}"
 	doins "${FILESDIR}/${PN}.conf"
 
-	newinitd "${FILESDIR}/${PN}.initd" "${PN}"
+	newinitd "${FILESDIR}/1.13.7/${PN}.initd" "${PN}"
 
 	keepdir "${EROOT}etc/${PN}"/sites-{available,enabled}
 	insinto "${EROOT}etc/${PN}/sites-available"

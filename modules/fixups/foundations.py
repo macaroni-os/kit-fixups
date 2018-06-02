@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 from enum import Enum
 
 
@@ -29,15 +28,6 @@ def KitRatingString(kit_enum):
 		return "current"
 	elif kit_enum is KitStabilityRating.DEPRECATED:
 		return "deprecated"
-
-
-# KIT DESIGN AND DEVELOPER DOCS
-
-# The maintainable model for kits is to have several source repositories that contain most of our source ebuilds/
-# catpkgs, which are identified by SHA1 to point to a specific snapshot. Then, we combine that with a Funtoo 'kit-fixups'
-# repository that contains only our forked ebuilds. Then this script, merge-all-kits.py, is used to automatically
-# generate the kits. We don't commit directly to kits themselves -- this script automatically generates commits with
-# updated ebuilds.
 
 # A kit is generated from:
 
@@ -213,6 +203,7 @@ class KitFoundation:
 			{'name': 'nokit', 'branch': 'master', 'source': 'funtoo_current', 'default': True}
 		]
 	}
+
 	python_kit_settings = {
 		#	branch / primary python / alternate python / python mask (if any)
 		'master': {

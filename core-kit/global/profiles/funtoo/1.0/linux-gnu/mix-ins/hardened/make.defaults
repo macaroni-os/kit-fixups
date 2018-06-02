@@ -2,11 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/make.defaults,v 1.19 2014/09/03 18:48:15 axs Exp $
 
-# Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org> (16 Nov 2011)
-# Rename STAGE1_USE to BOOTSTRAP_USE and stack it to the parent value
-BOOTSTRAP_USE="${BOOTSTRAP_USE} hardened pax_kernel pic xtpax -jit -orc"
+# FL-5220 - enable JIT in hardened. Is disabled in Gentoo as per:
+# https://wiki.gentoo.org/wiki/Hardened/FAQ#Why_is_the_jit_and_orc_flag_disabled_in_the_hardened_profile.3F
 
-USE="hardened pax_kernel pic urandom xtpax -fortran -jit -orc"
+BOOTSTRAP_USE="${BOOTSTRAP_USE} hardened pax_kernel pic xtpax"
+
+USE="hardened pax_kernel pic urandom xtpax -fortran"
 
 # Ian Stakenvicius, 2014-09-03
 # Set a variable just to indicate that the current profile is a hardened one

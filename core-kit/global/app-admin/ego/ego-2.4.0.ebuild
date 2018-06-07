@@ -19,10 +19,10 @@ GITHUB_TAG="${PV}"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 DEPEND=""
-RDEPEND="$PYTHON_DEPS
->=dev-python/appi-0.2[${PYTHON_USEDEP}]
-dev-python/requests[${PYTHON_USEDEP}]
-dev-python/mwparserfromhell[${PYTHON_USEDEP}]"
+RDEPEND="$PYTHON_DEPS"
+PDEPEND=">=dev-python/appi-0.2[${PYTHON_USEDEP}]
+dev-python/mwparserfromhell[${PYTHON_USEDEP}]
+dev-python/requests[${PYTHON_USEDEP}]"
 
 src_unpack() {
 	unpack ${A}
@@ -50,20 +50,11 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [ ! -e $ROOT/etc/portage/repos.conf ]; then
-		ln -s /var/git/meta-repo/repos.conf $ROOT/etc/portage/repos.conf
-	fi
 	if [ -e $ROOT/usr/share/portage/config/repos.conf ]; then
 		rm -f $ROOT/usr/share/portage/config/repos.conf
 	fi
 	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
 	if [ "$ROOT" = "/" ]; then
-		/usr/bin/epro update
+		/usr/bin/ego sync --config-only
 	fi
-
-	# Temporary fix due to older versions of ego setting some root ownerships
-	# under /var/git/meta-repo. This fix was introduced in version 2.0.13 and
-	# can be removed in January 2018 when we can assume it was applied to the
-	# vast majority of Funtoo stations.
-	chown -R portage:portage $ROOT/var/git/meta-repo
 }

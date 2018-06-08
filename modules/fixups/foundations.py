@@ -155,7 +155,7 @@ class KitFoundation:
 			{'name': 'core-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
 			{'name': 'core-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.BETA},
-			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
+			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'security-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
 			{'name': 'security-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.BETA},
@@ -171,11 +171,11 @@ class KitFoundation:
 			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'default': True},
 			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEV},
-			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.PRIME},
+			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'python-kit', 'branch': '3.4-prime', 'source': 'funtoo_prime', 'default': True},
 			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'python-kit', 'branch': '3.6.3-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},  # MK3
-			{'name': 'php-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
+			{'name': 'php-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			# We will freeze when 7.2.0 is released...
 			{'name': 'java-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'java-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
@@ -195,12 +195,12 @@ class KitFoundation:
 			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.BETA},
-			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
-			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
-			{'name': 'text-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
-			{'name': 'science-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
-			{'name': 'games-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True},
-			{'name': 'nokit', 'branch': 'master', 'source': 'funtoo_current', 'default': True}
+			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
+			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
+			{'name': 'text-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
+			{'name': 'science-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
+			{'name': 'games-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
+			{'name': 'nokit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT}
 		]
 	}
 

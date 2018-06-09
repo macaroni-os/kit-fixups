@@ -2,7 +2,7 @@
 media-libs/libcanberra gtk gtk3
 
 # git-2.15 and above require dev-libs/pcre with jit USE enabled. FL-5220:
->=dev-libs/libpcre2-10.30 jit 
+>=dev-libs/libpcre2-10.30 jit
 
 # enable gtk USE by default for virt-manager. FL-5196
 app-emulation/virt-manager gtk
@@ -34,7 +34,7 @@ x11-terms/rxvt-unicode xft
 # FL-1805: enable json USE in syslog-ng, required for correct work
 app-admin/syslog-ng json
 
-# FL-1711 enable most filesystem support in gparted 
+# FL-1711 enable most filesystem support in gparted
 sys-block/gparted fat hfs jfs ntfs xfs reiserfs btrfs
 
 # FL-1685 enable extraengine for dev-db/mariadb, work-arounds for clean emerge
@@ -42,8 +42,8 @@ dev-db/mariadb extraengine
 
 # FL-1286, disable gstream USE flag for tumbler, with both ffmpeg and gstreamer flags enabled tumbler suffers from memory leaks, freezes.
 # Using ffmpeg only reported making tumbler to work much better
-xfce-extra/tumbler -gstreamer 
- 
+xfce-extra/tumbler -gstreamer
+
 # FL-1131, qemu, set usb and usbredir USE flag enabled by default
 app-emulation/qemu usb usbredir
 
@@ -54,11 +54,11 @@ media-libs/mesa gbm
 
 # FL-934, force opengl USE flag to have clean emerge of xvba-video and x11-libs/libva
 x11-libs/libva opengl
- 
+
 # FL-897
 # force upnp and video USE flag in media-libs/mediatreamer, required for clean net-voip/linphone emerge
 media-libs/mediastreamer upnp video
- 
+
 # FL-792, enable xattr USE flag in rsync, required for vzmigrate
 net-misc/rsync xattr
 
@@ -77,7 +77,7 @@ virtual/python-json external
 
 # FL-408 blender requires dev-cpp/glog built with gflags USE flag
 dev-cpp/glog gflags
- 
+
 # FL-562 set webkit USe flag turned on for app-misc/recoll as it required for successfull package build
 app-misc/recoll webkit
 
@@ -115,5 +115,7 @@ sys-fs/mdadm static
 x11-libs/libdrm libkms
 
 # FL-278, wpa_supplicant needs dbus for clean networkmanager emerge, let's set it here
-net-wireless/wpa_supplicant dbus 
- 
+net-wireless/wpa_supplicant dbus
+
+#QA-615, net-firewall/ipset-6.34::core-kit - USE=modules and in-kernel ipset support detected.
+net-firewall/ipset -modules

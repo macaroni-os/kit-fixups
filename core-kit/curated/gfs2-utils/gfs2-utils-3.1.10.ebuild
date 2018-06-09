@@ -5,7 +5,7 @@ EAPI=6
 inherit autotools linux-info
 
 DESCRIPTION="GFS2 Utilities"
-HOMEPAGE="https://fedorahosted.org/cluster/wiki/HomePage"
+HOMEPAGE="https://pagure.io/gfs2-utils"
 SRC_URI="https://releases.pagure.org/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
@@ -26,7 +26,7 @@ DEPEND="${RDEPEND}
 S="${WORKDIR}/${P}"
 
 src_prepare() {
-	epatch_user
+	default
 	eautoreconf
 }
 

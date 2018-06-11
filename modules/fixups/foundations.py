@@ -43,10 +43,6 @@ def KitRatingString(kit_enum):
 #    or in a specific branch of a kit. There is also an option to provide eclasses that get copied globally to each kit,
 #    to a particular kit, or to a branch of a particular kit. This is the where we fork ebuilds to fix specific issues.
 
-# Below, the kits and branches should be defined in a way that includes all this information. It is also possible to
-# have a kit that simply is a collection of ebuilds but tracks the latest gentoo-staging. It may or may not have
-# additional fix-ups.
-
 # When setting up a kit repository, the 'master' branch may used to store an 'unfrozen' kit that just tracks upstream
 # Gentoo. Kits are not required to have a master branch -- we only create one if the kit is designed to offer unfrozen
 # ebuilds to Funtoo users.	Examples below are: science-kit, games-kit, text-kit, net-kit. These track gentoo.
@@ -80,17 +76,6 @@ def KitRatingString(kit_enum):
 # catpkgs existing in multiple kits in parallel that are designed to work together as a set. At the end of kit
 # generation, this master list of inserted catpkgs is used to prune the 'nokit' repository of catpkgs, so that 'nokit'
 # contains the set of all ebuilds that were not inserted into kits.
-
-# Below, you will see how the sources for kits are defined.
-
-
-# 2. KIT GROUPS - this is where kits are actually defined. They are organized by GROUP: 'prime', 'current', or 'shared'.
-# 'prime' kits are production-quality kits. Current kits are bleeding-edge kits. 'shared' kits are used by both 'prime'
-# and 'current' -- they can have some "prime" kits as well as some "current" kits depending on what we want to stabilize.
-# Note that we specify a 'source' which points to a name of a kit_source to use as a source of ebuilds. A kit is defined
-# by a GROUP such as 'prime', a NAME, such as 'core-kit', a BRANCH, such as '1.0-prime', and a source (kit source) such
-# as 'funtoo_prime'.
-
 
 # Next release is 1.2-prime and will be based on a 'master' snapshot until it is near release, at which point the
 # tree will be frozen.
@@ -246,14 +231,12 @@ class KitFoundation:
 
 	kit_source_defs = {
 		"funtoo_current": [
-			# allow overlays to override gentoo
 			{"repo": "flora"},
 			{"repo": "faustoo"},
 			{"repo": "fusion809"},
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_mk2_prime": [
-			# allow overlays to override gentoo
 			{"repo": "flora", },
 			{"repo": "faustoo"},
 			{"repo": "fusion809", "src_sha1": "489b46557d306e93e6dc58c11e7c1da52abd34b0", 'date': '31 Aug 2017'},
@@ -262,7 +245,6 @@ class KitFoundation:
 			{"repo": "gentoo-staging-underlay"},
 		],
 		"funtoo_mk3_prime": [
-			# allow overlays to override gentoo
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", "src_sha1": "8733034816d3932486cb593db2dfbfbc7577e28b", 'date': '09 Oct 2017'},
@@ -270,7 +252,6 @@ class KitFoundation:
 			{"repo": "gentoo-staging-underlay"},
 		],
 		"funtoo_mk3_late_prime": [
-			# allow overlays to override gentoo
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", "src_sha1": "574f9f6f69b30f4eec7aa2eb53f55059d3c05b6a", 'date': '23 Oct 2017'},
@@ -279,7 +260,6 @@ class KitFoundation:
 		],
 
 		"funtoo_mk4_prime": [
-			# allow overlays to override gentoo
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", "src_sha1": "574f9f6f69b30f4eec7aa2eb53f55059d3c05b6a", 'date': '23 Oct 2017'},
@@ -288,7 +268,6 @@ class KitFoundation:
 		],
 
 		"funtoo_prime": [
-			# allow overlays to override gentoo
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", "src_sha1": "8322bcd79d47ef81f7417c324a1a2b4772020985"},

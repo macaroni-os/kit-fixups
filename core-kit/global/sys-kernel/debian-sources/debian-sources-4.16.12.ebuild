@@ -19,7 +19,7 @@ DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
 		btrfs? ( sys-fs/btrfs-progs )
 		zfs? ( sys-fs/zfs )
 		dev-libs/elfutils"
-RDEPEND="!=sys-kernel/debian-sources-4.15.17"
+RDEPEND=""
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 HOMEPAGE="http://www.debian.org"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux/"

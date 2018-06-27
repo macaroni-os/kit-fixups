@@ -93,7 +93,8 @@ src_prepare() {
 multilib_src_configure() {
 	local myconf
 
-	append-flags -fno-strict-aliasing
+	# Building with >=gcc-7 fails without -fpermissive (FL-5288)
+	append-flags -fno-strict-aliasing -fpermissive
 
 	# X independent options
 	myconf="--enable-compat26

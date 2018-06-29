@@ -1,32 +1,30 @@
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
-GNOME2_LA_PUNT="yes" # plugins are dlopened
+EAPI=6
 PYTHON_COMPAT=( python{3_4,3_5,3_6} )
 PYTHON_REQ_USE="threads"
 
-inherit autotools gnome2 python-single-r1 vala meson
+inherit gnome-meson python-single-r1 vala
 
 DESCRIPTION="Media player for GNOME"
 HOMEPAGE="https://wiki.gnome.org/Apps/Videos"
 
 LICENSE="GPL-2+ LGPL-2+"
 SLOT="0"
-KEYWORDS="*"
-
-IUSE="debug +introspection lirc nautilus +python test +vala vanilla-thumbnailer zeitgeist"
+IUSE="cdr +introspection lirc nautilus +python test vala"
 # see bug #359379
 REQUIRED_USE="
 	python? ( introspection ${PYTHON_REQUIRED_USE} )
-	zeitgeist? ( introspection )
 "
+
+KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~x86 ~x86-fbsd"
 
 # FIXME:
 # Runtime dependency on gnome-session-2.91
 COMMON_DEPEND="
-	>=dev-libs/glib-2.35:2[dbus]
+	>=dev-libs/glib-2.43.4:2[dbus]
 	>=dev-libs/libpeas-1.1[gtk]
-	>=dev-libs/libxml2-2.6:2
 	>=dev-libs/totem-pl-parser-3.10.1:0=[introspection?]
 	>=media-libs/clutter-1.17.3:1.0[gtk]
 	>=media-libs/clutter-gst-2.99.2:3.0
@@ -45,13 +43,16 @@ COMMON_DEPEND="
 	gnome-base/gnome-desktop:3=
 	gnome-base/gsettings-desktop-schemas
 
+	cdr? (
+		>=dev-libs/libxml2-2.6:2
+		>=x11-libs/gtk+-3.19.4:3[X]
+	)
 	introspection? ( >=dev-libs/gobject-introspection-0.6.7:= )
 	lirc? ( app-misc/lirc )
 	nautilus? ( >=gnome-base/nautilus-2.91.3 )
 	python? (
 		${PYTHON_DEPS}
 		>=dev-python/pygobject-2.90.3:3[${PYTHON_USEDEP}] )
-	zeitgeist? ( >=gnome-extra/zeitgeist-0.9.12 )
 "
 RDEPEND="${COMMON_DEPEND}
 	media-plugins/grilo-plugins:0.3
@@ -63,79 +64,76 @@ RDEPEND="${COMMON_DEPEND}
 		dev-python/pyxdg[${PYTHON_USEDEP}]
 		dev-python/dbus-python[${PYTHON_USEDEP}]
 		>=x11-libs/gtk+-3.5.2:3[introspection] )
-	vala? ( $(vala_depend) )
 "
+# libxml2+gdk-pixbuf required for glib-compile-resources
 DEPEND="${COMMON_DEPEND}
 	app-text/docbook-xml-dtd:4.5
 	app-text/yelp-tools
-	dev-libs/appstream-glib
-	>=dev-util/gtk-doc-am-1.14
-	>=dev-util/intltool-0.50.1
-	sys-devel/gettext
+	>=dev-libs/libxml2-2.6:2
+	>=dev-util/meson-0.44
+	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
-	x11-proto/xextproto
-	x11-proto/xproto
-
-	dev-libs/gobject-introspection-common
-	gnome-base/gnome-common
+	x11-base/xorg-proto
+	vala? ( $(vala_depend) )
 "
-PATCHES=( "${FILESDIR}"/${P}-parallel-build.patch )
-
-# eautoreconf needs:
-#	app-text/yelp-tools
-#	dev-libs/gobject-introspection-common
-#	gnome-base/gnome-common
 # docbook-xml-dtd is needed for user doc
 # Prevent dev-python/pylint dep, bug #482538
+
+PATCHES=(
+	# Fix some typos in meson.build files
+	"${FILESDIR}"/3.26-meson-fixes.patch
+	# Do not force all plugins
+	"${FILESDIR}"/3.26-control-plugins.patch
+	# Do not force pylint with USE=python
+	"${FILESDIR}"/3.26-skip-pylint-check.patch
+	# Allow disabling calls to gst-inspect (sandbox issue)
+	"${FILESDIR}"/3.26-gst-inspect-sandbox.patch
+)
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
-	# Prevent pylint usage by tests, bug #482538
-	sed -i -e 's/ check-pylint//' src/plugins/Makefile.plugins || die
-
-	# Support the FFMPEG Thumbnailer out-of-the-box
-	if ! use vanilla-thumbnailer; then
-		sed -e "s/totem-video-thumbnailer/ffmpegthumbnailer/" \
-			-e "s/-s %s %u %o/-i %i -o %o -s %s -c png -f/" \
-			-i data/totem.thumbnailer.in
-	fi
-
-	use vala && vala_src_prepare
-	gnome2_src_prepare
+	vala_src_prepare
+	gnome-meson_src_prepare
 }
 
 src_configure() {
-	for card in /dev/dri/card* ; do
-		addpredict "${card}"
-	done
-
-	for render in /dev/dri/render* ; do
-		addpredict "${render}"
-	done
-
-	# Disabled: sample-python, sample-vala
-	local plugins="apple-trailers,autoload-subtitles,brasero-disc-recorder"
-	plugins+=",im-status,gromit,media-player-keys,ontop"
-	plugins+=",properties,recent,rotation,screensaver,screenshot"
+	# Disabled: sample-python, sample-vala, zeitgeist-dp
+	# brasero-disc-recorder and gromit depend on GTK+ X11 backend and could be made optional
+	# if totem itself didn't depend on it
+	local plugins="apple-trailers,autoload-subtitles"
+	plugins+=",im-status,media-player-keys,ontop"
+	plugins+=",properties,recent,screensaver,screenshot"
 	plugins+=",skipto,variable-rate,vimeo"
+	use cdr && plugins+=",brasero-disc-recorder"
 	use lirc && plugins+=",lirc"
 	use nautilus && plugins+=",save-file"
 	use python && plugins+=",dbusservice,pythonconsole,opensubtitles"
-	use zeitgeist && plugins+=",zeitgeist-dp"
+	use vala && plugins+=",rotation"
+	plugins+=",gromit"
 
 	# pylint is checked unconditionally, but is only used for make check
 	# appstream-util overriding necessary until upstream fixes their macro
 	# to respect configure switch
-	local emesonargs=(
-		-D enable-easy-codec-installation=yes
-		-D enable-python=$(usex python yes no)
-		-D enable-introspection=$(usex introspection yes no)
-		-D enable-vala=yes
-		-D enable-nautilus=$(usex nautilus yes no)
-		-D with-plugins=${plugins}
-	)
-	meson_src_configure
+	gnome-meson_src_configure \
+		-Denable-easy-codec-installation=yes \
+		-Denable-gtk-doc=false \
+		-Denable-introspection=$(usex introspection yes no) \
+		-Denable-nautilus=$(usex nautilus yes no) \
+		-Denable-python=$(usex python yes no) \
+		-Denable-vala=$(usex vala yes no) \
+	    -Dgst-inspect=false \
+		-Dwith-plugins=${plugins}
+}
+
+src_install() {
+	gnome-meson_src_install
+	if use python ; then
+		local plugin
+		for plugin in dbusservice pythonconsole opensubtitles ; do
+			python_optimize "${ED}"usr/$(get_libdir)/totem/plugins/${plugin}
+		done
+	fi
 }

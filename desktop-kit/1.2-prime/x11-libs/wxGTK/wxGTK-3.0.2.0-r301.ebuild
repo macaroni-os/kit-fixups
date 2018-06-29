@@ -1,9 +1,9 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="6"
 
-inherit autotools eutils multilib-minimal
+inherit autotools multilib-minimal
 
 DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="http://wxwidgets.org/"
@@ -13,10 +13,15 @@ HOMEPAGE="http://wxwidgets.org/"
 SRC_URI="mirror://sourceforge/wxpython/wxPython-src-${PV}.tar.bz2
 	doc? ( mirror://sourceforge/wxpython/wxPython-docs-${PV}.tar.bz2 )"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
 IUSE="+X aqua doc debug gstreamer libnotify opengl sdl tiff webkit"
 
-SLOT="3.0"
+WXSUBVERSION=${PV}-gtk3					# 3.0.2.0-gtk3
+WXVERSION=${WXSUBVERSION%.*}			# 3.0.2
+WXRELEASE=${WXVERSION%.*}-gtk3			# 3.0-gtk3
+WXRELEASE_NODOT=${WXRELEASE//./}		# 30-gtk3
+
+SLOT="${WXRELEASE}"
 
 RDEPEND="
 	dev-libs/expat[${MULTILIB_USEDEP}]
@@ -26,9 +31,11 @@ RDEPEND="
 		media-libs/libpng:0=[${MULTILIB_USEDEP}]
 		sys-libs/zlib[${MULTILIB_USEDEP}]
 		virtual/jpeg:0=[${MULTILIB_USEDEP}]
-		>=x11-libs/gtk+-2.18:2[${MULTILIB_USEDEP}]
+		x11-libs/cairo[${MULTILIB_USEDEP}]
+		x11-libs/gtk+:3[${MULTILIB_USEDEP}]
 		x11-libs/gdk-pixbuf[${MULTILIB_USEDEP}]
 		x11-libs/libSM[${MULTILIB_USEDEP}]
+		x11-libs/libX11[${MULTILIB_USEDEP}]
 		x11-libs/libXxf86vm[${MULTILIB_USEDEP}]
 		x11-libs/pango[${MULTILIB_USEDEP}]
 		gstreamer? (
@@ -37,10 +44,10 @@ RDEPEND="
 		libnotify? ( x11-libs/libnotify[${MULTILIB_USEDEP}] )
 		opengl? ( virtual/opengl[${MULTILIB_USEDEP}] )
 		tiff?   ( media-libs/tiff:0[${MULTILIB_USEDEP}] )
-		webkit? ( net-libs/webkit-gtk:2 )
+		webkit? ( net-libs/webkit-gtk:3 )
 		)
 	aqua? (
-		x11-libs/gtk+:2[aqua=,${MULTILIB_USEDEP}]
+		x11-libs/gtk+:3[aqua=,${MULTILIB_USEDEP}]
 		virtual/jpeg:0=[${MULTILIB_USEDEP}]
 		tiff?   ( media-libs/tiff:0[${MULTILIB_USEDEP}] )
 		)"
@@ -61,24 +68,40 @@ LICENSE="wxWinLL-3
 		doc?	( wxWinFDL-3 )"
 
 S="${WORKDIR}/wxPython-src-${PV}"
+PATCHES=(
+	"${FILESDIR}"/${P}-webview-fixes.patch
+	"${FILESDIR}"/${P}-gcc6.patch
+)
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-3.0.0.0-collision.patch
-	epatch "${FILESDIR}"/${P}-webview-fixes.patch
-	epatch "${FILESDIR}"/${P}-gcc6.patch
-	epatch_user
+	default
 
+	local f
 	for f in $(find "${S}" -name configure.in); do
 		mv "${f}" "${f/in/ac}" || die
 	done
 	AT_M4DIR="${S}/build/aclocal" eautoreconf
 
-	# https://bugs.gentoo.org/536004
-	sed \
-		-e 's:3\.0\.1:3.0.2:g' \
-		-e 's:^wx_release_number=1$:wx_release_number=2:' \
-		-i "${S}"/configure || die
+	# Versionating
+	sed -i \
+		-e "s:\(WX_RELEASE = \).*:\1${WXRELEASE}:"\
+		-e "s:\(WX_RELEASE_NODOT = \).*:\1${WXRELEASE_NODOT}:"\
+		-e "s:\(WX_VERSION = \).*:\1${WXVERSION}:"\
+		-e "s:aclocal):aclocal/wxwin${WXRELEASE_NODOT}.m4):" \
+		-e "s:wxstd.mo:wxstd${WXRELEASE_NODOT}:" \
+		-e "s:wxmsw.mo:wxmsw${WXRELEASE_NODOT}:" \
+		Makefile.in || die
 
+	sed -i \
+		-e "s:\(WX_RELEASE = \).*:\1${WXRELEASE}:"\
+		utils/wxrc/Makefile.in || die
+
+	sed -i \
+		-e "s:\(WX_VERSION=\).*:\1${WXVERSION}:" \
+		-e "s:\(WX_RELEASE=\).*:\1${WXRELEASE}:" \
+		-e "s:\(WX_SUBVERSION=\).*:\1${WXSUBVERSION}:" \
+		-e '/WX_VERSION_TAG=/ s:${WX_RELEASE}:3.0:' \
+		configure || die
 }
 
 multilib_src_configure() {
@@ -109,8 +132,8 @@ multilib_src_configure() {
 			--enable-graphics_ctx
 			--with-gtkprint
 			--enable-gui
+			--with-gtk=3
 			--with-libpng=sys
-			--with-libxpm=sys
 			--with-libjpeg=sys
 			--without-gnomevfs
 			$(use_enable gstreamer mediactrl)
@@ -149,9 +172,15 @@ multilib_src_install_all() {
 		dodoc -r "${S}"/docs/doxygen/out/html
 	fi
 
-	# Stray windows locale file, causes collisions
-	local wxmsw="${ED}usr/share/locale/it/LC_MESSAGES/wxmsw.mo"
-	[[ -e ${wxmsw} ]] && rm "${wxmsw}"
+	# Unversioned links
+	rm "${D}"/usr/bin/wx{-config,rc}
+
+	# version bakefile presets
+	pushd "${D}"usr/share/bakefile/presets/ > /dev/null
+	for f in wx*; do
+		mv "${f}" "${f/wx/wx30gtk3}"
+	done
+	popd > /dev/null
 }
 
 pkg_postinst() {

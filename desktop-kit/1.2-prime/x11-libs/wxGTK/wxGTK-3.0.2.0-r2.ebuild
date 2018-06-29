@@ -3,7 +3,7 @@
 
 EAPI="5"
 
-inherit autotools eutils multilib-minimal
+inherit eutils flag-o-matic multilib-minimal
 
 DESCRIPTION="GTK+ version of wxWidgets, a cross-platform C++ GUI toolkit"
 HOMEPAGE="http://wxwidgets.org/"
@@ -13,7 +13,7 @@ HOMEPAGE="http://wxwidgets.org/"
 SRC_URI="mirror://sourceforge/wxpython/wxPython-src-${PV}.tar.bz2
 	doc? ( mirror://sourceforge/wxpython/wxPython-docs-${PV}.tar.bz2 )"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~sh sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos"
 IUSE="+X aqua doc debug gstreamer libnotify opengl sdl tiff webkit"
 
 SLOT="3.0"
@@ -30,7 +30,7 @@ RDEPEND="
 		x11-libs/gdk-pixbuf[${MULTILIB_USEDEP}]
 		x11-libs/libSM[${MULTILIB_USEDEP}]
 		x11-libs/libXxf86vm[${MULTILIB_USEDEP}]
-		x11-libs/pango[${MULTILIB_USEDEP}]
+		x11-libs/pango[X,${MULTILIB_USEDEP}]
 		gstreamer? (
 			media-libs/gstreamer:0.10[${MULTILIB_USEDEP}]
 			media-libs/gst-plugins-base:0.10[${MULTILIB_USEDEP}] )
@@ -64,14 +64,7 @@ S="${WORKDIR}/wxPython-src-${PV}"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-3.0.0.0-collision.patch
-	epatch "${FILESDIR}"/${P}-webview-fixes.patch
-	epatch "${FILESDIR}"/${P}-gcc6.patch
 	epatch_user
-
-	for f in $(find "${S}" -name configure.in); do
-		mv "${f}" "${f/in/ac}" || die
-	done
-	AT_M4DIR="${S}/build/aclocal" eautoreconf
 
 	# https://bugs.gentoo.org/536004
 	sed \

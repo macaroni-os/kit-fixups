@@ -76,10 +76,11 @@ COMMONDEPEND="
 		media-libs/ilmbase:=
 	)
 	plasma? (
-		app-crypt/qca:2[qt4]
+		app-crypt/qca-qt4
 		>=dev-qt/qtsql-${QT_MINIMAL}:4[qt3support?]
 	)
-	policykit? ( sys-auth/polkit-qt[qt4] )
+
+	policykit? ( sys-auth/polkit-qt4 )
 	spell? ( app-text/enchant:= )
 	ssl? (
 		libressl? ( dev-libs/libressl:0= )

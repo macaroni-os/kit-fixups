@@ -195,6 +195,9 @@ src_install() {
 
 	# gdm user's home directory
 	keepdir /var/lib/gdm
+	# prevent gdm from also starting pulseaudio, and grabbing audio devices.
+	insinto /var/lib/gdm/.pulse
+	doins $FILESDIR/client.conf
 	fowners gdm:gdm /var/lib/gdm
 
 	# install XDG_DATA_DIRS gdm changes

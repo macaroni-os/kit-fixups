@@ -105,8 +105,7 @@ _CMAKE_UTILS_ECLASS=1
 
 case ${EAPI} in
 	5) : ${CMAKE_WARN_UNUSED_CLI:=no} ;;
-	6) : ${CMAKE_WARN_UNUSED_CLI:=yes} ;;
-	*) die "EAPI=${EAPI:-0} is not supported" ;;
+	*) : ${CMAKE_WARN_UNUSED_CLI:=yes} ;;
 esac
 
 inherit toolchain-funcs multilib ninja-utils flag-o-matic eutils \

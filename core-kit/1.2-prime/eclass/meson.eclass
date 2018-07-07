@@ -33,11 +33,6 @@
 #
 # @CODE
 
-case ${EAPI:-0} in
-	6) ;;
-	*) die "EAPI=${EAPI} is not supported" ;;
-esac
-
 if [[ ${__MESON_AUTO_DEPEND+set} == "set" ]] ; then
 	# See if we were included already, but someone changed the value
 	# of MESON_AUTO_DEPEND on us.  We could reload the entire

@@ -18,7 +18,7 @@ inherit versionator
 # @DESCRIPTION:
 # Currently kde4 eclasses support EAPI 5 and 6.
 case ${EAPI} in
-	5|6) : ;;
+	5|6|7) : ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 

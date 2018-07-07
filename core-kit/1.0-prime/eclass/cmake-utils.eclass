@@ -112,7 +112,7 @@ _CMAKE_UTILS_ECLASS=1
 
 case ${EAPI} in
 	2|4|5) : ${CMAKE_WARN_UNUSED_CLI:=no} ;;
-	6) : ${CMAKE_WARN_UNUSED_CLI:=yes} ;;
+	6|7) : ${CMAKE_WARN_UNUSED_CLI:=yes} ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 

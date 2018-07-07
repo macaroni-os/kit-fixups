@@ -12,7 +12,7 @@
 inherit eutils gnome.org gnome2-utils meson xdg
 
 case "${EAPI:-0}" in
-	6)
+	6|7)
 		EXPORT_FUNCTIONS src_prepare src_configure src_compile src_install pkg_preinst pkg_postinst pkg_postrm
 		;;
 	*) die "EAPI=${EAPI} is not supported" ;;

@@ -57,15 +57,6 @@
 # at m-th and ending at n-th (inclusive).  If the range spans outside
 # the version string, it is truncated silently.
 
-case ${EAPI:-0} in
-	0|1|2|3|4|5)
-		die "${ECLASS}: EAPI=${EAPI:-0} not supported";;
-	6)
-		;;
-	*)
-		die "${ECLASS}: EAPI=${EAPI} unknown";;
-esac
-
 # @FUNCTION: _ver_parse_range
 # @USAGE: <range> <max>
 # @INTERNAL

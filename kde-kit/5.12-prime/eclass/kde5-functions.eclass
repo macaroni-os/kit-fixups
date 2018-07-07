@@ -18,7 +18,7 @@ _KDE5_FUNCTIONS_ECLASS=1
 inherit toolchain-funcs versionator
 
 case ${EAPI} in
-	6) ;;
+	6|7) ;;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 

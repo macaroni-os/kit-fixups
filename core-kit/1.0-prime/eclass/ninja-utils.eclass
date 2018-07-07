@@ -22,7 +22,7 @@ if [[ -z ${_NINJA_UTILS_ECLASS} ]]; then
 case ${EAPI:-0} in
 	0|1|3) die "EAPI=${EAPI:-0} is not supported (too old)";;
 	# copied from cmake-utils
-	2|4|5|6) ;;
+	2|4|5|6|7) ;;
 	*) die "EAPI=${EAPI} is not yet supported" ;;
 esac
 

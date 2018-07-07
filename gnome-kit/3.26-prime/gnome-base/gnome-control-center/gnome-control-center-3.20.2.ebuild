@@ -12,11 +12,7 @@ LICENSE="GPL-2+"
 SLOT="2"
 KEYWORDS="*"
 
-IUSE="+bluetooth +colord +cups debug elogind +gnome-online-accounts +ibus input_devices_wacom kerberos libinput networkmanager systemd v4l vanilla-datetime vanilla-hostname wayland"
-REQUIRED_USE="
-	?? ( elogind systemd )
-	wayland? ( || ( elogind systemd ) )
-"
+IUSE="+bluetooth +colord +cups debug +deprecated +gnome-online-accounts +i18n input_devices_wacom kerberos libinput networkmanager systemd v4l vanilla-datetime vanilla-hostname wayland"
 
 # False positives caused by nested configure scripts
 QA_CONFIGURE_OPTIONS=".*"
@@ -26,16 +22,13 @@ QA_CONFIGURE_OPTIONS=".*"
 # kerberos unfortunately means mit-krb5; build fails with heimdal
 # udev could be made optional, only conditions gsd-device-panel
 # (mouse, keyboards, touchscreen, etc)
-# display panel requires colord
-# printer panel requires cups and smbclient (the latter is not patch yet to be separately optional)
 COMMON_DEPEND="
 	>=dev-libs/glib-2.44.0:2[dbus]
 	>=x11-libs/gdk-pixbuf-2.23.0:2
-	>=x11-libs/gtk+-3.22.0:3[X,wayland?]
-	>=gnome-base/gsettings-desktop-schemas-3.21.4
-	>=gnome-base/gnome-desktop-3.21.2:3=
-	>=gnome-base/gnome-settings-daemon-3.25.90[colord?,policykit]
-	>=x11-misc/colord-0.1.34:0=
+	>=x11-libs/gtk+-3.20.3:3[X,wayland?]
+	>=gnome-base/gsettings-desktop-schemas-3.19.3
+	>=gnome-base/gnome-desktop-3.19.93:3=
+	>=gnome-base/gnome-settings-daemon-3.19.1[colord?,policykit]
 
 	>=dev-libs/libpwquality-1.2.2
 	dev-libs/libxml2:2
@@ -47,8 +40,10 @@ COMMON_DEPEND="
 	>=media-sound/pulseaudio-2[glib]
 	>=sys-auth/polkit-0.97
 	>=sys-power/upower-0.99:=
+	>=x11-libs/libnotify-0.7.3:0=
 
 	virtual/libgudev
+	virtual/opengl
 	x11-apps/xmodmap
 	x11-libs/cairo
 	x11-libs/libX11
@@ -66,12 +61,12 @@ COMMON_DEPEND="
 	)
 	gnome-online-accounts? (
 		>=media-libs/grilo-0.3.0:0.3=
-		>=net-libs/gnome-online-accounts-3.21.5:= )
-	ibus? ( >=app-i18n/ibus-1.5.2 )
+		>=net-libs/gnome-online-accounts-3.15.1:= )
+	i18n? ( >=app-i18n/ibus-1.5.2 )
 	kerberos? ( app-crypt/mit-krb5 )
 	networkmanager? (
-		>=gnome-extra/nm-applet-1.2.0
-		>=net-misc/networkmanager-1.2.0:=[modemmanager]
+		>=gnome-extra/nm-applet-0.9.7.995
+		>=net-misc/networkmanager-0.9.8:=[modemmanager]
 		>=net-misc/modemmanager-0.7.990 )
 	v4l? (
 		media-libs/clutter-gtk:1.0
@@ -88,9 +83,6 @@ COMMON_DEPEND="
 # mouse panel needs a concrete set of X11 drivers at runtime, bug #580474
 # Also we need newer driver versions to allow wacom and libinput drivers to
 # not collide
-#
-# system-config-printer provides org.fedoraproject.Config.Printing service and interface
-# cups-pk-helper provides org.opensuse.cupspkhelper.mechanism.all-edit policykit helper policy
 RDEPEND="${COMMON_DEPEND}
 	x11-themes/adwaita-icon-theme
 	colord? ( >=gnome-extra/gnome-color-manager-3 )
@@ -98,7 +90,7 @@ RDEPEND="${COMMON_DEPEND}
 		app-admin/system-config-printer
 		net-print/cups-pk-helper )
 	input_devices_wacom? ( gnome-base/gnome-settings-daemon[input_devices_wacom] )
-	>=gnome-base/libgnomekbd-3
+	i18n? ( >=gnome-base/libgnomekbd-3 )
 	wayland? ( libinput? ( dev-libs/libinput ) )
 	!wayland? (
 		libinput? ( >=x11-drivers/xf86-input-libinput-0.19.0 )
@@ -110,9 +102,15 @@ RDEPEND="${COMMON_DEPEND}
 	!<gnome-extra/gnome-media-2.32.0-r300
 	!<net-wireless/gnome-bluetooth-3.3.2
 
-	elogind? ( sys-auth/elogind )
-	systemd? ( >=sys-apps/systemd-186:0= )
-	!systemd? ( app-admin/openrc-settingsd )
+	!deprecated? (
+		systemd? ( >=sys-apps/systemd-186:0= )
+	)
+	!systemd? (
+		app-admin/openrc-settingsd
+		sys-auth/consolekit
+
+		deprecated? ( >=sys-power/upower-0.99:=[deprecated] )
+	)
 "
 # PDEPEND to avoid circular dependency
 PDEPEND=">=gnome-base/gnome-session-2.91.6-r1"
@@ -129,31 +127,27 @@ DEPEND="${COMMON_DEPEND}
 	virtual/pkgconfig
 
 	gnome-base/gnome-common
-	sys-devel/autoconf-archive
 "
 # Needed for autoreconf
 #	gnome-base/gnome-common
-#	sys-devel/autoconf-archive
 
 src_prepare() {
-	# From GNOME:
-	# 	https://bugzilla.gnome.org/show_bug.cgi?id=773673
-	eapply "${FILESDIR}"/${PN}-3.24.2-user-accounts-prevent-segfault-when-user-list-is-empty.patch
-
 	# Make some panels and dependencies optional; requires eautoreconf
 	# https://bugzilla.gnome.org/686840, 697478, 700145
-	eapply "${FILESDIR}"/${PN}-3.24.2-optional.patch
-	eapply "${FILESDIR}"/${PN}-3.24.2-optional-wayland.patch
-	eapply "${FILESDIR}"/${PN}-3.24.2-optional-networkmanager.patch
-	eapply "${FILESDIR}"/${PN}-3.24.2-optional-cups.patch
+	eapply "${FILESDIR}"/${PN}-3.20.0-optional.patch
+	eapply "${FILESDIR}"/${PN}-3.16.0-make-wayland-optional.patch
+	eapply "${FILESDIR}"/${PN}-3.18.0-keep-panels-optional.patch
+	eapply "${FILESDIR}"/${PN}-3.16.0-networkmanager.patch
 
 	# Fix some absolute paths to be appropriate for Gentoo
-	eapply "${FILESDIR}"/${PN}-3.24.2-gentoo-paths.patch
+	eapply "${FILESDIR}"/${PN}-3.10.2-gentoo-paths.patch
 
-	# From GNOME:
-	# 	https://bugzilla.gnome.org/show_bug.cgi?id=774324
-	# 	https://bugzilla.gnome.org/show_bug.cgi?id=780544
-	eapply "${FILESDIR}"/${PN}-3.24.2-fix-without-gdkwayland.patch
+	if use deprecated; then
+		# From Funtoo:
+		# 	https://bugs.funtoo.org/browse/FL-1329
+		eapply "${FILESDIR}"/${PN}-3.20.0-restore-critical-battery-action-label.patch
+		eapply "${FILESDIR}"/${PN}-3.16.3-restore-deprecated-code.patch
+	fi
 
 	if ! use vanilla-datetime; then
 		# From Funtoo:
@@ -164,7 +158,7 @@ src_prepare() {
 	if ! use vanilla-hostname; then
 		# From Funtoo:
 		# 	https://bugs.funtoo.org/browse/FL-1391
-		eapply "${FILESDIR}"/${PN}-3.26.1-disable-changing-hostname.patch
+		eapply "${FILESDIR}"/${PN}-3.18.2-disable-changing-hostname.patch
 	fi
 
 	eautoreconf
@@ -180,8 +174,9 @@ src_configure() {
 		$(use_enable colord color) \
 		$(use_enable cups) \
 		$(usex debug --enable-debug=yes ' ') \
+		$(use_enable deprecated) \
 		$(use_enable gnome-online-accounts goa) \
-		$(use_enable ibus) \
+		$(use_enable i18n ibus) \
 		$(use_enable kerberos) \
 		$(use_enable networkmanager) \
 		$(use_with v4l cheese) \

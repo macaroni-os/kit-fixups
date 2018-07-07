@@ -34,7 +34,7 @@
 # @CODE
 
 case ${EAPI:-0} in
-	6|7) ;;
+	6) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 

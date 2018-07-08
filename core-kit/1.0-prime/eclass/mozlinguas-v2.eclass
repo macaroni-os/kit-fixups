@@ -228,7 +228,7 @@ mozlinguas_export() {
 		else
 			:
 		fi
-		einfo "Sorry, but ${P} does not support the ${lingua} locale in LINGUAS"
+		ewarn "Sorry, but ${P} does not support the ${lingua} locale"
 	done
 }
 

@@ -32,7 +32,7 @@
 # @CODE
 
 case ${EAPI} in
-	6);;
+	6|7);;
 	*) die "EAPI ${EAPI:-0} unsupported (too old)";;
 esac
 

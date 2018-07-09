@@ -1,3 +1,6 @@
+# FL-5223: use.mask default-libcxx USE for the clang. libcxx the standalone standart will cause issues with GCC's libstdc++. clang can use libstdc++, but if libcxx used instead and when clang is set as main compiler, then, many ebuilds need compiled against libcxx. In reality they are built against libstdc++ from gcc. Oleg
+sys-devel/clang default-libcxx
+
 # Disable system-ffmpeg USE for chromium. Require version of ffmpeg that is not yet updated in Funtoo. Can be dropped out of here with update. 
 >=www-client/chromium-67 system-ffmpeg
 

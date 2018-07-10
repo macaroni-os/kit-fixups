@@ -143,7 +143,7 @@ class KitFoundation:
 			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'security-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
 			{'name': 'security-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.BETA},
+			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.BETA},
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'default': False, 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'default': True},

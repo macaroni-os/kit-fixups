@@ -25,7 +25,7 @@ RDEPEND="!gnome-base/gnome
 	>=gnome-base/gnome-session-${PV}
 	>=gnome-base/gnome-menus-3.10.1:3
 	>=gnome-base/gnome-settings-daemon-${PV}[cups?]
-	>=gnome-base/gnome-control-center-${PV}[cups?]
+	>=gnome-base/gnome-control-center[cups?]
 
 	>=gnome-base/nautilus-${PV}
 

@@ -1,0 +1,6 @@
+This is essentially Gentoo's bluez ebuild with a few fixes. First, dbus rules needed fixing to enable
+communications with anyone in the 'plugdev' group, and a new permission needed to be added.
+
+Second, I made a small tweak to turn on AutoEnable by default in the config settings. This, I think,
+is a more reasonable default and will ensure that bluetooth devices will auto-reconnect without user
+intervention once paired.

@@ -2,7 +2,6 @@
 
 from enum import Enum
 
-
 class KitStabilityRating(Enum):
 	PRIME = 0  # Kit is enterprise-quality
 	NEAR_PRIME = 1  # Kit is approaching enterprise-quality
@@ -213,8 +212,13 @@ class KitFoundation:
 		}
 	}
 
+	release_info = {
+		# set default release, currently not set. Can be used to set default kits.
+		"default" : None
+	}
+
 	release_defs = {
-		"1.2" : {
+		"1.2": {
 			"core-kit": [ "1.2-prime" ],
 			"python-kit": [ "3.6-prime" ],
 			"security-kit": [ "1.2-prime"],

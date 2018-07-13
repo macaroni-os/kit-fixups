@@ -219,6 +219,7 @@ class KitFoundation:
 
 	release_defs = {
 		"1.2": {
+			# first list entry is the default; second list entry is still considered to be "part of release"
 			"core-kit": [ "1.2-prime" ],
 			"python-kit": [ "3.6-prime" ],
 			"security-kit": [ "1.2-prime"],

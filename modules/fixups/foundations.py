@@ -213,6 +213,24 @@ class KitFoundation:
 		}
 	}
 
+	release_defs = {
+		"1.2" : {
+			"core-kit": [ "1.2-prime" ],
+			"python-kit": [ "3.6-prime" ],
+			"security-kit": [ "1.2-prime"],
+			"kde-kit": [ "5.12-prime" ],
+			"media-kit": [ "1.2-prime" ],
+			"java-kit": [ "1.2-prime" ],
+			"ruby-kit": [ "1.2-prime" ],
+			"haskell-kit": [ "1.2-prime" ],
+			"lisp-scheme-kit": [ "1.2-prime" ],
+			"lang-kit": [ "1.2-prime" ],
+			"dev-kit": [ "1.2-prime" ],
+			"desktop-kit": [ "1.2-prime" ],
+			"gnome-kit": [ "3.20-prime", "3.26-prime" ]
+		}
+	}
+
 	# KIT SOURCES - kit sources are a combination of overlays, arranged in a python list [ ]. A KIT SOURCE serves as a
 	# unified collection of source catpkgs for a particular kit. Each kit can have one KIT SOURCE. KIT SOURCEs MAY be
 	# shared among kits to avoid duplication and to help organization. Note that this is where we specify branch or SHA1

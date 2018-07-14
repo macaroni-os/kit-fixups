@@ -103,7 +103,7 @@ RDEPEND="${COMMON_DEPEND}
 	networkmanager? (
 		net-misc/mobile-broadband-provider-info
 		sys-libs/timezone-data )
-	nls? ( >=app-i18n/ibus-1.4.99[dconf(+),gtk3,introspection] )
+	nls? ( >=app-i18n/ibus-1.4.99[dconf(+),gtk,introspection] )
 "
 # avoid circular dependency, see bug #546134
 PDEPEND="

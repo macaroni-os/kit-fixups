@@ -1,0 +1,52 @@
+From 5d7a2c70abe0a6e23f628c54ed99c75926958187 Mon Sep 17 00:00:00 2001
+From: Oleksandr Pavlyk <oleksandr.pavlyk@intel.com>
+Date: Tue, 20 Mar 2018 08:52:48 -0500
+Subject: [PATCH] Fix Cython 0.28 build break of qhull.pyx
+
+Fixes https://github.com/cython/cython/issues/2154
+while maintaining ability to use Cython 0.27.3 and earlier
+---
+ scipy/spatial/qhull.pyx | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/scipy/spatial/qhull.pyx b/scipy/spatial/qhull.pyx
+index 4582c5efa0..d3079af6d7 100644
+--- a/scipy/spatial/qhull.pyx
++++ b/scipy/spatial/qhull.pyx
+@@ -2152,7 +2152,16 @@ def tsearch(tri, xi):
+     """
+     return tri.find_simplex(xi)
+ 
+-Delaunay.add_points.__func__.__doc__ = _QhullUser._add_points.__doc__
++# Set docstring for foo to docstring of bar, working around change in Cython 0.28
++# See https://github.com/scipy/scipy/pull/8581
++def _copy_docstr(dst, src):
++    try:
++        dst.__doc__ = src.__doc__
++    except AttributeError:
++        dst.__func__.__doc__ = src.__func__.__doc__
++
++
++_copy_docstr(Delaunay.add_points, _QhullUser._add_points)
+ 
+ #------------------------------------------------------------------------------
+ # Delaunay triangulation interface, for low-level C
+@@ -2347,7 +2356,7 @@ class ConvexHull(_QhullUser):
+             self._vertices = np.unique(self.simplices)
+         return self._vertices
+ 
+-ConvexHull.add_points.__func__.__doc__ = _QhullUser._add_points.__doc__
++_copy_docstr(ConvexHull.add_points, _QhullUser._add_points)
+ 
+ #------------------------------------------------------------------------------
+ # Voronoi diagrams
+@@ -2499,7 +2508,8 @@ class Voronoi(_QhullUser):
+                                         self.ridge_vertices))
+         return self._ridge_dict
+ 
+-Voronoi.add_points.__func__.__doc__ = _QhullUser._add_points.__doc__
++
++_copy_docstr(Voronoi.add_points, _QhullUser._add_points)
+ 
+ #------------------------------------------------------------------------------
+ # Halfspace Intersection

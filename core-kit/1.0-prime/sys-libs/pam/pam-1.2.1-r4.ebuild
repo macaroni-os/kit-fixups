@@ -2,7 +2,7 @@
 
 EAPI=5
 
-inherit libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use
+inherit autotools libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use
 
 MY_PN="Linux-PAM"
 MY_P="${MY_PN}-${PV}"
@@ -28,7 +28,8 @@ DEPEND="${RDEPEND}
 	>=sys-devel/libtool-2
 	>=sys-devel/flex-2.5.39-r1[${MULTILIB_USEDEP}]
 	nls? ( sys-devel/gettext )
-	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )"
+	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )
+	dev-libs/libxslt"
 PDEPEND="sys-auth/pambase
 	vim-syntax? ( app-editors/vim )"
 RDEPEND="${RDEPEND}
@@ -98,7 +99,6 @@ src_prepare() {
 	#account lock with failed attempts
 	epatch "${FILESDIR}"/${PN}-1.2.1-faillock.patch
 	eautoreconf
-	elibtoolize
 }
 
 multilib_src_configure() {
@@ -133,6 +133,7 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
+	emake -C "${S}/modules/pam_faillock" -f "${BUILD_DIR}/modules/pam_faillock/Makefile" -f "${S}/Make.xml.rules" faillock.8 pam_faillock.8
 	emake sepermitlockdir="${EPREFIX}/run/sepermit"
 }
 
@@ -166,6 +167,7 @@ multilib_src_install_all() {
 	docinto modules
 	local dir
 	for dir in modules/pam_*; do
+		[[ ${dir} == modules/pam_faillock ]] && continue #  README build excluded due || ( virtual/w3m www-client/links ) DEPEND requirement. not good for stage1/2/3.
 		newdoc "${dir}"/README README."$(basename "${dir}")"
 	done
 
@@ -175,6 +177,9 @@ multilib_src_install_all() {
 d /run/sepermit 0755 root root
 EOF
 	fi
+	
+	# faillock binary require the logging directory. We will create one
+	keepdir /var/log/faillock
 
 	# setting default number of open files to 16000, with the ability to
 	# push the limit up to 64000. This provides reasonable defaults for modern

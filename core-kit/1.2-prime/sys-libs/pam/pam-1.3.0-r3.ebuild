@@ -158,6 +158,9 @@ multilib_src_install() {
 DOCS=( CHANGELOG ChangeLog README AUTHORS Copyright NEWS )
 
 multilib_src_install_all() {
+	# faillock binary requires logging directory. We will use /var/log/faillock.
+	keepdir /var/log/faillock
+
 	einstalldocs
 	prune_libtool_files --all
 

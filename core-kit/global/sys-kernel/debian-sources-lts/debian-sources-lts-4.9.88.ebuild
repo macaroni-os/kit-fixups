@@ -14,7 +14,7 @@ PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="binary"
+IUSE="+binary"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://security.debian.org/debian-security/pool/updates/main/l/linux"
@@ -165,7 +165,7 @@ pkg_postinst() {
 		ln -sf linux-${P} "${ROOT}"usr/src/linux
 	fi
 
-	if [ -e ${ROOT}lib/modules ]; then
+	if use binary && [ -e ${ROOT}lib/modules ]; then
 		depmod -a $MODVER
 	fi
 }

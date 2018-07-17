@@ -11,7 +11,7 @@ HOMEPAGE="https://wiki.gnome.org/Apps/Nautilus"
 
 LICENSE="GPL-2+ LGPL-2+ FDL-1.1"
 SLOT="0"
-IUSE="exif gnome +introspection packagekit +previewer selinux sendto tracker xmp"
+IUSE="exif gnome +introspection packagekit +previewer sendto tracker xmp"
 
 KEYWORDS="~alpha ~amd64 ~arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux"
 
@@ -31,11 +31,11 @@ COMMON_DEPEND="
 	>=gnome-base/gnome-desktop-3:3=
 
 	>=gnome-base/gsettings-desktop-schemas-3.8.0
+	>=sys-libs/libselinux-2
 	x11-libs/libX11
 
 	exif? ( >=media-libs/libexif-0.6.20 )
 	introspection? ( >=dev-libs/gobject-introspection-0.6.4:= )
-	selinux? ( >=sys-libs/libselinux-2 )
 	tracker? ( >=app-misc/tracker-1:= )
 	xmp? ( >=media-libs/exempi-2.1.0:2 )
 "
@@ -83,7 +83,6 @@ src_configure() {
 		$(meson_use exif enable-exif) \
 		$(meson_use packagekit enable-packagekit) \
 		$(meson_use sendto nst-extension) \
-		$(meson_use selinux enable-selinux) \
 		$(meson_use xmp enable-xmp)
 }
 

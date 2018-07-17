@@ -14,7 +14,7 @@ PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 # based on : http://packages.ubuntu.com/maverick/linux-image-2.6.35-22-server
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="binary btrfs zfs"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
 		btrfs? ( sys-fs/btrfs-progs )

@@ -1,0 +1,231 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+inherit flag-o-matic pam toolchain-funcs
+
+DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
+HOMEPAGE="https://github.com/openrc/openrc/"
+SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="*"
+
+LICENSE="BSD-2"
+SLOT="0"
+IUSE="audit +bash-completion debug ncurses pam newnet prefix -netifrc selinux static-libs unicode kernel_linux kernel_FreeBSD zsh-completion"
+
+COMMON_DEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-process/fuser-bsd ) )
+	ncurses? ( sys-libs/ncurses:0= )
+	pam? (
+		sys-auth/pambase
+		virtual/pam
+	)
+	audit? ( sys-process/audit )
+	kernel_linux? (
+		sys-process/psmisc
+		!<sys-process/procps-3.3.9-r2
+	)
+	selinux? (
+		sys-apps/policycoreutils
+		>=sys-libs/libselinux-2.6
+	)
+	!<sys-apps/baselayout-2.1-r1
+	!<sys-fs/udev-init-scripts-27"
+DEPEND="${COMMON_DEPEND}
+	virtual/os-headers
+	ncurses? ( virtual/pkgconfig )"
+RDEPEND="${COMMON_DEPEND}
+    sys-apps/corenetwork
+	!prefix? (
+		kernel_linux? (
+			>=sys-apps/sysvinit-2.86-r6[selinux?]
+			virtual/tmpfiles
+		)
+		kernel_FreeBSD? ( sys-freebsd/freebsd-sbin )
+	)
+	selinux? (
+		>=sec-policy/selinux-base-policy-2.20170204-r4
+		>=sec-policy/selinux-openrc-2.20170204-r4
+	)
+	!<app-shells/gentoo-bashcomp-20180302
+"
+
+PDEPEND="netifrc? ( net-misc/netifrc )"
+
+src_prepare() {
+	default
+
+	sed -i 's:0444:0644:' mk/sys.mk || die
+
+	if [[ ${PV} == "9999" ]] ; then
+		local ver="git-${EGIT_VERSION:0:6}"
+		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/gitver.mk || die
+	fi
+}
+
+src_compile() {
+	unset LIBDIR #266688
+
+	MAKE_ARGS="${MAKE_ARGS}
+		LIBNAME=$(get_libdir)
+		LIBEXECDIR=${EPREFIX}/$(get_libdir)/rc
+		MKBASHCOMP=$(usex bash-completion)
+		MKNET=$(usex newnet)
+		MKSELINUX=$(usex selinux)
+		MKAUDIT=$(usex audit)
+		MKPAM=$(usev pam)
+		MKSTATICLIBS=$(usex static-libs)
+		MKZSHCOMP=$(usex zsh-completion)"
+
+	local brand="Unknown"
+	if use kernel_linux ; then
+		MAKE_ARGS="${MAKE_ARGS} OS=Linux"
+		brand="Linux"
+	elif use kernel_FreeBSD ; then
+		MAKE_ARGS="${MAKE_ARGS} OS=FreeBSD"
+		brand="FreeBSD"
+	fi
+	export BRANDING="Funtoo ${brand}"
+	use prefix && MAKE_ARGS="${MAKE_ARGS} MKPREFIX=yes PREFIX=${EPREFIX}"
+	export DEBUG=$(usev debug)
+	export MKTERMCAP=$(usev ncurses)
+
+	tc-export CC AR RANLIB
+	emake ${MAKE_ARGS}
+}
+
+# set_config <file> <option name> <yes value> <no value> test
+# a value of "#" will just comment out the option
+set_config() {
+	local file="${ED}/$1" var=$2 val com
+	eval "${@:5}" && val=$3 || val=$4
+	[[ ${val} == "#" ]] && com="#" && val='\2'
+	sed -i -r -e "/^#?${var}=/{s:=([\"'])?([^ ]*)\1?:=\1${val}\1:;s:^#?:${com}:}" "${file}"
+}
+
+set_config_yes_no() {
+	set_config "$1" "$2" YES NO "${@:3}"
+}
+
+src_install() {
+	emake ${MAKE_ARGS} DESTDIR="${D}" install
+
+	# move the shared libs back to /usr so ldscript can install
+	# more of a minimal set of files
+	# disabled for now due to #270646
+	#mv "${ED}"/$(get_libdir)/lib{einfo,rc}* "${ED}"/usr/$(get_libdir)/ || die
+	#gen_usr_ldscript -a einfo rc
+	gen_usr_ldscript libeinfo.so
+	gen_usr_ldscript librc.so
+
+	if ! use kernel_linux; then
+		keepdir /$(get_libdir)/rc/init.d
+	fi
+	keepdir /$(get_libdir)/rc/tmp
+
+	# Backup our default runlevels
+	dodir /usr/share/"${PN}"
+	cp -PR "${ED}"/etc/runlevels "${ED}"/usr/share/${PN} || die
+	rm -rf "${ED}"/etc/runlevels
+
+	# Setup unicode defaults for silly unicode users
+	set_config_yes_no /etc/rc.conf unicode use unicode
+
+	# Cater to the norm
+	set_config_yes_no /etc/conf.d/keymaps windowkeys '(' use x86 '||' use amd64 ')'
+
+	# On HPPA, do not run consolefont by default (bug #222889)
+	if use hppa; then
+		rm -f "${ED}"/usr/share/openrc/runlevels/boot/consolefont
+	fi
+
+	# Support for logfile rotation
+	insinto /etc/logrotate.d
+	newins "${FILESDIR}"/openrc.logrotate openrc
+
+	# install gentoo pam.d files
+	newpamd "${FILESDIR}"/start-stop-daemon.pam start-stop-daemon
+	newpamd "${FILESDIR}"/start-stop-daemon.pam supervise-daemon
+
+	# install documentation
+	dodoc ChangeLog *.md
+	if use newnet; then
+		dodoc README.newnet
+	fi
+
+	# funtoo goodies
+	exeinto /etc/init.d
+	newexe "$FILESDIR/hostname-r1" hostname
+	doexe "$FILESDIR/loopback"
+
+	insinto /etc/conf.d
+	newins "$FILESDIR/hostname.confd" hostname
+}
+
+pkg_preinst() {
+	local f LIBDIR=$(get_libdir)
+
+	# avoid default thrashing in conf.d files when possible #295406
+	if [[ -e "${EROOT}"etc/conf.d/hostname ]] ; then
+		(
+		unset hostname HOSTNAME
+		source "${EROOT}"etc/conf.d/hostname
+		: ${hostname:=${HOSTNAME}}
+		[[ -n ${hostname} ]] && set_config /etc/conf.d/hostname hostname "${hostname}"
+		)
+	fi
+
+	# set default interactive shell to sulogin if it exists
+	set_config /etc/rc.conf rc_shell /sbin/sulogin "#" test -e /sbin/sulogin
+}
+
+# >=OpenRC-0.11.3 requires udev-mount to be in the sysinit runlevel with udev.
+migrate_udev_mount_script() {
+	if [ -e "${EROOT}"etc/runlevels/sysinit/udev -a \
+		! -e "${EROOT}"etc/runlevels/sysinit/udev-mount ]; then
+		add_boot_init udev-mount sysinit
+	fi
+	return 0
+}
+
+pkg_postinst() {
+    local LIBDIR=$(get_libdir)
+
+	for r in sysinit boot shutdown default nonetwork; do
+		if [ ! -e ${EROOT}/etc/runlevels/$r ]; then
+			install -d ${EROOT}/etc/runlevels/$r
+		# install missing scripts
+		fi
+		for sc in $(cd ${EROOT}/usr/share/openrc/runlevels/$r; ls); do
+			if [ ! -L ${EROOT}/etc/runlevels/$r/$sc ]; then
+				einfo "Missing $r/$sc script, installing..."
+				cp -a ${EROOT}/usr/share/openrc/runlevels/$r/$sc ${EROOT}/etc/runlevels/$r/$sc
+			fi
+		done
+		# warn about extra scripts
+		for sc in $(cd ${EROOT}/etc/runlevels/$r; ls); do
+			if [ "$sc" == "netif.lo" ]; then
+				einfo "Removing old initscript netif.lo."
+				rm ${EROOT}/etc/runlevels/$r/$sc
+			#elif [ ! -e ${EROOT}/etc/runlevels/$r/$sc ]; then
+			#	einfo "Removing broken symlink for initscript in runlevel $r/$sc"
+			#	rm ${EROOT}/etc/runlevels/$r/$sc
+			fi
+			if [ ! -L ${EROOT}/usr/share/openrc/runlevels/$r/$sc ]; then
+				ewarn "Extra script $r/$sc found, possibly from other ebuild."
+			fi
+		done
+	done
+
+	if use kernel_linux && [[ "${EROOT}" = "/" ]]; then
+		if ! /$(get_libdir)/rc/sh/migrate-to-run.sh; then
+			ewarn "The dependency data could not be migrated to /run/openrc."
+			ewarn "This means you need to reboot your system."
+		fi
+	fi
+
+	# update the dependency tree after touching all files #224171
+	[[ "${EROOT}" = "/" ]] && "${EROOT}/${LIBDIR}"/rc/bin/rc-depend -u
+
+    elog "You should now update all files in /etc, using etc-update"
+    elog "or equivalent before restarting any services or this host."
+}

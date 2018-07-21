@@ -8,23 +8,22 @@ PYTHON_REQ_USE="threads"
 inherit python-single-r1 waf-utils multilib-minimal eutils
 
 DESCRIPTION="An LDAP-like embedded database"
-HOMEPAGE="http://ldb.samba.org"
-SRC_URI="http://www.samba.org/ftp/pub/${PN}/${P}.tar.gz"
+HOMEPAGE="https://ldb.samba.org/"
+SRC_URI="https://www.samba.org/ftp/pub/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-3"
 SLOT="0/${PV}"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="doc +ldap +python"
 
-RDEPEND="
-	!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
+RDEPEND="!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )
 	dev-libs/popt[${MULTILIB_USEDEP}]
 	>=dev-util/cmocka-1.1.1[${MULTILIB_USEDEP}]
-	>=sys-libs/talloc-2.1.11[python?,${MULTILIB_USEDEP}]
-	>=sys-libs/tevent-0.9.35[python(+)?,${MULTILIB_USEDEP}]
+	>=sys-libs/talloc-2.1.10[python?,${MULTILIB_USEDEP}]
+	>=sys-libs/tevent-0.9.33[python(+)?,${MULTILIB_USEDEP}]
 	>=sys-libs/tdb-1.3.15[python?,${MULTILIB_USEDEP}]
-	ldap? ( net-nds/openldap )
 	python? ( ${PYTHON_DEPS} )
+	ldap? ( net-nds/openldap )
 "
 
 DEPEND="dev-libs/libxslt
@@ -43,6 +42,7 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/pyldb.h )
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.31-optional_packages.patch
 	"${FILESDIR}"/${PN}-1.1.31-fix_PKGCONFIGDIR-when-python-disabled.patch
+	"${FILESDIR}"/${PN}-1.2.3-disable_python.patch
 )
 
 pkg_setup() {

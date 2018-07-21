@@ -3,10 +3,9 @@
 
 EAPI="6"
 PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
-VALA_MIN_API_VERSION="0.32"
 VALA_USE_DEPEND="vapigen"
 
-inherit autotools bash-completion-r1 gnome2-utils python-r1 vala virtualx xdg-utils
+inherit autotools bash-completion-r1 gnome2-utils ltprune python-r1 vala virtualx xdg-utils
 
 DESCRIPTION="Intelligent Input Bus for Linux / Unix OS"
 HOMEPAGE="https://github.com/ibus/ibus/wiki"
@@ -15,7 +14,7 @@ SRC_URI="https://github.com/${PN}/${PN}/releases/download/${PV}/${P}.tar.gz"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd"
-IUSE="+X +emoji gconf +gtk +gtk2 +introspection kde +libnotify nls +python test +unicode vala wayland"
+IUSE="+X +emoji gconf +gtk +gtk2 +introspection kde +libnotify nls +python test vala wayland"
 REQUIRED_USE="emoji? ( gtk )
 	gtk2? ( gtk )
 	kde? ( gtk )
@@ -70,12 +69,10 @@ DEPEND="${CDEPEND}
 		app-i18n/unicode-cldr
 		app-i18n/unicode-emoji
 	)
-	nls? ( sys-devel/gettext )
-	unicode? ( app-i18n/unicode-data )"
+	nls? ( sys-devel/gettext )"
 
 src_prepare() {
 	vala_src_prepare --ignore-use
-	sed -i "/UCD_DIR=/s/\$with_emoji_annotation_dir/\$with_ucd_dir/" configure.ac
 	if ! use emoji; then
 		touch \
 			tools/main.vala \
@@ -131,8 +128,6 @@ src_configure() {
 		$(use_enable libnotify) \
 		$(use_enable nls) \
 		$(use_enable test tests) \
-		$(use_enable unicode unicode-dict) \
-		$(use_with unicode ucd-dir "${EPREFIX}/usr/share/unicode-data") \
 		$(use_enable vala) \
 		$(use_enable wayland) \
 		"${python_conf[@]}"
@@ -145,7 +140,7 @@ src_test() {
 
 src_install() {
 	default
-	find "${ED}" -name '*.la' -delete || die
+	prune_libtool_files --modules
 
 	if use python; then
 		python_install() {

@@ -31,6 +31,12 @@ Security Workarounds
 Security Fixes
 --------------
 
+July 25, 2018
+~~~~~~~~~~~~~
+
+- ``sys-apps/file``  has been updated to 5.30-r1 to address CVE-2018-10360.
+
+
 May 31, 2018
 ~~~~~~~~~~~~
 

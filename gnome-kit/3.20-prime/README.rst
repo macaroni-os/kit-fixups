@@ -24,6 +24,12 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+July 26, 2018
+~~~~~~~~~~~~
+
+- ``net-libs/webkit-gtk`` has been updated to 2.20.3 with lots of security fixes. https://webkitgtk.org/security/WSA-2018-0005.html
+
+
 April 10, 2018
 ~~~~~~~~~~~~~~
 

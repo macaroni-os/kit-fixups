@@ -14,6 +14,12 @@ development for the time being.
 Security fixes
 ---------------
 
+July 26, 2018
+~~~~~~~~~~~~~
+
+- ``net-libs/webkit-gtk`` has been updated to 2.20.3 with lots of security fixes. https://webkitgtk.org/security/WSA-2018-0005.html
+
+
 January 24, 2018
 ~~~~~~~~~~~~~~~~
 

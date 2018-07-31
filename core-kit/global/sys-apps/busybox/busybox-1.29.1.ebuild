@@ -1,22 +1,22 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # See `man savedconfig.eclass` for info on how to use USE=savedconfig.
 
-EAPI="5"
-inherit eutils flag-o-matic savedconfig toolchain-funcs multilib
+EAPI=6
+
+inherit flag-o-matic savedconfig toolchain-funcs
 
 DESCRIPTION="Utilities for rescue and embedded systems"
 HOMEPAGE="https://www.busybox.net/"
 if [[ ${PV} == "9999" ]] ; then
-	MY_P=${PN}
-	EGIT_REPO_URI="git://busybox.net/busybox.git"
-	inherit git-2
+	MY_P=${P}
+	EGIT_REPO_URI="https://git.busybox.net/busybox"
+	inherit git-r3
 else
 	MY_P=${PN}-${PV/_/-}
 	SRC_URI="https://www.busybox.net/downloads/${MY_P}.tar.bz2"
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~arm-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
 fi
 
 LICENSE="GPL-2" # GPL-2 only
@@ -37,17 +37,19 @@ S=${WORKDIR}/${MY_P}
 
 busybox_config_option() {
 	local flag=$1 ; shift
-	if [[ ${flag} != [yn] ]] ; then
+	if [[ ${flag} != [yn] && ${flag} != \"* ]] ; then
 		busybox_config_option $(usex ${flag} y n) "$@"
 		return
 	fi
+	local expr
 	while [[ $# -gt 0 ]] ; do
-		if [[ ${flag} == "y" ]] ; then
-			sed -i -e "s:.*\<CONFIG_$1\>.*set:CONFIG_$1=y:g" .config
-		else
-			sed -i -e "s:CONFIG_$1=y:# CONFIG_$1 is not set:g" .config
-		fi
-		einfo $(grep "CONFIG_$1[= ]" .config || echo Could not find CONFIG_$1 ...)
+		case ${flag} in
+		y) expr="s:.*\<CONFIG_$1\>.*set:CONFIG_$1=y:g" ;;
+		n) expr="s:CONFIG_$1=y:# CONFIG_$1 is not set:g" ;;
+		*) expr="s:.*\<CONFIG_$1\>.*:CONFIG_$1=${flag}:g" ;;
+		esac
+		sed -i -e "${expr}" .config || die
+		einfo "$(grep "CONFIG_$1[= ]" .config || echo "Could not find CONFIG_$1 ...")"
 		shift
 	done
 }
@@ -61,14 +63,18 @@ busybox_config_enabled() {
 	esac
 }
 
+# patches go here!
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.26.2-bb.patch
+	# "${FILESDIR}"/${P}-*.patch
+)
+
 src_prepare() {
+	default
 	unset KBUILD_OUTPUT #88088
 	append-flags -fno-strict-aliasing #310413
 	use ppc64 && append-flags -mminimal-toc #130943
 
-	# patches go here!
-	epatch "${FILESDIR}"/${PN}-1.19.0-bb.patch
-	epatch "${FILESDIR}"/${P}-*.patch
 	cp "${FILESDIR}"/ginit.c init/ || die
 
 	# flag cleanup
@@ -111,6 +117,7 @@ src_configure() {
 
 	# now turn off stuff we really don't want
 	busybox_config_option n DMALLOC
+	busybox_config_option n FEATURE_2_4_MODULES #607548
 	busybox_config_option n FEATURE_SUID_CONFIG
 	busybox_config_option n BUILD_AT_ONCE
 	busybox_config_option n BUILD_LIBBUSYBOX
@@ -121,10 +128,22 @@ src_configure() {
 	# triming the BSS size may be dangerous
 	busybox_config_option n FEATURE_USE_BSS_TAIL
 
+	# These cause trouble with musl.
+	if use elibc_musl; then
+		busybox_config_option n FEATURE_UTMP
+		busybox_config_option n EXTRA_COMPAT
+		busybox_config_option n FEATURE_VI_REGEX_SEARCH
+	fi
+
 	# If these are not set and we are using a uclibc/busybox setup
 	# all calls to system() will fail.
 	busybox_config_option y ASH
+	busybox_config_option y SH_IS_ASH
 	busybox_config_option n HUSH
+	busybox_config_option n SH_IS_HUSH
+
+	busybox_config_option '"/run"' PID_FILE_PATH
+	busybox_config_option '"/run/ifstate"' IFUPDOWN_IFSTATE_PATH
 
 	# disable ipv6 applets
 	if ! use ipv6; then
@@ -139,6 +158,12 @@ src_configure() {
 	busybox_config_option syslog {K,SYS}LOGD LOGGER
 	busybox_config_option systemd FEATURE_SYSTEMD
 	busybox_config_option math FEATURE_AWK_LIBM
+
+	# disable features that uClibc doesn't (yet?) provide.
+	if use elibc_uclibc; then
+		busybox_config_option n FEATURE_SYNC_FANCY #567598
+		busybox_config_option n NSENTER
+	fi
 
 	# all the debug options are compiler related, so punt them
 	busybox_config_option n DEBUG_SANITIZE
@@ -260,7 +285,8 @@ src_install() {
 	dodoc *.txt
 	docinto pod
 	dodoc *.pod
-	dohtml *.html
+	docinto html
+	dodoc *.html
 
 	cd ../examples
 	docinto examples

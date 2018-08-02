@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Foundation, Funtoo Solutions, Inc.
+# Distributed under the terms of the GNU General Public License v2
+
+pidfile="/run/bluetoothd.pid"
+command="/usr/libexec/bluetooth/bluetoothd"
+command_background=1
+
+depend() {
+	after coldplug
+	need dbus localmount hostname
+}
+
+start_pre() {
+	# needed for bluetooth keyboard and mouse:
+	modprobe -q uhid
+	return 0
+}

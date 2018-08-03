@@ -224,7 +224,7 @@
 +              <listitem>
 +                <para>
 +                  The directory where the user files with the failure records are kept. The
-+                  default is <filename>/var/run/faillock</filename>.
++                  default is <filename>/var/log/faillock</filename>.
 +                </para>
 +              </listitem>
 +            </varlistentry>
@@ -255,7 +255,7 @@
 +    <title>FILES</title>
 +    <variablelist>
 +      <varlistentry>
-+        <term><filename>/var/run/faillock/*</filename></term>
++        <term><filename>/var/log/faillock/*</filename></term>
 +        <listitem>
 +          <para>the files logging the authentication failures for users</para>
 +        </listitem>
@@ -513,7 +513,7 @@
 +	unsigned int count;		/* number of records */
 +};
 +
-+#define FAILLOCK_DEFAULT_TALLYDIR "/var/run/faillock"
++#define FAILLOCK_DEFAULT_TALLYDIR "/var/log/faillock"
 +
 +int open_tally(const char *dir, const char *user, uid_t uid, int create);
 +int read_tally(int fd, struct tally_data *tallies);
@@ -890,7 +890,7 @@
 +              <listitem>
 +                <para>
 +                  The directory where the user files with the failure records are kept. The
-+                  default is <filename>/var/run/faillock</filename>.
++                  default is <filename>/var/log/faillock</filename>.
 +                </para>
 +              </listitem>
 +            </varlistentry>
@@ -1132,7 +1132,7 @@
 +    <title>FILES</title>
 +    <variablelist>
 +      <varlistentry>
-+        <term><filename>/var/run/faillock/*</filename></term>
++        <term><filename>/var/log/faillock/*</filename></term>
 +        <listitem>
 +          <para>the files logging the authentication failures for users</para>
 +        </listitem>

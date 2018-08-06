@@ -232,7 +232,7 @@ class KitFoundation:
 			"lang-kit": [ "1.2-prime" ],
 			"dev-kit": [ "1.2-prime" ],
 			"desktop-kit": [ "1.2-prime" ],
-			"gnome-kit": [ "3.20-prime", "3.26-prime" ]
+			"gnome-kit": [ "3.26-prime", "3.20-prime" ]
 		}
 	}
 

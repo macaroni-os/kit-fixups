@@ -23,7 +23,7 @@ SRC_URI="https://github.com/unbit/uwsgi/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 
 UWSGI_PLUGINS_STD=( ping cache carbon nagios rpc rrdtool
 	http ugreen signal syslog rsyslog
@@ -375,6 +375,12 @@ pkg_postinst() {
 	use lua    && elog "  '--plugins lua' for lua"
 	use mono   && elog "  '--plugins mono' for mono"
 	use perl   && elog "  '--plugins psgi' for perl"
+	
+	ewarn "removed UWSGI_PROGRAM from config and corresponding setting of --fileserve-mode option from init script"
+	ewarn "removed --disable-logging setting from init script, the users can set it in app's"
+	ewarn "configuration or via UWSGI_EXTRA_OPTIONS"
+	ewarn "Please, follow https://bugs.funtoo.org/browse/FL-4860"
+}
 
 	if use php ; then
 		for s in $(php_get_slots); do
@@ -416,4 +422,3 @@ pkg_postinst() {
 			fi
 		done
 	fi
-}

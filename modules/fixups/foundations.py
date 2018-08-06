@@ -145,8 +145,8 @@ class KitFoundation:
 			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'default': False, 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK2
-			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'default': True},
-			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'default': False, 'stability': KitStabilityRating.PRIME},
+			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'default': False, 'stability' : KitStabilityRating.PRIME},
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'default': True, 'stability': KitStabilityRating.PRIME},
 			{'name': 'kde-kit', 'branch': '5.10-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'kde-kit', 'branch': '5.11-prime', 'source': 'funtoo_prime_kde', 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_prime_kde_late', 'default': True, 'stability': KitStabilityRating.PRIME},

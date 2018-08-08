@@ -4,7 +4,7 @@ EAPI=5
 
 inherit check-reqs eutils mount-boot
 
-SLOT=$PVR-LTS
+SLOT=$PV-LTS
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
 EXTRAVERSION=-1

@@ -18,7 +18,7 @@ LICENSE="
 SLOT="0"
 KEYWORDS="*"
 
-IUSE="accessibility audit branding elogind fprint +introspection ipv6 plymouth selinux smartcard systemd tcpd test wayland xinerama"
+IUSE="accessibility audit branding +elogind fprint +introspection ipv6 plymouth selinux smartcard systemd tcpd test wayland xinerama"
 REQUIRED_USE="
 	?? ( elogind systemd )
 	wayland? ( || ( elogind systemd ) )

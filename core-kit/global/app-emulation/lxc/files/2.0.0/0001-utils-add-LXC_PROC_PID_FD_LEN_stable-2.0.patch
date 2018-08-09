@@ -1,0 +1,35 @@
+From f96f5f3c1341e73ee51c8b49bef4ba571c562d8c Mon Sep 17 00:00:00 2001
+From: Christian Brauner <christian.brauner@ubuntu.com>
+Date: Fri, 4 May 2018 11:59:11 +0200
+Subject: [PATCH] utils: add LXC_PROC_PID_FD_LEN
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ src/lxc/utils.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/lxc/utils.h b/src/lxc/utils.h
+index a2bad89db..e4d8519db 100644
+--- a/src/lxc/utils.h
++++ b/src/lxc/utils.h
+@@ -99,6 +99,17 @@
+ #define LXC_NUMSTRLEN64 21
+ #define LXC_LINELEN 4096
+ #define LXC_IDMAPLEN 4096
++/* /proc/       =    6
++ *                +
++ * <pid-as-str> =   LXC_NUMSTRLEN64
++ *                +
++ * /fd/         =    4
++ *                +
++ * <fd-as-str>  =   LXC_NUMSTRLEN64
++ *                +
++ * \0           =    1
++ */
++#define LXC_PROC_PID_FD_LEN (6 + LXC_NUMSTRLEN64 + 4 + LXC_NUMSTRLEN64 + 1)
+ 
+ /* returns 1 on success, 0 if there were any failures */
+ extern int lxc_rmdir_onedev(char *path, const char *exclude);
+-- 
+2.17.1
+

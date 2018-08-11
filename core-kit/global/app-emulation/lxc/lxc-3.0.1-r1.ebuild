@@ -9,7 +9,7 @@ DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
 SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="LGPL-3"
 SLOT="0"

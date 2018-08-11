@@ -86,7 +86,7 @@ EGO_VENDOR=(
 ARCHIVE_URI="https://${EGO_PN}/archive/${P}.tar.gz -> ${P}.tar.gz"
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 
 IUSE="+daemon +ipv6 +dnsmasq nls test"
 

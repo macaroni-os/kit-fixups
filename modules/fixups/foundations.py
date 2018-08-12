@@ -159,6 +159,7 @@ class KitFoundation:
 			{'name': 'python-kit', 'branch': '3.4-prime', 'source': 'funtoo_prime', 'default': True},
 			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'python-kit', 'branch': '3.6.3-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},  # MK3
+			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'php-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			# We will freeze when 7.2.0 is released...
 			{'name': 'java-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},

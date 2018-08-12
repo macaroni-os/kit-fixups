@@ -236,6 +236,7 @@ class KitFoundation:
 			"desktop-kit": [ "1.2-prime" ],
 			"gnome-kit": [ "3.26-prime", "3.20-prime" ]
 		}
+		# TODO: forgot to add perl-kit!!!
 	}
 
 	# KIT SOURCES - kit sources are a combination of overlays, arranged in a python list [ ]. A KIT SOURCE serves as a

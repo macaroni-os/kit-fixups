@@ -154,7 +154,8 @@ class KitFoundation:
 			{'name': 'media-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK3
 			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'default': True},
-			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEV},
+			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
+			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'python-kit', 'branch': '3.4-prime', 'source': 'funtoo_prime', 'default': True},
 			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False, 'stability': KitStabilityRating.PRIME},  # MK2

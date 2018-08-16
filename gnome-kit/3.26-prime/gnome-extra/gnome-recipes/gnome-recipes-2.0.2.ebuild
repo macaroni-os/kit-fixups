@@ -21,6 +21,7 @@ DEPEND="
 	sound? ( media-libs/libcanberra )
 	>=dev-libs/glib-2.42
 	>=x11-libs/gtk+-3.22
+	net-libs/gnome-online-accounts
 "
 
 src_prepare() {

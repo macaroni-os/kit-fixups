@@ -1,9 +1,10 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 #
-# @ECLASS: mozconfig-v6.56.eclass
+# @ECLASS: mozconfig-v6.58.eclass
 # @MAINTAINER:
 # mozilla team <mozilla@gentoo.org>
+# @SUPPORTED_EAPIS: 5 6 7
 # @BLURB: the new mozilla common configuration eclass for FF33 and newer, v6
 # @DESCRIPTION:
 # This eclass is used in mozilla ebuilds (firefox, thunderbird, seamonkey)
@@ -26,10 +27,9 @@ case ${EAPI} in
 		;;
 esac
 
-inherit flag-o-matic toolchain-funcs mozcoreconf-v5
+inherit flag-o-matic toolchain-funcs mozcoreconf-v6
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_WIFI
-# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild needs to provide
 # optional necko-wifi support via IUSE="wifi".  Currently this would include
@@ -40,7 +40,6 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_JIT
-# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild needs to provide
 # deterministic jit support via IUSE="jit".  The upstream default will be used
@@ -51,7 +50,6 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_GTK3
-# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild can provide
 # optional gtk3 support via IUSE="force-gtk3".  Currently this would include
@@ -64,7 +62,6 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 # MOZCONFIG_OPTIONAL_GTK2ONLY.
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_GTK2ONLY
-# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild can provide
 # optional gtk2-only support via IUSE="gtk2".
@@ -78,7 +75,6 @@ inherit flag-o-matic toolchain-funcs mozcoreconf-v5
 # Set the variable to any value if the use flag should exist but not be default-enabled.
 
 # @ECLASS-VARIABLE: MOZCONFIG_OPTIONAL_QT5
-# @DEFAULT_UNSET
 # @DESCRIPTION:
 # Set this variable before the inherit line, when an ebuild can provide
 # optional qt5 support via IUSE="qt5".  Currently this would include
@@ -103,13 +99,11 @@ RDEPEND=">=app-text/hunspell-1.5.4:=
 	>=x11-libs/gtk+-2.18:2
 	x11-libs/gdk-pixbuf
 	>=x11-libs/pango-1.22.0
-	>=media-libs/libpng-1.6.31:0=[apng]
+	>=media-libs/libpng-1.6.34:0=[apng]
 	>=media-libs/mesa-10.2:*
 	media-libs/fontconfig
 	>=media-libs/freetype-2.4.10
 	kernel_linux? ( !pulseaudio? ( media-libs/alsa-lib ) )
-	pulseaudio? ( || ( media-sound/pulseaudio
-		>=media-sound/apulse-0.1.9 ) )
 	virtual/freedesktop-icon-theme
 	dbus? ( >=sys-apps/dbus-0.60
 		>=dev-libs/dbus-glib-0.72 )
@@ -129,9 +123,9 @@ RDEPEND=">=app-text/hunspell-1.5.4:=
 	system-icu? ( >=dev-libs/icu-59.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0= )
-	system-sqlite? ( >=dev-db/sqlite-3.19.3:3[secure-delete,debug=] )
+	system-sqlite? ( >=dev-db/sqlite-3.20.1:3[secure-delete,debug=] )
 	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.3.3:0= >=media-gfx/graphite2-1.3.9-r1 )
+	system-harfbuzz? ( >=media-libs/harfbuzz-1.4.2:0= >=media-gfx/graphite2-1.3.9-r1 )
 "
 
 if [[ -n ${MOZCONFIG_OPTIONAL_GTK3} ]]; then
@@ -172,6 +166,14 @@ DEPEND="app-arch/zip
 	>=sys-devel/binutils-2.16.1
 	sys-apps/findutils
 	pulseaudio? ( media-sound/pulseaudio )
+	elibc_glibc? ( || (
+		( >=dev-lang/rust-1.24.0[-extended(-)] >=dev-util/cargo-0.25.0 )
+		>=dev-lang/rust-1.24.0[extended]
+		( >=dev-lang/rust-bin-1.24.0 >=dev-util/cargo-0.25.0 )
+	) )
+	elibc_musl? ( || ( >=dev-lang/rust-1.24.0
+		>=dev-util/cargo-0.25.0
+	) )
 	${RDEPEND}"
 
 RDEPEND+="
@@ -202,10 +204,10 @@ mozconfig_config() {
 		--with-system-zlib \
 		--with-system-bz2
 
-	# Disable for testing purposes only
-	mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
+	# Stylo is only broken on x86 builds
+	use x86 && mozconfig_annotate 'Upstream bug 1341234' --disable-stylo
 
-	# Must pass release in order to properly select linker via gold useflag
+	# Must pass release in order to properly select linker
 	mozconfig_annotate 'Enable by Gentoo' --enable-release
 
 	# Must pass --enable-gold if using ld.gold
@@ -268,6 +270,7 @@ mozconfig_config() {
 	mozconfig_annotate '' --enable-system-ffi
 	mozconfig_annotate '' --disable-gconf
 	mozconfig_annotate '' --with-intl-api
+	mozconfig_annotate '' --enable-system-pixman
 
 	# skia has no support for big-endian platforms
 	if [[ $(tc-endian) == "big" ]]; then

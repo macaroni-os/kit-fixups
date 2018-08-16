@@ -4,6 +4,7 @@
 # @ECLASS: mozconfig-v6.58.eclass
 # @MAINTAINER:
 # mozilla team <mozilla@gentoo.org>
+# @SUPPORTED_EAPIS: 5 6 7
 # @BLURB: the new mozilla common configuration eclass for FF33 and newer, v6
 # @DESCRIPTION:
 # This eclass is used in mozilla ebuilds (firefox, thunderbird, seamonkey)
@@ -165,11 +166,14 @@ DEPEND="app-arch/zip
 	>=sys-devel/binutils-2.16.1
 	sys-apps/findutils
 	pulseaudio? ( media-sound/pulseaudio )
-	|| (
+	elibc_glibc? ( || (
 		( >=dev-lang/rust-1.24.0[-extended(-)] >=dev-util/cargo-0.25.0 )
 		>=dev-lang/rust-1.24.0[extended]
 		( >=dev-lang/rust-bin-1.24.0 >=dev-util/cargo-0.25.0 )
-	)
+	) )
+	elibc_musl? ( || ( >=dev-lang/rust-1.24.0
+		>=dev-util/cargo-0.25.0
+	) )
 	${RDEPEND}"
 
 RDEPEND+="

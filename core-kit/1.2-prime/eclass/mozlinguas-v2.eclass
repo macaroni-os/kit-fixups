@@ -7,6 +7,7 @@
 # @AUTHOR:
 # Nirbheek Chauhan <nirbheek@gentoo.org>
 # Ian Stakenvicius <axs@gentoo.org>
+# @SUPPORTED_EAPIS: 2 3 4 5 6
 # @BLURB: Handle language packs for mozilla products
 # @DESCRIPTION:
 # Sets IUSE according to MOZ_LANGS (language packs available). Also exports
@@ -18,7 +19,7 @@ inherit mozextension
 case "${EAPI:-0}" in
 	0|1)
 		die "EAPI ${EAPI:-0} does not support the '->' SRC_URI operator";;
-	2|3|4|5|6|7)
+	2|3|4|5|6)
 		EXPORT_FUNCTIONS src_unpack src_compile src_install;;
 	*)
 		die "EAPI ${EAPI} is not supported, contact eclass maintainers";;

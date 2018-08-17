@@ -1,20 +1,17 @@
-# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-if [[ ${PV} == "9999" ]] ; then
-	AUTOTOOLS_AUTORECONF="1"
-	EGIT_REPO_URI="https://github.com/zfsonlinux/${PN}.git"
-	inherit git-r3
-else
-	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/${P}.tar.gz"
-	KEYWORDS=" ~amd64"
-fi
+inherit git-r3
+AUTOTOOLS_AUTORECONF="1"
+EGIT_REPO_URI="git://github.com/tonyhutter/zfs.git"
+EGIT_BRANCH="zfs-0.7.10-hutter"
+EGIT_COMMIT="85d2f8a"
+KEYWORDS=""
 
 inherit flag-o-matic linux-info linux-mod autotools-utils
 
-DESCRIPTION="The Solaris Porting Layer is a Linux kernel module which provides many of the Solaris kernel APIs"
+DESCRIPTION="The Solaris Porting Layer provides many of the Solaris kernel APIs"
 HOMEPAGE="http://zfsonlinux.org/"
 
 LICENSE="GPL-2"
@@ -22,7 +19,8 @@ SLOT="0"
 IUSE="custom-cflags debug"
 RESTRICT="debug? ( strip ) test"
 
-COMMON_DEPEND="dev-lang/perl
+COMMON_DEPEND="
+	dev-lang/perl
 	virtual/awk"
 
 DEPEND="${COMMON_DEPEND}"
@@ -55,7 +53,7 @@ pkg_setup() {
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 3 || die "Linux 4.3 is the latest supported version."; }
+		{ kernel_is le 4 17 || die "Linux 4.17 is the latest supported version."; }
 
 	check_extra_config
 }

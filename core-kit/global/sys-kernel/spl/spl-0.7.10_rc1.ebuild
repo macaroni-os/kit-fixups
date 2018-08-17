@@ -4,9 +4,9 @@ EAPI="5"
 
 inherit git-r3
 AUTOTOOLS_AUTORECONF="1"
-EGIT_REPO_URI="git://github.com/tonyhutter/zfs.git"
-EGIT_BRANCH="zfs-0.7.10-hutter"
-EGIT_COMMIT="85d2f8a"
+EGIT_REPO_URI="git://github.com/tonyhutter/spl.git"
+EGIT_BRANCH="spl-0.7.10-hutter"
+EGIT_COMMIT="af567ce"
 KEYWORDS=""
 
 inherit flag-o-matic linux-info linux-mod autotools-utils
@@ -59,10 +59,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	# Workaround for hard coded path
-	sed -i "s|/sbin/lsmod|/bin/lsmod|" "${S}/scripts/check.sh" || \
-		die "Cannot patch check.sh"
-
 	# splat is unnecessary unless we are debugging
 	use debug || { sed -e 's/^subdir-m += splat$//' -i "${S}/module/Makefile.in" || die ; }
 

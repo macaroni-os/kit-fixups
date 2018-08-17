@@ -36,6 +36,8 @@ AUTOTOOLS_IN_SOURCE_BUILD="1"
 DOCS=( AUTHORS COPYRIGHT DISCLAIMER README.markdown )
 
 pkg_setup() {
+	export REAL_ARCH="$ARCH"
+	unset ARCH; unset LDFLAGS #will interfere with Makefile if set
 	linux-info_pkg_setup
 	CONFIG_CHECK="
 		!DEBUG_LOCK_ALLOC
@@ -79,6 +81,7 @@ src_prepare() {
 }
 
 src_configure() {
+	unset ARCH
 	local SPL_PATH="$(basename $(echo "${EROOT}usr/src/spl-"*))"
 	use custom-cflags || strip-flags
 	filter-ldflags -Wl,*
@@ -96,6 +99,10 @@ src_configure() {
 	)
 
 	autotools-utils_src_configure
+}
+src_compile() {
+	unset ARCH
+	emake || die "emake failed"
 }
 
 src_install() {

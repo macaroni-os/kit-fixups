@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,28 +11,29 @@ inherit autotools cmake-utils eutils linux-info pax-utils python-single-r1 versi
 LIBDVDCSS_COMMIT="2f12236bc1c92f73c21e973363f79eb300de603f"
 LIBDVDREAD_COMMIT="17d99db97e7b8f23077b342369d3c22a6250affd"
 LIBDVDNAV_COMMIT="43b5f81f5fe30bceae3b7cecf2b0ca57fc930dac"
-FFMPEG_VERSION="3.1.9"
-FFMPEG_KODI_VERSION="$(get_version_component_range 1-2)"
+FFMPEG_VERSION="3.1.11"
+FFMPEG_KODI_VERSION="17.5"
 CODENAME="Krypton"
+PATCHES=(
+	"${FILESDIR}/${P}-nmblookup.patch"
+)
 SRC_URI="https://github.com/xbmc/libdvdcss/archive/${LIBDVDCSS_COMMIT}.tar.gz -> libdvdcss-${LIBDVDCSS_COMMIT}.tar.gz
 	https://github.com/xbmc/libdvdread/archive/${LIBDVDREAD_COMMIT}.tar.gz -> libdvdread-${LIBDVDREAD_COMMIT}.tar.gz
 	https://github.com/xbmc/libdvdnav/archive/${LIBDVDNAV_COMMIT}.tar.gz -> libdvdnav-${LIBDVDNAV_COMMIT}.tar.gz
-	!system-ffmpeg? ( https://github.com/xbmc/FFmpeg/archive/${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz -> ffmpeg-${PN}-${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz )"
+	https://github.com/xbmc/FFmpeg/archive/${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz -> ffmpeg-${PN}-${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz"
 
 DESCRIPTION="Kodi is a free and open source media-player and entertainment hub"
-HOMEPAGE="https://kodi.tv/ http://kodi.wiki/"
+HOMEPAGE="https://kodi.tv/ https://kodi.wiki/"
 
 LICENSE="GPL-2"
 SLOT="0"
 # use flag is called libusb so that it doesn't fool people in thinking that
 # it is _required_ for USB support. Otherwise they'll disable udev and
 # that's going to be worse.
-IUSE="airplay alsa bluetooth bluray caps cec +css dbus debug dvd gles libressl libusb lirc mysql nfs nonfree +opengl pulseaudio samba sftp systemd +system-ffmpeg test +udev udisks upnp upower vaapi vdpau webserver +X +xslt zeroconf"
+IUSE="airplay alsa bluetooth bluray caps cec +css dbus debug dvd gles lcms libressl libusb lirc mysql nfs nonfree +opengl pulseaudio samba sftp systemd test +udev udisks upnp upower vaapi vdpau webserver +xslt zeroconf"
 REQUIRED_USE="
 	${PYTHON_REQUIRED_USE}
 	|| ( gles opengl )
-	gles? ( X )
-	opengl? ( X )
 	udev? ( !libusb )
 	udisks? ( dbus )
 	upower? ( dbus )
@@ -61,8 +61,9 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-libs/libcdio
 	gles? ( media-libs/mesa[gles2] )
+	lcms? ( media-libs/lcms:2 )
 	libusb? ( virtual/libusb:1 )
-	media-fonts/corefonts
+	virtual/ttf-fonts
 	>=media-fonts/noto-20160531
 	media-fonts/roboto
 	media-libs/fontconfig
@@ -70,7 +71,6 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	>=media-libs/libass-0.13.4
 	media-libs/mesa[egl]
 	>=media-libs/taglib-1.11.1
-	system-ffmpeg? ( >=media-video/ffmpeg-${FFMPEG_VERSION}:=[encode,openssl,postproc] )
 	mysql? ( virtual/mysql )
 	>=net-misc/curl-7.51.0
 	nfs? ( net-fs/libnfs:= )
@@ -82,18 +82,11 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	sftp? ( net-libs/libssh[sftp] )
 	sys-libs/zlib
 	udev? ( virtual/udev )
-	vaapi? ( x11-libs/libva[opengl] )
+	vaapi? ( x11-libs/libva:=[opengl] )
 	vdpau? (
 		|| ( >=x11-libs/libvdpau-1.1 >=x11-drivers/nvidia-drivers-180.51 )
-		system-ffmpeg? ( media-video/ffmpeg[vdpau] )
 	)
 	webserver? ( >=net-libs/libmicrohttpd-0.9.50[messages] )
-	X? (
-		x11-libs/libdrm
-		x11-libs/libX11
-		x11-libs/libXrandr
-		x11-libs/libXrender
-	)
 	xslt? ( dev-libs/libxslt )
 	zeroconf? ( net-dns/avahi[dbus] )
 "
@@ -215,8 +208,9 @@ src_configure() {
 		-DENABLE_DBUS=$(usex dbus)
 		-DENABLE_DVDCSS=$(usex css)
 		-DENABLE_INTERNAL_CROSSGUID=OFF
-		-DENABLE_INTERNAL_FFMPEG="$(usex !system-ffmpeg)"
+		-DENABLE_INTERNAL_FFMPEG=ON
 		-DENABLE_CAP=$(usex caps)
+		-DENABLE_LCMS2=$(usex lcms)
 		-DENABLE_LIRC=$(usex lirc)
 		-DENABLE_MICROHTTPD=$(usex webserver)
 		-DENABLE_MYSQLCLIENT=$(usex mysql)
@@ -234,7 +228,7 @@ src_configure() {
 		-DENABLE_UPNP=$(usex upnp)
 		-DENABLE_VAAPI=$(usex vaapi)
 		-DENABLE_VDPAU=$(usex vdpau)
-		-DENABLE_X11=$(usex X)
+		-DENABLE_X11=ON
 		-DENABLE_XSLT=$(usex xslt)
 		-Dlibdvdread_URL="${DISTDIR}/libdvdread-${LIBDVDREAD_COMMIT}.tar.gz"
 		-Dlibdvdnav_URL="${DISTDIR}/libdvdnav-${LIBDVDNAV_COMMIT}.tar.gz"
@@ -243,11 +237,7 @@ src_configure() {
 
 	use libusb && mycmakeargs+=( -DENABLE_LIBUSB=$(usex libusb) )
 
-	if use system-ffmpeg; then
-		mycmakeargs+=( -DWITH_FFMPEG="yes" )
-	else
-		mycmakeargs+=( -DFFMPEG_URL="${DISTDIR}/ffmpeg-${PN}-${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz" )
-	fi
+	mycmakeargs+=( -DFFMPEG_URL="${DISTDIR}/ffmpeg-${PN}-${FFMPEG_VERSION}-${CODENAME}-${FFMPEG_KODI_VERSION}.tar.gz" )
 
 	cmake-utils_src_configure
 }

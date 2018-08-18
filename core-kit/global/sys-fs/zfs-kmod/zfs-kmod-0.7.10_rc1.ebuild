@@ -8,7 +8,7 @@ AUTOTOOLS_AUTORECONF="1"
 EGIT_REPO_URI="git://github.com/tonyhutter/zfs.git"
 EGIT_BRANCH="zfs-0.7.10-hutter"
 EGIT_COMMIT="85d2f8a"
-KEYWORDS=""
+KEYWORDS="*"
 
 inherit autotools-utils flag-o-matic linux-info linux-mod toolchain-funcs
 

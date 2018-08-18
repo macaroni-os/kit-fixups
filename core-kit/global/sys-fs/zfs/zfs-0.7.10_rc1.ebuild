@@ -7,7 +7,7 @@ inherit git-r3 linux-mod
 AUTOTOOLS_AUTORECONF="1"
 EGIT_REPO_URI="git://github.com/tonyhutter/${PN}.git"
 EGIT_COMMIT="85d2f8a8cfee18c38b67c8fa7076bf18adb2cf9b"
-KEYWORDS=""
+KEYWORDS="*"
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev
 

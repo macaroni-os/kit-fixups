@@ -7,7 +7,7 @@ AUTOTOOLS_AUTORECONF="1"
 EGIT_REPO_URI="git://github.com/tonyhutter/spl.git"
 EGIT_BRANCH="spl-0.7.10-hutter"
 EGIT_COMMIT="af567ce"
-KEYWORDS=""
+KEYWORDS="*"
 
 inherit flag-o-matic linux-info linux-mod autotools-utils
 

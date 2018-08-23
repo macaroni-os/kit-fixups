@@ -25,6 +25,12 @@ that you can rely on to be stable and perform consistently over an extended peri
 Security Fixes
 --------------
 
+August 23, 2018
+~~~~~~~~~~~~~~~
+
+- ``x11-libs/libX11`` has been updated to 1.6.6 to address CVE-2018-14598, CVE-2018-14599 and CVE-2018-14600.
+
+
 March 29, 2018
 ~~~~~~~~~~~~~~
 

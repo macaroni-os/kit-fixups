@@ -4,7 +4,7 @@ EAPI=6
 
 BINFONT="unifont-1.0.pf2"
 if [[ ${PV} == 9999  ]]; then
-	PYTHON_COMPAT=( python{2_7,3_3,3_4,3_5} )
+	PYTHON_COMPAT=( python2_7 python3_{4..7} )
 	inherit python-any-r1
 fi
 inherit autotools bash-completion-r1 flag-o-matic mount-boot multibuild pax-utils toolchain-funcs versionator

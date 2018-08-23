@@ -3,7 +3,7 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=( python3_{4,5} )
+PYTHON_COMPAT=( python3_{4..7} )
 
 inherit flag-o-matic python-any-r1 toolchain-funcs eutils
 

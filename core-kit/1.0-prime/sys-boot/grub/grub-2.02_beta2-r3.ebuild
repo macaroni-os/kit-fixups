@@ -7,7 +7,7 @@ AUTOTOOLS_AUTORECONF=1
 GRUB_AUTOGEN=1
 
 if [[ -n ${GRUB_AUTOGEN} ]]; then
-	PYTHON_COMPAT=( python{2_6,2_7,3_2,3_3,3_4} )
+	PYTHON_COMPAT=( python2_7 python3_{4..7} )
 	inherit python-any-r1
 fi
 

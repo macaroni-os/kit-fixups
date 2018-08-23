@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python{2_7,3_{4,5,6}} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit cmake-utils flag-o-matic python-any-r1
 

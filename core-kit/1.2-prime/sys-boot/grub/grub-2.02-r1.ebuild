@@ -8,7 +8,7 @@ if [[ ${PV} == 9999  ]]; then
 fi
 
 if [[ -n ${GRUB_AUTOGEN} ]]; then
-	PYTHON_COMPAT=( python{2_7,3_3,3_4,3_5} )
+	PYTHON_COMPAT=( python2_7 python3_{4..7} )
 	WANT_LIBTOOL=none
 	inherit autotools python-any-r1
 fi

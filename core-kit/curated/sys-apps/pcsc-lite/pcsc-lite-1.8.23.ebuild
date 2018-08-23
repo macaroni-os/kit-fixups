@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit python-single-r1 udev user multilib-minimal
 
@@ -66,7 +66,7 @@ multilib_src_install_all() {
 	einstalldocs
 
 	newinitd "${FILESDIR}"/pcscd-init.7 pcscd
-	
+
 	insinto "$(get_udevdir)"/rules.d
 	doins "${FILESDIR}"/99-pcscd-hotplug.rules
 

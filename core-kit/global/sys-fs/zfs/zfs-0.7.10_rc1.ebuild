@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit git-r3 linux-mod
 AUTOTOOLS_AUTORECONF="1"
@@ -204,4 +204,3 @@ pkg_postrm() {
 		remove_moduledb
 	fi
 }
-

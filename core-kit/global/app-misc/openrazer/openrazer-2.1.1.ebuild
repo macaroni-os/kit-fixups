@@ -2,7 +2,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python3_{5,6} )
+PYTHON_COMPAT=( python3_{4..7} )
 
 inherit distutils-r1 git-r3 linux-mod
 

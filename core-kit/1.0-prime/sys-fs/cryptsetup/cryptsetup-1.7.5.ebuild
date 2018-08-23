@@ -3,7 +3,7 @@
 EAPI=5
 
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit autotools distutils-r1 linux-info libtool eutils versionator
 

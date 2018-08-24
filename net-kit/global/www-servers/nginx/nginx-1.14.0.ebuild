@@ -283,7 +283,7 @@ for m in ${!mod_a[@]} ; do
 	LICENSE+=" nginx_modules_external_${m}? ( ${mod_lic[$m]} )"
 done
 
-SLOT="mainline"
+SLOT="0"
 KEYWORDS=""
 
 mods[upstream]="upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone"

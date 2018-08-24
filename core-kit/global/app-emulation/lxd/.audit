@@ -1,6 +1,11 @@
 LXD - Container management
 **************************
 
+lxc-3.0.2.ebuild is based on Gentoo's lxc-3.3 ebuild. It includes the addition of lxcfs as an RDEPEND, because lxcfs is really a good thing
+and it's annoying to have to manually install. Also, the DEPEND on lxc has been bumped to 3.0.2. In theory, lxd will work with 2+ of lxc,
+but this seems like a horrible idea. Lxc and lxd 3.0.2 were released simultaneously, so were tested together.
+
+
 Latest upstream releases:
 -------------------------
 - LXD 2.0.11 - 19th of October 2017 (LTS - EOL June 2021)

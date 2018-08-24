@@ -34,8 +34,6 @@ DEPEND="${RDEPEND}
 		dev-python/numpydoc[${PYTHON_USEDEP}]
 	)"
 
-PATCHES=( "${FILESDIR}"/${P}-test_message.patch )
-
 python_prepare_all() {
 	# Prevent un-needed download during build
 	sed -e "/'sphinx.ext.intersphinx',/d" -i docs/source/conf.py || die

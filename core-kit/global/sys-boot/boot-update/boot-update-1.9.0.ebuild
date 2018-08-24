@@ -2,7 +2,7 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=( python3_4 python3_5 python3_6 )
+PYTHON_COMPAT=( python3_{4..7} )
 
 inherit multilib python-single-r1 mount-boot
 

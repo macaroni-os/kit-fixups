@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_{4..6} )
+PYTHON_COMPAT=( python3_{4..7} )
 
 inherit git-r3 gnome2-utils linux-mod python-single-r1
 

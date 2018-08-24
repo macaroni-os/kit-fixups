@@ -2,7 +2,7 @@
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit bash-completion-r1 eutils multilib python-r1
 

@@ -2,7 +2,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
+PYTHON_COMPAT=( python2_7 python3_{4,5,6,7} )
 PYTHON_REQ_USE="threads(+)"
 
 inherit flag-o-matic distutils-r1 toolchain-funcs
@@ -17,7 +17,7 @@ KEYWORDS="*"
 IUSE="doc test"
 
 RDEPEND="
-	>=net-libs/zeromq-4.1.2:=[drafts]
+	>=net-libs/zeromq-4.2.2-r2:=[drafts]
 	dev-python/py[${PYTHON_USEDEP}]
 	dev-python/cffi:=[${PYTHON_USEDEP}]
 	$(python_gen_cond_dep 'dev-python/gevent[${PYTHON_USEDEP}]' python2_7)
@@ -27,12 +27,14 @@ DEPEND="${RDEPEND}
 	test? (
 		dev-python/pytest[${PYTHON_USEDEP}]
 		$(python_gen_cond_dep 'dev-python/unittest2[${PYTHON_USEDEP}]' -2)
-		www-servers/tornado[${PYTHON_USEDEP}]
+		>=www-servers/tornado-5.0.2[${PYTHON_USEDEP}]
 	)
 	doc? (
 		>=dev-python/sphinx-1.3[${PYTHON_USEDEP}]
 		dev-python/numpydoc[${PYTHON_USEDEP}]
 	)"
+
+PATCHES=( "${FILESDIR}"/${P}-test_message.patch )
 
 python_prepare_all() {
 	# Prevent un-needed download during build

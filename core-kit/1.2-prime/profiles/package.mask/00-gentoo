@@ -29,6 +29,11 @@
 
 #--- END OF EXAMPLES ---
 
+# Add gentoo mask for nextcloud-client. FL-5474. oleg@funtoo.org
+# Bernard Cafarelli <voyageur@gentoo.org> (20 Aug 2018)
+# # Requires >=dev-libs/openssl-1.1.0
+>=net-misc/nextcloud-client-2.5.0_beta1
+
 # FL-4980: add mask for zfs-0.7.7. Those ebuilds are not in tree. But mask is added. oleg@funtoo.org
 =sys-fs/zfs-0.7.7*
 =sys-fs/zfs-kmod-0.7.7*

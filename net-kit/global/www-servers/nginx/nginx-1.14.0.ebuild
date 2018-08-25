@@ -284,7 +284,7 @@ for m in ${!mod_a[@]} ; do
 done
 
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 
 mods[upstream]="upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone"
 

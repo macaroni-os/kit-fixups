@@ -118,9 +118,14 @@ src_install() {
 
 	keepdir /var/lib/lxd
 
+
 	local bindir="dist/bin"
 	dobin ${bindir}/lxc
 	if use daemon; then
+	
+		# User-callable wrapper for lxd that sets LD_LIBRARY_PATH correctly:
+		newsbin ${FILESDIR}/lxd-wrapper lxd
+		sed -i -e "s:__LIBDIR__:$(get_libdir):g" ${D}/usr/sbin/lxd || die
 
 		# putting lxd into /usr/libexec because it's not intended to be run directly from the
 		# command-line. It needs LD_LIBRARY_PATH set to /usr/lib(64)/lxd to find its custom

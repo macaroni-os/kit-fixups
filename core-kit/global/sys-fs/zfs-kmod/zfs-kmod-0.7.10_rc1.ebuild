@@ -1,11 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
 inherit git-r3
 AUTOTOOLS_AUTORECONF="1"
-EGIT_REPO_URI="git://github.com/tonyhutter/zfs.git"
+EGIT_REPO_URI="https://github.com/tonyhutter/zfs.git"
 EGIT_BRANCH="zfs-0.7.10-hutter"
 EGIT_COMMIT="85d2f8a"
 KEYWORDS="*"

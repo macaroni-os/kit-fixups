@@ -5,7 +5,7 @@ PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit git-r3 linux-mod
 AUTOTOOLS_AUTORECONF="1"
-EGIT_REPO_URI="git://github.com/tonyhutter/${PN}.git"
+EGIT_REPO_URI="https://github.com/tonyhutter/${PN}.git"
 EGIT_COMMIT="85d2f8a8cfee18c38b67c8fa7076bf18adb2cf9b"
 KEYWORDS="*"
 

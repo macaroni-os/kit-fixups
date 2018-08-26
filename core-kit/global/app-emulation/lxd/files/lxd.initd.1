@@ -13,6 +13,8 @@ depend() {
 }
 
 start() {
+	# required for lxd in lxd:
+	modprobe -q ip6_tables
 	ebegin "Starting lxd service"
 	LD_LIBRARY_PATH=/usr/__LIBDIR__/lxd start-stop-daemon --start \
 		--pidfile ${PIDFILE} \

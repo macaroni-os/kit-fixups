@@ -11,7 +11,7 @@ KEYWORDS=""
 
 IUSE="+daemon +ipv6 +dnsmasq nls test"
 
-inherit bash-completion-r1 linux-info systemd user
+inherit autotools bash-completion-r1 linux-info systemd user
 
 SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
 
@@ -82,58 +82,81 @@ PATCHES=(
 	"${FILESDIR}/de-translation-newline.patch"
 )
 
+post_src_unpack() {
+	export GOPATH="${S}/dist"
+	rm -rf $GOPATH/src/* || die
+	go get -d -v github.com/lxc/lxd/lxd || die
+}
+
+src_configure() {
+	export GOPATH="${S}/dist"
+	cd ${S}/dist/src/github.com/lxc/lxd || die
+	sed -i -e 's:./configure:./configure --prefix=/usr:g' Makefile || die
+	make deps || die
+}
+
 src_compile() {
 	export GOPATH="${S}/dist"
-	install -d $GOPATH
-	rm -rf $GOPATH/src/*
-	go get -d -v github.com/lxc/lxd/lxd || die
-	#rm -rf $GOPATH/src/github.com/juju/utils
-	#rm -rf $GOPATH/src/gopkg.in
-	#go get -d -v github.com/lxc/lxd/lxd || die
-	cd $GOPATH/src/github.com/lxc/lxd || die
-	make -j ${MAKEOPTS} deps || die
 	export CGO_CFLAGS="-I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/"
 	export CGO_LDFLAGS="-L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/"
 	export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/"
-	make -j ${MAKEOPTS} || die
-	cd ${S} || die
-	use nls && emake build-mo
+	cd ${S}/dist/src/github.com/lxc/lxd && make -j ${MAKEOPTS} || die
+	if use nls; then
+		cd ${S} && emake build-mo
+	fi
 }
 
 src_test() {
 	if use daemon; then
-		export GOPATH="${S}/dist"
-		# This is mostly a copy/paste from the Makefile's "check" rule, but
-		# patching the Makefile to work in a non "fully-qualified" go namespace
-		# was more complicated than this modest copy/paste.
-		# Also: sorry, for now a network connection is needed to run tests.
-		# Will properly bundle test dependencies later.
-		go get -v -x github.com/rogpeppe/godeps
-		go get -v -x github.com/remyoudompheng/go-misc/deadcode
-		go get -v -x github.com/golang/lint/golint
-		go test -v ${EGO_PN}/lxd
+		make check || die
 	else
 		einfo "No tests to run for client-only builds"
 	fi
 }
 
 src_install() {
+
+	keepdir /var/lib/lxd
+
 	local bindir="dist/bin"
 	dobin ${bindir}/lxc
 	if use daemon; then
-		dosbin ${bindir}/lxd
+
+		# putting lxd into /usr/libexec because it's not intended to be run directly from the
+		# command-line. It needs LD_LIBRARY_PATH set to /usr/lib(64)/lxd to find its custom
+		# libs.
+
+		exeinto /usr/libexec
+		doexe ${bindir}/lxd
 		dobin ${bindir}/fuidshift
 		dosbin ${bindir}/lxd-benchmark ${bindir}/lxd-p2c ${bindir}/lxc-to-lxd
+
+		# lxd uses a special bundled sqlite and dqlite -- we want to grab these, and install
+		# them to /usr/$(get_libdir)/lxd/, which is a custom path that will be referenced by
+		# the initscript.
+
+		( cd ${S}/dist/deps/dqlite && make DESTDIR=${D} install ) || die 
+		( cd ${S}/dist/deps/sqlite && 
+			make DESTDIR=${D} install && 
+			rm ${D}/usr/bin/sqlite3 && 
+			rm ${D}/usr/include/sqlite*.h 
+		) || die
+
+		# Move dqlite and sqlite into the custom /usr/lib(64)/lxd directory. These are special
+		# builds of these binaries specifically for lxd use.
+
+		dodir /usr/$(get_libdir)/lxd
+		( cd ${D}/usr && mv lib/* $(get_libdir)/lxd ) || die
 	fi
 
 	if use nls; then
-		domo po/*.mo
+		( cd ${S} && domo po/*.mo ) || die
 	fi
 
 	if use daemon; then
-		newinitd "${FILESDIR}"/${PN}.initd lxd
+		newinitd "${FILESDIR}"/${PN}.initd.1 lxd
+		sed -i -e "s:__LIBDIR__:$(get_libdir):g" ${D}/etc/init.d/lxd || die
 		newconfd "${FILESDIR}"/${PN}.confd lxd
-
 		systemd_newunit "${FILESDIR}"/${PN}.service ${PN}.service
 	fi
 
@@ -163,7 +186,6 @@ pkg_postinst() {
 	einfo "- sys-fs/btrfs-progs"
 	einfo "- sys-fs/lvm2"
 	einfo "- sys-fs/zfs"
-	einfo "- sys-process/criu"
 	einfo
 	einfo "Since these features can't be disabled at build-time they are"
 	einfo "not USE-conditional."

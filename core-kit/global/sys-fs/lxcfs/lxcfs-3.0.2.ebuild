@@ -19,7 +19,7 @@ else
 	# e.g. upstream is 2.0.0.beta2, we want 2.0.0_beta2
 	UPSTREAM_PV=$(replace_version_separator 3 '.' )
 	SRC_URI="https://github.com/lxc/lxcfs/archive/${PN}-${UPSTREAM_PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS=""
+	KEYWORDS="*"
 fi
 
 # Omit all dbus.  Upstream appears to require it because systemd, but

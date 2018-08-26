@@ -185,6 +185,9 @@ src_prepare() {
 	# Patch from release to svn branch tip for backports
 	eapply "${GCC_SVN_PATCH}"
 
+	# Fix to add entry for 'skylake' in config.gcc's x86_64_archs variable if missing.
+	sed -e '/x86_64_archs="/,/"/ { /\<skylake / b ; s/\<skylake-/skylake &/ }' -i "${S}/gcc/config.gcc"
+
 	( use vanilla && use hardened ) \
 		&& die "vanilla and hardened USE flags are incompatible. Disable one of them"
 

@@ -6,7 +6,7 @@ inherit git-r3
 AUTOTOOLS_AUTORECONF="1"
 EGIT_REPO_URI="https://github.com/tonyhutter/zfs.git"
 EGIT_BRANCH="zfs-0.7.10-hutter"
-EGIT_COMMIT="85d2f8a"
+EGIT_COMMIT="4a139643aadc98f7c88a4c7595bba11db5561c51"
 KEYWORDS="*"
 
 inherit autotools-utils flag-o-matic linux-info linux-mod toolchain-funcs

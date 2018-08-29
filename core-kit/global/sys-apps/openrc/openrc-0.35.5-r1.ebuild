@@ -2,18 +2,16 @@
 
 EAPI=6
 
-inherit flag-o-matic pam toolchain-funcs git-r3
+inherit flag-o-matic pam toolchain-funcs
 
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="https://github.com/openrc/openrc/"
-
-EGIT_REPO_URI="https://github.com/OpenRC/${PN}.git"
-EGIT_COMMIT="7affff568a0aa83d732757c4699d4b94b7e3a9aa"
+SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="*"
 
 LICENSE="BSD-2"
 SLOT="0"
-IUSE="audit debug ncurses pam newnet prefix -netifrc selinux static-libs unicode kernel_linux kernel_FreeBSD"
+IUSE="audit +bash-completion debug ncurses pam newnet prefix -netifrc selinux static-libs unicode kernel_linux kernel_FreeBSD zsh-completion"
 
 COMMON_DEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-process/fuser-bsd ) )
 	ncurses? ( sys-libs/ncurses:0= )
@@ -31,13 +29,12 @@ COMMON_DEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-proc
 		>=sys-libs/libselinux-2.6
 	)
 	!<sys-apps/baselayout-2.1-r1
-	!<sys-fs/udev-init-scripts-27
-	dev-vcs/git[curl]"
+	!<sys-fs/udev-init-scripts-27"
 DEPEND="${COMMON_DEPEND}
 	virtual/os-headers
 	ncurses? ( virtual/pkgconfig )"
 RDEPEND="${COMMON_DEPEND}
-    sys-apps/corenetwork
+	sys-apps/corenetwork
 	!prefix? (
 		kernel_linux? (
 			>=sys-apps/sysvinit-2.86-r6[selinux?]
@@ -71,12 +68,13 @@ src_compile() {
 	MAKE_ARGS="${MAKE_ARGS}
 		LIBNAME=$(get_libdir)
 		LIBEXECDIR=${EPREFIX}/$(get_libdir)/rc
-		MKBASHCOMP=yes
+		MKBASHCOMP=$(usex bash-completion)
 		MKNET=$(usex newnet)
 		MKSELINUX=$(usex selinux)
 		MKAUDIT=$(usex audit)
 		MKPAM=$(usev pam)
-		MKSTATICLIBS=$(usex static-libs)"
+		MKSTATICLIBS=$(usex static-libs)
+		MKZSHCOMP=$(usex zsh-completion)"
 
 	local brand="Unknown"
 	if use kernel_linux ; then
@@ -135,6 +133,10 @@ src_install() {
 	# Cater to the norm
 	set_config_yes_no /etc/conf.d/keymaps windowkeys '(' use x86 '||' use amd64 ')'
 
+	# Funtoo tweaks
+	set_config_yes_no /etc/rc.conf rc_send_sigkill true
+	set_config /etc/rc.conf rc_timeout_stopsec 5
+	set_config /etc/conf.d/net-online timeout 10
 	# On HPPA, do not run consolefont by default (bug #222889)
 	if use hppa; then
 		rm -f "${ED}"/usr/share/openrc/runlevels/boot/consolefont

@@ -139,10 +139,12 @@ class KitFoundation:
 			{'name': 'core-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
 			{'name': 'core-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'security-kit', 'branch': '1.0-prime', 'source': 'gentoo_prime_protected', 'default': True},
 			{'name': 'security-kit', 'branch': '1.1-prime', 'source': 'gentoo_prime_mk3_protected', 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'default': False, 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'xorg-kit', 'branch': '1.20-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
@@ -154,35 +156,45 @@ class KitFoundation:
 			{'name': 'media-kit', 'branch': '1.0-prime', 'source': 'funtoo_prime_media', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'media-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_prime', 'default': True, 'stability': KitStabilityRating.PRIME},  # MK3
 			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'default': True},
 			{'name': 'perl-kit', 'branch': '5.26-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
-			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
+			{'name': 'perl-kit', 'branch': '5.28-prime', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'python-modules-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'python-kit', 'branch': '3.4-prime', 'source': 'funtoo_prime', 'default': True},
 			{'name': 'python-kit', 'branch': '3.6-prime', 'source': 'funtoo_mk2_prime', 'default': False, 'stability': KitStabilityRating.PRIME},  # MK2
 			{'name': 'python-kit', 'branch': '3.6.3-prime', 'source': 'funtoo_mk3_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},  # MK3
-			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
+			{'name': 'python-kit', 'branch': '3.7-prime', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'php-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			# We will freeze when 7.2.0 is released...
 			{'name': 'java-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'java-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'java-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'ruby-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'ruby-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'ruby-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'haskell-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'haskell-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'ml-lang-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
 			{'name': 'ml-lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'default': True, 'stability': KitStabilityRating.PRIME},
+			{'name': 'ml-lang-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'lisp-scheme-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'lisp-scheme-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'lisp-scheme-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'lang-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'lang-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'llvm-kit', 'branch': '1.2-prime', 'source': 'funtoo_prime_llvm', 'default': True, 'stability': KitStabilityRating.PRIME},
+			{'name': 'llvm-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'llvm-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'dev-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'dev-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
 			{'name': 'text-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
@@ -213,6 +225,11 @@ class KitFoundation:
 			"primary": "python3_6",
 			"alternate": "python2_7",
 			"mask": ">=dev-lang/python-3.7"
+		},
+		'3.7-prime': {
+			"primary": "python3_7",
+			"alternate": "python2_7",
+			"mask": ">=dev-lang/python-3.8"
 		}
 	}
 
@@ -224,21 +241,41 @@ class KitFoundation:
 	release_defs = {
 		"1.2": {
 			# first list entry is the default; second list entry is still considered to be "part of release"
-			"core-kit": [ "1.2-prime" ],
-			"python-kit": [ "3.6-prime" ],
-			"security-kit": [ "1.2-prime"],
-			"kde-kit": [ "5.12-prime" ],
-			"media-kit": [ "1.2-prime" ],
-			"java-kit": [ "1.2-prime" ],
-			"ruby-kit": [ "1.2-prime" ],
-			"haskell-kit": [ "1.2-prime" ],
-			"lisp-scheme-kit": [ "1.2-prime" ],
-			"lang-kit": [ "1.2-prime" ],
-			"dev-kit": [ "1.2-prime" ],
-			"desktop-kit": [ "1.2-prime" ],
-			"gnome-kit": [ "3.26-prime", "3.20-prime" ]
+			"core-kit": ["1.2-prime"],
+			"python-kit": ["3.6-prime"],
+			"security-kit": ["1.2-prime"],
+			"kde-kit": ["5.12-prime"],
+			"media-kit": ["1.2-prime"],
+			"java-kit": ["1.2-prime"],
+			"ruby-kit": ["1.2-prime"],
+			"haskell-kit": ["1.2-prime"],
+			"lisp-scheme-kit": ["1.2-prime"],
+			"lang-kit": ["1.2-prime"],
+			"dev-kit": ["1.2-prime"],
+			"desktop-kit": ["1.2-prime"],
+			"gnome-kit": ["3.26-prime", "3.20-prime"]
+		},
+		"1.3": {
+			# now listing in alphabetical order. Make sure you don't forget kits that should be included!
+			# kits that track master all the time can be excluded.
+			"core-kit": ["1.3-release"],
+			"desktop-kit": ["1.3-release"],
+			"dev-kit": ["1.3-release"],
+			"gnome-kit": ["3.26-prime", "3.20-prime"],
+			"haskell-kit": ["1.3-release"],
+			"java-kit": ["1.3-release"],
+			"kde-kit": ["5.12-prime"],
+			"lang-kit": ["1.3-release"],
+			"lisp-scheme-kit": ["1.3-release"],
+			"llvm-kit": ["1.3-release"],
+			"media-kit": ["1.3-release"],
+			"ml-lang-kit": ["1.3-release"],
+			"perl-kit": ["5.28-prime"],
+			"python-kit": ["3.7-prime"],
+			"ruby-kit": ["1.3-release"],
+			"security-kit": ["1.3-release"],
+			"xfce-kit": ["4.12-prime"],
 		}
-		# TODO: forgot to add perl-kit!!!
 	}
 
 	# KIT SOURCES - kit sources are a combination of overlays, arranged in a python list [ ]. A KIT SOURCE serves as a

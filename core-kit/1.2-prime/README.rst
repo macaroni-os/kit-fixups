@@ -30,6 +30,11 @@ Security Workarounds
 Security Fixes
 --------------
 
+August 29, 2018
+~~~~~~~~~~~~~~
+
+- ``dev-libs/openssl`` has been updated to 1.0.2p to address CVE-2018-0732 and CVE-2018-0737.
+
 August 4, 2018
 ~~~~~~~~~~~~~
 

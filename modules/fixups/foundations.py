@@ -76,25 +76,18 @@ def KitRatingString(kit_enum):
 # generation, this master list of inserted catpkgs is used to prune the 'nokit' repository of catpkgs, so that 'nokit'
 # contains the set of all ebuilds that were not inserted into kits.
 
-# Next release is 1.2-prime and will be based on a 'master' snapshot until it is near release, at which point the
-# tree will be frozen.
-
-# 1.2 RELEASE
+# 1.3 RELEASE
 # =================================================================================
 #
 # Roadmap (compressed development schedule)
 #
-# 1. Development starts                                                            December 28, 2017
-# 1a. Addition of python-modules-kit and perl-modules-kit (for 1.1+)               January 1, 2018
-# 2. Alpha release (best attempt to get everything functioning)                    January 4, 2018
-# 3. Beta release (most stuff should be functioning and becoming stable)           January 11, 2018
-# 4. Near-prime (release candidate)                                                To be determined
-# 5. Prime release                                                                 January 21, 2018
-# 6. 1.0-prime kits EOL                                                            February 1, 2018
 #
-# 1.3 development starts                                                           April 1, 2018
-# 1.3 release                                                                      July 1, 2018
-# 1.2-prime kits EOL                                                               August 1, 2018
+# 1.3 development starts                                                           Aug 31, 2018
+#
+# Sprints to start on Monday, and complete EOD Saturday (6 days)
+# Sprint planning on Sundays.
+# Sprints will contain some amount of work for existing release, and some work for new release.
+
 #
 #							NEW VERSION             EXISTING
 #                           =======================================================

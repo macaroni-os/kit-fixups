@@ -14,8 +14,11 @@ IUSE="+daemon +ipv6 +dnsmasq nls test"
 inherit autotools bash-completion-r1 linux-info systemd user
 
 SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
-
+COMMON_DEPEND="
+	dev-libs/libuv
+"
 DEPEND="
+	$COMMON_DEPEND
 	>=dev-lang/go-1.9.4
 	dev-libs/protobuf
 	dev-lang/tcl
@@ -28,6 +31,7 @@ DEPEND="
 "
 
 RDEPEND="
+	$COMMON_DEPEND
 	daemon? (
 		app-arch/xz-utils
 		>=app-emulation/lxc-3.0.2[seccomp]

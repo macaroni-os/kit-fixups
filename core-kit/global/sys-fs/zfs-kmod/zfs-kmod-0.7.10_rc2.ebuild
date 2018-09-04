@@ -32,7 +32,8 @@ DOCS=( AUTHORS COPYRIGHT DISCLAIMER README.markdown )
 
 GITHUB_USER="funtoo"
 GITHUB_TAG="7ec2b1c"
-SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> zfs-${GITHUB_TAG}.tar.gz"
+GITHUB_REPO="zfs"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${GITHUB_REPO}-${GITHUB_TAG}.tar.gz"
 
 src_unpack() {
 	unpack ${A}

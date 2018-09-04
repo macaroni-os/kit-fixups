@@ -2,11 +2,7 @@
 
 EAPI="5"
 
-inherit git-r3
 AUTOTOOLS_AUTORECONF="1"
-EGIT_REPO_URI="https://github.com/tonyhutter/zfs.git"
-EGIT_BRANCH="zfs-0.7.10-hutter"
-EGIT_COMMIT="4a139643aadc98f7c88a4c7595bba11db5561c51"
 KEYWORDS="*"
 
 inherit autotools-utils flag-o-matic linux-info linux-mod toolchain-funcs
@@ -33,6 +29,15 @@ AT_M4DIR="config"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
 
 DOCS=( AUTHORS COPYRIGHT DISCLAIMER README.markdown )
+
+GITHUB_USER="funtoo"
+GITHUB_TAG="7ec2b1c"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> zfs-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 pkg_setup() {
 	export REAL_ARCH="$ARCH"

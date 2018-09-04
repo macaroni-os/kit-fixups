@@ -3,10 +3,7 @@
 EAPI="5"
 PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
-inherit git-r3 linux-mod
 AUTOTOOLS_AUTORECONF="1"
-EGIT_REPO_URI="https://github.com/tonyhutter/${PN}.git"
-EGIT_COMMIT="4a139643aadc98f7c88a4c7595bba11db5561c51"
 KEYWORDS="*"
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev
@@ -57,6 +54,16 @@ RDEPEND="${COMMON_DEPEND}
 
 AT_M4DIR="config"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
+
+GITHUB_REPO="zfs"
+GITHUB_USER="funtoo"
+GITHUB_TAG="7ec2b1c"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 pkg_setup() {
 	if use kernel_linux && use test-suite; then

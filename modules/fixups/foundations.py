@@ -167,7 +167,7 @@ class KitFoundation:
 			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
-			{'name': 'hosting-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+#			{'name': 'hosting-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'java-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'ruby-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},

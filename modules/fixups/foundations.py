@@ -219,7 +219,7 @@ class KitFoundation:
 
 	release_info = {
 		# set default release, currently not set. Can be used to set default kits.
-		"default" : None
+		"default": "1.2"
 	}
 
 	release_defs = {

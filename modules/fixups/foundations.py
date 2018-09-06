@@ -132,6 +132,10 @@ class KitFoundation:
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.PRIME},
 			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},
 			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'gnome-kit', 'branch': '3.20-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
 			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_prime_kde_late', 'stability': KitStabilityRating.PRIME},
 			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'stability': KitStabilityRating.PRIME},
@@ -161,6 +165,10 @@ class KitFoundation:
 			{'name': 'opengl-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.20-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
+			{'name': 'gnome-kit', 'branch': '3.20-prime', 'stability': KitStabilityRating.PRIME, "generate": False},
 			{'name': 'ui-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
@@ -186,10 +194,11 @@ class KitFoundation:
 			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 		],
 		'independently-maintained': [
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'stability': KitStabilityRating.PRIME}, 
-			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'stability': KitStabilityRating.PRIME},
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'stability': KitStabilityRating.PRIME},
+
 		]
 	}
 
@@ -222,25 +231,7 @@ class KitFoundation:
 		"default": "1.2"
 	}
 
-	release_defs = {
-		"1.2": {
-			# first list entry is the default; second list entry is still considered to be "part of release"
-			"core-kit": [ "1.2-prime" ],
-			"python-kit": [ "3.6-prime" ],
-			"security-kit": [ "1.2-prime"],
-			"kde-kit": [ "5.12-prime" ],
-			"media-kit": [ "1.2-prime" ],
-			"java-kit": [ "1.2-prime" ],
-			"ruby-kit": [ "1.2-prime" ],
-			"haskell-kit": [ "1.2-prime" ],
-			"lisp-scheme-kit": [ "1.2-prime" ],
-			"lang-kit": [ "1.2-prime" ],
-			"dev-kit": [ "1.2-prime" ],
-			"desktop-kit": [ "1.2-prime" ],
-			"gnome-kit": [ "3.26-prime", "3.20-prime" ]
-		}
-		# TODO: forgot to add perl-kit!!!
-	}
+	release_defs = None
 
 	# KIT SOURCES - kit sources are a combination of overlays, arranged in a python list [ ]. A KIT SOURCE serves as a
 	# unified collection of source catpkgs for a particular kit. Each kit can have one KIT SOURCE. KIT SOURCEs MAY be

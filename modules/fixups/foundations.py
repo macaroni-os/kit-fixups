@@ -174,7 +174,7 @@ class KitFoundation:
 			{'name': 'dev-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
-                        {'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
+                        {'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_prime_xfce', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': True, 'stability': KitStabilityRating.CURRENT},
@@ -339,7 +339,11 @@ class KitFoundation:
 		"funtoo_prime_llvm": [
 			# specific snapshot for llvm-kit
 			{"repo": "gentoo-staging", 'src_sha1': 'e4d303da8b2ad31692eddba258ef28b69fec3efb', 'date': '20 Mar 2018'}
-		]
+		],
+                "funtoo_prime_xfce": [
+                        # specific snapshot for xfce-kit 4.13-release
+                        {"repo": "gentoo-staging", 'src_sha1': '76f9a0f535ec2dd32545801a9e62e86499ffc58e', 'date': '7 Sep 2018'}
+                ]
 	}
 
 	# OVERLAYS - lists sources for catpkgs, along with properties which can include "select" - a list of catpkgs to

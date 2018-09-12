@@ -163,6 +163,7 @@ class KitFoundation:
 		'1.3-release': [
 			{'name': 'core-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-hw-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			{'name': 'core-ui-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'opengl-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.20-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
@@ -170,7 +171,6 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary
 			{'name': 'gnome-kit', 'branch': '3.20-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
-			{'name': 'core-ui-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},

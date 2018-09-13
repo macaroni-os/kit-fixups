@@ -173,7 +173,7 @@ class KitFoundation:
 			{'name': 'llvm-kit', 'branch': 'master', 'source': 'funtoo_current', 'default': False, 'stability': KitStabilityRating.DEV},
 			{'name': 'dev-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': False},
+			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'default': False, 'stability': KitStabilityRating.DEPRECATED},
                         {'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_prime_xfce', 'default': True, 'stability': KitStabilityRating.PRIME},
 			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},

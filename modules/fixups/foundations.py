@@ -126,7 +126,6 @@ def KitRatingString(kit_enum):
 # catpkg is inserted into a kit, it's no longer 'available' to be inserted into successive kits, to avoid duplicates.
 
 class KitFoundation:
-
 	kit_groups = {
 		'1.2-release': [
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.PRIME},
@@ -151,7 +150,8 @@ class KitFoundation:
 			{'name': 'llvm-kit', 'branch': '1.2-prime', 'source': 'funtoo_prime_llvm', 'stability': KitStabilityRating.PRIME},  # primary
 			{'name': 'llvm-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},  # alternate
 			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xfce-kit', 'branch': '4.12-prime', 'source': 'funtoo_mk3_late_prime', 'stability': KitStabilityRating.PRIME},
+			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_prime_xfce', 'default': True, 'stability': KitStabilityRating.PRIME},
+			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},
 			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},
@@ -199,7 +199,7 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'stability': KitStabilityRating.PRIME},
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'gnome-kit', 'branch': '3.20-prime', 'source': 'funtoo_prime_gnome', 'stability': KitStabilityRating.PRIME},
-
+		
 		]
 	}
 
@@ -338,6 +338,10 @@ class KitFoundation:
 		"funtoo_prime_llvm": [
 			# specific snapshot for llvm-kit
 			{"repo": "gentoo-staging", 'src_sha1': 'e4d303da8b2ad31692eddba258ef28b69fec3efb', 'date': '20 Mar 2018'}
+		],
+		"funtoo_prime_xfce": [
+			# specific snapshot for xfce-kit 4.13-release
+			{"repo": "gentoo-staging", 'src_sha1': '76f9a0f535ec2dd32545801a9e62e86499ffc58e', 'date': '7 Sep 2018'}
 		]
 	}
 
@@ -346,7 +350,7 @@ class KitFoundation:
 	# If no "select" is specified, then by default all available catpkgs could be included, if they match patterns, etc. in
 	# package-sets. Note that we do not specify branch or SHA1 here. This may vary based on kit, so it's specified elsewhere
 	# (see KIT SOURCES, below.)
-
+	
 	@property
 	def overlays(self):
 		return {
@@ -357,22 +361,22 @@ class KitFoundation:
 				"waf",
 				"googlecode"
 			],
-			            # SKIP any catpkgs that also exist in gentoo-staging (like nvidia-drivers). All others will be copied.
-			            "filter": ["gentoo-staging"],
-			            # well, I lied. There are some catpkgs that exist in gentoo-staging that we DO want to copy. These are the
-			            # ones we will copy. We need to specify each one. This list may change over time as faustoo/gentoo gets stale.
-			            "force": [
-				            "dev-java/maven-bin",
-				            "dev-java/sun-java3d-bin",
-				            "dev-php/pecl-mongo",
-				            "dev-php/pecl-mongodb",
-				            "dev-python/mongoengine",
-				            "dev-python/pymongo",
-				            "dev-util/idea-community",
-				            "dev-util/webstorm",
-				            "x11-wm/blackbox"
-			            ]
-			            },
+						# SKIP any catpkgs that also exist in gentoo-staging (like nvidia-drivers). All others will be copied.
+						"filter": ["gentoo-staging"],
+						# well, I lied. There are some catpkgs that exist in gentoo-staging that we DO want to copy. These are the
+						# ones we will copy. We need to specify each one. This list may change over time as faustoo/gentoo gets stale.
+						"force": [
+							"dev-java/maven-bin",
+							"dev-java/sun-java3d-bin",
+							"dev-php/pecl-mongo",
+							"dev-php/pecl-mongodb",
+							"dev-python/mongoengine",
+							"dev-python/pymongo",
+							"dev-util/idea-community",
+							"dev-util/webstorm",
+							"x11-wm/blackbox"
+						]
+						},
 			"fusion809": {"url": "https://github.com/fusion809/fusion809-overlay.git", "select": [
 				"app-editors/atom-bin",
 				"app-editors/notepadqq",
@@ -383,26 +387,21 @@ class KitFoundation:
 				"app-editors/vim",
 				"app-editors/vim-core",
 				"app-editors/sublime-text"
-			]
-			              },  # FL-3633, FL-3663, FL-3776
+			]},  # FL-3633, FL-3663, FL-3776
 			"plex": {"url": "https://github.com/Ghent/funtoo-plex.git", "select": [
 				"media-tv/plex-media-server",
-			],
-			         },
+			]},
 			# damex's deadbeef (music player like foobar2000) overlay
 			"deadbeef": {"url": "https://github.com/damex/deadbeef-overlay.git", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/deadbeef.mask"
-			},
-			             },
+			}},
 			# damex's wmfs (window manager from scratch) overlay
 			"wmfs": {"url": "https://github.com/damex/wmfs-overlay.git", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/wmfs.mask"
-			},
-			         },
+			}},
 			"flora": {"url": self.config.flora, "copyfiles": {
 				"licenses/renoise-EULA": "licenses/renoise-EULA"
-			},
-			          },
+			}},
 		}
 
 	def __init__(self, config):

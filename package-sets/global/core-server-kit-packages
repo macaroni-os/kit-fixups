@@ -9,7 +9,10 @@ virtual/mysql
 
 # OTHER DB
 
+# these need to keep in sync - FL-5187
 dev-db/sqlite
+dev-python/apsw
+
 dev-db/lmdb
 dev-db/postgresql
 
@@ -22,4 +25,17 @@ virtual/httpd-php
 # WEB
 
 www-servers/nginx
+
+# APACHE
+
 www-servers/apache
+www-apache/*
+app-admin/apache-tools
+
+# SAMBA
+
+net-fs/samba
+sys-libs/tevent
+sys-libs/talloc
+sys-libs/ldb
+sys-libs/tdb

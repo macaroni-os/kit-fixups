@@ -126,6 +126,19 @@ def KitRatingString(kit_enum):
 # catpkg is inserted into a kit, it's no longer 'available' to be inserted into successive kits, to avoid duplicates.
 
 class KitFoundation:
+	
+	metadata_version_info = {
+		"1.2-release": {
+			"version": 1,
+		},
+		"1.3-release": {
+			"version": 10,
+			"required": {
+				"ego": "2.6.0"
+			}
+		}
+	}
+	
 	kit_groups = {
 		'1.2-release': [
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.PRIME},

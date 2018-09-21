@@ -161,10 +161,9 @@ class KitFoundation:
 			{'name': 'lisp-scheme-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'lang-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'llvm-kit', 'branch': '1.2-prime', 'source': 'funtoo_prime_llvm', 'stability': KitStabilityRating.PRIME},  # primary
-			{'name': 'llvm-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},  # alternate
+			{'name': 'llvm-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},          # alternate
 			{'name': 'dev-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_prime_xfce', 'default': True, 'stability': KitStabilityRating.PRIME},
-			{'name': 'desktop-kit', 'branch': '1.1-prime', 'source': 'funtoo_mk3_late_prime', 'default': True},
+			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_prime_xfce', 'stability': KitStabilityRating.PRIME},
 			{'name': 'desktop-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'editors-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},
 			{'name': 'net-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},

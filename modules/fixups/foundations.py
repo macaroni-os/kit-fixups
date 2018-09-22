@@ -277,21 +277,6 @@ class KitFoundation:
 			# add current gentoo-staging to catch any new ebuilds that are not yet in our snapshot above (dev-foo/* match)
 			{"repo": "gentoo-staging-underlay"},
 		],
-		"funtoo_mk3_prime": [
-			{"repo": "flora", },
-			{"repo": "faustoo", },
-			{"repo": "fusion809", "src_sha1": "8733034816d3932486cb593db2dfbfbc7577e28b", 'date': '09 Oct 2017'},
-			{"repo": "gentoo-staging", "src_sha1": '2de4b388863ab0dbbd291422aa556c9de646f1ff', 'date': '10 Oct 2017'},
-			{"repo": "gentoo-staging-underlay"},
-		],
-		"funtoo_mk3_late_prime": [
-			{"repo": "flora", },
-			{"repo": "faustoo", },
-			{"repo": "fusion809", "src_sha1": "574f9f6f69b30f4eec7aa2eb53f55059d3c05b6a", 'date': '23 Oct 2017'},
-			{"repo": "gentoo-staging", "src_sha1": 'aa03020139bc129af2ad5f454640c102afa712e6', 'date': '22 Oct 2017'},
-			{"repo": "gentoo-staging-underlay"},
-		],
-
 		"funtoo_mk4_prime": [
 			{"repo": "flora", },
 			{"repo": "faustoo", },
@@ -299,29 +284,9 @@ class KitFoundation:
 			{"repo": "gentoo-staging", "src_sha1": 'bb740efd8e9667dc19f162e936c5c876fb716b5c', 'date': '19 Jan 2018'},
 			{"repo": "gentoo-staging-underlay"},
 		],
-
-		"funtoo_prime": [
-			{"repo": "flora", },
-			{"repo": "faustoo", },
-			{"repo": "fusion809", "src_sha1": "8322bcd79d47ef81f7417c324a1a2b4772020985"},
-			{"repo": "gentoo-staging", "src_sha1": '06a1fd99a3ce1dd33724e11ae9f81c5d0364985e', 'date': '21 Apr 2017'},
-			{"repo": "gentoo-staging-underlay"},
-		],
-		"gentoo_prime_mk3_protected": [
-			# lock down core-kit and security-kit
-			{"repo": "gentoo-staging", "src_sha1": '2de4b388863ab0dbbd291422aa556c9de646f1ff', 'date': '10 Oct 2017'},
-		],
 		"gentoo_prime_mk4_protected": [
 			# lock down core-kit and security-kit
 			{"repo": "gentoo-staging", "src_sha1": '887b32c487432a9206208fc42a313e9e0517bf2b', 'date': '8 Jan 2018'},
-		],
-		"gentoo_prime_protected": [
-			# lock down core-kit and security-kit
-			{"repo": "gentoo-staging", "src_sha1": '06a1fd99a3ce1dd33724e11ae9f81c5d0364985e', 'date': '21 Apr 2017'},
-		],
-		"gentoo_current_protected": [
-			# lock down core-kit and security-kit
-			{"repo": "gentoo-staging"},
 		],
 		"funtoo_prime_xorg": [
 			# specific snapshot for xorg-kit
@@ -331,17 +296,9 @@ class KitFoundation:
 			# specific snapshot for gnome-kit
 			{"repo": "gentoo-staging", 'src_sha1': '44677858bd088805aa59fd56610ea4fb703a2fcd', 'date': '18 Sep 2016'}
 		],
-		"funtoo_prime_media": [
-			# specific snapshot for media-kit, though we should bump and expand this soon
-			{"repo": "gentoo-staging", 'src_sha1': '355a7986f9f7c86d1617de98d6bf11906729f108', 'date': '25 Feb 2017'}
-		],
 		"funtoo_prime_perl": [
 			# specific snapshot for perl-kit
 			{"repo": "gentoo-staging", 'src_sha1': 'fc74d3206fa20caa19b7703aa051ff6de95d5588', 'date': '11 Jan 2017'}
-		],
-		"funtoo_prime_kde": [
-			# specific snapshot for kde-kit
-			{"repo": "gentoo-staging", 'src_sha1': '1a0337dbb94be980733eeb9d9661da58cffd4e59', 'date': '28 Jan 2018'}
 		],
 		"funtoo_prime_kde_late": [
 			# specific snapshot for kde-kit

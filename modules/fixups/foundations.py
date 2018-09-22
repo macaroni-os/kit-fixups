@@ -83,42 +83,6 @@ def KitRatingString(kit_enum):
 #
 #
 # 1.3 development starts                                                           Aug 31, 2018
-#
-# Sprints to start on Monday, and complete EOD Saturday (6 days)
-# Sprint planning on Sundays.
-# Sprints will contain some amount of work for existing release, and some work for new release.
-
-#
-#							NEW VERSION             EXISTING
-#                           =======================================================
-# core-kit                  1.2-prime
-# security-kit              1.2-prime
-# xorg-kit                                          1.19-prime
-# gnome-kit                 3.26-prime              3.20-prime (also supported)
-# kde-kit                                           5.10-prime
-# media-kit                 1.2-prime
-# perl-kit                                          5.26-prime
-# > perl-modules-kit        1.2-prime
-# python-kit                3.6-prime
-# > python-modules-kit      1.2-prime
-# php-kit                                           master
-# java-kit                  1.2-prime
-# ruby-kit                  1.2-prime
-# haskell-kit               1.2-prime
-# ml-lang-kit               1.2-prime
-# lisp-scheme-kit           1.2-prime
-# lang-kit                  1.2-prime
-# llvm-kit                  1.2-prime
-# dev-kit                   1.2-prime
-# xfce-kit                                          4.12-prime
-# desktop-kit               1.2-prime
-# editors-kit                                       master
-# net-kit                   1.2-prime
-# text-kit                                          master
-# science-kit                                       master
-# games-kit                                         master
-# nokit                                             master
-
 
 # It has already been explained how when we apply package-set rules, we process the kit_source repositories in order and
 # after we find a catpkg that matches, any matches in successive repositories for catpkgs that we have already copied

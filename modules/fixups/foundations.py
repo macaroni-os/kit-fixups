@@ -141,7 +141,7 @@ class KitFoundation:
 			{'name': 'core-hw-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-ui-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-server-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
-			{'name': 'opengl-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			{'name': 'core-gl-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.20-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary

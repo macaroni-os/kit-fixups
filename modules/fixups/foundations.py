@@ -148,7 +148,7 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary
 			{'name': 'gnome-kit', 'branch': '3.20-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
-			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},

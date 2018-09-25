@@ -143,7 +143,7 @@ class KitFoundation:
 			{'name': 'core-server-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-gl-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
-			{'name': 'xorg-kit', 'branch': '1.20-prime', 'stability': KitStabilityRating.DEV, "generate": False},    #primary
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.DEV, "generate": False},    #primary
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary
@@ -171,6 +171,7 @@ class KitFoundation:
 			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 		],
 		'independently-maintained': [
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'stability': KitStabilityRating.PRIME},
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},

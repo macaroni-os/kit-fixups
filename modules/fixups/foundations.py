@@ -201,6 +201,11 @@ class KitFoundation:
 			"primary": "python3_6",
 			"alternate": "python2_7",
 			"mask": ">=dev-lang/python-3.7"
+		},
+		'3.7-release': {
+			"primary": "python3_7",
+			"alternate": "python2_7",
+			"mask": ">=dev-lang/python-3.8"
 		}
 	}
 

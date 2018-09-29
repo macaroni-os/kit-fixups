@@ -82,7 +82,7 @@ COMMON_DEPEND="
 	server? (
 		>=app-arch/lz4-0_p131:=
 		>=dev-libs/boost-1.65.0:=
-		numa? ( sys-process/numactl
+		numa? ( sys-process/numactl )
 	)
 "
 DEPEND="virtual/yacc

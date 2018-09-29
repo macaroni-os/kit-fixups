@@ -22,9 +22,9 @@ JCE_FILE="${JCE_DIR}.zip"
 DESCRIPTION="Oracle's Java SE Runtime Environment"
 HOMEPAGE="http://www.oracle.com/technetwork/java/javase/"
 SRC_URI="
-	x86? ( mirror://funtoo/oracle-java/${X86_AT} )
-	amd64? ( mirror://funtoo/oracle-java/${AMD64_AT} )
-	jce? ( mirror://funtoo/oracle-java/${JCE_FILE} )"
+	x86? ( https://build.funtoo.org/distfiles/oracle-java/${X86_AT} )
+	amd64? ( https://build.funtoo.org/distfiles/oracle-java/${AMD64_AT} )
+	jce? ( https://build.funtoo.org/distfiles/oracle-java/${JCE_FILE} )"
 
 LICENSE="Oracle-BCLA-JavaSE"
 SLOT="1.8"
@@ -133,9 +133,9 @@ src_install() {
 
 	if use jce ; then
 		dodir ${dest}/lib/security/strong-jce
-		mv "${ddest}"/lib/security/US_export_policy.jar \
+		mv "${ddest}"/lib/security/policy/unlimited/US_export_policy.jar \
 			"${ddest}"/lib/security/strong-jce || die
-		mv "${ddest}"/lib/security/local_policy.jar \
+		mv "${ddest}"/lib/security/policy/unlimited/local_policy.jar \
 			"${ddest}"/lib/security/strong-jce || die
 		dosym "${dest}"/lib/security/${JCE_DIR}/US_export_policy.jar \
 			"${dest}"/lib/security/US_export_policy.jar

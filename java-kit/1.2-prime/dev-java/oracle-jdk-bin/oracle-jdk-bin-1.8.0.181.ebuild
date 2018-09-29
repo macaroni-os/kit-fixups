@@ -27,7 +27,7 @@ DEMOS_x86="jdk-${MY_PV}-linux-i586-demos.tar.gz"
 
 DESCRIPTION="Oracle's Java SE Development Kit"
 HOMEPAGE="http://www.oracle.com/technetwork/java/javase/"
-MIR_URI="mirror://funtoo/oracle-java"
+MIR_URI="https://build.funtoo.org/distfiles/oracle-java"
 SRC_URI="
 	amd64? ( ${MIR_URI}/${AT_amd64} )
 	arm? ( ${MIR_URI}/${AT_arm} )
@@ -37,7 +37,7 @@ SRC_URI="
 LICENSE="Oracle-BCLA-JavaSE examples? ( BSD )"
 SLOT="1.8"
 KEYWORDS="*"
-IUSE="alsa +awt commercial cups derby doc examples +fontconfig javafx jce nsplugin pax_kernel selinux source"
+IUSE="alsa +awt commercial cups doc examples +fontconfig javafx jce nsplugin pax_kernel selinux source"
 REQUIRED_USE="javafx? ( alsa fontconfig )"
 
 RESTRICT="mirror preserve-libs strip"
@@ -149,6 +149,9 @@ src_install() {
 		rm -vf jre/lib/*/libnpjp2.* || die
 	else
 		local nsplugin=$(echo jre/lib/*/libnpjp2.*)
+		local nsplugin_link=${nsplugin##*/}
+		nsplugin_link=${nsplugin_link/./-${PN}-${SLOT}.}
+		dosym "${dest}/${nsplugin}" "/usr/$(get_libdir)/nsbrowser/plugins/${nsplugin_link}"
 	fi
 
 	# Even though plugins linked against multiple ffmpeg versions are
@@ -161,10 +164,6 @@ src_install() {
 	dodoc COPYRIGHT
 	dodir "${dest}"
 	cp -pPR bin include jre lib man "${ddest}" || die
-
-	if use derby ; then
-		cp -pPR	db "${ddest}" || die
-	fi
 
 	if use examples && has ${ARCH} "${DEMOS_AVAILABLE[@]}" ; then
 		cp -pPR demo sample "${ddest}" || die

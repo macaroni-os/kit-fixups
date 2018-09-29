@@ -25,23 +25,19 @@ DEMOS_arm="jdk-${MY_PV}-linux-arm32-vfp-hflt-demos.tar.gz"
 DEMOS_arm64="jdk-${MY_PV}-linux-arm64-vfp-hflt-demos.tar.gz"
 DEMOS_x86="jdk-${MY_PV}-linux-i586-demos.tar.gz"
 
-JCE_DIR="UnlimitedJCEPolicyJDK8"
-JCE_FILE="${JCE_DIR}.zip"
-
 DESCRIPTION="Oracle's Java SE Development Kit"
 HOMEPAGE="http://www.oracle.com/technetwork/java/javase/"
-MIR_URI="mirror://funtoo/oracle-java"
+MIR_URI="https://build.funtoo.org/distfiles/oracle-java"
 SRC_URI="
 	amd64? ( ${MIR_URI}/${AT_amd64} )
 	arm? ( ${MIR_URI}/${AT_arm} )
 	arm64? ( ${MIR_URI}/${AT_arm64} )
-	x86? ( ${MIR_URI}/${AT_x86} )
-	jce? ( ${MIR_URI}/${JCE_FILE} )"
+	x86? ( ${MIR_URI}/${AT_x86} )"
 
 LICENSE="Oracle-BCLA-JavaSE examples? ( BSD )"
 SLOT="1.8"
 KEYWORDS="*"
-IUSE="alsa +awt commercial cups derby doc examples +fontconfig javafx jce nsplugin pax_kernel selinux source"
+IUSE="alsa +awt commercial cups doc examples +fontconfig javafx jce nsplugin pax_kernel selinux source"
 REQUIRED_USE="javafx? ( alsa fontconfig )"
 
 RESTRICT="mirror preserve-libs strip"
@@ -79,7 +75,6 @@ RDEPEND="!x64-macos? (
 # A PaX header isn't created by scanelf so depend on paxctl to avoid
 # fallback marking. See bug #427642.
 DEPEND="app-arch/zip
-	jce? ( app-arch/unzip )
 	examples? ( x64-macos? ( app-arch/unzip ) )
 	pax_kernel? ( sys-apps/paxctl )"
 
@@ -105,9 +100,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	if use jce ; then
-		mv "${WORKDIR}"/${JCE_DIR} jre/lib/security/ || die
-	fi
 
 	if [[ -n ${JAVA_PKG_STRICT} ]] ; then
 		# Mark this binary early to run it now
@@ -157,6 +149,9 @@ src_install() {
 		rm -vf jre/lib/*/libnpjp2.* || die
 	else
 		local nsplugin=$(echo jre/lib/*/libnpjp2.*)
+		local nsplugin_link=${nsplugin##*/}
+		nsplugin_link=${nsplugin_link/./-${PN}-${SLOT}.}
+		dosym "${dest}/${nsplugin}" "/usr/$(get_libdir)/nsbrowser/plugins/${nsplugin_link}"
 	fi
 
 	# Even though plugins linked against multiple ffmpeg versions are
@@ -170,26 +165,13 @@ src_install() {
 	dodir "${dest}"
 	cp -pPR bin include jre lib man "${ddest}" || die
 
-	if use derby ; then
-		cp -pPR	db "${ddest}" || die
-	fi
-
 	if use examples && has ${ARCH} "${DEMOS_AVAILABLE[@]}" ; then
 		cp -pPR demo sample "${ddest}" || die
 	fi
 
-	if use jce ; then
-		dodir "${dest}"/jre/lib/security/strong-jce
-		mv "${ddest}"/jre/lib/security/US_export_policy.jar \
-			"${ddest}"/jre/lib/security/strong-jce || die
-		mv "${ddest}"/jre/lib/security/local_policy.jar \
-			"${ddest}"/jre/lib/security/strong-jce || die
-		dosym "${dest}"/jre/lib/security/${JCE_DIR}/US_export_policy.jar \
-			"${dest}"/jre/lib/security/US_export_policy.jar
-		dosym "${dest}"/jre/lib/security/${JCE_DIR}/local_policy.jar \
-			"${dest}"/jre/lib/security/local_policy.jar
-	fi
-
+	ln -s policy/$(usex jce unlimited limited)/{US_export,local}_policy.jar \
+			"${ddest}"/jre/lib/security/ || die "symlinking failed"
+	
 	if use nsplugin ; then
 		local nsplugin_link=${nsplugin##*/}
 		nsplugin_link=${nsplugin_link/./-${PN}-${SLOT}.}
@@ -286,3 +268,4 @@ src_install() {
 	java-vm_install-env "${FILESDIR}"/${PN}.env.sh
 	java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
 }
+

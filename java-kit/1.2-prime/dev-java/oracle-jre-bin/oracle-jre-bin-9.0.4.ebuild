@@ -1,41 +1,50 @@
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="6"
 
-inherit java-vm-2 eutils prefix versionator
+inherit eutils java-vm-2 prefix versionator
 
-if [[ "$(get_version_component_range 4)" == 0 ]] ; then
-	S_PV="$(get_version_component_range 1-3)"
-else
-	MY_PV_EXT="u$(get_version_component_range 4)"
-	S_PV="$(get_version_component_range 1-4)"
-fi
+MY_PV="${PV}"
 
-MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
+JRE_URI="http://www.oracle.com/technetwork/java/javase/downloads/jre9-downloads-3848532.html"
 
-X86_AT="jre-${MY_PV}-linux-i586.tar.gz"
-AMD64_AT="jre-${MY_PV}-linux-x64.tar.gz"
+# This is a list of archs supported by this update.
+# Currently arm comes and goes.
+AT_AVAILABLE=( amd64 )
 
-JCE_DIR="UnlimitedJCEPolicyJDK8"
-JCE_FILE="${JCE_DIR}.zip"
+AT_amd64="jre-${MY_PV}_linux-x64_bin.tar.gz"
+#AT_x86="jre-${MY_PV}_linux-x86_bin.tar.gz"
+#AT_x64_solaris="jre-${MY_PV}_solaris-x64_bin.tar.gz"
+#AT_sparc64_solaris="jre-${MY_PV}_solaris-sparcv9_bin.tar.gz"
+#AT_x64_macos="jre-${MY_PV}_osx-x64_bin.dmg"
 
 DESCRIPTION="Oracle's Java SE Runtime Environment"
 HOMEPAGE="http://www.oracle.com/technetwork/java/javase/"
 SRC_URI="
-	x86? ( mirror://funtoo/oracle-java/${X86_AT} )
-	amd64? ( mirror://funtoo/oracle-java/${AMD64_AT} )
-	jce? ( mirror://funtoo/oracle-java/${JCE_FILE} )"
+	amd64? ( https://build.funtoo.org/distfiles/oracle-java/${AT_amd64} )"
 
 LICENSE="Oracle-BCLA-JavaSE"
-SLOT="1.8"
-KEYWORDS="*"
-IUSE="alsa +awt commercial cups +fontconfig javafx jce nsplugin selinux"
+SLOT="$(get_version_component_range 1)"
+KEYWORDS="amd64"
+IUSE="alsa commercial cups +fontconfig headless-awt javafx nsplugin selinux"
 
 RESTRICT="mirror preserve-libs strip"
 QA_PREBUILT="*"
 
+# NOTES:
+#
+# * cups is dlopened.
+#
+# * libpng is also dlopened but only by libsplashscreen, which isn't
+#   important, so we can exclude that.
+#
+# * We still need to work out the exact AWT and JavaFX dependencies
+#   under MacOS. It doesn't appear to use many, if any, of the
+#   dependencies below.
+#
 RDEPEND="!x64-macos? (
-		 awt? (
+		!headless-awt? (
 			x11-libs/libX11
 			x11-libs/libXext
 			x11-libs/libXi
@@ -62,10 +71,7 @@ RDEPEND="!x64-macos? (
 	!prefix? ( sys-libs/glibc:* )
 	selinux? ( sec-policy/selinux-java )"
 
-# A PaX header isn't created by scanelf so depend on paxctl to avoid
-# fallback marking. See bug #427642.
-DEPEND="app-arch/zip
-	jce? ( app-arch/unzip )"
+DEPEND="app-arch/zip"
 
 S="${WORKDIR}/jre"
 
@@ -78,18 +84,6 @@ src_unpack() {
 	mv "${WORKDIR}"/jre* "${S}" || die
 }
 
-src_prepare() {
-	if use jce; then
-		mv "${WORKDIR}"/${JCE_DIR} lib/security/ || die
-	fi
-
-	# Remove the hook that calls Oracle's evil usage tracker. Not just
-	# because it's evil but because it breaks the sandbox during builds
-	# and we can't find any other feasible way to disable it or make it
-	# write somewhere else. See bug #559936 for details.
-	zip -d lib/rt.jar sun/misc/PostVMInitHook.class || die
-}
-
 src_install() {
 	local dest="/opt/${P}"
 	local ddest="${ED}${dest#/}"
@@ -100,48 +94,36 @@ src_install() {
 	touch .systemPrefs/.systemRootModFile || die
 
 	if ! use alsa ; then
-		rm -vf lib/*/libjsoundalsa.* || die
+		rm -vf lib/libjsoundalsa.* || die
 	fi
-	
-	if ! use awt ; then
-		rm -vf lib/*/lib*{[jx]awt,splashscreen}* \
-		   bin/{javaws,policytool} || die
-	fi
-	
+
 	if ! use commercial; then
 		rm -vfr lib/jfr* || die
-	fi	
+	fi
+
+	if use headless-awt ; then
+		rm -vf lib/lib*{[jx]awt,splashscreen}* \
+		   bin/{javaws,policytool} || die
+	fi
 
 	if ! use javafx ; then
-		rm -vf lib/*/lib*{decora,fx,glass,prism}* \
-		   lib/*/libgstreamer-lite.* lib/{,ext/}*fx* || die
+		rm -vf lib/lib*{decora,fx,glass,prism}* \
+		   lib/libgstreamer-lite.* lib/*fx* \
+			jmods/javafx* || die
 	fi
 
 	if ! use nsplugin ; then
-		rm -vf lib/*/libnpjp2.* || die
+		rm -vf lib/libnpjp2.* || die
 	else
-		local nsplugin=$(echo lib/*/libnpjp2.*)
+		local nsplugin=$(echo lib/libnpjp2.*)
 	fi
 
 	# Even though plugins linked against multiple ffmpeg versions are
 	# provided, they generally lag behind what Gentoo has available.
-	rm -vf lib/*/libavplugin* || die
+	rm -vf lib/libavplugin* || die
 
-	dodoc COPYRIGHT
 	dodir "${dest}"
-	cp -pPR	bin lib man "${ddest}" || die
-
-	if use jce ; then
-		dodir ${dest}/lib/security/strong-jce
-		mv "${ddest}"/lib/security/US_export_policy.jar \
-			"${ddest}"/lib/security/strong-jce || die
-		mv "${ddest}"/lib/security/local_policy.jar \
-			"${ddest}"/lib/security/strong-jce || die
-		dosym "${dest}"/lib/security/${JCE_DIR}/US_export_policy.jar \
-			"${dest}"/lib/security/US_export_policy.jar
-		dosym "${dest}"/lib/security/${JCE_DIR}/local_policy.jar \
-			"${dest}"/lib/security/local_policy.jar
-	fi
+	cp -pPR	bin conf lib "${ddest}" || die
 
 	if use nsplugin ; then
 		local nsplugin_link=${nsplugin##*/}
@@ -197,8 +179,16 @@ src_install() {
 	# Remove empty dirs we might have copied.
 	find "${D}" -type d -empty -exec rmdir -v {} + || die
 
-	set_java_env
-	java-vm_install-env "${FILESDIR}"/${PN}.env.sh
+	java-vm_install-env "${FILESDIR}"/${PN}-9.env
 	java-vm_revdep-mask
 	java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
+}
+
+pkg_postinst() {
+	java-vm-2_pkg_postinst
+
+	if ! use headless-awt && ! use javafx; then
+		ewarn "You have disabled the javafx flag. Some modern desktop Java applications"
+		ewarn "require this and they may fail with a confusing error message."
+	fi
 }

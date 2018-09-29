@@ -1,0 +1,12 @@
+diff -Nuar mysql/libmysql/CMakeLists.txt mysql-fixed/libmysql/CMakeLists.txt
+--- mysql/libmysql/CMakeLists.txt	2018-06-28 19:18:27.000000000 +0300
++++ mysql-fixed/libmysql/CMakeLists.txt	2018-09-28 09:53:53.767040672 +0300
+@@ -153,6 +153,8 @@
+ # will have a FR to replace this for decent name/functionality and document it.
+ my_load_defaults
+ handle_options
++dynstr_append_os_quoted
++strfill
+ # pure-ftpd 1.0.42 needs either my_make_scrambled_password (preferred)
+ # or make_scrambled_password.
+ my_make_scrambled_password

@@ -1,0 +1,168 @@
+diff -Nuar mysql/CMakeLists.txt mysql-fixed/CMakeLists.txt
+--- mysql/CMakeLists.txt	2018-06-28 19:18:27.000000000 +0300
++++ mysql-fixed/CMakeLists.txt	2018-09-28 21:09:04.053003458 +0300
+@@ -777,8 +777,6 @@
+ MYSQL_CHECK_SSL()
+ MYSQL_CHECK_SSL_DLLS()
+ 
+-# Add system/bundled editline.
+-MYSQL_CHECK_EDITLINE()
+ # Add libevent
+ MYSQL_CHECK_LIBEVENT()
+ # Add lz4 library
+@@ -838,7 +836,10 @@
+  ENABLE_TESTING()
+ ENDIF()
+ 
+-ADD_SUBDIRECTORY(include)
++IF(NOT WITHOUT_CLIENTLIBS)
++	ADD_SUBDIRECTORY(include)
++ENDIF(NOT WITHOUT_CLIENTLIBS)
++
+ ADD_SUBDIRECTORY(dbug)
+ ADD_SUBDIRECTORY(strings)
+ ADD_SUBDIRECTORY(vio)
+@@ -872,7 +873,6 @@
+   ADD_SUBDIRECTORY(unittest/mytap/t)
+ ENDIF()
+ 
+-ADD_SUBDIRECTORY(client)
+ ADD_SUBDIRECTORY(utilities)
+ ADD_SUBDIRECTORY(share)
+ ADD_SUBDIRECTORY(libservices)
+@@ -881,9 +881,18 @@
+   ADD_SUBDIRECTORY(man)
+ ENDIF()
+ 
++IF(NOT WITHOUT_TOOLS)
++	# Add system/bundled editline
++	MYSQL_CHECK_EDITLINE()
++	ADD_SUBDIRECTORY(client)
++ENDIF(NOT WITHOUT_TOOLS)
++
+ IF(NOT WITHOUT_SERVER)
+   ADD_SUBDIRECTORY(testclients)
+   ADD_SUBDIRECTORY(sql)
++  IF(WITHOUT_TOOLS)
++	  MYSQL_CHECK_EDITLINE()
++  ENDIF(WITHOUT_TOOLS)
+ ENDIF()
+ 
+ # scripts/mysql_config depends on client and server targets loaded above.
+diff -Nuar mysql/libmysql/CMakeLists.txt mysql-fixed/libmysql/CMakeLists.txt
+--- mysql/libmysql/CMakeLists.txt	2018-06-28 19:18:27.000000000 +0300
++++ mysql-fixed/libmysql/CMakeLists.txt	2018-09-28 21:24:44.741025815 +0300
+@@ -213,12 +213,16 @@
+   LIST(APPEND LIBS auth_win_client)
+ ENDIF()
+ 
+-# LDAP authentication SASL client plugin
+-MESSAGE(STATUS "Creating LDAP authentication SASL client library.")
+-ADD_SUBDIRECTORY(authentication_ldap)
+-  
+-# Merge several convenience libraries into one big mysqlclient
+-MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS} COMPONENT Development)
++IF(WITHOUT_CLIENTLIBS)
++	# Merge several convenience libraries into one big mysqlclient
++	MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS} COMPONENT Development SKIP_INSTALL)
++ELSE(WITHOUT_CLIENTLIBS)
++	# LDAP authentication SASL client plugin
++	MESSAGE(STATUS "Creating LDAP authentication SASL client library.")
++	ADD_SUBDIRECTORY(authentication_ldap)
++	# Merge several convenience libraries into one big mysqlclient
++	MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS} COMPONENT Development)
++ENDIF(WITHOUT_CLIENTLIBS)
+ 
+ # Visual Studio users need debug  static library for debug projects
+ IF(MSVC)
+@@ -256,9 +260,15 @@
+ IF(NOT DISABLE_SHARED)
+   # Merge several convenience libraries into one big mysqlclient
+   # and link them together into shared library.
++IF(WITHOUT_CLIENTLIBS)
++	 MERGE_LIBRARIES_SHARED(libmysql ${LIBS}
++		 EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
++		 COMPONENT SharedLibraries SKIP_INSTALL)
++ELSE(WITHOUT_CLIENTLIBS)
+   MERGE_LIBRARIES_SHARED(libmysql ${LIBS}
+     EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
+     COMPONENT SharedLibraries)
++ENDIF(WITHOUT_CLIENTLIBS)
+   IF(UNIX)
+     # libtool compatability
+     IF(CMAKE_SYSTEM_NAME MATCHES "FreeBSD" OR APPLE)
+diff -Nuar mysql/scripts/CMakeLists.txt mysql-fixed/scripts/CMakeLists.txt
+--- mysql/scripts/CMakeLists.txt	2018-06-28 19:18:27.000000000 +0300
++++ mysql-fixed/scripts/CMakeLists.txt	2018-09-28 21:18:34.676017020 +0300
+@@ -469,18 +469,21 @@
+ 
+   IF(WITH_SYSTEMD)
+     SET(BIN_SCRIPTS
+-      mysql_config
+       mysqldumpslow
+       )
+   ELSE()
+     SET(BIN_SCRIPTS
+-      mysql_config
+       mysqldumpslow
+       mysqld_multi
+       mysqld_safe
+       )
+   ENDIF()
+-
++  IF(NOT WITHOUT_CLIENTLIBS)
++	  SET(BIN_SCRIPTS
++	  	${BIN_SCRIPTS}
++		mysql_config
++	  )
++  ENDIF(NOT WITHOUT_CLIENTLIBS)
+   SET(PKGCONFIG_FILE ${LIBMYSQL_OS_OUTPUT_NAME}.pc)
+   STRING(REGEX REPLACE "/mysql$" "" PKGCONFIG_DIR "${INSTALL_LIBDIR}")
+   SET(PKGCONFIG_DIR "${PKGCONFIG_DIR}/pkgconfig")
+@@ -495,7 +498,7 @@
+     ${CMAKE_CURRENT_BINARY_DIR}/${PKGCONFIG_FILE}
+     ESCAPE_QUOTES @ONLY)
+ 
+-  IF(INSTALL_PKGCONFIGDIR)
++  IF(INSTALL_PKGCONFIGDIR AND NOT WITHOUT_CLIENTLIBS)
+     MESSAGE(STATUS "INSTALL ${PKGCONFIG_FILE} ${INSTALL_PKGCONFIGDIR}")
+     INSTALL(FILES
+       ${CMAKE_CURRENT_BINARY_DIR}/${PKGCONFIG_FILE}
+diff -Nuar mysql/support-files/CMakeLists.txt mysql-fixed/support-files/CMakeLists.txt
+--- mysql/support-files/CMakeLists.txt	2018-06-28 19:18:27.000000000 +0300
++++ mysql-fixed/support-files/CMakeLists.txt	2018-09-28 21:26:57.564028972 +0300
+@@ -66,9 +66,9 @@
+   IF(INSTALL_SUPPORTFILESDIR)
+     INSTALL(FILES magic DESTINATION ${inst_location} COMPONENT SupportFiles)
+   ENDIF()
+-
++IF(NOT WITHOUT_CLIENTLIBS)
+   INSTALL(FILES mysql.m4 DESTINATION ${INSTALL_SHAREDIR}/aclocal COMPONENT Development)
+-  
++ENDIF(NOT WITHOUT_CLIENTLIBS)
+   SET(bindir ${prefix}/${INSTALL_BINDIR})
+   SET(sbindir ${prefix}/${INSTALL_SBINDIR})
+   SET(libexecdir ${prefix}/${INSTALL_SBINDIR})
+diff -Nuar mysql/utilities/CMakeLists.txt mysql-fixed/utilities/CMakeLists.txt
+--- mysql/utilities/CMakeLists.txt	2018-09-28 20:56:35.800985675 +0300
++++ mysql-fixed/utilities/CMakeLists.txt	2018-09-28 21:13:12.722009368 +0300
+@@ -92,11 +92,17 @@
+   ADD_DEPENDENCIES(comp_err copy_openssl_dlls)
+ ENDIF()
+ 
+-MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.cc)
++IF(NOT WITHOUT_CLIENTLIBS)
++	MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.cc)
++	MYSQL_ADD_EXECUTABLE(perror perror.cc)
++ELSE(NOT WITHOUT_CLIENTLIBS)
++	ADD_EXECUTABLE(my_print_defaults my_print_defaults.cc)
++	ADD_EXECUTABLE(perror perror.cc)
++ENDIF(NOT WITHOUT_CLIENTLIBS)
++
+ TARGET_LINK_LIBRARIES(my_print_defaults  mysys mysys_ssl)
+ SET_TARGET_PROPERTIES(my_print_defaults PROPERTIES LINKER_LANGUAGE CXX)
+ 
+-MYSQL_ADD_EXECUTABLE(perror perror.cc)
+ ADD_DEPENDENCIES(perror GenError)
+ IF(WITH_NDBCLUSTER_STORAGE_ENGINE)
+   # In case NDB is compiled in.

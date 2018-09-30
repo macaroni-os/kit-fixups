@@ -779,8 +779,10 @@ pkg_config() {
 		die "Failed to initialize mysqld. Please review ${EPREFIX%/}/var/log/mysql/mysqld.err AND ${TMPDIR%/}/mysql_install_db.log"
 	fi
 	popd &>/dev/null || die
-	[[ -f "${ROOT%/}/${MY_DATADIR}/mysql/user.frm" ]] \
-	|| die "MySQL databases not installed"
+	
+	# MySQL-8 removed frm
+	#[[ -f "${ROOT%/}/${MY_DATADIR}/mysql/user.frm" ]] \
+	#|| die "MySQL databases not installed"
 
 	use prefix || options="${options} --user=mysql"
 

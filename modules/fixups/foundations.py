@@ -164,11 +164,13 @@ class KitFoundation:
 			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'ml-lang-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'lisp-scheme-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			# python-kit needs to be before lang-kit...
+			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'lang-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'llvm-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'dev-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			# python-modules kit later so that other kits can grab python modules they need...
 			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
-			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 		],
 		'independently-maintained': [

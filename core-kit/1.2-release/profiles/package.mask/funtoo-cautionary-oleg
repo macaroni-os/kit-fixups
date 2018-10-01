@@ -1,0 +1,29 @@
+# Add upstream gentoo mask for >=media-video/mpv-0.28
+>=media-video/mpv-0.28
+
+# FL-4403: mask compiz and compiz-fusion ebuilds from gentoo. FUntoo have compiz fork in flora which is good.
+=x11-wm/compiz-0.8*
+=x11-wm/compiz-fusion-0.8*
+
+# FL-4070: mask xfce4-appfinder that is require newer gtk-3.22, which is from gnome. remove the mask with gtk update.
+>=xfce-base/xfce4-appfinder-4.13
+ 
+# FL-4040: add cautionary masks for broken javatoolkit ebuilds. https://bugs.gentoo.org/show_bug.cgi?id=627366
+>dev-java/javatoolkit-0.3.0-r9
+
+# mask vulenrable and discontinued autotrace
+# https://bugs.funtoo.org/browse/FL-3861
+# https://bugs.gentoo.org/show_bug.cgi?id=620802
+# https://bugs.gentoo.org/show_bug.cgi?id=619040
+media-gfx/autotrace
+
+# mask dev-util/gperf-3.1 bump. breaks reverse deps, such as eudev and maybe many others.
+# https://bugs.funtoo.org/browse/FL-3469
+# https://bugs.gentoo.org/show_bug.cgi?id=604878
+>=dev-util/gperf-3.1
+
+# mask gcc-jdk. we do not have gcc[gcj] support.
+dev-java/gcj-jdk
+
+# mask of iptables-1.6 and newer. This is first release in 8 years after 1.4. it brings certain incompatible changes. FL-3093
+>=net-firewall/iptables-1.6

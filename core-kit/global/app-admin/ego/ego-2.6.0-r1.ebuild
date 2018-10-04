@@ -42,7 +42,7 @@ src_install() {
 	dobin $S/ego
 	dosym ego /usr/bin/epro
 	dosym ego /usr/bin/edoc
-	dosym ego /usr/sbin/boot-update
+	dosym /usr/bin/ego /sbin/boot-update
 	doman doc/*.[1-8]
 	dodoc doc/*.rst
 	insinto /etc

@@ -10,7 +10,7 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="zsh-completion"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"
@@ -32,8 +32,10 @@ src_unpack() {
 src_install() {
 	exeinto /usr/share/ego/modules
 	doexe $S/modules/*.ego
+	rm $D/usr/share/modules/upgrade*
 	insinto /usr/share/ego/modules-info
 	doins $S/modules-info/*
+	rm $D/usr/share/modules-inof/upgrade*
 	insinto /usr/share/ego/python
 	doins -r $S/python/*
 	rm -rf $D/usr/share/ego/python/test

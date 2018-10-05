@@ -32,10 +32,10 @@ src_unpack() {
 src_install() {
 	exeinto /usr/share/ego/modules
 	doexe $S/modules/*.ego
-	rm $D/usr/share/modules/upgrade*
+	rm $D/usr/share/ego/modules/upgrade*
 	insinto /usr/share/ego/modules-info
 	doins $S/modules-info/*
-	rm $D/usr/share/modules-inof/upgrade*
+	rm $D/usr/share/ego/modules-info/upgrade*
 	insinto /usr/share/ego/python
 	doins -r $S/python/*
 	rm -rf $D/usr/share/ego/python/test

@@ -1,9 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
 
-inherit libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use fcaps
+inherit autotools libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use fcaps
 
 MY_PN="Linux-PAM"
 MY_P="${MY_PN}-${PV}"
@@ -11,35 +10,38 @@ MY_P="${MY_PN}-${PV}"
 DESCRIPTION="Linux-PAM (Pluggable Authentication Modules)"
 HOMEPAGE="http://www.linux-pam.org/ https://fedorahosted.org/linux-pam/"
 SRC_URI="http://www.linux-pam.org/library/${MY_P}.tar.bz2
-	http://www.linux-pam.org/documentation/${MY_PN}-1.2.0-docs.tar.bz2"
+	http://www.linux-pam.org/library/${MY_P}-docs.tar.bz2"
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux"
-IUSE="audit berkdb +cracklib debug nis nls +pie selinux test"
+KEYWORDS=""
+IUSE="audit berkdb +cracklib debug nis nls +pie selinux test vim-syntax"
 
-RDEPEND="nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )
+RDEPEND="
+	nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )
 	cracklib? ( >=sys-libs/cracklib-2.9.1-r1[${MULTILIB_USEDEP}] )
 	audit? ( >=sys-process/audit-2.2.2[${MULTILIB_USEDEP}] )
 	selinux? ( >=sys-libs/libselinux-2.2.2-r4[${MULTILIB_USEDEP}] )
 	berkdb? ( >=sys-libs/db-4.8.30-r1:=[${MULTILIB_USEDEP}] )
 	nis? ( >=net-libs/libtirpc-0.2.4-r2[${MULTILIB_USEDEP}] )"
 
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	>=sys-devel/libtool-2
 	>=sys-devel/flex-2.5.39-r1[${MULTILIB_USEDEP}]
 	nls? ( sys-devel/gettext )
-	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )"
-PDEPEND="sys-auth/pambase"
+	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )
+	dev-libs/libxslt"
 
-RDEPEND="${RDEPEND}
+PDEPEND="
+	sys-auth/pambase
+	vim-syntax? ( app-editors/vim )"
+
+RDEPEND="
+	${RDEPEND}
 	!<sys-apps/openrc-0.11.8
 	!sys-auth/openpam
-	!sys-auth/pam_userdb
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20140508-r7
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+	!sys-auth/pam_userdb"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -85,17 +87,14 @@ pkg_pretend() {
 	check_old_modules
 }
 
-src_unpack() {
-	# Upstream didn't release a new doc tarball (since nothing changed?).
-	unpack ${MY_PN}-1.2.0-docs.tar.bz2
-	# Update timestamps to avoid regenerating at build time. #569338
-	find -type f -exec touch -r "${T}" {} + || die
-	mv Linux-PAM-1.2.{0,1} || die
-	unpack ${MY_P}.tar.bz2
-}
-
 src_prepare() {
-	elibtoolize
+	# Fix non-POSIX shell code.
+	# https://fedorahosted.org/linux-pam/ticket/60
+	sed -i \
+		-e '/ test /s:==:=:' \
+		configure || die
+	epatch "${FILESDIR}"/${P}-faillock.patch # faillock support from Red Hat.
+	eautoreconf
 }
 
 multilib_src_configure() {
@@ -131,6 +130,7 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
+	emake -C "${S}/modules/pam_faillock" -f "${BUILD_DIR}/modules/pam_faillock/Makefile" -f "${S}/Make.xml.rules" faillock.8 pam_faillock.8
 	emake sepermitlockdir="${EPREFIX}/run/sepermit"
 }
 
@@ -158,12 +158,16 @@ multilib_src_install() {
 DOCS=( CHANGELOG ChangeLog README AUTHORS Copyright NEWS )
 
 multilib_src_install_all() {
+	# faillock binary requires logging directory. We will use /var/log/faillock.
+	keepdir /var/log/faillock
+
 	einstalldocs
 	prune_libtool_files --all
 
 	docinto modules
 	local dir
 	for dir in modules/pam_*; do
+		[[ ${dir} == modules/pam_faillock ]] && continue #  README build excluded due || ( virtual/w3m www-client/links ) DEPEND requirement. not good for stage1/2/3.
 		newdoc "${dir}"/README README."$(basename "${dir}")"
 	done
 
@@ -173,6 +177,11 @@ multilib_src_install_all() {
 d /run/sepermit 0755 root root
 EOF
 	fi
+	# setting default number of open files to 16000, with the ability to
+	# push the limit up to 64000. This provides reasonable defaults for modern
+	# systems that need to handle things like slowloris in defaultconfigs.
+	echo "*     soft    nofile  16000" >> ${D}/etc/security/limits.conf || die "limits set fail"
+	echo "*     hard    nofile  64000" >> ${D}/etc/security/limits.conf || die "limits set fail"
 }
 
 pkg_preinst() {

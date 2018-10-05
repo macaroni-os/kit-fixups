@@ -1,8 +1,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI="5"
 
-inherit autotools libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use fcaps
+inherit libtool multilib multilib-minimal eutils pam toolchain-funcs flag-o-matic db-use fcaps
 
 MY_PN="Linux-PAM"
 MY_P="${MY_PN}-${PV}"
@@ -14,7 +14,7 @@ SRC_URI="http://www.linux-pam.org/library/${MY_P}.tar.bz2
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~x86-linux"
 IUSE="audit berkdb +cracklib debug nis nls +pie selinux test vim-syntax"
 
 RDEPEND="
@@ -30,8 +30,7 @@ DEPEND="
 	>=sys-devel/libtool-2
 	>=sys-devel/flex-2.5.39-r1[${MULTILIB_USEDEP}]
 	nls? ( sys-devel/gettext )
-	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )
-	dev-libs/libxslt"
+	nis? ( >=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}] )"
 
 PDEPEND="
 	sys-auth/pambase
@@ -93,8 +92,7 @@ src_prepare() {
 	sed -i \
 		-e '/ test /s:==:=:' \
 		configure || die
-	epatch "${FILESDIR}"/${P}-faillock.patch # faillock support from Red Hat.
-	eautoreconf
+	elibtoolize
 }
 
 multilib_src_configure() {
@@ -130,7 +128,6 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	emake -C "${S}/modules/pam_faillock" -f "${BUILD_DIR}/modules/pam_faillock/Makefile" -f "${S}/Make.xml.rules" faillock.8 pam_faillock.8
 	emake sepermitlockdir="${EPREFIX}/run/sepermit"
 }
 
@@ -158,16 +155,12 @@ multilib_src_install() {
 DOCS=( CHANGELOG ChangeLog README AUTHORS Copyright NEWS )
 
 multilib_src_install_all() {
-	# faillock binary requires logging directory. We will use /var/log/faillock.
-	keepdir /var/log/faillock
-
 	einstalldocs
 	prune_libtool_files --all
 
 	docinto modules
 	local dir
 	for dir in modules/pam_*; do
-		[[ ${dir} == modules/pam_faillock ]] && continue #  README build excluded due || ( virtual/w3m www-client/links ) DEPEND requirement. not good for stage1/2/3.
 		newdoc "${dir}"/README README."$(basename "${dir}")"
 	done
 
@@ -177,6 +170,11 @@ multilib_src_install_all() {
 d /run/sepermit 0755 root root
 EOF
 	fi
+	# setting default number of open files to 16000, with the ability to
+	# push the limit up to 64000. This provides reasonable defaults for modern
+	# systems that need to handle things like slowloris in defaultconfigs.
+	echo "*     soft    nofile  16000" >> ${D}/etc/security/limits.conf || die "limits set fail"
+	echo "*     hard    nofile  64000" >> ${D}/etc/security/limits.conf || die "limits set fail"
 }
 
 pkg_preinst() {

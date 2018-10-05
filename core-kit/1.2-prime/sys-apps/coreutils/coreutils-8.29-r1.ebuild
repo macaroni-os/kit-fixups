@@ -1,11 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-
-# To generate the man pages, unpack the upstream tarball and run:
-# ./configure --enable-install-program=arch,coreutils,hostname,kill
-# make
-# cd ..
-# tar cf - coreutils-*/man/*.[0-9] | xz > coreutils-<ver>-man.tar.xz
 
 EAPI="6"
 
@@ -13,18 +6,16 @@ PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 inherit eutils flag-o-matic python-any-r1 toolchain-funcs
 
-PATCH_VER="1.1"
+PATCH_VER="1.0"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
 	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz
-	https://dev.gentoo.org/~whissi/dist/${PN}/${P}-patches-${PATCH_VER}.tar.xz
-	mirror://gentoo/${P}-man.tar.xz
-	https://dev.gentoo.org/~polynomial-c/dist/${P}-man.tar.xz"
+	https://dev.gentoo.org/~whissi/dist/${PN}/${P}-patches-${PATCH_VER}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~arm-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~arm-linux ~x86-linux"
 IUSE="acl caps gmp hostname kill multicall nls selinux static test userland_BSD vanilla xattr"
 
 LIB_DEPEND="acl? ( sys-apps/acl[static-libs] )
@@ -69,10 +60,11 @@ pkg_setup() {
 
 src_prepare() {
 	if ! use vanilla ; then
-		use_if_iuse unicode || rm -f "${WORKDIR}"/patch/000_all_coreutils-i18n.patch
-		#rm "${WORKDIR}"/patch/001_all_coreutils-gen-progress-bar.patch || die
 		eapply "${WORKDIR}"/patch/*.patch
 	fi
+
+	eapply "${FILESDIR}"/0001-doc-clarify-chown-chgrp-dereference-defaults.patch #FL-5660
+	eapply "${FILESDIR}"/0002-doc-warn-about-following-symlinks-recursively-in-cho.patch #FL-5660
 
 	eapply_user
 

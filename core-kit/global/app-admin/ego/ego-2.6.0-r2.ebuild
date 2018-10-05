@@ -19,8 +19,7 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 
 DEPEND=""
 RDEPEND="$PYTHON_DEPS
-!sys-boot/boot-update
-sys-boot/grub"
+!sys-boot/boot-update"
 PDEPEND=">=dev-python/appi-0.2[${PYTHON_USEDEP}]
 dev-python/mwparserfromhell[${PYTHON_USEDEP}]
 dev-python/requests[${PYTHON_USEDEP}]"

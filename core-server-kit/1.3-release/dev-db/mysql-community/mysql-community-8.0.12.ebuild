@@ -550,10 +550,10 @@ src_test() {
 }
 
 mysql_init_vars() {
-	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX}/usr/share/mysql"}
-	MY_SYSCONFDIR=${MY_SYSCONFDIR="${EPREFIX}/etc/mysql"}
-	MY_LOCALSTATEDIR=${MY_LOCALSTATEDIR="${EPREFIX}/var/lib/mysql"}
-	MY_LOGDIR=${MY_LOGDIR="${EPREFIX}/var/log/mysql"}
+	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX%/}/usr/share/mysql"}
+	MY_SYSCONFDIR=${MY_SYSCONFDIR="${EPREFIX%/}/etc/mysql"}
+	MY_LOCALSTATEDIR=${MY_LOCALSTATEDIR="${EPREFIX%/}/var/lib/mysql"}
+	MY_LOGDIR=${MY_LOGDIR="${EPREFIX%/}/var/log/mysql"}
 
 	if [[ -z "${MY_DATADIR}" ]] ; then
 		MY_DATADIR=""
@@ -769,7 +769,7 @@ pkg_config() {
 
 	# --initialize-insecure will not set root password
 	# --initialize would set a random one in the log which we don't need as we set it ourselves
-	local cmd=( "${EROOT%/}/usr/sbin/mysqld" "--initialize-insecure" "--init-file='${sqltmp}'" )
+	local cmd=( "${EROOT%/}/usr/sbin/mysqld" "--initialize-insecure" "--default_authentication_plugin=mysql_native_password" "--init-file='${sqltmp}'" )
 	cmd+=( "--basedir=${EPREFIX%/}/usr" ${options} "--datadir=${ROOT%/}${MY_DATADIR}" "--tmpdir=${ROOT%/}${MYSQL_TMPDIR}" )
 	einfo "Command: ${cmd[*]}"
 	su -s /bin/sh -c "${cmd[*]}" mysql \
@@ -779,10 +779,6 @@ pkg_config() {
 		die "Failed to initialize mysqld. Please review ${EPREFIX%/}/var/log/mysql/mysqld.err AND ${TMPDIR%/}/mysql_install_db.log"
 	fi
 	popd &>/dev/null || die
-	
-	# MySQL-8 removed frm
-	#[[ -f "${ROOT%/}/${MY_DATADIR}/mysql/user.frm" ]] \
-	#|| die "MySQL databases not installed"
 
 	use prefix || options="${options} --user=mysql"
 
@@ -791,14 +787,15 @@ pkg_config() {
 	local mysqld="${EROOT%/}/usr/sbin/mysqld \
 		${options} \
 		$(use prefix || echo --user=mysql) \
-		--log-warnings=0 \
 		--basedir=${EROOT%/}/usr \
 		--datadir=${ROOT%/}/${MY_DATADIR} \
 		--max_allowed_packet=8M \
 		--net_buffer_length=16K \
 		--socket=${socket} \
-		--pid-file=${pidfile}
-		--tmpdir=${ROOT}/${MYSQL_TMPDIR}"
+		--pid-file=${pidfile} \
+		--tmpdir=${ROOT}/${MYSQL_TMPDIR} \
+		--default_authentication_plugin=mysql_native_password"
+
 	#einfo "About to start mysqld: ${mysqld}"
 	ebegin "Starting mysqld"
 	einfo "Command ${mysqld}"

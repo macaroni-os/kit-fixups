@@ -1,11 +1,11 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 # Don't block arm. See bug #600134.
 #MULTILIB_COMPAT=( abi_ppc_64 abi_x86_{32,64} )
-KEYWORDS="-* amd64 ~arm ~arm64 ppc64 x86"
+KEYWORDS="-* amd64 ~arm ~arm64 ppc64 ~x86"
 
 inherit java-vm-2 multilib-build toolchain-funcs
 
@@ -41,7 +41,7 @@ QA_PREBUILT="opt/.*"
 RDEPEND=">=dev-libs/glib-2.42:2%
 	>=media-libs/fontconfig-2.11:1.0%
 	>=media-libs/freetype-2.5.5:2%
-	>=media-libs/lcms-2.6:2%
+	>=media-libs/lcms-2.9:2%
 	>=sys-libs/zlib-1.2.8-r1%
 	virtual/jpeg:62%
 	alsa? ( >=media-libs/alsa-lib-1.0% )
@@ -64,8 +64,8 @@ RDEPEND=">=dev-libs/glib-2.42:2%
 		>=x11-libs/libXtst-1.2%
 	)"
 
-RDEPEND=">=sys-devel/gcc-5.4.0[multilib?]
-	>=sys-libs/glibc-2.23[multilib?]
+RDEPEND=">=sys-devel/gcc-6.4.0[multilib?]
+	>=sys-libs/glibc-2.25[multilib?]
 	virtual/ttf-fonts
 	selinux? ( sec-policy/selinux-java )
 	multilib? ( ${RDEPEND//%/[${MULTILIB_USEDEP}]} )

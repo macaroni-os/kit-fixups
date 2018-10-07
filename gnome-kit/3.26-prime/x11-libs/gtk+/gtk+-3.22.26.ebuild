@@ -14,6 +14,7 @@ SLOT="3"
 IUSE="aqua broadway cloudprint colord cups examples +introspection test vim-syntax wayland +X xinerama"
 REQUIRED_USE="
 	|| ( aqua wayland X )
+	cloudprint? ( introspection )
 	xinerama? ( X )
 "
 
@@ -36,8 +37,8 @@ COMMON_DEPEND="
 	x11-misc/shared-mime-info
 
 	cloudprint? (
-		>=net-libs/rest-0.7[${MULTILIB_USEDEP}]
-		>=dev-libs/json-glib-1.0[${MULTILIB_USEDEP}] )
+		>=net-libs/rest-0.7[introspection?,${MULTILIB_USEDEP}]
+		>=dev-libs/json-glib-1.0[introspection?,${MULTILIB_USEDEP}] )
 	colord? ( >=x11-misc/colord-0.1.9:0=[${MULTILIB_USEDEP}] )
 	cups? ( >=net-print/cups-1.2[${MULTILIB_USEDEP}] )
 	introspection? ( >=dev-libs/gobject-introspection-1.39:= )

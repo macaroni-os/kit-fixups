@@ -33,7 +33,7 @@ Security Fixes
 October 14, 2018
 ~~~~~~~~~~~~~~~~
 
-- ``sys-process/procps`` has been updated to 3.3.12-r3 to address CVE-2018-1120, CVE-2018-1121, CVE-2018-1122, CVE-2018-1123 and CVE-2018-1124.
+- ``sys-process/procps`` has been updated to 3.3.12-r3 to address CVE-2018-1120, CVE-2018-1122, CVE-2018-1123 and CVE-2018-1124.
 
 
 October 8, 2018

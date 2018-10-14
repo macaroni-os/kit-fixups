@@ -43,6 +43,13 @@ PATCHES=(
 
 	# Upstream fixes
 	"${FILESDIR}"/${P}-strtod_nol_err.patch
+	
+	# CVE backports. FL-5227
+	"${FILESDIR}"/CVE-backports/0008-pgrep-Prevent-a-potential-stack-based-buffer-overflo.patch
+	"${FILESDIR}"/CVE-backports/0035-proc-alloc.-Use-size_t-not-unsigned-int.patch
+	"${FILESDIR}"/CVE-backports/0054-ps-output.c-Fix-outbuf-overflows-in-pr_args-etc.patch
+	"${FILESDIR}"/CVE-backports/0074-proc-readproc.c-Fix-bugs-and-overflows-in-file2strve.patch
+	"${FILESDIR}"/CVE-backports/0097-top-Do-not-default-to-the-cwd-in-configs_read.patch
 )
 
 src_prepare() {

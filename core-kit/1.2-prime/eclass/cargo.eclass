@@ -16,8 +16,8 @@ CARGO_DEPEND=""
 [[ ${CATEGORY}/${PN} != dev-util/cargo ]] && CARGO_DEPEND="virtual/cargo"
 
 case ${EAPI} in
-	6) : DEPEND="${DEPEND} ${CARGO_DEPEND}";;
-	7) : BDEPEND="${BDEPEND} ${CARGO_DEPEND}";;
+	6) DEPEND="${DEPEND} ${CARGO_DEPEND}";;
+	7) BDEPEND="${BDEPEND} ${CARGO_DEPEND}";;
 	*) die "EAPI=${EAPI:-0} is not supported" ;;
 esac
 

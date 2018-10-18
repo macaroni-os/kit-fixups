@@ -1,32 +1,40 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-PYTHON_COMPAT=( python3_{5,6} )
+PYTHON_COMPAT=( python3_{6,7} )
 
-inherit python-single-r1 toolchain-funcs
+inherit python-single-r1 toolchain-funcs gnome2-utils
+
+if [[ ${PV} == "9999" ]] ; then
+	EGIT_REPO_URI="https://github.com/kovidgoyal/kitty.git"
+	inherit git-r3
+else
+	SRC_URI="https://github.com/kovidgoyal/kitty/releases/download/v${PV}/${P}.tar.xz"
+	KEYWORDS="~amd64 ~x86"
+fi
 
 DESCRIPTION="A modern, hackable, featureful, OpenGL-based terminal emulator"
 HOMEPAGE="https://github.com/kovidgoyal/kitty"
-SRC_URI="https://github.com/kovidgoyal/kitty/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE="debug imagemagick wayland"
+IUSE="debug doc imagemagick -wayland"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPS="
 	${PYTHON_DEPS}
 	>=media-libs/harfbuzz-1.5.0:=
+	sys-apps/dbus
 	sys-libs/zlib
 	media-libs/libpng:0=
 	media-libs/freetype:2
 	media-libs/fontconfig
 	x11-libs/libXcursor
 	x11-libs/libXrandr
+	x11-libs/libXi
 	x11-libs/libXinerama
 	x11-libs/libxkbcommon[X]
+	x11-libs/libxcb[xkb]
 	wayland? (
 		dev-libs/wayland
 		>=dev-libs/wayland-protocols-1.12
@@ -37,25 +45,26 @@ RDEPEND="
 	imagemagick? ( virtual/imagemagick-tools )
 "
 DEPEND="${RDEPEND}
+	sys-libs/ncurses
 	virtual/pkgconfig
 "
+[[ ${PV} == *9999 ]] && DEPEND+=" >=dev-python/sphinx-1.7[${PYTHON_USEDEP}]"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-flags.patch
-	"${FILESDIR}"/${P}-svg-icon.patch
+	"${FILESDIR}"/${PN}-0.11.0-flags.patch
+	"${FILESDIR}"/${PN}-0.11.0-svg-icon.patch
 )
 
 src_prepare() {
 	default
 
-	# respect libdir
-	sed -i "/libdir =/s/'lib'/'$(get_libdir)'/" setup.py || die
-	sed -i "s#/../lib/kitty#/../$(get_libdir)/kitty#" linux-launcher.c || die
-
 	# disable wayland as required
 	if ! use wayland; then
 		sed -i "/'x11 wayland'/s/ wayland//" setup.py || die
 	fi
+
+	# respect doc dir
+	sed -i "/htmldir =/s/appname/'${PF}'/" setup.py
 
 	tc-export CC
 }
@@ -66,7 +75,10 @@ doecho() {
 }
 
 src_compile() {
-	doecho "${EPYTHON}" setup.py --verbose $(usex debug --debug "") linux-package
+	doecho "${EPYTHON}" setup.py \
+		--verbose $(usex debug --debug "") \
+		--libdir-name $(get_libdir) \
+		linux-package
 }
 
 src_test() {
@@ -79,5 +91,15 @@ src_install() {
 	cp -r linux-package/* "${ED}usr" || die
 	python_fix_shebang "${ED}"
 
-	dodoc CHANGELOG.rst *.asciidoc
+	if ! use doc; then
+		rm -r "${ED}"/usr/share/doc || die
+	fi
+}
+
+pkg_postinst() {
+	gnome2_icon_cache_update
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
 }

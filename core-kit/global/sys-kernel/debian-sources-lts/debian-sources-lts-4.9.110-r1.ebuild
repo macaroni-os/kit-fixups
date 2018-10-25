@@ -14,7 +14,7 @@ PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="binary"
+IUSE="binary sign-modules"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux/"
@@ -32,13 +32,43 @@ get_patch_list() {
 	done < "${patch_series}"
 }
 
+tweak_config() {
+	einfo "Setting $2=$3 in kernel config."
+	sed -i -e "/^$2=/d" $1
+	echo "$2=$3" >> $1
+}
+
+setno_config() {
+	einfo "Setting $2*=y to n in kernel config."
+	sed -i -e "s/^$2\(.*\)=y/$2\1=n/g" $1
+}
+
+zap_config() {
+	einfo "Removing *$2* from kernel config."
+	sed -i -e "/$2/d" $1
+}
+
 pkg_pretend() {
 	# Ensure we have enough disk space to compile
 	if use binary ; then
-		CHECKREQS_DISK_BUILD="20G"
-
+		CHECKREQS_DISK_BUILD="5G"
 		check-reqs_pkg_setup
 	fi
+}
+
+get_certs_dir() {
+	# find a certificate dir in /etc/kernel/certs/ that contains signing cert for modules.
+	for subdir in $PF $P linux; do
+		certdir=/etc/kernel/certs/$subdir
+		if [ -d $certdir ]; then
+			if [ ! -e $certdir/signing_key.pem ]; then
+				eerror "$certdir exists but missing signing key; exiting."
+				exit 1
+			fi
+			echo $certdir
+			return
+		fi
+	done
 }
 
 pkg_setup() {
@@ -47,7 +77,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-
 	cd "${S}"
 	for debpatch in $( get_patch_list "${WORKDIR}/debian/patches/series" ); do
 		epatch -p1 "${WORKDIR}/debian/patches/${debpatch}"
@@ -93,9 +122,39 @@ src_prepare() {
 	cp "${FILESDIR}"/config-extract . || die
 	chmod +x config-extract || die
 	./config-extract ${arch} ${featureset} ${subarch} || die
+	setno_config .config CONFIG_DEBUG
+	if use sign-modules; then
+		certs_dir=$(get_certs_dir)
+		echo
+		if [ -z "$certs_dir" ]; then
+			eerror "No certs dir found in /etc/kernel/certs; aborting."
+			die
+		else
+			einfo "Using certificate directory of $certs_dir for kernel module signing."
+		fi
+		echo
+		# turn on options for signing modules.
+		# first, remove existing configs and comments:
+		zap_config .config CONFIG_MODULE_SIG
+		# now add our settings:
+		tweak_config .config CONFIG_MODULE_SIG y
+		tweak_config .config CONFIG_MODULE_SIG_FORCE n
+		tweak_config .config CONFIG_MODULE_SIG_ALL n
+		tweak_config .config CONFIG_MODULE_SIG_HASH \"sha512\"
+		tweak_config .config CONFIG_MODULE_SIG_KEY  \"${certs_dir}/signing_key.pem\"
+		tweak_config .config CONFIG_SYSTEM_TRUSTED_KEYRING y
+		tweak_config .config CONFIG_SYSTEM_EXTRA_CERTIFICATE y
+		tweak_config .config CONFIG_SYSTEM_EXTRA_CERTIFICATE_SIZE 4096
+		echo "CONFIG_MODULE_SIG_SHA512=y" >> .config
+		ewarn "This kernel will ALLOW non-signed modules to be loaded with a WARNING."
+		ewarn "To enable strict enforcement, YOU MUST add module.sig_enforce=1 as a kernel boot"
+		ewarn "parameter (to params in /etc/boot.conf, and re-run boot-update.)"
+		echo
+	fi
+	# get config into good state:
+	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
-	#make -s include/linux/version.h || die "make include/linux/version.h failed"
 }
 
 src_compile() {
@@ -103,9 +162,11 @@ src_compile() {
 	install -d "${WORKDIR}"/out/{lib,boot}
 	install -d "${T}"/{cache,twork}
 	install -d "${WORKDIR}"/build
+	cp "${T}"/config "${WORKDIR}"/build/.config
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 		--no-save-config \
-		--kernel-config="${T}"/config \
+		--no-oldconfig \
+		--kernel-config=${T}/config \
 		--kernname="${PN}" \
 		--build-src="${S}" \
 		--build-dst="${WORKDIR}"/build \
@@ -120,7 +181,7 @@ src_compile() {
 		--mdadm \
 		--iscsi \
 		--module-prefix="${WORKDIR}"/out \
-		all || die "genkernel failed"
+		all || die
 }
 
 src_install() {
@@ -132,7 +193,8 @@ src_install() {
 	make mrproper || die
 	cp "${T}"/config .config || die
 	cp -a "${T}"/debian debian || die
-	yes "" | make oldconfig || die
+
+
 	# if we didn't use genkernel, we're done. The kernel source tree is left in
 	# an unconfigured state - you can't compile 3rd-party modules against it yet.
 	use binary || return
@@ -146,24 +208,27 @@ src_install() {
 	rm -f "${D}"/lib/modules/*/source || die
 	rm -f "${D}"/lib/modules/*/build || die
 	cd "${D}"/lib/modules
-	# module strip:
-	find -iname *.ko -exec strip --strip-debug {} \;
-	# back to the symlink fixup:
 	local moddir="$(ls -d [234]*)"
 	ln -s /usr/src/linux-${P} "${D}"/lib/modules/${moddir}/source || die
 	ln -s /usr/src/linux-${P} "${D}"/lib/modules/${moddir}/build || die
-
 	# Fixes FL-14
 	cp "${WORKDIR}/build/System.map" "${D}/usr/src/linux-${P}/" || die
 	cp "${WORKDIR}/build/Module.symvers" "${D}/usr/src/linux-${P}/" || die
-
+	if use sign-modules; then
+		for x in $(find "${D}"/lib/modules -iname *.ko); do
+			# $certs_dir defined previously in this function.
+			${WORKDIR}/build/scripts/sign-file sha512 $certs_dir/signing_key.pem $certs_dir/signing_key.x509 $x || die
+		done
+		# install the sign-file executable for future use.
+		exeinto /usr/src/linux-${P}/scripts
+		doexe ${WORKDIR}/build/scripts/sign-file
+	fi
 }
 
 pkg_postinst() {
 	if use binary && [[ -h "${ROOT}"usr/src/linux ]]; then
 		rm "${ROOT}"usr/src/linux
 	fi
-
 	if use binary && [[ ! -e "${ROOT}"usr/src/linux ]]; then
 		ewarn "With binary use flag enabled /usr/src/linux"
 		ewarn "symlink automatically set to debian kernel"

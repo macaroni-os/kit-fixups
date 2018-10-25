@@ -9,8 +9,8 @@ inherit eutils alternatives flag-o-matic toolchain-funcs multilib multiprocessin
 PATCH_VER=2
 CROSS_VER=1.1.1
 
-PERL_OLDVERSEN="5.24.0"
-MODULE_AUTHOR=SHAY
+PERL_OLDVERSEN=""
+MODULE_AUTHOR=RJBS
 
 SHORT_PV="${PV%.*}"
 MY_P="perl-${PV/_rc/-RC}"
@@ -19,11 +19,10 @@ MY_PV="${PV%_rc*}"
 DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
 SRC_URI="
-	mirror://cpan/src/5.0/${MY_P}.tar.xz
-	mirror://cpan/authors/id/${MODULE_AUTHOR:0:1}/${MODULE_AUTHOR:0:2}/${MODULE_AUTHOR}/${MY_P}.tar.xz
-	https://github.com/gentoo-perl/perl-patchset/releases/download/${MY_P}-patches-${PATCH_VER}/${MY_P}-patches-${PATCH_VER}.tar.xz
+	mirror://cpan/src/5.0/${MY_P}.tar.bz2
+	mirror://cpan/authors/id/${MODULE_AUTHOR:0:1}/${MODULE_AUTHOR:0:2}/${MODULE_AUTHOR}/${MY_P}.tar.bz2
 	mirror://gentoo/${MY_P}-patches-${PATCH_VER}.tar.xz
-	https://dev.gentoo.org/~kentnl/distfiles/${MY_P}-patches-${PATCH_VER}.tar.xz
+	https://dev.gentoo.org/~dilfridge/distfiles/${MY_P}-patches-${PATCH_VER}.tar.xz
 	https://github.com/arsv/perl-cross/releases/download/${CROSS_VER}/perl-cross-${CROSS_VER}.tar.gz
 "
 HOMEPAGE="http://www.perl.org/"
@@ -54,18 +53,18 @@ PDEPEND="
 S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        2.40.100_rc   ptar ptardiff ptargrep
-	src_remove_dual      perl-core/CPAN               2.110.100_rc  cpan
-	src_remove_dual      perl-core/Digest-SHA         5.950.100_rc  shasum
-	src_remove_dual      perl-core/Encode             2.800.100_rc  enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.100.200_rc  instmodsh
+	src_remove_dual      perl-core/Archive-Tar        2.40.0        ptar ptardiff ptargrep
+	src_remove_dual      perl-core/Digest-SHA         5.950.0       shasum
+	src_remove_dual      perl-core/CPAN               2.110.0       cpan
+	src_remove_dual      perl-core/Encode             2.800.0       enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.100.100_rc  instmodsh
 	src_remove_dual      perl-core/ExtUtils-ParseXS   3.310.0       xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.69.1_rc          zipdetails
-	src_remove_dual      perl-core/JSON-PP            2.273.0.100_rc     json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.201.610.192.400_rc  corelist
+	src_remove_dual      perl-core/IO-Compress        2.69.0        zipdetails
+	src_remove_dual      perl-core/JSON-PP            2.273.0       json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.201.605.60  corelist
 	src_remove_dual      perl-core/Pod-Parser         1.630.0       pod2usage podchecker podselect
-	src_remove_dual      perl-core/Pod-Perldoc        3.250.300_rc  perldoc
-	src_remove_dual      perl-core/Test-Harness       3.360.100_rc  prove
+	src_remove_dual      perl-core/Pod-Perldoc        3.250.200_rc  perldoc
+	src_remove_dual      perl-core/Test-Harness       3.360.0       prove
 	src_remove_dual      perl-core/podlators          4.70.0        pod2man pod2text
 	src_remove_dual_man  perl-core/podlators          4.70.0        /usr/share/man/man1/perlpodstyle.1
 }
@@ -292,6 +291,15 @@ src_prepare() {
 			ext/NDBM_File/Makefile.PL || die
 	fi
 
+	eapply "${FILESDIR}"/CVE-2017-12883.patch
+	eapply "${FILESDIR}"/CVE-2017-12837.patch
+
+	# FL-5761
+	eapply "${FILESDIR}"/CVE-backports/CVE-2018-6797.diff
+	eapply "${FILESDIR}"/CVE-backports/CVE-2018-6798/pt1.diff
+	eapply "${FILESDIR}"/CVE-backports/CVE-2018-6798/pt2.diff
+	eapply "${FILESDIR}"/CVE-backports/CVE-2018-6798/pt3.diff
+	eapply "${FILESDIR}"/CVE-backports/CVE-2018-6913.diff
 	default
 }
 

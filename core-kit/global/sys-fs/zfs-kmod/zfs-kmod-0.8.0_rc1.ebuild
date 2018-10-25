@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
@@ -8,9 +7,8 @@ if [ ${PV} == "9999" ]; then
 	EGIT_REPO_URI="https://github.com/zfsonlinux/zfs.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
-	S="${WORKDIR}/zfs-${PV}"
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64"
+	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV/_/-}/zfs-${PV/_/-}.tar.gz"
+	S="${WORKDIR}/zfs-0.8.0"
 fi
 
 inherit flag-o-matic linux-info linux-mod toolchain-funcs autotools-utils
@@ -68,7 +66,7 @@ pkg_setup() {
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
 	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 17 || die "Linux 4.17 is the latest supported version."; }
+		{ kernel_is le 4 18 || die "Linux 4.18 is the latest supported version."; }
 
 	check_extra_config
 }

@@ -1,17 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
-if [ ${PV} == "9999" ] ; then
-	inherit git-r3 linux-mod
-	AUTOTOOLS_AUTORECONF="1"
-	EGIT_REPO_URI="https://github.com/zfsonlinux/${PN}.git"
-else
-	SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64"
-fi
+AUTOTOOLS_AUTORECONF="1"
+KEYWORDS="*"
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev
 
@@ -50,12 +43,27 @@ RDEPEND="${COMMON_DEPEND}
 	rootfs? (
 		app-arch/cpio
 		app-misc/pax-utils
-		!<sys-boot/grub-2.00-r2:2
+		>=sys-boot/grub-2.00-r2:2
+		>=sys-kernel/genkernel-3.4.40
+		!<sys-kernel/genkernel-next-67
+		!<sys-kernel/bliss-initramfs-7.1.0
+		!<sys-kernel/dracut-044-r1
 		)
+	sys-fs/udev-init-scripts
 "
 
 AT_M4DIR="config"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
+
+GITHUB_REPO="zfs"
+GITHUB_USER="zfsonlinux"
+GITHUB_TAG="1b0cd07"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 pkg_setup() {
 	if use kernel_linux && use test-suite; then
@@ -77,7 +85,6 @@ pkg_setup() {
 			fi
 		fi
 	fi
-
 }
 
 src_prepare() {
@@ -87,12 +94,6 @@ src_prepare() {
 		-e "s|/sbin/parted|/usr/sbin/parted|" \
 		-i scripts/common.sh.in
 
-	if use kernel-builtin
-	then
-		einfo "kernel-builtin enabled, removing module loading from"
-		einfo "systemd units."
-		sed -i -e '/modprobe\ zfs/d' etc/systemd/system/*.service.in || die
-	fi
 	autotools-utils_src_prepare
 }
 
@@ -121,10 +122,6 @@ src_configure() {
 		sed -e "s:@sbindir@:${EPREFIX}/sbin:g" \
 			-e "s:@sysconfdir@:${EPREFIX}/etc:g" \
 		> "${T}/zfs-init.sh" || die
-	if use kernel-builtin
-	then
-		sed -i -e '/modprobe\ zfs/d' "${T}/zfs.service" || die
-	fi
 }
 
 src_install() {
@@ -206,7 +203,6 @@ pkg_postinst() {
 	systemd_reenable zfs-import.target
 	systemd_reenable zfs.target
 	systemd_reenable zfs.service
-
 }
 
 pkg_postrm() {

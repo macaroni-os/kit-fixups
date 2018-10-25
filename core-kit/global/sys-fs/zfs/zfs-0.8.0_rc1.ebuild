@@ -9,8 +9,8 @@ if [ ${PV} == "9999" ] ; then
 	AUTOTOOLS_AUTORECONF="1"
 	EGIT_REPO_URI="https://github.com/zfsonlinux/${PN}.git"
 else
-	SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64"
+	SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P/_/-}/${P/_/-}.tar.gz"
+	S=$WORKDIR/zfs-0.8.0
 fi
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev

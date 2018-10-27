@@ -2,68 +2,76 @@
 
 # For released versions, we precompile the man/html pages and store
 # them in a tarball on our mirrors.  This avoids ugly issues while
-# building stages, and when the jade/sgml packages are broken (which
-# seems to be more common than would be nice).
-# Required packages for doc generation:
-# app-text/docbook-sgml-utils
+# building stages, and reduces depedencies.
+# To regenerate man/html pages emerge iputils-99999999[doc] with
+# EGIT_COMMIT set to release tag and tar ${S}/doc folder.
 
-EAPI=5
+EAPI="6"
 
-inherit flag-o-matic eutils toolchain-funcs
+inherit flag-o-matic toolchain-funcs fcaps
+
+MY_COMMIT="67e7d0daf1f231cc708217e6aec2f8d5ce7aeacf"
+
+PATCHES=(
+	"${FILESDIR}"/${PN}-99999999-tracepath46.patch
+	"${FILESDIR}"/${PN}-99999999-musl.patch
+)
+
 if [[ ${PV} == "99999999" ]] ; then
 	EGIT_REPO_URI="https://github.com/iputils/iputils.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/iputils/iputils/archive/s${PV}.tar.gz -> ${P}.tar.gz
-		https://dev.gentoo.org/~polynomial-c/iputils-s${PV}-manpages.tar.xz"
+	SRC_URI="https://github.com/iputils/iputils/archive/${MY_COMMIT}.tar.gz -> ${P}.tar.gz
+		https://dev.gentoo.org/~whissi/dist/iputils/${PN}-manpages-${PV}.tar.xz"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="Network monitoring tools including ping and ping6"
 HOMEPAGE="https://wiki.linuxfoundation.org/networking/iputils"
 
-LICENSE="BSD-4"
+LICENSE="BSD GPL-2+ rdisc"
 SLOT="0"
-IUSE="arping caps clockdiff doc gcrypt idn ipv6 libressl nettle +openssl rarpd rdisc SECURITY_HAZARD ssl static tftpd tracepath traceroute"
+IUSE="+arping caps clockdiff doc gcrypt idn ipv6 libressl nettle rarpd rdisc SECURITY_HAZARD ssl static tftpd tracepath traceroute"
 
 LIB_DEPEND="caps? ( sys-libs/libcap[static-libs(+)] )
-	idn? ( net-dns/libidn[static-libs(+)] )
-	ipv6? ( ssl? (
-		gcrypt? ( dev-libs/libgcrypt:0=[static-libs(+)] )
-		nettle? ( dev-libs/nettle[static-libs(+)] )
-		openssl? (
-			!libressl? ( dev-libs/openssl:0[static-libs(+)] )
-			libressl? ( dev-libs/libressl[static-libs(+)] )
+	idn? ( net-dns/libidn:=[static-libs(+)] )
+	ipv6? (
+		ssl? (
+			gcrypt? ( dev-libs/libgcrypt:0=[static-libs(+)] )
+			!gcrypt? (
+				nettle? ( dev-libs/nettle[static-libs(+)] )
+				!nettle? (
+					libressl? ( dev-libs/libressl:0=[static-libs(+)] )
+					!libressl? ( dev-libs/openssl:0=[static-libs(+)] )
+				)
+			)
 		)
-	) )"
+	)
+"
 RDEPEND="arping? ( !net-misc/arping )
 	rarpd? ( !net-misc/rarpd )
 	traceroute? ( !net-analyzer/traceroute )
 	!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
-	virtual/os-headers"
+	virtual/os-headers
+"
 if [[ ${PV} == "99999999" ]] ; then
-	DEPEND+="
-		app-text/openjade
-		dev-perl/SGMLSpm
-		app-text/docbook-sgml-dtd
-		app-text/docbook-sgml-utils
+	DEPEND+="app-text/docbook-xml-dtd:4.2
+		app-text/docbook-xml-dtd:4.5
+		app-text/docbook-xsl-stylesheets
+		dev-libs/libxslt:0
 	"
 fi
 
-REQUIRED_USE="ipv6? ( ssl? ( ^^ ( gcrypt nettle openssl ) ) )"
+[ "${PV}" = "99999999" ] || S="${WORKDIR}/${PN}-s${PV}"
 
-S=${WORKDIR}/${PN}-s${PV}
-
-PATCHES=(
-	"${FILESDIR}/021109-uclibc-no-ether_ntohost.patch"
-	"${FILESDIR}/iputils-old-kernel.patch"
-)
+S="${WORKDIR}/${PN}-${MY_COMMIT}"
 
 src_prepare() {
-	epatch ${PATCHES[@]}
-	use SECURITY_HAZARD && epatch "${FILESDIR}"/${PN}-20150815-nonroot-floodping.patch
+	use SECURITY_HAZARD && PATCHES+=( "${FILESDIR}"/${PN}-20150815-nonroot-floodping.patch )
+
+	default
 }
 
 src_configure() {
@@ -75,7 +83,6 @@ src_configure() {
 	)
 	if use ipv6 ; then
 		TARGETS+=(
-			$(usex tracepath 'tracepath6' '')
 			$(usex traceroute 'traceroute6' '')
 		)
 	fi
@@ -88,7 +95,7 @@ src_configure() {
 
 	if use ipv6 && use ssl ; then
 		myconf=(
-			USE_CRYPTO=$(usex openssl)
+			USE_CRYPTO=yes
 			USE_GCRYPT=$(usex gcrypt)
 			USE_NETTLE=$(usex nettle)
 		)
@@ -105,7 +112,9 @@ src_compile() {
 		${myconf[@]}
 
 	if [[ ${PV} == "99999999" ]] ; then
-		emake html man
+		emake man
+
+		use doc && emake html
 	fi
 }
 
@@ -126,8 +135,14 @@ src_install() {
 
 	into /usr
 
+	if use tracepath ; then
+		dosbin tracepath
+		doman doc/tracepath.8
+		dosym tracepath /usr/sbin/tracepath4
+	fi
+
 	local u
-	for u in clockdiff rarpd rdisc tftpd tracepath ; do
+	for u in clockdiff rarpd rdisc tftpd ; do
 		if use ${u} ; then
 			case ${u} in
 			clockdiff) dobin ${u};;
@@ -138,7 +153,7 @@ src_install() {
 	done
 
 	if use tracepath && use ipv6 ; then
-		dosbin tracepath6
+		dosym tracepath /usr/sbin/tracepath6
 		dosym tracepath.8 /usr/share/man/man8/tracepath6.8
 	fi
 
@@ -152,11 +167,14 @@ src_install() {
 		newconfd "${FILESDIR}"/rarpd.conf.d rarpd
 	fi
 
-	fperms 4711 /bin/ping
-	use ipv6 && fperms 4711 /bin/ping6
-	if use tracepath && use ipv6 ; then
-		fperms 4711 /usr/sbin/tracepath6
-	fi
-	dodoc INSTALL RELNOTES
-	use doc && dohtml doc/*.html
+	dodoc INSTALL.md
+
+	use doc && dodoc doc/*.html
+}
+
+pkg_postinst() {
+	fcaps cap_net_raw \
+		bin/ping \
+		$(usex arping 'bin/arping' '') \
+		$(usex clockdiff 'usr/bin/clockdiff' '')
 }

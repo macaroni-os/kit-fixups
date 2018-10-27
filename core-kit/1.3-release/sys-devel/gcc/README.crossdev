@@ -1,0 +1,94 @@
+It's now easy to build a cross toolchain in Funtoo.  The steps are:
+
+1.  emerge crossdev
+2.  setup package.env to pass your target device CFLAGS to gcc
+3.  setup crossdev CROSS-OVERLAY
+4.  build your cross toolchain
+
+1.  emerge crossdev
+To use crossdev to create cross toolchains you must have crossdev.  As of this writing
+the latest one in the Funtoo tree, crossdev-20180818 works fine.  
+
+2.  setup package.env to pass your target device CFLAGS to gcc
+
+The following steps must only be done once for each cross toolchain you wish to make.
+
+Set up package.env to pass the target's CFLAGS to gcc.  I'll use my armv7a
+odroid as an example.
+
+First, I copy my CFLAGS from my armv7a device's /etc/portage/make.conf:
+
+# ssh odroid grep CFLAGS /etc/portage/make.conf
+
+Copy those flags and echo them to a file in /etc/portage/env/<your choice of name>:
+
+# echo 'CFLAGS="-Ofast -march=armv7-a -mtune=cortex-a5 -mfpu=neon-vfpv4 -mfloat-abi=hard"' \
+>> /etc/portage/env/cross-armv7a-hardfloat-linux-gnueabi-gcc.conf
+
+Now reference that file in /etc/portage/package.env.  Crossdev will demand that 
+/etc/portage/package.env be a directory, so if it's not already set up that way, now's the
+time to do it.  Incidentally, crossdev also requires /etc/portage/package.mask and
+/etc/portage/package.use to be directories.  Now's the time if they aren't.  I have a
+/etc/portage/package.env/package.env file, crossdev will later place 
+/etc/portage/package.env/<YOUR TUPLE> file(s) in there.
+Leave those alone, as crossdev itself creates, updates, etc. those file(s).
+
+# echo "cross-armv7a-hardfloat-linux-gnueabi/gcc  cross-armv7a-hardfloat-linux-gnueabi-gcc.conf" \
+>> /etc/portage/package.env/package.env
+
+3.  setup crossdev CROSS-OVERLAY
+
+Crossdev uses the`portageq repositories_configuration` command to search for toolchain packages,
+so it will find meta-repo and any other repos you have noted in /etc/portage/repos.conf.
+However it will choose to put it's links to them in meta-repo/nokit.  This is probably not the
+best place for this, so it's desirable to use your local repo instead by using -oO or
+--ov-output <your local repo path> instead.  That way it won't interfere in any way or
+get nuked if you rebuild meta-repo.
+Initialize your CROSS-OVERLAY thusly:
+# crossdev -t <your tuple> --init-target -oO <path to local repo>
+In my case:
+# crossdev -t armv7a-hardfloat-linux-gnueabi --init-target -oO /var/git/borg-repo
+
+Currently the only gcc ebuilds capable of building a cross gcc are 6.4.1-r4, 7.3.1-r4 and
+8.2.1-r4.  As these ebuild propagate to the tree and future ebuilds will have the capability
+to build cross gcc the following information will no longer be necessary.
+After you have initialized your CROSS-OVERLAY in <path to local repo>/cross-<tuple> you will find
+links similar to this:
+# ls -l <path to local repo>/cross-<tuple>
+(or in my case: # ls -l /var/git/borg-repo/cross-armv7a-hardfloat-linux-gnueabi)
+
+lrwxrwxrwx 1 root root 51 Sep 14 17:31 binutils -> /var/git/meta-repo/kits/core-kit/sys-devel/binutils
+lrwxrwxrwx 1 root root 34 Sep 14 19:04 gcc -> /var/git/meta-repo/kits/core-kit/sys-devel/gcc
+lrwxrwxrwx 1 root root 43 Sep 14 17:31 gdb -> /var/git/meta-repo/kits/nokit/sys-devel/gdb
+lrwxrwxrwx 1 root root 47 Sep 14 17:31 glibc -> /var/git/meta-repo/kits/core-kit/sys-libs/glibc
+lrwxrwxrwx 1 root root 57 Sep 14 17:31 linux-headers -> /var/git/meta-repo/kits/core-kit/sys-kernel/linux-headers
+
+You must delete the gcc link and replace it with a link to your local repo gcc builds:
+
+# cd <path to local repo>/cross-<tuple>
+# rm gcc
+# ln -s <path to local repo>/sys-devel/gcc gcc
+
+Otherwise crossdev will insist on using Funtoo tree ebuilds, even bumping the version to match them
+if necessary.
+
+4.  build your cross toolchain
+Now you can run crossdev to create your toolchain.  Be sure to use -oS or --overlays to
+point crossdev to the CROSS-OVERLAY.  Here's an example I ran successfully today:
+
+# crossdev --b 2.29.1-r1 --g 6.4.1-r4 --k 4.9 --l 2.23-r4 -P -v -t armv7a-hardfloat-linux-gnueabi -oS /var/git/borg-repo
+
+Note that on cross gcc ebuilds you will get file collision warnings at the end of install,
+not a cause for alarm.  These are config (such as /etc/env.d) files that are being replaced.
+Portage should tell you they are going to be installed in spite of the collisions when it finishes.
+
+Addendum:
+On 9-17-18 I executed the following command:
+crossdev --b 2.29.1-r1 --g 6.4.1-r4 --k 4.14 --l 2.26-r6 -P -v -t armv7a-hardfloat-linux-gnueabi -oS /var/git/borg-repo
+Glibc failed, complaining that I needed to use the -fPIC directive.  Since glibc does not have a fPIC use flag I
+created another /etc/package.env file:
+# cat /etc/portage/env/cross-armv7a-hardfloat-linux-gnueabi-glibc.conf
+CFLAGS="${CFLAGS} -fPIC"
+And added this to /etc/portage/package.env/package.env:
+cross-armv7*/glibc			cross-armv7a-hardfloat-linux-gnueabi-glibc.conf
+And the toolchain emerged successfully.

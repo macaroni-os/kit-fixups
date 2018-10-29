@@ -7,13 +7,13 @@ HOMEPAGE="https://linuxcontainers.org/lxd/introduction/"
 
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
-KEYWORDS="amd64"
+KEYWORDS=""
 
 IUSE="+daemon +ipv6 +dnsmasq nls test"
 
 inherit autotools bash-completion-r1 linux-info systemd user
 
-SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
+SRC_URI="https://linuxcontainers.org/downloads/${PN}/lxd-3.0.2.tar.gz"
 COMMON_DEPEND="
 	dev-libs/libuv
 "
@@ -91,7 +91,6 @@ post_src_unpack() {
 	rm -rf $GOPATH/src/* || die
 	go get -d -v github.com/lxc/lxd/lxd || die
 	cd ${S}/dist/src/github.com/lxc/lxd || die
-	git checkout lxd-${PV} || die
 }
 
 src_configure() {

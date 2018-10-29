@@ -7,7 +7,7 @@ PIDFILE=/run/lxcfs.pid
 
 start() {
     ebegin "Starting lxcfs"
-	/sbin/modprobe -fq fuse
+	/sbin/modprobe -q fuse
     start-stop-daemon --start \
 		      --pidfile ${PIDFILE} \
 		      --exec ${DAEMON} \

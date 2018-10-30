@@ -22,7 +22,7 @@ MOZ_PV="${PV/_beta/b}"
 
 # Patches
 PATCHTB="thunderbird-60.0-patches-0"
-PATCHFF="firefox-60.0-patches-03"
+PATCHFF="firefox-60.0-patches-04"
 
 MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
 
@@ -45,7 +45,7 @@ IUSE="bindist clang dbus debug hardened jack lightning mozdom neon pulseaudio
 	system-libevent system-libvpx system-sqlite wifi"
 RESTRICT="!bindist? ( bindist )"
 
-PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
+PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c,whissi}/mozilla/patchsets/{${PATCHTB},${PATCHFF}}.tar.xz )
 SRC_URI="${SRC_URI}
 	${MOZ_HTTP_URI}/${MOZ_PV}/source/${MOZ_P}.source.tar.xz
 	https://dev.gentoo.org/~axs/distfiles/lightning-${MOZ_LIGHTNING_VER}.tar.xz
@@ -197,7 +197,6 @@ src_prepare() {
 		"${WORKDIR}"/firefox/2005_ffmpeg4.patch \
 		|| die
 	eapply "${WORKDIR}/firefox"
-	eapply "${FILESDIR}"/${PN}-60.0-blessings-TERM.patch # 654316
 	eapply "${FILESDIR}"/${PN}-60.0-rust-1.29-comp.patch
 
 	# Ensure that are plugins dir is enabled as default

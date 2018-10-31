@@ -584,7 +584,7 @@ src_test() {
 
 create_gcc_env_entry() {
 	dodir /etc/env.d/gcc
-	local gcc_envd_base="${ROOT}etc/env.d/gcc/${CTARGET}-${GCC_CONFIG_VER}"
+	local gcc_envd_base="/etc/env.d/gcc/${CTARGET}-${GCC_CONFIG_VER}"
 	local gcc_envd_file="${D}${gcc_envd_base}"
 	if [ -z $1 ]; then
 		gcc_specs_file=""

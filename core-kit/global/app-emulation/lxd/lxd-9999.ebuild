@@ -14,6 +14,7 @@ IUSE="+daemon +ipv6 +dnsmasq nls test"
 inherit autotools bash-completion-r1 linux-info systemd user
 
 SRC_URI="https://linuxcontainers.org/downloads/${PN}/lxd-3.0.2.tar.gz"
+S=${WORKDIR}/lxd-3.0.2
 COMMON_DEPEND="
 	dev-libs/libuv
 "

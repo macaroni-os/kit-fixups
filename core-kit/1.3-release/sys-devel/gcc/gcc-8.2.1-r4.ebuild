@@ -107,7 +107,7 @@ DLANG_CHECKOUT_DIR="${WORKDIR}/gdc"
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
-KEYWORDS=""
+KEYWORDS="*"
 
 RDEPEND="
 	sys-libs/zlib[static-libs,${MULTILIB_USEDEP}]

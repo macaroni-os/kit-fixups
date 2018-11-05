@@ -1,0 +1,17 @@
+--- a/kernel/common/inc/nv-linux.h	2018-08-22 03:55:23.000000000 +0300
++++ b/kernel/common/inc/nv-linux.h	2018-11-05 15:45:39.097106696 +0200
+@@ -1097,6 +1097,15 @@
+ #define NV_KMEM_CACHE_CREATE(name, type)    \
+     NV_KMEM_CACHE_CREATE_FULL(name, sizeof(type), 0, 0, NULL)
+ 
++// Added in 4.16 via commit 8eb8284b412906181357c2b0110d879d5af95e52
++#if defined(NV_KMEM_CACHE_CREATE_USERCOPY_PRESENT)
++    #define NV_KMEM_CACHE_CREATE_USERCOPY(name, type)    \
++        kmem_cache_create_usercopy(name, sizeof(type), 0, 0, 0, sizeof(type), NULL)
++#else
++    #define NV_KMEM_CACHE_CREATE_USERCOPY(name, type) \
++        NV_KMEM_CACHE_CREATE(name, type)
++#endif
++
+ #define NV_KMEM_CACHE_DESTROY(kmem_cache)   \
+     kmem_cache_destroy(kmem_cache)

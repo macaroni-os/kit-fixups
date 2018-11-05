@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -23,7 +23,7 @@ SRC_URI="
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
-KEYWORDS="-* amd64 ~amd64-fbsd"
+KEYWORDS="-* ~amd64 ~amd64-fbsd"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
@@ -318,8 +318,8 @@ src_install() {
 		doins ${NV_X11}/nvidia_drv.so
 
 		# Xorg GLX driver
-		donvidia ${NV_X11}/libglx.so.${NV_SOVER} \
-			/usr/$(get_libdir)/opengl/nvidia/extensions
+		donvidia ${NV_X11}/libglxserver_nvidia.so.${NV_SOVER} \
+			/usr/$(get_libdir)/xorg/modules/extensions
 
 		# Xorg nvidia.conf
 		if has_version '>=x11-base/xorg-server-1.16'; then
@@ -487,7 +487,7 @@ src_install-libs() {
 		if use wayland && has_multilib_profile && [[ ${ABI} == "amd64" ]];
 		then
 			NV_GLX_LIBRARIES+=(
-				"libnvidia-egl-wayland.so.1.0.3"
+				"libnvidia-egl-wayland.so.1.1.0"
 			)
 		fi
 
@@ -508,6 +508,15 @@ src_install-libs() {
 			NV_GLX_LIBRARIES+=(
 				"libnvidia-ml.so.${NV_SOVER}"
 				"tls/libnvidia-tls.so.${NV_SOVER}"
+			)
+		fi
+
+		if use kernel_linux && has_multilib_profile && [[ ${ABI} == "amd64" ]];
+		then
+			NV_GLX_LIBRARIES+=(
+				"libnvidia-cbl.so.${NV_SOVER}"
+				"libnvidia-rtcore.so.${NV_SOVER}"
+				"libnvoptix.so.${NV_SOVER}"
 			)
 		fi
 

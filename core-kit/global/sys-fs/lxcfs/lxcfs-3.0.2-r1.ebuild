@@ -14,7 +14,7 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_BRANCH="master"
 	inherit git-r3
 	SRC_URI=""
-	KEYWORDS=""
+	KEYWORDS="*"
 else
 	# e.g. upstream is 2.0.0.beta2, we want 2.0.0_beta2
 	UPSTREAM_PV=$(replace_version_separator 3 '.' )

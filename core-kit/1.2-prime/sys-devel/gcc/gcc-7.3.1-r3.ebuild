@@ -90,7 +90,7 @@ SRC_URI="$SRC_URI ada? ( amd64? ( mirror://funtoo/gcc/${GNAT64} ) x86? ( mirror:
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
-KEYWORDS="*"
+KEYWORDS=""
 
 RDEPEND="
 	sys-libs/zlib[static-libs,${MULTILIB_USEDEP}]
@@ -186,7 +186,8 @@ src_prepare() {
 	eapply "${GCC_SVN_PATCH}"
 
 	# Fix to add entry for 'skylake' in config.gcc's x86_64_archs variable if missing.
-	sed -e '/x86_64_archs="/,/"/ { /\<skylake / b ; s/\<skylake-/skylake &/ }' -i "${S}/gcc/config.gcc"
+	# skylake (non -avx512) appears to be broken in pre gcc-8 and PR target/84331 was not backported to gcc-7
+	# sed -e '/x86_64_archs="/,/"/ { /\<skylake / b ; s/\<skylake-/skylake &/ }' -i "${S}/gcc/config.gcc"
 
 	( use vanilla && use hardened ) \
 		&& die "vanilla and hardened USE flags are incompatible. Disable one of them"
@@ -318,7 +319,6 @@ gcc_conf_arm_opts() {
 		done
 
 		# Convert armv7{a,r,m} to armv7-{a,r,m}
-		local arm_arch_without_dash=${arm_arch}
 		[[ ${arm_arch} == armv7? ]] && arm_arch=${arm_arch/7/7-}
 		# See if this is a valid --with-arch flag
 		if (srcdir=${S}/gcc target=${CTARGET} with_arch=${arm_arch};
@@ -379,7 +379,7 @@ src_configure() {
 			*-musl*)			needed_libc=musl;;
 			*-uclibc*)			needed_libc=uclibc;;
 		esac
-		confgcc+=" --disable-bootstrap --enable-poision-system-directories"
+		confgcc+=" --disable-bootstrap --enable-poison-system-directories"
 		if ! has_version ${CATEGORY}/${needed_libc}; then
 			# we are building with libc that is not installed:
 			confgcc+=" --disable-shared --disable-libatomic --disable-threads --without-headers"
@@ -445,22 +445,6 @@ src_configure() {
 		--enable-checking=$(gcc_checking_opts) \
 		$(gcc_conf_lang_opts) $(gcc_conf_arm_opts) $confgcc \
 		|| die "configure fail"
-
-	#	--with-mpfr-include=${S}/mpfr/src \
-	#	--with-mpfr-lib=${WORKDIR}/objdir/mpfr/src/.libs \
-	# The --with-mpfr* lines above are used so that gcc-4.6.4 can find mpfr-3.1.2.
-	# It can find 2.4.2 with no problem automatically but needs help with newer versions
-	# due to mpfr dir structure changes. We look for includes in the source directory,
-	# and libraries in the build (objdir) directory.
-
-	if use arm ; then
-		# Source : https://sourceware.org/bugzilla/attachment.cgi?id=6807
-		# Workaround for a problem introduced with GMP 5.1.0.
-		# If configured by gcc with the "none" host & target, it will result in undefined references
-		# to '__gmpn_invert_limb' during linking.
-		# Should be fixed by next version of gcc.
-		sed -i "s/none-/${arm_arch_without_dash}-/" ${WORKDIR}/objdir/Makefile || die
-	fi
 
 }
 

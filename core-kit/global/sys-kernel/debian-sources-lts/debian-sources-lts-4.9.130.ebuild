@@ -14,7 +14,7 @@ PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS=""
-IUSE="binary sign-modules"
+IUSE="binary ec2 sign-modules"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux/"
@@ -40,7 +40,12 @@ tweak_config() {
 
 setno_config() {
 	einfo "Setting $2*=y to n in kernel config."
-	sed -i -e "s/^$2\(.*\)=y/$2\1=n/g" $1
+	sed -i -e "s/^$2\(.*\)=.*/$2\1=n/g" $1
+}
+
+setyes_config() {
+	einfo "Setting $2*=* to y in kernel config."
+	sed -i -e "s/^$2\(.*\)=.*/$2\1=y/g" $1
 }
 
 zap_config() {
@@ -123,6 +128,12 @@ src_prepare() {
 	chmod +x config-extract || die
 	./config-extract ${arch} ${featureset} ${subarch} || die
 	setno_config .config CONFIG_DEBUG
+	if use ec2; then
+		setyes_config .config CONFIG_BLK_DEV_NVME
+		setyes_config .config CONFIG_XEN_BLKDEV_FRONTEND
+		setyes_config .config CONFIG_XEN_BLKDEV_BACKEND
+		setyes_config .config CONFIG_IXGBEVF
+	fi
 	if use sign-modules; then
 		certs_dir=$(get_certs_dir)
 		echo

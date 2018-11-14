@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-inherit eutils xdg-utils gnome2-utils pax-utils unpacker
+inherit gnome2-utils pax-utils unpacker xdg-utils
 
 DESCRIPTION="Spotify is a social music platform"
 HOMEPAGE="https://www.spotify.com/ch-de/download/previews/"
@@ -19,7 +19,7 @@ IUSE="libnotify systray pax_kernel pulseaudio"
 RESTRICT="mirror strip"
 
 DEPEND=">=dev-util/patchelf-0.9_p20180129"
-# zenety needed for filepicker
+# zenity needed for filepicker
 RDEPEND="
 	dev-libs/openssl:0
 	dev-libs/nss
@@ -60,7 +60,8 @@ src_prepare() {
 }
 
 src_install() {
-	dodoc usr/share/doc/spotify-client/changelog.gz
+	gunzip usr/share/doc/spotify-client/changelog.gz || die
+	dodoc usr/share/doc/spotify-client/changelog
 
 	SPOTIFY_PKG_HOME=usr/share/spotify
 	insinto /usr/share/pixmaps
@@ -98,10 +99,6 @@ src_install() {
 	fi
 }
 
-pkg_preinst() {
-	gnome2_icon_savelist
-}
-
 pkg_postinst() {
 	gnome2_icon_cache_update
 	xdg_mimeinfo_database_update
@@ -110,11 +107,6 @@ pkg_postinst() {
 	ewarn "If Spotify crashes after an upgrade its cache may be corrupt."
 	ewarn "To remove the cache:"
 	ewarn "rm -rf ~/.cache/spotify"
-	ewarn
-	ewarn "If you use KDE and are upgrading from 0.9 to 1.0, you might still see the old icon."
-	ewarn "Run"
-	ewarn "$ rm /var/tmp/kdecache-\$USER/icon-cache.kcache"
-	ewarn "Then log out and log in back to KDE."
 }
 
 pkg_postrm() {

@@ -28,73 +28,495 @@
 ## app-misc/some-package
 
 #--- END OF EXAMPLES ---
-# Virgil Dupras <vdupras@gentoo.org> (30 Sep 2018)
-# Dead upstream, unmaintained, no revdeps.
-# Removal in 30 days, bug #611614
-dev-python/recaptcha-client
 
-# Michał Górny <mgorny@gentoo.org> (30 Sep 2018)
-# Poor quality NIH ebuilds with multiple issues and lack of test suites.
-# They do not support Python 3 (even if somebody claimed otherwise,
-# completely ignoring all the errors during install phase), depend
-# on old Twisted packages and have no reverse dependencies in ::gentoo.
-# Removal in 30 days.  Bug #667354.
-dev-python/python-application
-dev-python/python-cjson
-dev-python/python-eventlib
-dev-python/python-gnutls
-dev-python/python-msrplib
-dev-python/python-xcaplib
+# Hans de Graaff <graaff@gentoo.org> (12 Nov 2018)
+# Mask ruby23-only packages for removal. These packages are not
+# compatible with ruby24+ or they are old slots that are ruby23-only
+# in Gentoo. Removal in 30 days. Bug #661262
+app-text/glark
+app-text/jist
+dev-ruby/activerecord-deprecated_finders
+dev-ruby/akismet:2
+dev-ruby/awesome_print
+dev-ruby/facets
+dev-ruby/http:1.0
+dev-ruby/http:2.0
+dev-ruby/jira-ruby
+dev-ruby/logging
+dev-ruby/public_suffix:2
+dev-ruby/ragol
+dev-ruby/webmock:0
+dev-ruby/wikicloth
 
-# Matt Turner <mattst88@gentoo.org> (29 Sep 2018)
-# Removal in 30 days, bug #576334
-app-eselect/eselect-mesa
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Dead for years (#425156) with security issues (#534540). Removal in a
+# month.
+x11-libs/gksu
+x11-libs/libgksu
 
-# Virgil Dupras <vdupras@gentoo.org> (27 Sep 2018)
-# Outdated, unmaintained, no revdeps.
-# Removal in 30 days, bug #623292
-dev-python/tinydb
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Both are part of ant-core for years (#466558). Removal in a month.
+dev-java/ant-nodeps
+dev-java/ant-trax
 
-# Mike Gilbert <floppym@gentoo.org> (24 Sep 2018)
-# Breaks multilib builds.
-# https://bugs.gentoo.org/666968
-=dev-util/meson-0.48.0
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Unmaintained for years, buggy (#183273, #491010, #605544). You can rely on
+# INSTALL_MASK to skip unwanted locales and install only foo locale:
+# INSTALL_MASK="/usr/share/locale -/usr/share/locale/foo"
+# Removal in a month.
+app-admin/localepurge
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Unmaintained, really old version in the tree with someone needs to get
+# bumped (#622572). Removal in a month.
+net-p2p/ppcoind
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Our current version is broken for ages (#622722), no maintained, needs to
+# be bumped, no reverse deps in the tree. Removal in a month.
+media-libs/libptp2
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Dead for years, last package depending on old musicbrainz:3 (#629392).
+# Removal in a month.
+media-video/gnome-mplayer
+www-plugins/gecko-mediaplayer
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Upstream dead for years and marked EOL (#629676, #665850). Removal in a
+# month.
+dev-db/mysql-proxy
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Unmaintained, fails to build, nothing requires it anymore (#630400).
+# Removal in a month.
+app-forensics/libbfio
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Needs someone to finally take care of it, bump it and let it be
+# installable again (#635476, #645740). Removal in a month.
+net-analyzer/nessus-bin
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Pending version bump (#648380), doesn't build (#637350). Removal in a
+# month.
+sys-apps/likwid
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Doesn't build for a long time (#638096). Removal in a month.
+games-action/rafkill
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Dead for a long time, failing tests (#638376), nothing requires it
+# anymore. Removal in a month.
+dev-python/flask-testing
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Doesn't build for a long time (#638710), nothing requires it. Removal in a
+# month.
+app-emulation/vpcs
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails to build with current glibc (#638840). Removal in a month.
+sys-devel/heirloom-devtools
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails to build for a long time (#639844). Removal in a month.
+dev-embedded/scratchbox2
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails to build with current gcc (#640926), file collisions (#630668), no
+# reverse deps. Removal in a month.
+media-video/sswf
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Replaced by libunibreak and no reverse deps (#640974). Removal in a month.
+dev-libs/liblinebreak
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails at runtime (#645690). Removal in a month.
+dev-lang/gnu-smalltalk
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Replaced by dev-db/percona-toolkit, cannot be fetched (#645984). Removal
+# in a month.
+dev-db/maatkit
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Merged into >=app-portage/gentoolkit-0.4 (#659412). Removal in a month.
+app-portage/gentoolkit-dev
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Broken since python 3.6 (#659414), buggy (#640372, #607666). Removal in a
+# month.
+app-portage/gs-pypi
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails at runtime (#661746). Removal in a month.
+games-roguelike/mangband
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Nobody is taking care of them, use the ones provided by the maintained
+# sys-kernel/linux-firmware package (#661884). Removal in a month.
+net-dialup/ueagle-atm
+net-dialup/ueagle4-atm
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails to build (#662000), not compatible with kernel-4, use kernel driver rtsx_pci
+# instead. Removal in a month.
+sys-block/rts_pstor
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Fails to run (#662180). Removal in a month.
+app-text/chm2pdf
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Unmaintained, security issues (#630796, #663164). Removal in a month.
+dev-db/couchdb
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Unkeyworded since 2008, non-installable (#664680). Removal in a month.
+sys-fs/devfsd
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Orphan, no reverse deps, dead since 2003 (#665046, #521242). Removal in a
+# month.
+app-text/clara
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Merged into >=media-tv/mythtv-29, bug #665924. Removal in a month.
+media-plugins/mythplugins
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# No reverse deps, obsoleted in 2016 (#666130). Removal in a month.
+dev-python/jenkins-webapi
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Build issues (#666166), upstream dead for years (#619624). Removal in a
+# month.
+media-plugins/vdr-image
+media-plugins/vdr-picselshow
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Dead for years, no reverse deps (#665046). Removal in a month.
+app-text/clara
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# ebuild plays with /dev (#666456). Removal in a month.
+app-misc/fujiplay
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Relies on dead imlib-1, not needed by anything in the tree (#668310).
+# Removal in a month.
+media-libs/fnlib
+
+# Pacho Ramos <pacho@gentoo.org> (11 Nov 2018)
+# Build issues (#670436), dead since year 2000. Removal in a month.
+net-ftp/axyftp
+
+# Mike Gilbert <floppym@gentoo.org> (10 Nov 2018)
+# Open bugs and no Gentoo maintainer.
+# Removal in 30 days.
+net-misc/netctl
+
+# Ian Stakenvicius <axs@gentoo.org> (07 Nov 2018)
+# on behalf of Mozilla Project <mozilla@gentoo.org>
+# Mask old/vuln thunderbird for removal by 2019,
+# see security bug 670102
+<mail-client/thunderbird-60.0
+<mail-client/thunderbird-bin-60.0
+
+# Craig Andrews <candrews@gentoo.org> (06 Nov 2018)
+# Requires >=dev-libs/openssl-1.1.0
+dev-libs/gost-engine
+
+# Michał Górny <mgorny@gentoo.org> (06 Nov 2018)
+# LLVM 7.0.1 prereleases, masked for testing.
+=dev-ml/llvm-ocaml-7.0.1_rc*
+=dev-python/clang-python-7.0.1_rc*
+=dev-python/lit-7.0.1_rc*
+=dev-util/lldb-7.0.1_rc*
+=sys-devel/clang-7.0.1_rc*
+=sys-devel/clang-common-7.0.1_rc*
+=sys-devel/clang-runtime-7.0.1_rc*
+=sys-devel/lld-7.0.1_rc*
+=sys-devel/llvm-7.0.1_rc*
+=sys-devel/llvm-common-7.0.1_rc*
+=sys-libs/compiler-rt-7.0.1_rc*
+=sys-libs/compiler-rt-sanitizers-7.0.1_rc*
+=sys-libs/libcxx-7.0.1_rc*
+=sys-libs/libcxxabi-7.0.1_rc*
+=sys-libs/libomp-7.0.1_rc*
+=sys-libs/llvm-libunwind-7.0.1_rc*
+
+# Andreas Sturmlechner <asturm@gentoo.org> (06 Nov 2018)
+# This was already outdated by the arrival of kde-apps/kdeartwork-iconthemes,
+# which itself was removed more than two years ago. Dead upstream.
+# Masked for removal by end of the month, bugs #670424, #670842
+x11-themes/nuvola
+x11-themes/Tulliana
+
+# Brian Evans <grknight@gentoo.org> (05 Nov 2018)
+# Causes a dependency loop in the OpenRC script. Bug #651998
+=sys-fs/cryptsetup-2.0.5-r1
+
+# Mike Gilbert <floppym@gentoo.org> (05 Nov 2018)
+# Dev channel releases are only for people who are developers or want more
+# experimental features and accept a more unstable release.
+>=www-client/chromium-72
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Unmaintained, needs someone to take care of bumping and maintaining it
+# (#509518). Removal in a month.
+dev-python/pyramid
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Upstream dead, multiple unresolved bugs (#540622). Removal in a month.
+app-crypt/tinyca
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# gitorious was closed (#544812), nothing needs it in the tree and we only
+# provide a live ebuild. Removal in a month.
+app-benchmarks/os-autoinst
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Pending version bumps (with security fixes) for a long time (#550188,
+# #544568, #227993). Removal in a month.
+www-apps/moinmoin
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Nobody willing to update and maintain this for years (#556306, #554488).
+# Removal in a month.
+net-proxy/squidclamav
+net-proxy/c-icap
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Outdated, doesn't respect CC, installs files in /usr/local (#565894,
+# #664370). Removal in a month.
+www-client/dooble
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Outdated, move to media-gfx/slic3r or other online alternatives (#570324).
+# Removal in a month.
+media-gfx/replicatorg
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Build issues (#587866), outdated, nothing needs it in the tree. Removal in
+# a month.
+dev-libs/libsolv
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Build issues (#590316, #603300), no reverse deps, needs a major version
+# bump. Removal in a month.
+dev-lua/lua-openssl
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Upstream dead for ages, crashes (#637286), build issues (#592580).
+# Migration to Google fork or other alternative will be needed. Removal in a
+# month.
+net-misc/tlsdate
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Hard to bump (#480160), uses get_libdir at global scope (#593400). Removal
+# in a month.
+net-analyzer/w3af
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# pkg_postinst calls pkg_config (#596648), upstream dead for ages. Removal
+# in a month.
+sys-auth/bioapi
+sys-auth/tfm-fingerprint
+sys-auth/pam_bioapi
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Dead for ages, not needed anymore (#596988). Removal in a month.
+sys-power/upower-pm-utils
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Broken and outdated (#445476, #448934, #599580). Removal in a month.
+media-plugins/mediastreamer-silk
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Fails to build (#601886), dead for a long time. Removal in a month.
+media-gfx/gimmage
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Fringe format, nothing really uses it, upstream disappeared, not really
+# working for some time (#602938). Removal in a month.
+media-libs/schroedinger
+
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Needs someone to maintain it and bump to a snapshot not relying on
+# gstreamer:0.10 (#610434, #560254). Removal in a month.
+app-accessibility/pocketsphinx
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Fails to build, hard to bump (#608908). Removal in a month.
+net-nntp/inn
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Dead since 2005, nobody else still ships it, it creates cruft dirs in /
+# (#565592). Removal in a month.
+app-admin/syslogread
+
+# Pacho Ramos <pacho@gentoo.org> (04 Nov 2018)
+# Upstream dead for many years and nobody taking care of them, bug #443842,
+# bug #618050. Removal in a month.
+sys-cluster/cman
+sys-cluster/ccs
+sys-cluster/rgmanager
+sys-cluster/rgmanager-agents
+sys-cluster/libdlm
+sys-cluster/fence-agents
+sys-cluster/libccs
+sys-cluster/libccs-perl
+sys-cluster/libcman
+sys-cluster/libfence
+sys-cluster/liblogthread
+
+# Andreas Sturmlechner <asturm@gentoo.org> (03 Nov 2018)
+# Breaks revdeps (GDir and GDirEntry split from gfile.h into new gdir.h)
+# See tracker: https://bugs.gentoo.org/670222
+>=app-text/poppler-0.71.0
+
+# Matt Turner <mattst88@gentoo.org> (02 Nov 2018)
+# Dead and unusable with latest xserver. Masked for removal in 30 days.
+# Bug #664096
+x11-drivers/xf86-input-tslib
+
+# Mart Raudsepp <leio@gentoo.org> (02 Nov 2018)
+# Old x11-libs/goocanvas:0 SLOT python bindings, not used by anything.
+# New x11-libs/goocanvas:2.0 with introspection should be used instead.
+# Removal in a month. Bug #670142
+dev-python/pygoocanvas
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Outdated, security issues (#629442), dead since 2014 (#405527).
+# Removal in a month.
+mail-filter/assp
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Outdated, needs to be bumped to latest release to fix multiple security
+# bugs (#444368). Removal in a month.
+www-apps/lxr
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Needs to be bumped (#475330), build issues (#521094), install files in
+# /dev (#452248), ignores CFLAGS (#452244). Removal in a month.
+app-misc/iguanaIR
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Needs a major version bump to a version that is security audited
+# (#477742). Removal in a month.
+net-analyzer/nagvis
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Buggy (#499298), upstream is dead for a long time, maybe a switch to one
+# of the existing forks would be needed, abi_x86_32 doesn't work (#524498).
+# Removal in a month.
+media-plugins/alsaequal
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Unmaintained, installs files in runtime dirs (#520626), requires old
+# libosip. Removal in a month.
+net-misc/siproxd
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# Needs a major version bump to work with recent db versions (#529966).
+# Removal in a month.
+net-proxy/c-icap-modules
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# 2.90 slot of VTE is deprecated for a long time in favor of 2.91, no
+# reverse deps (#538140). Removal in a month.
+=x11-libs/vte-0.36.5
+
+# Pacho Ramos <pacho@gentoo.org> (01 Nov 2018)
+# All this packages are broken and need major version bumps to fix them. See
+# bug #504114, #486510, #510550, #511096, #517260, #551784, #616490, #
+net-voip/linphone
+net-libs/libeXosip
+net-libs/libosip
+
+# Aaron W. Swenson <titanofold@gentoo.org> (25 Oct 2018)
+# Fails to build against up to date OpenSSL library (Bug 663966). No longer
+# supported upstream. Use dev-db/pgadmin4.
+# Masked for removal on 2018-11-24, bug #669650.
+dev-db/pgadmin3
+
+# Ulrich Müller <ulm@gentoo.org> (23 Oct 2018)
+# Depends on <www-client/firefox-57 which is package masked.
+# Use www-client/surf or www-client/qutebrowser as replacement.
+# Masked for removal in 30 days, bug #667528.
+www-client/conkeror
+
+# Lars Wendler <polynomial-c@gentoo.org> (22 Oct 2018)
+# Breaks dev-libs/gobject-introspection and its consumers
+# See #669278
+=xfce-base/xfconf-4.13.6
+
+# Pacho Ramos <pacho@gentoo.org> (21 Oct 2018)
+# Lots of pending bugs for years, this needs a dedicated maintainer that
+# fixes them: bug #354157, #354639, #398075, #398077, #417375, #499654,
+# #539358, #591682, #625798, #639912, #662316, #664270...
+# Removal in a month.
+media-gfx/splashutils
+media-gfx/bootsplash-themes
+media-gfx/splash-themes-gentoo
+media-gfx/splash-themes-livecd
+media-gfx/splash-themes-livedvd
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (20 Oct 2018)
+# Fails to build with glibc-2.27, bug 648620. No reverse
+# dependencies. Removal in 30 days.
+dev-tcltk/ck
+
+# Matt Turner <mattst88@gentoo.org> (16 Oct 2018)
+# Unmaintained. Unused. Removal in 30 days. Bug #668826
+media-libs/libomxil-bellagio
+
+# Virgil Dupras <vdupras@gentoo.org> (15 Oct 2018)
+# Unmaintained, no revdep. Removal in 30 days. Bug #650048
+dev-python/django-extensions
+dev-python/shortuuid
+dev-python/fexpect
+
+# Sobhan Mohammadpour <sobhan@gentoo.org> (15 Oct 2018)
+# Masked for testing.
+sys-apps/bubblewrap
+
+# Thomas Deutschmann <whissi@gentoo.org> (12 Oct 2018)
+# EOL and has known vulnerabilities. Please move to
+# Firefox 60 or newer if you can.
+<www-client/firefox-60
+<www-client/firefox-bin-60
+
+# Sergei Trofimovich <slyfox@gentoo.org> (09 Oct 2018)
+# Upstream is not actively maintained. Needs a port to mupdf-1.14.
+app-text/fbpdf
+
+# Davide Pesavento <pesa@gentoo.org> (08 Oct 2018)
+# Ebuild is not ready, major packaging changes required. Bug 668014.
+>=dev-python/PyQt5-5.11
+
+# Andreas Sturmlechner <asturm@gentoo.org> (07 Oct 2018)
+# Masked for more testing especially of reverse-deps.
+>=dev-games/ogre-1.11.2
+
+# Mart Raudsepp <leio@gentoo.org> (06 Oct 2018)
+# Netspeed applet moved into mate-base/mate-applets since v1.14,
+# use that instead. Bug #667910
+net-analyzer/mate-netspeed
+
+# Thomas Deutschmann <whissi@gentoo.org> (06 Oct 2018)
+# Outdated and vulnerable snapshot; libav-12.3 is the better
+# version for now
+=media-video/libav-13_pre20171219
 
 # Michał Górny <mgorny@gentoo.org> (24 Sep 2018)
 # Apparently breaks sys-devel/gcc.  Bug #666954.
 =dev-util/debugedit-4.14.2
-
-# Michał Górny <mgorny@gentoo.org> (17 Sep 2018)
-# Obsolete LogiLab packages that are full of issues and were never
-# maintained properly.  Recently dev-python/logilab-common started
-# colliding with dev-python/pytest, making it practically non-
-# installable.  The only revdep left is app-vim/python-mode where
-# the dep looks completely mistaken.  Bug #666152.
-app-vim/python-mode
-dev-python/astng
-dev-python/logilab-common
-dev-python/logilab-constraint
-
-# Andreas Sturmlechner <asturm@gentoo.org> (16 Sep 2018)
-# was merged into the IETF Opus codec and is now obsolete
-# Removal in 30 days, bug #664154
-media-libs/celt
-
-# Mike Gilbert <floppym@gentoo.org> (16 Sep 2018)
-# Dev channel releases are only for people who are developers or want more
-# experimental features and accept a more unstable release.
->=www-client/chromium-71
-
-# Brian Evans <grknight@gentoo.org> (16 Sep 2018)
-# Broken build on modern clients. Please update to latest slot.
-# Slot to be removed in 30 days
-dev-db/myodbc:5.2
-
-# Michał Górny <mgorny@gentoo.org> (13 Sep 2018)
-# Depends on old version of dev-libs/jsoncpp, blocking its pruning.
-# Downstream maintainer is inactive to bump it.  Removal in 30 days.
-# Bug #656678.
-dev-lang/solidity
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (11 Sep 2018)
 # Mask transition ebuilds that were needed only for <glibc-2.26
@@ -103,82 +525,11 @@ dev-lang/solidity
 ~net-libs/libnsl-0
 ~net-libs/rpcsvc-proto-0
 
-# Aaron W. Swenson <titanofold@gentoo.org> (09 Sep 2018)
-# PostgreSQL beta and release candidate releases are pre-release testing
-# versions, not meant for production use. They are feature-frozen, and are
-# released to the public for testing before final release
-#
-# NOTE: Successive beta or candidate releases may not be backwards compatible,
-# so it is important that you review the release notes before upgrading.
-#
-# For more information about beta and release candidate versions, see:
-#     https://www.postgresql.org/developer/beta/
-=dev-db/postgresql-11_beta1
-=dev-db/postgresql-11_beta2
-=dev-db/postgresql-11_beta3
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# homepage dead
-# dead on upstream
-# not converted to gettext
-# a lot of compile warnings
-# bug 665124
-# masked for removal on End Sep 2018
-media-plugins/vdr-prefermenu
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# fails on latest imagemagick
-# not converted to gettext
-# bug 665126
-# masked for removal on End Sep 2018
-media-plugins/vdr-text2skin
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# quit old
-# unmanged on upstream since ~ 10 years
-# bug 665128
-# masked for removal on End Sep 2018
-media-plugins/vdr-vodcatcher
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# homepage dead
-# not addapted to latest xine
-# fails on compile
-# quit old
-# bug 665132
-# masked for removal on End Sep 2018
-media-plugins/vdr-xine
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# dead on upstream since 2014
-# not git-r3 eclass adaption
-# only pmasked -9999.ebuild in the tree
-# bug 665134
-# masked for removal on End Sep 2018
-media-plugins/vdr-xvdr
-
-# Joerg Bornkessel <hd_brummy@gentoo.org> (02/Sep/2018)
-# homepage dead
-# dead on upstream
-# depends on vdr-1.3 (quit old)
-# bug 665136
-# masked for removal on End Sep 2018
-media-plugins/vdr-autosort
-
 # Matthias Maier <tamiko@gentoo.org> (1 Sep 2018)
-# Mask 0.7.0 and  1.0.0 for the time being until a compatible LLVM version
+# Mask 0.7.0 and  1.0.1 for the time being until a compatible LLVM version
 # made it into the tree, bug #665192
 ~dev-lang/julia-0.7.0
-~dev-lang/julia-1.0.0
-
-# Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (29 Aug 2018)
-# Masked for removal in 30 days. Multiple build failures. Upstream inactive.
-# (bugs #321017, #581284, #588692, #602786, #649006, #654140)
-www-plugins/gnash
-
-# Virgil Dupras <vdupras@gentoo.org> (23 Aug 2018)
-# Vulnerable and can't be removed yet because of alpha. Bug #664346
-<dev-python/paramiko-2.4.1
+~dev-lang/julia-1.0.1
 
 # Bernard Cafarelli <voyageur@gentoo.org> (20 Aug 2018)
 # Requires >=dev-libs/openssl-1.1.0
@@ -255,10 +606,6 @@ dev-python/wxpython:2.8
 =virtual/perl-threads-2.220.0
 =virtual/perl-version-0.992.300
 
-# Thomas Deutschmann <whissi@gentoo.org> (23 Jun 2018)
-# Doesn't pass QA full boot test
-=sys-kernel/ck-sources-4.16.17
-
 # Mart Raudsepp <leio@gentoo.org> (16 Jun 2018)
 # No upstream (website disappeared), no upstream plugin maintainer,
 # and pretty much a fringe format anyway.
@@ -292,20 +639,10 @@ virtual/httpd-php:7.3
 # x11-drivers/nvidia-drivers. Work in progress.
 media-libs/libglvnd
 
-# Maciej Mrozowski <reavertm@gentoo.org> (6 May 2018)
-# SoQt does not build yet
->=media-libs/coin-4.0.0
->=media-libs/simage-1.7.1
-
 # Aaron Bauman <bman@gentoo.org> (30 Apr 2018)
 # Masked for testing
 =dev-libs/libressl-2.7*
 =dev-libs/libressl-2.8*
-
-# Alexis Ballier <aballier@gentoo.org> (21 Apr 2018)
-# Needs porting of revdeps
-# See: https://bugs.gentoo.org/653678
->=media-video/ffmpeg-4.0
 
 # Brian Evans <grknight@gentoo.org> (20 Apr 2018)
 # Likely to break a lot of software
@@ -315,6 +652,7 @@ media-libs/libglvnd
 # Jeroen Roovers <jer@gentoo.org> (6 Apr 2018)
 # Requires >=dev-libs/openssl-1.1.0
 =net-libs/nodejs-10*
+=net-libs/nodejs-11*
 
 # Tony Vroon <chainsaw@gentoo.org> (24 Mar 2018)
 # This is a vulnerable version of Asterisk and should not be used except
@@ -322,21 +660,10 @@ media-libs/libglvnd
 # Bug 629682.
 =net-misc/asterisk-11.25.1
 
-# Aaron W. Swenson <titanofold@gentoo.org> (22 Mar 2018)
-# EOL. No longer receives bug or security fixes. Recommended to update
-# to latest available.
-# Removal in 30 days (21 Apr 2018). Bug 634028.
-<dev-db/postgresql-9.3
-
 # Michał Górny <mgorny@gentoo.org> (20 Mar 2018)
 # Poorly tested version bump followed by a series of quick hacks
 # that do not make it any more working. Bug #651030.
 >=sys-devel/distcc-3.3
-
-# Anthony G. Basile <blueness@gentoo.org> (25 Feb 2018)
-# Upstream has been dead since 2012.  Migrate to uclibc-ng.
-# See https://wiki.gentoo.org/wiki/Project:Hardened_uClibc
-sys-libs/uclibc
 
 # Eray Aslan <eras@gentoo.org> (08 Feb 2018)
 # Mask experimental software
@@ -359,11 +686,13 @@ sys-libs/uclibc
 >=sci-electronics/pcb-20000000
 
 # James Le Cuirot <chewi@gentoo.org> (17 Dec 2017)
-# Java 9 is not yet fully supported on Gentoo. Packages cannot depend
+# Java 9+ is not yet fully supported on Gentoo. Packages cannot depend
 # on it so these virtuals are not yet required. If you wish to use
-# Java 9 now then install oracle-(jdk|jre)-bin:9 directly.
+# Java 9+ then install oracle-(jdk|jre)-bin or openjdk(-bin) directly.
 virtual/jdk:9
 virtual/jre:9
+virtual/jdk:11
+virtual/jre:11
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (22 Oct 2017)
 # Broken with recent Perl (5.26) and not used by anything
@@ -481,7 +810,6 @@ dev-ruby/poltergeist
 # Also, b43 wiki page says to use 5.100.138. Bug #541080.
 >=sys-firmware/b43-firmware-6.30.163.46
 
-
 # Michał Górny <mgorny@gentoo.org> (20 May 2017)
 # Old versions of CUDA and their reverse dependencies. They do not
 # support GCC 5+, and are really old.
@@ -559,15 +887,6 @@ dev-java/jcs
 # Andrey Grozin <grozin@gentoo.org> (04 Jan 2016)
 # Needs a bump and substantial ebuild rewrite
 =sci-mathematics/reduce-20110414-r1
-
-# Michał Górny <mgorny@gentoo.org> (30 Oct 2015)
-# Uses unsafe ioctls that could result in data corruption. Upstream
-# is working on replacing them in the wip/dedup-syscall branch.
-# Keep it masked until they are done. sys-fs/duperemove is
-# the suggested replacement for the meantime.
-# Michał Górny <mgorny@gentoo.org> (13 Sep 2018)
-# No upstream commits since 2016.  Removal in 30 days.  Bug #546144.
-sys-fs/bedup
 
 # Robin H. Johnson <robbat2@gentoo.org> (04 Aug 2014)
 # Masked for testing, presently fails upstream testsuite:

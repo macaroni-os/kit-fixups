@@ -12,7 +12,7 @@ DESCRIPTION="X.Org Protocol ${proto} package stub ."
 
 KEYWORDS="*"
 
-SLOT="stub"
+SLOT="0/stub"
 
 RDEPEND="|| ({% for meta_atom in all_meta_atoms %}
 	={{meta_atom}}

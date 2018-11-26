@@ -67,7 +67,7 @@ src_prepare() {
 
 src_configure() {
 	cd "${BUILDDIR}" || die
-
+	export SHELL=/bin/bash
 	ECONF_SOURCE="${S}/js/src" \
 	econf \
 		--enable-jemalloc \

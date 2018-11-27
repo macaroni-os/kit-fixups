@@ -1,0 +1,141 @@
+From 4641519e483f294db0a5405993801e5a979e9cb2 Mon Sep 17 00:00:00 2001
+From: Sergei Trofimovich <slyfox@gentoo.org>
+Date: Wed, 12 Sep 2018 23:44:29 +0100
+Subject: [PATCH 98/98] Gentoo: add --with-extra-soversion-suffix= option
+
+--with-extra-soversion-suffix= will allow Gentoo to
+distinct libbfd.so and libopcodes.so to have more precise
+SONAME.
+
+Today --enable-targets=all and --enable-64-bit-bfd change
+libbfd.so ABI:
+--enable-targets=all adds new symbols to the library
+--enable-64-bit-bfd modifies BFD_ARCH_SIZE default and
+changes sizes of integer parameters and fields to most
+APIs.
+
+--with-extra-soversion-suffix= will allow Gentoo to inject
+additional keys into SONAME to indicate ABI change and avoid
+hard to diagnose crashes when user reinstalls libbfd.so
+built with different flags (see https://bugs.gentoo.org/663690).
+
+Bug: https://bugs.gentoo.org/666100
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+---
+ bfd/Makefile.am  |  5 +++++
+ bfd/Makefile.in  |  4 ++++
+ bfd/configure    | 13 +++++++++++++
+ bfd/configure.ac |  7 +++++++
+ 4 files changed, 29 insertions(+)
+
+diff --git a/bfd/Makefile.am b/bfd/Makefile.am
+index f727ebeb28..e4ec268e46 100644
+--- a/bfd/Makefile.am
++++ b/bfd/Makefile.am
+@@ -58,6 +58,8 @@ bfdinclude_HEADERS += $(INCDIR)/plugin-api.h
+ LIBDL = @lt_cv_dlopen_libs@
+ endif
+ 
++EXTRA_SOVERSION_SUFFIX = @EXTRA_SOVERSION_SUFFIX@
++
+ # bfd.h goes here, for now
+ BFD_H = bfd.h
+ 
+@@ -1096,6 +1098,9 @@ bfdver.h: $(srcdir)/version.h $(srcdir)/development.sh $(srcdir)/Makefile.in
+ 	  bfd_version_string="\"$(VERSION).$${bfd_version_date}\"" ;\
+ 	  bfd_soversion="$(VERSION).$${bfd_version_date}" ;\
+ 	fi ;\
++	if test x"$(EXTRA_SOVERSION_SUFFIX)" != x ; then \
++	  bfd_soversion="$${bfd_soversion}.$(EXTRA_SOVERSION_SUFFIX)" ;\
++	fi ;\
+ 	$(SED) -e "s,@bfd_version@,$$bfd_version," \
+ 	    -e "s,@bfd_version_string@,$$bfd_version_string," \
+ 	    -e "s,@bfd_version_package@,$$bfd_version_package," \
+diff --git a/bfd/Makefile.in b/bfd/Makefile.in
+index 40608238b7..ef7a69c41f 100644
+--- a/bfd/Makefile.in
++++ b/bfd/Makefile.in
+@@ -229,6 +229,7 @@ ECHO_T = @ECHO_T@
+ EGREP = @EGREP@
+ EXEEXT = @EXEEXT@
+ EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
++EXTRA_SOVERSION_SUFFIX = @EXTRA_SOVERSION_SUFFIX@
+ FGREP = @FGREP@
+ GENCAT = @GENCAT@
+ GMSGFMT = @GMSGFMT@
+@@ -2213,6 +2214,9 @@ bfdver.h: $(srcdir)/version.h $(srcdir)/development.sh $(srcdir)/Makefile.in
+ 	  bfd_version_string="\"$(VERSION).$${bfd_version_date}\"" ;\
+ 	  bfd_soversion="$(VERSION).$${bfd_version_date}" ;\
+ 	fi ;\
++	if test x"$(EXTRA_SOVERSION_SUFFIX)" != x ; then \
++	  bfd_soversion="$${bfd_soversion}.$(EXTRA_SOVERSION_SUFFIX)" ;\
++	fi ;\
+ 	$(SED) -e "s,@bfd_version@,$$bfd_version," \
+ 	    -e "s,@bfd_version_string@,$$bfd_version_string," \
+ 	    -e "s,@bfd_version_package@,$$bfd_version_package," \
+diff --git a/bfd/configure b/bfd/configure
+index 70ab0908c7..60cd1b30da 100755
+--- a/bfd/configure
++++ b/bfd/configure
+@@ -664,6 +664,7 @@ WARN_CFLAGS
+ REPORT_BUGS_TEXI
+ REPORT_BUGS_TO
+ PKGVERSION
++EXTRA_SOVERSION_SUFFIX
+ DEBUGDIR
+ PLUGINS_FALSE
+ PLUGINS_TRUE
+@@ -795,6 +796,7 @@ with_mmap
+ enable_secureplt
+ enable_leading_mingw64_underscores
+ with_separate_debug_dir
++with_extra_soversion_suffix
+ with_pkgversion
+ with_bugurl
+ enable_werror
+@@ -1465,6 +1467,8 @@ Optional Packages:
+   --with-separate-debug-dir=DIR
+                           Look for global separate debug info in DIR
+                           [default=LIBDIR/debug]
++  --with-extra-soversion-suffix=SUFFIX
++                          Append '.SUFFIX' to SONAME [default=]
+   --with-pkgversion=PKG   Use PKG in the version string in place of "GNU
+                           Binutils"
+   --with-bugurl=URL       Direct users to URL to report a bug
+@@ -12191,6 +12195,15 @@ fi
+ 
+ 
+ 
++EXTRA_SOVERSION_SUFFIX=
++
++# Check whether --with-extra-soversion-suffix was given.
++if test "${with_extra_soversion_suffix+set}" = set; then :
++  withval=$with_extra_soversion_suffix; EXTRA_SOVERSION_SUFFIX="${withval}"
++fi
++
++
++
+ 
+ 
+ # Check whether --with-pkgversion was given.
+diff --git a/bfd/configure.ac b/bfd/configure.ac
+index d431b28677..335b7181c9 100644
+--- a/bfd/configure.ac
++++ b/bfd/configure.ac
+@@ -112,6 +112,13 @@ AC_ARG_WITH(separate-debug-dir,
+ [DEBUGDIR="${withval}"])
+ AC_SUBST(DEBUGDIR)
+ 
++EXTRA_SOVERSION_SUFFIX=
++AC_ARG_WITH(extra-soversion-suffix,
++  AS_HELP_STRING([--with-extra-soversion-suffix=SUFFIX],
++                 [Append '.SUFFIX' to SONAME [[default=]]]),
++[EXTRA_SOVERSION_SUFFIX="${withval}"])
++AC_SUBST(EXTRA_SOVERSION_SUFFIX)
++
+ ACX_PKGVERSION([GNU Binutils])
+ ACX_BUGURL([http://www.sourceware.org/bugzilla/])
+ 
+-- 
+2.19.0
+

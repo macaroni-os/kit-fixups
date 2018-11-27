@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -13,7 +12,7 @@ SRC_URI="https://zlib.net/${P}.tar.gz
 	http://www.zlib.net/current/beta/${P}.tar.gz"
 
 LICENSE="ZLIB"
-SLOT="0/1" # subslot = SONAME
+SLOT="0"
 KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
 IUSE="minizip static-libs"
 
@@ -26,6 +25,7 @@ RDEPEND="abi_x86_32? (
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
+	epatch "${FILESDIR}"/${P}-minizip-drop-crypt-header.patch
 
 	if use minizip ; then
 		cd contrib/minizip || die

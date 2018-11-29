@@ -280,6 +280,10 @@ toolchain-binutils_src_configure() {
 	# For bi-arch systems, enable a 64bit bfd.  This matches
 	# the bi-arch logic in toolchain.eclass. #446946
 	# We used to do it for everyone, but it's slow on 32bit arches. #438522
+	if [[ -n ${BINUTILS_ENABLE_LIBRARIES_SONAMES_EXTRA_SUFFIX} ]]; then
+		myconf+=( --with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st))
+	fi
+	
 	case $(tc-arch) in
 	ppc|sparc|x86) myconf+=( --enable-64-bit-bfd ) ;;
 	esac

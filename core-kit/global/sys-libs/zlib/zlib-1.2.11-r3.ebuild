@@ -25,6 +25,7 @@ RDEPEND="abi_x86_32? (
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
+	epatch "${FILESDIR}"/${P}-minizip-drop-crypt-header.patch
 
 	if use minizip ; then
 		cd contrib/minizip || die

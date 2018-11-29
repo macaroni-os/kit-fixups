@@ -59,7 +59,7 @@ DEPEND="sys-fs/e2fsprogs
 RDEPEND="${DEPEND}
 		btrfs? ( sys-fs/btrfs-progs )
 		cryptsetup? ( sys-fs/cryptsetup )
-		sys-fs/lvm2
+		sys-fs/lvm2[static]
 		sys-fs/mdadm
 		app-misc/pax-utils
 		!<sys-apps/openrc-0.9.9"

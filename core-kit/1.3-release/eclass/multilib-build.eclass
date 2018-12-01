@@ -1,6 +1,5 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 # @ECLASS: multilib-build.eclass
 # @MAINTAINER:
@@ -21,7 +20,7 @@ if [[ ! ${_MULTILIB_BUILD} ]]; then
 
 # EAPI=4 is required for meaningful MULTILIB_USEDEP.
 case ${EAPI:-0} in
-	4|5|6) ;;
+	4|5|6|7) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
@@ -498,8 +497,8 @@ multilib_prepare_wrappers() {
 #	else
 #       error "abi_s390_32 not supported by the package."
 #	endif
-#elif defined(__powerpc__)
-#	if defined(__powerpc64__)
+#elif defined(__powerpc__) || defined(__ppc__)
+#	if defined(__powerpc64__) || defined(__ppc64__)
 #       error "abi_ppc_64 not supported by the package."
 #	else
 #       error "abi_ppc_32 not supported by the package."

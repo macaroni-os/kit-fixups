@@ -41,4 +41,5 @@ src_configure() {
 src_install() {
 	default
 	find "${D}" -name '*.la' -delete || die
+	dosym enchant.pc /usr/$(get_libdir)/pkgconfig/enchant-2.pc
 }

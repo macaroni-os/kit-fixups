@@ -1,41 +1,31 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
 PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-inherit eutils flag-o-matic linux-info multilib pam prefix python-single-r1 \
+PLOCALES="af cs de en es fa fr hr hu it ko nb pl pt_BR ro ru sk sl sv tr zh_CN
+		  zh_TW"
+
+inherit flag-o-matic l10n linux-info multilib pam prefix python-single-r1 \
 		systemd user versionator
 
-KEYWORDS="alpha amd64 ~arm ~arm64 ~hppa ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd ~ppc-macos ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~ppc-macos ~x86-solaris"
 
 SLOT="$(get_version_component_range 1-2)"
 
-MY_PV=${PV/_/}
-S="${WORKDIR}/${PN}-${MY_PV}"
-
-SRC_URI="mirror://postgresql/source/v${MY_PV}/postgresql-${MY_PV}.tar.bz2"
+SRC_URI="mirror://postgresql/source/v${PV}/postgresql-${PV}.tar.bz2"
 
 LICENSE="POSTGRESQL GPL-2"
 DESCRIPTION="PostgreSQL RDBMS"
-HOMEPAGE="http://www.postgresql.org/"
+HOMEPAGE="https://www.postgresql.org/"
 
-IUSE="doc kerberos kernel_linux ldap libressl nls pam perl -pg_legacytimestamp python
-	  +readline selinux +server systemd ssl static-libs tcl threads uuid xml zlib"
+IUSE="doc kerberos kernel_linux ldap libressl nls pam perl -pg_legacytimestamp
+	  python +readline selinux +server systemd ssl static-libs tcl threads uuid
+	  xml zlib"
+
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-wanted_languages() {
-	local linguas="af cs de en es fa fr hr hu it ko nb pl pt_BR ro ru
-		sk sl sv tr zh_CN zh_TW"
-	local enable_langs lingua
-
-	for lingua in ${linguas} ; do
-		has ${lingua} ${LINGUAS-${lingua}} && enable_langs+="${lingua} "
-	done
-
-	echo -n ${enable_langs}
-}
 
 CDEPEND="
 >=app-eselect/eselect-postgresql-2.0
@@ -51,7 +41,6 @@ ssl? (
 	!libressl? ( >=dev-libs/openssl-0.9.6-r1:0= )
 	libressl? ( dev-libs/libressl:= )
 )
-server? ( systemd? ( sys-apps/systemd ) )
 tcl? ( >=dev-lang/tcl-8:0= )
 xml? ( dev-libs/libxml2 dev-libs/libxslt )
 zlib? ( sys-libs/zlib )
@@ -117,7 +106,7 @@ src_prepare() {
 	# hardened and non-hardened environments. (Bug #528786)
 	sed 's/@install_bin@/install -c/' -i src/Makefile.global.in || die
 
-	use server || eapply "${FILESDIR}/${PN}-${SLOT}.3-no-server.patch"
+	use server || eapply "${FILESDIR}/${PN}-9.5.5-no-server.patch"
 
 	if use pam ; then
 		sed -e "s/\(#define PGSQL_PAM_SERVICE \"postgresql\)/\1-${SLOT}/" \
@@ -169,13 +158,12 @@ src_configure() {
 		$(use_with python) \
 		$(use_with readline) \
 		$(use_with ssl openssl) \
-		$(usex server "$(use_with systemd)" '--without-systemd') \
 		$(use_with tcl) \
 		${uuid_config} \
 		$(use_with xml libxml) \
 		$(use_with xml libxslt) \
 		$(use_with zlib) \
-		"$(use_enable nls nls "$(wanted_languages)")"
+		$(use_enable nls nls "'$(l10n_get_locales)'")
 }
 
 src_compile() {
@@ -261,7 +249,7 @@ src_install() {
 
 		if use systemd; then
 			sed -e "s|@SLOT@|${SLOT}|g" -e "s|@LIBDIR@|$(get_libdir)|g" \
-				"${FILESDIR}/${PN}.service-9.6-r1" | \
+				"${FILESDIR}/${PN}.service-9.2" | \
 				systemd_newunit - ${PN}-${SLOT}.service
 			systemd_newtmpfilesd "${FILESDIR}"/${PN}.tmpfiles ${PN}-${SLOT}.conf
 		fi
@@ -315,6 +303,11 @@ pkg_postinst() {
 	use server && use systemd && systemd_tmpfiles_create ${PN}-${SLOT}.conf
 	postgresql-config update
 
+	if use alpha && use server ; then
+		ewarn "PostgreSQL 9.5+ no longer has native spinlock support on Alpha platforms."
+		ewarn "As a result, performance will be extremely degraded."
+	fi
+
 	elog "If you need a global psqlrc-file, you can place it in:"
 	elog "    ${EROOT%/}/etc/postgresql-${SLOT}/"
 
@@ -324,7 +317,7 @@ pkg_postinst() {
 		elog "https://wiki.gentoo.org/wiki/PostgreSQL"
 		elog
 		elog "Official documentation:"
-		elog "http://www.postgresql.org/docs/${SLOT}/static/index.html"
+		elog "https://www.postgresql.org/docs/${SLOT}/static/index.html"
 		elog
 		elog "The default location of the Unix-domain socket is:"
 		elog "    ${EROOT%/}/run/postgresql/"
@@ -389,8 +382,8 @@ pkg_config() {
 	einfo "    ${EROOT%/}/etc/conf.d/postgresql-${SLOT}"
 	einfo
 	einfo "Information on options that can be passed to initdb are found at:"
-	einfo "    http://www.postgresql.org/docs/${SLOT}/static/creating-cluster.html"
-	einfo "    http://www.postgresql.org/docs/${SLOT}/static/app-initdb.html"
+	einfo "    https://www.postgresql.org/docs/${SLOT}/static/creating-cluster.html"
+	einfo "    https://www.postgresql.org/docs/${SLOT}/static/app-initdb.html"
 	einfo
 	einfo "PG_INITDB_OPTS is currently set to:"
 	if [[ -z "${PG_INITDB_OPTS}" ]] ; then
@@ -452,11 +445,9 @@ pkg_config() {
 	einfo "by default. You can disable it in the cluster's:"
 	einfo "    ${PGDATA%/}/postgresql.conf"
 	einfo
-	if ! use systemd; then
-		einfo "The PostgreSQL server, by default, will log events to:"
-		einfo "    ${DATA_DIR%/}/postmaster.log"
-		einfo
-	fi
+	einfo "The PostgreSQL server, by default, will log events to:"
+	einfo "    ${DATA_DIR%/}/postmaster.log"
+	einfo
 	if use prefix ; then
 		einfo "The location of the configuration files have moved to:"
 		einfo "    ${PGDATA}"
@@ -467,9 +458,6 @@ pkg_config() {
 		einfo
 		einfo "Or move the configuration files back:"
 		einfo "mv ${PGDATA}*.conf ${DATA_DIR}"
-	elif use systemd; then
-		einfo "You should use the 'postgresql-${SLOT}.service' unit to run PostgreSQL"
-		einfo "instead of 'pg_ctl'."
 	else
 		einfo "You should use the '${EROOT%/}/etc/init.d/postgresql-${SLOT}' script to run PostgreSQL"
 		einfo "instead of 'pg_ctl'."

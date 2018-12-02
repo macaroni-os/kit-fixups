@@ -1,41 +1,31 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
 PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-inherit eutils flag-o-matic linux-info multilib pam prefix python-single-r1 \
+PLOCALES="af cs de en es fa fr hr hu it ko nb pl pt_BR ro ru sk sl sv tr zh_CN
+		  zh_TW"
+
+inherit flag-o-matic l10n linux-info multilib pam prefix python-single-r1 \
 		systemd user versionator
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~ppc-macos ~x86-solaris"
+KEYWORDS="alpha amd64 arm ~hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~ppc-macos ~x86-solaris"
 
 SLOT="$(get_version_component_range 1-2)"
 
-MY_PV=${PV/_/}
-S="${WORKDIR}/${PN}-${MY_PV}"
-
-SRC_URI="mirror://postgresql/source/v${MY_PV}/postgresql-${MY_PV}.tar.bz2"
+SRC_URI="mirror://postgresql/source/v${PV}/postgresql-${PV}.tar.bz2"
 
 LICENSE="POSTGRESQL GPL-2"
 DESCRIPTION="PostgreSQL RDBMS"
-HOMEPAGE="http://www.postgresql.org/"
+HOMEPAGE="https://www.postgresql.org/"
 
-IUSE="doc kerberos kernel_linux ldap libressl nls pam perl -pg_legacytimestamp python
-	  +readline selinux +server systemd ssl static-libs tcl threads uuid xml zlib"
+IUSE="doc kerberos kernel_linux ldap libressl nls pam perl -pg_legacytimestamp
+	  python +readline selinux +server systemd ssl static-libs tcl threads uuid
+	  xml zlib"
+
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-wanted_languages() {
-	local linguas="af cs de en es fa fr hr hu it ko nb pl pt_BR ro ru
-		sk sl sv tr zh_CN zh_TW"
-	local enable_langs lingua
-
-	for lingua in ${linguas} ; do
-		has ${lingua} ${LINGUAS-${lingua}} && enable_langs+="${lingua} "
-	done
-
-	echo -n ${enable_langs}
-}
 
 CDEPEND="
 >=app-eselect/eselect-postgresql-2.0
@@ -51,34 +41,11 @@ ssl? (
 	!libressl? ( >=dev-libs/openssl-0.9.6-r1:0= )
 	libressl? ( dev-libs/libressl:= )
 )
-server? ( systemd? ( sys-apps/systemd ) )
 tcl? ( >=dev-lang/tcl-8:0= )
+uuid? ( dev-libs/ossp-uuid )
 xml? ( dev-libs/libxml2 dev-libs/libxslt )
 zlib? ( sys-libs/zlib )
 "
-
-# uuid flags -- depend on sys-apps/util-linux for Linux libcs, or if no
-# supported libc in use depend on dev-libs/ossp-uuid. For BSD systems,
-# the libc includes UUID functions.
-UTIL_LINUX_LIBC=( elibc_{glibc,uclibc,musl} )
-BSD_LIBC=( elibc_{Free,Net,Open}BSD )
-
-nest_usedep() {
-	local front back
-	while [[ ${#} -gt 1 ]]; do
-		front+="${1}? ( "
-		back+=" )"
-		shift
-	done
-	echo "${front}${1}${back}"
-}
-
-IUSE+=" ${UTIL_LINUX_LIBC[@]} ${BSD_LIBC[@]}"
-CDEPEND+="
-uuid? (
-	${UTIL_LINUX_LIBC[@]/%/? ( sys-apps/util-linux )}
-	$(nest_usedep ${UTIL_LINUX_LIBC[@]/#/!} ${BSD_LIBC[@]/#/!} dev-libs/ossp-uuid)
-)"
 
 DEPEND="${CDEPEND}
 !!<sys-apps/sandbox-2.0
@@ -117,7 +84,7 @@ src_prepare() {
 	# hardened and non-hardened environments. (Bug #528786)
 	sed 's/@install_bin@/install -c/' -i src/Makefile.global.in || die
 
-	use server || eapply "${FILESDIR}/${PN}-${SLOT}.3-no-server.patch"
+	use server || eapply "${FILESDIR}/${PN}-${SLOT}-no-server.patch"
 
 	if use pam ; then
 		sed -e "s/\(#define PGSQL_PAM_SERVICE \"postgresql\)/\1-${SLOT}/" \
@@ -140,17 +107,6 @@ src_configure() {
 
 	local PO="${EPREFIX%/}"
 
-	local i uuid_config=""
-	if use uuid; then
-		for i in ${UTIL_LINUX_LIBC[@]}; do
-			use ${i} && uuid_config="--with-uuid=e2fs"
-		done
-		for i in ${BSD_LIBC[@]}; do
-			use ${i} && uuid_config="--with-uuid=bsd"
-		done
-		[[ -z $uuid_config ]] && uuid_config="--with-uuid=ossp"
-	fi
-
 	econf \
 		--prefix="${PO}/usr/$(get_libdir)/postgresql-${SLOT}" \
 		--datadir="${PO}/usr/share/postgresql-${SLOT}" \
@@ -159,23 +115,22 @@ src_configure() {
 		--mandir="${PO}/usr/share/postgresql-${SLOT}/man" \
 		--sysconfdir="${PO}/etc/postgresql-${SLOT}" \
 		--with-system-tzdata="${PO}/usr/share/zoneinfo" \
-		$(use_enable !alpha spinlocks) \
 		$(use_enable !pg_legacytimestamp integer-datetimes) \
 		$(use_enable threads thread-safety) \
 		$(use_with kerberos gssapi) \
+		$(use_with kerberos krb5) \
 		$(use_with ldap) \
 		$(use_with pam) \
 		$(use_with perl) \
 		$(use_with python) \
 		$(use_with readline) \
 		$(use_with ssl openssl) \
-		$(usex server "$(use_with systemd)" '--without-systemd') \
 		$(use_with tcl) \
-		${uuid_config} \
+		$(use_with uuid ossp-uuid) \
 		$(use_with xml libxml) \
 		$(use_with xml libxslt) \
 		$(use_with zlib) \
-		"$(use_enable nls nls "$(wanted_languages)")"
+		$(use_enable nls nls "'$(l10n_get_locales)'")
 }
 
 src_compile() {
@@ -261,7 +216,7 @@ src_install() {
 
 		if use systemd; then
 			sed -e "s|@SLOT@|${SLOT}|g" -e "s|@LIBDIR@|$(get_libdir)|g" \
-				"${FILESDIR}/${PN}.service-9.6-r1" | \
+				"${FILESDIR}/${PN}.service-9.2" | \
 				systemd_newunit - ${PN}-${SLOT}.service
 			systemd_newtmpfilesd "${FILESDIR}"/${PN}.tmpfiles ${PN}-${SLOT}.conf
 		fi
@@ -324,7 +279,7 @@ pkg_postinst() {
 		elog "https://wiki.gentoo.org/wiki/PostgreSQL"
 		elog
 		elog "Official documentation:"
-		elog "http://www.postgresql.org/docs/${SLOT}/static/index.html"
+		elog "https://www.postgresql.org/docs/${SLOT}/static/index.html"
 		elog
 		elog "The default location of the Unix-domain socket is:"
 		elog "    ${EROOT%/}/run/postgresql/"
@@ -389,8 +344,8 @@ pkg_config() {
 	einfo "    ${EROOT%/}/etc/conf.d/postgresql-${SLOT}"
 	einfo
 	einfo "Information on options that can be passed to initdb are found at:"
-	einfo "    http://www.postgresql.org/docs/${SLOT}/static/creating-cluster.html"
-	einfo "    http://www.postgresql.org/docs/${SLOT}/static/app-initdb.html"
+	einfo "    https://www.postgresql.org/docs/${SLOT}/static/creating-cluster.html"
+	einfo "    https://www.postgresql.org/docs/${SLOT}/static/app-initdb.html"
 	einfo
 	einfo "PG_INITDB_OPTS is currently set to:"
 	if [[ -z "${PG_INITDB_OPTS}" ]] ; then
@@ -452,11 +407,9 @@ pkg_config() {
 	einfo "by default. You can disable it in the cluster's:"
 	einfo "    ${PGDATA%/}/postgresql.conf"
 	einfo
-	if ! use systemd; then
-		einfo "The PostgreSQL server, by default, will log events to:"
-		einfo "    ${DATA_DIR%/}/postmaster.log"
-		einfo
-	fi
+	einfo "The PostgreSQL server, by default, will log events to:"
+	einfo "    ${DATA_DIR%/}/postmaster.log"
+	einfo
 	if use prefix ; then
 		einfo "The location of the configuration files have moved to:"
 		einfo "    ${PGDATA}"
@@ -467,9 +420,6 @@ pkg_config() {
 		einfo
 		einfo "Or move the configuration files back:"
 		einfo "mv ${PGDATA}*.conf ${DATA_DIR}"
-	elif use systemd; then
-		einfo "You should use the 'postgresql-${SLOT}.service' unit to run PostgreSQL"
-		einfo "instead of 'pg_ctl'."
 	else
 		einfo "You should use the '${EROOT%/}/etc/init.d/postgresql-${SLOT}' script to run PostgreSQL"
 		einfo "instead of 'pg_ctl'."

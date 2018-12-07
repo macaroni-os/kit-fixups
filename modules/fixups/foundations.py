@@ -284,6 +284,9 @@ class KitFoundation:
 			{"repo": "gentoo-staging", 'src_sha1': '76f9a0f535ec2dd32545801a9e62e86499ffc58e', 'date': '7 Sep 2018'}
 		],
 		"funtoo_release_1.3": [
+			{"repo": "flora", },
+			{"repo": "faustoo", },
+			{"repo": "fusion809", },
 			{"repo": "gentoo-staging", 'src_sha1': 'c396d7f8240ba7191bf2967a51489ab21ae26959', 'date': '13 Nov 2018'}
 			
 		]

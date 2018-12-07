@@ -12,7 +12,7 @@ SRC_URI="https://download.openvz.org/criu/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="doc python selinux setproctitle static-libs"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"

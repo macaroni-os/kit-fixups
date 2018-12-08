@@ -5,12 +5,12 @@ PYTHON_COMPAT=( python3_{4..7} )
 
 inherit python-single-r1
 
-DESCRIPTION="Funtoo's configuration tool: ego, epro, edoc."
+DESCRIPTION="Funtoo's configuration tool: ego, epro, edoc, boot-update"
 HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="zsh-completion"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"

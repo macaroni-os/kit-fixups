@@ -12,11 +12,6 @@ USE_EXPAND="CPU_FLAGS_X86 CPU_FLAGS_ARM OSS_CARDS APACHE2_MODULES APACHE2_MPMS F
 # Nginx variables
 USE_EXPAND="${USE_EXPAND} NGINX_MODULES_EXTERNAL NGINX_MODULES_HTTP NGINX_MODULES_MAIL NGINX_MODULES_STREAM"
 
-# This setting should be kept in sync with a >=dev-lang/php-5.x mask,
-# so that PHP_TARGETS always refers to the latest unmasked x.y version
-# of PHP.
-PHP_TARGETS="php5-6"
-
 # USE_EXPAND variables whose contents are not shown in package manager
 # output. Changes need discussion on gentoo-dev.
 USE_EXPAND_HIDDEN="USERLAND KERNEL ELIBC CROSSCOMPILE_OPTS CPU_FLAGS_ARM ABI_X86"

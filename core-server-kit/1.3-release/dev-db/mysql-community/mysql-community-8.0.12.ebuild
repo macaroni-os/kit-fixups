@@ -36,7 +36,7 @@ RESTRICT="libressl? ( test )"
 
 REQUIRED_USE="?? ( tcmalloc jemalloc )"
 
-KEYWORDS=""
+KEYWORDS="*"
 
 # Shorten the path because the socket path length must be shorter than 107 chars
 # and we will run a mysql server during test phase

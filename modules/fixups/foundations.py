@@ -99,9 +99,9 @@ class KitFoundation:
 			"version": 1,
 		},
 		"1.3-release": {
-			"version": 10,
+			"version": 11,
 			"required": {
-				"ego": "2.6.0"
+				"ego": "2.7.2"
 			}
 		}
 	}
@@ -175,13 +175,6 @@ class KitFoundation:
 			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 		],
-		'independently-maintained': [
-			{'name': 'xorg-kit', 'branch': '1.20-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.BETA},
-			{'name': 'xorg-kit', 'branch': '1.19-prime', 'source': 'funtoo_mk2_prime', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xorg-kit', 'branch': '1.17-prime', 'source': 'funtoo_prime_xorg', 'stability': KitStabilityRating.PRIME},
-			{'name': 'gnome-kit', 'branch': '3.26-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
-			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.BETA}
-		]
 	}
 
 	python_kit_settings = {

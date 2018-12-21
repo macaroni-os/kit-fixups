@@ -11,6 +11,9 @@ class KitStabilityRating(Enum):
 	CURRENT = 10  # Kit follows Gentoo currrent
 	DEPRECATED = 11  # Kit is deprecated/retired
 
+class KitType(Enum):
+	AUTOMATICALLY_GENERATED = "auto" # auto-generated
+	INDEPENDENTLY_MAINTAINED = "indy" # independently-maintained
 
 def KitRatingString(kit_enum):
 	if kit_enum is KitStabilityRating.PRIME:
@@ -143,11 +146,11 @@ class KitFoundation:
 			{'name': 'core-server-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 			{'name': 'core-gl-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.BETA, "generate": False},   # primary
-			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
-			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
-			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.BETA, "generate": False},  # primary
-			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},   # primary
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
 			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},

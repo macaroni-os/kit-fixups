@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -14,11 +13,9 @@ DESCRIPTION="System which facilitates service discovery on a local network"
 HOMEPAGE="http://avahi.org/"
 SRC_URI="https://github.com/lathiat/avahi/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
-S="${WORKDIR}/${P}"
-
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 ~hppa ia64 ~mips ppc ppc64 sparc x86 ~amd64-fbsd"
+KEYWORDS="*"
 IUSE="autoipd bookmarks dbus doc gdbm gtk gtk3 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt5 selinux test"
 
 REQUIRED_USE="
@@ -71,7 +68,9 @@ RDEPEND="
 
 MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
 
-PATCHES=( "${FILESDIR}/${P}-qt5.patch" )
+PATCHES=( "${FILESDIR}/${P}-qt5.patch" 
+	"${FILESDIR}/avahi-0.7-probe-ipv6-workaround.patch"
+)
 
 pkg_preinst() {
 	enewgroup netdev

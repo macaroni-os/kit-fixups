@@ -111,10 +111,10 @@ class KitFoundation:
 			{'name': 'core-kit', 'branch': '1.2-prime', 'source': 'gentoo_prime_mk4_protected', 'stability': KitStabilityRating.PRIME},
 			{'name': 'core-hw-kit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT},
 			{'name': 'security-kit', 'branch': '1.2-prime', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
-			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary
-			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.DEV, "generate": False},  # alternate
-			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # alternate
-			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "generate": False},  # primary
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type" : KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.DEV, "type" : KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type" : KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type" : KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'kde-kit', 'branch': '5.12-prime', 'source': 'funtoo_prime_kde_late', 'stability': KitStabilityRating.PRIME},
 			{'name': 'media-kit', 'branch': '1.2-prime', 'source': 'funtoo_mk4_prime', 'stability': KitStabilityRating.PRIME},
 			{'name': 'perl-kit', 'branch': '5.24-prime', 'source': 'funtoo_prime_perl', 'stability': KitStabilityRating.PRIME},

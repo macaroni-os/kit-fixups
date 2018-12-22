@@ -70,6 +70,7 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/avahi-qt5/qt-watch.h )
 
 PATCHES=( "${FILESDIR}/${P}-qt5.patch" 
 	"${FILESDIR}/avahi-0.7-probe-ipv6-workaround.patch"
+	"${FILESDIR}/avahi-0.7-CVE-2017-6519.patch"
 )
 
 pkg_preinst() {

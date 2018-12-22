@@ -13,7 +13,7 @@ KERNEL_ARCHIVE="linux_${PV}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary btrfs zfs"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
 		btrfs? ( sys-fs/btrfs-progs )
@@ -77,7 +77,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.16.12-nocerts.patch
 
 	## FL-3381. enable IKCONFIG
-	epatch "${FILESDIR}"/${PN}-4.13.10-ikconfig.patch
+	epatch "${FILESDIR}"/${P}-ikconfig.patch
 	
 	## FL-4424: enable legacy support for MCELOG.
 	epatch "${FILESDIR}"/${PN}-4.13.10-mcelog.patch

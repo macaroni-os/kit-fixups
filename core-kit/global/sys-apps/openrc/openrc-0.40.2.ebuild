@@ -58,6 +58,8 @@ src_prepare() {
 		local ver="git-${EGIT_VERSION:0:6}"
 		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/gitver.mk || die
 	fi
+	# remove lxc keyword from devfs. FL-6048
+	sed -i -e 's/-\lxc\+ //g' init.d/devfs.in || die "sed failed"
 }
 
 src_compile() {

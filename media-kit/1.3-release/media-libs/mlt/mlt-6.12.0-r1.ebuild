@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -121,7 +120,6 @@ src_configure() {
 		--enable-motion-est
 		--target-arch=$(tc-arch)
 		--disable-kde
-		--disable-sdl
 		--disable-swfdec
 		$(use_enable debug)
 		$(use compressed-lumas && echo ' --luma-compress')

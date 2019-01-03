@@ -1,0 +1,33 @@
+From 0f3e399e387e64dcc3c5015a8aacb26fbe49800f Mon Sep 17 00:00:00 2001
+From: Eli Schwartz <eschwartz@archlinux.org>
+Date: Wed, 25 Jul 2018 13:49:40 -0400
+Subject: [PATCH] Fix compilation with pycairo 1.17.x
+
+Do not redefine a thing which was always defined in the included header,
+since that breaks when upstream changes how they do things.
+
+This is a holdover from the initial python2 version, since pycairo
+dropped the use of downstream definition of Pycairo_CAPI during the
+python3 port: https://github.com/pygobject/pycairo/commit/727470e8a170bf355c9689826bb1db95f7c1389e
+
+See https://github.com/pygobject/pycairo/commit/921541295439f812ac51a6cc6d8143a8f10814b4
+for the upstream change that broke this misuse.
+---
+ pitivi/coptimizations/renderer.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/pitivi/coptimizations/renderer.c b/pitivi/coptimizations/renderer.c
+index c655ca5c..2f939412 100644
+--- a/pitivi/coptimizations/renderer.c
++++ b/pitivi/coptimizations/renderer.c
+@@ -4,7 +4,6 @@
+ #include <py3cairo.h>
+ #include <gst/gst.h>
+ 
+-static Pycairo_CAPI_t *Pycairo_CAPI;
+ static GObjectClass * gobject_class;
+ 
+ /*
+-- 
+2.18.1
+

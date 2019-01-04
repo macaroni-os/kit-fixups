@@ -35,7 +35,7 @@ RDEPEND="
 	media-libs/x264
 	media-plugins/frei0r-plugins
 	media-plugins/swh-plugins
-	media-video/webvfx
+	media-plugins/webvfx
 	media-sound/lame
 	media-video/ffmpeg
 	media-video/movit

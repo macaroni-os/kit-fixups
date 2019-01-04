@@ -34,8 +34,11 @@ RDEPEND="
 	>=media-libs/mlt-6.6.0-r1[ffmpeg,frei0r,qt5,sdl,sdl2(+),xml]
 	media-libs/x264
 	media-plugins/frei0r-plugins
+	media-plugins/swh-plugins
+	media-video/webvfx
 	media-sound/lame
 	media-video/ffmpeg
+	media-video/movit
 	virtual/jack
 "
 DEPEND="${RDEPEND}

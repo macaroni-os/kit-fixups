@@ -140,40 +140,40 @@ class KitFoundation:
 			{'name': 'nokit', 'branch': 'master', 'source': 'funtoo_current', 'stability': KitStabilityRating.CURRENT}
 		],
 		'1.3-release': [
-			{'name': 'core-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'core-hw-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'core-ui-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'core-server-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'core-gl-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},   # primary
+			{'name': 'core-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-hw-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-ui-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-server-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-gl-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'security-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},   # primary
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
-			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
-			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'editors-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'net-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'text-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'science-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'games-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'java-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'ruby-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'ml-lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'lisp-scheme-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
+			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'editors-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'net-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'text-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'science-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'games-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'java-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'ruby-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'ml-lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'lisp-scheme-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			# python-kit needs to be before lang-kit...
-			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'llvm-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'dev-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
+			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'llvm-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'dev-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			# python-modules kit later so that other kits can grab python modules they need...
-			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
-			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.BETA},
+			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 		],
 	}
 

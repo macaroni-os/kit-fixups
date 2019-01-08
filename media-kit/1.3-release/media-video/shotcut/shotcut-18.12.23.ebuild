@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit desktop qmake-utils xdg-utils
+inherit desktop gnome2 qmake-utils xdg-utils
 
 DESCRIPTION="A free, open source, cross-platform video editor"
 HOMEPAGE="https://www.shotcut.org/"
@@ -66,11 +66,13 @@ src_install() {
 }
 
 pkg_postinst(){
+	gnome2_icon_cache_update
 	xdg_mimeinfo_database_update
 	xdg_desktop_database_update
 }
 
 pkg_postrm(){
+	gnome2_icon_cache_update
 	xdg_mimeinfo_database_update
 	xdg_desktop_database_update
 }

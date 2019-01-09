@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -32,7 +31,6 @@ DEPEND="
 	sys-apps/help2man
 	${RDEPEND}
 "
-PATCHES="${FILESDIR}/${P}-fusermount-path.patch"
 
 src_prepare() {
 	default
@@ -52,16 +50,8 @@ src_configure() {
 
 src_install() {
 	default
-	keepdir /var/lib/lxcfs
-	newinitd "${FILESDIR}"/${P}.initd lxcfs
+	newinitd "${FILESDIR}"/lxcfs-3.0.2-r2.initd lxcfs
 	systemd_dounit config/init/systemd/lxcfs.service
-}
-
-pkg_preinst() {
-	# In an upgrade situation merging /var/lib/lxcfs (an empty dir)
-	# fails because that is a live mountpoint when the service is
-	# running.  It's unnecessary anyway so skip the action.
-	[[ -d ${ROOT}/var/lib/lxcfs ]] && rm -rf ${D}/var
 }
 
 pkg_postinst() {

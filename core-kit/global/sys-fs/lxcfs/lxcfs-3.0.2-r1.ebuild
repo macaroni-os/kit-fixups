@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -14,12 +13,12 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_BRANCH="master"
 	inherit git-r3
 	SRC_URI=""
-	KEYWORDS="*"
+	KEYWORDS=""
 else
 	# e.g. upstream is 2.0.0.beta2, we want 2.0.0_beta2
 	UPSTREAM_PV=$(replace_version_separator 3 '.' )
 	SRC_URI="https://github.com/lxc/lxcfs/archive/${PN}-${UPSTREAM_PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS=""
+	KEYWORDS="*"
 fi
 
 # Omit all dbus.  Upstream appears to require it because systemd, but

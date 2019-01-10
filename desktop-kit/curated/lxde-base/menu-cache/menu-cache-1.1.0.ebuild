@@ -4,7 +4,7 @@ EAPI="5"
 
 inherit eutils multilib
 
-LIBFM="libfm-1.2.4"
+LIBFM="libfm-1.2.5"
 
 DESCRIPTION="A library creating and utilizing caches to speed up freedesktop.org application menus"
 HOMEPAGE="http://lxde.sourceforge.net/"

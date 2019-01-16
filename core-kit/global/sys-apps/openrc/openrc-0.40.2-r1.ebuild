@@ -7,7 +7,7 @@ inherit flag-o-matic pam toolchain-funcs
 DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="https://github.com/openrc/openrc/"
 SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="BSD-2"
 SLOT="0"

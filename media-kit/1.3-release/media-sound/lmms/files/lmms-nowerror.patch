@@ -1,0 +1,20 @@
+diff -Nuar lmms-1.2.0-rc4/CMakeLists.txt lmms-1.2.0-rc4-fixed/CMakeLists.txt
+--- lmms-1.2.0-rc4/CMakeLists.txt	2017-10-01 20:10:45.000000000 +0000
++++ lmms-1.2.0-rc4-fixed/CMakeLists.txt	2019-01-22 15:15:30.610514470 +0000
+@@ -442,11 +442,11 @@
+ PKG_CHECK_MODULES(SAMPLERATE REQUIRED samplerate>=0.1.8)
+ 
+ # set compiler flags
+-SET(WERROR_FLAGS "-Wall -Werror=unused-function -Wno-sign-compare -Wno-strict-overflow")
+-OPTION(USE_WERROR "Add -werror to the build flags. Stops the build on warnings" OFF)
+-IF(${USE_WERROR})
+-   SET(WERROR_FLAGS "${WERROR_FLAGS} -Werror")
+-ENDIF()
++#SET(WERROR_FLAGS "-Wall -Werror=unused-function -Wno-sign-compare -Wno-strict-overflow")
++#OPTION(USE_WERROR "Add -werror to the build flags. Stops the build on warnings" OFF)
++#IF(${USE_WERROR})
++#   SET(WERROR_FLAGS "${WERROR_FLAGS} -Werror")
++#ENDIF()
+ 
+ # Due to a regression in gcc-4.8.X, we need to disable array-bounds check
+ IF (CMAKE_COMPILER_IS_GNUCXX AND ((CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "4.8.0") OR (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.8.0") OR LMMS_BUILD_WIN32))

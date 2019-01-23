@@ -3,19 +3,13 @@
 EAPI="5"
 PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
-if [ ${PV} == "9999" ] ; then
-	inherit git-r3 linux-mod
-	AUTOTOOLS_AUTORECONF="1"
-	EGIT_REPO_URI="git://github.com/zfsonlinux/${PN}.git"
-else
-	SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-	KEYWORDS=""
-fi
+AUTOTOOLS_AUTORECONF="1"
+KEYWORDS=""
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev
 
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
-HOMEPAGE="http://zfsonlinux.org/"
+HOMEPAGE="https://zfsonlinux.org/"
 
 LICENSE="BSD-2 CDDL MIT"
 SLOT="0"

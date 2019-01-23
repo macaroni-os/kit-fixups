@@ -1,28 +1,22 @@
-# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="5"
 
-if [[ ${PV} == "9999" ]] ; then
-	AUTOTOOLS_AUTORECONF="1"
-	EGIT_REPO_URI="https://github.com/zfsonlinux/${PN}.git"
-	inherit git-r3
-else
-	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~ppc ~ppc64"
-fi
+AUTOTOOLS_AUTORECONF="1"
+KEYWORDS=""
 
 inherit flag-o-matic linux-info linux-mod autotools-utils
 
-DESCRIPTION="The Solaris Porting Layer is a Linux kernel module which provides many of the Solaris kernel APIs"
+DESCRIPTION="The Solaris Porting Layer provides many of the Solaris kernel APIs"
 HOMEPAGE="http://zfsonlinux.org/"
-
+SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="custom-cflags debug"
 RESTRICT="debug? ( strip ) test"
 
-COMMON_DEPEND="dev-lang/perl
+COMMON_DEPEND="
+	dev-lang/perl
 	virtual/awk"
 
 DEPEND="${COMMON_DEPEND}"
@@ -32,16 +26,16 @@ RDEPEND="${COMMON_DEPEND}
 
 AT_M4DIR="config"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
-DOCS=( AUTHORS DISCLAIMER README.markdown )
+DOCS=( AUTHORS DISCLAIMER )
 
 pkg_setup() {
 	linux-info_pkg_setup
 	CONFIG_CHECK="
 		!DEBUG_LOCK_ALLOC
-		!GRKERNSEC_RANDSTRUCT
-		KALLSYMS
 		MODULES
+		KALLSYMS
 		!PAX_KERNEXEC_PLUGIN_METHOD_OR
+		!PAX_SIZE_OVERFLOW
 		ZLIB_DEFLATE
 		ZLIB_INFLATE
 	"
@@ -53,10 +47,7 @@ pkg_setup() {
 	"
 
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
-
-	[ ${PV} != "9999" ] && \
-		{ kernel_is le 4 3 || die "Linux 4.3 is the latest supported version."; }
-
+	kernel_is le 4 19 || die "Linux 4.19 is the latest supported version."
 	check_extra_config
 }
 

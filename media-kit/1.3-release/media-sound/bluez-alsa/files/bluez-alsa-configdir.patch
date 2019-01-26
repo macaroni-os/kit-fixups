@@ -1,0 +1,65 @@
+From cd83bd05de92ffdde91dc46a478ae778703b5465 Mon Sep 17 00:00:00 2001
+From: mcz <emcze@ya.ru>
+Date: Sun, 21 Oct 2018 19:18:01 +0200
+Subject: [PATCH] Move config files to /etc/alsa/conf.d
+
+With the release of alsa-lib v1.1.7, the location for add-on configs
+has changed to /etc/alsa/conf.d/.
+
+See:
+http://git.alsa-project.org/?p=alsa-lib.git;a=commit;h=93e03bdc2a3dcd5d12516f5de78e14d88a32ff2c
+---
+ configure.ac           | 14 +++++++-------
+ src/asound/Makefile.am |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index bb9d1c5..3b763cd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -113,25 +113,25 @@ AM_CONDITIONAL([ENABLE_PCM_TEST], [test "x$enable_pcm_test" = "xyes"])
+ AC_ARG_WITH([alsaplugindir],
+ 	AS_HELP_STRING([--with-alsaplugindir=dir], [path where ALSA plugin files are stored]),
+ 	[alsaplugindir="$withval"], [alsaplugindir=$($PKG_CONFIG --variable=libdir alsa)/alsa-lib])
+-AC_ARG_WITH([alsadatadir],
+-	AS_HELP_STRING([--with-alsadatadir=dir], [directory containing ALSA data files]),
+-	[alsadatadir="$withval"], [alsadatadir="$datadir/alsa"])
++AC_ARG_WITH([alsaconfdir],
++	AS_HELP_STRING([--with-alsaconfdir=dir], [directory containing ALSA add-on configuration files]),
++	[alsaconfdir="$withval"], [alsaconfdir="$sysconfdir/alsa"])
+ 
+ test "x$prefix" = xNONE && prefix=$ac_default_prefix
+ test "x$exec_prefix" = xNONE && exec_prefix=$prefix
+ 
+ # TODO: Get rid of "ev(a|i)l" statements.
+ # TIP: Wizard-level Autotconf coder is needed.
+-eval alsadatadir="$alsadatadir"
+-eval alsadatadir="$alsadatadir"
++eval alsaconfdir="$alsaconfdir"
++eval alsaconfdir="$alsaconfdir"
+ eval alsaplugindir="$alsaplugindir"
+ eval alsaplugindir="$alsaplugindir"
+ 
+-AC_DEFINE_UNQUOTED([ALSA_DATA_DIR], "$alsadatadir", [Directory containing ALSA data files.])
++AC_DEFINE_UNQUOTED([ALSA_CONF_DIR], "$alsaconfdir", [Directory containing ALSA add-on configuration files.])
+ AC_DEFINE_UNQUOTED([ALSA_PLUGIN_DIR], "$alsaplugindir", [Directory containing ALSA add-on modules.])
+ AC_DEFINE_UNQUOTED([RUN_STATE_DIR], "$runstatedir", [Path where run statuses are stored.])
+ 
+-AC_SUBST([ALSA_DATA_DIR], [$alsadatadir])
++AC_SUBST([ALSA_CONF_DIR], [$alsaconfdir])
+ AC_SUBST([ALSA_PLUGIN_DIR], [$alsaplugindir])
+ AC_SUBST([RUN_STATE_DIR], [$runstatedir])
+ 
+diff --git a/src/asound/Makefile.am b/src/asound/Makefile.am
+index 75a2dc3..87e7aed 100644
+--- a/src/asound/Makefile.am
++++ b/src/asound/Makefile.am
+@@ -19,7 +19,7 @@ libasound_module_pcm_bluealsa_la_SOURCES = \
+ 
+ asound_module_ctldir = @ALSA_PLUGIN_DIR@
+ asound_module_pcmdir = @ALSA_PLUGIN_DIR@
+-asound_module_datadir = @ALSA_DATA_DIR@/alsa.conf.d
++asound_module_datadir = @ALSA_CONF_DIR@/conf.d
+ 
+ AM_CFLAGS = \
+ 	-I$(top_srcdir)/src \

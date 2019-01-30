@@ -36,7 +36,7 @@ RESTRICT="libressl? ( test )"
 
 REQUIRED_USE="?? ( tcmalloc jemalloc )"
 
-KEYWORDS=""
+KEYWORDS="*"
 
 # Shorten the path because the socket path length must be shorter than 107 chars
 # and we will run a mysql server during test phase
@@ -152,7 +152,7 @@ pkg_postinst() {
 		fi
 	fi
 
-	# Note about configuration change
+# Note about configuration change
 	einfo
 	elog "This version of mysql reorganizes the configuration from a single my.cnf"
 	elog "to several files in /etc/mysql/${PN}.d."
@@ -161,6 +161,16 @@ pkg_postinst() {
 	elog "You may have as many files as needed and they are read alphabetically."
 	elog "Be sure the options have the appropitate section headers, i.e. [mysqld]."
 	einfo
+
+	# Note on password handle changes
+	elog "This version has emerge --config setup removed."
+	elog "Please follow these steps for initial setup"
+	elog "Run these commands as root:"
+	elog "'mysqld --initialize-insecure --default_authentication_plugin=mysql_native_password --datadir=${EPREFIX}/var/lib/mysql'"
+	elog "'rc-service mysql start'"
+	elog "'mysql_secure_installation'"
+	elog "You will be prompted to MySQL's command line interface, where you can follow setup further."
+	elog "Please follow https://www.funtoo.org/Package:Mysql-community"
 }
 
 src_unpack() {
@@ -458,7 +468,6 @@ multilib_src_install_all() {
 	#Remove mytop if perl is not selected
 	[[ -e "${ED}/usr/bin/mytop" ]] && ! use perl && rm -f "${ED}/usr/bin/mytop"
 
-	# install defualt datadir and logdir
 	keepdir /var/lib/mysql
 	keepdir /var/log/mysql
 }

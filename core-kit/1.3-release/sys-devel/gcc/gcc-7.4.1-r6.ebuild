@@ -503,7 +503,7 @@ gcc_conf_cross_options() {
 	if ! has_version ${CATEGORY}/${TARGET_LIBC}; then
 		# we are building with libc that is not installed:
 		conf_gcc_cross+=" --disable-shared --disable-libatomic --disable-threads --without-headers --disable-libstdcxx"
-	elif built_with_use --hidden --missing false ${CATEGORY}/${TARGET_LIBC} headers-only; then
+	elif has_version "${CATEGORY}/${TARGET_LIBC}[headers-only]"; then
 		# libc installed, but has USE="crosscompile_opts_headers-only" to only install headers:
 		conf_gcc_cross+=" --disable-shared --disable-libatomic --with-sysroot=${PREFIX}/${CTARGET} --disable-libstdcxx"
 	else

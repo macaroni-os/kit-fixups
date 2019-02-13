@@ -342,7 +342,7 @@ src_configure() {
 		if ! has_version ${CATEGORY}/${needed_libc}; then
 			# we are building with libc that is not installed:
 			confgcc+=" --disable-shared --disable-libatomic --disable-threads --without-headers"
-		elif built_with_use --hidden --missing false ${CATEGORY}/${needed_libc} crosscompile_opts_headers-only; then
+		elif has_version "${CATEGORY}/${TARGET_LIBC}[headers-only]"; then
 			# libc installed, but has USE="crosscompile_opts_headers-only" to only install headers:
 			confgcc+=" --disable-shared --disable-libatomic --with-sysroot=${PREFIX}/${CTARGET}"
 		else

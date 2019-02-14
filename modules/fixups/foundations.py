@@ -317,7 +317,8 @@ class KitFoundation:
 							"dev-python/pymongo",
 							"dev-util/idea-community",
 							"dev-util/webstorm",
-							"x11-wm/blackbox"
+							"x11-wm/blackbox",
+							"net-im/discord-bin"
 						]
 						},
 			"fusion809": {"url": "https://github.com/fusion809/fusion809-overlay.git", "select": [

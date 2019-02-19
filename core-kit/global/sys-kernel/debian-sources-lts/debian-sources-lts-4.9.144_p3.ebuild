@@ -1,5 +1,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
+# Documentation for adding new kernels -- do not remove!
+#
+# Find latest stable kernel release for debian here:
+#   https://packages.debian.org/stable/kernel/linux-source-4.9
+
 EAPI=5
 
 inherit check-reqs eutils mount-boot
@@ -7,20 +12,21 @@ inherit check-reqs eutils mount-boot
 SLOT=$PV-LTS
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-EXTRAVERSION=-2
-MODVER=${CKV}${EXTRAVERSION}
-KERNEL_ARCHIVE="linux_${PV}.orig.tar.xz"
-PATCH_ARCHIVE="linux_${PV}${EXTRAVERSION}.debian.tar.xz"
+DEB_PV_BASE="4.9.144"
+EXTRAVERSION=-3
+DEB_PV="$DEB_PV_BASE${EXTRAVERSION}"
+KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
+PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="x86 amd64"
 IUSE="binary ec2 sign-modules"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
-DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux/"
+DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/stable/kernel/linux-image-4.9.0-6-amd64"
 SRC_URI="$DEB_UPSTREAM/${KERNEL_ARCHIVE} $DEB_UPSTREAM/${PATCH_ARCHIVE}"
-S="$WORKDIR/linux-${CKV}"
+S="$WORKDIR/linux-${DEB_PV_BASE}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -247,6 +253,6 @@ pkg_postinst() {
 	fi
 
 	if [ -e ${ROOT}lib/modules ]; then
-		depmod -a $MODVER
+		depmod -a $DEP_PV
 	fi
 }

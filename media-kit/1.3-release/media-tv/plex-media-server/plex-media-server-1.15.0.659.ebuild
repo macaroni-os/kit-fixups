@@ -4,7 +4,7 @@
 EAPI=6
 
 PYTHON_COMPAT=( python2_7 )
-inherit eutils user systemd unpacker pax-utils python-single-r1
+inherit eutils user unpacker pax-utils python-single-r1
 
 COMMIT="9311f93fd"
 
@@ -113,17 +113,9 @@ src_install() {
 
 	doconfd "${FILESDIR}/conf.d/${PN}"
 
-	# Disabling due to Bug 644694
-	#_handle_multilib
-
 	# Mask Plex libraries so that revdep-rebuild doesn't try to rebuild them.
 	# Plex has its own precompiled libraries.
 	_mask_plex_libraries_revdep
-
-	# Install systemd service file
-	local INIT_NAME="${PN}.service"
-	local INIT="${FILESDIR}/systemd/${INIT_NAME}"
-	systemd_newunit "${INIT}" "${INIT_NAME}"
 
 	einfo "Configuring virtualenv"
 	virtualenv -v --no-pip --no-setuptools --no-wheel "${ED}"usr/lib/plexmediaserver/Resources/Python || die
@@ -138,23 +130,6 @@ pkg_postinst() {
 	elog "To start the Plex Server, run 'rc-config start plex-media-server', you will then be able to access your library at http://<ip>:32400/web/"
 }
 
-# Disabling the follow function due to Bug 644694.
-# We shouldn't register plex libraries in global
-# library path since this will cause other packages
-# on the system to break.
-
-# Finds out where the library directory is for this system
-# and handles ldflags as to not break library dependencies
-# during rebuilds.
-_handle_multilib() {
-	# Prevent revdep-rebuild, @preserved-rebuild breakage
-	cat > "${T}"/66plex <<-EOF || die
-		LDPATH="${EPREFIX}/usr/$(get_libdir)/plexmediaserver"
-	EOF
-
-	doenvd "${T}"/66plex
-}
-
 # Adds the precompiled plex libraries to the revdep-rebuild's mask list
 # so it doesn't try to rebuild libraries that can't be rebuilt.
 _mask_plex_libraries_revdep() {
@@ -162,25 +137,3 @@ _mask_plex_libraries_revdep() {
 	echo "SEARCH_DIRS_MASK=\"${EPREFIX}/usr/$(get_libdir)/plexmediaserver\"" > "${ED}"/etc/revdep-rebuild/80plexmediaserver
 }
 
-# Remove execstack flags from some libraries/executables
-# so that it works in hardened setups.
-_remove_execstack_markings() {
-	for f in "${EXECSTACKED_BINS[@]}"; do
-		# Unquoting 'f' so that expansion works.
-		fix-gnustack -f ${f} > /dev/null
-	done
-}
-
-# Add pax markings to some binaries so that they work on hardened setup.
-_add_pax_markings() {
-	for f in "${BINS_TO_PAX_MARK[@]}"; do
-		pax-mark m "${f}"
-	done
-}
-
-# Create default PaX markings on virtualenvironment's pythin
-_add_pax_flags() {
-	for f in "${BINS_TO_PAX_CREATE_FLAGS[@]}"; do
-		pax-mark c "${F}"
-	done
-}

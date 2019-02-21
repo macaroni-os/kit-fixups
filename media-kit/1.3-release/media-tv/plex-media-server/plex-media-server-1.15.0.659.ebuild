@@ -44,13 +44,6 @@ QA_MULTILIB_PATHS=(
 	"usr/lib/${_APPNAME}/Resources/Python/lib/python2.7/.*"
 )
 
-EXECSTACKED_BINS=( "${ED%/}/usr/lib/plexmediaserver/libgnsdk_dsp.so*" )
-BINS_TO_PAX_MARK=(
-	"${ED%/}/usr/lib/plexmediaserver/Plex Script Host"
-	"${ED%/}/usr/lib/plexmediaserver/Plex Media Scanner"
-)
-BINS_TO_PAX_CREATE_FLAGS=( "${ED%/}/usr/lib/plexmediaserver/Resources/Python/bin/python" )
-
 S="${WORKDIR}"
 PATCHES=(
 	"${FILESDIR}/virtualenv_start_pms.patch"

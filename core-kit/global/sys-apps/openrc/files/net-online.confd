@@ -1,0 +1,23 @@
+# The interfaces setting controls which interfaces the net-online
+# service considers in deciding whether the network is active. The
+# default is all interfaces that support ethernet.
+
+#interfaces=""
+
+# The timeout setting controls how long the net-online service waits for the
+# network to be configured. The default is 15 seconds. If this is set to 0,
+# the wait is infinite.
+
+timeout=15
+
+# The connectivity test is used to determine if we actually have Internet
+# connectivity. The connectivity test will be active as long as 
+# connectivity_test is uncommented below. By default, we will make 10
+# attempts. If this is set to 0, the wait is infinite.
+
+connectivity_test="wget -q -o /dev/null --timeout=3 https://www.google.com"
+connectivity_attempts=10
+
+# NOTE: I recommend you use wget instead of ping for connectivity testing on
+# WiFi networks as quite a few networks will block ping even though HTTP(s)
+# is functioning perfectly.

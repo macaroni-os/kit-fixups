@@ -1,0 +1,101 @@
+#!/sbin/openrc-run
+# Copyright (c) 2015 The OpenRC Authors.
+# See the Authors file at the top-level directory of this distribution and
+# https://github.com/OpenRC/openrc/blob/master/AUTHORS
+#
+# This file is part of OpenRC. It is subject to the license terms in
+# the LICENSE file found in the top-level directory of this
+# distribution and at https://github.com/OpenRC/openrc/blob/master/LICENSE
+# This file may not be copied, modified, propagated, or distributed
+# except according to the terms contained in the LICENSE file.
+
+description="Delays until the network is online or a specific timeout"
+
+depend()
+{
+	after modules net
+	need sysfs
+	provide network-online
+	keyword -jail -prefix -systemd-nspawn
+}
+
+get_interfaces()
+{
+	local ifname iftype
+	for ifname in /sys/class/net/*; do
+		read iftype < ${ifname}/type
+		[ "$iftype" = "1" ] && printf "%s " ${ifname##*/}
+	done
+}
+
+start ()
+{
+	local dev ifcount infinite
+	local carrier operstate success
+	local attempts max_attempts
+	success=0
+
+	interfaces=${interfaces:-$(get_interfaces)}
+	timeout=${timeout:-10}
+	[ $timeout -eq 0 ] && infinite=true || infinite=false
+	if $infinite; then
+		ebegin "Checking to see if the network is online (waiting forever)"
+	else
+		ebegin "Checking to see if the network is online (timeout=${timeout}s)"
+	fi
+	while $infinite || [ $timeout -gt 0 ]; do
+		ifcount=0
+		ifup=0
+		for dev in ${interfaces}; do
+			echo -n "."
+			: $((ifcount += 1))
+			read carrier < /sys/class/net/$dev/carrier 2> /dev/null || carrier=
+			read operstate < /sys/class/net/$dev/operstate 2> /dev/null || operstate=
+			if [ "$carrier" == "1" ] && [ "$operstate" == "up" ]; then
+				ifup=1
+				break
+			fi
+		done
+		if [ "$ifup" -eq 1 ]; then
+			success=1
+			break
+		fi
+		sleep 1
+		: $((timeout -= 1))
+	done
+	if [ $success -eq 1 ]; then
+		eend 0 "The network is now online"
+	else
+		eend 1 "The network is offline"
+	fi
+	if [ -n "$connectivity_test" ]; then
+		success=0
+		attempts=0
+		max_attempts=${connectivity_attempts:-10}
+		[ $max_attempts -eq 0 ] && infinite=true || infinite=false
+		if $infinite; then
+			ebegin "Performing connectivity test (waiting forever)"
+		else
+			ebegin "Performing connectivity test (attempts=$max_attempts)"
+		fi
+		while $infinite || [ $attempts -lt $max_attempts ]; do
+			echo -n "."
+			eval $connectivity_test > /dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				success=1
+				break
+			fi
+			: $((attempts += 1))
+		done
+		if [ $success -eq 1 ]; then
+			eend 0 "The network is now connected"
+		else
+			eend 1 "The network failed to connect."
+		fi
+	fi
+	if [ "$success" -eq 1 ]; then
+		return 0
+	else
+		return 1
+	fi
+}

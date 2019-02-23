@@ -151,6 +151,7 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},

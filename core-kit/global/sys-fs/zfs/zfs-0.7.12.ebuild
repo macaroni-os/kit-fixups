@@ -4,7 +4,7 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 python3_{4..7} )
 
 AUTOTOOLS_AUTORECONF="1"
-KEYWORDS=""
+KEYWORDS="*"
 
 inherit autotools-utils bash-completion-r1 flag-o-matic linux-info python-r1 systemd toolchain-funcs udev
 

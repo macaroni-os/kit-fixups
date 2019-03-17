@@ -284,6 +284,7 @@ class KitFoundation:
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", },
+            {"repo": "deadbeef", },
 			{"repo": "gentoo-staging", 'src_sha1': 'c396d7f8240ba7191bf2967a51489ab21ae26959', 'date': '13 Nov 2018'}
 			
 		]

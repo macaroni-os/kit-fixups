@@ -13,7 +13,7 @@ KEYWORDS="~amd64 ~x86"
 IUSE=""
 
 RDEPEND="
-	|| ( =dev-lang/perl-5.24* ~perl-core/${PN#perl-}-${PV} )
+	|| ( >=dev-lang/perl-5.24 ~perl-core/${PN#perl-}-${PV} )
 	!<perl-core/${PN#perl-}-${PV}
 	!>perl-core/${PN#perl-}-${PV}
 "

@@ -31,7 +31,7 @@ AUTOTOOLS_IN_SOURCE_BUILD="1"
 DOCS=( AUTHORS COPYRIGHT README.markdown )
 
 GITHUB_USER="zfsonlinux"
-GITHUB_TAG="16d2981"
+GITHUB_TAG="a8c2b7e"
 GITHUB_REPO="zfs"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${GITHUB_REPO}-${GITHUB_TAG}.tar.gz"
 
@@ -68,7 +68,7 @@ pkg_setup() {
 
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
-	kernel_is le 4 19 || die "Linux 4.19 is the latest supported version."
+	kernel_is le 5 0 0 || die "Linux 5.0_rc3 is the latest supported version."
 
 	check_extra_config
 }

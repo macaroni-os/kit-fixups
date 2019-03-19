@@ -28,6 +28,16 @@ AT_M4DIR="config"
 AUTOTOOLS_IN_SOURCE_BUILD="1"
 DOCS=( AUTHORS DISCLAIMER )
 
+GITHUB_REPO="spl"
+GITHUB_USER="zfsonlinux"
+GITHUB_TAG="${P}"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
+
 pkg_setup() {
 	linux-info_pkg_setup
 	CONFIG_CHECK="
@@ -47,7 +57,7 @@ pkg_setup() {
 	"
 
 	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
-	kernel_is le 4 19 || die "Linux 4.19 is the latest supported version."
+	kernel_is le 5 0 0 || die "Linux 5.0_rc3 is the latest supported version."
 	check_extra_config
 }
 

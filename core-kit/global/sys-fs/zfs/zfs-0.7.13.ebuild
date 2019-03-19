@@ -57,7 +57,7 @@ AUTOTOOLS_IN_SOURCE_BUILD="1"
 
 GITHUB_REPO="zfs"
 GITHUB_USER="zfsonlinux"
-GITHUB_TAG="zfs-0.7.12"
+GITHUB_TAG="${P}"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 src_unpack() {

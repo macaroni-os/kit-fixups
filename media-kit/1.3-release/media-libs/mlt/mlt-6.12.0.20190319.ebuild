@@ -11,7 +11,6 @@ inherit python-single-r1 ruby-single toolchain-funcs
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
-SRC_URI="https://github.com/mltframework/${PN}/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -90,10 +89,17 @@ DOCS=( AUTHORS ChangeLog NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
-	"${FILESDIR}"/${P}-seconds-digits.patch
-	"${FILESDIR}"/${P}-rgb-to-yuv-accuracy.patch
-	"${FILESDIR}"/${P}-frei0r-w-tractor.patch
 )
+
+GITHUB_REPO="mlt"
+GITHUB_USER="mltframework"
+GITHUB_TAG="bbb55f1"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup

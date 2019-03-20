@@ -65,7 +65,7 @@ RDEPEND="
 		media-libs/libsdl2[X,opengl,video]
 		media-libs/sdl2-image
 	)
-	vidstab? ( media-libs/libvidstab )
+	vidstab? ( media-libs/vidstab )
 	xine? ( >=media-libs/xine-lib-1.1.2_pre20060328-r7 )
 	xml? ( >=dev-libs/libxml2-2.5 )"
 #	java? ( >=virtual/jre-1.5 )

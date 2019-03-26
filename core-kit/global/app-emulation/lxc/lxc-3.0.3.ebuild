@@ -8,7 +8,7 @@ DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
 SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="LGPL-3"
 SLOT="0"
@@ -30,8 +30,8 @@ RDEPEND="${RDEPEND}
 	app-misc/pax-utils
 	virtual/awk"
 
-PDEPEND="templates? ( app-emulation/lxc-templates )
-	python? ( dev-python/python3-lxc )"
+PDEPEND="templates? ( =app-emulation/lxc-templates-${PV}* )
+	python? ( =dev-python/python3-lxc-${PV}* )"
 
 CONFIG_CHECK="~CGROUPS ~CGROUP_DEVICE
 	~CPUSETS ~CGROUP_CPUACCT

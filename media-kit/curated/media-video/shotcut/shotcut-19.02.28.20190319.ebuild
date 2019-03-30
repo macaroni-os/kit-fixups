@@ -38,7 +38,7 @@ RDEPEND="
 	>=media-plugins/swh-plugins-0.4.17.20190319
 	media-plugins/webvfx
 	media-sound/lame
-	media-video/ffmpeg[chromaprint,jack,frei0r,ladspa,sdl]
+	media-video/ffmpeg[jack,frei0r,ladspa,sdl]
 	media-video/movit
 	virtual/jack
 "

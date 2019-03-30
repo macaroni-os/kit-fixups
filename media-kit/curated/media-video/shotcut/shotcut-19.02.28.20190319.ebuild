@@ -28,6 +28,7 @@ RDEPEND="
 	dev-qt/qtwebsockets:5
 	dev-qt/qtwidgets:5
 	dev-qt/qtxml:5
+	dev-qt/qtx11extras:5
 	media-libs/ladspa-sdk
 	media-libs/libsdl:0
 	media-libs/libvpx

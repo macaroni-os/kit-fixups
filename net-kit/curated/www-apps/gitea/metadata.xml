@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>gentoo@chaoslab.org</email>
+		<name>Ian Moone</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">go-gitea/gitea</remote-id>
+		<bugs-to>https://github.com/go-gitea/gitea/issues</bugs-to>
+		<doc>https://docs.gitea.io/en-us/</doc>
+	</upstream>
+	<longdescription lang="en">
+		Gitea is a painless self-hosted Git service.
+		It is similar to GitHub, Bitbucket or Gitlab.
+		The initial development have been done on Gogs
+		but we have forked it and named it Gitea.
+	</longdescription>
+	<use>
+		<flag name="bindata">
+			Build a single monolithic binary, with all assets included
+		</flag>
+		<flag name="openssh">Use OpenSSH instead of the builtin SSH server</flag>
+		<flag name="redis">Add support for redis sessions</flag>
+	</use>
+</pkgmetadata>

@@ -1,0 +1,33 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+GITEA_USER="${GITEA_USER:-git}"
+GITEA_HOME="${GITEA_HOME:-/var/lib/gitea}"
+GITEA_CONFIG="${GITEA_CONFIG:-${GITEA_HOME}/conf/app.ini}"
+GITEA_LOGDIR="${GITEA_LOGDIR:-/var/log/gitea}"
+
+output_log="${output_log:-/dev/null}"
+error_log="${error_log:-${GITEA_LOGDIR}/error.log}"
+
+name="${name:-Gitea}"
+command="/usr/bin/gitea"
+command_args="web --config ${GITEA_CONFIG} ${GITEA_OPTS}"
+command_user="${command_user:-${GITEA_USER}:git}"
+command_background=true
+directory="${GITEA_HOME}"
+pidfile="/run/${RC_SVCNAME}.pid"
+required_files="${GITEA_CONFIG}"
+retry="${retry:-TERM/30/KILL/5}"
+start_stop_daemon_args="${SSD_OPTS}
+	-e \"GITEA_WORK_DIR=${GITEA_HOME}\"
+	-e \"USER=${GITEA_USER}\""
+
+depend() {
+	need net
+}
+
+start_pre() {
+	checkpath -d -m 0750 -o "${command_user}" "${GITEA_HOME}" "${GITEA_LOGDIR}"
+	checkpath -f -m 0600 -o "${command_user}" "${GITEA_CONFIG}"
+}

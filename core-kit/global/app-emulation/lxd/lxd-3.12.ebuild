@@ -191,7 +191,7 @@ src_install() {
 	fi
 
 	if use daemon; then
-		newinitd "${FILESDIR}"/${PN}.initd lxd
+		newinitd "${FILESDIR}"/lxd-3.12.initd lxd
 		newconfd "${FILESDIR}"/${PN}.confd lxd
 
 		systemd_newunit "${FILESDIR}"/${PN}.service ${PN}.service

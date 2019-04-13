@@ -12,8 +12,9 @@ LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="+seccomp"
 
-DEPEND=">=dev-lang/go-1.4:="
-RDEPEND="seccomp? ( sys-libs/libseccomp )"
+COMMON_DEPEND="virtual/nvidia-container-runtime"
+DEPEND="$COMMON_DEPEND >=dev-lang/go-1.4:="
+RDEPEND="$COMMON_DEPEND seccomp? ( sys-libs/libseccomp )"
 
 TARBALL_PV=${PV}
 GITHUB_REPO="runc"
@@ -42,7 +43,7 @@ PATCHES=( "$FILESDIR/0001-Add-prestart-hook-nvidia-container-runtime-hook-to-t.p
 
 src_prepare() {
 	default
-	cd $WORKDIR/$NV_GITHUB_REPO && eapply $FILESDIR/nvidia-container-runtime-hook-gentoo-video-group.patch
+#	cd $WORKDIR/$NV_GITHUB_REPO && eapply $FILESDIR/nvidia-container-runtime-hook-gentoo-video-group.patch
 }
 
 src_compile() {

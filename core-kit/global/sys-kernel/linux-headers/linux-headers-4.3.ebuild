@@ -8,8 +8,8 @@ inherit kernel-2
 detect_version
 
 PATCH_VER="1"
-SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}.tar.xz
-	${PATCH_VER:+mirror://gentoo/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}"
+SRC_URI="https://dev.gentoo.org/~vapier/dist/gentoo-headers-base-${PV}.tar.xz
+	${PATCH_VER:+https://dev.gentoo.org/~vapier/dist/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}"
 
 KEYWORDS="*"
 

@@ -1,30 +1,38 @@
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="4"
+EAPI="6"
 
 ETYPE="headers"
-H_SUPPORTEDARCH="alpha amd64 arc arm arm64 avr32 bfin cris frv hexagon hppa ia64 m32r m68k metag microblaze mips mn10300 nios2 openrisc ppc ppc64 s390 score sh sparc tile x86 xtensa"
+H_SUPPORTEDARCH="alpha amd64 arc arm arm64 avr32 cris frv hexagon hppa ia64 m32r m68k metag microblaze mips mn10300 nios2 openrisc ppc ppc64 riscv s390 score sh sparc x86 xtensa"
 inherit kernel-2
 detect_version
 
 PATCH_VER="1"
-SRC_URI="https://dev.gentoo.org/~vapier/dist/gentoo-headers-base-${PV}.tar.xz
-	${PATCH_VER:+https://dev.gentoo.org/~vapier/dist/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}"
+SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}-bug-679630.tar.xz
+	https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-base-${PV}-bug-679630.tar.xz
+	${PATCH_VER:+https://dev.gentoo/org/~vapier/dist/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
+	${PATCH_VER:+https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
+"
 
-KEYWORDS="*"
+KEYWORDS=""
 
 DEPEND="app-arch/xz-utils
 	dev-lang/perl"
-RDEPEND="!!media-sound/alsa-headers"
+RDEPEND=""
 
 S=${WORKDIR}/gentoo-headers-base-${PV}
+
+PATCHES=( "${FILESDIR}/riscv-restore-asm-syscalls-header.patch" )
 
 src_unpack() {
 	unpack ${A}
 }
 
 src_prepare() {
-	[[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/${PV}
+	default
+
+	[[ -n ${PATCH_VER} ]] && eapply "${WORKDIR}"/${PV}/*.patch
 }
 
 src_install() {

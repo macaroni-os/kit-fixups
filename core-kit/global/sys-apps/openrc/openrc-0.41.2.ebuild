@@ -62,6 +62,7 @@ src_prepare() {
 	sed -i -e 's/-\lxc\+ //g' init.d/devfs.in || die "sed failed"
 	eapply "${FILESDIR}"/${P}-systemd-cgroups.patch #FL-6105
 	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
+	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
 }
 
 src_compile() {

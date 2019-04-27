@@ -48,7 +48,6 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 SRC_URI="$SRC_URI https://github.com/gentoo/pambase/archive/${PP}.tar.gz"
 
 src_unpack() {
-	echo A is ${A}
 	unpack ${A}
 	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
 }
@@ -59,6 +58,8 @@ src_prepare() {
 	eapply "${FILESDIR}/pam-1.3.1-faillock.patch" # faillock support from Red Hat.
 	touch ChangeLog || die
 	eautoreconf
+	cd ${WORKDIR}/pambase-${PP} || die
+	eapply "${FILESDIR}/pambase-limits-optional.patch" # make attempt to apply limits but don't deny login. Good for lxd containers.
 }
 
 src_configure() {

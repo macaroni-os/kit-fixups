@@ -1,0 +1,10 @@
+diff -urN pambase-pambase-20190402/system-session.inc pambase-pambase-20190402-fixed/system-session.inc
+--- pambase-pambase-20190402/system-session.inc	2019-04-02 07:08:25.000000000 -0600
++++ pambase-pambase-20190402-fixed/system-session.inc	2019-04-26 22:41:33.167210005 -0600
+@@ -1,5 +1,5 @@
+ #if HAVE_LIMITS
+-session		required	pam_limits.so DEBUG
++session		optional	pam_limits.so DEBUG
+ #endif
+ #if HAVE_ENV
+ session		required	pam_env.so DEBUG

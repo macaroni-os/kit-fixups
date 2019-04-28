@@ -60,7 +60,7 @@ src_prepare() {
 	fi
 	# remove lxc keyword from devfs. FL-6048
 	sed -i -e 's/-\lxc\+ //g' init.d/devfs.in || die "sed failed"
-	eapply "${FILESDIR}"/${P}-systemd-cgroups.patch #FL-6105
+	eapply "${FILESDIR}"/openrc-0.40.2-systemd-cgroups.patch #FL-6105
 	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
 	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
 }
@@ -224,13 +224,6 @@ pkg_postinst() {
 			fi
 		done
 	done
-
-	if use kernel_linux && [[ "${EROOT}" = "/" ]]; then
-		if ! /$(get_libdir)/rc/sh/migrate-to-run.sh; then
-			ewarn "The dependency data could not be migrated to /run/openrc."
-			ewarn "This means you need to reboot your system."
-		fi
-	fi
 
 	# update the dependency tree after touching all files #224171
 	[[ "${EROOT}" = "/" ]] && "${EROOT}"/lib/rc/bin/rc-depend -u

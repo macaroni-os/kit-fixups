@@ -32,7 +32,8 @@ DEPEND="
 	nls? ( >=virtual/libintl-0-r1 )"
 RDEPEND="${DEPEND}
 	!sys-auth/openpam
-	!sys-auth/pam_userdb"
+	!sys-auth/pam_userdb
+	!<sys-auth/pambase-20190426"
 PDEPEND="
 	passwdqc? ( sys-auth/pam_passwdqc )
 	mktemp? ( sys-auth/pam_mktemp )

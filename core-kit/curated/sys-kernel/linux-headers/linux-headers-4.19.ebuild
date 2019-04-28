@@ -1,7 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI=6
 
 ETYPE="headers"
 H_SUPPORTEDARCH="alpha amd64 arc arm arm64 avr32 cris frv hexagon hppa ia64 m32r m68k metag microblaze mips mn10300 nios2 openrisc ppc ppc64 riscv s390 score sh sparc x86 xtensa"
@@ -9,17 +9,14 @@ inherit kernel-2
 detect_version
 
 PATCH_VER="1"
-SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}-bug-679630.tar.xz
-	https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-base-${PV}-bug-679630.tar.xz
-	${PATCH_VER:+https://dev.gentoo/org/~vapier/dist/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
-	${PATCH_VER:+https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
-"
+SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}.tar.xz
+	${PATCH_VER:+mirror://gentoo/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}"
 
-KEYWORDS=""
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~x86-linux"
 
 DEPEND="app-arch/xz-utils
 	dev-lang/perl"
-RDEPEND=""
+RDEPEND="!!media-sound/alsa-headers"
 
 S=${WORKDIR}/gentoo-headers-base-${PV}
 
@@ -32,7 +29,7 @@ src_unpack() {
 src_prepare() {
 	default
 
-	[[ -n ${PATCH_VER} ]] && eapply "${WORKDIR}"/${PV}/*.patch
+	[[ -n ${PATCH_VER} ]] && EPATCH_SUFFIX="patch" epatch "${WORKDIR}"/${PV}
 }
 
 src_install() {

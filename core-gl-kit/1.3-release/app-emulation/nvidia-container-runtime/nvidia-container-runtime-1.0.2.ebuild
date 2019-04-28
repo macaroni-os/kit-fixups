@@ -12,7 +12,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="+seccomp"
 
-COMMON_DEPEND="virtual/nvidia-container-runtime"
+COMMON_DEPEND="virtual/libnvidia-container"
 DEPEND="$COMMON_DEPEND >=dev-lang/go-1.4:="
 RDEPEND="$COMMON_DEPEND seccomp? ( sys-libs/libseccomp )"
 

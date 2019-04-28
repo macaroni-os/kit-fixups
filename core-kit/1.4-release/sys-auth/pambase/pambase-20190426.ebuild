@@ -13,8 +13,8 @@ RDEPEND="
 sys-libs/pam
 cracklib? ( sys-libs/pam[cracklib=] )
 debug? ( sys-libs/pam[debug=] )
-minimal? (sys-libs/pam[minimal=] )
-mktemp?( sys-libs/pam[mktemp=] )
+minimal? ( sys-libs/pam[minimal=] )
+mktemp? ( sys-libs/pam[mktemp=] )
 nullok? ( sys-libs/pam[nullok=] )
 pam_krb5? ( sys-libs/pam[pam_krb5=] )
 pam_ssh? ( sys-libs/pam[pam_ssh=] )

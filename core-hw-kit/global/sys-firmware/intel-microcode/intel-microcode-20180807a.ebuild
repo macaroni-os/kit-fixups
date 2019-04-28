@@ -7,8 +7,8 @@ inherit linux-info toolchain-funcs
 # Find updates by searching and clicking the first link (hopefully it's the one):
 # https://www.intel.com/content/www/us/en/search.html?keyword=Processor+Microcode+Data+File
 
-COLLECTION_SNAPSHOT="20180808"
-INTEL_SNAPSHOT="20180807"
+COLLECTION_SNAPSHOT="20190420"
+INTEL_SNAPSHOT="20180807a"
 NUM="28087"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
 HOMEPAGE="http://inertiawar.com/microcode/ https://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=${NUM}"
@@ -17,7 +17,7 @@ SRC_URI="https://downloadmirror.intel.com/${NUM}/eng/microcode-${INTEL_SNAPSHOT}
 
 LICENSE="intel-ucode"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="-* amd64 x86"
 IUSE="+split-ucode vanilla"
 DEPEND="sys-apps/iucode_tool"
 
@@ -121,6 +121,7 @@ pkg_preinst() {
 pkg_postinst() {
 	if [ "$ROOT" = "/" ]; then
 		/usr/bin/ego boot microcode || die
+		einfo "Your boot microcode has been updated via ego!"
 	fi
 
 	# We cannot give detailed information if user is affected or not:

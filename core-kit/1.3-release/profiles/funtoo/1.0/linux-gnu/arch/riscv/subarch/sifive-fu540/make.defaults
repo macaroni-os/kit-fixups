@@ -1,0 +1,8 @@
+# SiFive Freedom U540 profile.
+
+CHOST="riscv64-unknown-linux-gnu"
+
+CFLAGS="-O2 -march=rv64gc -mabi=lp64d"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"

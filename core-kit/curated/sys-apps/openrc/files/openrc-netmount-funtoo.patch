@@ -1,0 +1,22 @@
+diff --git a/init.d/netmount.in b/init.d/netmount.in
+index 96f5d3e0..ff52e696 100644
+--- a/init.d/netmount.in
++++ b/init.d/netmount.in
+@@ -26,7 +26,7 @@ depend()
+ 	use afc-client amd openvpn
+ 	use dns
+ 	use root
+-	keyword -docker -jail -lxc -prefix -systemd-nspawn -vserver
++	keyword -jail -prefix -systemd-nspawn
+ }
+ 
+ start()
+@@ -70,7 +70,7 @@ stop()
+ 		fs="$fs${fs:+,}$x"
+ 	done
+ 	if [ -n "$fs" ]; then
+-		umount -at $fs || eerror "Failed to simply unmount filesystems"
++		umount -lat $fs || eerror "Failed to simply unmount filesystems"
+ 	fi
+ 
+ 	eindent

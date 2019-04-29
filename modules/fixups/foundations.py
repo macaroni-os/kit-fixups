@@ -103,6 +103,12 @@ class KitFoundation:
 			"required": {
 				"ego": "2.7.2"
 			}
+		},
+		"1.4-release": {
+			"version": 11,
+			"required": {
+				"ego": "2.7.2"
+			}
 		}
 	}
 	
@@ -151,7 +157,8 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
-			{'name': 'xfce-kit', 'branch': '4.13-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'xfce-kit', 'branch': '4.13-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 			{'name': 'kde-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'desktop-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'media-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
@@ -160,14 +167,14 @@ class KitFoundation:
 			{'name': 'text-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'science-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'games-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
-			{'name': 'perl-kit', 'branch': '5.28-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'perl-kit', 'branch': '5.28-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 			{'name': 'java-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'ruby-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'haskell-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'ml-lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'lisp-scheme-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			# python-kit needs to be before lang-kit...
-			{'name': 'python-kit', 'branch': '3.7-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
+			{'name': 'python-kit', 'branch': '3.7-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 			{'name': 'lang-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'llvm-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'dev-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
@@ -175,6 +182,44 @@ class KitFoundation:
 			{'name': 'python-modules-kit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 			{'name': 'nokit', 'branch': '1.3-release', 'source': 'funtoo_release_1.3', 'stability': KitStabilityRating.PRIME},
 		],
+		'1.4-release': [
+			{'name': 'core-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-hw-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
+			{'name': 'xfce-kit', 'branch': '4.13-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
+			{'name': 'kde-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'desktop-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'media-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'editors-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'net-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'text-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'science-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'games-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'perl-kit', 'branch': '5.28-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
+			{'name': 'java-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'ruby-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'haskell-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'ml-lang-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'lisp-scheme-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			# python-kit needs to be before lang-kit...
+			{'name': 'python-kit', 'branch': '3.7-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
+			{'name': 'lang-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'llvm-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'dev-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			# python-modules kit later so that other kits can grab python modules they need...
+			{'name': 'python-modules-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+			{'name': 'nokit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+		],
+
 	}
 
 	python_kit_settings = {
@@ -283,6 +328,7 @@ class KitFoundation:
 			{"repo": "flora", },
 			{"repo": "faustoo", },
 			{"repo": "fusion809", },
+			{"repo": "deadbeef", },
 			{"repo": "gentoo-staging", 'src_sha1': 'c396d7f8240ba7191bf2967a51489ab21ae26959', 'date': '13 Nov 2018'}
 			
 		]
@@ -338,7 +384,9 @@ class KitFoundation:
 			# damex's deadbeef (music player like foobar2000) overlay
 			"deadbeef": {"url": "https://github.com/damex/deadbeef-overlay.git", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/deadbeef.mask"
-			}},
+			}, "eclasses" : [
+				"deadbeef-plugins"
+			]},
 			# damex's wmfs (window manager from scratch) overlay
 			"wmfs": {"url": "https://github.com/damex/wmfs-overlay.git", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/wmfs.mask"

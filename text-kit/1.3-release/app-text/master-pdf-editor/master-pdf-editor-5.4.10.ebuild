@@ -1,9 +1,9 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit xdg-utils desktop
+inherit desktop xdg-utils
 
 DESCRIPTION="A complete solution for viewing and editing PDF files"
 HOMEPAGE="https://code-industry.net/free-pdf-editor/"
@@ -48,3 +48,4 @@ pkg_postinst() {
 pkg_postrm() {
 	xdg_desktop_database_update
 }
+

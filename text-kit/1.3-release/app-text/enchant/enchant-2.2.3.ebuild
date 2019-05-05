@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -8,8 +7,8 @@ HOMEPAGE="https://abiword.github.io/enchant/"
 SRC_URI="https://github.com/AbiWord/enchant/releases/download/v${PV}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
-SLOT="0/2"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~x86-solaris"
+SLOT="2.2"
+KEYWORDS="*"
 
 IUSE="aspell +hunspell static-libs test"
 REQUIRED_USE="|| ( hunspell aspell )"
@@ -39,7 +38,11 @@ src_configure() {
 		--with-hunspell-dir="${EPREFIX}"/usr/share/hunspell/
 }
 
+src_compile() {
+	emake pkgdatadir=/usr/share/enchant-2 || die
+}
+
 src_install() {
-	default
+	make pkgdatadir=/usr/share/enchant-2 DESTDIR=$D install || die
 	find "${D}" -name '*.la' -delete || die
 }

@@ -19,7 +19,8 @@ COMMON_DEPENDS="
 	aspell? ( app-text/aspell )
 	hunspell? ( >=app-text/hunspell-1.2.1:0= )"
 
-RDEPEND="${COMMON_DEPENDS}"
+RDEPEND="${COMMON_DEPENDS}
+	!=app-text/enchant-2.1*"
 
 DEPEND="${COMMON_DEPENDS}
 	virtual/pkgconfig

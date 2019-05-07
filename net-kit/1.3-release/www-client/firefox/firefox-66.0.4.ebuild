@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -16,22 +16,36 @@ gd gl gn gu-IN he hi-IN hr hsb hu hy-AM id is it ja ka kab kk km kn ko lij lt lv
 mai mk ml mr ms nb-NO nl nn-NO or pa-IN pl pt-BR pt-PT rm ro ru si sk sl son sq
 sr sv-SE ta te th tr uk uz vi xh zh-CN zh-TW )
 
+# Must be removed next bump
+MOZ_LANGPACK_PREFIX="66.0.3/linux-i686/xpi/"
+
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_alpha/a}" # Handle alpha for SRC_URI
 MOZ_PV="${MOZ_PV/_beta/b}" # Handle beta for SRC_URI
-MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
+MOZ_PV="${MOZ_PV%%_rc*}" # Handle rc for SRC_URI
 
-if [[ ${MOZ_ESR} == 1 ]]; then
+if [[ ${MOZ_ESR} == 1 ]] ; then
 	# ESR releases have slightly different version numbers
 	MOZ_PV="${MOZ_PV}esr"
 fi
 
 # Patch version
-PATCH="${PN}-64.0-patches-01"
-MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
+PATCH="${PN}-66.0-patches-09"
 
-inherit check-reqs flag-o-matic toolchain-funcs eutils gnome2-utils llvm \
-		mozcoreconf-v6 pax-utils xdg-utils autotools mozlinguas-v2
+MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/releases"
+MOZ_SRC_URI="${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz"
+
+if [[ "${PV}" == *_rc* ]]; then
+	MOZ_HTTP_URI="https://archive.mozilla.org/pub/${PN}/candidates/${MOZ_PV}-candidates/build${PV##*_rc}"
+	MOZ_LANGPACK_PREFIX="linux-i686/xpi/"
+	MOZ_SRC_URI="${MOZ_HTTP_URI}/source/${PN}-${MOZ_PV}.source.tar.xz -> $P.tar.xz"
+fi
+
+LLVM_MAX_SLOT=8
+
+inherit check-reqs eapi7-ver flag-o-matic toolchain-funcs eutils \
+		gnome2-utils llvm mozcoreconf-v6 pax-utils xdg-utils \
+		autotools mozlinguas-v2 virtualx
 
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
@@ -40,19 +54,20 @@ KEYWORDS="~amd64 ~x86"
 
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="bindist clang dbus debug eme-free geckodriver +gmp-autoupdate hardened hwaccel
-	jack lto neon pulseaudio +screenshot selinux startup-notification
-	system-harfbuzz system-icu system-jpeg system-libevent system-sqlite
-	system-libvpx test wifi"
+IUSE="bindist clang cpu_flags_x86_avx2 dbus debug eme-free geckodriver
+	+gmp-autoupdate hardened hwaccel jack lto neon pgo pulseaudio
+	+screenshot selinux startup-notification +system-av1
+	+system-harfbuzz +system-icu +system-jpeg +system-libevent
+	+system-sqlite +system-libvpx +system-webp test wayland wifi"
 RESTRICT="!bindist? ( bindist )"
 
 PATCH_URIS=( https://dev.gentoo.org/~{anarchy,axs,polynomial-c,whissi}/mozilla/patchsets/${PATCH}.tar.xz )
 SRC_URI="${SRC_URI}
-	${MOZ_HTTP_URI}/${MOZ_PV}/source/firefox-${MOZ_PV}.source.tar.xz
+	${MOZ_SRC_URI}
 	${PATCH_URIS[@]}"
 
 CDEPEND="
-	>=dev-libs/nss-3.40.1
+	>=dev-libs/nss-3.42
 	>=dev-libs/nspr-4.19
 	>=app-text/hunspell-1.5.4:*
 	dev-libs/atk
@@ -83,12 +98,20 @@ CDEPEND="
 	x11-libs/libXfixes
 	x11-libs/libXrender
 	x11-libs/libXt
-	system-icu? ( >=dev-libs/icu-60.2:= )
+	system-av1? (
+		>=media-libs/dav1d-0.2.0:=
+		>=media-libs/libaom-1.0.0:=
+	)
+	system-harfbuzz? ( >=media-libs/harfbuzz-2.3.1:0= >=media-gfx/graphite2-1.3.13 )
+	system-icu? ( >=dev-libs/icu-63.1:= )
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
-	system-libevent? ( >=dev-libs/libevent-2.0:0= )
-	system-sqlite? ( >=dev-db/sqlite-3.25.1:3[secure-delete,debug=] )
-	system-libvpx? ( >=media-libs/libvpx-1.5.0:0=[postproc] )
-	system-harfbuzz? ( >=media-libs/harfbuzz-1.4.2:0= >=media-gfx/graphite2-1.3.9-r1 )
+	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
+	system-libvpx? (
+		>=media-libs/libvpx-1.7.0:0=[postproc]
+		<media-libs/libvpx-1.8:0=[postproc]
+	)
+	system-sqlite? ( >=dev-db/sqlite-3.26:3[secure-delete,debug=] )
+	system-webp? ( >=media-libs/libwebp-1.0.2:0= )
 	wifi? ( kernel_linux? ( >=sys-apps/dbus-0.60
 			>=dev-libs/dbus-glib-0.72
 			net-misc/networkmanager ) )
@@ -104,23 +127,51 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	app-arch/zip
 	app-arch/unzip
-	>=dev-util/cbindgen-0.6.4
+	>=dev-util/cbindgen-0.6.8
 	>=net-libs/nodejs-8.11.0
 	>=sys-devel/binutils-2.30
 	sys-apps/findutils
-	>=sys-devel/llvm-4.0.1
-	>=sys-devel/clang-4.0.1
-	clang? (
-		>=sys-devel/llvm-4.0.1[gold]
-		>=sys-devel/lld-4.0.1
+	|| (
+		(
+			sys-devel/clang:8
+			!clang? ( sys-devel/llvm:8 )
+			clang? (
+				=sys-devel/lld-8*
+				sys-devel/llvm:8[gold]
+				pgo? ( =sys-libs/compiler-rt-sanitizers-8*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:7
+			!clang? ( sys-devel/llvm:7 )
+			clang? (
+				=sys-devel/lld-7*
+				sys-devel/llvm:7[gold]
+				pgo? ( =sys-libs/compiler-rt-sanitizers-7*[profile] )
+			)
+		)
+		(
+			sys-devel/clang:6
+			!clang? ( sys-devel/llvm:6 )
+			clang? (
+				=sys-devel/lld-6*
+				sys-devel/llvm:6[gold]
+				pgo? ( =sys-libs/compiler-rt-sanitizers-6*[profile] )
+			)
+		)
 	)
 	pulseaudio? ( media-sound/pulseaudio )
-	>=virtual/cargo-1.28.0
-	>=virtual/rust-1.28.0
+	>=virtual/cargo-1.31.0
+	>=virtual/rust-1.31.0
+	wayland? ( >=x11-libs/gtk+-3.11:3[wayland] )
 	amd64? ( >=dev-lang/yasm-1.1 virtual/opengl )
-	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )"
+	x86? ( >=dev-lang/yasm-1.1 virtual/opengl )
+	!system-av1? ( dev-lang/nasm )"
 
-REQUIRED_USE="wifi? ( dbus )"
+# Due to a bug in GCC, profile guided optimization will produce
+# AVX2 instructions, bug #677052
+REQUIRED_USE="wifi? ( dbus )
+	pgo? ( lto )"
 
 S="${WORKDIR}/firefox-${PV%_*}"
 
@@ -130,12 +181,31 @@ BUILD_OBJ_DIR="${S}/ff"
 
 # allow GMP_PLUGIN_LIST to be set in an eclass or
 # overridden in the enviromnent (advanced hackers only)
-if [[ -z $GMP_PLUGIN_LIST ]]; then
+if [[ -z $GMP_PLUGIN_LIST ]] ; then
 	GMP_PLUGIN_LIST=( gmp-gmpopenh264 gmp-widevinecdm )
 fi
 
 llvm_check_deps() {
-	has_version "sys-devel/clang:${LLVM_SLOT}"
+	if ! has_version --host-root "sys-devel/clang:${LLVM_SLOT}" ; then
+		ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+		return 1
+	fi
+
+	if use clang ; then
+		if ! has_version --host-root "=sys-devel/lld-${LLVM_SLOT}*" ; then
+			ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+			return 1
+		fi
+
+		if use pgo ; then
+			if ! has_version --host-root "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}*" ; then
+				ewarn "=sys-libs/compiler-rt-sanitizers-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..."
+				return 1
+			fi
+		fi
+	fi
+
+	einfo "Will use LLVM slot ${LLVM_SLOT}!"
 }
 
 pkg_setup() {
@@ -150,7 +220,7 @@ pkg_setup() {
 		XDG_SESSION_COOKIE \
 		XAUTHORITY
 
-	if ! use bindist; then
+	if ! use bindist ; then
 		einfo
 		elog "You are enabling official branding. You may not redistribute this build"
 		elog "to any users on your network or the internet. Doing so puts yourself into"
@@ -165,7 +235,11 @@ pkg_setup() {
 
 pkg_pretend() {
 	# Ensure we have enough disk space to compile
-	CHECKREQS_DISK_BUILD="4G"
+	if use pgo || use debug || use test ; then
+		CHECKREQS_DISK_BUILD="8G"
+	else
+		CHECKREQS_DISK_BUILD="4G"
+	fi
 
 	check-reqs_pkg_setup
 }
@@ -292,22 +366,38 @@ src_configure() {
 		if use clang ; then
 			# At this stage CC is adjusted and the following check will
 			# will work
-			if [[ $(clang-major-version) -lt 7 ]]; then
+			if [[ $(clang-major-version) -lt 7 ]] ; then
 				show_old_compiler_warning=1
 			fi
 
 			# Upstream only supports lld when using clang
 			mozconfig_annotate "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
 		else
-			if [[ $(gcc-major-version) -lt 8 ]]; then
+			if [[ $(gcc-major-version) -lt 8 ]] ; then
 				show_old_compiler_warning=1
+			fi
+
+			if ! use cpu_flags_x86_avx2 ; then
+				local _gcc_version_with_ipa_cdtor_fix="8.3"
+				local _current_gcc_version="$(gcc-major-version).$(gcc-minor-version)"
+
+				if ver_test "${_current_gcc_version}" -lt "${_gcc_version_with_ipa_cdtor_fix}" ; then
+					# due to a GCC bug, GCC will produce AVX2 instructions
+					# even if the CPU doesn't support AVX2, https://gcc.gnu.org/ml/gcc-patches/2018-12/msg01142.html
+					einfo "Disable IPA cdtor due to bug in GCC and missing AVX2 support -- triggered by USE=lto"
+					append-ldflags -fdisable-ipa-cdtor
+				else
+					einfo "No GCC workaround required, GCC version is already patched!"
+				fi
+			else
+				einfo "No GCC workaround required, system supports AVX2"
 			fi
 
 			# Linking only works when using ld.gold when LTO is enabled
 			mozconfig_annotate "forcing ld=gold due to USE=lto" --enable-linker=gold
 		fi
 
-		if [[ -n "${show_old_compiler_warning}" ]]; then
+		if [[ -n "${show_old_compiler_warning}" ]] ; then
 			# Checking compiler's major version uses CC variable. Because we allow
 			# user to control used compiler via USE=clang flag, we cannot use
 			# initial value. So this is the earliest stage where we can do this check
@@ -322,6 +412,10 @@ src_configure() {
 		fi
 
 		mozconfig_annotate '+lto' --enable-lto=thin
+
+		if use pgo ; then
+			mozconfig_annotate '+pgo' MOZ_PGO=1
+		fi
 	else
 		# Avoid auto-magic on linker
 		if use clang ; then
@@ -338,7 +432,7 @@ src_configure() {
 	use alpha && append-ldflags "-Wl,--no-relax"
 
 	# Add full relro support for hardened
-	if use hardened; then
+	if use hardened ; then
 		append-ldflags "-Wl,-z,relro,-z,now"
 		mozconfig_use_enable hardened hardening
 	fi
@@ -389,27 +483,27 @@ src_configure() {
 	# Set both --target and --host as mozilla uses python to guess values otherwise
 	mozconfig_annotate '' --target="${CHOST}"
 	mozconfig_annotate '' --host="${CBUILD:-${CHOST}}"
-	if use system-libevent; then
+	if use system-libevent ; then
 		mozconfig_annotate '' --with-system-libevent="${SYSROOT}${EPREFIX}"/usr
 	fi
 
-	# skia has no support for big-endian platforms
-	if [[ $(tc-endian) == "big" ]]; then
-		mozconfig_annotate 'big endian target' --disable-skia
-	else
-		mozconfig_annotate '' --enable-skia
+	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+		mozconfig_annotate '' --enable-rust-simd
 	fi
 
 	# use the gtk3 toolkit (the only one supported at this point)
+	# TODO: Will this result in automagic dependency on x11-libs/gtk+[wayland]?
 	mozconfig_annotate '' --enable-default-toolkit=cairo-gtk3
 
 	mozconfig_use_enable startup-notification
 	mozconfig_use_enable system-sqlite
-	mozconfig_use_with system-jpeg
-	mozconfig_use_with system-icu
-	mozconfig_use_with system-libvpx
+	mozconfig_use_with system-av1
 	mozconfig_use_with system-harfbuzz
 	mozconfig_use_with system-harfbuzz system-graphite2
+	mozconfig_use_with system-icu
+	mozconfig_use_with system-jpeg
+	mozconfig_use_with system-libvpx
+	mozconfig_use_with system-webp
 	mozconfig_use_enable pulseaudio
 	# force the deprecated alsa sound code if pulseaudio is disabled
 	if use kernel_linux && ! use pulseaudio ; then
@@ -435,18 +529,23 @@ src_configure() {
 	# Enable/Disable eme support
 	use eme-free && mozconfig_annotate '+eme-free' --disable-eme
 
-	# Setup api key for location services
+	# Setup api key for location services and safebrowsing, https://bugzilla.mozilla.org/show_bug.cgi?id=1531176#c34
 	echo -n "${_google_api_key}" > "${S}"/google-api-key
-	mozconfig_annotate '' --with-google-api-keyfile="${S}/google-api-key"
+	mozconfig_annotate '' --with-google-location-service-api-keyfile="${S}/google-api-key"
+	mozconfig_annotate '' --with-google-safebrowsing-api-keyfile="${S}/google-api-key"
 
 	mozconfig_annotate '' --enable-extensions="${MEXTENSIONS}"
 
 	# disable webrtc for now, bug 667642
 	use arm && mozconfig_annotate 'broken on arm' --disable-webrtc
 
+	# allow elfhack to work in combination with unstripped binaries
+	# when they would normally be larger than 2GiB.
+	append-ldflags "-Wl,--compress-debug-sections=zlib"
+
 	if use clang ; then
-		# https://bugzilla.mozilla.org/show_bug.cgi?id=1423822
-		# bug #669382
+		# https://bugzilla.mozilla.org/show_bug.cgi?id=1482204
+		# https://bugzilla.mozilla.org/show_bug.cgi?id=1483822
 		mozconfig_annotate 'elf-hack is broken when using Clang' --disable-elf-hack
 	fi
 
@@ -462,7 +561,18 @@ src_configure() {
 }
 
 src_compile() {
-	MOZ_MAKE_FLAGS="${MAKEOPTS} -O" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 \
+	local _virtx=
+	if use pgo ; then
+		_virtx=virtx
+
+		# Reset and cleanup environment variables used by GNOME/XDG
+		gnome2_environment_reset
+
+		addpredict /root
+		addpredict /etc/gconf
+	fi
+
+	MOZ_MAKE_FLAGS="${MAKEOPTS} -O" SHELL="${SHELL:-${EPREFIX}/bin/bash}" MOZ_NOSPAM=1 ${_virtx} \
 	./mach build --verbose || die
 }
 
@@ -502,7 +612,7 @@ src_install() {
 		|| die
 	fi
 
-	if ! use screenshot; then
+	if ! use screenshot ; then
 		echo "pref(\"extensions.screenshots.disabled\", true);" >> \
 			"${BUILD_OBJ_DIR}/dist/bin/browser/defaults/preferences/all-gentoo.js" \
 			|| die
@@ -534,7 +644,7 @@ src_install() {
 	MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
 
 	local size sizes icon_path icon name
-	if use bindist; then
+	if use bindist ; then
 		sizes="16 32 48"
 		icon_path="${S}/browser/branding/aurora"
 		# Firefox's new rapid release cycle means no more codenames
@@ -605,7 +715,7 @@ pkg_preinst() {
 		for lib in ../apulse/libpulse{.so{,.0},-simple.so{,.0}} ; do
 			# a quickpkg rolled by hand will grab symlinks as part of the package,
 			# so we need to avoid creating them if they already exist.
-			if ! [ -L ${lib##*/} ]; then
+			if [[ ! -L ${lib##*/} ]] ; then
 				ln -s "${lib}" ${lib##*/} || die
 			fi
 		done
@@ -625,7 +735,7 @@ pkg_postinst() {
 		elog
 	fi
 
-	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9"; then
+	if use pulseaudio && has_version ">=media-sound/apulse-0.1.9" ; then
 		elog "Apulse was detected at merge time on this system and so it will always be"
 		elog "used for sound.  If you wish to use pulseaudio instead please unmerge"
 		elog "media-sound/apulse."

@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-MOZ_ESR=1
+MOZ_ESR=0
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
 # Missing when bumped : be
@@ -11,6 +11,9 @@ el en en-GB en-US en-ZA eo es-AR es-CL es-ES es-MX et eu fa fi fr fy-NL
 ga-IE gd gl gu-IN he hi-IN hr hsb hu hy-AM id is it ja kk km kn ko lt
 lv mai mk ml mr ms nb-NO nl nn-NO or pa-IN pl pt-BR pt-PT rm ro ru si sk sl
 son sq sr sv-SE ta te th tr uk uz vi xh zh-CN zh-TW )
+
+# Must remove next bump
+MOZ_LANGPACK_PREFIX="66.0.3/linux-i686/xpi/"
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}" # Handle beta for SRC_URI
@@ -123,18 +126,12 @@ src_install() {
 	insinto ${MOZILLA_FIVE_HOME}/defaults/pref/
 	doins "${FILESDIR}"/local-settings.js
 	insinto ${MOZILLA_FIVE_HOME}
-	newins "${FILESDIR}"/all-gentoo-1.js all-gentoo.js
+	newins "${FILESDIR}"/all-gentoo-2.js all-gentoo.js
 
 	# Install language packs
-	MOZ_INSTALL_L10N_XPIFILE="1" mozlinguas_src_install
-
-	local LANG=${LINGUAS%% *}
-	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-		elog "Setting default locale to ${LANG}"
-		echo "pref(\"intl.locale.requested\", \"${LANG}\");" \
-			>> "${ED}${MOZILLA_FIVE_HOME}"/defaults/pref/${PN}-prefs.js || \
-			die "sed failed to change locale"
-	fi
+	MOZEXTENSION_TARGET="distribution/extensions" \
+		MOZ_INSTALL_L10N_XPIFILE="1" \
+		mozlinguas_src_install
 
 	# Create /usr/bin/firefox-bin
 	dodir /usr/bin/

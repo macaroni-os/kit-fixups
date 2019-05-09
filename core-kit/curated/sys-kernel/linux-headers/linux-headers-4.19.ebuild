@@ -20,8 +20,6 @@ RDEPEND="!!media-sound/alsa-headers"
 
 S=${WORKDIR}/gentoo-headers-base-${PV}
 
-PATCHES=( "${FILESDIR}/riscv-restore-asm-syscalls-header.patch" )
-
 src_unpack() {
 	unpack ${A}
 }

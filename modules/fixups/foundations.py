@@ -192,6 +192,7 @@ class KitFoundation:
 			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
+			{'name': 'gnome-kit', 'branch': '3.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
 			{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary

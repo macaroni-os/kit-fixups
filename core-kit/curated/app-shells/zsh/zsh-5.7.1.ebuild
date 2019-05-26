@@ -1,21 +1,26 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit flag-o-matic prefix
 
 if [[ ${PV} == 9999* ]] ; then
 	inherit git-r3 autotools
-	EGIT_REPO_URI="git://git.code.sf.net/p/zsh/code"
+	EGIT_REPO_URI="https://git.code.sf.net/p/zsh/code"
 else
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-	SRC_URI="http://www.zsh.org/pub/${P}.tar.xz
-		doc? ( http://www.zsh.org/pub/${P}-doc.tar.xz )"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	SRC_URI="https://www.zsh.org/pub/${P}.tar.xz
+		https://www.zsh.org/pub/old/${P}.tar.xz
+		mirror://sourceforge/${PN}/${P}.tar.xz
+		doc? (
+			https://www.zsh.org/pub/${P}-doc.tar.xz
+			mirror://sourceforge/${PN}/${P}-doc.tar.xz
+		)"
 fi
 
 DESCRIPTION="UNIX Shell similar to the Korn shell"
-HOMEPAGE="http://www.zsh.org/"
+HOMEPAGE="https://www.zsh.org/"
 
 LICENSE="ZSH gdbm? ( GPL-2 )"
 SLOT="0"
@@ -30,6 +35,7 @@ RDEPEND="
 		static? ( >=dev-libs/libpcre-3.9[static-libs] )
 	)
 	gdbm? ( sys-libs/gdbm:= )
+	!<sys-apps/baselayout-2.4.1
 "
 DEPEND="sys-apps/groff
 	${RDEPEND}"
@@ -55,16 +61,14 @@ src_prepare() {
 		# add openrc specific options for init.d completion
 		eapply "${FILESDIR}"/${PN}-5.3-init.d-gentoo.diff
 	fi
-
 	cp "${FILESDIR}"/zprofile-1 "${T}"/zprofile || die
 	eprefixify "${T}"/zprofile || die
+	
 	if use prefix ; then
 		sed -i -e 's|@ZSH_PREFIX@||' -e '/@ZSH_NOPREFIX@/d' "${T}"/zprofile || die
 	else
 		sed -i -e 's|@ZSH_NOPREFIX@||' -e '/@ZSH_PREFIX@/d' -e 's|""||' "${T}"/zprofile || die
 	fi
-
-	eapply_user
 
 	if [[ ${PV} == 9999* ]] ; then
 		sed -i "/^VERSION=/s/=.*/=${PV}/" Config/version.mk || die
@@ -73,7 +77,21 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf=()
+	local myconf=(
+		--bindir="${EPREFIX}"/bin
+		--libdir="${EPREFIX}"/usr/$(get_libdir)
+		--enable-etcdir="${EPREFIX}"/etc/zsh
+		--enable-runhelpdir="${EPREFIX}"/usr/share/zsh/${PV%_*}/help
+		--enable-fndir="${EPREFIX}"/usr/share/zsh/${PV%_*}/functions
+		--enable-site-fndir="${EPREFIX}"/usr/share/zsh/site-functions
+		--enable-function-subdirs
+		--with-tcsetpgrp
+		$(use_enable maildir maildir-support)
+		$(use_enable pcre)
+		$(use_enable caps cap)
+		$(use_enable unicode multibyte)
+		$(use_enable gdbm)
+	)
 
 	if use static ; then
 		myconf+=( --disable-dynamic )
@@ -94,21 +112,7 @@ src_configure() {
 		append-ldflags -Wl,-x
 	fi
 
-	econf \
-		--bindir="${EPREFIX}"/bin \
-		--libdir="${EPREFIX}"/usr/$(get_libdir) \
-		--enable-etcdir="${EPREFIX}"/etc/zsh \
-		--enable-runhelpdir="${EPREFIX}"/usr/share/zsh/${PV%_*}/help \
-		--enable-fndir="${EPREFIX}"/usr/share/zsh/${PV%_*}/functions \
-		--enable-site-fndir="${EPREFIX}"/usr/share/zsh/site-functions \
-		--enable-function-subdirs \
-		--with-tcsetpgrp \
-		$(use_enable maildir maildir-support) \
-		$(use_enable pcre) \
-		$(use_enable caps cap) \
-		$(use_enable unicode multibyte) \
-		$(use_enable gdbm ) \
-		"${myconf[@]}"
+	econf "${myconf[@]}"
 
 	if use static ; then
 		# compile all modules statically, see Bug #27392
@@ -146,6 +150,8 @@ src_install() {
 
 	insinto /etc/zsh
 	doins "${T}"/zprofile
+	export PREFIX_QUOTE_CHAR='"' PREFIX_EXTRA_REGEX="/EUID/s,0,${EUID},"
+	newins "$(prefixify_ro "${FILESDIR}"/zprofile-4)" zprofile
 
 	keepdir /usr/share/zsh/site-functions
 	insinto /usr/share/zsh/${PV%_*}/functions/Prompts

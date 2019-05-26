@@ -1,21 +1,23 @@
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-inherit flag-o-matic pam toolchain-funcs user
+EAPI=7
+
+inherit flag-o-matic pam systemd toolchain-funcs user
 
 MY_PV="${PV/_rc/-RC}"
 MY_SRC="${PN}-${MY_PV}"
 MY_URI="ftp://ftp.porcupine.org/mirrors/postfix-release/official"
-RC_VER="2.9"
+RC_VER="2.7"
 
 DESCRIPTION="A fast and secure drop-in replacement for sendmail"
 HOMEPAGE="http://www.postfix.org/"
 SRC_URI="${MY_URI}/${MY_SRC}.tar.gz"
 
-LICENSE="IBM"
+LICENSE="|| ( IBM EPL-2.0 )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+berkdb cdb doc dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl"
+IUSE="+berkdb cdb dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl"
 
 DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
@@ -25,18 +27,18 @@ DEPEND=">=dev-libs/libpcre-3.4
 	ldap? ( net-nds/openldap )
 	ldap-bind? ( net-nds/openldap[sasl] )
 	lmdb? ( >=dev-db/lmdb-0.9.11 )
-	mysql? ( virtual/mysql )
+	mysql? ( dev-db/mysql-connector-c:0= )
+	nis? ( net-libs/libnsl )
 	pam? ( virtual/pam )
 	postgres? ( dev-db/postgresql:* )
 	sasl? (  >=dev-libs/cyrus-sasl-2 )
 	sqlite? ( dev-db/sqlite:3 )
 	ssl? (
-		!libressl? ( dev-libs/openssl:0 )
-		libressl? ( dev-libs/libressl )
+		!libressl? ( dev-libs/openssl:0= )
+		libressl? ( >=dev-libs/libressl-2.9.1:0= )
 	)"
 
 RDEPEND="${DEPEND}
-	dovecot-sasl? ( net-mail/dovecot )
 	memcached? ( net-misc/memcached )
 	net-mail/mailbase
 	!mail-mta/courier
@@ -58,6 +60,12 @@ REQUIRED_USE="ldap-bind? ( ldap sasl )"
 
 S="${WORKDIR}/${MY_SRC}"
 
+PATCHES=(
+	"${FILESDIR}/${PN}-libressl-certkey.patch"
+	"${FILESDIR}/${PN}-libressl-server.patch"
+	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
+)
+
 pkg_setup() {
 	# Add postfix, postdrop user/group (bug #77565)
 	enewgroup postfix 207
@@ -71,9 +79,6 @@ src_prepare() {
 		src/util/sys_defs.h || die "sed failed"
 	# change default paths to better comply with portage standard paths
 	sed -i -e "s:/usr/local/:/usr/:g" conf/master.cf || die "sed failed"
-	eapply -p0 "${FILESDIR}/${PN}-libressl.patch"
-	eapply -p0 "${FILESDIR}/${PN}-libressl-runtime.patch"
-	eapply "${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
 }
 
 src_configure() {
@@ -195,10 +200,6 @@ src_configure() {
 }
 
 src_install () {
-	local myconf
-	use doc && myconf="readme_directory=\"/usr/share/doc/${PF}/readme\" \
-		html_directory=\"/usr/share/doc/${PF}/html\""
-
 	LD_LIBRARY_PATH="${S}/lib" \
 	/bin/sh postfix-install \
 		-non-interactive \
@@ -209,7 +210,6 @@ src_install () {
 		mailq_path="/usr/bin/mailq" \
 		newaliases_path="/usr/bin/newaliases" \
 		sendmail_path="/usr/sbin/sendmail" \
-		${myconf} \
 		|| die "postfix-install failed"
 
 	# Fix spool removal on upgrade
@@ -220,27 +220,29 @@ src_install () {
 	dobin auxiliary/rmail/rmail
 
 	# Provide another link for legacy FSH
-	dosym /usr/sbin/sendmail /usr/$(get_libdir)/sendmail
+	dosym ../sbin/sendmail /usr/$(get_libdir)/sendmail
 
-	# Install qshape and posttls-finger
+	# Install qshape, posttls-finger and collate
 	dobin auxiliary/qshape/qshape.pl
 	doman man/man1/qshape.1
 	dobin bin/posttls-finger
 	doman man/man1/posttls-finger.1
+	dobin auxiliary/collate/collate.pl
+	newdoc auxiliary/collate/README README.collate
 
 	# Performance tuning tools and their manuals
 	dosbin bin/smtp-{source,sink} bin/qmqp-{source,sink}
 	doman man/man1/smtp-{source,sink}.1 man/man1/qmqp-{source,sink}.1
 
 	# Set proper permissions on required files/directories
-	dodir /var/lib/postfix
 	keepdir /var/lib/postfix
 	fowners -R postfix:postfix /var/lib/postfix
 	fperms 0750 /var/lib/postfix
 	fowners root:postdrop /usr/sbin/post{drop,queue}
-	fperms 02711 /usr/sbin/post{drop,queue}
+	fperms 02755 /usr/sbin/post{drop,queue}
 
 	keepdir /etc/postfix
+	keepdir /etc/postfix/postfix-files.d
 	if use mbox; then
 		mypostconf="mail_spool_directory=/var/spool/mail"
 	else
@@ -260,7 +262,9 @@ src_install () {
 	use postgres || sed -i -e "s/postgresql //" "${D}/etc/init.d/postfix"
 
 	dodoc *README COMPATIBILITY HISTORY PORTING RELEASE_NOTES*
-	use doc && mv "${S}"/examples "${D}"/usr/share/doc/${PF}/
+	mv "${S}"/examples "${D}"/usr/share/doc/${PF}/
+	# postfix set-permissions expects uncompressed man files
+	docompress -x /usr/share/man
 
 	pamd_mimic_system smtp auth account
 
@@ -273,44 +277,52 @@ src_install () {
 	insinto /usr/include/postfix
 	doins include/*.h
 
-	# Keep config_dir clean
-	rm -f "${D}"/etc/postfix/{*LICENSE,access,aliases,canonical,generic}
-	rm -f "${D}"/etc/postfix/{header_checks,relocated,transport,virtual}
-
 	if has_version mail-mta/postfix; then
 		# let the sysadmin decide when to change the compatibility_level
 		sed -i -e /^compatibility_level/"s/^/#/" "${D}"/etc/postfix/main.cf || die
 	fi
+
+	systemd_dounit "${FILESDIR}/${PN}.service"
 }
+
 add_service() {
 	local initd=$1
 	local runlevel=$2
 	elog "Auto-adding '${initd}' service to your ${runlevel} runlevel"
-	ln -snf /etc/init.d/${initd} "${EROOT}"etc/runlevels/${runlevel}/${initd}
+	ln -snf /etc/init.d/${initd} "${EROOT}"/etc/runlevels/${runlevel}/${initd}
+}
+
+pkg_preinst() {
+	if has_version '<mail-mta/postfix-3.4'; then
+		elog
+		elog "Postfix-3.4 introduces a new master.cf service 'postlog'"
+		elog "with type 'unix-dgram' that is used by the new postlogd(8) daemon."
+		elog "Before backing out to an older Postfix version, edit the master.cf"
+		elog "file and remove the postlog entry."
+		elog
+	fi
 }
 
 pkg_postinst() {
-	
 	if [[ ! -e /etc/mail/aliases.db ]] ; then
-		elog "Creating aliases database"
+		elog "Creating aliases database."
 		/usr/bin/newaliases
 	fi
 
-add_service postfix default
-	ewarn "Postfix automatically added to defaut runlevel. To start daemon, run /sbin/openrc"
-}
+	add_service postfix default
 
-pkg_config() {
+	# check and fix file permissions
+	"${EROOT}"/usr/sbin/postfix set-permissions
+
 	# configure tls
 	if use ssl ; then
 		if "${EROOT}"/usr/sbin/postfix tls all-default-client; then
 			elog "To configure client side TLS settings:"
 			elog "${EROOT}"usr/sbin/postfix tls enable-client
 		fi
-
-		if "${EROOT}"usr/sbin/postfix tls all-default-server; then
-			elog "Configuring server side TLS settings"
-			"${EROOT}"usr/sbin/postfix tls enable-server
+		if "${EROOT}"/usr/sbin/postfix tls all-default-server; then
+			elog "To configure server side TLS settings:"
+			elog "${EROOT}"usr/sbin/postfix tls enable-server
 		fi
 	fi
 }

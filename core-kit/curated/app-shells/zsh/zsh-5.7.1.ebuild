@@ -35,7 +35,6 @@ RDEPEND="
 		static? ( >=dev-libs/libpcre-3.9[static-libs] )
 	)
 	gdbm? ( sys-libs/gdbm:= )
-	!<sys-apps/baselayout-2.4.1
 "
 DEPEND="sys-apps/groff
 	${RDEPEND}"
@@ -61,14 +60,8 @@ src_prepare() {
 		# add openrc specific options for init.d completion
 		eapply "${FILESDIR}"/${PN}-5.3-init.d-gentoo.diff
 	fi
-	cp "${FILESDIR}"/zprofile-1 "${T}"/zprofile || die
-	eprefixify "${T}"/zprofile || die
-	
-	if use prefix ; then
-		sed -i -e 's|@ZSH_PREFIX@||' -e '/@ZSH_NOPREFIX@/d' "${T}"/zprofile || die
-	else
-		sed -i -e 's|@ZSH_NOPREFIX@||' -e '/@ZSH_PREFIX@/d' -e 's|""||' "${T}"/zprofile || die
-	fi
+
+	default 
 
 	if [[ ${PV} == 9999* ]] ; then
 		sed -i "/^VERSION=/s/=.*/=${PV}/" Config/version.mk || die
@@ -149,7 +142,6 @@ src_install() {
 	emake DESTDIR="${D}" install $(usex doc "install.info" "")
 
 	insinto /etc/zsh
-	doins "${T}"/zprofile
 	export PREFIX_QUOTE_CHAR='"' PREFIX_EXTRA_REGEX="/EUID/s,0,${EUID},"
 	newins "$(prefixify_ro "${FILESDIR}"/zprofile-4)" zprofile
 

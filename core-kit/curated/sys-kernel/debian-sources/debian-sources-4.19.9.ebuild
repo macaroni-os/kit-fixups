@@ -15,7 +15,7 @@ RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS="*"
 IUSE="binary btrfs zfs"
-DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7[cryptsetup] )
+DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.23-r2[cryptsetup] )
 		btrfs? ( sys-fs/btrfs-progs )
 		zfs? ( sys-fs/zfs )
 		dev-libs/elfutils"

@@ -10,7 +10,7 @@ VERSION_DMRAID='1.0.0.rc16-3'
 VERSION_MDADM='3.1.5'
 VERSION_E2FSPROGS='1.42'
 VERSION_FUSE='2.8.6'
-VERSION_ISCSI='2.0-872'
+VERSION_ISCSI='2.0.877'
 VERSION_UNIONFS_FUSE='0.24'
 VERSION_GPG='1.4.11'
 
@@ -21,7 +21,7 @@ BB_HOME="http://www.busybox.net/downloads"
 
 COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
 		mirror://funtoo/busybox-${VERSION_BUSYBOX}.tar.bz2
-		mirror://funtoo/open-iscsi-${VERSION_ISCSI}.tar.gz
+		https://github.com/open-iscsi/open-iscsi/archive/${VERSION_ISCSI}.tar.gz -> open-iscsi-${VERSION_ISCSI}.tar.gz
 		mirror://funtoo/e2fsprogs-${VERSION_E2FSPROGS}.tar.gz
 		mirror://funtoo/fuse-${VERSION_FUSE}.tar.gz
 		mirror://funtoo/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2
@@ -29,7 +29,7 @@ COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
 
 GITHUB_REPO="${PN}"
 GITHUB_USER="funtoo"
-GITHUB_TAG="v${PVR}-funtoo"
+GITHUB_TAG="7b2034d877dd535012943ec3b6701ffb31bbc811"
 
 if [[ ${PV} == 9999* ]]
 then
@@ -43,7 +43,7 @@ else
 	inherit bash-completion-r1 eutils
 	SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz
 		${COMMON_URI}"
-	KEYWORDS=""
+	KEYWORDS="*"
 fi
 
 DESCRIPTION="Gentoo automatic kernel building scripts"

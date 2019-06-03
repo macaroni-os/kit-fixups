@@ -1,4 +1,3 @@
-# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,7 +14,7 @@ SRC_URI="http://files.itstool.org/itstool/${P}.tar.bz2"
 # files in /usr/share/itstool/its are HPND/as-is || GPL-3
 LICENSE="GPL-3+ || ( HPND GPL-3+ )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~arm-linux ~x86-linux"
+KEYWORDS="*"
 IUSE=""
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
@@ -31,5 +30,5 @@ pkg_setup() {
 
 src_prepare() {
 	python_fix_shebang "${WORKDIR}"
-    eapply_user
+	eapply_user
 }

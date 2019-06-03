@@ -14,8 +14,8 @@ GCC_MAJOR="${PV%%.*}"
 IUSE="ada +cxx d go +fortran objc objc++ objc-gc " # Languages
 IUSE="$IUSE test" # Run tests
 IUSE="$IUSE doc nls vanilla hardened multilib" # docs/i18n/system flags
-IUSE="$IUSE openmp altivec graphite pch bootstrap-profiled generic_host" # Optimizations/features flags
-# bootstrap-lto is not currently working, disabled
+IUSE="$IUSE openmp altivec graphite pch generic_host" # Optimizations/features flags
+IUSE="$IUSE +bootstrap bootstrap-lean bootstrap-profiled bootstrap-lto bootstrap-O3" # Bootstrap flags
 IUSE="$IUSE libssp +ssp" # Base hardening flags
 IUSE="$IUSE +pie +vtv link_now ssp_all" # Extra hardening flags
 [ ${GCC_MAJOR} -ge 8 ] && IUSE="$IUSE +stack_clash_protection" # Stack clash protector added in gcc-8
@@ -155,10 +155,10 @@ is_crosscompile() {
 
 pkg_setup() {
 	# Capture -march -mcpu and -mtune options to pass to build later.
-	MARCH="$(printf -- "${CFLAGS}" | sed -rne 's/.*-march="?([-_[:alnum:]]+).*/\1/p')"
-	MCPU="$(printf -- "${CFLAGS}" | sed -rne 's/.*-mcpu="?([-_[:alnum:]]+).*/\1/p')"
-	MTUNE="$(printf -- "${CFLAGS}" | sed -rne 's/.*-mtune="?([-_[:alnum:]]+).*/\1/p')"
-	MFPU="$(printf -- "${CFLAGS}" | sed -rne 's/.*-mfpu="?([-_[:alnum:]]+).*/\1/p')"
+	MARCH="${MARCH:-$(printf -- "${CFLAGS}" | sed -rne 's/.*-march="?([-_[:alnum:]]+).*/\1/p')}"
+	MCPU="${MCPU:-$(printf -- "${CFLAGS}" | sed -rne 's/.*-mcpu="?([-_[:alnum:]]+).*/\1/p')}"
+	MTUNE="${MTUNE:-$(printf -- "${CFLAGS}" | sed -rne 's/.*-mtune="?([-_[:alnum:]]+).*/\1/p')}"
+	MFPU="${MFPU:-$(printf -- "${CFLAGS}" | sed -rne 's/.*-mfpu="?([-_[:alnum:]]+).*/\1/p')}"
 	einfo "Got CFLAGS: ${CFLAGS}"
 	einfo "Got GCC_BUILD_CFLAGS: ${GCC_BUILD_CFLAGS}"
 	einfo "MARCH: ${MARCH}"
@@ -192,6 +192,34 @@ pkg_setup() {
 
 	LIBPATH=${PREFIX}/lib/gcc/${CTARGET}/${GCC_CONFIG_VER}
 	STDCXX_INCDIR=${LIBPATH}/include/g++-v${GCC_BRANCH_VER}
+
+	# Add bootstrap configs to BUILD_CONFIG based on use flags
+	if use bootstrap-lto && use bootstrap-lean; then
+		BUILD_CONFIG="${BUILD_CONFIG:+${BUILD_CONFIG} }bootstrap-lto-lean"
+	elif use bootstrap-lto ; then
+		BUILD_CONFIG="${BUILD_CONFIG:+${BUILD_CONFIG} }bootstrap-lto"
+	fi
+	use bootstrap-O3 && BUILD_CONFIG="${BUILD_CONFIG:+${BUILD_CONFIG} }bootstrap-O3"
+
+	export BUILD_CONFIG
+
+	if [ -n "${GCC_TARGET}" ] ; then
+		:
+	elif ! is_crosscompile && use bootstrap ; then
+		if use bootstrap-profiled ; then
+			GCC_TARGET="profiledbootstrap"
+		else
+			GCC_TARGET="bootstrap"
+		fi
+		# Handle lean bootstrap target suffix (see Makefile.tpl)
+		if use bootstrap-lean ; then
+			GCC_TARGET="${GCC_TARGET}-lean"
+		fi
+	else
+		GCC_TARGET="all"
+	fi
+	export GCC_TARGET
+
 
 	use doc || export MAKEINFO="/dev/null"
 }
@@ -533,8 +561,8 @@ src_configure() {
 		confgcc+="$(gcc_conf_cross_options)"
 	else
 		confgcc+=" --enable-threads=posix --enable-__cxa_atexit --enable-libstdcxx-time"
-		confgcc+=" $(use_enable openmp libgomp)"	
-		confgcc+=" --enable-bootstrap --enable-shared"
+		confgcc+=" $(use_enable openmp libgomp)"
+		confgcc+=" $(use_enable bootstrap) --enable-shared"
 	fi
 
 	[[ -n ${CBUILD} ]] && confgcc+=" --build=${CBUILD}"
@@ -562,6 +590,7 @@ src_configure() {
 
 	use generic_host || confgcc+="${MARCH:+ --with-arch=${MARCH}}${MCPU:+ --with-cpu=${MCPU}}${MTUNE:+ --with-tune=${MTUNE}}${MFPU:+ --with-fpu=${MFPU}}"
 	P= cd ${WORKDIR}/objdir && ../gcc-${PV}/configure \
+		${BUILD_CONFIG:+--with-build-config="${BUILD_CONFIG}"} \
 		$(use_enable libssp) \
 		$(use_enable multilib) \
 		--enable-version-specific-runtime-libs \
@@ -600,13 +629,7 @@ gcc_conf_cross_post() {
 src_compile() {
 	cd $WORKDIR/objdir
 	unset ABI
-
-	if is_crosscompile || tc-is-cross-compiler; then
-		emake P= LIBPATH="${LIBPATH}" all || die "compile fail"
-	else
-		emake P= LIBPATH="${LIBPATH}" $(usex bootstrap-profiled profiledbootstrap all) || die "compile fail"
-		#emake LIBPATH="${LIBPATH}" bootstrap-lean || die "compile fail"
-	fi
+	emake P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
 }
 
 src_test() {

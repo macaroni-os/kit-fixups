@@ -32,6 +32,14 @@ src_prepare() {
 	epatch_user
 }
 
+post_src_install() {
+	cd $D/etc/init.d || die
+	for x in $(ls); do
+		einfo "Tweaking $x to use openrc-run..."
+		sed -i -e 's/runscript/openrc-run/g' $x || die
+	done
+}
+
 pkg_postinst() {
 	# Add udev to the sysinit runlevel automatically if this is
 	# the first install of this package.

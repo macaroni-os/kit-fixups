@@ -468,8 +468,11 @@ multilib_src_install_all() {
 	#Remove mytop if perl is not selected
 	[[ -e "${ED}/usr/bin/mytop" ]] && ! use perl && rm -f "${ED}/usr/bin/mytop"
 
+
 	keepdir /var/lib/mysql
 	keepdir /var/log/mysql
+    fowners -R mysql:mysql /var/lib/mysql
+    fowners -R mysql:mysql /var/log/mysql
 }
 
 # Official test instructions:

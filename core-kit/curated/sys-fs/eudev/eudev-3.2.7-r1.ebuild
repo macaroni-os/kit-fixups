@@ -51,19 +51,6 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/udev.h
 )
 
-pkg_pretend() {
-	ewarn
-	ewarn "As of 2013-01-29, ${P} provides the new interface renaming functionality,"
-	ewarn "as described in the URL below:"
-	ewarn "https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames"
-	ewarn
-	ewarn "This functionality is enabled BY DEFAULT because eudev has no means of synchronizing"
-	ewarn "between the default or user-modified choice of sys-fs/udev.  If you wish to disable"
-	ewarn "this new iface naming, please be sure that /etc/udev/rules.d/80-net-name-slot.rules"
-	ewarn "exists: touch /etc/udev/rules.d/80-net-name-slot.rules"
-	ewarn
-}
-
 pkg_setup() {
 	CONFIG_CHECK="~BLK_DEV_BSG ~DEVTMPFS ~!IDE ~INOTIFY_USER ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2 ~SIGNALFD ~EPOLL ~FHANDLE ~NET ~UNIX"
 	linux-info_pkg_setup

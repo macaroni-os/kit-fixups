@@ -5,35 +5,35 @@ This repository holds Funtoo's custom ebuilds, profiles and fixes for branches t
 of branches during their lifespan.
 
 These fix-ups are applied over the Gentoo repository when Funtoo's repository gets generated using the
-merge-scripts [1]_.
+merge-scripts [1]_. 
+
+To Contribute
+-------------
+
+**IMPORTANT:** To contribute to kit-fixups, please submit a pull request using https://code.funtoo.org. 
+
+For more information on how to do this, please take a look at Daniel's YouTube Channel [2]_. There are several
+videos there that will guide you through the process.
 
 How is it structured?
 ---------------------
 
-As you can see there are directories for every kit. These directories can contain subdirectories which are meant for:
+The structure of the tree is `kit-fixups/<kit>/<branch>/<cat>/<pkg>/<ebuilds here>`. We call `<cat>/<pkg>` a
+"catpkg" for short. So the tree structure could be described as: `kit-fixups/<kit>/<branch>/<catpkg>`.
 
-- global
-   These directories contain fixes and package ebuilds that get applied to all our branches. Global fixes get
-   applied to master branch from Gentoo.
+As you can see there are directories for every kit. These directories can contain branch subdirectories
+which can have the following names:
+
 - curated
-   These directories contain fixes similar to global, but are excluding master branch from Gentoo.
+   These directories contain fixes and package ebuilds that get applied to all our kits.
 - <branch_name> (eg. 1.0-prime, 3.20-prime ...)
-   These directories with fixes get applied over master, but only for selected branch.
+   These directories with fixes get applied over master, but only for selected branch. Any catpkg in here will
+   override a matching catpkg (if one exists) in `curated`.
 
 Note for developers: If a kit is following master (doesn't have any branches), then it shouldn't have any branch
 folders.
 
-Do you want to help?
---------------------
-
-If you want to help with packages review, and we would very much appreciate it, go to:
-
-http://ports.funtoo.org/stale
-
-Here you can find hourly updated list of packages that were not review for longer period of time (currently 30 days).
-You could help us search for packages that have security flaws and report them in our
-`bug tracker <https://bugs.funtoo.org>`_.
-
 Thank you very much in advance.
 
 .. [1] https://github.com/funtoo/merge-scripts
+.. [2] https://www.youtube.com/channel/UCKmOY6p3c9hxv3vJMAF8vVw

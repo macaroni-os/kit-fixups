@@ -1,35 +1,5 @@
 #!/usr/bin/python3
 
-from enum import Enum
-
-class KitStabilityRating(Enum):
-	PRIME = 0  # Kit is enterprise-quality
-	NEAR_PRIME = 1  # Kit is approaching enterprise-quality
-	BETA = 2  # Kit is in beta
-	ALPHA = 3  # Kit is in alpha
-	DEV = 4  # Kit is newly created and in active development
-	CURRENT = 10  # Kit follows Gentoo currrent
-	DEPRECATED = 11  # Kit is deprecated/retired
-
-class KitType(Enum):
-	AUTOMATICALLY_GENERATED = "auto" # auto-generated
-	INDEPENDENTLY_MAINTAINED = "indy" # independently-maintained
-
-def KitRatingString(kit_enum):
-	if kit_enum is KitStabilityRating.PRIME:
-		return "prime"
-	elif kit_enum is KitStabilityRating.NEAR_PRIME:
-		return "near-prime"
-	elif kit_enum is KitStabilityRating.BETA:
-		return "beta"
-	elif kit_enum is KitStabilityRating.ALPHA:
-		return "alpha"
-	elif kit_enum is KitStabilityRating.DEV:
-		return "dev"
-	elif kit_enum is KitStabilityRating.CURRENT:
-		return "current"
-	elif kit_enum is KitStabilityRating.DEPRECATED:
-		return "deprecated"
 
 # A kit is generated from:
 

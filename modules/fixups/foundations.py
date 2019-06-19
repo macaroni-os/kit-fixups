@@ -152,7 +152,7 @@ class KitFoundation:
 			{'name': 'core-hw-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
-			{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
+			{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_testkit', 'stability': KitStabilityRating.DEV},
 			{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.DEV},
 			{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 			{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # alternate
@@ -245,6 +245,10 @@ class KitFoundation:
 			{"repo": "flora"},
 			{"repo": "faustoo"},
 			{"repo": "fusion809"},
+			{"repo": "gentoo-staging"}
+		],
+		"funtoo_current_testkit" : [
+			{"repo": "nvidia-testkit", "is_fixup": True},
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_mk2_prime": [
@@ -360,6 +364,10 @@ class KitFoundation:
 			"flora": {"url": self.config.flora, "copyfiles": {
 				"licenses/renoise-EULA": "licenses/renoise-EULA"
 			}},
+			"nvidia-testkit": {
+				"url": "https://github.com/TemptorSent/overlay-nvidia-testkit.git",
+				"reclone": True,
+			}
 		}
 
 	def __init__(self, config):

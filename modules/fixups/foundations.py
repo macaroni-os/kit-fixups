@@ -214,6 +214,14 @@ class KitFoundation:
 	# need some catpkgs (as dependencies) or eclasses from gentoo-staging. The gentoo-staging repository should always
 	# appear as the first item in kit_source_defs, with the overlays appearing after.
 
+
+	# Allowable properties:
+	# "repo" -- the repository name that is used in the overlays property, below (this links the repo to a URL, etc.)
+	# "is_fixup" (default False) -- treat this tree as a fixup and simply grab ALL of its catpkgs
+	# "branch" (default "master") -- use this branch as our source.
+	# "src_sha1" (default None) -- use a specific commit as our source. By default it will use the branch HEAD.
+	# "date" -- record the date of the snapshot, if desired (this is for convenience only
+
 	kit_source_defs = {
 		"funtoo_current": [
 			{"repo": "flora"},
@@ -222,7 +230,7 @@ class KitFoundation:
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_current_testkit" : [
-			{"repo": "nvidia-testkit", "is_fixup": True},
+			{"repo": "nvidia-testkit", "is_fixup": True, "branch": "201906"},
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_mk2_prime": [

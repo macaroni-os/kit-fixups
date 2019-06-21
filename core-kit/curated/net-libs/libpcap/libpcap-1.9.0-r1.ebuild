@@ -58,8 +58,8 @@ src_compile() {
 }
 
 src_install() {
+	default
 	dodoc CREDITS CHANGES VERSION TODO README.* doc/README.*
-
 	# remove static libraries (--disable-static does not work)
 	if ! use static-libs; then
 		find "${ED}" -name '*.a' -exec rm {} + || die

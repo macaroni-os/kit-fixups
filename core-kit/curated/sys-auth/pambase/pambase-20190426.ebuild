@@ -10,7 +10,7 @@ KEYWORDS="*"
 IUSE="cracklib debug minimal mktemp nullok pam_krb5 pam_ssh passwdqc securetty selinux sha512"
 
 RDEPEND="
-sys-libs/pam
+>=sys-libs/pam-1.3.1.20190226
 cracklib? ( sys-libs/pam[cracklib=] )
 debug? ( sys-libs/pam[debug=] )
 minimal? ( sys-libs/pam[minimal=] )

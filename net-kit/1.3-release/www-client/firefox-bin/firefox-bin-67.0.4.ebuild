@@ -1,8 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-MOZ_ESR=1
+MOZ_ESR=0
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
 # Missing when bumped : be
@@ -74,6 +74,7 @@ QA_PREBUILT="
 	opt/${MOZ_PN}/mozilla-xremote-client
 	opt/${MOZ_PN}/updater
 	opt/${MOZ_PN}/minidump-analyzer
+	opt/${MOZ_PN}/pingsender
 "
 
 S="${WORKDIR}/${MOZ_PN}"
@@ -89,7 +90,7 @@ src_install() {
 	declare MOZILLA_FIVE_HOME=/opt/${MOZ_PN}
 
 	local size sizes icon_path icon name
-	sizes="16 32 48"
+	sizes="16 32 48 128"
 	icon_path="${S}/browser/chrome/icons/default"
 	icon="${PN}"
 	name="Mozilla Firefox"
@@ -99,9 +100,6 @@ src_install() {
 		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
 		newins "${icon_path}/default${size}.png" "${icon}.png" || die
 	done
-	# The 128x128 icon has a different name
-	insinto /usr/share/icons/hicolor/128x128/apps
-	newins "${icon_path}/../../../icons/mozicon128.png" "${icon}.png" || die
 	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
 	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
 	domenu "${FILESDIR}"/${PN}.desktop
@@ -117,22 +115,20 @@ src_install() {
 	dodir ${MOZILLA_FIVE_HOME%/*}
 	mv "${S}" "${ED}"${MOZILLA_FIVE_HOME} || die
 
+	# Disable built-in auto-update because we update firefox-bin through package manager
+	insinto ${MOZILLA_FIVE_HOME}/distribution/
+	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
+
 	# Fix prefs that make no sense for a system-wide install
 	insinto ${MOZILLA_FIVE_HOME}/defaults/pref/
 	doins "${FILESDIR}"/local-settings.js
 	insinto ${MOZILLA_FIVE_HOME}
-	newins "${FILESDIR}"/all-gentoo-1.js all-gentoo.js
+	newins "${FILESDIR}"/all-gentoo-2.js all-gentoo.js
 
 	# Install language packs
-	mozlinguas_src_install
-
-	local LANG=${LINGUAS%% *}
-	if [[ -n ${LANG} && ${LANG} != "en" ]]; then
-		elog "Setting default locale to ${LANG}"
-		echo "pref(\"general.useragent.locale\", \"${LANG}\");" \
-			>> "${ED}${MOZILLA_FIVE_HOME}"/defaults/pref/${PN}-prefs.js || \
-			die "sed failed to change locale"
-	fi
+	MOZEXTENSION_TARGET="distribution/extensions" \
+		MOZ_INSTALL_L10N_XPIFILE="1" \
+		mozlinguas_src_install
 
 	# Create /usr/bin/firefox-bin
 	dodir /usr/bin/
@@ -151,7 +147,7 @@ src_install() {
 	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10${PN}
 	doins "${T}"/10${PN} || die
 
-	# Plugins dir
+	# Plugins dir, still used for flash
 	share_plugins_dir
 
 	# Required in order to use plugins and even run firefox on hardened.

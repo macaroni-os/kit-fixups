@@ -33,6 +33,14 @@ src_prepare() {
 	rm -R build/linux/debian*
 	epatch "${FILESDIR}/dart-2.3.2.patch"
 	epatch "${FILESDIR}/dart-2.3.2-catch_entry_moves_test-fix.patch"
+	# CFLAGS fix -- they are hard-coded in build:
+	local gnflags
+	for cf in $CFLAGS; do
+		gnflags="$gnflags \"$cf\",\n"
+	done
+	for x in build/config/compiler/BUILD.gn runtime/BUILD.gn; do
+		sed -i -e "/cflags/s/\"-O3\"/${gnflags}/g" ${S_DART}/$x || die
+	done
 	default
 }
 

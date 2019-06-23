@@ -18,11 +18,18 @@ DEPEND="dev-util/ninja"
 
 GTEST_VERSION="1.8.0"
 
+# this is the original download location for these SRC_URIs but their SHA-512 changes on every download!
+# so I mirrored them:
+# https://chromium.googlesource.com/chromium/src/+archive/${PV}/tools/gn.tar.gz -> ${P}-gn.tar.gz
+# https://chromium.googlesource.com/chromium/src/+archive/${PV}/build.tar.gz -> ${P}-build.tar.gz
+# https://chromium.googlesource.com/chromium/src/+archive/${PV}/base.tar.gz -> ${P}-base.tar.gz
+# https://chromium.googlesource.com/chromium/src/+archive/${PV}/build_overrides.tar.gz -> ${P}-build_overrides.tar.gz
+
 SRC_URI="http://distfiles.gentoo.org/distfiles/gtest-${GTEST_VERSION}.tar.gz
-	https://chromium.googlesource.com/chromium/src/+archive/${PV}/tools/gn.tar.gz -> ${P}-gn.tar.gz
-	https://chromium.googlesource.com/chromium/src/+archive/${PV}/build.tar.gz -> ${P}-build.tar.gz
-	https://chromium.googlesource.com/chromium/src/+archive/${PV}/base.tar.gz -> ${P}-base.tar.gz
-	https://chromium.googlesource.com/chromium/src/+archive/${PV}/build_overrides.tar.gz -> ${P}-build_overrides.tar.gz" 
+	mirror://funtoo/${P}-gn.tar.gz
+	mirror://funtoo/${P}-build.tar.gz
+	mirror://funtoo/${P}-base.tar.gz
+	mirror://funtoo/${P}-build_overrides.tar.gz"
 
 src_unpack() {
 	mkdir -p ${S}/tools/gn 

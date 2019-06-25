@@ -163,31 +163,40 @@ class KitFoundation:
 		}
 
 	python_kit_settings = {
-		#	branch / primary python / alternate python / python mask (if any)
-		'master': {
-			"primary": "python3_6",
-			"alternate": "python2_7",
-			"mask": None
+		'1.3-release': {
+			#	branch / primary python / alternate python / python mask (if any)
+			'master': {
+				"primary": "python3_6",
+				"alternate": "python2_7",
+				"mask": None
+			},
+			'3.4-prime': {
+				"primary": "python3_4",
+				"alternate": "python2_7",
+				"mask": ">=dev-lang/python-3.5"
+			},
+			'3.6-prime': {
+				"primary": "python3_6",
+				"alternate": "python2_7",
+				"mask": ">=dev-lang/python-3.7"
+			},
+			'3.6.3-prime': {
+				"primary": "python3_6",
+				"alternate": "python2_7",
+				"mask": ">=dev-lang/python-3.7"
+			},
+			'3.7-release': {
+				"primary": "python3_6",
+				"alternate": "python2_7",
+				"mask": ">=dev-lang/python-3.7"
+			},
 		},
-		'3.4-prime': {
-			"primary": "python3_4",
-			"alternate": "python2_7",
-			"mask": ">=dev-lang/python-3.5"
-		},
-		'3.6-prime': {
-			"primary": "python3_6",
-			"alternate": "python2_7",
-			"mask": ">=dev-lang/python-3.7"
-		},
-		'3.6.3-prime': {
-			"primary": "python3_6",
-			"alternate": "python2_7",
-			"mask": ">=dev-lang/python-3.7"
-		},
-		'3.7-release': {
-			"primary": "python3_6",
-			"alternate": "python2_7",
-			"mask": ">=dev-lang/python-3.7"
+		'1.4-release': {
+			'3.7-release': {
+				"primary": "python3_7",
+				"alternate": "python2_7",
+				"mask": ">=dev-lang/python-3.8"
+			},
 		}
 	}
 

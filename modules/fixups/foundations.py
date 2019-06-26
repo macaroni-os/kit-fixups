@@ -129,11 +129,8 @@ class KitFoundation:
 				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_current_testkit', 'stability': self.stabilityRating.ALPHA},
 				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.ALPHA},
 				{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
-				{'name': 'xorg-kit', 'branch': '1.19-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # alternate
-				{'name': 'xorg-kit', 'branch': '1.17-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # alternate
 				{'name': 'gnome-kit', 'branch': '3.32-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
-				{'name': 'gnome-kit', 'branch': '3.26-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # alternate
 				{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'xfce-kit', 'branch': '4.13-release', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},
 				{'name': 'kde-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.ALPHA},

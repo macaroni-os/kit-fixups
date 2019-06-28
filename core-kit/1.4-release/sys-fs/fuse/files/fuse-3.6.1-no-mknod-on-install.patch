@@ -1,0 +1,16 @@
+diff -urN fuse-3.6.1/util/install_helper.sh fuse-3.6.1-fixed/util/install_helper.sh
+--- fuse-3.6.1/util/install_helper.sh	2019-06-13 14:25:07.000000000 +0000
++++ fuse-3.6.1-fixed/util/install_helper.sh	2019-06-28 01:27:38.300923593 +0000
+@@ -28,12 +28,6 @@
+ install -D -m 644 "${MESON_SOURCE_ROOT}/util/fuse.conf" \
+ 	"${DESTDIR}${sysconfdir}/fuse.conf"
+ 
+-
+-if test ! -e "${DESTDIR}/dev/fuse"; then
+-    mkdir -p "${DESTDIR}/dev"
+-    mknod "${DESTDIR}/dev/fuse" -m 0666 c 10 229
+-fi
+-
+ install -D -m 644 "${MESON_SOURCE_ROOT}/util/udev.rules" \
+         "${DESTDIR}${udevrulesdir}/99-fuse3.rules"
+ 

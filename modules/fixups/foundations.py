@@ -236,7 +236,7 @@ class KitFoundation:
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_current_testkit" : [
-			{"repo": "nvidia-testkit", "is_fixup": True, "branch": "201906"},
+			{"repo": "core-gl-testkit", "is_fixup": True, "branch": "201906"},
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_mk2_prime": [
@@ -359,8 +359,8 @@ class KitFoundation:
 			"flora": {"url": self.config.flora, "copyfiles": {
 				"licenses/renoise-EULA": "licenses/renoise-EULA"
 			}},
-			"nvidia-testkit": {
-				"url": "https://github.com/TemptorSent/overlay-nvidia-testkit.git",
+			"core-gl-testkit": {
+				"url": "ssh://git@code.funtoo.org:7999/~drobbins/core-gl-testkit.git",
 				"reclone": True,
 			}
 		}

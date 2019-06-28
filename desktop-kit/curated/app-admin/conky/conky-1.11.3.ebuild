@@ -48,7 +48,7 @@ COMMON_DEPEND="
 	weather-metar? ( net-misc/curl )
 	weather-xoap? ( dev-libs/libxml2 net-misc/curl )
 	webserver? ( net-libs/libmicrohttpd )
-	>=dev-lang/lua-5.1.4-r8:0
+	>=dev-lang/lua-5.1.4-r8
 	"
 RDEPEND="
 	${COMMON_DEPEND}

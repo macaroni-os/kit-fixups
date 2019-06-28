@@ -12,7 +12,7 @@ if [[ ${PV} = 9999 ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="*"
+	KEYWORDS=""
 fi
 
 LICENSE="GPL-2"

@@ -44,7 +44,7 @@ RESTRICT="mirror preserve-libs strip"
 QA_PREBUILT="*"
 
 RDEPEND="!x64-macos? (
-		 awt? (
+		awt? (
 			x11-libs/libX11
 			x11-libs/libXext
 			x11-libs/libXi

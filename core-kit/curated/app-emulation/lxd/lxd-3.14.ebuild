@@ -1,13 +1,14 @@
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/lxd/introduction/"
 
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="*"
 
 IUSE="+daemon +ipv6 +dnsmasq nls test tools"
 
@@ -41,6 +42,7 @@ RDEPEND="
 		net-firewall/ebtables
 		net-firewall/iptables[ipv6?]
 		net-libs/libnfnetlink
+		net-libs/libnsl:0=
 		net-misc/rsync[xattr]
 		sys-apps/iproute2[ipv6?]
 		sys-fs/fuse
@@ -89,7 +91,6 @@ EGO_PN="github.com/lxc/lxd"
 src_prepare() {
 	eapply_user
 	eapply "${FILESDIR}/de-translation-newline-1.patch"
-	eapply "${FILESDIR}/ptbr-translation-newline.patch"
 
 	cd "${S}/dist/dqlite" || die "Can't cd to dqlite dir"
 	eautoreconf
@@ -111,7 +112,7 @@ src_compile() {
 	emake
 
 	cd "${GOPATH}/dqlite" || die "Can't cd to dqlite dir"
-	emake CFLAGS="-I${GOPATH}/sqlite"
+	emake CFLAGS="-I${GOPATH}/sqlite" LDFLAGS="-L${GOPATH}/sqlite"
 
 	# We don't use the Makefile here because it builds targets with the
 	# assumption that `pwd` is in a deep gopath namespace, which we're not.
@@ -134,6 +135,7 @@ src_compile() {
 		go install -v -x ${EGO_PN}/fuidshift || die "Failed to build fuidshift"
 		go install -v -x ${EGO_PN}/lxc-to-lxd || die "Failed to build lxc-to-lxd"
 		go install -v -x ${EGO_PN}/lxd-benchmark || die "Failed to build lxd-benchmark"
+		go install -v -x ${EGO_PN}/lxd-p2c || die "Failed to build lxd-p2c"
 	fi
 
 	use nls && emake build-mo
@@ -180,6 +182,7 @@ src_install() {
 		dobin ${bindir}/fuidshift
 		dobin ${bindir}/lxc-to-lxd
 		dobin ${bindir}/lxd-benchmark
+		dobin ${bindir}/lxd-p2c
 	fi
 
 	if use nls; then
@@ -187,7 +190,7 @@ src_install() {
 	fi
 
 	if use daemon; then
-		newinitd "${FILESDIR}"/${PN}.initd lxd
+		newinitd "${FILESDIR}"/lxd-3.12-r1.initd lxd
 		newconfd "${FILESDIR}"/${PN}.confd lxd
 
 		systemd_newunit "${FILESDIR}"/${PN}.service ${PN}.service

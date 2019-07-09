@@ -11,7 +11,7 @@ DESCRIPTION="A full featured webcam capture application"
 HOMEPAGE="https://webcamoid.github.io"
 SRC_URI="https://github.com/webcamoid/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="*"
 LICENSE="GPL-3"
 SLOT="0"
 

@@ -1,0 +1,23 @@
+diff -urN webcamoid-8.6.1.orig/StandAlone/StandAlone.pro webcamoid-8.6.1/StandAlone/StandAlone.pro
+--- webcamoid-8.6.1.orig/StandAlone/StandAlone.pro	2019-07-09 18:25:28.404904198 +0200
++++ webcamoid-8.6.1/StandAlone/StandAlone.pro	2019-07-09 18:26:23.928903458 +0200
+@@ -50,19 +50,6 @@
+     PRE_TARGETDEPS += compiler_builddocs_make_all
+ }
+ 
+-unix: !android: !macx | !isEmpty(NOAPPBUNDLE) {
+-    MANPAGESOURCES = share/man/$${COMMONS_TARGET}.1
+-    MANPAGEOUT = $${OUT_PWD}/$${MANPAGESOURCES}.gz
+-
+-    buildmanpage.input = MANPAGESOURCES
+-    buildmanpage.output = $${MANPAGEOUT}
+-    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > $${MANPAGEOUT}
+-    buildmanpage.clean = dummy_file
+-    buildmanpage.CONFIG += no_link
+-    QMAKE_EXTRA_COMPILERS += buildmanpage
+-    PRE_TARGETDEPS += compiler_buildmanpage_make_all
+-}
+-
+ CONFIG += qt
+ macx: CONFIG -= app_bundle
+ !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static

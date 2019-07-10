@@ -60,7 +60,7 @@ src_prepare() {
 
 	# Mung inittab for specific architectures
 	cd "${WORKDIR}" || die
-	cp "${FILESDIR}"/inittab-2.91 inittab || die "cp inittab"
+	cp "${FILESDIR}"/inittab-2.95 inittab || die "cp inittab"
 	local insert=()
 	use ppc && insert=( '#psc0:12345:respawn:/sbin/agetty 115200 ttyPSC0 linux' )
 	use arm && insert=( '#f0:12345:respawn:/sbin/agetty 9600 ttyFB0 vt100' )

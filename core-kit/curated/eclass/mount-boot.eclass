@@ -31,8 +31,9 @@ mount-boot_mount_boot_partition() {
 	local fstabstate=$(awk '!/^#|^[[:blank:]]+#|^\/dev\/BOOT/ {print $2}' /etc/fstab | egrep "^/boot$" )
 	local procstate=$(awk '$2 ~ /^\/boot$/ {print $2}' /proc/mounts)
 	local proc_ro=$(awk '{ print $2 " ," $4 "," }' /proc/mounts | sed -n '/\/boot .*,ro,/p')
+	local devnode=$(egrep "/boot" /etc/fstab | awk '{ print $1 }')
 
-	if [ -n "${fstabstate}" ] && [ -n "${procstate}" ]; then
+	if [ -n "${fstabstate}" ] && [ -n "${procstate}" ] && [ -e "$devnode" ]; then
 		if [ -n "${proc_ro}" ]; then
 			einfo
 			einfo "Your boot partition, detected as being mounted as /boot, is read-only."
@@ -52,7 +53,7 @@ mount-boot_mount_boot_partition() {
 			einfo "Files will be installed there for ${PN} to function correctly."
 			einfo
 		fi
-	elif [ -n "${fstabstate}" ] && [ -z "${procstate}" ]; then
+	elif [ -n "${fstabstate}" ] && [ -z "${procstate}" ] && [ -e "$devnode" ]; then
 		mount /boot -o rw
 		if [ "$?" -eq 0 ]; then
 			einfo

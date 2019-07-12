@@ -8,7 +8,7 @@ DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="https://github.com/openrc/openrc/"
 
 SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 LICENSE="BSD-2"
 SLOT="0"
 IUSE="audit +bash-completion debug ncurses pam newnet prefix -netifrc selinux static-libs unicode kernel_linux kernel_FreeBSD zsh-completion"

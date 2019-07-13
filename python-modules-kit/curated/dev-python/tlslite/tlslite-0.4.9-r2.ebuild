@@ -3,9 +3,20 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python{2_7,3_5,3_6,3_7} )
+PYTHON_COMPAT=( python2_7 )
 
 inherit distutils-r1 eutils
+
+# IMPORTANT: At least as of 12 Jul 2019, tlslite is unmaintained and is incompatible with python3.5+
+# (It uses 'async' as a named parameter of a function, and with the addition of 'async' as a reserved
+# keyword this is not allowed.
+
+# Therefore, if your app needs tlslite, first check to see if tlslite is still unmaintained
+# (Look here: https://github.com/trevp/tlslite) and if so, you should look for an updated version of
+# your tlslite-dependent app that no longer uses tlslite but uses something else. If your python
+# app is actively maintained, it is almost certainly no longer dependent on tlslite.
+
+# -Daniel Robbins
 
 DESCRIPTION="TLS Lite is a free python library that implements SSL 3.0 and TLS 1.0/1.1"
 HOMEPAGE="http://trevp.net/tlslite/ https://pypi.org/project/tlslite/ https://github.com/trevp/tlslite"

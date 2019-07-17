@@ -12,8 +12,6 @@ INTEL_SNAPSHOT="20190312"
 NUM="28087"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
 HOMEPAGE="http://inertiawar.com/microcode/ https://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=${NUM}"
-SRC_URI="https://downloadmirror.intel.com/${NUM}/eng/microcode-${INTEL_SNAPSHOT}.tgz
-	https://dev.gentoo.org/~whissi/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz"
 
 LICENSE="intel-ucode"
 SLOT="0"
@@ -27,7 +25,16 @@ RDEPEND="!<sys-apps/microcode-ctl-1.17-r2
 
 RESTRICT="binchecks strip"
 
-S=${WORKDIR}
+GITHUB_REPO="Intel-Linux-Processor-Microcode-Data-Files"
+GITHUB_USER="intel"
+GITHUB_TAG="microcode-${PV}"
+SRC_URI="https://dev.gentoo.org/~whissi/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
+https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 # Blacklist bad microcode here.
 # 0x000406f1 aka 06-4f-01 aka CPUID 406F1 require newer microcode loader
@@ -75,7 +82,7 @@ src_install() {
 	# Allow users who are scared about microcode updates not included in Intel's official
 	# microcode tarball to opt-out and comply with Intel marketing
 	if ! use vanilla; then
-		MICROCODE_SRC+=( "${S}"/intel-microcode-collection-${COLLECTION_SNAPSHOT} )
+		MICROCODE_SRC+=( "${WORKDIR}"/intel-microcode-collection-${COLLECTION_SNAPSHOT} )
 	fi
 
 	opts=(

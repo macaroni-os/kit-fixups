@@ -15,11 +15,11 @@ KEYWORDS="~amd64"
 RESTRICT="mirror"
 
 RDEPEND="
-	>=dev-qt/qtcore-5.4.1:5
-	>=dev-qt/qtgui-5.4.1:5
-	>=dev-qt/qtnetwork-5.4.1:5
-	>=dev-qt/qtprintsupport-5.4.1:5
-	>=dev-qt/qtsvg-5.4.1:5
+	>=dev-qt/qtcore-5.9.8:5
+	>=dev-qt/qtgui-5.9.8:5
+	>=dev-qt/qtnetwork-5.9.8:5
+	>=dev-qt/qtprintsupport-5.9.8:5
+	>=dev-qt/qtsvg-5.9.8:5
 	>=media-gfx/sane-backends-1.0
 "
 

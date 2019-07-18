@@ -65,6 +65,12 @@ src_unpack() {
 	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
 }
 
+src_prepare() {
+	cmake-utils_src_prepare
+	# see FL-6535:
+	sed -i -e 's/test prove/test_perl prove/g' ${S}/bindings/perl/t/CMakeLists.txt || die
+}
+
 multilib_src_configure() {
 	local mycmakeargs=(
 		"$(multilib_is_native_abi && usex perl -DPERL_VENDORINSTALL=ON)"

@@ -128,9 +128,14 @@ src_prepare() {
 	cmake-utils_src_prepare
 
 	# remove bundled stuff
-	rm -rf 3rdparty || die "Removing 3rd party components failed"
-	sed -e '/add_subdirectory(.*3rdparty.*)/ d' \
-		-i CMakeLists.txt cmake/*cmake || die
+	cd ${S}/3rdparty
+	for x in $(ls | grep -v include); do
+		if [ -d $x ]; then
+			rm -rf $x
+		fi
+	done
+	cd ${S}
+	sed -e '/add_subdirectory(.*3rdparty.*)/ d' -i CMakeLists.txt cmake/*cmake || die
 
 	if use dnn_samples; then
 		mv  "${WORKDIR}/res10_300x300_ssd_iter_140000.caffemodel" "${WORKDIR}/${P}/samples/dnn/" || die

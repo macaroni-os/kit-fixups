@@ -52,7 +52,7 @@ db_fix_so() {
 	# do the same for headers now
 	# but since there are only two of them, just overwrite them
 	cd "${EROOT}"/usr/include
-	target=`find . -maxdepth 1 -type d -name 'db[0-9]*' | sort -n |cut -d/ -f2- | tail -n1`
+	target=`find . -maxdepth 1 -type d -name 'db[0-9]*' | sort -V |cut -d/ -f2- | tail -n1`
 	if [ -n "${target}" ] && [ -e "${target}/db.h" ] && ( ! [[ -e db.h ]] || [[ -h db.h ]] ); then
 		einfo "Creating db.h symlinks to ${target}"
 		ln -sf "${target}"/db.h .

@@ -1,0 +1,13 @@
+diff -urN mpv-0.29.1/wscript mpv-0.29.1-fixed/wscript
+--- mpv-0.29.1/wscript	2018-10-02 19:03:41.000000000 +0000
++++ mpv-0.29.1-fixed/wscript	2019-07-24 18:19:43.102498953 +0000
+@@ -624,8 +624,7 @@
+         'desc': 'OpenGL Wayland Backend',
+         'deps': 'wayland',
+         'groups': [ 'gl' ],
+-        'func': check_pkg_config('wayland-egl', '>= 9.0.0',
+-                                 'egl',         '>= 9.0.0')
++        'func': check_pkg_config('wayland-egl', '>= 9.0.0'),
+     } , {
+         'name': '--gl-win32',
+         'desc': 'OpenGL Win32 Backend',

@@ -157,7 +157,7 @@ src_prepare() {
 }
 
 src_configure() {
-	python_setup
+	python_setup -2
 	tc-export CC PKG_CONFIG AR
 
 	if use raspberry-pi; then

@@ -112,6 +112,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.4.3-remove-gentoo-repos-conf.patch"
 	"${FILESDIR}/${PN}-2.3.68-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.41-ebuild-nodie.patch"
+	"${FILESDIR}/portage-2.3.68-set-backtracking-to-0.patch"
 )
 
 python_prepare_all() {

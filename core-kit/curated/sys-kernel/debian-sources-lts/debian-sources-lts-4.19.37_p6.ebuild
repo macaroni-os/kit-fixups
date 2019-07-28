@@ -27,7 +27,7 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary ec2 sign-modules btrfs zfs"
 DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )
 	btrfs? ( sys-fs/btrfs-progs )
@@ -120,7 +120,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-xfs-libcrc32c-fix.patch
 
 	## FL-4424: enable legacy support for MCELOG.
-        epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
 
 	## do not configure debian devs certs.
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-nocerts.patch
@@ -214,7 +214,7 @@ src_compile() {
 		--lvm \
 		--luks \
 		--mdadm \
-		$(usex btrfs --btrfs --nobtrfs) \
+		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \
 		--module-prefix="${WORKDIR}"/out \
 		all || die

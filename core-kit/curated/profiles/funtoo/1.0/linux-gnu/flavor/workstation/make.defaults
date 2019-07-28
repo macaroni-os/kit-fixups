@@ -2,6 +2,5 @@ USE="opengl dnssd zeroconf elogind gstreamer"
 USE="$USE nsplugin" ## enable Java plugin. http://bugs.funtoo.org/browse/FL-1136
 # enable all possible video acceleration goodies:
 VIDEO_CARDS="xa xvmc vaapi vdpau"
-# enable a reasonable subset of popular Open Source drivers:
-VIDEO_CARDS="$VIDEO_CARDS fbdev intel vulkan-intel dri3 i965 i915"
-VIDEO_CARDS="$VIDEO_CARDS amdgpu radeon gallium-r300 gallium-r600 gallium-radeonsi"
+# enable framebuffer. Other graphics are enabled via mix-ins."
+VIDEO_CARDS="$VIDEO_CARDS fbdev"

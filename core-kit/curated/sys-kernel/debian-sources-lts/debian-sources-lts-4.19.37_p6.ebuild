@@ -29,7 +29,9 @@ RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS="*"
 IUSE="binary ec2 sign-modules btrfs zfs"
-DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )
+DEPEND="
+	virtual/libelf
+	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
 	btrfs? ( sys-fs/btrfs-progs )
 	zfs? ( sys-fs/zfs )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"

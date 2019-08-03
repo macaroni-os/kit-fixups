@@ -138,7 +138,13 @@ DEPEND="${RDEPEND}
 	elibc_glibc? ( >=sys-libs/glibc-2.8 )
 	test? ( dev-util/dejagnu sys-devel/autogen )"
 
-PDEPEND=">=sys-devel/gcc-config-1.5 >=sys-devel/libtool-2.4.3"
+PDEPEND="
+	>=sys-devel/gcc-config-1.5
+	>=sys-devel/libtool-2.4.3
+	dev-cpp/tbb
+"
+# dev-cpp/tbb is required for C++17 support. See FL-6566.
+
 if [[ ${CATEGORY} != cross-* ]] ; then
 	PDEPEND="${PDEPEND} elibc_glibc? ( >=sys-libs/glibc-2.8 )"
 fi

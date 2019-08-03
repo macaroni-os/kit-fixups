@@ -145,8 +145,8 @@ POSTGRES_TARGETS="postgres9_5"
 #
 PHP_TARGETS="php7-3"
 
-# enable gallium-based swrast driver, and DRI-based osmesa driver so that mesa
-# builds correctly. It needs at least one DRI-based driver enabled to build
-# and install libgbm.
+# enable swrast driver, and DRI-based osmesa driver so that mesa builds
+# correctly. It needs at least one DRI-based driver enabled to build and
+# install libgbm. Another mesa travesty: osmesa requires DRI swrast.
 
-VIDEO_CARDS="gallium-swrast osmesa"
+VIDEO_CARDS="swrast osmesa"

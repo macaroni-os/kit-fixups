@@ -205,7 +205,7 @@ src_compile() {
 		--lvm \
 		--luks \
 		--mdadm \
-		$(usex btrfs --btrfs --nobtrfs) \
+		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \
 		--module-prefix="${WORKDIR}"/out \
 		all || die

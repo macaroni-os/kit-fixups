@@ -32,7 +32,11 @@ mount-boot_mount_boot_partition() {
 	local procstate=$(awk '$2 ~ /^\/boot$/ {print $2}' /proc/mounts)
 	local proc_ro=$(awk '{ print $2 " ," $4 "," }' /proc/mounts | sed -n '/\/boot .*,ro,/p')
 	local devnode=$(egrep "/boot" /etc/fstab | awk '{ print $1 }')
-
+	if [ "${devnode:0:5}" != "/dev/" ]; then
+		# This is a trick; point to something that exists to "skip" the device node check, since we are
+		# dealing with a LABEL= or UUID=:
+		devnode=/dev/null
+	fi
 	if [ -n "${fstabstate}" ] && [ -n "${procstate}" ] && [ -e "$devnode" ]; then
 		if [ -n "${proc_ro}" ]; then
 			einfo

@@ -17,7 +17,7 @@ SRC_URI="mirror://pypi/${MY_PN:0:1}/${MY_PN}/${MY_P}.tar.gz"
 LICENSE="HPND"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="doc examples freetype imagequant jpeg jpeg2k lcms test tiff tk webp zlib"
+IUSE="doc examples truetype imagequant jpeg jpeg2k lcms test tiff tk webp zlib"
 
 REQUIRED_USE="test? ( jpeg tiff )"
 
@@ -28,7 +28,7 @@ RDEPEND="
 	jpeg2k? ( media-libs/openjpeg:2= )
 	lcms? ( media-libs/lcms:2= )
 	tiff? ( media-libs/tiff:0=[jpeg,zlib] )
-	freetype? ( media-libs/freetype:2= )
+	truetype? ( media-libs/freetype:2= )
 	webp? ( media-libs/libwebp:0= )
 	zlib? ( sys-libs/zlib:0= )"
 DEPEND="${RDEPEND}
@@ -45,8 +45,8 @@ S="${WORKDIR}/${MY_P}"
 python_compile() {
 	export MAX_CONCURRENCY=$(( $(nproc) + 1))
 	local args=(
-        --disable-platform-guessing
-		$(use_enable freetype)
+		--disable-platform-guessing
+		$(use_enable truetype freetype)
 		$(use_enable jpeg)
 		$(use_enable jpeg2k jpeg2000)
 		$(use_enable lcms)

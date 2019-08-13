@@ -13,8 +13,8 @@ SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
 DEB_PV_BASE="4.19.37"
-DEB_EXTRAVERSION=-6
-EXTRAVERSION=_p6
+DEB_EXTRAVERSION=-5+deb10u2
+EXTRAVERSION=_p5
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -27,11 +27,9 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary ec2 sign-modules btrfs zfs"
-DEPEND="
-	virtual/libelf
-	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
+DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )
 	btrfs? ( sys-fs/btrfs-progs )
 	zfs? ( sys-fs/zfs )"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
@@ -122,22 +120,13 @@ src_prepare() {
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-xfs-libcrc32c-fix.patch
 
 	## FL-4424: enable legacy support for MCELOG.
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
+        epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
 
 	## do not configure debian devs certs.
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-nocerts.patch
 
 	## FL-3381. enable IKCONFIG
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-ikconfig.patch
-
-	# namespace version 3 support from upstream. See:
-	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8db6c34f1dbc8e06aa016a9b829b06902c3e1340 and FL-4725.
-	# merged in 4.14 from what I can find
-	# epatch "${FILESDIR}"/namespace-v3-upstream.patch
-
-	# Updated driver support -- FL-6316
-	# need to updated patch for 4.19
-	# epatch "${FILESDIR}"/linux-4.20-e1000e.patch
 
 	local arch featureset subarch
 	featureset="standard"

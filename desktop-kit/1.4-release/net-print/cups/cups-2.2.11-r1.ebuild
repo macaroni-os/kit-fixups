@@ -51,7 +51,6 @@ CDEPEND="
 "
 
 DEPEND="${CDEPEND}
-	python? ( dev-lang/python )
 "
 BDEPEND="
 	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
@@ -59,7 +58,7 @@ BDEPEND="
 
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-cups )
-	python? ( dev-lang/python )
+	dev-lang/python
 "
 
 PDEPEND=">=net-print/cups-filters-1.0.43"
@@ -179,6 +178,16 @@ multilib_src_configure() {
 		--without-php
 		$(multilib_is_native_abi && echo --enable-libpaper || echo --disable-libpaper)
 	)
+
+	if use python; then
+		myeconfargs+=(
+				--with-python
+		)
+	else
+		myeconfargs+=(
+				--without-python
+		)
+	fi
 
 	if tc-is-static-only; then
 		myeconfargs+=(

@@ -52,7 +52,6 @@ CDEPEND="
 
 DEPEND="${CDEPEND}
 	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
-	python? ( dev-lang/python )
 "
 
 RDEPEND="${CDEPEND}
@@ -177,6 +176,16 @@ multilib_src_configure() {
 		--without-php
 		$(multilib_is_native_abi && echo --enable-libpaper || echo --disable-libpaper)
 	)
+
+	if use python; then
+		myeconfargs+=(
+			--with-python
+		)
+	else
+		myeconfargs+=(
+			--without-python
+		)
+	fi
 
 	if tc-is-static-only; then
 		myeconfargs+=(

@@ -27,7 +27,7 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary ec2 sign-modules btrfs zfs"
 DEPEND="
 	virtual/libelf

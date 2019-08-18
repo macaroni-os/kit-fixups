@@ -23,7 +23,7 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
 }
 
 # Trying to use virtual; ffmpeg misses aac,cpudetection USE flags now though, are they needed?

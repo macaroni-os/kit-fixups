@@ -23,7 +23,7 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
 }
 
 COMMON_DEPEND="
@@ -49,8 +49,6 @@ RDEPEND="${COMMON_DEPEND}
 PDEPEND="~media-libs/avidemux-plugins-${PV}:${SLOT}[opengl?,qt5?]"
 
 src_prepare() {
-	eapply "${FILESDIR}"/${P}-desktop.patch
-
 	processes="buildCli:avidemux/cli"
 	if use qt5 ; then
 		processes+=" buildQt4:avidemux/qt4"

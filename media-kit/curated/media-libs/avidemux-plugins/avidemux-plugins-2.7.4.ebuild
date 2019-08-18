@@ -23,7 +23,7 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
 }
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

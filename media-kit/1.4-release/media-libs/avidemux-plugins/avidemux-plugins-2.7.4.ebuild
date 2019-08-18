@@ -1,20 +1,10 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-if [[ ${PV} == *9999* ]] ; then
-	EGIT_REPO_URI="https://github.com/mean00/avidemux2.git"
-	EGIT_CHECKOUT_DIR=${WORKDIR}
-	inherit git-r3
-else
-	MY_PN="${PN/-plugins/}"
-	MY_P="${MY_PN}2-${PV}"
-	SRC_URI="https://github.com/mean00/${MY_PN}/archive/${PV}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
+CMAKE_MAKEFILE_GENERATOR="emake"
+PYTHON_COMPAT=( python{2_7,3_6,3_7} )
 
-PYTHON_COMPAT=( python2_7 )
 inherit cmake-utils python-single-r1
 
 DESCRIPTION="Plugins for the video editor media-video/avidemux"
@@ -24,6 +14,18 @@ HOMEPAGE="http://fixounet.free.fr/avidemux"
 LICENSE="GPL-1 GPL-2 MIT PSF-2 public-domain"
 SLOT="2.7"
 IUSE="a52 aac aften alsa amr dcaenc debug dts fdk fontconfig fribidi jack lame libsamplerate cpu_flags_x86_mmx nvenc opengl opus oss pulseaudio qt5 truetype twolame vdpau vorbis vpx x264 x265 xv xvid"
+KEYWORDS="~amd64 ~x86"
+
+GITHUB_REPO="avidemux2"
+GITHUB_USER="mean00"
+GITHUB_TAG="${PV}"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
+}
+
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="${PYTHON_DEPS}
@@ -46,7 +48,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	amr? ( media-libs/opencore-amr:0 )
 	dcaenc? ( media-sound/dcaenc:0 )
 	dts? ( media-libs/libdca:0 )
-	fdk? ( media-libs/fdk-aac:0 )
+	fdk? ( media-libs/fdk-aac:0= )
 	fontconfig? ( media-libs/fontconfig:1.0 )
 	fribidi? ( dev-libs/fribidi:0 )
 	jack? (
@@ -82,11 +84,9 @@ RDEPEND="${COMMON_DEPEND}
 	!<media-libs/avidemux-plugins-${PV}
 "
 
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/avidemux2-${PV}"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.6.20-optional-pulse.patch
-)
+PATCHES=( "${FILESDIR}"/${PN}-2.6.20-optional-pulse.patch )
 
 src_prepare() {
 	default
@@ -104,11 +104,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# Add lax vector typing for PowerPC.
-	if use ppc || use ppc64 ; then
-		append-cflags -flax-vector-conversions
-	fi
-
 	# See bug 432322.
 	use x86 && replace-flags -O0 -O1
 
@@ -172,11 +167,7 @@ src_compile() {
 
 src_install() {
 	for process in ${processes} ; do
-		# cmake-utils_src_install doesn't respect BUILD_DIR
-		# and there sometimes is a preinstall phase present.
-		pushd "${WORKDIR}/${P}_build/${process%%:*}" > /dev/null || die
-			grep '^preinstall/fast' Makefile && emake DESTDIR="${D}" preinstall/fast
-			grep '^install/fast' Makefile && emake DESTDIR="${D}" install/fast
-		popd > /dev/null || die
+		local build="${WORKDIR}/${P}_build/${process%%:*}"
+		BUILD_DIR="${build}" cmake-utils_src_install
 	done
 }

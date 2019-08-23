@@ -28,7 +28,11 @@ PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS=""
-IUSE="binary ec2 sign-modules btrfs zfs"
+IUSE="binary bindist custom-cflags ec2 sign-modules btrfs zfs"
+REQUIRED_USE="
+	bindist? ( binary )
+	bindist? ( !custom-cflags )
+"
 DEPEND="
 	virtual/libelf
 	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
@@ -187,6 +191,10 @@ src_prepare() {
 		ewarn "To enable strict enforcement, YOU MUST add module.sig_enforce=1 as a kernel boot"
 		ewarn "parameter (to params in /etc/boot.conf, and re-run boot-update.)"
 		echo
+	fi
+	if use custom-cflags; then
+		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
+		sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
 	fi
 	# get config into good state:
 	yes "" | make oldconfig >/dev/null 2>&1 || die

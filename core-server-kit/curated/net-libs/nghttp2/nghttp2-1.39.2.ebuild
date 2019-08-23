@@ -12,7 +12,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit autotools git-r3
 else
 	SRC_URI="https://github.com/nghttp2/nghttp2/releases/download/v${PV}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd"
+	KEYWORDS="alpha amd64 ~arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 s390 ~sh sparc x86 ~amd64-fbsd"
 fi
 
 DESCRIPTION="HTTP/2 C Library"
@@ -53,9 +53,9 @@ multilib_src_configure() {
 	local myeconfargs=(
 		--disable-examples
 		--disable-failmalloc
+		--disable-python-bindings
 		--disable-werror
 		--without-cython
-		--disable-python-bindings
 		$(use_enable cxx asio-lib)
 		$(use_enable debug)
 		$(multilib_native_use_enable hpack-tools)

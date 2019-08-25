@@ -194,7 +194,11 @@ src_prepare() {
 	fi
 	if use custom-cflags; then
 		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
-		sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
+		if [ -n "$MARCH" ]; then
+			sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
+		else
+			die "Was unable to grab your -march setting from your Funtoo profile."
+		fi
 	fi
 	# get config into good state:
 	yes "" | make oldconfig >/dev/null 2>&1 || die

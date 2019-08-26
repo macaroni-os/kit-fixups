@@ -30,7 +30,8 @@ RDEPEND="
 	tiff? ( media-libs/tiff:0=[jpeg,zlib] )
 	truetype? ( media-libs/freetype:2= )
 	webp? ( media-libs/libwebp:0= )
-	zlib? ( sys-libs/zlib:0= )"
+	zlib? ( sys-libs/zlib:0= )
+	media-libs/libraqm"
 DEPEND="${RDEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	doc? (

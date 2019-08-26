@@ -40,10 +40,6 @@ S="${WORKDIR}"/${PN}-${MY_PV}
 
 DOCS=(AUTHORS ChangeLog NEWS )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.22.1-debug.patch
-)
-
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		if ! test-flag-CXX -std=c++14; then

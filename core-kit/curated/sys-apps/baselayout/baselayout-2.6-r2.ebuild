@@ -6,14 +6,8 @@ EAPI=6
 inherit versionator prefix
 
 DESCRIPTION="Filesystem baselayout and init scripts"
-HOMEPAGE="https://www.gentoo.org/"
-if [[ ${PV} = 9999 ]]; then
-	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/${PN}.git"
-	inherit git-r3
-else
-	SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.bz2"
-	KEYWORDS=""
-fi
+SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.bz2"
+KEYWORDS="*"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -51,7 +45,7 @@ src_prepare() {
 	echo "LDPATH='${ldpaths#:}'" >> etc/env.d/50baselayout
 
 	# rc-scripts version for testing of features that *should* be present
-	echo "Funtoo Linux Base System release ${PV}" > etc/gentoo-release
+	echo "Funtoo Linux 1.4" > etc/gentoo-release
 }
 
 src_install() {
@@ -80,6 +74,7 @@ EOF
 LANG="en_US.UTF-8"
 LC_COLLATE="POSIX"
 EOF
+	doins ${FILESDIR}/profile-2.6-r2 /etc/profile
 }
 
 pkg_postinst() {

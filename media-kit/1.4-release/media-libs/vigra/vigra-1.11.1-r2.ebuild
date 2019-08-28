@@ -6,7 +6,7 @@ EAPI=7
 MY_P="${P}-src"
 MY_V="${PV//\./-}"
 PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads,xml"
+PYTHON_REQ_USE="threads(+),xml"
 inherit cmake-utils python-r1
 
 DESCRIPTION="C++ computer vision library emphasizing customizable algorithms and structures"

@@ -4,7 +4,7 @@
 EAPI=7
 
 PYTHON_COMPAT=( python2_7 python3_{5,6,7} )
-PYTHON_REQ_USE="threads,xml"
+PYTHON_REQ_USE="threads(+),xml"
 inherit cmake-utils python-r1
 
 DESCRIPTION="C++ computer vision library emphasizing customizable algorithms and structures"

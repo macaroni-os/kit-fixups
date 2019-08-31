@@ -6,12 +6,13 @@ EAPI=6
 inherit versionator prefix
 
 DESCRIPTION="Filesystem baselayout and init scripts"
-SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/${P}.tar.bz2"
+SRC_URI="https://gitweb.gentoo.org/proj/${PN}.git/snapshot/baselayout-2.6.tar.bz2"
 KEYWORDS="*"
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="build kernel_FreeBSD kernel_linux +split-usr"
+S="${WORKDIR}"/baselayout-2.6
 
 pkg_preinst() {
 	# This is written in src_install (so it's in CONTENTS), but punt all
@@ -74,7 +75,8 @@ EOF
 LANG="en_US.UTF-8"
 LC_COLLATE="POSIX"
 EOF
-	doins ${FILESDIR}/profile-2.6-r2 /etc/profile
+	insinto /etc
+	newins ${FILESDIR}/profile-2.6.1 profile || die
 }
 
 pkg_postinst() {

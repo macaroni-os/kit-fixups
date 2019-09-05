@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="+ocamlopt static"
 
-LIB_DEPEND="( >=app-text/mupdf-1.12.0:0=[static-libs] <app-text/mupdf-1.15.0:0=[static-libs] )
+LIB_DEPEND="|| ( app-text/mupdf:0/1.13.0 app-text/mupdf:0/1.14.0 )
 	media-libs/openjpeg:2[static-libs]
 	media-libs/fontconfig:1.0[static-libs]
 	media-libs/freetype:2[static-libs]

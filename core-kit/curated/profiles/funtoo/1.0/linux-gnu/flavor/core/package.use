@@ -6,8 +6,8 @@ app-eselect/eselect-php fpm
 # FL-6220:
 sys-apps/util-linux tty-helpers
 
-# FL-5801: enable binary USE for debian-sources-lts by default.
-sys-kernel/debian-sources-lts binary
+sys-kernel/debian-sources-lts binary custom-cflags
+sys-kernel/debian-sources binary
 
 #QA-615, net-firewall/ipset-6.34::core-kit - USE=modules and in-kernel ipset support detected.
 net-firewall/ipset -modules
@@ -17,10 +17,6 @@ sys-apps/the_silver_searcher lzma
 
 #FL-1846
 sys-libs/zlib minizip
-
-# Enable binary USE flag for debian-sources.
-sys-kernel/debian-sources binary
-
 #FL-1498: enable gtk USE flag for gnash for clean emerge if non-dekstop profile used
 www-plugins/gnash gtk
 

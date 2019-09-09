@@ -134,15 +134,6 @@ src_prepare() {
 	## FL-3381. enable IKCONFIG
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-ikconfig.patch
 
-	# namespace version 3 support from upstream. See:
-	# https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8db6c34f1dbc8e06aa016a9b829b06902c3e1340 and FL-4725.
-	# merged in 4.14 from what I can find
-	# epatch "${FILESDIR}"/namespace-v3-upstream.patch
-
-	# Updated driver support -- FL-6316
-	# need to updated patch for 4.19
-	# epatch "${FILESDIR}"/linux-4.20-e1000e.patch
-
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then

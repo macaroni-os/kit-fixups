@@ -62,7 +62,7 @@ S="${WORKDIR}/${MY_SRC}"
 
 PATCHES=(
 	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
-	"${FILESDIR}/patches/${PN}-3.4.6-db-6.patch"
+	"${FILESDIR}/patches/${PN}-3.4.6-db-6-1.patch"
 	"${FILESDIR}/${PN}-libressl-certkey.patch"
 	"${FILESDIR}/${PN}-libressl-server.patch"
 )

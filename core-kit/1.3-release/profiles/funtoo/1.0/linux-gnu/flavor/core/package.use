@@ -7,7 +7,7 @@ app-eselect/eselect-php fpm
 sys-apps/util-linux tty-helpers
 
 # FL-5801: enable binary USE for debian-sources-lts by default.
-sys-kernel/debian-sources-lts binary
+sys-kernel/debian-sources-lts binary custom-cflags
 
 #QA-615, net-firewall/ipset-6.34::core-kit - USE=modules and in-kernel ipset support detected.
 net-firewall/ipset -modules

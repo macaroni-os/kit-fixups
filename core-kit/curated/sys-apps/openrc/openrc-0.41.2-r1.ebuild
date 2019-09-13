@@ -63,6 +63,7 @@ src_prepare() {
 	eapply "${FILESDIR}"/openrc-0.40.2-systemd-cgroups.patch #FL-6105
 	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
 	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
+	eapply "${FILESDIR}"/openrc-0.41.2-integer-expression-expected.patch # FL-6510
 }
 
 src_compile() {

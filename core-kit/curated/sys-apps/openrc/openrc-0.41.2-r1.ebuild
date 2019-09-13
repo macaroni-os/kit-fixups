@@ -137,7 +137,6 @@ src_install() {
 	# Funtoo tweaks
 	set_config_yes_no /etc/rc.conf rc_send_sigkill true
 	set_config /etc/rc.conf rc_timeout_stopsec 5
-	set_config /etc/conf.d/net-online timeout 10
 
 	# Cater to the norm
 	set_config_yes_no /etc/conf.d/keymaps windowkeys '(' use x86 '||' use amd64 ')'
@@ -165,11 +164,11 @@ src_install() {
 	exeinto /etc/init.d
 	newexe "$FILESDIR/hostname-r1" hostname
 	doexe "$FILESDIR/loopback"
-	doexe "$FILESDIR/net-online"
+	doexe "$FILESDIR/net-online-r1"
 
 	insinto /etc/conf.d
 	newins "$FILESDIR/hostname.confd" hostname
-	newins "$FILESDIR/net-online.confd" net-online
+	newins "$FILESDIR/net-online.confd-r1" net-online
 }
 
 pkg_preinst() {

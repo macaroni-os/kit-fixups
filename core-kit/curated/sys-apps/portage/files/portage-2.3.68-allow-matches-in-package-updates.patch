@@ -1,3 +1,22 @@
+diff --git a/lib/portage/dbapi/bintree.py b/lib/portage/dbapi/bintree.py
+index 9c2d877e7..48f10cc3c 100644
+--- a/lib/portage/dbapi/bintree.py
++++ b/lib/portage/dbapi/bintree.py
+@@ -390,11 +390,10 @@ class binarytree(object):
+ 		origcp = mylist[1]
+ 		newcp = mylist[2]
+ 		# sanity check
+-		for atom in (origcp, newcp):
+-			if not isjustname(atom):
+-				raise InvalidPackageName(_unicode(atom))
++		if not isjustname(newcp):
++			raise InvalidPackageName(_unicode(atom))
+ 		mynewcat = catsplit(newcp)[0]
+-		origmatches=self.dbapi.cp_list(origcp)
++		origmatches=self.dbapi.match(origcp)
+ 		moves = 0
+ 		if not origmatches:
+ 			return moves
 diff --git a/lib/portage/dbapi/vartree.py b/lib/portage/dbapi/vartree.py
 index e2fce7736..bc7aaa0e2 100644
 --- a/lib/portage/dbapi/vartree.py

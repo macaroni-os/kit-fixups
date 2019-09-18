@@ -1,6 +1,16 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# This is a "new" slotted lua that is used by Funtoo for 5.3+. It is a different catpkg from
+# dev-lang/lua so that old stuff can depend on dev-lang/lua and get lua-5.1, whereas newer
+# stuff can depend on this new dev-lua/lua. Apps that use dev-lua/lua should be patched to
+# specifically link against -llua5.x, use /usr/include/lua5.x headers, and depend upon
+# dev-lua/lua:5.x -- a specific hard-coded minor version. This way, no need to dynamically
+# select a lua version in the ebuild. And lua version can be easily bumped in new ebuild
+# revisions. Use a LUA_VERSION variable or something similar in your ebuild.
+#
+# -drobbins
+
 EAPI=5
 
 inherit eutils autotools multilib multilib-minimal portability toolchain-funcs versionator
@@ -19,10 +29,11 @@ SLOT="5.3"
 KEYWORDS="*"
 IUSE="+deprecated emacs readline static test test-complete"
 
-RDEPEND="readline? ( sys-libs/readline:0= )
-	app-eselect/eselect-lua"
+RDEPEND="readline? ( sys-libs/readline:0= )"
 
-DEPEND="${RDEPEND}
+DEPEND="
+	!>dev-lang/lua-5.3
+	${RDEPEND}
 	sys-devel/libtool"
 PDEPEND="emacs? ( app-emacs/lua-mode )"
 

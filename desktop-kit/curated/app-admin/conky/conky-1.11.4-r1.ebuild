@@ -11,11 +11,12 @@ SRC_URI="https://github.com/brndnmtthws/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.
 
 LICENSE="GPL-3 BSD LGPL-2.1 MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~ppc ~ppc64 ~sparc ~x86"
+KEYWORDS="*"
 IUSE="apcupsd cmus curl doc hddtemp ical iconv imlib iostats
-	ipv6 irc lua-cairo lua-imlib lua-rsvg math moc mpd mysql nano-syntax
+	ipv6 irc cairo rsvg math moc mpd mysql nano-syntax
 	ncurses nvidia +portmon pulseaudio rss systemd thinkpad truetype
 	vim-syntax weather-metar webserver wifi X xmms2"
+LUA_VERSION=5.3
 
 COMMON_DEPEND="
 	X? (
@@ -31,9 +32,9 @@ COMMON_DEPEND="
 	iconv? ( virtual/libiconv )
 	imlib? ( media-libs/imlib2[X] )
 	irc? ( net-libs/libircclient )
-	lua-cairo? ( x11-libs/cairo[X] )
-	lua-imlib? ( media-libs/imlib2[X] )
-	lua-rsvg? ( gnome-base/librsvg )
+	cairo? ( x11-libs/cairo[X] )
+	imlib? ( media-libs/imlib2[X] )
+	rsvg? ( gnome-base/librsvg )
 	mysql? ( dev-db/mysql-connector-c )
 	ncurses? ( sys-libs/ncurses:= )
 	nvidia? ( x11-drivers/nvidia-drivers[tools,static-libs] )
@@ -45,7 +46,7 @@ COMMON_DEPEND="
 	weather-metar? ( net-misc/curl )
 	webserver? ( net-libs/libmicrohttpd )
 	xmms2? ( media-sound/xmms2 )
-	|| ( dev-lang/lua:5.3 dev-lang/lua:5.2 )
+	dev-lua/lua:5.3
 "
 RDEPEND="
 	${COMMON_DEPEND}
@@ -64,9 +65,9 @@ REQUIRED_USE="
 	imlib? ( X )
 	nvidia? ( X )
 	truetype? ( X )
-	lua-cairo? ( X )
-	lua-imlib? ( X )
-	lua-rsvg? ( X )
+	cairo? ( X )
+	imlib? ( X )
+	rsvg? ( X )
 "
 
 CONFIG_CHECK=~IPV6
@@ -94,6 +95,8 @@ src_prepare() {
 
 	sed -i -e "s|find_program(APP_MAN man)|set(APP_MAN $(which man) CACHE FILEPATH MAN_BINARY)|" \
 		cmake/ConkyPlatformChecks.cmake || die
+
+	eapply ${FILESDIR}/lua-5.3.patch || die
 }
 
 src_configure() {
@@ -133,9 +136,9 @@ src_configure() {
 		-DBUILD_IPV6=$(usex ipv6)
 		-DBUILD_IRC=$(usex irc)
 		-DBUILD_JOURNAL=$(usex systemd)
-		-DBUILD_LUA_CAIRO=$(usex lua-cairo)
-		-DBUILD_LUA_IMLIB2=$(usex lua-imlib)
-		-DBUILD_LUA_RSVG=$(usex lua-rsvg)
+		-DBUILD_LUA_CAIRO=$(usex cairo)
+		-DBUILD_LUA_IMLIB2=$(usex imlib)
+		-DBUILD_LUA_RSVG=$(usex rsvg)
 		-DBUILD_MATH=$(usex math)
 		-DBUILD_MOC=$(usex moc)
 		-DBUILD_MPD=$(usex mpd)

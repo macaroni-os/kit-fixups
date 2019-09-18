@@ -113,6 +113,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.68-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.41-ebuild-nodie.patch"
 	"${FILESDIR}/portage-2.3.68-set-backtracking-to-6.patch"
+	"${FILESDIR}/portage-2.3.68-allow-matches-in-package-updates.patch"
 )
 
 python_prepare_all() {

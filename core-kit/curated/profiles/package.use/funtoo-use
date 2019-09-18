@@ -109,6 +109,8 @@ net-fs/cifs-utils upcall
 
 # FL-426, set introspection flag to gupnp-igd, it's a hard dep
 net-libs/gupnp-igd introspection
+# FL-6563: gupnp-igd is not very actively maintained, and requires older versions of gupnp, etc. Workaround:
+net-libs/libnice -upnp
 
 # FL-370, set sasl USE flag to openldap
 net-nds/openldap sasl

@@ -1,0 +1,12 @@
+diff -urN openrc-0.41.2/sh/rc-cgroup.sh openrc-0.41.2-fixed/sh/rc-cgroup.sh
+--- openrc-0.41.2/sh/rc-cgroup.sh	2019-02-26 01:18:51.000000000 -0000
++++ openrc-0.41.2-fixed/sh/rc-cgroup.sh	2019-09-13 19:44:49.528011214 -0000
+@@ -33,7 +33,7 @@
+ 		cgroup_procs="/sys/fs/cgroup/openrc/${RC_SVCNAME}/tasks"
+ 	[ -f "${cgroup_procs}" ] || return 0
+ 	while read -r p; do
+-		[ "$p" -eq $$ ] || pids="${pids} ${p}"
++		[ "$p" = "$$" ] || pids="${pids} ${p}"
+ 	done < "${cgroup_procs}"
+ 	printf "%s" "${pids}"
+ 	return 0

@@ -1,0 +1,29 @@
+#!/sbin/openrc-run
+# Copyright 1999-2018 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+DAEMON=/usr/bin/lxcfs
+PIDFILE=/run/lxcfs.pid
+
+depend() {
+	need fuse
+}
+
+start() {
+	ebegin "Starting lxcfs"
+	install -d /var/lib/lxcfs
+	start-stop-daemon --start \
+			--pidfile ${PIDFILE} \
+			--exec ${DAEMON} \
+			--background \
+			--make-pidfile \
+			-- \
+			-o allow_other,nonempty /var/lib/lxcfs
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping lxcfs"
+	start-stop-daemon --stop --quiet -R TERM/45 -p ${PIDFILE}
+	eend $?
+}

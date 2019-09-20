@@ -18,7 +18,7 @@ LICENSE="PHP-3.01
 	unicode? ( BSD-2 LGPL-2.1 )"
 
 SLOT="$(ver_cut 1-2)"
-KEYWORDS="~alpha amd64 ~arm arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
+KEYWORDS="alpha amd64 ~arm arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
 
 # We can build the following SAPIs in the given order
 SAPIS="embed cli cgi fpm apache2 phpdbg"
@@ -31,7 +31,7 @@ IUSE="${IUSE}
 IUSE="${IUSE} acl argon2 bcmath berkdb bzip2 calendar cdb cjk
 	coverage +ctype curl debug
 	enchant exif +fileinfo +filter firebird
-	+flatfile ftp gd gdbm gmp +hash +iconv imap inifile
+	flatfile ftp gd gdbm gmp +hash +iconv imap inifile
 	intl iodbc ipv6 +json kerberos ldap ldap-sasl libedit libressl lmdb
 	mhash mssql mysql mysqli nls
 	oci8-instant-client odbc +opcache pcntl pdo +phar +posix postgres qdbm
@@ -156,7 +156,7 @@ PATCHES=(
 	"${FILESDIR}/php-freetype-2.9.1.patch"
 	"${FILESDIR}/php-7.2.13-intl-use-icu-namespace.patch"
 )
-RESTRICT="!test? ( test )"
+
 PHP_MV="$(ver_cut 1)"
 
 php_install_ini() {

@@ -12,9 +12,9 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="5.2.6"
-DEB_EXTRAVERSION=-1
-EXTRAVERSION=_p1
+DEB_PV_BASE="4.19.67"
+DEB_EXTRAVERSION=-2
+EXTRAVERSION=_p2
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -28,10 +28,21 @@ PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="binary ec2 sign-modules btrfs zfs"
-DEPEND="binary? ( >=sys-kernel/genkernel-3.4.40.7 )
-	btrfs? ( sys-fs/btrfs-progs )
-	zfs? ( sys-fs/zfs )"
+IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
+DEPEND="
+	virtual/libelf
+	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
+	btrfs? ( sys-fs/btrfs-progs sys-kernel/genkernel[btrfs] )
+	zfs? ( sys-fs/zfs )
+	luks? ( sys-kernel/genkernel[cryptsetup] )"
+REQUIRED_USE="
+btrfs? ( binary )
+custom-cflags? ( binary )
+luks? ( binary )
+lvm? ( binary )
+sign-modules? ( binary )
+zfs? ( binary )
+"
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
@@ -120,7 +131,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-xfs-libcrc32c-fix.patch
 
 	## FL-4424: enable legacy support for MCELOG.
-        epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
 
 	## do not configure debian devs certs.
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-nocerts.patch
@@ -177,6 +188,12 @@ src_prepare() {
 		ewarn "parameter (to params in /etc/boot.conf, and re-run boot-update.)"
 		echo
 	fi
+	if use custom-cflags; then
+		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
+		if [ -n "$MARCH" ]; then
+			sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
+		fi
+	fi
 	# get config into good state:
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
@@ -202,8 +219,8 @@ src_compile() {
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/out/boot \
 		--disklabel \
-		--lvm \
-		--luks \
+		$(usex lvm --lvm --no-lvm ) \
+		$(usex luks --luks --no-luks ) \
 		--mdadm \
 		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \

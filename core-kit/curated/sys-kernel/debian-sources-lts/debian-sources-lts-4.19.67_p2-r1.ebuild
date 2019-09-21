@@ -291,4 +291,7 @@ pkg_postinst() {
 	if [ -e ${ROOT}lib/modules ]; then
 		depmod -a $DEP_PV
 	fi
+	if [ -e /etc/boot.conf ]; then
+		ego boot update
+	fi
 }

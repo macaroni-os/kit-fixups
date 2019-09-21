@@ -19,9 +19,7 @@ SLOT="5.2"
 KEYWORDS="*"
 IUSE="+deprecated emacs readline static test test-complete"
 
-RDEPEND="readline? ( sys-libs/readline:0= )
-	app-eselect/eselect-lua
-	!dev-lang/lua:0"
+RDEPEND="readline? ( sys-libs/readline:0= )"
 DEPEND="${RDEPEND}
 	sys-devel/libtool"
 PDEPEND="emacs? ( app-emacs/lua-mode )"
@@ -130,7 +128,8 @@ multilib_src_install() {
 		-e "s:^R=.*:R= ${PV}:" \
 		-e "s:/,lib,:/$(get_libdir):g" \
 		"${WORKDIR}/lua.pc"
-
+	dosym "lua${SLOT}.pc" "/usr/$(get_libdir)/pkgconfig/lua-${SLOT}.pc"
+	dosym "lua${SLOT}.pc" "/usr/$(get_libdir)/pkgconfig/lua${SLOT/.}.pc"
 	insinto "/usr/$(get_libdir)/pkgconfig"
 	newins "${WORKDIR}/lua.pc" "lua${SLOT}.pc"
 }
@@ -138,7 +137,6 @@ multilib_src_install() {
 multilib_src_install_all() {
 	dodoc README
 	dohtml doc/*.html doc/*.png doc/*.css doc/*.gif
-
 	newman doc/lua.1 lua${SLOT}.1
 	newman doc/luac.1 luac${SLOT}.1
 }

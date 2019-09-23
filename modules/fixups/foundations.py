@@ -126,7 +126,7 @@ class KitFoundation:
 				{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
 				{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
 				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_current_testkit', 'stability': self.stabilityRating.PRIME},
-				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
+				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': self.stabilityRating.PRIME},
 				{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.32-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.30-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary

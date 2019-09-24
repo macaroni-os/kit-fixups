@@ -15,6 +15,7 @@ declare -A mods
 # place ndk before modules that depend on it.
 
 # Nginx Development Kit (NDK) (https://github.com/simpl/ngx_devel_kit)
+# Must be behind encrypted_session
 mod_a["ndk"]="simpl"
 mod_pn["ndk"]="ngx_devel_kit"
 mod_pv["ndk"]="0.3.1rc1"
@@ -23,6 +24,16 @@ mod_p["ndk"]="${mod_pn["ndk"]}-${mod_pv["ndk"]}"
 mod_uri["ndk"]="https://github.com/${mod_a["ndk"]}/${mod_pn["ndk"]}/archive/v${mod_pv["ndk"]}.tar.gz"
 mod_wd["ndk"]="${WORKDIR}/${mod_p["ndk"]}"
 mod_doc["ndk"]="README.md README_AUTO_LIB"
+
+# Dav Ext (https://github.com/arut/nginx-dav-ext-module)
+mod_a["dav_ext"]="arut"
+mod_pn["dav_ext"]="nginx-dav-ext-module"
+mod_pv["dav_ext"]="3.0.0"
+mod_lic["dav_ext"]="BSD-2"
+mod_p["dav_ext"]="${mod_pn["dav_ext"]}-${mod_pv["dav_ext"]}"
+mod_uri["dav_ext"]="https://github.com/${mod_a["dav_ext"]}/${mod_pn["dav_ext"]}/archive/v${mod_pv["dav_ext"]}.tar.gz"
+mod_wd["dav_ext"]="${WORKDIR}/${mod_p["dav_ext"]}"
+mod_doc["dav_ext"]="README.rst"
 
 # Encrypted Session (https://github.com/openresty/encrypted-session-nginx-module)
 mod_a["encrypted_session"]="openresty"
@@ -182,16 +193,6 @@ mod_p["rtmp"]="${mod_pn["rtmp"]}-${mod_pv["rtmp"]}"
 mod_uri["rtmp"]="https://github.com/${mod_a["rtmp"]}/${mod_pn["rtmp"]}/archive/v${mod_pv["rtmp"]}.tar.gz"
 mod_wd["rtmp"]="${WORKDIR}/${mod_p["rtmp"]}"
 mod_doc["rtmp"]="README.md AUTHORS"
-
-# Dav Ext (https://github.com/arut/nginx-dav-ext-module)
-mod_a["dav_ext"]="arut"
-mod_pn["dav_ext"]="nginx-dav-ext-module"
-mod_pv["dav_ext"]="3.0.0"
-mod_lic["dav_ext"]="BSD-2"
-mod_p["dav_ext"]="${mod_pn["dav_ext"]}-${mod_pv["dav_ext"]}"
-mod_uri["dav_ext"]="https://github.com/${mod_a["dav_ext"]}/${mod_pn["dav_ext"]}/archive/v${mod_pv["dav_ext"]}.tar.gz"
-mod_wd["dav_ext"]="${WORKDIR}/${mod_p["dav_ext"]}"
-mod_doc["dav_ext"]="README.rst"
 
 # Accept Language (https://github.com/giom/nginx_accept_language_module)
 mod_a["accept_language"]="giom"

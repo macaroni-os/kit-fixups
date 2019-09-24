@@ -14,7 +14,7 @@ SRC_URI="https://github.com/hughsie/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="LGPL-2.1+"
 SLOT="0"
 KEYWORDS="amd64 arm x86"
-IUSE="agent colorhug consolekit dell doc elogind +gpg intel-amt +man nvme pkcs7 redfish synaptics systemd test thunderbolt uefi"
+IUSE="agent +colorhug consolekit +dell doc elogind +gpg +intel-amt +man +nvme +pkcs7 +redfish +synaptics systemd test +thunderbolt +uefi"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	^^ ( consolekit elogind systemd )

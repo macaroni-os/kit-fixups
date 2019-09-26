@@ -74,10 +74,11 @@ multilib_src_configure() {
 	ECONF_EXTRAS=""
 	[ $ARCH = "arm64" ] && ECONF_EXTRAS="$ECONF_EXTRAS --with-aarch64"
 	[ $ARCH = "arm" ] && ECONF_EXTRAS="$ECONF_EXTRAS --with-arm"
+	# $(use_enable apparmor) will generate harmless QA notices if apparmor is disabled
 	econf \
 		$ECONF_EXTRAS \
 		--sbindir="${EPREFIX}/sbin" \
-		$(use_enable apparmor) \ # will generate harmless QA notices if apparmor is disabled
+		$(use_enable apparmor) \ 
 		$(use_enable gssapi gssapi-krb5) \
 		$(use_enable static-libs static) \
 		$(use_enable ldap zos-remote) \

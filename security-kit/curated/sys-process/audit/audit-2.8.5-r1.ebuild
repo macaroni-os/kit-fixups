@@ -71,21 +71,19 @@ src_prepare() {
 
 multilib_src_configure() {
 	local ECONF_SOURCE=${S}
-	ECONF_EXTRAS=""
+	ECONF_EXTRAS="--disable-donkey"
 	[ $ARCH = "arm64" ] && ECONF_EXTRAS="$ECONF_EXTRAS --with-aarch64"
 	[ $ARCH = "arm" ] && ECONF_EXTRAS="$ECONF_EXTRAS --with-arm"
-	# $(use_enable apparmor) will generate harmless QA notices if apparmor is disabled
+	use apparmor && ECONF_EXTRAS="$ECONF_EXTRAS --enable-apparmor"
 	econf \
-		$ECONF_EXTRAS \
 		--sbindir="${EPREFIX}/sbin" \
-		$(use_enable apparmor) \ 
 		$(use_enable gssapi gssapi-krb5) \
 		$(use_enable static-libs static) \
 		$(use_enable ldap zos-remote) \
 		$(use_enable systemd ) \
 		--without-python \
 		--without-python3 \
-		
+		$ECONF_EXTRAS
 
 	if multilib_is_native_abi; then
 		python_configure() {

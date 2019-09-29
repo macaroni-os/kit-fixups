@@ -221,8 +221,8 @@ src_compile() {
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/out/boot \
 		--disklabel \
-		--lvm \
-		--luks \
+		$(usex lvm --lvm --no-lvm) \
+		$(usex luks --luks --no-luks) \
 		--mdadm \
 		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \

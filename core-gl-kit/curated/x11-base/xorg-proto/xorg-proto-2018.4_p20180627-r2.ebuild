@@ -6,25 +6,16 @@ inherit meson multilib-minimal
 
 DESCRIPTION="X.Org combined protocol headers"
 HOMEPAGE="https://cgit.freedesktop.org/xorg/proto/xorgproto/"
-if [ "${PV}" = "${PV%_p*}" ] ; then
-	SRC_URI="https://xorg.freedesktop.org/archive/individual/proto/xorgproto-${PV}.tar.gz"
-	KEYWORDS="*"
-else
-	inherit git-r3
-	EGIT_REPO_URI="https://anongit.freedesktop.org/git/xorg/proto/xorgproto"
-	PVCD="${PV#*_p}"
-	if [ ${PVCD} -ge 19700101 ] && [ ${PVCD} -lt 30000000 ] ; then # Not y3k compliant, sorry!
-		PVCDY="${PVCD%????}"
-		PVCDMD="${PVCD#????}"
-		PVCDM="${PVCDMD%??}"
-		PVCDD="${PVCDMD#??}"
-		EGIT_COMMIT_DATE="${PVCDY}-${PVCDM}-${PVCDD}"
-		KEYWORDS="*"
-	else
-		# Keyword mask live builds without datestamp.
-		KEYWORDS=""
-	fi
-fi
+
+GITHUB_REPO="xorg-xorgproto"
+GITHUB_USER="freedesktop"
+GITHUB_TAG="af9b5f43439378efd1e12d11d487a71f42790fec"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
 
 LICENSE="GPL-2 MIT"
 SLOT="0"

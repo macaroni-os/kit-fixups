@@ -54,6 +54,10 @@ src_install() {
 }
 
 pkg_postinst() {
+	if [ ! -e $ROOT/etc/boot.conf ]; then
+		einfo "Installing default /etc/boot.conf file..."
+		cp -f $ROOT/etc/boot.conf.dist $ROOT/etc/boot.conf
+	fi
 	if [ -e $ROOT/usr/share/portage/config/repos.conf ]; then
 		rm -f $ROOT/usr/share/portage/config/repos.conf
 	fi

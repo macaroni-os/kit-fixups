@@ -11,6 +11,7 @@ GITHUB_REPO="xorg-xorgproto"
 GITHUB_USER="freedesktop"
 GITHUB_TAG="af9b5f43439378efd1e12d11d487a71f42790fec"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+KEYWORDS="*"
 
 src_unpack() {
 	unpack ${A}

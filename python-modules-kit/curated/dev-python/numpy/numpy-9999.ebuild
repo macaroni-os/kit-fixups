@@ -27,6 +27,7 @@ RDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
 	lapack? ( virtual/cblas virtual/lapack )"
 DEPEND="${RDEPEND}
+	>=dev-python/cython-0.29.13
 	lapack? ( virtual/pkgconfig )
 	test? ( >=dev-python/nose-1.0[${PYTHON_USEDEP}] )"
 
@@ -34,7 +35,7 @@ DEPEND="${RDEPEND}
 DISTUTILS_IN_SOURCE_BUILD=1
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.9.2-no-hardcode-blas.patch
+	"${FILESDIR}"/${PN}-9999-no-hardcode-blas.patch
 )
 
 pc_incdir() {
@@ -124,11 +125,11 @@ python_install() {
 }
 
 python_install_all() {
-	DOCS+=( COMPATIBILITY DEV_README.txt THANKS.txt )
+	DOCS+=( README.md THANKS.txt )
 
 	distutils-r1_python_install_all
 
-	docinto f2py
-	dodoc doc/f2py/*.txt
-	doman doc/f2py/f2py.1
+	#docinto f2py
+	#dodoc doc/f2py/*.txt
+	#doman doc/f2py/f2py.1
 }

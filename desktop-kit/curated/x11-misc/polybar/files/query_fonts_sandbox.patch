@@ -1,0 +1,18 @@
+File polybar-3.4.0/.ipc_in is a fifo while file polybar-3.4.0.new/.ipc_in is a fifo
+File polybar-3.4.0/.ipc_out is a fifo while file polybar-3.4.0.new/.ipc_out is a fifo
+diff -urN polybar-3.4.0/work/polybar-3.4.0/CMakeLists.txt polybar-3.4.0.new/work/polybar-3.4.0/CMakeLists.txt
+--- polybar-3.4.0/work/polybar-3.4.0/CMakeLists.txt	2019-07-24 09:42:04.000000000 -0400
++++ polybar-3.4.0.new/work/polybar-3.4.0/CMakeLists.txt	2019-10-10 17:31:28.372610609 -0400
+@@ -83,9 +83,9 @@
+ set(FONT_UNIFONT "unifont:fontformat=truetype")
+ set(FONT_SIJI "siji:pixelsize=10")
+ 
+-queryfont(FONT_FIXED ${FONT_FIXED} FIELDS family pixelsize)
+-queryfont(FONT_UNIFONT ${FONT_UNIFONT} FIELDS family fontformat)
+-queryfont(FONT_SIJI ${FONT_SIJI} FIELDS family pixelsize)
++#queryfont(FONT_FIXED ${FONT_FIXED} FIELDS family pixelsize)
++#queryfont(FONT_UNIFONT ${FONT_UNIFONT} FIELDS family fontformat)
++#queryfont(FONT_SIJI ${FONT_SIJI} FIELDS family pixelsize)
+ 
+ # Strip disabled modules {{{
+ 

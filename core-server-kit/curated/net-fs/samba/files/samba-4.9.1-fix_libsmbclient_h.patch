@@ -1,0 +1,11 @@
+diff -Naur a/source3/include/libsmbclient.h b/source3/include/libsmbclient.h
+--- a/source3/include/libsmbclient.h	2018-07-12 09:23:36.000000000 +0100
++++ b/source3/include/libsmbclient.h	2018-09-26 10:38:41.504132564 +0100
+@@ -79,6 +79,7 @@
+ #include <stdint.h>
+ #include <fcntl.h>
+ #include <utime.h>
++#include <time.h>
+ 
+ #define SMBC_BASE_FD        10000 /* smallest file descriptor returned */
+ 

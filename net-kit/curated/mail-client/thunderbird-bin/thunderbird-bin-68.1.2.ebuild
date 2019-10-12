@@ -170,11 +170,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	ewarn ">=mail-client/thunderbird-bin-68.0 no longer supports \"legacy\""
-	ewarn "extensions (i.e. overlay and bootstrap extensions).  If you are"
-	ewarn "using a legacy extension, then it will automatically be disabled"
-	ewarn "when Thunderbird 68 runs."
-
 	xdg_desktop_database_update
 	xdg_icon_cache_update
 

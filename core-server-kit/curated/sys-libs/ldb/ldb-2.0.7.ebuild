@@ -9,7 +9,7 @@ HOMEPAGE="https://ldb.samba.org"
 SRC_URI="https://www.samba.org/ftp/pub/${PN}/${P}.tar.gz"
 LICENSE="LGPL-3"
 SLOT="0/${PV}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="*"
 IUSE="doc +ldap +lmdb +python"
 RDEPEND="
 	!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )

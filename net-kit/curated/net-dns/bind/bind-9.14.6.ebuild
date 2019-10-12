@@ -36,9 +36,9 @@ SRC_URI="https://downloads.isc.org/isc/bind9/${PV}/${P}.tar.gz
 
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="*"
 # -berkdb by default re bug 602682
-IUSE="-berkdb +caps dlz dnstap doc dnsrps fixed-rrset geoip gost gssapi idn ipv6
+IUSE="+berkdb +caps +dlz dnstap doc dnsrps fixed-rrset geoip gost gssapi idn ipv6
 json ldap libidn2 libressl lmdb mysql odbc postgres python rpz seccomp selinux ssl static-libs
 +threads urandom xml +zlib"
 # sdb-ldap - patch broken

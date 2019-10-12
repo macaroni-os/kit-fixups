@@ -36,9 +36,8 @@ doc? ( mirror://gentoo/dyndns-samples.tbz2 )"
 
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-# -berkdb by default re bug 602682
-IUSE="-berkdb +caps dlz dnstap doc dnsrps fixed-rrset geoip gssapi json ldap libressl lmdb mysql odbc postgres python selinux ssl static-libs urandom xml +zlib pthread"
+KEYWORDS=""
+IUSE="+berkdb +caps +dlz dnstap doc dnsrps fixed-rrset geoip gssapi json ldap libressl lmdb mysql odbc postgres python selinux ssl static-libs urandom xml +zlib pthread"
 # sdb-ldap - patch broken
 # no PKCS11 currently as it requires OpenSSL to be patched, also see bug 409687
 

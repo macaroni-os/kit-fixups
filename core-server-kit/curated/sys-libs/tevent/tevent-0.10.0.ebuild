@@ -9,7 +9,7 @@ HOMEPAGE="https://tevent.samba.org/"
 SRC_URI="https://www.samba.org/ftp/tevent/${P}.tar.gz"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd ~x86-linux"
+KEYWORDS="*"
 IUSE="elibc_glibc python"
 
 RDEPEND="!elibc_FreeBSD? ( dev-libs/libbsd[${MULTILIB_USEDEP}] )

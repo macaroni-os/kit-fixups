@@ -33,6 +33,7 @@ DEPEND="
 		dev-libs/libpcre
 		pcre-jit? ( dev-libs/libpcre[jit] )
 	)
+	tools? ( dev-libs/libevent )
 	pcre2? (
 		dev-libs/libpcre
 		pcre2-jit? ( dev-libs/libpcre2[jit] )

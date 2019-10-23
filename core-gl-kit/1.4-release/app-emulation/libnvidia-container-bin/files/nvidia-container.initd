@@ -5,7 +5,8 @@ name="nvidia-container setup"
 description="This script performs initialization of NVIDIA container stuff for lxd."
 
 depend() {
-	need lxd
+	use lxd
+	use docker
 }
 
 start() {

@@ -125,7 +125,7 @@ class KitFoundation:
 				{'name': 'core-hw-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
 				{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
 				{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
-				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_current_testkit', 'stability': self.stabilityRating.PRIME},
+				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': self.stabilityRating.PRIME},
 				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': self.stabilityRating.PRIME},
 				{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.32-prime', 'stability': self.stabilityRating.PRIME, "type": self.kitType.INDEPENDENTLY_MAINTAINED},  # primary
@@ -233,10 +233,6 @@ class KitFoundation:
 			{"repo": "flora"},
 			{"repo": "faustoo"},
 			{"repo": "fusion809"},
-			{"repo": "gentoo-staging"}
-		],
-		"funtoo_current_testkit" : [
-			{"repo": "core-gl-testkit", "is_fixup": True, "branch": "201906"},
 			{"repo": "gentoo-staging"}
 		],
 		"funtoo_mk2_prime": [
@@ -359,9 +355,5 @@ class KitFoundation:
 			"flora": {"url": self.config.flora, "copyfiles": {
 				"licenses/renoise-EULA": "licenses/renoise-EULA"
 			}},
-			"core-gl-testkit": {
-				"url": "ssh://git@code.funtoo.org:7999/~drobbins/core-gl-testkit.git",
-				"reclone": True,
-			}
 		}
 

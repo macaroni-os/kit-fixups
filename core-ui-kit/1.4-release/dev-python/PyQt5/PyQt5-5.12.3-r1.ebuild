@@ -107,6 +107,8 @@ pyqt_use_enable() {
 	fi
 }
 
+PATCHES=( "${FILESDIR}"/PyQt5-5.12.3-python2-crash-fix.patch )
+
 src_configure() {
 	configuration() {
 		local myconf=(

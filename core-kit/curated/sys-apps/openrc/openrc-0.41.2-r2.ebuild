@@ -164,7 +164,7 @@ src_install() {
 	exeinto /etc/init.d
 	newexe "$FILESDIR/hostname-r1" hostname
 	doexe "$FILESDIR/loopback"
-	doexe "$FILESDIR/net-online-r1"
+	newexe "$FILESDIR/net-online-r1" net-online
 
 	insinto /etc/conf.d
 	newins "$FILESDIR/hostname.confd" hostname

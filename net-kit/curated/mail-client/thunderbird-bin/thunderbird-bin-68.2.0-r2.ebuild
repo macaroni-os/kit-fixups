@@ -147,11 +147,8 @@ src_install() {
 		mozlinguas_src_install
 
 	# Create /usr/bin/thunderbird-bin
-	local apulselib=$(usex pulseaudio "/usr/$(get_libdir)/apulse:" "")
 	newbin - thunderbird-bin <<- _EOF_
 		#!/bin/sh
-		unset LD_PRELOAD
-		LD_LIBRARY_PATH="${apulselib}${MOZILLA_FIVE_HOME}" \\
 		exec ${MOZILLA_FIVE_HOME}/thunderbird "\$@"
 	_EOF_
 

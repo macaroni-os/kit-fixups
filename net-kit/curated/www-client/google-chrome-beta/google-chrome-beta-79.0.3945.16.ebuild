@@ -43,7 +43,6 @@ RDEPEND="
 	media-libs/fontconfig
 	media-libs/freetype:2
 	net-print/cups
-	selinux? ( sec-policy/selinux-chromium )
 	sys-apps/dbus
 	sys-libs/libcap
 	x11-libs/cairo
@@ -63,6 +62,7 @@ RDEPEND="
 	x11-libs/libxcb
 	x11-libs/pango
 	x11-misc/xdg-utils
+	selinux? ( sec-policy/selinux-chromium )
 "
 
 QA_PREBUILT="*"
@@ -111,7 +111,7 @@ src_install() {
 	[[ ${PN} == google-chrome-unstable ]] && suffix=_dev
 
 	local size
-	for size in 16 22 24 32 48 64 128 256 ; do
+	for size in 16 24 32 48 64 128 256 ; do
 		newicon -s ${size} "${CHROME_HOME}/product_logo_${size}${suffix}.png" ${PN}.png
 	done
 

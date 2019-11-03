@@ -18,7 +18,7 @@ IUSE="nls upower"
 COMMON_DEPEND="
 	dev-libs/glib:2
 	dev-libs/dbus-glib
-	dev-libs/libgee:0
+	dev-libs/libgee
 	dev-libs/libunique:1
 	lxde-base/lxde-common
 	sys-auth/polkit

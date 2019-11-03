@@ -24,7 +24,7 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="gtk3"
+IUSE="+gtk3"
 
 RDEPEND="dev-libs/glib:2
 	!gtk3? ( x11-libs/gtk+:2 x11-libs/vte:0 )

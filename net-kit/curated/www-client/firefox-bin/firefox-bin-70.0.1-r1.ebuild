@@ -135,9 +135,6 @@ src_install() {
 	local apulselib=$(usex pulseaudio "/usr/$(get_libdir)/apulse:" "")
 	cat <<-EOF >"${ED}"usr/bin/${PN}
 	#!/bin/sh
-	unset LD_PRELOAD
-	LD_LIBRARY_PATH="${apulselib}/opt/firefox/" \\
-	GTK_PATH=/usr/$(get_libdir)/gtk-3.0/ \\
 	exec /opt/${MOZ_PN}/${MOZ_PN} "\$@"
 	EOF
 	fperms 0755 /usr/bin/${PN}

@@ -76,7 +76,9 @@ LANG="en_US.UTF-8"
 LC_COLLATE="POSIX"
 EOF
 	insinto /etc
-	newins ${FILESDIR}/profile-2.6.1 profile || die
+	newins ${FILESDIR}/profile-2.6.1-r1 profile || die
+	insinto /usr/share/baselayout
+	doins ${FILESDIR}/fstab
 }
 
 pkg_postinst() {

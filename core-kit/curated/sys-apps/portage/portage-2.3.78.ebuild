@@ -36,6 +36,7 @@ DEPEND="!build? ( $(python_gen_impl_dep 'ssl(+)') )
 # app-portage/gemato goes without PYTHON_USEDEP since we're calling
 # the executable.
 RDEPEND="
+	!app-portage/gentoolkit
 	>=app-arch/tar-1.27
 	dev-lang/python-exec:2
 	!build? (
@@ -96,7 +97,7 @@ pkg_pretend() {
 
 GITHUB_REPO="$PN-gentoo"
 GITHUB_USER="funtoo"
-GITHUB_TAG="ca54f0612ecd8ecd7a885c017d74b785eceffb81"
+GITHUB_TAG="bac24951adfacbc87bcbf22a4724f1dc7ca52f2b"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 src_unpack() {

@@ -12,9 +12,9 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="5.3.9"
-DEB_EXTRAVERSION="-1"
-EXTRAVERSION="_p1"
+DEB_PV_BASE="4.19.67"
+DEB_EXTRAVERSION="-2+deb10u2~bpo9+1"
+EXTRAVERSION="_p2"
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -140,7 +140,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-ikconfig.patch
 
 	## increase bluetooth polling patch
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-fix-bluetooth-polling.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-4.19.67-fix-bluetooth-polling.patch
 
 	local arch featureset subarch
 	featureset="standard"
@@ -195,8 +195,6 @@ src_prepare() {
 		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 		if [ -n "$MARCH" ]; then
 			sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
-		else
-			die "Was unable to grab your -march setting from your Funtoo profile."
 		fi
 	fi
 	# get config into good state:
@@ -224,8 +222,8 @@ src_compile() {
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/out/boot \
 		--disklabel \
-		--lvm \
-		--luks \
+		$(usex lvm --lvm --no-lvm ) \
+		$(usex luks --luks --no-luks ) \
 		--mdadm \
 		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \

@@ -16,7 +16,7 @@ DESCRIPTION="Portage is the package management and distribution system for Gento
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Portage"
 
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 SLOT="0"
 IUSE="build doc epydoc gentoo-dev +ipc +native-extensions -rsync-verify selinux xattr"
 

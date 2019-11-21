@@ -13,8 +13,8 @@ SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
 DEB_PV_BASE="5.3.9"
-DEB_EXTRAVERSION="-2"
-EXTRAVERSION="_p2"
+DEB_EXTRAVERSION="-3"
+EXTRAVERSION="_p3"
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -27,7 +27,7 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
@@ -195,8 +195,6 @@ src_prepare() {
 		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 		if [ -n "$MARCH" ]; then
 			sed -i -e 's/-mtune=generic/$MARCH/g' arch/x86/Makefile || die "Canna optimize this kernel anymore, captain!"
-		else
-			die "Was unable to grab your -march setting from your Funtoo profile."
 		fi
 	fi
 	# get config into good state:
@@ -224,8 +222,8 @@ src_compile() {
 		--logfile="${WORKDIR}"/genkernel.log \
 		--bootdir="${WORKDIR}"/out/boot \
 		--disklabel \
-		--lvm \
-		--luks \
+		$(usex lvm --lvm --no-lvm ) \
+		$(usex luks --luks --no-luks ) \
 		--mdadm \
 		$(usex btrfs --btrfs --no-btrfs) \
 		$(usex zfs --zfs --no-zfs) \

@@ -10,7 +10,7 @@ LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
 
-IUSE="+daemon +ipv6 +dnsmasq nls test tools"
+IUSE="+daemon +ipv6 +dnsmasq +apparmor nls test tools"
 
 inherit autotools bash-completion-r1 linux-info systemd user
 
@@ -30,6 +30,10 @@ DEPEND="
 "
 
 RDEPEND="
+	apparmor? (
+		sys-apps/apparmor
+		sys-apps/apparmor-utils
+	)
 	daemon? (
 		app-arch/xz-utils
 		>=app-emulation/lxc-2.0.7[seccomp]
@@ -218,7 +222,6 @@ pkg_postinst() {
 	elog
 	elog "Though not strictly required, some features are enabled at run-time"
 	elog "when the relevant helper programs are detected:"
-	elog "- sys-apps/apparmor"
 	elog "- sys-fs/btrfs-progs"
 	elog "- sys-fs/lvm2"
 	elog "- sys-fs/zfs"

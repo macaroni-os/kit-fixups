@@ -5,7 +5,7 @@ EAPI=7
 PYTHON_COMPAT=( python2_7 )
 inherit eutils user unpacker pax-utils python-single-r1
 
-COMMIT="36236cc4c"
+COMMIT="e67a4e892"
 
 _APPNAME="plexmediaserver"
 _USERNAME="plex"
@@ -109,6 +109,9 @@ src_install() {
 	# Plex has its own precompiled libraries.
 	_mask_plex_libraries_revdep
 
+# Fix RPATH
+        patchelf --force-rpath --set-rpath '$ORIGIN:$ORIGIN/../../../../../../lib' "${ED%/}"/usr/lib/plexmediaserver/Resources/Python/lib/python2.7/lib-dynload/_codecs_kr.so || die
+
 	einfo "Configuring virtualenv"
 	virtualenv -v --no-pip --no-setuptools --no-wheel "${ED}"usr/lib/plexmediaserver/Resources/Python || die
 	pushd "${ED}"usr/lib/plexmediaserver/Resources/Python &>/dev/null || die
@@ -128,4 +131,5 @@ _mask_plex_libraries_revdep() {
 	dodir /etc/revdep-rebuild/
 	echo "SEARCH_DIRS_MASK=\"${EPREFIX}/usr/$(get_libdir)/plexmediaserver\"" > "${ED}"/etc/revdep-rebuild/80plexmediaserver
 }
+
 

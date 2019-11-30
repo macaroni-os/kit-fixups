@@ -31,7 +31,7 @@ IUSE="system-openssl avahi"
 
 DEPEND="
 	dev-python/virtualenv[${PYTHON_USEDEP}]
-        dev-util/patchelf"
+    dev-util/patchelf"
 
 RDEPEND="
 	avahi? ( net-dns/avahi )

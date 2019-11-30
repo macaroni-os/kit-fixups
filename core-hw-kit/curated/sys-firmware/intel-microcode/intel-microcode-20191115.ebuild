@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files ht
 
 LICENSE="intel-ucode"
 SLOT="0"
-KEYWORDS="-*"
+KEYWORDS="-* amd64 x86"
 IUSE="+split-ucode +vanilla"
 DEPEND="sys-apps/iucode_tool"
 

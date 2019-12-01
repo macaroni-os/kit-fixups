@@ -114,8 +114,8 @@ src_install() {
         patchelf --force-rpath --set-rpath '$ORIGIN:$ORIGIN/../../../../../../lib' "${ED%/}"/usr/lib/plexmediaserver/Resources/Python/lib/python2.7/lib-dynload/_codecs_kr.so || die
 
 	einfo "Configuring virtualenv"
-	virtualenv -v --no-pip --no-setuptools --no-wheel "${ED}"usr/lib/plexmediaserver/Resources/Python || die
-	pushd "${ED}"usr/lib/plexmediaserver/Resources/Python &>/dev/null || die
+	virtualenv -v --no-pip --no-setuptools --no-wheel "${ED}"/usr/lib/plexmediaserver/Resources/Python || die
+	pushd "${ED}"/usr/lib/plexmediaserver/Resources/Python &>/dev/null || die
 	find . -type f -exec sed -i -e "s#${D}##g" {} + || die
 	popd &>/dev/null || die
 }

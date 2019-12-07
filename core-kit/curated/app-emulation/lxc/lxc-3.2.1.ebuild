@@ -29,7 +29,7 @@ RDEPEND="${RDEPEND}
 	app-misc/pax-utils
 	virtual/awk"
 
-PDEPEND="templates? ( =app-emulation/lxc-templates-${PV}* )
+PDEPEND="templates? ( =app-emulation/lxc-templates-3.0.4* )
 	python? ( =dev-python/python3-lxc-3.0.4* )"
 
 CONFIG_CHECK="~CGROUPS ~CGROUP_DEVICE

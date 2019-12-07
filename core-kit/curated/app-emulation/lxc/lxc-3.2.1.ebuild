@@ -30,7 +30,7 @@ RDEPEND="${RDEPEND}
 	virtual/awk"
 
 PDEPEND="templates? ( =app-emulation/lxc-templates-${PV}* )
-	python? ( =dev-python/python3-lxc-${PV}* )"
+	python? ( =dev-python/python3-lxc-3.0.4* )"
 
 CONFIG_CHECK="~CGROUPS ~CGROUP_DEVICE
 	~CPUSETS ~CGROUP_CPUACCT

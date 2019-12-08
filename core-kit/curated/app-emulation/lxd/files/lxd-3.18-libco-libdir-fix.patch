@@ -1,0 +1,12 @@
+diff -urN lxd/_dist/deps/libco/Makefile lxd-fixed/_dist/deps/libco/Makefile
+--- lxd/_dist/deps/libco/Makefile	2019-10-02 16:36:59.000000000 -0000
++++ lxd-fixed/_dist/deps/libco/Makefile	2019-12-08 04:03:58.992811405 -0000
+@@ -3,7 +3,7 @@
+ DESTDIR ?=
+ PREFIX ?= /usr
+ INCLUDEDIR ?= include
+-LIBDIR ?= lib
++LIBDIR ?= lib/lxd
+ MAJ = 0
+ MIN = 0.1.0
+ 

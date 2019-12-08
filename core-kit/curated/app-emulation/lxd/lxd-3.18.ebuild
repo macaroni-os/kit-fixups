@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -17,10 +16,16 @@ inherit autotools bash-completion-r1 linux-info systemd user
 
 SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
 
+COMMON_DEPEND="
+	>=sys-libs/libseccomp-2.4.2
+	dev-libs/libuv
+	>=app-emulation/lxc-2.0.7[seccomp]
+"
+
 DEPEND="
+	$COMMON_DEPEND
 	dev-lang/tcl
 	>=dev-lang/go-1.9.4
-	dev-libs/libuv
 	dev-libs/protobuf
 	nls? ( sys-devel/gettext )
 	test? (
@@ -33,13 +38,12 @@ DEPEND="
 # Note: would make sense to add a PDEPEND for apparmor-utils to sys-apps/apparmor.
 
 RDEPEND="
+	$COMMON_DEPEND
 	apparmor? (
 		sys-apps/apparmor
 		sys-apps/apparmor-utils
 	)
 	app-arch/xz-utils
-	>=app-emulation/lxc-2.0.7[seccomp]
-	dev-libs/libuv
 	dev-libs/lzo
 	dev-util/xdelta:3
 	dnsmasq? (

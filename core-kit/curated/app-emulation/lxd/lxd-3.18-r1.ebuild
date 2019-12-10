@@ -9,7 +9,7 @@ LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
 KEYWORDS=""
 
-IUSE="apparmor +ipv6 +dnsmasq nls tools"
+IUSE="apparmor +ipv6 +dnsmasq nls"
 
 inherit autotools bash-completion-r1 linux-info systemd user
 
@@ -149,7 +149,6 @@ src_compile() {
 
 src_install() {
 	local bindir="${WORKDIR}/go/bin"
-	dobin ${bindir}/lxc
 
 	cd "${GOPATH}/deps/sqlite" || die "Can't cd to sqlite dir"
 	emake DESTDIR="${D}" libdir=/usr/lib/lxd install
@@ -158,10 +157,15 @@ src_install() {
 	emake DESTDIR="${D}" libdir=/usr/lib/lxd install
 
 	cd "${GOPATH}/deps/libco" || die "Can't cd to libco dir"
-	emake DESTDIR="${D}" LIBDIR=/usr/lib/lxd install
+	emake DESTDIR="${D}" LIBDIR=lib/lxd install
 
 	cd "${GOPATH}/deps/dqlite" || die "Can't cd to dqlite dir"
 	emake DESTDIR="${D}" libdir=/usr/lib/lxd install
+
+	# We only need the shared libraries, and nothing else will be linking against these:
+
+	rm -rf ${D}/usr/lib/lxd/pkgconfig
+	rm -rf ${D}/usr/lib/lxd/*.a
 
 	# Must only install libs
 	rm "${D}/usr/bin/sqlite3" || die "Can't remove custom sqlite3 binary"
@@ -170,9 +174,7 @@ src_install() {
 	cd "${S}" || die "Can't cd to \${S}"
 	dosbin ${bindir}/lxd
 
-	if use tools; then
-		dobin ${bindir}/*
-	fi
+	dobin ${bindir}/*
 
 	if use nls; then
 		domo po/*.mo

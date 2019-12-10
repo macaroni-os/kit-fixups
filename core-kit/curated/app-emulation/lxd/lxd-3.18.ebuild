@@ -9,8 +9,7 @@ LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
 KEYWORDS=""
 
-IUSE="apparmor +ipv6 +dnsmasq nls test tools"
-RESTRICT="!test? ( test )"
+IUSE="apparmor +ipv6 +dnsmasq nls tools"
 
 inherit autotools bash-completion-r1 linux-info systemd user
 
@@ -28,11 +27,6 @@ DEPEND="
 	>=dev-lang/go-1.9.4
 	dev-libs/protobuf
 	nls? ( sys-devel/gettext )
-	test? (
-		app-misc/jq
-		net-misc/curl
-		sys-devel/gettext
-	)
 "
 
 # Note: would make sense to add a PDEPEND for apparmor-utils to sys-apps/apparmor.
@@ -104,15 +98,37 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${A}
-	install -d ${WORKDIR}/go/src/github.com/lxc/
-	mv ${WORKDIR}/${P} ${WORKDIR}/go/src/github.com/lxc/lxd
+	install -d ${GOPATH}
+
+	# lxd ships a _dist directory which contains a full snapshot of all sources, organized in a GOPATH.
+	# If we set up _dist correctly and use it to build, the Makefile doesn't use go get and git clone to
+	# grab stuff over the network. But if we don't use _dist, the Makefile will try to grab stuff over
+	# the network during the build. We don't want this, and this is a sign that we are not using _dist
+	# correctly since we want to use the distributed sources, not live sources.
+
+	# However, the lxd source tarball and its _dist subdirectory is set up kind of strangely.
+	# Inside _dist, src/github.com/lxc/lxd is a symlink to the main source code directory. This is weird.
+	# Let's configure a real GOPATH directory structure before starting the build. This makes the build
+	# more straightforward and hopefully more maintainable and easier to troubleshoot.
+
+	rm ${WORKDIR}/${P}/_dist/src/github.com/lxc/lxd
+	mv ${WORKDIR}/${P}/_dist/* ${GOPATH}/
+	mv ${WORKDIR}/${P} ${S}
 }
 
 src_prepare() {
 	eapply_user
-	eapply "${FILESDIR}/de-translation-newline-2.patch"
+	cd ${S} && eapply "${FILESDIR}/de-translation-newline-2.patch"
+
+	# We put the libraries that lxd uses in /usr/lib/lxd, since the sqlite library conflicts with the
+	# official one in Funtoo. LDFLAGS are tweaked during build to allow the binaries to find the lxd
+	# versions of the libraries even though they aren't in the official system library path.
+
 	einfo "Tweaking Makefile to put libraries in /usr/lib/lxd ..."
-	sed -i -e "s:\./configure:./configure --prefix=/usr --libdir=${EPREFIX}/usr/lib/lxd:g" -e "s:make:make ${MAKEOPTS}:g" Makefile || die
+	sed -i \
+		-e "s:\./configure:./configure --prefix=/usr --libdir=${EPREFIX}/usr/lib/lxd:g" \
+		-e "s:make:make ${MAKEOPTS}:g" \
+		${S}/Makefile || die
 	einfo "Fixing libco library install path to be /usr/lib/lxd ..."
 }
 

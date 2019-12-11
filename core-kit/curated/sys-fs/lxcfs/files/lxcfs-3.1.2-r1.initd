@@ -14,9 +14,8 @@ start() {
 			--exec ${DAEMON} \
 			--background \
 			--make-pidfile \
-			-- \
-			-o allow_other,nonempty /var/lib/lxcfs \
-			-- $DAEMON $LXCFS_OPTS
+			-- $LXCFS_OPTS \
+			/var/lib/lxcfs
 	eend $?
 }
 

@@ -41,7 +41,7 @@ src_test() {
 
 src_install() {
 	default
-	newinitd "${FILESDIR}"/lxcfs-3.1.2.initd lxcfs
-	newconfd "${FILESDIR}"/lxcfs-3.1.2.confd lxcfs
+	newinitd "${FILESDIR}"/lxcfs-3.1.2-r1.initd lxcfs
+	newconfd "${FILESDIR}"/lxcfs-3.1.2-r1.confd lxcfs
 	systemd_dounit config/init/systemd/lxcfs.service
 }

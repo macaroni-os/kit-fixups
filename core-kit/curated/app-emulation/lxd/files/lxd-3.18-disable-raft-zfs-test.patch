@@ -1,0 +1,17 @@
+--- /deps/raft/configure.ac	2019-10-02 10:36:59.000000000 -0600
++++ /deps/raft/configure.ac	2019-12-11 00:05:48.888929044 -0700
+@@ -43,13 +43,7 @@
+ # Checks for header files.
+ AC_CHECK_HEADERS([stdlib.h string.h stdio.h assert.h unistd.h])
+ 
+-# Check if zfs is available (for enabling zfs-related tests).
+-AC_CHECK_PROG(have_zfs, zfs, yes)
+-AS_IF([test x"$have_zfs" = x"yes"],
+-   [AX_COMPARE_VERSION($(zfs version | cut -f 2 -d - | head -1), [ge], [0.8.0],
+-       [AC_DEFINE(RAFT_HAVE_ZFS_WITH_DIRECT_IO)], [])
+-   ],
+-   [])
++AC_DEFINE(RAFT_HAVE_ZFS_WITH_DIRECT_IO)
+ 
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_TYPE_SIZE_T

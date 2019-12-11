@@ -118,7 +118,8 @@ src_unpack() {
 
 src_prepare() {
 	eapply_user
-	cd ${S} && eapply "${FILESDIR}/de-translation-newline-2.patch"
+	cd ${S} && eapply "${FILESDIR}/lxd-3.18-de-translation-newline.patch"
+	cd ${GOPATH} && eapply "${FILESDIR}/lxd-3.18-disable-raft-zfs-test.patch"
 
 	# We put the libraries that lxd uses in /usr/lib/lxd, since the sqlite library conflicts with the
 	# official one in Funtoo. LDFLAGS are tweaked during build to allow the binaries to find the lxd

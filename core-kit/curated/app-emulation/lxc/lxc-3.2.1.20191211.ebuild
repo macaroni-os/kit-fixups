@@ -117,7 +117,6 @@ src_configure() {
 		--with-rootfs-path=/var/lib/lxc/rootfs
 		--with-distro=gentoo
 		--with-runtime-path=/run
-		--disable-apparmor
 		--disable-werror
 		--enable-doc
 		$(use_enable apparmor)
@@ -132,6 +131,10 @@ src_configure() {
 
 src_install() {
 	default
+
+	if use apparmor; then
+		keepdir /etc/apparmor.d/tunables/global
+	fi
 
 	mv "${ED}"/usr/share/bash-completion/completions/${PN} "${ED}"/$(get_bashcompdir)/${PN}-start || die
 	bashcomp_alias ${PN}-start \

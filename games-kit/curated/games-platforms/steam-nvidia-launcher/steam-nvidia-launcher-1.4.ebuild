@@ -5,7 +5,7 @@ EAPI=7
 DESCRIPTION="Funtoo's Docker-based Steam environment for NVIDIA systems."
 HOMEPAGE="https://www.funtoo.org/Steam"
 
-LICENSE="GPLv2"
+LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="amd64"
 

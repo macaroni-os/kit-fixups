@@ -3,6 +3,8 @@
 
 EAPI=7
 
+WANT_AUTOMAKE="1.15"
+
 inherit autotools linux-info pam toolchain-funcs user
 
 DESCRIPTION="A full-featured web proxy cache"
@@ -28,6 +30,7 @@ IUSE="caps gnutls ipv6 pam ldap libressl samba sasl kerberos nis radius ssl snmp
 	+htcp +wccp +wccpv2 \
 	pf-transparent ipf-transparent kqueue \
 	elibc_uclibc kernel_linux"
+RESTRICT="!test? ( test )"
 
 BDEPEND="dev-lang/perl"
 

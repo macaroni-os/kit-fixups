@@ -16,7 +16,7 @@ SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_T
 
 RDEPEND="
 	app-emulation/nvidia-docker
-	app-emulation/nvidia-container"
+	app-emulation/nvidia-container-runtime"
 
 src_unpack() {
 	unpack ${A}

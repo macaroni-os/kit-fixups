@@ -10,7 +10,7 @@ inherit autotools eapi7-ver ssl-cert systemd user
 MY_P="${P/_/.}"
 #MY_S="${PN}-ce-${PV}"
 major_minor="$(ver_cut 1-2)"
-sieve_version="0.5.6"
+sieve_version="0.5.9"
 if [[ ${PV} == *_rc* ]] ; then
 	rc_dir="rc/"
 else
@@ -52,6 +52,7 @@ DEPEND="argon2? ( dev-libs/libsodium )
 	solr? ( net-misc/curl dev-libs/expat )
 	sqlite? ( dev-db/sqlite:* )
 	!libressl? ( dev-libs/openssl:0 )
+	suid? ( acct-group/mail )
 	libressl? ( dev-libs/libressl )
 	tcpd? ( sys-apps/tcp-wrappers )
 	textcat? ( app-text/libexttextcat )
@@ -62,10 +63,6 @@ DEPEND="argon2? ( dev-libs/libsodium )
 
 RDEPEND="${DEPEND}
 	net-mail/mailbase"
-
-PATCHES=(
-	"${FILESDIR}/${PN}-userdb-passwd-fix.patch"
-)
 
 pkg_setup() {
 	if use managesieve && ! use sieve; then

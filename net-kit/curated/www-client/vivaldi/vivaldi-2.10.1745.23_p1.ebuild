@@ -3,10 +3,10 @@
 
 EAPI=7
 CHROMIUM_LANGS="
-	am ar be bg bn ca cs da de el en-GB en-US eo es es-419 es-PE et eu fa fi
-	fil fr fy gl gu he hi hr hu hy id io is it ja jbo ka kn ko ku lt lv mk ml
-	mr ms nb nl nn pl pt-BR pt-PT ro ru sc sk sl sq sr sv sw ta te th tr uk vi
-	zh-CN zh-TW
+	af am ar be bg bn ca cs da de de-CH el en-GB en-US eo es es-419 es-PE et eu
+	fa fi fil fr fy gd gl gu he hi hr hu hy id io is it ja jbo ka kn ko ku lt
+	lv mk ml mr ms nb nl nn pl pt-BR pt-PT ro ru sc sk sl sq sr sv sw ta te th
+	tr uk vi zh-CN zh-TW
 "
 inherit chromium-2 multilib unpacker toolchain-funcs xdg-utils
 
@@ -20,13 +20,14 @@ HOMEPAGE="https://vivaldi.com/"
 VIVALDI_BASE_URI="https://downloads.${PN}.com/${VIVALDI_BRANCH:-stable}/${VIVALDI_PN}_${PV/_p/-}_"
 SRC_URI="
 	amd64? ( ${VIVALDI_BASE_URI}amd64.deb -> ${P}-amd64.deb )
+	arm64? ( ${VIVALDI_BASE_URI}arm64.deb -> ${P}-arm64.deb )
 	arm? ( ${VIVALDI_BASE_URI}armhf.deb -> ${P}-armhf.deb )
 	x86? ( ${VIVALDI_BASE_URI}i386.deb -> ${P}-i386.deb )
 "
 
 LICENSE="Vivaldi"
 SLOT="0"
-KEYWORDS="-* amd64 ~arm x86"
+KEYWORDS="-* amd64 ~arm ~arm64 x86"
 RESTRICT="bindist mirror"
 
 DEPEND="
@@ -84,7 +85,6 @@ src_prepare() {
 	rm \
 		_gpgbuilder \
 		etc/cron.daily/${VIVALDI_BIN} \
-		${VIVALDI_HOME}/libwidevinecdm.so \
 		|| die
 	rmdir \
 		etc/cron.daily/ \

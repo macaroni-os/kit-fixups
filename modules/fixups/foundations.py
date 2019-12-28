@@ -126,7 +126,7 @@ class KitFoundation:
 				{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
-				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
+				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4_bump', 'stability': KitStabilityRating.PRIME},
 				{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.34-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 				{'name': 'gnome-kit', 'branch': '3.34.2-testing', 'stability': KitStabilityRating.DEV, "type": KitType.INDEPENDENTLY_MAINTAINED},
@@ -294,7 +294,14 @@ class KitFoundation:
 			{"repo": "fusion809", },
 			{"repo": "deadbeef", },
 			{"repo": "gentoo-staging", 'src_sha1': '9292583023a6610905c79a4707db3ac6c63b3a31', 'date': '21 Jun 2019'}
-		]
+		],
+		"funtoo_release_1.4_bump": [
+			{"repo": "flora", },
+			{"repo": "faustoo", },
+			{"repo": "fusion809", },
+			{"repo": "deadbeef", },
+			{"repo": "gentoo-staging", 'src_sha1': 'a40e31d83f4be169ca3d3dc362e2a0d880a30c40', 'date': '21 Dec 2019'}
+		],
 	}
 
 	# OVERLAYS - lists sources for catpkgs, along with properties which can include "select" - a list of catpkgs to

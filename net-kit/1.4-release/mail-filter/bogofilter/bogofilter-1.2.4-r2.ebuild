@@ -1,9 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
-inherit autotools db-use flag-o-matic toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="Bayesian spam filter designed with fast algorithms, and tuned for speed"
 HOMEPAGE="http://bogofilter.sourceforge.net/"
@@ -11,43 +10,25 @@ SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 ~hppa ia64 ppc ppc64 ~sh ~sparc x86 ~x86-fbsd"
-IUSE="berkdb sqlite tokyocabinet"
+KEYWORDS="*"
+IUSE="+berkdb sqlite tokyocabinet"
+REQUIRED_USE="^^ ( berkdb sqlite tokyocabinet )"
 
 # pax needed for bf_tar
 DEPEND="
 	app-arch/pax
 	sci-libs/gsl:=
 	virtual/libiconv
-	berkdb?  ( >=sys-libs/db-3.2:* )
-	!berkdb? (
-		sqlite?  ( >=dev-db/sqlite-3.6.22 )
-		!sqlite? (
-			tokyocabinet? ( dev-db/tokyocabinet )
-			!tokyocabinet? ( >=sys-libs/db-3.2:* )
-		)
-	)
+	berkdb?  ( sys-libs/db:18.1 )
+	sqlite?  ( >=dev-db/sqlite-3.6.22 )
+	tokyocabinet? ( dev-db/tokyocabinet )
 "
 RDEPEND="${DEPEND}"
 
-PATCHES=( "${FILESDIR}/${P}-test-env.patch" )
-
-pkg_setup() {
-	has_version mail-filter/bogofilter || return 0
-	if  (   use berkdb && ! has_version 'mail-filter/bogofilter[berkdb]' ) || \
-		( ! use berkdb &&   has_version 'mail-filter/bogofilter[berkdb]' ) || \
-		(   use sqlite && ! has_version 'mail-filter/bogofilter[sqlite]' ) || \
-		( ! use sqlite &&   has_version 'mail-filter/bogofilter[sqlite]' ) || \
-		( has_version '>=mail-filter/bogofilter-1.2.1-r1' && \
-			(   use tokyocabinet && ! has_version 'mail-filter/bogofilter[tokyocabinet]' ) || \
-			( ! use tokyocabinet &&   has_version 'mail-filter/bogofilter[tokyocabinet]' )
-		) ; then
-		ewarn
-		ewarn "If you want to switch the database backend, you must dump the wordlist"
-		ewarn "with the current version (old use flags) and load it with the new version!"
-		ewarn
-	fi
-}
+PATCHES=( 
+	"${FILESDIR}/${P}-test-env.patch"
+	"${FILESDIR}/bogofilter-1.2.4-db-18.1.patch"
+)
 
 src_prepare() {
 	default
@@ -63,37 +44,27 @@ src_prepare() {
 		-e 's/t.dump.load//' \
 		-e 's/t.nonascii.replace//' \
 		src/tests/Makefile.am || die
-
 	eautoreconf
 }
 
 src_configure() {
-	local myconf="" berkdb=true
-	myconf="--without-included-gsl"
 
-	# determine backend: berkdb *is* default
-	if use berkdb && use sqlite ; then
-		elog "Both useflags berkdb and sqlite are in USE:"
-		elog "Using berkdb as database backend."
-	elif use berkdb && use tokyocabinet ; then
-		elog "Both useflags berkdb and tokyocabinet are in USE:"
-		elog "Using berkdb as database backend."
-	elif use sqlite && use tokyocabinet ; then
-		elog "Both useflags sqlite and tokyocabinet are in USE:"
-		elog "Using sqlite as database backend."
-		myconf="${myconf} --with-database=sqlite"
-		berkdb=false
+	# Please note that bogofilter has (or had) its own 'db detection logic' in
+	# configure.ac. This has been removed (with a patch) and instead we hard-code
+	# the build process to use db-18.1. This may be less than ideal as we don't
+	# have a handy config option for it (yet) but it gets this build linking
+	# properly in Funtoo.
+
+	local myconf=""
+	myconf="--without-included-gsl"
+	if use berkdb; then
+		myconf="${myconf} --with-database=db"
+		append-cppflags "-I/usr/include/db18.1"
 	elif use sqlite ; then
 		myconf="${myconf} --with-database=sqlite"
-		berkdb=false
 	elif use tokyocabinet ; then
 		myconf="${myconf} --with-database=tokyocabinet"
-		berkdb=false
-	elif ! use berkdb ; then
-		elog "Neither berkdb nor sqlite nor tokyocabinet are in USE:"
-		elog "Using berkdb as database backend."
 	fi
-
 	econf ${myconf}
 }
 

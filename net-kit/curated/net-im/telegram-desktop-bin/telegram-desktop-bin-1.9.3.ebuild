@@ -15,7 +15,7 @@ SRC_URI="
 
 LICENSE="GPL-3-with-openssl-exception"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="-* amd64 x86"
 
 QA_PREBUILT="usr/lib/${PN}/Telegram"
 

@@ -9,7 +9,7 @@ inherit pax-utils unpacker xdg-utils
 
 DESCRIPTION="Allows you to send and receive messages of Signal Messenger on your computer"
 HOMEPAGE="https://signal.org/
-	https://github.com/WhisperSystems/Signal-Desktop"
+	https://github.com/signalapp/Signal-Desktop"
 SRC_URI="https://updates.signal.org/desktop/apt/pool/main/s/${MY_PN}/${MY_PN}_${PV}_amd64.deb"
 
 LICENSE="GPL-3 MIT MIT-with-advertising BSD-1 BSD-2 BSD Apache-2.0 ISC openssl ZLIB APSL-2 icu Artistic-2 LGPL-2.1"
@@ -49,8 +49,8 @@ src_install() {
 	insinto /usr/share
 	doins -r usr/share/applications
 	doins -r usr/share/icons
-	fperms +x /opt/Signal/signal-desktop
-	pax-mark m opt/Signal/signal-desktop
+	fperms +x /opt/Signal/signal-desktop /opt/Signal/chrome-sandbox
+	pax-mark m opt/Signal/signal-desktop opt/Signal/chrome-sandbox
 
 	dosym ../../opt/Signal/${MY_PN} /usr/bin/${MY_PN}
 	dosym ../../usr/lib64/libEGL.so opt/Signal/libEGL.so

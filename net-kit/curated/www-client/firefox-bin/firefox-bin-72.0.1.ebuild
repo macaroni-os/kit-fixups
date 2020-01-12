@@ -32,7 +32,7 @@ SRC_URI="${SRC_URI}
 HOMEPAGE="https://www.mozilla.org/en-US/firefox/"
 RESTRICT="strip mirror"
 
-KEYWORDS=""
+KEYWORDS="-* amd64 x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="+ffmpeg +pulseaudio selinux startup-notification"

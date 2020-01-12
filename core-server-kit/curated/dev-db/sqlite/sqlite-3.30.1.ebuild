@@ -25,7 +25,7 @@ fi
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 if [[ "${PV}" == "9999" ]]; then
 	PROPERTIES="live"

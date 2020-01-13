@@ -14,6 +14,7 @@ LICENSE="LGPL-3"
 SLOT="0"
 
 RDEPEND="
+	dev-util/debootstrap
 	>=app-emulation/lxc-3.0"
 
 DEPEND="${RDEPEND}"

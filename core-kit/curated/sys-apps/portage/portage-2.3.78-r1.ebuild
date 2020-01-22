@@ -285,3 +285,13 @@ pkg_preinst() {
 		chmod g+s,ug+rwx "${ED}"var/log/portage{,/elog}
 	fi
 }
+
+pkg_postinst() {
+	echo
+	einfo "Fixing permissions on /var/tmp/portage to address CVE-2019-20384."
+	einfo "Now, only root, the portage user, and members of the portage group"
+	einfo "are permitted to access /var/tmp/portage."
+	echo
+	chmod o-rwx $ROOT/var/tmp/portage
+}
+

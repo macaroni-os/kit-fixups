@@ -11,7 +11,7 @@ KEYWORDS="amd64"
 
 GITHUB_REPO="steam-launcher"
 GITHUB_USER="funtoo"
-GITHUB_TAG="a5e1634"
+GITHUB_TAG="7238bc4f32d249540dc0bc0b3541e585317f1523"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 RDEPEND="

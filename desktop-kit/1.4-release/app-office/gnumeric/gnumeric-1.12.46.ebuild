@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
-GNOME2_LA_PUNT="yes"
-PYTHON_COMPAT=( python2_7 python{3_5,3_6} )
+GNOME3_LA_PUNT="yes"
+PYTHON_COMPAT=( python2_7 python3_{5,6,7} )
 
 inherit gnome3 flag-o-matic python-r1
 

@@ -7,7 +7,7 @@ inherit autotools bash-completion-r1 linux-info flag-o-matic systemd readme.gent
 DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
 
-KEYWORDS="*"
+KEYWORDS=""
 LICENSE="LGPL-3"
 SLOT="0"
 IUSE="apparmor examples pam python seccomp selinux +templates"

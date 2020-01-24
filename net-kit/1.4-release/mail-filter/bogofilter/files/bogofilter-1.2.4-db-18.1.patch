@@ -1,0 +1,150 @@
+--- bogofilter-1.2.4/configure.ac	2019-12-31 20:13:18.220124952 -0700
++++ bogofilter-1.2.4-fixed/configure.ac	2019-12-31 20:29:34.936103698 -0700
+@@ -517,143 +517,14 @@
+ 	], [
+ 	    DEPOT *d = dpopen("", 0, 0);
+ 	])],,AC_MSG_ERROR(Cannot link to qdbm library.))
+-	LIBS="$saveLIBS"
++	LIBS="saveLIBS"
+     ;;
+     xdb*)
+-	dnl check if we need LIBDB at all (it is harmful on BSD since
+-	dnl they rename the library including soname)
+-	dnl and try to guess if we need -lpthread or -lthread
++	AC_DEFINE(ENABLE_DB_DATASTORE,1, [Enable Berkeley DB datastore])
+ 	DB_TYPE=db
+ 	DB_EXT=.db
+-	AC_LIB_LINKFLAGS([db])
+-	AC_MSG_CHECKING(db and dependent libraries)
+-	saveLIBS="$LIBS"
+-	havelib=0
+-	for dblibs in "" "$LIBDB" ; do
+-	    for addlibs in "" -lpthread -lthread ; do
+-		LIBDB="$dblibs $addlibs"
+-		export LIBDB
+-	        LIBS="$saveLIBS $LIBDB"
+-		export LIBS
+-		AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <db.h>], [int r, s, t; db_version(&r, &s, &t);])],havelib=1 ; break 2)
+-	    done
+-	done
+-	LIBS="$saveLIBS"
+-	export LIBS
+-	if test $havelib = 0 ; then
+-	    AC_MSG_RESULT(error)
+-	    AC_MSG_ERROR([[
+-=====================================================================
+-Cannot link against libdb? Try these steps to solve the problem:
+-1. Be sure that the Berkeley DB developer package is installed.
+-2. Type:  rm -f config.cache    then re-run configure.
+-3. If the problem persists, report it to the bogofilter mailing list.
+-   Remember to include your config.log.
+-=====================================================================
+-	    ]])
+-	fi
+-	AC_MSG_RESULT($LIBDB)
+-	LIBS="$saveLIBS"
+-	export LIBS
+-	AH_TEMPLATE([HAVE_DB_H], [Have suitable db.h header])
+-	AC_SUBST(LIBDB)
+-
+-	dnl check if run-time link works
+-	saveLIBS="$LIBS"
+-	LIBS="$LIBS $LIBDB"
+-	AC_MSG_CHECKING(if a program can be linked against Berkeley DB and run)
+-	AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+-#ifdef HAVE_INTTYPES_H
+-#include <inttypes.h>
+-#endif
+-#include <db.h>
+-		   ]], [[
+-return 0;
+-		   ]])],,
+-		   [AC_MSG_RESULT(no)
+-	AC_MSG_ERROR([Cannot run a program linked against libdb.
+-Did you adjust your library search path to include your libdb?])],true)
+-	AC_MSG_RESULT(yes)
+-
+-	dnl check if header and library of DB library match
+-	dnl ignore if cross compiling
+-	AC_MSG_CHECKING(if Berkeley DB header and library versions match)
+-	rm -r -f bfadtestdir
+-	mkdir bfadtestdir
+-	AC_RUN_IFELSE([
+-	AC_LANG_PROGRAM([[
+-		   #include <stdlib.h>
+-		   #include <stdio.h>
+-#ifdef HAVE_INTTYPES_H
+-#include <inttypes.h>
+-#endif
+-		   #include <db.h>
+-		   ]], [[
+-			int maj, min;
+-			(void)db_version(&maj, &min, 0);
+-			(void)fprintf(stderr, "headers: %d.%d, library: %d.%d\n",
+-				DB_VERSION_MAJOR, DB_VERSION_MINOR, maj, min);
+-			if (maj != DB_VERSION_MAJOR) exit(1);
+-			if (min != DB_VERSION_MINOR) exit(1);
+-			exit(0);
+-		   ]])],,
+-		   [AC_MSG_RESULT(no)
+-		   AC_MSG_ERROR(db.h header file and db library version do not match.)],true)
+-	AC_MSG_RESULT(yes)
+-	AC_CHECK_DECLS(db_create,,
+-	       AC_MSG_ERROR([[Can not locate a suitable Berkeley DB db.h header file.
+-Use --with-libdb-prefix=PATH to specify the path to a v3+ install directory.
+-You can download Berkeley DB 4.3.x from http://www.sleepycat.com/]]),
+-	[[#ifdef HAVE_INTTYPES_H
+-#include <inttypes.h>
+-#endif
+-#include <db.h>]]
+-	)
+-	AC_MSG_CHECKING(if Berkeley DB supports shared environments)
+-	if test "x$enable_dbshared_test" != xno && test "x$USE_TRANSACTIONS" != xNO ; then
+-	AC_RUN_IFELSE([
+-	AC_LANG_PROGRAM([[
+-#ifdef HAVE_INTTYPES_H
+-#include <inttypes.h>
+-#endif
+-#include <db.h>
+-#include <stdio.h>
+-#include <stdlib.h>
+-#define TESTDIR "bfadtestdir"
+-#define barf(where, what) do { fprintf(stderr, "%s failed: %s\n", where, db_strerror(what)); exit(1); } while(0)
+-		   ]], [[
+-    DB_ENV *e;
+-    int r;
+-    if ((r = db_env_create(&e, 0))) barf("db_env_create", r);
+-    if ((r = e->open(e, TESTDIR, DB_INIT_LOG|DB_INIT_TXN|DB_INIT_MPOOL|DB_CREATE, 0664)))
+-	barf("DB_ENV->open", r);
+-    if ((r = e->close(e, 0)))
+-        barf("DB_ENV->close", r);
+-    if ((r = db_env_create(&e, 0))) barf("db_env_create", r);
+-    if ((r = e->remove(e, TESTDIR, 0))) barf("DB_ENV->remove", r);
+-    return 0;
+-		   ]])],,
+-		   [AC_MSG_RESULT(no)
+-	rm -r -f bfadtestdir
+-	AC_MSG_ERROR([
+-Cannot open a shared environment in Berkeley DB. This is a known problem
+-on Fedora Core Linux. Build your own Berkeley DB installation and use
+---with-libdb-prefix to point bogofilter to it. Alternatively, you can
+-use the unsafe non-transactional database by configuring with
+---disable-transactions.
+-Packagers, if you are absolutely sure that the target system supports
+-shared environments, you can use --disable-dbshared-test.])],true)
+-	rm -r -f bfadtestdir
+-	AC_MSG_RESULT(yes)
+-    else
+-	AC_MSG_RESULT(skipped)
+-    fi
+-
+-	AC_DEFINE(ENABLE_DB_DATASTORE,1, [Enable Berkeley DB datastore])
+-	LIBS="$saveLIBS"
+-    ;;
+-    *)
+-	AC_MSG_ERROR([Invalid --with-database argument. Supported engines are db, qdbm, sqlite3, tokyocabinet.])
++	AC_LIB_LINKFLAGS([db18.1])
++	LIBS="-lpthread /usr/lib/libdb-18.1.a"
+     ;;
+ esac
+ 

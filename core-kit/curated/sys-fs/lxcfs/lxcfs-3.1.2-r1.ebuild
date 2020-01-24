@@ -10,7 +10,7 @@ SLOT="0"
 
 UPSTREAM_PV=$(replace_version_separator 3 '.' )
 SRC_URI="https://github.com/lxc/lxcfs/archive/${PN}-${UPSTREAM_PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 S=${WORKDIR}/${PN}-${P}
 # Omit all dbus.  Upstream appears to require it because systemd, but
 # lxcfs makes no direct use of dbus.

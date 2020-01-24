@@ -1,0 +1,11 @@
+# 23-01-2019 <x0r>
+# Mask Chromium developer channel - users should stick to lts (v79) or beta/current (v80).
+>=www-client/chromium-81
+
+# migrate to dev-lua/lua for 5.3+. See docs in the dev-lua/lua ebuild (top)
+>=dev-lang/lua-5.3
+# eselect lua is dumb:
+app-eselect/eselect-lua
+
+# chromium wants an earlier gn to compile properly.
+>=dev-util/gn-0.1583

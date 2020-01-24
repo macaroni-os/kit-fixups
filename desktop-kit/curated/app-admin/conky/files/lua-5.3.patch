@@ -1,0 +1,29 @@
+diff -urN conky-1.11.4/3rdparty/toluapp/config_linux.py conky-1.11.4-fixed/3rdparty/toluapp/config_linux.py
+--- conky-1.11.4/3rdparty/toluapp/config_linux.py	2019-06-23 08:50:35.000000000 -0600
++++ conky-1.11.4-fixed/3rdparty/toluapp/config_linux.py	2019-09-17 11:33:08.142074238 -0600
+@@ -1,11 +1,12 @@
++import os
+ 
+ ## This is the linux configuration file
+ # use 'scons -h' to see the list of command line options available
+ 
+ # Compiler flags (based on Debian's installation of lua)
+ #LINKFLAGS = ['-g']
+-CCFLAGS = ['-O2', '-ansi', '-Wall']
+-#CCFLAGS = ['-I/usr/include/lua50', '-g']
++CCFLAGS = os.environ["CCFLAGS"].split()
++CCFLAGS += ['-I/usr/include/lua5.3']
+ 
+ # this is the default directory for installation. Files will be installed on
+ # <prefix>/bin, <prefix>/lib and <prefix>/include when you run 'scons install'
+@@ -15,8 +16,8 @@
+ #
+ # You can see more 'generic' options for POSIX systems on config_posix.py
+ 
+-prefix = '/usr/local'
++prefix = '/usr'
+ 
+ # libraries (based on Debian's installation of lua)
+-LIBS = ['lua', 'dl', 'm']
++LIBS = ['lua5.3', 'dl', 'm']
+ 

@@ -2,7 +2,7 @@ ELIBC="glibc"
 KERNEL="linux"
 USERLAND="GNU"
 LDFLAGS="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed"
-USE="kernel_linux userland_GNU elibc_glibc"
+USE="kernel_linux userland_GNU elibc_glibc glvnd"
 
 ACCEPT_LICENSE="* -@EULA Oracle-BCLA-JavaSE"
 ACCEPT_PROPERTIES="* -reboot"
@@ -37,7 +37,7 @@ APACHE2_MODULES="actions alias auth_basic authn_alias authn_anon authn_dbm authn
 NETBEANS="apisupport cnd groovy gsf harness ide identity j2ee java mobility nb php profiler soa visualweb webcommon websvccommon xml"
 
 # Default Ruby build targets
-RUBY_TARGETS="ruby23 ruby24"
+RUBY_TARGETS="ruby25 ruby26"
 
 # Small default list of enabled plugins for collectd
 COLLECTD_PLUGINS="df interface irq load memory rrdtool swap syslog"

@@ -120,7 +120,7 @@ DLANG_CHECKOUT_DIR="${WORKDIR}/gdc"
 DESCRIPTION="The GNU Compiler Collection"
 
 LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
-KEYWORDS=""
+KEYWORDS="*"
 
 RDEPEND="
 	sys-libs/zlib[static-libs,${MULTILIB_USEDEP}]
@@ -508,7 +508,7 @@ gcc_conf_cross_options() {
 	if ! has_version ${CATEGORY}/${TARGET_LIBC}; then
 		# we are building with libc that is not installed:
 		conf_gcc_cross+=" --disable-shared --disable-libatomic --disable-threads --without-headers --disable-libstdcxx"
-	elif has_version "${CATEGORY}/${TARGET_LIBC}[headers-only]"; then
+	elif built_with_use --hidden --missing false ${CATEGORY}/${TARGET_LIBC} headers-only; then
 		# libc installed, but has USE="crosscompile_opts_headers-only" to only install headers:
 		conf_gcc_cross+=" --disable-shared --disable-libatomic --with-sysroot=${PREFIX}/${CTARGET} --disable-libstdcxx"
 	else

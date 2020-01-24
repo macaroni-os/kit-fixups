@@ -1,0 +1,9 @@
+This was forked to help perfinion test. Here's how to test the latest policies (note this catpkg should be unforked eventually)
+
+1. Add the following to package.keywords: sec-policy/selinux-* **
+2. Then emerge @selinux-rebuild to reinstall all the 9999 policies (to be used with 2.9 userspace)
+3. Do a full relabel
+4. Reboot.
+
+Once rebooted, make sure your user is in the right domains via id -Z.
+'ps auxfZ | grep logind' should be in systemd_logind_t domain.

@@ -1,0 +1,17 @@
+# Seccomp does not yet support riscv without
+seccomp
+
+# Unmask the flag which corresponds to ARCH.
+-riscv
+
+# Moritz Maxeiner <mm@ucw.sh> (2019-04-16)
+# Architecture unsupported
+llvm
+
+# Moritz Maxeiner <mm@ucw.sh> (2019-04-29)
+# Architecture unsupported
+luajit
+
+# Moritz Maxeiner <mm@ucw.sh> (2019-04-29)
+# Requires jemalloc 5.2.0
+jemalloc

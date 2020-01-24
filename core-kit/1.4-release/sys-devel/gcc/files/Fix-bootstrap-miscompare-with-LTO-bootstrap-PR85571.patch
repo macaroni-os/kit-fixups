@@ -47,8 +47,8 @@ Property changes on: contrib/compare-lto
 
 Index: config/bootstrap-lto-noplugin.mk
 ===================================================================
---- config/bootstrap-lto-noplugin.mk    (revision 259829)
-+++ config/bootstrap-lto-noplugin.mk    (working copy)
+--- a/config/bootstrap-lto-noplugin.mk    (revision 259829)
++++ b/config/bootstrap-lto-noplugin.mk    (working copy)
 @@ -6,3 +6,4 @@ STAGE3_CFLAGS += -flto=jobserver -frando
  STAGEprofile_CFLAGS += -flto=jobserver -frandom-seed=1
  STAGEtrain_CFLAGS += -flto=jobserver -frandom-seed=1
@@ -56,8 +56,8 @@ Index: config/bootstrap-lto-noplugin.mk
 +do-compare = /bin/true
 Index: config/bootstrap-lto.mk
 ===================================================================
---- config/bootstrap-lto.mk     (revision 259829)
-+++ config/bootstrap-lto.mk     (working copy)
+--- a/config/bootstrap-lto.mk     (revision 259829)
++++ b/config/bootstrap-lto.mk     (working copy)
 @@ -13,3 +13,5 @@ LTO_RANLIB = $$r/$(HOST_SUBDIR)/prev-gcc
  LTO_EXPORTS = AR="$(LTO_AR)"; export AR; \
               RANLIB="$(LTO_RANLIB)"; export RANLIB;
@@ -66,8 +66,8 @@ Index: config/bootstrap-lto.mk
 +do-compare = $(SHELL) $(srcdir)/contrib/compare-lto $$f1 $$f2
 Index: contrib/compare-lto
 ===================================================================
---- contrib/compare-lto (nonexistent)
-+++ contrib/compare-lto (working copy)
+--- a/contrib/compare-lto (nonexistent)
++++ b/contrib/compare-lto (working copy)
 @@ -0,0 +1,111 @@
 +#! /bin/sh
 +

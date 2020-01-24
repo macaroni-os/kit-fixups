@@ -1,0 +1,122 @@
+diff -urN postfix-3.4.6/makedefs postfix-3.4.6-fixed/makedefs
+--- postfix-3.4.6/makedefs	2019-03-10 17:42:59.000000000 -0600
++++ postfix-3.4.6-fixed/makedefs	2019-09-10 13:19:37.892281749 -0600
+@@ -470,103 +470,18 @@
+ 		*)	error "Unknown AIX version: `uname -v`.";;
+ 		esac;;
+ 		# Tested with RedHat 3.03 on 20020729.
+-    Linux.1*)	SYSTYPE=LINUX1
+-		case "$CCARGS" in
+-		 *-DNO_DB*) ;;
+-		 *-DHAS_DB*) ;;
+-		 *) SYSLIBS="-ldb";;
+-		esac
+-		;;
+-    Linux.2*)	SYSTYPE=LINUX2
+-		case "$CCARGS" in
+-		 *-DNO_DB*) ;;
+-		 *-DHAS_DB*) ;;
+-		 *) if [ -f /usr/include/db.h ]
+-		    then
+-			: we are all set
+-		    elif [ -f /usr/include/db/db.h ]
+-		    then
+-			CCARGS="$CCARGS -I/usr/include/db"
+-		    else
+-			# No, we're not going to try db1 db2 db3 etc.
+-			# On a properly installed system, Postfix builds
+-			# by including <db.h> and by linking with -ldb
+-			echo "No <db.h> include file found." 1>&2
+-			echo "Install the appropriate db*-devel package first." 1>&2
+-			exit 1
+-		    fi
+-		    SYSLIBS="-ldb"
+-		    ;;
+-		esac
+-		for name in nsl resolv $GDBM_LIBS
+-		do
+-		    for lib in /usr/lib64 /lib64 /usr/lib /lib
+-		    do
+-			test -e $lib/lib$name.a -o -e $lib/lib$name.so && {
+-			    SYSLIBS="$SYSLIBS -l$name"
+-			    break
+-			}
+-		    done
+-		done
+-		# Kernel 2.4 added IPv6
+-		case "$RELEASE" in
+-		2.[0-3].*) CCARGS="$CCARGS -DNO_IPV6";;
+-		esac
+-		# Kernel 2.6 added EPOLL
+-		case "$RELEASE" in
+-		2.[0-5].*) CCARGS="$CCARGS -DNO_EPOLL";;
+-		    # Workaround for retarded libc 
+-		    2.6.*)
+-		       if [ `expr "X$CCARGS" : "X.*-DNO_EPOLL"` -gt 0 ]
+-		       then
+-			   :
+-		       elif [ ! -e /usr/include/sys/epoll.h ]
+-		       then
+-			   echo CCARGS="$CCARGS -DNO_EPOLL"
+-		       else
+-			   trap 'rm -f makedefs.test makedefs.test.[co]' 1 2 3 15
+-			   cat >makedefs.test.c <<'EOF'
+-#include <sys/types.h>
+-#include <sys/epoll.h>
+-#include <errno.h>
+-#include <stdio.h>
+-#include <stdlib.h>
+-
+-int     main(int argc, char **argv)
+-{
+-    int     epoll_handle;
+-
+-    if ((epoll_handle = epoll_create(1)) < 0) {
+-	perror("epoll_create");
+-	exit(1);
+-    }
+-    exit(0);
+-}
+-EOF
+-			   ${CC-gcc} -o makedefs.test makedefs.test.c || exit 1
+-			   ./makedefs.test 2>/dev/null ||
+-				CCARGS="$CCARGS -DNO_EPOLL"
+-			   rm -f makedefs.test makedefs.test.[co]
+-		       fi;;
+-		esac
+-		SYSLIBS="$SYSLIBS -ldl"
+-		: ${SHLIB_SUFFIX=.so}
+-		: ${SHLIB_CFLAGS=-fPIC}
+-		: ${SHLIB_LD="${CC-gcc} -shared"' -Wl,-soname,${LIB}'}
+-		: ${SHLIB_RPATH='-Wl,--enable-new-dtags -Wl,-rpath,${SHLIB_DIR}'}
+-		: ${SHLIB_ENV="LD_LIBRARY_PATH=`pwd`/lib"}
+-		: ${PLUGIN_LD="${CC-gcc} -shared"}
+-		;;
+  Linux.[345].*)	SYSTYPE=LINUX$RELEASE_MAJOR
+ 		case "$CCARGS" in
+ 		 *-DNO_DB*) ;;
+ 		 *-DHAS_DB*) ;;
+-		 *) if [ -f /usr/include/db.h ]
+-		    then
+-			: we are all set
+-		    elif [ -f /usr/include/db/db.h ]
++		 *)
++			DB_INC_DIR="$(ls -d /usr/include/db6* | sort -Vr | head -n 1)"
++			if [ -f "$DB_INC_DIR"/db.h ]
+ 		    then
+-			CCARGS="$CCARGS -I/usr/include/db"
++					DB_VERS="$(basename $DB_INC_DIR)"
++					DB_VERS=${DB_VERS##db}
++					CCARGS="$CCARGS -I$DB_INC_DIR"
++					SYSLIBS="-ldb-${DB_VERS}"
+ 		    else
+ 			# On a properly installed system, Postfix builds
+ 			# by including <db.h> and by linking with -ldb
+@@ -574,7 +489,6 @@
+ 			echo "Install the appropriate db*-devel package first." 1>&2
+ 			exit 1
+ 		    fi
+-		    SYSLIBS="-ldb"
+ 		    ;;
+ 		esac
+ 		for name in nsl resolv

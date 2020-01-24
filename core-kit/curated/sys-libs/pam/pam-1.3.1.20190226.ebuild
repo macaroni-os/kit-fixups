@@ -11,7 +11,7 @@ PP="pambase-20190402"
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="audit berkdb +cracklib debug minimal mktemp nis nls +nullok pam_krb5 pam_ssh passwdqc +pie securetty selinux +sha512 static-libs"
+IUSE="audit berkdb +cracklib debug elogind minimal mktemp nis nls +nullok pam_krb5 pam_ssh passwdqc +pie securetty selinux +sha512 static-libs"
 
 BDEPEND="app-text/docbook-xml-dtd:4.1.2
 	app-text/docbook-xml-dtd:4.3
@@ -38,7 +38,7 @@ PDEPEND="
 	passwdqc? ( sys-auth/pam_passwdqc )
 	mktemp? ( sys-auth/pam_mktemp )
 	pam_krb5? ( sys-auth/pam_krb5 )
-	sys-auth/elogind[pam]"
+	elogind? ( sys-auth/elogind[pam] )"
 
 S="${WORKDIR}/linux-${P}"
 

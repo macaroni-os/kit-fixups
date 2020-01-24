@@ -45,9 +45,9 @@ best place for this, so it's desirable to use your local repo instead by using -
 --ov-output <your local repo path> instead.  That way it won't interfere in any way or
 get nuked if you rebuild meta-repo.
 Initialize your CROSS-OVERLAY thusly:
-# crossdev -t <your tuple> --init-target -oO <path to local repo>
+# crossdev -t <your tuple> --init-target -oS <path to local repo>
 In my case:
-# crossdev -t armv7a-hardfloat-linux-gnueabi --init-target -oO /var/git/borg-repo
+# crossdev -t armv7a-hardfloat-linux-gnueabi --init-target -oS /var/git/borg-repo
 
 Currently the only gcc ebuilds capable of building a cross gcc are 6.4.1-r4, 7.3.1-r4 and
 8.2.1-r4.  As these ebuild propagate to the tree and future ebuilds will have the capability
@@ -73,14 +73,27 @@ Otherwise crossdev will insist on using Funtoo tree ebuilds, even bumping the ve
 if necessary.
 
 4.  build your cross toolchain
-Now you can run crossdev to create your toolchain.  Be sure to use -oS or --overlays to
-point crossdev to the CROSS-OVERLAY.  Here's an example I ran successfully today:
+Now you can run crossdev to create your toolchain.  If you've already built a cross toolchain with
+gcc remove the previous gcc version with emerge --unmerge =TUPLE/gcc-VERSION first.  Be sure to use -oS
+or --overlays to point crossdev to the CROSS-OVERLAY.  Here's an example I ran successfully today:
 
 # crossdev --b 2.29.1-r1 --g 6.4.1-r4 --k 4.9 --l 2.23-r4 -P -v -t armv7a-hardfloat-linux-gnueabi -oS /var/git/borg-repo
+
+This handy script run on the machine you are making the cross toolchain(s) for takes the work out of figuring it out:
+--------------------
+#!/bin/bash
+BINUTILS_VER=$(equery l sys-devel/binutils|cut -d- -f3-)
+GCC_VER=$(gcc --version|grep -A1 Funtoo|cut -d ' ' -f3|cut -d ')' -f1|head -n1)
+KERNEL_VER=$(equery l sys-kernel/linux-headers|cut -d- -f4-)
+LIBC_VER=$(equery l sys-libs/glibc|cut -d- -f3-)
+echo "crossdev --b $BINUTILS_VER --g $GCC_VER --k $KERNEL_VER --l $LIBC_VER -P -v -t $(portageq envvar CHOST) -oS <your local repo path> "
+--------------------
 
 Note that on cross gcc ebuilds you will get file collision warnings at the end of install,
 not a cause for alarm.  These are config (such as /etc/env.d) files that are being replaced.
 Portage should tell you they are going to be installed in spite of the collisions when it finishes.
+Don't forget to run source /etc/profile and gcc-config when it's done, as it's not automatically
+enabled.
 
 Addendum:
 On 9-17-18 I executed the following command:

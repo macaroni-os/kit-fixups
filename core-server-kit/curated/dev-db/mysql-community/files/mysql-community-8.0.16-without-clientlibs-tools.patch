@@ -1,0 +1,170 @@
+diff -urN mysql/CMakeLists.txt mysql-fixed/CMakeLists.txt
+--- mysql/CMakeLists.txt	2019-06-12 12:03:00.640442391 -0600
++++ mysql-fixed/CMakeLists.txt	2019-06-12 12:05:57.488450237 -0600
+@@ -1002,8 +1002,6 @@
+ MYSQL_CHECK_SSL()
+ MYSQL_CHECK_SSL_DLLS()
+ 
+-# Add system/bundled editline.
+-MYSQL_CHECK_EDITLINE()
+ # Add libevent
+ MYSQL_CHECK_LIBEVENT()
+ # Add lz4 library
+@@ -1093,7 +1091,9 @@
+  ENABLE_TESTING()
+ ENDIF()
+ 
+-ADD_SUBDIRECTORY(include)
++IF(NOT WITHOUT_CLIENTLIBS)
++	ADD_SUBDIRECTORY(include)
++ENDIF(NOT WITHOUT_CLIENTLIBS)
+ ADD_SUBDIRECTORY(dbug)
+ ADD_SUBDIRECTORY(strings)
+ ADD_SUBDIRECTORY(vio)
+@@ -1126,7 +1126,6 @@
+   ADD_SUBDIRECTORY(unittest/mytap/t)
+ ENDIF()
+ 
+-ADD_SUBDIRECTORY(client)
+ ADD_SUBDIRECTORY(utilities)
+ ADD_SUBDIRECTORY(share)
+ ADD_SUBDIRECTORY(libservices)
+@@ -1135,6 +1134,12 @@
+   ADD_SUBDIRECTORY(man)
+ ENDIF()
+ 
++IF(NOT WITHOUT_TOOLS)
++  # Add system/bundled editline.
++  MYSQL_CHECK_EDITLINE()
++  ADD_SUBDIRECTORY(client)
++ENDIF(NOT WITHOUT_TOOLS)
++
+ IF(NOT WITHOUT_SERVER)
+   ADD_SUBDIRECTORY(testclients)
+   ADD_SUBDIRECTORY(sql)
+diff -urN mysql/libmysql/CMakeLists.txt mysql-fixed/libmysql/CMakeLists.txt
+--- mysql/libmysql/CMakeLists.txt	2019-06-12 12:03:00.612442390 -0600
++++ mysql-fixed/libmysql/CMakeLists.txt	2019-06-12 12:08:25.712456814 -0600
+@@ -242,12 +242,17 @@
+   LIST(APPEND LIBS_TO_MERGE auth_win_client)
+ ENDIF()
+ 
+-# LDAP authentication SASL client plugin
+-MESSAGE(STATUS "Creating LDAP authentication SASL client library.")
+-ADD_SUBDIRECTORY(authentication_ldap)
+-  
+-# Merge several convenience libraries into one big mysqlclient
+-MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS_TO_MERGE} COMPONENT Development)
++IF(WITHOUT_CLIENTLIBS)
++  # Merge several convenience libraries into one big mysqlclient
++  MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS_TO_MERGE} COMPONENT Development SKIP_INSTALL)
++ELSE(WITHOUT_CLIENTLIBS)
++  # LDAP authentication SASL client plugin
++  MESSAGE(STATUS "Creating LDAP authentication SASL client library.")
++  ADD_SUBDIRECTORY(authentication_ldap)
++
++  # Merge several convenience libraries into one big mysqlclient
++  MERGE_CONVENIENCE_LIBRARIES(mysqlclient ${LIBS_TO_MERGE} COMPONENT Development)
++ENDIF(WITHOUT_CLIENTLIBS)
+ TARGET_LINK_LIBRARIES(mysqlclient PRIVATE ${LIBS_TO_LINK})
+ 
+ # Visual Studio users need debug  static library for debug projects
+@@ -286,11 +291,16 @@
+ IF(NOT DISABLE_SHARED)
+   # Merge several convenience libraries into one big mysqlclient
+   # and link them together into shared library.
+-  MERGE_LIBRARIES_SHARED(libmysql ${LIBS_TO_MERGE}
+-    EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
+-    COMPONENT SharedLibraries)
++  IF(WITHOUT_CLIENTLIBS)
++    MERGE_LIBRARIES_SHARED(libmysql ${LIBS_TO_MERGE}
++      EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
++      COMPONENT SharedLibraries SKIP_INSTALL)
++  ELSE(WITHOUT_CLIENTLIBS)
++    MERGE_LIBRARIES_SHARED(libmysql ${LIBS_TO_MERGE}
++      EXPORTS ${CLIENT_API_FUNCTIONS} ${CLIENT_API_FUNCTIONS_UNDOCUMENTED}
++      COMPONENT SharedLibraries)
++  ENDIF(WITHOUT_CLIENTLIBS)
+   TARGET_LINK_LIBRARIES(libmysql PRIVATE ${LIBS_TO_LINK})
+-
+   IF(WIN32)
+     # So that libmysql_api_test below can find the .dll
+     ADD_CUSTOM_COMMAND(TARGET libmysql POST_BUILD
+diff -urN mysql/scripts/CMakeLists.txt mysql-fixed/scripts/CMakeLists.txt
+--- mysql/scripts/CMakeLists.txt	2019-06-12 12:03:00.628442390 -0600
++++ mysql-fixed/scripts/CMakeLists.txt	2019-06-12 12:10:22.468461994 -0600
+@@ -470,18 +470,24 @@
+ 
+   IF(WITH_SYSTEMD)
+     SET(BIN_SCRIPTS
+-      mysql_config
+       mysqldumpslow
+       )
+   ELSE()
+     SET(BIN_SCRIPTS
+-      mysql_config
+       mysqldumpslow
+       mysqld_multi
+       mysqld_safe
+       )
+   ENDIF()
+ 
++  IF(NOT WITHOUT_CLIENTLIBS)
++    SET(BIN_SCRIPTS
++      ${BIN_SCRIPTS}
++      mysql_config
++      )
++  ENDIF(NOT WITHOUT_CLIENTLIBS)
++
++
+   SET(PKGCONFIG_FILE ${LIBMYSQL_OS_OUTPUT_NAME}.pc)
+   STRING(REGEX REPLACE "/mysql$" "" PKGCONFIG_DIR "${INSTALL_LIBDIR}")
+   SET(PKGCONFIG_DIR "${PKGCONFIG_DIR}/pkgconfig")
+@@ -496,7 +502,7 @@
+     ${CMAKE_CURRENT_BINARY_DIR}/${PKGCONFIG_FILE}
+     ESCAPE_QUOTES @ONLY)
+ 
+-  IF(INSTALL_PKGCONFIGDIR)
++	IF(INSTALL_PKGCONFIGDIR AND NOT WITHOUT_CLIENTLIBS)
+     MESSAGE(STATUS "INSTALL ${PKGCONFIG_FILE} ${INSTALL_PKGCONFIGDIR}")
+     INSTALL(FILES
+       ${CMAKE_CURRENT_BINARY_DIR}/${PKGCONFIG_FILE}
+diff -urN mysql/support-files/CMakeLists.txt mysql-fixed/support-files/CMakeLists.txt
+--- mysql/support-files/CMakeLists.txt	2019-06-12 12:03:00.632442390 -0600
++++ mysql-fixed/support-files/CMakeLists.txt	2019-06-12 12:11:35.004465213 -0600
+@@ -63,8 +63,9 @@
+        DESTINATION ${inst_location} COMPONENT ${comp}
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+   ENDFOREACH()
+-
++  IF (NOT WITHOUT_CLIENTLIBS)
+   INSTALL(FILES mysql.m4 DESTINATION ${INSTALL_SHAREDIR}/aclocal COMPONENT Development)
++  ENDIF(NOT WITHOUT_CLIENTLIBS)
+   
+   SET(bindir ${prefix}/${INSTALL_BINDIR})
+   SET(sbindir ${prefix}/${INSTALL_SBINDIR})
+diff -urN mysql/utilities/CMakeLists.txt mysql-fixed/utilities/CMakeLists.txt
+--- mysql/utilities/CMakeLists.txt	2019-06-12 12:03:00.636442391 -0600
++++ mysql-fixed/utilities/CMakeLists.txt	2019-06-12 12:15:35.784475896 -0600
+@@ -90,10 +90,21 @@
+   ADD_DEPENDENCIES(comp_err copy_openssl_dlls)
+ ENDIF()
+ 
++# does this conditional make sense? - drobbins
++IF(NOT WITHOUT_CLIENTLIBS)
+ MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.cc)
++ELSE(NOT WITHOUT_CLIENTLIBS)
++ADD_EXECUTABLE(my_print_defaults my_print_defaults.cc)
++ENDIF(NOT WITHOUT_CLIENTLIBS)
+ TARGET_LINK_LIBRARIES(my_print_defaults  mysys mysys_ssl)
+ 
++# does this conditional make sense? - drobbins
++IF(NOT WITHOUT_CLIENTLIBS)
+ MYSQL_ADD_EXECUTABLE(perror perror.cc)
++ELSE(NOT WITHOUT_CLIENTLIBS)
++ADD_EXECUTABLE(perror perror.cc)
++ENDIF(NOT WITHOUT_CLIENTLIBS)
++
+ ADD_DEPENDENCIES(perror GenError)
+ TARGET_LINK_LIBRARIES(perror mysys mysys_ssl)
+ 

@@ -1,3 +1,23 @@
+# firefox stuff:
+www-client/firefox system-sqlite
+dev-db/sqlite secure-delete
+
+# In 1.4 testing, this was required for libreoffice
+dev-libs/xmlsec nss
+media-gfx/fontforge cairo
+
+# Break a circular dependency
+media-gfx/graphviz -svg
+
+# Break another circular dependency
+net-libs/libsoup -vala
+
+# Make chromium happy re: nodejs
+net-libs/nodejs inspector
+
+# Use gentoo's upstream zeromq but set this so pyzmq can be merged cleanly.
+net-libs/zeromq drafts
+
 # FL-5241: enable *both* gtk and gtk3 USE flags for libcanberra. A good default for the applcations that are gtk2 still and for the gtk3 based gui too.
 media-libs/libcanberra gtk gtk3
 
@@ -89,6 +109,8 @@ net-fs/cifs-utils upcall
 
 # FL-426, set introspection flag to gupnp-igd, it's a hard dep
 net-libs/gupnp-igd introspection
+# FL-6563: gupnp-igd is not very actively maintained, and requires older versions of gupnp, etc. Workaround:
+net-libs/libnice -upnp
 
 # FL-370, set sasl USE flag to openldap
 net-nds/openldap sasl

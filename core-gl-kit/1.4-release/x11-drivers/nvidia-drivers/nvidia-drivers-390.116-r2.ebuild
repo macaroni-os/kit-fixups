@@ -35,7 +35,7 @@ fi
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
 KEYWORDS="-* ~amd64 ~amd64-fbsd"
-RESTRICT="bindist mirror strip"
+RESTRICT="bindist strip"
 EMULTILIB_PKG="true"
 
 IUSE="+X +opencl +cuda tools +compat32"
@@ -89,8 +89,6 @@ RDEPEND="
 	)
 "
 
-# Our kernel modules use the sources installed by this package, so this must be a post-depend
-PDEPEND="=x11-drivers/nvidia-kernel-modules-${PV}*"
 
 
 S="${WORKDIR}/"
@@ -401,17 +399,7 @@ nvidia_drivers_versions_check() {
 	fi
 
 	if use kernel_linux && kernel_is ge ${NV_MAX_KERNEL_VERSION%%.*} ${NV_MAX_KERNEL_VERSION#*.}; then
-		ewarn "Gentoo supports kernels which are supported by NVIDIA"
-		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/gentoo-sources-${NV_MAX_KERNEL_VERSION}"
-		ewarn "<sys-kernel/vanilla-sources-${NV_MAX_KERNEL_VERSION}"
-		ewarn ""
-		ewarn "You are free to utilize epatch_user to provide whatever"
-		ewarn "support you feel is appropriate, but will not receive"
-		ewarn "support as a result of those changes."
-		ewarn ""
-		ewarn "Do not file a bug report about this."
-		ewarn ""
+		ewarn "These NVIDIA drivers are designed to work with Linux ${NV_MAX_KERNEL_VERSION} or earlier."
 	fi
 
 	# Since Nvidia ships many different series of drivers, we need to give the user

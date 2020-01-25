@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit cmake-utils eutils gnome3-utils xdg-utils
+inherit cmake-utils eutils xdg-utils
 
 MY_P="${PN^}-v${PV}"
 
@@ -79,7 +79,7 @@ src_configure() {
 }
 
 pkg_postinst() {
-	gnome3_icon_cache_update
+	xdg_icon_cache_update
 	xdg_mimeinfo_database_update
 	xdg_desktop_database_update
 
@@ -91,7 +91,7 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	gnome3_icon_cache_update
+	xdg_icon_cache_update
 	xdg_mimeinfo_database_update
 	xdg_desktop_database_update
 }

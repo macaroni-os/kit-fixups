@@ -1,8 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python2_7 python3_6 )
+# Salt 3000_rc2 explicitly does not support python3.8 at this time (2020-01-28)
+PYTHON_COMPAT=( python3_{5,6,7} )
 
 inherit eutils systemd distutils-r1
 
@@ -10,16 +10,19 @@ DESCRIPTION="Salt is a remote execution and configuration manager"
 HOMEPAGE="https://www.saltstack.com/resources/community/
 	https://github.com/saltstack"
 
-if [[ ${PV} == 9999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="git://github.com/${PN}stack/${PN}.git"
-	EGIT_BRANCH="develop"
-	SRC_URI=""
-	KEYWORDS=""
-else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
+# Keyword masking for now.
+KEYWORDS=""
+
+GITHUB_REPO="$PN"
+GITHUB_USER="saltstack"
+GITHUB_TAG="v3000.0rc2"
+SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+}
+
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -34,8 +37,6 @@ RDEPEND="sys-apps/pciutils
 	dev-python/markupsafe[${PYTHON_USEDEP}]
 	>=dev-python/requests-1.0.0[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	>=www-servers/tornado-4.2.1[${PYTHON_USEDEP}]
-	<www-servers/tornado-5.0[${PYTHON_USEDEP}]
 	virtual/python-futures[${PYTHON_USEDEP}]
 	libcloud? ( >=dev-python/libcloud-0.14.0[${PYTHON_USEDEP}] )
 	mako? ( dev-python/mako[${PYTHON_USEDEP}] )
@@ -58,10 +59,8 @@ RDEPEND="sys-apps/pciutils
 	mongodb? ( dev-python/pymongo[${PYTHON_USEDEP}] )
 	portage? ( sys-apps/portage[${PYTHON_USEDEP}] )
 	keyring? ( dev-python/keyring[${PYTHON_USEDEP}] )
-	mysql? ( dev-python/mysql-python[$(python_gen_usedep 'python2*')] )
 	redis? ( dev-python/redis-py[${PYTHON_USEDEP}] )
 	selinux? ( sec-policy/selinux-salt )
-	timelib? ( dev-python/timelib[$(python_gen_usedep 'python2*')] )
 	nova? ( >=dev-python/python-novaclient-2.17.0[${PYTHON_USEDEP}] )
 	neutron? ( >=dev-python/python-neutronclient-2.3.6[${PYTHON_USEDEP}] )
 	gnupg? ( dev-python/python-gnupg[${PYTHON_USEDEP}] )
@@ -78,7 +77,6 @@ DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
 		dev-python/pip[${PYTHON_USEDEP}]
 		dev-python/virtualenv[${PYTHON_USEDEP}]
 		>=dev-python/mock-2.0.0[${PYTHON_USEDEP}]
-		dev-python/timelib[$(python_gen_usedep 'python2*')]
 		>=dev-python/boto-2.32.1[${PYTHON_USEDEP}]
 		!x86? ( >=dev-python/boto3-1.2.1[${PYTHON_USEDEP}] )
 		>=dev-python/moto-0.3.6[${PYTHON_USEDEP}]
@@ -96,8 +94,6 @@ PATCHES=(
 	"${FILESDIR}/salt-2017.7.0-dont-realpath-tmpdir.patch"
 	"${FILESDIR}/salt-2019.2.0-tests.patch"
 	"${FILESDIR}/salt-2019.2.0-skip-tests-that-oom-machine.patch"
-	"${FILESDIR}/salt-2019.2.2-newer-deps.patch"
-	"${FILESDIR}/salt-2019.2.2-workaround-broken-mock-on-py2.patch"
 )
 
 python_prepare() {

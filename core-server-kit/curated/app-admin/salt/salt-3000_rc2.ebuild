@@ -27,7 +27,7 @@ src_unpack() {
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="cherrypy ldap libcloud libvirt gnupg keyring mako mongodb mysql neutron nova"
-IUSE+=" openssl portage profile redis selinux test timelib raet +zeromq vim-syntax"
+IUSE+=" openssl +portage profile redis selinux test timelib raet +zeromq vim-syntax"
 
 RDEPEND="sys-apps/pciutils
 	dev-python/jinja[${PYTHON_USEDEP}]
@@ -68,12 +68,11 @@ RDEPEND="sys-apps/pciutils
 	vim-syntax? ( app-vim/salt-vim )"
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
 	test? (
-		>=dev-python/pytest-salt-2018.12.8[${PYTHON_USEDEP}]
+		>=dev-python/pytest-salt-2019.12.27[${PYTHON_USEDEP}]
 		>=dev-python/jsonschema-3.0[${PYTHON_USEDEP}]
 		dev-python/pytest-helpers-namespace[${PYTHON_USEDEP}]
 		dev-python/psutil[${PYTHON_USEDEP}]
 		dev-python/pytest[${PYTHON_USEDEP}]
-		dev-python/pytest-catchlog[${PYTHON_USEDEP}]
 		dev-python/pip[${PYTHON_USEDEP}]
 		dev-python/virtualenv[${PYTHON_USEDEP}]
 		>=dev-python/mock-2.0.0[${PYTHON_USEDEP}]
@@ -97,10 +96,10 @@ PATCHES=(
 )
 
 python_prepare() {
-	# remove tests with external dependencies that may not be available
-	rm tests/unit/{test_zypp_plugins.py,utils/test_extend.py} || die
-	rm tests/unit/modules/test_{file,boto_{vpc,secgroup,elb}}.py || die
-	rm tests/unit/states/test_boto_vpc.py || die
+#	# remove tests with external dependencies that may not be available
+#	rm tests/unit/{test_zypp_plugins.py,utils/test_extend.py} || die
+#	rm tests/unit/modules/test_{file,boto_{vpc,secgroup,elb}}.py || die
+#	rm tests/unit/states/test_boto_vpc.py || die
 
 	# allow the use of the renamed msgpack
 	sed -i '/^msgpack/d' requirements/base.txt || die

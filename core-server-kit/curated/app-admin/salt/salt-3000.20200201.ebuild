@@ -7,15 +7,14 @@ PYTHON_COMPAT=( python3_{5,6,7} )
 inherit eutils systemd distutils-r1
 
 DESCRIPTION="Salt is a remote execution and configuration manager"
-HOMEPAGE="https://www.saltstack.com/resources/community/
-	https://github.com/saltstack"
+HOMEPAGE="https://www.saltstack.com/resources/community/ https://github.com/saltstack"
 
 # Keyword masking for now.
 KEYWORDS=""
 
 GITHUB_REPO="$PN"
 GITHUB_USER="saltstack"
-GITHUB_TAG="v3000.0rc2"
+GITHUB_TAG="81eb15264380d82267ffc3c1930410baf1f3fbf1"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 src_unpack() {
@@ -91,8 +90,6 @@ RESTRICT="x86? ( test )"
 
 PATCHES=(
 	"${FILESDIR}/salt-2017.7.0-dont-realpath-tmpdir.patch"
-	"${FILESDIR}/salt-2019.2.0-tests.patch"
-	"${FILESDIR}/salt-2019.2.0-skip-tests-that-oom-machine.patch"
 )
 
 python_prepare() {
@@ -127,12 +124,12 @@ python_test() {
 	# ${T} is too long a path for the tests to work
 	tempdir="$(mktemp -du --tmpdir=/tmp salt-XXX)"
 	mkdir "${T}/$(basename "${tempdir}")"
-	mkdir "${BUILD_DIR}"/../{templates,conf/cloud.{providers,profiles,maps}.d} || die
+#	mkdir "${BUILD_DIR}"/../{templates,conf/cloud.{providers,profiles,maps}.d} || die
 
 	(
 		cleanup() {
 			rm -f "${tempdir}"
-			rmdir "${BUILD_DIR}"/../{templates,conf/cloud.{providers,profiles,maps}.d} || die
+#			rmdir "${BUILD_DIR}"/../{templates,conf/cloud.{providers,profiles,maps}.d} || die
 		}
 
 		trap cleanup EXIT

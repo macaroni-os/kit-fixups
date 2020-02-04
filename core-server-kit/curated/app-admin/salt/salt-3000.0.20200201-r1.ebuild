@@ -22,11 +22,10 @@ src_unpack() {
 	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
 }
 
-
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="cherrypy ldap libcloud libvirt gnupg keyring mako mongodb mysql neutron nova"
-IUSE+=" openssl +portage profile redis selinux test timelib raet +zeromq vim-syntax"
+IUSE+=" openssl +portage profile redis selinux test timelib vim-syntax"
 
 RDEPEND="sys-apps/pciutils
 	dev-python/jinja[${PYTHON_USEDEP}]
@@ -36,22 +35,15 @@ RDEPEND="sys-apps/pciutils
 	dev-python/markupsafe[${PYTHON_USEDEP}]
 	>=dev-python/requests-1.0.0[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	virtual/python-futures[${PYTHON_USEDEP}]
 	libcloud? ( >=dev-python/libcloud-0.14.0[${PYTHON_USEDEP}] )
 	mako? ( dev-python/mako[${PYTHON_USEDEP}] )
 	ldap? ( dev-python/python-ldap[${PYTHON_USEDEP}] )
 	libvirt? ( dev-python/libvirt-python[${PYTHON_USEDEP}] )
-	openssl? (
-		dev-libs/openssl:0=[-bindist]
-		dev-python/pyopenssl[${PYTHON_USEDEP}]
-	)
-	raet? (
-		>=dev-python/libnacl-1.0.0[${PYTHON_USEDEP}]
-		>=dev-python/ioflo-1.1.7[${PYTHON_USEDEP}]
-		>=dev-python/raet-0.6.0[${PYTHON_USEDEP}]
-	)
-	zeromq? (
-		>=dev-python/pyzmq-2.2.0[${PYTHON_USEDEP}]
+	dev-libs/openssl:0=[-bindist]
+	>=dev-python/libnacl-1.0.0[${PYTHON_USEDEP}]
+	>=dev-python/pyzmq-2.2.0[${PYTHON_USEDEP}]
+	|| (
+		dev-python/m2crypto[${PYTHON_USEDEP}]
 		dev-python/pycryptodome[${PYTHON_USEDEP}]
 	)
 	cherrypy? ( >=dev-python/cherrypy-3.2.2[${PYTHON_USEDEP}] )
@@ -85,7 +77,6 @@ DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
 
 DOCS=( README.rst AUTHORS )
 
-REQUIRED_USE="|| ( raet zeromq )"
 RESTRICT="x86? ( test )"
 
 PATCHES=(
@@ -105,6 +96,12 @@ python_prepare() {
 python_install_all() {
 	local svc
 	USE_SETUPTOOLS=1 distutils-r1_python_install_all
+
+	# See FL-6970: remove invalid dependency on pycrypto:
+	for x in $D/usr/lib/python*/site-packages/salt-3000-py*.egg-info/requires.txt; do
+		einfo 'Removing pycrypto from requires.txt'
+		sed -i -e '/^pycrypto/d' $x || die "sed fail"
+	done
 
 	for svc in minion master syndic api; do
 		newinitd "${FILESDIR}"/${svc}-initd-4 salt-${svc}

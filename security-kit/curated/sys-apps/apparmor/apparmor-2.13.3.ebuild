@@ -9,7 +9,7 @@ MY_PV="$(ver_cut 1-2)"
 
 DESCRIPTION="Userspace utils and init scripts for the AppArmor application security system"
 HOMEPAGE="https://gitlab.com/apparmor/apparmor/wikis/home"
-SRC_URI="https://launchpad.net/${PN}/${MY_PV}/${PV}/+download/${PN}-${PV}.tar.gz"
+SRC_URI="https://launchpad.net/${PN}/${MY_PV}/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -26,6 +26,8 @@ DEPEND="${RDEPEND}
 	sys-devel/flex
 	doc? ( dev-tex/latex2html )
 "
+
+RDEPEND="${RDEPEND} ~sec-policy/apparmor-profiles-${PV}"
 
 S=${WORKDIR}/apparmor-${PV}/parser
 

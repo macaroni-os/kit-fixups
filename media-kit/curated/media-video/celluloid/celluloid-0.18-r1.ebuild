@@ -1,25 +1,21 @@
 # Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit gnome2-utils xdg-utils meson
 
 DESCRIPTION="A simple GTK+ frontend for mpv"
 HOMEPAGE="https://github.com/celluloid-player/celluloid"
 
-if [[ ${PV} == 9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/${PN}-player/${PN}.git"
-	KEYWORDS=""
-else
-	SRC_URI="https://github.com/${PN}-player/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
+GITHUB_REPO="celluloid-player"
+GITHUB_USER="celluloid"
+GITHUB_TAG="$P"
+SRC_URI="https://github.com/${GITHUB_REPO}/${GITHUB_USER}/archive/v${PV}.tar.gz -> ${GITHUB_TAG}.tar.gz"
 
 LICENSE="GPL-3+"
 SLOT="0"
-
+KEYWORDS="*"
 RDEPEND="
 	>=dev-libs/glib-2.44
 	media-libs/libepoxy
@@ -43,13 +39,13 @@ src_prepare() {
 
 pkg_postinst() {
 	xdg_desktop_database_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 	gnome2_schemas_update
 }
 
 pkg_postrm() {
 	xdg_desktop_database_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 	gnome2_schemas_update
 }
 

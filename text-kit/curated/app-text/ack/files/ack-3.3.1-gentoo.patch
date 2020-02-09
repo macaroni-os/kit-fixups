@@ -1,0 +1,15 @@
+diff --git a/lib/App/Ack/ConfigDefault.pm b/lib/App/Ack/ConfigDefault.pm
+index 715dfc5..ec3b332 100644
+--- a/lib/App/Ack/ConfigDefault.pm
++++ b/lib/App/Ack/ConfigDefault.pm
+@@ -280,6 +280,10 @@ sub _options_block {
+ # https://en.wikipedia.org/wiki/Fortran
+ --type-add=fortran:ext:f,f77,f90,f95,f03,for,ftn,fpp
+ 
++# Gentoo
++# https://www.gentoo.org/
++--type-add=gentoo:ext:ebuild,eclass
++
+ # Go
+ # https://golang.org/
+ --type-add=go:ext:go

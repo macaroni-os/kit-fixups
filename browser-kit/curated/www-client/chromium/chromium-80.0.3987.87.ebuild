@@ -1,4 +1,4 @@
-# Copyright 2009-2019 Gentoo Authors
+# Copyright 2009-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -141,20 +141,20 @@ For native file dialogs in KDE, install kde-apps/kdialog.
 "
 
 PATCHES=(
-        "${FILESDIR}/chromium-compiler-r10.patch"
-        "${FILESDIR}/chromium-fix-char_traits.patch"
-        "${FILESDIR}/chromium-unbundle-zlib-r1.patch"
-        "${FILESDIR}/chromium-77-system-icu.patch"
-        "${FILESDIR}/chromium-78-protobuf-export.patch"
-        "${FILESDIR}/chromium-79-gcc-alignas.patch"
-        "${FILESDIR}/chromium-80-unbundle-libxml.patch"
-        "${FILESDIR}/chromium-80-include.patch"
-        "${FILESDIR}/chromium-80-gcc-quiche.patch"
-        "${FILESDIR}/chromium-80-gcc-permissive.patch"
-        "${FILESDIR}/chromium-80-gcc-blink.patch"
-        "${FILESDIR}/chromium-80-gcc-abstract.patch"
-        "${FILESDIR}/chromium-80-gcc-incomplete-type.patch"
-	"${FILESDIR}/enable-vaapi.patch"
+	"${FILESDIR}/chromium-compiler-r10.patch"
+	"${FILESDIR}/chromium-fix-char_traits.patch"
+	"${FILESDIR}/chromium-unbundle-zlib-r1.patch"
+	"${FILESDIR}/chromium-77-system-icu.patch"
+	"${FILESDIR}/chromium-78-protobuf-export.patch"
+	"${FILESDIR}/chromium-79-gcc-alignas.patch"
+	"${FILESDIR}/chromium-80-unbundle-libxml.patch"
+	"${FILESDIR}/chromium-80-include.patch"
+	"${FILESDIR}/chromium-80-gcc-quiche.patch"
+	"${FILESDIR}/chromium-80-gcc-permissive.patch"
+	"${FILESDIR}/chromium-80-gcc-blink.patch"
+	"${FILESDIR}/chromium-80-gcc-abstract.patch"
+	"${FILESDIR}/chromium-80-gcc-incomplete-type.patch"
+	"${FILESDIR}/chromium-80-enable-vaapi.patch"
 )
 
 pre_build_checks() {
@@ -451,7 +451,7 @@ src_configure() {
 	# for development and debugging.
 	myconf_gn+=" is_component_build=$(usex component-build true false)"
 
-        # https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
+	# https://chromium.googlesource.com/chromium/src/+/lkcr/docs/jumbo.md
         myconf_gn+=" use_jumbo_build=$(usex jumbo-build true false)"
 
 	myconf_gn+=" use_allocator=$(usex tcmalloc \"tcmalloc\" \"none\")"
@@ -650,6 +650,14 @@ src_compile() {
 		s|@@MENUNAME@@|Chromium|g;' \
 		chrome/app/resources/manpage.1.in > \
 		out/Release/chromium-browser.1 || die
+
+	# Build desktop file; bug #706786
+	sed -e 's|@@MENUNAME@@|Chromium|g;
+		s|@@USR_BIN_SYMLINK_NAME@@|chromium-browser|g;
+		s|@@PACKAGE@@|chromium-browser|g;
+		s|\(^Exec=\)/usr/bin/|\1|g;' \
+		chrome/installer/linux/common/desktop.template > \
+		out/Release/chromium-browser-chromium.desktop || die
 }
 
 src_install() {
@@ -662,16 +670,16 @@ src_install() {
 		fperms 4755 "${CHROMIUM_HOME}/chrome-sandbox"
 	fi
 
+	if use vaapi; then
+		insinto /usr/share/drirc.d
+		newins "${FILESDIR}"/01-chromium.conf 01-chromium.conf
+	fi
+
 	doexe out/Release/chromedriver
 
 	local sedargs=( -e "s:/usr/lib/:/usr/$(get_libdir)/:g" )
 	sed "${sedargs[@]}" "${FILESDIR}/chromium-launcher-r3.sh" > chromium-launcher.sh || die
 	doexe chromium-launcher.sh
-
-	if use vaapi; then
-		insinto /usr/share/drirc.d
-		newins "${FILESDIR}"/01-chromium.conf 01-chromium.conf
-	fi
 
 	# It is important that we name the target "chromium-browser",
 	# xdg-utils expect it; bug #355517.
@@ -706,7 +714,7 @@ src_install() {
 		doins out/Release/swiftshader/*.so
 	fi
 
-	# Install icons and desktop entry.
+	# Install icons
 	local branding size
 	for size in 16 24 32 48 64 128 256 ; do
 		case ${size} in
@@ -717,17 +725,8 @@ src_install() {
 			chromium-browser.png
 	done
 
-	local mime_types="text/html;text/xml;application/xhtml+xml;"
-	mime_types+="x-scheme-handler/http;x-scheme-handler/https;" # bug #360797
-	mime_types+="x-scheme-handler/ftp;" # bug #412185
-	mime_types+="x-scheme-handler/mailto;x-scheme-handler/webcal;" # bug #416393
-	make_desktop_entry \
-		chromium-browser \
-		"Chromium" \
-		chromium-browser \
-		"Network;WebBrowser" \
-		"MimeType=${mime_types}\nStartupWMClass=chromium-browser"
-	sed -e "/^Exec/s/$/ %U/" -i "${ED}"/usr/share/applications/*.desktop || die
+	# Install desktop entry
+	domenu out/Release/chromium-browser-chromium.desktop
 
 	# Install GNOME default application entry (bug #303100).
 	insinto /usr/share/gnome-control-center/default-apps

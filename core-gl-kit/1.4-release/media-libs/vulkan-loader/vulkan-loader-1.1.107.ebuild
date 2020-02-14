@@ -8,7 +8,7 @@ KEYWORDS="amd64"
 SRC_URI="https://github.com/KhronosGroup/Vulkan-Loader/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/Vulkan-Loader-${PV}"
 
-inherit python-any-r1
+inherit python-any-r1 cmake-utils
 
 DESCRIPTION="Vulkan Installable Client Driver (ICD) Loader"
 HOMEPAGE="https://github.com/KhronosGroup/Vulkan-Loader"

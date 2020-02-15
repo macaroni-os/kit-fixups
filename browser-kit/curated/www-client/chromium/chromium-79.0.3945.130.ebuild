@@ -153,7 +153,7 @@ PATCHES=(
 	"${FILESDIR}/chromium-79-gcc-name-clash.patch"
 	"${FILESDIR}/chromium-79-gcc-permissive.patch"
 	"${FILESDIR}/chromium-79-gcc-alignas.patch"
-	"${FILESDIR}/enable-vaapi.patch"
+	"${FILESDIR}/chromium-79-enable-vaapi.patch"
 )
 
 pre_build_checks() {

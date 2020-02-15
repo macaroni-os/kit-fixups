@@ -124,7 +124,6 @@ class KitFoundation:
 			'1.4-release': [
 				{'name': 'core-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'core-hw-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
-				{'name': 'core-ui-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'core-server-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'core-gl-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
 				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4_bump', 'stability': KitStabilityRating.PRIME},

@@ -4,17 +4,11 @@
 EAPI=6
 PYTHON_COMPAT=( python3_{5,6} )
 
-if [[ "${PV}" == "9999" ]]; then
-	EGIT_REPO_URI="https://github.com/KhronosGroup/Vulkan-Tools.git"
-	EGIT_SUBMODULES=()
-	inherit git-r3
-else
-	KEYWORDS="~amd64"
-	SRC_URI="https://github.com/KhronosGroup/Vulkan-Tools/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/Vulkan-Tools-${PV}"
-fi
+KEYWORDS="~amd64"
+SRC_URI="https://github.com/KhronosGroup/Vulkan-Tools/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/Vulkan-Tools-${PV}"
 
-inherit python-any-r1 cmake-multilib
+inherit python-any-r1 cmake-utils
 
 DESCRIPTION="Official Vulkan Tools and Utilities for Windows, Linux, Android, and MacOS"
 HOMEPAGE="https://github.com/KhronosGroup/Vulkan-Tools"
@@ -24,18 +18,18 @@ SLOT="0"
 IUSE="+cube +vulkaninfo X wayland"
 
 DEPEND="${PYTHON_DEPS}
-	cube? ( dev-util/glslang:=[${MULTILIB_USEDEP}] )
+	cube? ( dev-util/glslang:= )
 	>=dev-util/vulkan-headers-1.1.107
-	media-libs/vulkan-loader:=[${MULTILIB_USEDEP},wayland?,X?]
-	wayland? ( dev-libs/wayland:=[${MULTILIB_USEDEP}] )
+	media-libs/vulkan-loader:=[wayland?,X?]
+	wayland? ( dev-libs/wayland:= )
 	X? (
-		x11-libs/libX11:=[${MULTILIB_USEDEP}]
-		x11-libs/libXrandr:=[${MULTILIB_USEDEP}]
-	   )"
+		x11-libs/libX11:=
+		x11-libs/libXrandr:=
+	)"
 
 # Vulkaninfo does not support wayland
 REQUIRED_USE="|| ( X wayland )
-			  vulkaninfo? ( X )"
+			vulkaninfo? ( X )"
 
 pkg_setup() {
 	MULTILIB_CHOST_TOOLS=()

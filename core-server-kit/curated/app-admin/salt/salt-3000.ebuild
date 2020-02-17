@@ -12,15 +12,7 @@ HOMEPAGE="https://www.saltstack.com/resources/community/ https://github.com/salt
 # Keyword masking for now.
 KEYWORDS=""
 
-GITHUB_REPO="$PN"
-GITHUB_USER="saltstack"
-GITHUB_TAG="81eb15264380d82267ffc3c1930410baf1f3fbf1"
-SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-
-src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
-}
+SRC_URI="https://files.pythonhosted.org/packages/28/63/ad60e60c982810d55e23012e2359c96f92694842a476708f44e5d671a9b6/salt-3000.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"

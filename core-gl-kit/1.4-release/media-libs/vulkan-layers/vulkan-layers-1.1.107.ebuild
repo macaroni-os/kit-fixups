@@ -27,7 +27,7 @@ DEPEND="${PYTHON_DEPS}
 		x11-libs/libXrandr:=
 		)"
 
-multilib_src_configure() {
+src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_SKIP_RPATH=True
 		-DBUILD_WSI_WAYLAND_SUPPORT=$(usex wayland)

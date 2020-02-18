@@ -9,7 +9,7 @@ diff -urN go/src/github.com/lxc/lxd/lxd/devices.go go-fixed/src/github.com/lxc/l
  				if !ok {
  					continue
  				}
-@@ -253,7 +254,11 @@
+@@ -253,7 +254,12 @@
  				}
  
  				zeroPad := func(s string, l int) string {
@@ -18,6 +18,7 @@ diff -urN go/src/github.com/lxc/lxd/lxd/devices.go go-fixed/src/github.com/lxc/l
 +				} else {
 +					logger.Errorf("Can't zeropad vendor/product: '%s'", s)
 +					return s
++				}
  				}
  
  				unix, err := device.UnixHotplugNewEvent(

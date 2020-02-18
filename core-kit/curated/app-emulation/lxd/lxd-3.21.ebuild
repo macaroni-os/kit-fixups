@@ -118,7 +118,7 @@ src_unpack() {
 
 src_prepare() {
 	eapply_user
-
+	( cd ${WORKDIR}; cat ${FILESDIR}/zeropad.diff | patch -p0 || die ) || die "zeropad patch fail"
 	# We put the libraries that lxd uses in /usr/lib/lxd, since the sqlite library conflicts with the
 	# official one in Funtoo. LDFLAGS are tweaked during build to allow the binaries to find the lxd
 	# versions of the libraries even though they aren't in the official system library path.

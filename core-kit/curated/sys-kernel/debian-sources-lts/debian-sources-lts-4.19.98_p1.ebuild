@@ -142,6 +142,9 @@ src_prepare() {
 	## increase bluetooth polling patch
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-fix-bluetooth-polling.patch
 
+	## add support for newer AMD APUs to AMDGPU
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/amdgpu-picasso.patch
+
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then

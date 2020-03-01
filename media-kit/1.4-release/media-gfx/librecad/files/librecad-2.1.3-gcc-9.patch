@@ -1,0 +1,84 @@
+diff -urN a/librecad/src/actions/rs_actiondrawcircletan1_2p.cpp b/librecad/src/actions/rs_actiondrawcircletan1_2p.cpp
+--- a/librecad/src/actions/rs_actiondrawcircletan1_2p.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawcircletan1_2p.cpp	2020-03-01 01:24:36.020606751 -0300
+@@ -38,7 +38,7 @@
+ 
+ namespace{
+ //list of entity types supported by current action
+-auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
++static auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
+ }
+ 
+ struct RS_ActionDrawCircleTan1_2P::Points {
+diff -urN a/librecad/src/actions/rs_actiondrawcircletan2.cpp b/librecad/src/actions/rs_actiondrawcircletan2.cpp
+--- a/librecad/src/actions/rs_actiondrawcircletan2.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawcircletan2.cpp	2020-03-01 01:25:08.287274612 -0300
+@@ -34,7 +34,7 @@
+ #include "rs_debug.h"
+ 
+ namespace {
+-auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
++static auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
+ }
+ 
+ struct RS_ActionDrawCircleTan2::Points {
+diff -urN a/librecad/src/actions/rs_actiondrawcircletan2_1p.cpp b/librecad/src/actions/rs_actiondrawcircletan2_1p.cpp
+--- a/librecad/src/actions/rs_actiondrawcircletan2_1p.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawcircletan2_1p.cpp	2020-03-01 01:25:31.790608815 -0300
+@@ -36,7 +36,7 @@
+ #include "rs_debug.h"
+ 
+ namespace {
+-auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
++static auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle};
+ }
+ 
+ struct RS_ActionDrawCircleTan2_1P::Points {
+diff -urN a/librecad/src/actions/rs_actiondrawcircletan3.cpp b/librecad/src/actions/rs_actiondrawcircletan3.cpp
+--- a/librecad/src/actions/rs_actiondrawcircletan3.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawcircletan3.cpp	2020-03-01 01:26:04.613943363 -0300
+@@ -36,7 +36,7 @@
+ #include "rs_debug.h"
+ 
+ namespace {
+-auto enTypeList={RS2::EntityArc, RS2::EntityCircle, RS2::EntityLine, RS2::EntityPoint};
++static auto enTypeList={RS2::EntityArc, RS2::EntityCircle, RS2::EntityLine, RS2::EntityPoint};
+ }
+ 
+ struct RS_ActionDrawCircleTan3::Points {
+diff -urN a/librecad/src/actions/rs_actiondrawlinerelangle.cpp b/librecad/src/actions/rs_actiondrawlinerelangle.cpp
+--- a/librecad/src/actions/rs_actiondrawlinerelangle.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawlinerelangle.cpp	2020-03-01 01:26:41.267278052 -0300
+@@ -39,7 +39,7 @@
+ #include "rs_debug.h"
+ 
+ namespace {
+-auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle,
++static auto enTypeList={RS2::EntityLine, RS2::EntityArc, RS2::EntityCircle,
+ 				 RS2::EntityEllipse};
+ }
+ 
+diff -urN a/librecad/src/actions/rs_actiondrawlinetangent1.cpp b/librecad/src/actions/rs_actiondrawlinetangent1.cpp
+--- a/librecad/src/actions/rs_actiondrawlinetangent1.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawlinetangent1.cpp	2020-03-01 01:27:03.760612218 -0300
+@@ -37,7 +37,7 @@
+ #include "rs_debug.h"
+ 
+ namespace{
+-auto circleType={RS2::EntityArc, RS2::EntityCircle,
++static auto circleType={RS2::EntityArc, RS2::EntityCircle,
+ 				 RS2::EntityEllipse, RS2::EntitySplinePoints
+ 				};
+ }
+diff -urN a/librecad/src/actions/rs_actiondrawlinetangent2.cpp b/librecad/src/actions/rs_actiondrawlinetangent2.cpp
+--- a/librecad/src/actions/rs_actiondrawlinetangent2.cpp	2016-09-23 02:34:43.000000000 -0300
++++ b/librecad/src/actions/rs_actiondrawlinetangent2.cpp	2020-03-01 01:27:28.747279809 -0300
+@@ -36,7 +36,7 @@
+ #include "rs_debug.h"
+ 
+ namespace{
+-auto circleType={RS2::EntityArc, RS2::EntityCircle, RS2::EntityEllipse};
++static auto circleType={RS2::EntityArc, RS2::EntityCircle, RS2::EntityEllipse};
+ }
+ 
+ RS_ActionDrawLineTangent2::RS_ActionDrawLineTangent2(

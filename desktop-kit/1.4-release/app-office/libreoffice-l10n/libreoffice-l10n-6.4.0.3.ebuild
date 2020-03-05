@@ -16,7 +16,7 @@ BASE_SRC_URI_STABLE="https://download.documentfoundation.org/${PN/-l10n/}/stable
 
 LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="-* ~amd64"
 IUSE="offlinehelp"
 
 # when changing the language lists, please be careful to preserve the spaces (bug 491728)

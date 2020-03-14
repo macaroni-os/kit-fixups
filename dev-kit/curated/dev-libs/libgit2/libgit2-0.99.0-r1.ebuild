@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,20 +6,14 @@ EAPI=7
 PYTHON_COMPAT=( python3_{6,7} )
 inherit cmake python-any-r1
 
-if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
-	inherit git-r3
-	KEYWORDS=""
-else
-	SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="*"
-fi
 DESCRIPTION="A linkable library for Git"
 HOMEPAGE="https://libgit2.org"
-
+SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 S=${WORKDIR}/${P/_/-}
+
 LICENSE="GPL-2-with-linking-exception"
 SLOT="0/99"
+KEYWORDS="*"
 IUSE="examples gssapi libressl +ssh test +threads trace"
 
 RDEPEND="
@@ -35,6 +29,11 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 "
 
+# libgit2-0.99.0-pkg-config.patch matches upstream change to address github
+# issue #5410. Local patch may be removed in a future releases.
+PATCHES=(
+	"${FILESDIR}"/${P}-pkg-config.patch
+)
 
 src_prepare() {
 	cmake_src_prepare

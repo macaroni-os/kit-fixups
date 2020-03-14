@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -6,21 +6,16 @@ EAPI=7
 PYTHON_COMPAT=( python3_{6,7} )
 inherit cmake python-any-r1
 
-if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="https://github.com/${PN}/${PN}.git"
-	inherit git-r3
-	KEYWORDS=""
-else
-	SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="*"
-fi
+
 DESCRIPTION="A linkable library for Git"
 HOMEPAGE="https://libgit2.org"
+SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="*"
 
-S=${WORKDIR}/${P/_/-}
 LICENSE="GPL-2-with-linking-exception"
-SLOT="0/99"
+SLOT="0/28"
 IUSE="examples gssapi libressl +ssh test +threads trace"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	!libressl? ( dev-libs/openssl:0= )
@@ -35,23 +30,16 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig
 "
 
-
-src_prepare() {
-	cmake_src_prepare
-	# relying on forked http-parser to support some obscure URI form
-	sed -i -e '/empty_port/s:test:_&:' tests/network/urlparse.c || die
-}
+S=${WORKDIR}/${P/_/-}
 
 src_configure() {
 	local mycmakeargs=(
-		-DCMAKE_CONFIGURATION_TYPES="Release"
 		-DLIB_INSTALL_DIR="${EPREFIX}/usr/$(get_libdir)"
 		-DBUILD_CLAR=$(usex test)
-		-DENABLE_TRACE=$(usex trace ON OFF)
-		-DUSE_GSSAPI=$(usex gssapi ON OFF)
+		-DENABLE_TRACE=$(usex trace)
+		-DUSE_GSSAPI=$(usex gssapi)
 		-DUSE_SSH=$(usex ssh)
 		-DTHREADSAFE=$(usex threads)
-		-DUSE_HTTP_PARSER=system
 	)
 	cmake_src_configure
 }

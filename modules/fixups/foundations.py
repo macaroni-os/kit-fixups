@@ -362,8 +362,6 @@ class KitFoundation:
 			"wmfs": {"url": "https://github.com/damex/wmfs-overlay.git", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/wmfs.mask"
 			}},
-			"flora": {"url": self.config.flora, "copyfiles": {
-				"licenses/renoise-EULA": "licenses/renoise-EULA"
-			}},
+			"flora": {"url": self.config.flora, "copyfiles": { "licenses/renoise-EULA": "licenses/renoise-EULA" }, "autogen" : True},
 		}
 

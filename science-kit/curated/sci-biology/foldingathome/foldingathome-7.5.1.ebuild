@@ -43,6 +43,7 @@ pkg_setup() {
 	elog "(ref: http://foldingforum.org/viewtopic.php?f=16&t=22524&p=241992#p241992 )"
 	elog ""
 
+	enewgroup foldingathome
 	enewuser foldingathome -1 -1 "${EPREFIX}"/opt/foldingathome
 }
 

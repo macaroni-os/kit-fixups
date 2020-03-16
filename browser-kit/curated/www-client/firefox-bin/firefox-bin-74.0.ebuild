@@ -35,9 +35,15 @@ RESTRICT="strip mirror"
 KEYWORDS="-* amd64 x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+ffmpeg +pulseaudio selinux startup-notification"
+IUSE="+alsa +ffmpeg +pulseaudio selinux startup-notification"
 
-DEPEND="app-arch/unzip"
+DEPEND="app-arch/unzip
+	alsa? (
+		!pulseaudio? (
+			dev-util/patchelf
+			media-sound/apulse
+		)
+	)"
 RDEPEND="dev-libs/atk
 	>=sys-apps/dbus-0.60
 	>=dev-libs/dbus-glib-0.72
@@ -57,8 +63,12 @@ RDEPEND="dev-libs/atk
 	x11-libs/libXt
 	>=x11-libs/pango-1.22.0
 	virtual/freedesktop-icon-theme
-	pulseaudio? ( !<media-sound/apulse-0.1.9
-		|| ( media-sound/pulseaudio media-sound/apulse ) )
+	alsa? (
+		!pulseaudio? (
+			media-sound/apulse
+		)
+	)
+	pulseaudio? ( media-sound/pulseaudio )
 	ffmpeg? ( media-video/ffmpeg )
 	selinux? ( sec-policy/selinux-mozilla )
 "
@@ -129,9 +139,14 @@ src_install() {
 		MOZ_INSTALL_L10N_XPIFILE="1" \
 		mozlinguas_src_install
 
+	if use alsa && ! use pulseaudio; then
+		local apulselib="/usr/$(get_libdir)/apulse"
+		patchelf --set-rpath "${apulselib}" "${ED}"${MOZILLA_FIVE_HOME}/libxul.so || die
+	fi
+
 	# Create /usr/bin/firefox-bin
 	dodir /usr/bin/
-	local apulselib=$(usex pulseaudio "/usr/$(get_libdir)/apulse:" "")
+	local apulselib=$(usex pulseaudio "" $(usex alsa "/usr/$(get_libdir)/apulse:" ""))
 	cat <<-EOF >"${ED}"usr/bin/${PN}
 	#!/bin/sh
 	unset LD_PRELOAD
@@ -167,7 +182,15 @@ pkg_postinst() {
 	fi
 
 	use ffmpeg || ewarn "USE=-ffmpeg : HTML5 video will not render without media-video/ffmpeg installed"
-	use pulseaudio || ewarn "USE=-pulseaudio : audio will not play without pulseaudio installed"
+
+	local HAS_AUDIO=0
+	if use alsa || use pulseaudio; then
+		HAS_AUDIO=1
+	fi
+
+	if [[ ${HAS_AUDIO} -eq 0 ]] ; then
+		ewarn "USE=-pulseaudio & USE=-alsa : For audio please either set USE=pulseaudio or USE=alsa!"
+	fi
 
 	local show_doh_information
 

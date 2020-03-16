@@ -1,8 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-MOZ_ESR=0
+MOZ_ESR=1
 
 # Can be updated using scripts/get_langs.sh from mozilla overlay
 MOZ_LANGS=(ach af an ar ast az be bg bn br bs ca cak cs cy da de dsb el en en-CA
@@ -35,9 +35,15 @@ RESTRICT="strip mirror"
 KEYWORDS="-* amd64 x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+ffmpeg +pulseaudio selinux startup-notification"
+IUSE="+alsa +ffmpeg +pulseaudio selinux startup-notification"
 
-DEPEND="app-arch/unzip"
+DEPEND="app-arch/unzip
+	alsa? (
+		!pulseaudio? (
+			dev-util/patchelf
+			media-sound/apulse
+		)
+	)"
 RDEPEND="dev-libs/atk
 	>=sys-apps/dbus-0.60
 	>=dev-libs/dbus-glib-0.72
@@ -57,8 +63,12 @@ RDEPEND="dev-libs/atk
 	x11-libs/libXt
 	>=x11-libs/pango-1.22.0
 	virtual/freedesktop-icon-theme
-	pulseaudio? ( !<media-sound/apulse-0.1.9
-		|| ( media-sound/pulseaudio media-sound/apulse ) )
+	alsa? (
+		!pulseaudio? (
+			media-sound/apulse
+		)
+	)
+	pulseaudio? ( media-sound/pulseaudio )
 	ffmpeg? ( media-video/ffmpeg )
 	selinux? ( sec-policy/selinux-mozilla )
 "
@@ -97,7 +107,7 @@ src_install() {
 	# Install icons and .desktop for menu entry
 	for size in ${sizes}; do
 		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
-		newins "${icon_path}/default${size}.png" "${icon}.png" || die
+		newins "${icon_path}/default${size}.png" "${icon}.png"
 	done
 	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
 	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
@@ -129,6 +139,11 @@ src_install() {
 		MOZ_INSTALL_L10N_XPIFILE="1" \
 		mozlinguas_src_install
 
+	if use alsa && ! use pulseaudio; then
+		local apulselib="/usr/$(get_libdir)/apulse"
+		patchelf --set-rpath "${apulselib}" "${ED}"${MOZILLA_FIVE_HOME}/libxul.so || die
+	fi
+
 	# Create /usr/bin/firefox-bin
 	dodir /usr/bin/
 	local apulselib=$(usex pulseaudio "/usr/$(get_libdir)/apulse:" "")
@@ -144,7 +159,7 @@ src_install() {
 	# revdep-rebuild entry
 	insinto /etc/revdep-rebuild
 	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10${PN}
-	doins "${T}"/10${PN} || die
+	doins "${T}"/10${PN}
 
 	# Plugins dir, still used for flash
 	share_plugins_dir
@@ -162,7 +177,15 @@ pkg_postinst() {
 		einfo
 	fi
 	use ffmpeg || ewarn "USE=-ffmpeg : HTML5 video will not render without media-video/ffmpeg installed"
-	use pulseaudio || ewarn "USE=-pulseaudio : audio will not play without pulseaudio installed"
+
+	local HAS_AUDIO=0
+	if use alsa || use pulseaudio; then
+		HAS_AUDIO=1
+	fi
+
+	if [[ ${HAS_AUDIO} -eq 0 ]] ; then
+		ewarn "USE=-pulseaudio & USE=-alsa : For audio please either set USE=pulseaudio or USE=alsa!"
+	fi
 
 	# Update mimedb for the new .desktop file
 	xdg_desktop_database_update

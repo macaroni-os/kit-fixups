@@ -1,4 +1,5 @@
 # Copyright 2019 Yurij Mikhalevich <yurij@mikhalevi.ch>
+# Copyright 2020 Funtoo Solutions, Inc.
 # Distributed under the terms of the MIT License
 
 EAPI=7
@@ -24,22 +25,26 @@ QA_PREBUILT="opt/zoom/*"
 
 RDEPEND="${DEPEND}
 	pulseaudio? ( media-sound/pulseaudio )
-	dev-db/sqlite
-	dev-db/unixODBC
-	dev-libs/glib
-	dev-libs/nss
+	app-i18n/ibus
+	dev-libs/glib:2
 	dev-libs/libxslt
-	dev-qt/qtmultimedia
+	dev-libs/nss
 	media-libs/fontconfig
-	media-libs/gstreamer:0.10
-	media-libs/gst-plugins-base:0.10
 	media-libs/mesa
-	x11-libs/libxcb
+	sys-apps/dbus
+	x11-libs/libSM
+	x11-libs/libX11
 	x11-libs/libXcomposite
+	x11-libs/libXfixes
 	x11-libs/libXi
+	x11-libs/libXrandr
 	x11-libs/libXrender
-	dev-qt/qtwebengine
-	dev-qt/qtsvg"
+	x11-libs/libXtst
+	x11-libs/libxcb
+	x11-libs/libxshmfence
+	x11-libs/xcb-util-image
+	x11-libs/xcb-util-keysyms
+"
 DEPEND="${RDEPEND}
 	app-admin/chrpath
 "

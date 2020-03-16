@@ -345,8 +345,6 @@ class KitFoundation:
 				"app-editors/textadept",
 				"app-editors/scite",
 				"app-editors/gvim",
-				"app-editors/vim",
-				"app-editors/vim-core",
 				"app-editors/sublime-text"
 			]},  # FL-3633, FL-3663, FL-3776
 			"plex": {"url": "https://github.com/Ghent/funtoo-plex.git", "select": [

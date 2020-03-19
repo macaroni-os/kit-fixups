@@ -3,13 +3,13 @@
 async def generate(hub):
 
 	url = await hub.pkgtools.fetch.get_url_from_redirect("https://zoom.us/client/latest/zoom_x86_64.pkg.tar.xz")
-
+	version = url.split("/")[-2]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
 		name="zoom-bin",
 		cat="net-im",
-		version=url.split("/")[-2],
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name="zoom-%s_x86_64.pkg.tar.xz" % version)]
 	)
 
 	ebuild.push()

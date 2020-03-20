@@ -24,7 +24,7 @@ async def generate(hub):
 		hub,
 		name="firefox-bin",
 		cat="www-client",
-		version=json_dict["LATEST_FIREFOX_VERSION"],
+		version=version,
 		artifacts=[
 			get_artifact(hub, version, "amd64"),
 			get_artifact(hub, version, "x86")

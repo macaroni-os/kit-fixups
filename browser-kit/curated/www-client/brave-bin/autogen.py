@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import json
+from re import match
 
 def get_latest_stable_version_for_desktop(releases):
-	stable_desktop_releases = list(filter(lambda x: x.startswith("Release Channel") and not x.endswith("android"), releases))
+	stable_desktop_releases = list(filter(lambda x: match(r"^Release Channel v[0-9.]+$", x), releases))
 	stable_desktop_releases.sort()
 	return stable_desktop_releases.pop().split('v').pop()
 

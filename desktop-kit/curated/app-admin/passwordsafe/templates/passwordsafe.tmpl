@@ -38,10 +38,6 @@ DEPEND="${COMMON_DEPEND}
 
 S=${WORKDIR}/pwsafe-${MY_PV}
 
-PATCHES=(
-	"${FILESDIR}/${PN}-1.06_beta-system-gtest.patch"
-)
-
 pkg_pretend() {
 	einfo "Checking for -std=c++11 support in compiler"
 	test-flags-CXX -std=c++11 > /dev/null || die

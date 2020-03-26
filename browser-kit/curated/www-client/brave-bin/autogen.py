@@ -12,7 +12,7 @@ async def generate(hub):
 
 	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/brave/brave-browser/releases")
 	json_dict = json.loads(json_data)
-	version = get_latest_stable_version_for_desktop(list(map(lambda x: x['name'], json_dict)))
+	version = get_latest_stable_version_for_desktop(list(map(lambda x: x['name'], list(filter(lambda x: x['prerelease'] == False, json_dict)))))
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
 		name="brave-bin",

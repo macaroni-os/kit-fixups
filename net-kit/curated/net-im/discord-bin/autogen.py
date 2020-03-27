@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 		hub,
 		**pkginfo,
 		version=url.split("/")[-1].lstrip("discord-").rstrip(".deb"),
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url)]
 	)
 
 	ebuild.push()

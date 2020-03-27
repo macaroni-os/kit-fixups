@@ -18,7 +18,7 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=f'https://github.com/brave/brave-browser/releases/download/v{version}/brave-v{version}-linux-x64.zip')
+			hub.pkgtools.ebuild.Artifact(hub, url=f'https://github.com/brave/brave-browser/releases/download/v{version}/brave-v{version}-linux-x64.zip')
 		]
 	)
 	ebuild.push()

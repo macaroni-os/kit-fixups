@@ -11,7 +11,7 @@ def get_artifact(hub, version, arch):
 		moz_arch = "i686"
 	url = f"https://archive.mozilla.org/pub/thunderbird/releases/{version}/linux-{moz_arch}/en-US/thunderbird-{version}.tar.bz2"
 	final_name = f'thunderbird-bin_{moz_arch}-{version}.tar.bz2'
-	return hub.pkgtools.ebuild.Artifact(
+	return hub.pkgtools.ebuild.Artifact(hub,
 		url=url,
 		final_name=final_name
 	)
@@ -29,7 +29,7 @@ async def generate(hub, **pkginfo):
 		artifacts=[
 			get_artifact(hub, version, "amd64"),
 			get_artifact(hub, version, "x86"),
-			hub.pkgtools.ebuild.Artifact(url=f"https://dev.gentoo.org/~juippis/distfiles/lightning-{lightning_version}.tar.xz")
+			hub.pkgtools.ebuild.Artifact(hub, url=f"https://dev.gentoo.org/~juippis/distfiles/lightning-{lightning_version}.tar.xz")
 		],
 		lightning_version=lightning_version
 	)

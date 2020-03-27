@@ -18,7 +18,7 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz')
+			hub.pkgtools.ebuild.Artifact(hub, url=f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz')
 		]
 	)
 	ebuild.push()

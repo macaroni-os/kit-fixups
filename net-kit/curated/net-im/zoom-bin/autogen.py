@@ -8,7 +8,7 @@ async def generate(hub, **pkginfo):
 		hub,
 		**pkginfo,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name="zoom-%s_x86_64.pkg.tar.xz" % version)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url, final_name="zoom-%s_x86_64.pkg.tar.xz" % version)]
 	)
 
 	ebuild.push()

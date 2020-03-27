@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version,
 		revision=revision,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url)]
 	)
 
 	ebuild.push()

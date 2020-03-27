@@ -17,7 +17,7 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=f'https://git.zx2c4.com/password-store/snapshot/password-store-{version}.tar.xz')
+			hub.pkgtools.ebuild.Artifact(hub, url=f'https://git.zx2c4.com/password-store/snapshot/password-store-{version}.tar.xz')
 		]
 	)
 	ebuild.push()

@@ -10,6 +10,7 @@ def get_artifact(hub, version, arch):
 	url = f"https://archive.mozilla.org/pub/firefox/releases/{version}/linux-{moz_arch}/en-US/firefox-{version}.tar.bz2"
 	final_name = f'firefox-bin_{moz_arch}-{version}.tar.bz2'
 	return hub.pkgtools.ebuild.Artifact(
+		hub,
 		url=url,
 		final_name=final_name
 	)

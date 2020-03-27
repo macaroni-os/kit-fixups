@@ -91,7 +91,7 @@ async def generate(hub, **pkginfo):
 	cpvr = "{cat}/{name}-{version}-r{revision}".format(**template_args)
 	url = "https://www.github.com/{GITHUB_USER}/{GITHUB_REPO}/tarball/{GITHUB_TAG}".format(**template_args)
 	final_name = "{name}-{GITHUB_TAG}.tar.gz".format(**template_args)
-	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
+	artifact = hub.pkgtools.ebuild.Artifact(hub, url=url, final_name=final_name)
 
 	sub_ebuild_template = """# Distributed under the terms of the GNU General Public License v2
 EAPI=6

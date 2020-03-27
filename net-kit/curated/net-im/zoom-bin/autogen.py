@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-async def generate(hub, pkginfo):
+async def generate(hub, **pkginfo):
 
 	url = await hub.pkgtools.fetch.get_url_from_redirect("https://zoom.us/client/latest/zoom_x86_64.pkg.tar.xz")
 	version = url.split("/")[-2]

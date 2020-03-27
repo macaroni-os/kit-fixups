@@ -5,7 +5,7 @@ import json
 RELEASE_CHANNEL="dev"
 PACKAGE_APPENDIX="unstable"
 
-async def generate(hub):
+async def generate(hub, **pkginfo):
 
 	json_data = await hub.pkgtools.fetch.get_page("https://omahaproxy.appspot.com/json")
 	json_dict = json.loads(json_data)

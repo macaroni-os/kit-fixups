@@ -16,7 +16,7 @@ def get_artifact(hub, version, arch):
 		final_name=final_name
 	)
 
-async def generate(hub):
+async def generate(hub, **pkginfo):
 
 	json_data = await hub.pkgtools.fetch.get_page("https://product-details.mozilla.org/1.0/thunderbird_versions.json")
 	json_dict = json.loads(json_data)
@@ -24,8 +24,7 @@ async def generate(hub):
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
-		name="thunderbird-bin",
-		cat="mail-client",
+		**pkginfo,
 		version=version,
 		artifacts=[
 			get_artifact(hub, version, "amd64"),

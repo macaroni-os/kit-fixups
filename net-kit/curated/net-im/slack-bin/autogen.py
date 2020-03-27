@@ -2,7 +2,7 @@
 
 import re
 
-async def generate(hub):
+async def generate(hub, **pkginfo):
 
 	html = await hub.pkgtools.fetch.get_page("https://slack.com/downloads/instructions/debian")
 	match = re.search(r"https://downloads\.slack-edge\.com/linux_releases/slack-desktop-(.\..\..)-amd64.deb", html)
@@ -13,8 +13,7 @@ async def generate(hub):
 	revision = 1 if version == "4.3.2" else 0
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
-		name="slack-bin",
-		cat="net-im",
+		**pkginfo,
 		version=version,
 		revision=revision,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]

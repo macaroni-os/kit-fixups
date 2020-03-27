@@ -14,16 +14,14 @@ def get_artifact(hub, version, arch):
 		final_name=final_name
 	)
 
-async def generate(hub):
+async def generate(hub, **pkginfo):
 
 	json_data = await hub.pkgtools.fetch.get_page("https://product-details.mozilla.org/1.0/firefox_versions.json")
 	json_dict = json.loads(json_data)
 	version = json_dict["LATEST_FIREFOX_VERSION"]
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
-		name="firefox-bin",
-		cat="www-client",
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(hub,
+		**pkginfo,
 		version=version,
 		artifacts=[
 			get_artifact(hub, version, "amd64"),

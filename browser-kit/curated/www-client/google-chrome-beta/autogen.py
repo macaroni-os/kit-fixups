@@ -4,7 +4,7 @@ import json
 
 async def generate(hub, **pkginfo):
 
-	RELEASE_CHANNEL = PKG_APPENDIX = pkginfo['name'].split('-')[-1]
+	RELEASE_CHANNEL = PACKAGE_APPENDIX = pkginfo['name'].split('-')[-1]
 	json_data = await hub.pkgtools.fetch.get_page("https://omahaproxy.appspot.com/json")
 	json_dict = json.loads(json_data)
 	linux_os = list(filter(lambda x: x['os'] == 'linux', json_dict))[0]

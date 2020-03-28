@@ -7,6 +7,7 @@ async def generate(hub, **pkginfo):
 	match = re.search(r"https://downloads.vivaldi.com/stable/vivaldi-stable_([0-9.-]*)_amd64.deb", html_page)
 	url = match.group(0) # the entire match
 	version = match.group(1) # the first group
+	version = version.replace('-','_p') # convert deb version string to funtoo-compatible.
 
 	artifacts = [
 		hub.pkgtools.ebuild.Artifact(hub, url=url, final_name=f"vivaldi-{version}-amd64.deb"),

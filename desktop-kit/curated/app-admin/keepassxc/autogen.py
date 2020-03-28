@@ -3,20 +3,20 @@
 import json
 
 async def generate(hub, **pkginfo):
-	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/keepassxreboot/keepassxc/tags")
+	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/keepassxreboot/keepassxc/releases")
 	json_dict = json.loads(json_data)
-	for release in json_dict:
-		if "-" in release["name"]:
-			continue
-		else:
-			version = release["name"]
+	release = json_dict[0]
+	version = release['tag_name']
+	for asset in release["assets"]:
+		if asset['content_type'] == 'application/x-xz':
+			url = asset['browser_download_url']
 			break
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(hub, url=f'https://github.com/keepassxreboot/keepassxc/archive/{version}.tar.gz')
+			hub.pkgtools.ebuild.Artifact(hub, url=url)
 		]
 	)
 	ebuild.push()

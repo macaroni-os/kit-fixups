@@ -9,16 +9,17 @@ def get_latest_linux_version(releases):
 	return linux_releases.pop().split("release ").pop()
 
 async def generate(hub, **pkginfo):
-
 	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/pwsafe/pwsafe/releases")
 	json_dict = json.loads(json_data)
 	version = get_latest_linux_version(list(map(lambda x: x['name'], list(filter(lambda x: x['prerelease'] == False, json_dict)))))
+	url = f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz'
+	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		hub,
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(hub, url=f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz')
+			hub.pkgtools.ebuild.Artifact(hub, url=url, final_name=final_name)
 		]
 	)
 	ebuild.push()

@@ -7,7 +7,7 @@ async def get_lang_artifacts(hub, version):
 	lang_page = await hub.pkgtools.fetch.get_page(f"https://archive.mozilla.org/pub/firefox/releases/{version}/linux-x86_64/xpi/")
 	lang_codes = []
 	artifacts = []
-	for lang_path in re.findall(f'/pub/firefox/releases/74.0/linux-x86_64/xpi/[^"]*\.xpi', lang_page):
+	for lang_path in re.findall(f'/pub/firefox/releases/{version}/linux-x86_64/xpi/[^"]*\.xpi', lang_page):
 		lang_code = lang_path.split('/')[-1].split('.')[0]
 		lang_codes.append(lang_code)
 		artifacts.append(hub.pkgtools.ebuild.Artifact(hub, url='https://archive.mozilla.org' + lang_path, final_name=f'firefox-{version}-{lang_code}.xpi'))
@@ -34,7 +34,6 @@ async def generate(hub, **pkginfo):
 	json_dict = json.loads(json_data)
 	version = json_dict["LATEST_FIREFOX_VERSION"]
 	lang_data = await get_lang_artifacts(hub, version)
-	print(lang_data)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(hub,
 		**pkginfo,
 		version=version,

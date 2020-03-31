@@ -14,11 +14,10 @@ async def generate(hub, **pkginfo):
 	json_dict = json.loads(json_data)
 	version = get_latest_stable_version_for_desktop(list(map(lambda x: x['name'], list(filter(lambda x: x['prerelease'] == False, json_dict)))))
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(hub, url=f'https://github.com/brave/brave-browser/releases/download/v{version}/brave-v{version}-linux-x64.zip')
+			hub.pkgtools.ebuild.Artifact(url=f'https://github.com/brave/brave-browser/releases/download/v{version}/brave-v{version}-linux-x64.zip')
 		]
 	)
 	ebuild.push()

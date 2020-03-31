@@ -15,11 +15,10 @@ async def generate(hub, **pkginfo):
 	url = f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz'
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
 		**pkginfo,
 		version=version,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(hub, url=url, final_name=final_name)
+			hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 		]
 	)
 	ebuild.push()

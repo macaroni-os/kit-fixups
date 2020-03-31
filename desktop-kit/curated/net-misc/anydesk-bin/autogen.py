@@ -9,10 +9,9 @@ async def generate(hub, **pkginfo):
 	url = match.group(0) # the entire match
 	version = match.group(1) # just the version
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
 		**pkginfo,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 
 	ebuild.push()

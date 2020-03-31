@@ -7,10 +7,9 @@ async def generate(hub, **pkginfo):
 	url = await hub.pkgtools.fetch.get_url_from_redirect("https://discordapp.com/api/download?platform=linux&format=deb")
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
 		**pkginfo,
 		version=url.split("/")[-1].lstrip("discord-").rstrip(".deb"),
-		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 
 	ebuild.push()

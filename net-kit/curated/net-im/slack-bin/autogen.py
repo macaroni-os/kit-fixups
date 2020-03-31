@@ -12,11 +12,10 @@ async def generate(hub, **pkginfo):
 	version = match.group(1) # just the version
 	revision = 1 if version == "4.3.2" else 0
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		hub,
 		**pkginfo,
 		version=version,
 		revision=revision,
-		artifacts=[hub.pkgtools.ebuild.Artifact(hub, url=url)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 
 	ebuild.push()

@@ -83,7 +83,8 @@ PDEPEND="doc? (
 	gnome-extra/yelp
 )"
 
-PATCHES=( "${FILESDIR}"/${PN}-3.2-no-gui.patch )
+PATCHES=( "${FILESDIR}"/${PN}-3.2-no-gui.patch
+          "${FILESDIR}"/${PN}-3.6-no-warning-errors.patch )
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup

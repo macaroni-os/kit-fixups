@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		python_compat='python3_{6,7,8}',
+		python_compat='python3_{6,7,8} pypy3',
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(url=artifact_url)
 		]

@@ -47,6 +47,9 @@ DOCS=( HACKING.rst.txt THANKS.txt )
 
 DISTUTILS_IN_SOURCE_BUILD=1
 
+# Prevent make job race conditions during build
+MAKEOPTS="-j1"
+
 src_unpack() {
 	default
 	if use doc; then

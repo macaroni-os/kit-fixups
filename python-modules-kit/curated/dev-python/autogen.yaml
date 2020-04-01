@@ -1,0 +1,9 @@
+dev_python_autogen_rule:
+  defaults:
+    category: dev-python
+    python_compat: python3_{6,7,8}
+  generator: python-1
+  packages:
+    - aiohttp
+    - pyyaml:
+        python_compat: python2_7 python3_{6,7,8} pypy3

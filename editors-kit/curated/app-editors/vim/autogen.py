@@ -15,13 +15,14 @@ async def generate(hub, **pkginfo):
 	release = json_dict[0]
 	version = release['name'][1:] # strip 'v'
 	url = f'https://github.com/vim/vim/archive/v{version}/v{version}.tar.gz'
+	artifacts = [
+		hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
+	]
 	vim = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		patches=patches,
 		version=version,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
-		]
+		artifacts=artifacts
 	)
 	vim.push()
 	vim_core = hub.pkgtools.ebuild.BreezyBuild(
@@ -30,9 +31,7 @@ async def generate(hub, **pkginfo):
 		name='vim-core',
 		patches=patches,
 		version=version,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
-		]
+		artifacts=artifacts
 	)
 	vim_core.push()
 	gvim = hub.pkgtools.ebuild.BreezyBuild(
@@ -41,9 +40,7 @@ async def generate(hub, **pkginfo):
 		name='gvim',
 		patches=patches,
 		version=version,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
-		]
+		artifacts=artifacts
 	)
 	gvim.push()
 

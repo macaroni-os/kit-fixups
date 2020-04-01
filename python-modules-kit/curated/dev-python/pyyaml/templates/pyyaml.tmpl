@@ -17,6 +17,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 IUSE="examples +libyaml"
+S="${WORKDIR}/PyYAML-${PV}"
 
 RDEPEND="libyaml? ( dev-libs/libyaml:= )"
 DEPEND="${RDEPEND}

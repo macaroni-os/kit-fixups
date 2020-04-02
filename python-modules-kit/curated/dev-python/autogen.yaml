@@ -5,6 +5,14 @@ dev_python_autogen_rule:
   generator: pypi-1
   packages:
     - aiohttp
+    - async_timeout:
+        python_compat: python3_{6,7,8} pypy3
+    - authres:
+        python_compat: python3_{6,7,8} pypy3
+    - bitarray:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - daemonize:
+        python_compat: python3_{6,7,8} pypy3
     - pycares:
         python_compat: python3_{6,7,8} pypy3
     - pyyaml:

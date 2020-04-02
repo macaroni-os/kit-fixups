@@ -142,6 +142,9 @@ src_prepare() {
 	## increase bluetooth polling patch
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-fix-bluetooth-polling.patch
 
+	## fix for USB device enumeration for USBPre2:
+	epatch "${FILESDIR}/${DEB_PV_BASE}/usb-blacklist-endpoint-sound-devices-usbpre2.patch"
+
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then

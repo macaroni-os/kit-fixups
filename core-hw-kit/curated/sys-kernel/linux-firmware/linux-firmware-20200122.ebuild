@@ -4,14 +4,9 @@
 EAPI=7
 inherit mount-boot savedconfig
 
-if [[ ${PV} == 99999999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/${PN}.git"
-else
-	#GIT_COMMIT="eefb5f7410150c00d0ab5c41c5d817ae9bf449b3"
-	SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS=""
-fi
+#GIT_COMMIT="eefb5f7410150c00d0ab5c41c5d817ae9bf449b3"
+SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="*"
 
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git"

@@ -1,0 +1,22 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Configuration sub for Plugin-Oriented Programming"
+HOMEPAGE="https://pypi.org/project/pop-config/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE=""
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+src_prepare() {
+	touch ${S}/requirements.txt
+	default
+}
+
+RDEPEND="dev-python/pyyaml[${PYTHON_USEDEP}]"

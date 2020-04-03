@@ -1,0 +1,18 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Python MediaWiki parser"
+HOMEPAGE="https://github.com/earwig/mwparserfromhell/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="dev-python/setuptools[$PYTHON_USEDEP]"
+RDEPEND=""

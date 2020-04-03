@@ -1,0 +1,30 @@
+# Copyright 1999-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Python interface to DBus notifications."
+HOMEPAGE="https://bitbucket.org/takluyver/pynotify2"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="BSD"
+SLOT="0"
+KEYWORDS="*"
+IUSE="examples"
+
+RDEPEND="dev-python/dbus-python[${PYTHON_USEDEP}]"
+
+python_test() {
+	${EPYTHON} test_notify2.py || die
+}
+
+python_install_all() {
+	if use examples; then
+		insinto /usr/share/doc/${PF}/examples
+		doins examples/*
+	fi
+	distutils-r1_python_install_all
+}

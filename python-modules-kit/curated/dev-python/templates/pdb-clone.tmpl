@@ -1,0 +1,17 @@
+# Copyright 1999-2018 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+inherit distutils-r1
+
+DESCRIPTION="A faster clone of pdb"
+HOMEPAGE="https://github.com/corpusops/pdbclone"
+SRC_URI="artifacts[0].src_uri"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="~amd64 ~x86"
+
+DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"

@@ -1,0 +1,19 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Podcast parser for the gpodder client"
+HOMEPAGE="http://gpodder.org"
+SRC_URI="artifacts[0].src_uri"
+
+LICENSE="ISC"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="${PYTHON_DEPS}"
+RDEPEND="${DEPEND}"

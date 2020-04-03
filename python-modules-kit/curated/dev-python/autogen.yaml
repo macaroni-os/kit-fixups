@@ -29,6 +29,7 @@ dev_python_autogen_rule:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - jupyter:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - msgpack
     - notify2:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - parsel:
@@ -41,6 +42,8 @@ dev_python_autogen_rule:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - podcastparser:
         python_compat: python3_{6,7,8} pypy3
+    - pop-config
+    - pop
     - py3dns:
         python_compat: python3_{6,7,8} pypy3
     - pyaes:
@@ -53,26 +56,44 @@ dev_python_autogen_rule:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - pydispatcher:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pyyaml:
-        python_compat: python2_7 python3_{6,7,8} pypy3
-        pypi_name: PyYAML
-    - twine:
-        python_compat: python3_{6,7,8} pypy3
-    - tqdm:
-        python_compat: python2_7 python3_{6,7,8} pypy3
-    - terminado:
-        python_compat: python3_{6,7,8}
-    - readme_renderer:
-        python_compat: python2_7 python3_{6,7,8} pypy3
+    - pyelftools:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - pygments:
         - versions:
             - 2.5.2:
                 python_compat: python2_7 python3_{6,7,8} pypy3
             - latest:
                 python_compat: python3_{6,7,8} pypy3
-    - msgpack
-    - pop-config
-    - pop
+    - pylxd:
+        python_compat: python3_{6,7,8} pypy3
     - pymongo:
         python_compat: python2_7 python3_{6,7,8}
-
+    - pyspf:
+        python_compat: python3_{6,7,8} pypy3
+    - pyyaml:
+        python_compat: python2_7 python3_{6,7,8} pypy3
+        pypi_name: PyYAML
+    - pyzmq:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - random2:
+        python_compat: python3_{6,7,8} pypy3
+    - requests-unixsocket:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - rfc3986-validator:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - twine:
+        python_compat: python3_{6,7,8} pypy3
+    - tqdm:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - terminado:
+        python_compat: python3_{6,7,8}
+    - readme_renderer:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - sortedcollections:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - typogrify:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - xstatic-termjs:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - zipp:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}

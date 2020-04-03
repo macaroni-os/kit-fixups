@@ -1,0 +1,25 @@
+# Copyright 1999-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Filters to enhance web typography, often used with Jinja or Django"
+SRC_URI="{{artifacts[0].src_uri}}"
+HOMEPAGE="https://github.com/mintchaos/typogrify
+	https://pypi.python.org/pypi/typogrify/"
+
+LICENSE="BSD"
+SLOT="0"
+KEYWORDS=""
+
+DEPEND=${PYTHON_DEPS}
+RDEPEND="${PYTHON_DEPS}
+	dev-python/smartypants"
+
+RESTRICT="mirror"
+
+DOCS="README.rst"

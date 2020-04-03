@@ -9,6 +9,8 @@ dev_python_autogen_rule:
         python_compat: python3_{6,7,8} pypy3
     - authres:
         python_compat: python3_{6,7,8} pypy3
+    - autopep8:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - bitarray:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - daemonize:
@@ -81,12 +83,14 @@ dev_python_autogen_rule:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - rfc3986-validator:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - twine:
-        python_compat: python3_{6,7,8} pypy3
-    - tqdm:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - terminado:
         python_compat: python3_{6,7,8}
+    - tlslite:
+        python_compat: python2_7
+    - tqdm:
+        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - twine:
+        python_compat: python3_{6,7,8} pypy3
     - readme_renderer:
         python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - sortedcollections:

@@ -129,7 +129,7 @@ class KitFoundation:
 				{'name': 'security-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4_bump', 'stability': KitStabilityRating.PRIME},
 				{'name': 'xorg-kit', 'branch': '1.20-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'gnome-kit', 'branch': '3.34-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
-				{'name': 'gnome-kit', 'branch': '3.34.3-testing', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},
+				{'name': 'gnome-kit', 'branch': '3.34.4-testing', 'stability': KitStabilityRating.BETA, "type": KitType.INDEPENDENTLY_MAINTAINED},
 				{'name': 'gnome-kit', 'branch': '3.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'rust-kit', 'branch': '1.37-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},  # primary
 				{'name': 'rust-kit', 'branch': '1.32-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},

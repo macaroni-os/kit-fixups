@@ -13,11 +13,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
-
-src_prepare() {
-	touch ${S}/requirements.txt
-	default
-}
+S="${WORKDIR}/{{pypi_name}}-{{version}}"
 
 RDEPEND="
 	dev-python/pyyaml[${PYTHON_USEDEP}]

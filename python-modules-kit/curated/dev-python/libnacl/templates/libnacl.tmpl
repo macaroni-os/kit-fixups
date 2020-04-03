@@ -1,0 +1,21 @@
+# Copyright 2020 Funtoo Solutions, Inc.
+
+EAPI=6
+PYTHON_COMPAT=( {{python_compat}} )
+inherit distutils-r1
+
+DESCRIPTION="Python ctypes wrapper for libsodium"
+HOMEPAGE="https://libnacl.readthedocs.org/"
+SRC_URI="artifacts[0].src_uri"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
+RDEPEND="dev-libs/libsodium"
+
+python_test() {
+	${EPYTHON} tests/runtests.py || die
+}

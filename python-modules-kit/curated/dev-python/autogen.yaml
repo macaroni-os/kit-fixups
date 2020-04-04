@@ -13,8 +13,6 @@ dev_python_autogen_rule:
         - versions:
             - 1.1.1:
                 python_compat: python2_7 python3_{6,7,8} pypy3
-            - latest:
-                python_compat: python3_{6,7,8} pypy3
     - bitarray:
         python_compat: python2_7 python3_{6,7,8} pypy3
     - construct:
@@ -41,14 +39,8 @@ dev_python_autogen_rule:
         python_compat: python2_7 python3_{6,7,8} pypy3
     - pygments:
         - versions:
-#               This version has been set up with a SLOT of 2.7 and python2_7 support only!
-#               This way, things that need pygments for 2.7 will pull this in. But 3.x stuff
-#               can pull in the newer version of pygments with no conflicts. 
             - 2.5.2:
-                python_compat: python2_7
-                template: pygments-old.tmpl
-            - latest:
-                python_compat: python3_{6,7,8} pypy3
+                python_compat: python2_7 python3_{6,7,8} pypy3
     - msgpack
     - pop-config
     - pop

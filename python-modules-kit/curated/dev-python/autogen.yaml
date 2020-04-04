@@ -5,99 +5,28 @@ dev_python_autogen_rule:
   generator: pypi-1
   packages:
     - aiohttp
-    - async_timeout:
-        python_compat: python3_{6,7,8} pypy3
-    - authres:
-        python_compat: python3_{6,7,8} pypy3
-    - autopep8:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - bitarray:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - daemonize:
-        python_compat: python3_{6,7,8} pypy3
-    - feedgenerator:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - flake8:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - flask-jwt:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - graphviz:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - h5py:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - importlib_metadata:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - ipy:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - jupyter:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - msgpack
-    - notify2:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - parsel:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pbkdf2:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pdb-clone:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pillow:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - podcastparser:
-        python_compat: python3_{6,7,8} pypy3
-    - pop-config
-    - pop
-    - py3dns:
-        python_compat: python3_{6,7,8} pypy3
-    - pyaes:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
     - pycares:
         python_compat: python3_{6,7,8} pypy3
-    - pycodestyle:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pydiff:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pydispatcher:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - pyelftools:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+    - pyyaml:
+        python_compat: python2_7 python3_{6,7,8} pypy3
+        pypi_name: PyYAML
+    - twine:
+        python_compat: python3_{6,7,8} pypy3
+    - tqdm:
+        python_compat: python2_7 python3_{6,7,8} pypy3
+    - terminado:
+        python_compat: python3_{6,7,8}
+    - readme_renderer:
+        python_compat: python2_7 python3_{6,7,8} pypy3
     - pygments:
         - versions:
             - 2.5.2:
                 python_compat: python2_7 python3_{6,7,8} pypy3
             - latest:
                 python_compat: python3_{6,7,8} pypy3
-    - pylxd:
-        python_compat: python3_{6,7,8} pypy3
+    - msgpack
+    - pop-config
+    - pop
     - pymongo:
         python_compat: python2_7 python3_{6,7,8}
-    - pyspf:
-        python_compat: python3_{6,7,8} pypy3
-    - pyyaml:
-        python_compat: python2_7 python3_{6,7,8} pypy3
-        pypi_name: PyYAML
-    - pyzmq:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - random2:
-        python_compat: python3_{6,7,8} pypy3
-    - requests-unixsocket:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - rfc3986-validator:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - terminado:
-        python_compat: python3_{6,7,8}
-    - tlslite:
-        python_compat: python2_7
-    - tqdm:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - twine:
-        python_compat: python3_{6,7,8} pypy3
-    - readme_renderer:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - sortedcollections:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - typogrify:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - xstatic-termjs:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
-    - zipp:
-        python_compat: python2_7 python3_{6,7,8} pypy{,3}
+

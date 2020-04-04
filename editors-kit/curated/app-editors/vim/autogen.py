@@ -4,7 +4,7 @@ import json
 from datetime import timedelta
 
 async def generate(hub, **pkginfo):
-	pkginfo['python_compat'] = "python2_7 python3_{6,7,8}"
+	python_compat = "python2_7 python3_{6,7,8}"
 	patches = [
 		'002_all_vim-7.3-apache-83565.patch',
 		'004_all_vim-7.0-grub-splash-96155.patch',
@@ -30,6 +30,7 @@ async def generate(hub, **pkginfo):
 		template_path=vim.template_path,
 		cat=pkginfo['cat'],
 		name='vim-core',
+		python_compat=python_compat,
 		patches=patches,
 		version=version,
 		artifacts=artifacts
@@ -39,6 +40,7 @@ async def generate(hub, **pkginfo):
 		template_path=vim.template_path,
 		cat=pkginfo['cat'],
 		name='gvim',
+		python_compat=python_compat,
 		patches=patches,
 		version=version,
 		artifacts=artifacts

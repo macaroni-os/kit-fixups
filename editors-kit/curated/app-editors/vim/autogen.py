@@ -21,6 +21,7 @@ async def generate(hub, **pkginfo):
 	]
 	vim = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
+		python_compat=python_compat,
 		patches=patches,
 		version=version,
 		artifacts=artifacts

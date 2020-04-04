@@ -5,6 +5,16 @@ dev_python_autogen_rule:
   generator: pypi-1
   packages:
     - aiohttp
+    - aiohttp-socks:
+        python_compat: python3_{6,7,8} pypy3
+    - async_timeout:
+        python_compat: python3_{6,7,8} pypy3
+    - authres:
+        - versions:
+            - 1.1.1:
+                python_compat: python2_7 python3_{6,7,8} pypy3
+            - latest:
+                python_compat: python3_{6,7,8} pypy3
     - pycares:
         python_compat: python3_{6,7,8} pypy3
     - pyyaml:

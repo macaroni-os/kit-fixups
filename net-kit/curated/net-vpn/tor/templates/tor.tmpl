@@ -9,8 +9,7 @@ MY_PV="$(ver_rs 4 -)"
 MY_PF="${PN}-${MY_PV}"
 DESCRIPTION="Anonymizing overlay network for TCP"
 HOMEPAGE="http://www.torproject.org/"
-SRC_URI="https://www.torproject.org/dist/${MY_PF}.tar.gz
-	https://archive.torproject.org/tor-package-archive/${MY_PF}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 S="${WORKDIR}/${MY_PF}"
 
 LICENSE="BSD GPL-2"
@@ -32,11 +31,6 @@ DEPEND="
 	zstd? ( app-arch/zstd )"
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-tor )"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-0.2.7.4-torrc.sample.patch
-	"${FILESDIR}"/${PN}-0.3.3.2-alpha-tor.service.in.patch
-)
 
 DOCS=( README ChangeLog ReleaseNotes doc/HACKING )
 

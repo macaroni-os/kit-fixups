@@ -30,10 +30,10 @@
 # https://dev.gentoo.org/~mgorny/python-guide/
 
 case "${EAPI:-0}" in
-	0|1|2|3|4)
+	0|1|2|3)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	5|6|7)
+	4|5|6|7)
 		# EAPI=5 is required for sane USE_EXPAND dependencies
 		;;
 	*)

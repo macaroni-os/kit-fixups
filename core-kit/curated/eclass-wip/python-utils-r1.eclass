@@ -41,7 +41,7 @@ inherit toolchain-funcs
 _PYTHON_ALL_IMPLS=(
 	pypy3
 	python2_7
-	python3_6 python3_7 python3_8
+	python3_6 python3_7 python3_8 python3_9
 )
 readonly _PYTHON_ALL_IMPLS
 
@@ -77,10 +77,10 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[678]|pypy3)
+		python2_7|python3_[6789]|pypy|pypy3)
 			return 0
 			;;
-		jython2_7|pypy|pypy1_[89]|pypy2_0|python2_[56]|python3_[12345])
+		jython2_7|pypy1_[89]|pypy2_0|python2_[56]|python3_[12345])
 			return 1
 			;;
 		*)
@@ -120,39 +120,69 @@ _python_set_impls() {
 		_python_impl_supported "${i}"
 	done
 
-	local supp=() unsupp=()
+	declare -A supp
+	declare -A unsupp
 
 	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
 		if has "${i}" "${PYTHON_COMPAT[@]}"; then
-			supp+=( "${i}" )
-		else
-			unsupp+=( "${i}" )
+			case $i in
+
+				# Below, if it works with python2_7, assume compatibility
+				# with pypy3.
+
+				python2_7)
+					supp[$i] = 1
+					supp['pypy'] = 1
+					;;
+
+				# Below, new special setting that will enable python2 and
+				# up compatibility:
+
+				python2+)
+					supp['python2_7'] = 1
+					supp['python3_7'] = 1
+					supp['python3_8'] = 1
+					supp['python3_9'] = 1
+					supp['pypy'] = 1
+					supp['pypy3'] = 1
+					;;
+
+				# Below, bump any older python3_5 or 3_6 deps to python3_7.
+				# Also, if something is python3_7 compatible, then assume it
+				# works with pypy3.
+
+				python3_5|python3_6|python3_7)
+					supp['python3_7'] = 1
+					supp['pypy3'] = 1
+					;;
+				python3_8|python3_9)
+					supp[$i] = 1
+					;;
+
+				# Below, short-hand for python3.7 and up compatibility:
+
+				python3+)
+					supp['python3_7'] = 1
+					supp['python3_8'] = 1
+					supp['python3_9'] = 1
+					;;
+			esac
+		fi
+	done
+	
+	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
+		if [ -z "${supp[$i]}" ]; then
+			unsupp[$i] = 1
 		fi
 	done
 
-	if [[ ! ${supp[@]} ]]; then
+	if [[ ! ${!supp[@]} ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
 
-	if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} ]]; then
-		# set once already, verify integrity
-		if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} != ${supp[@]} ]]; then
-			eerror "Supported impls (PYTHON_COMPAT) changed between inherits!"
-			eerror "Before: ${_PYTHON_SUPPORTED_IMPLS[*]}"
-			eerror "Now   : ${supp[*]}"
-			die "_PYTHON_SUPPORTED_IMPLS integrity check failed"
-		fi
-		if [[ ${_PYTHON_UNSUPPORTED_IMPLS[@]} != ${unsupp[@]} ]]; then
-			eerror "Unsupported impls changed between inherits!"
-			eerror "Before: ${_PYTHON_UNSUPPORTED_IMPLS[*]}"
-			eerror "Now   : ${unsupp[*]}"
-			die "_PYTHON_UNSUPPORTED_IMPLS integrity check failed"
-		fi
-	else
-		_PYTHON_SUPPORTED_IMPLS=( "${supp[@]}" )
-		_PYTHON_UNSUPPORTED_IMPLS=( "${unsupp[@]}" )
-		readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
-	fi
+	_PYTHON_SUPPORTED_IMPLS=( "${!supp[@]}" )
+	_PYTHON_UNSUPPORTED_IMPLS=( "${!unsupp[@]}" )
+	readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
 }
 
 # @FUNCTION: _python_impl_matches

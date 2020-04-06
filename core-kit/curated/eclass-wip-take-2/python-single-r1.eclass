@@ -186,7 +186,6 @@ _python_single_set_globals() {
 	local unflags=( "${_PYTHON_UNSUPPORTED_IMPLS[@]/#/-python_single_target_}" )
 
 	local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
-
 	IUSE="${flags_mt[*]}"
 
 	local deps requse usedep

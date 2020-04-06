@@ -132,13 +132,19 @@ _python_set_impls() {
 	declare -A unsupp
 	for i in "${PYTHON_COMPAT[@]}"; do
 		case $i in
+			# Below, bump any older python3_5 or 3_6 deps to python3_7.
 
-			# Below, if it works with python2_7, assume compatibility
-			# with pypy3.
-
-			python2_7)
+			python3_5|python3_6|python3_7)
+				supp['python3_7']=1
+				;;
+			python2_7|python3_8|python3_9)
 				supp[$i]=1
-				supp['pypy']=1
+				;;
+
+			python3+)
+				supp['python3_7']=1
+				supp['python3_8']=1
+#				supp['python3_9']=1
 				;;
 
 			# Below, new special setting that will enable python2 and
@@ -153,25 +159,8 @@ _python_set_impls() {
 				supp['pypy3']=1
 				;;
 
-			# Below, bump any older python3_5 or 3_6 deps to python3_7.
-			# Also, if something is python3_7 compatible, then assume it
-			# works with pypy3.
-
-			python3_5|python3_6|python3_7)
-				supp['python3_7']=1
-				supp['pypy3']=1
-				;;
-			python3_8|python3_9)
-				supp[$i]=1
-				;;
-
 			# Below, short-hand for python3.7 and up compatibility:
 
-			python3+)
-				supp['python3_7']=1
-				supp['python3_8']=1
-#				supp['python3_9']=1
-				;;
 			esac
 	done
 
@@ -196,7 +185,6 @@ _python_set_impls() {
 	if [[ -z "${!supp_filt[@]}" ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
-
 
 	if [[ -z "${_PYTHON_SUPPORTED_IMPLS[@]}" ]]; then
 		_PYTHON_SUPPORTED_IMPLS=( "${!supp_filt[@]}" )

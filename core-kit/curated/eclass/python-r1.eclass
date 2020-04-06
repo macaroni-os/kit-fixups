@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: python-r1.eclass
@@ -26,14 +26,14 @@
 # in the packages using python-r1, and there is no need ever to inherit
 # both.
 #
-# For more information, please see the Python Guide:
-# https://dev.gentoo.org/~mgorny/python-guide/
+# For more information, please see the wiki:
+# https://wiki.gentoo.org/wiki/Project:Python/python-r1
 
 case "${EAPI:-0}" in
-	0|1|2|3)
+	0|1|2|3|4)
 		die "Unsupported EAPI=${EAPI:-0} (too old) for ${ECLASS}"
 		;;
-	4|5|6|7)
+	5|6|7)
 		# EAPI=5 is required for sane USE_EXPAND dependencies
 		;;
 	*)
@@ -126,7 +126,7 @@ fi
 # @CODE
 # dev-lang/python-exec:=
 # python_targets_python2_7? ( dev-lang/python:2.7[gdbm] )
-# python_targets_pypy? ( dev-python/pypy[gdbm] )
+# python_targets_pypy? ( virtual/pypy[gdbm] )
 # @CODE
 
 # @ECLASS-VARIABLE: PYTHON_USEDEP
@@ -173,7 +173,7 @@ _python_set_globals() {
 	_python_set_impls
 
 	for i in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		_python_export "${i}" PYTHON_PKG_DEP
+		python_export "${i}" PYTHON_PKG_DEP
 		deps+="python_targets_${i}? ( ${PYTHON_PKG_DEP} ) "
 	done
 
@@ -195,7 +195,11 @@ _python_set_globals() {
 	# but no point in making this overcomplex, BDEP doesn't hurt anyone
 	# 2) python-exec should be built with all targets forced anyway
 	# but if new targets were added, we may need to force a rebuild
-	deps+=">=dev-lang/python-exec-2:=[${usedep}]"
+	if [[ ${_PYTHON_WANT_PYTHON_EXEC2} == 0 ]]; then
+		die "python-exec:0 is no longer supported, please fix your ebuild to work with python-exec:2"
+	else
+		deps+=">=dev-lang/python-exec-2:=[${usedep}]"
+	fi
 
 	if [[ ${PYTHON_DEPS+1} ]]; then
 		# IUSE is magical, so we can't really check it
@@ -272,47 +276,9 @@ _python_validate_useflags() {
 	die "No supported Python implementation in PYTHON_TARGETS."
 }
 
-# @FUNCTION: _python_gen_usedep
-# @INTERNAL
-# @USAGE: [<pattern>...]
-# @DESCRIPTION:
-# Output a USE dependency string for Python implementations which
-# are both in PYTHON_COMPAT and match any of the patterns passed
-# as parameters to the function.
-#
-# The patterns can be either fnmatch-style patterns (matched via bash
-# == operator against PYTHON_COMPAT values) or '-2' / '-3' to indicate
-# appropriately all enabled Python 2/3 implementations (alike
-# python_is_python3). Remember to escape or quote the fnmatch patterns
-# to prevent accidental shell filename expansion.
-#
-# This is an internal function used to implement python_gen_cond_dep
-# and deprecated python_gen_usedep.
-_python_gen_usedep() {
-	debug-print-function ${FUNCNAME} "${@}"
-
-	local impl matches=()
-
-	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		if _python_impl_matches "${impl}" "${@}"; then
-			matches+=(
-				"python_targets_${impl}(-)?"
-				"-python_single_target_${impl}(-)"
-			)
-		fi
-	done
-
-	[[ ${matches[@]} ]] || die "No supported implementations match python_gen_usedep patterns: ${@}"
-
-	local out=${matches[@]}
-	echo "${out// /,}"
-}
-
 # @FUNCTION: python_gen_usedep
 # @USAGE: <pattern> [...]
 # @DESCRIPTION:
-# DEPRECATED.  Please use python_gen_cond_dep instead.
-#
 # Output a USE dependency string for Python implementations which
 # are both in PYTHON_COMPAT and match any of the patterns passed
 # as parameters to the function.
@@ -340,16 +306,25 @@ _python_gen_usedep() {
 python_gen_usedep() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	# output only once, during some reasonable phase
-	# (avoid spamming cache regen runs)
-	if [[ ${EBUILD_PHASE} == setup ]]; then
-		eqawarn "python_gen_usedep() is deprecated. Please use python_gen_cond_dep instead."
-	fi
-	_python_gen_usedep "${@}"
+	local impl matches=()
+
+	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
+		if _python_impl_matches "${impl}" "${@}"; then
+			matches+=(
+				"python_targets_${impl}(-)?"
+				"-python_single_target_${impl}(-)"
+			)
+		fi
+	done
+
+	[[ ${matches[@]} ]] || die "No supported implementations match python_gen_usedep patterns: ${@}"
+
+	local out=${matches[@]}
+	echo "${out// /,}"
 }
 
 # @FUNCTION: python_gen_useflags
-# @USAGE: [<pattern>...]
+# @USAGE: <pattern> [...]
 # @DESCRIPTION:
 # Output a list of USE flags for Python implementations which
 # are both in PYTHON_COMPAT and match any of the patterns passed
@@ -386,7 +361,7 @@ python_gen_useflags() {
 }
 
 # @FUNCTION: python_gen_cond_dep
-# @USAGE: <dependency> [<pattern>...]
+# @USAGE: <dependency> <pattern> [...]
 # @DESCRIPTION:
 # Output a list of <dependency>-ies made conditional to USE flags
 # of Python implementations which are both in PYTHON_COMPAT and match
@@ -430,7 +405,7 @@ python_gen_cond_dep() {
 			# (since python_gen_usedep() will not return ${PYTHON_USEDEP}
 			#  the code is run at most once)
 			if [[ ${dep} == *'${PYTHON_USEDEP}'* ]]; then
-				local usedep=$(_python_gen_usedep "${@}")
+				local usedep=$(python_gen_usedep "${@}")
 				dep=${dep//\$\{PYTHON_USEDEP\}/${usedep}}
 			fi
 
@@ -482,10 +457,11 @@ python_gen_impl_dep() {
 	local PYTHON_REQ_USE=${1}
 	shift
 
+	local patterns=( "${@-*}" )
 	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		if _python_impl_matches "${impl}" "${@}"; then
+		if _python_impl_matches "${impl}" "${patterns[@]}"; then
 			local PYTHON_PKG_DEP
-			_python_export "${impl}" PYTHON_PKG_DEP
+			python_export "${impl}" PYTHON_PKG_DEP
 			matches+=( "python_targets_${impl}? ( ${PYTHON_PKG_DEP} )" )
 		fi
 	done
@@ -561,13 +537,13 @@ python_gen_any_dep() {
 
 	local i PYTHON_PKG_DEP out=
 	for i in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		if _python_impl_matches "${i}" "${@}"; then
+		if _python_impl_matches "${i}" "${@-*}"; then
 			local PYTHON_USEDEP="python_targets_${i}(-),python_single_target_${i}(+)"
-			_python_export "${i}" PYTHON_PKG_DEP
+			python_export "${i}" PYTHON_PKG_DEP
 
 			local i_depstr=${depstr//\$\{PYTHON_USEDEP\}/${PYTHON_USEDEP}}
 			# note: need to strip '=' slot operator for || deps
-			out="( ${PYTHON_PKG_DEP/:0=/:0} ${i_depstr} ) ${out}"
+			out="( ${PYTHON_PKG_DEP%=} ${i_depstr} ) ${out}"
 		fi
 	done
 	echo "|| ( ${out})"
@@ -636,8 +612,8 @@ _python_multibuild_wrapper() {
 
 	local -x EPYTHON PYTHON
 	local -x PATH=${PATH} PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
-	_python_export "${MULTIBUILD_VARIANT}" EPYTHON PYTHON
-	_python_wrapper_setup
+	python_export "${MULTIBUILD_VARIANT}" EPYTHON PYTHON
+	python_wrapper_setup
 
 	"${@}"
 }
@@ -750,9 +726,9 @@ python_setup() {
 		fi
 
 		# check patterns
-		_python_impl_matches "${impl}" "${@}" || continue
+		_python_impl_matches "${impl}" "${@-*}" || continue
 
-		_python_export "${impl}" EPYTHON PYTHON
+		python_export "${impl}" EPYTHON PYTHON
 
 		# if python_check_deps() is declared, switch into any-of mode
 		if [[ ${has_check_deps} ]]; then
@@ -776,8 +752,37 @@ python_setup() {
 		die "${FUNCNAME}: no enabled implementation satisfy requirements"
 	fi
 
-	_python_wrapper_setup
-	einfo "Using ${EPYTHON} in global scope"
+	python_wrapper_setup
+}
+
+# @FUNCTION: python_export_best
+# @USAGE: [<variable>...]
+# @DESCRIPTION:
+# Find the best (most preferred) Python implementation enabled
+# and export given variables for it. If no variables are provided,
+# EPYTHON & PYTHON will be exported.
+python_export_best() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	[[ ${EAPI} == [45] ]] || die "${FUNCNAME} is banned in EAPI ${EAPI}"
+
+	eqawarn "python_export_best() is deprecated. Please use python_setup instead,"
+	eqawarn "combined with python_export if necessary."
+
+	[[ ${#} -gt 0 ]] || set -- EPYTHON PYTHON
+
+	local best MULTIBUILD_VARIANTS
+	_python_obtain_impls
+
+	_python_set_best() {
+		best=${MULTIBUILD_VARIANT}
+	}
+	multibuild_for_best_variant _python_set_best
+	unset -f _python_set_best
+
+	debug-print "${FUNCNAME}: Best implementation is: ${best}"
+	python_export "${best}" "${@}"
+	python_wrapper_setup
 }
 
 # @FUNCTION: python_replicate_script
@@ -795,7 +800,7 @@ python_replicate_script() {
 		local _PYTHON_FIX_SHEBANG_QUIET=1
 
 		local PYTHON_SCRIPTDIR
-		_python_export PYTHON_SCRIPTDIR
+		python_export PYTHON_SCRIPTDIR
 
 		(
 			exeopts -m 0755

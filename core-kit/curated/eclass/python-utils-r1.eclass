@@ -80,7 +80,7 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[5678]|jython2_7)
+		python2_7|python3_[56789]|jython2_7|python2+|python3+|python3_[789]+)
 			return 0
 			;;
 		pypy1_[89]|pypy2_0|python2_[56]|python3_[1234])
@@ -128,37 +128,74 @@ _python_set_impls() {
 		_python_impl_supported "${i}"
 	done
 
-	local supp=() unsupp=()
+	declare -A supp
+	declare -A unsupp
+	for i in "${PYTHON_COMPAT[@]}"; do
+		case $i in
+			# Below, bump any older python3_5 or 3_6 deps to python3_7.
 
-	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if has "${i}" "${PYTHON_COMPAT[@]}"; then
-			supp+=( "${i}" )
-		else
-			unsupp+=( "${i}" )
+			python3_5|python3_6|python3_7)
+				supp['python3_7']=1
+				;;
+			python2_7|python3_8|python3_9)
+				supp[$i]=1
+				;;
+			# When adding new '+' entries, also update line 83 ^^
+			python3+|python3_7+)
+				supp['python3_7']=1
+				supp['python3_8']=1
+				supp['python3_9']=1
+				;;
+			python3_8+)
+				supp['python3_8']=1
+				supp['python3_9']=1
+				;;
+			python3_9+)
+				supp['python3_9']=1
+				;;
+
+			# Below, new special setting that will enable python2 and
+			# up compatibility:
+
+			python2+)
+				supp['python2_7']=1
+				supp['python3_7']=1
+				supp['python3_8']=1
+				supp['python3_9']=1
+				supp['pypy']=1
+				supp['pypy3']=1
+				;;
+
+			# Below, short-hand for python3.7 and up compatibility:
+
+			esac
+	done
+
+	declare -A supp_filt
+
+	# filter!
+
+	# Extra filtering of PYTHON_COMPAT settings against all python implementations defined in here.
+
+	for i in "${!supp[@]}"; do
+		if has ${i} "${_PYTHON_ALL_IMPLS[@]}"; then
+			supp_filt[$i]=1
 		fi
 	done
 
-	if [[ ! ${supp[@]} ]]; then
+	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
+		if [ -z "${supp_filt[$i]}" ]; then
+			unsupp[$i]=1
+		fi
+	done
+	
+	if [[ -z "${!supp_filt[@]}" ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
 
-	if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} ]]; then
-		# set once already, verify integrity
-		if [[ ${_PYTHON_SUPPORTED_IMPLS[@]} != ${supp[@]} ]]; then
-			eerror "Supported impls (PYTHON_COMPAT) changed between inherits!"
-			eerror "Before: ${_PYTHON_SUPPORTED_IMPLS[*]}"
-			eerror "Now   : ${supp[*]}"
-			die "_PYTHON_SUPPORTED_IMPLS integrity check failed"
-		fi
-		if [[ ${_PYTHON_UNSUPPORTED_IMPLS[@]} != ${unsupp[@]} ]]; then
-			eerror "Unsupported impls changed between inherits!"
-			eerror "Before: ${_PYTHON_UNSUPPORTED_IMPLS[*]}"
-			eerror "Now   : ${unsupp[*]}"
-			die "_PYTHON_UNSUPPORTED_IMPLS integrity check failed"
-		fi
-	else
-		_PYTHON_SUPPORTED_IMPLS=( "${supp[@]}" )
-		_PYTHON_UNSUPPORTED_IMPLS=( "${unsupp[@]}" )
+	if [[ -z "${_PYTHON_SUPPORTED_IMPLS[@]}" ]]; then
+		_PYTHON_SUPPORTED_IMPLS=( "${!supp_filt[@]}" )
+		_PYTHON_UNSUPPORTED_IMPLS=( "${!unsupp[@]}" )
 		readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
 	fi
 }
@@ -374,7 +411,7 @@ python_export() {
 		*)
 			impl=${EPYTHON}
 			if [[ -z ${impl} ]]; then
-				die "python_export called without a python implementation and EPYTHON is unset"
+				die "python_export called with ${1} python implementation and EPYTHON is unset"
 			fi
 			;;
 	esac

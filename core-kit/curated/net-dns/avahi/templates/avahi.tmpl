@@ -52,16 +52,10 @@ DEPEND="
 	)
 "
 RDEPEND="
-	acct-user/avahi
-	acct-group/avahi
-	acct-group/netdev
-	autoipd? (
-		acct-user/avahi-autoipd
-		acct-group/avahi-autoipd
-	)
 	${DEPEND}
 	selinux? ( sec-policy/selinux-avahi )
 "
+
 BDEPEND="
 	dev-util/glib-utils
 	doc? ( app-doc/doxygen )
@@ -69,6 +63,17 @@ BDEPEND="
 	dev-util/intltool
 	virtual/pkgconfig
 "
+
+pkg_preinst() {
+	enewgroup netdev
+	enewgroup avahi
+	enewuser avahi -1 -1 -1 avahi
+
+	if use autoipd; then
+		enewgroup avahi-autoipd
+		enewuser avahi-autoipd -1 -1 -1 avahi-autoipd
+	fi
+}
 
 pkg_setup() {
 	use mono && mono-env_pkg_setup

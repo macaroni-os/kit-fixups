@@ -621,7 +621,6 @@ _python_obtain_impls() {
 
 	local impl
 	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		has "${impl}" "${PYTHON_COMPAT[@]}" && \
 		use "python_targets_${impl}" && MULTIBUILD_VARIANTS+=( "${impl}" )
 	done
 }
@@ -735,10 +734,6 @@ python_setup() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	_python_validate_useflags
-	local pycompat=( "${PYTHON_COMPAT[@]}" )
-	if [[ ${PYTHON_COMPAT_OVERRIDE} ]]; then
-		pycompat=( ${PYTHON_COMPAT_OVERRIDE} )
-	fi
 
 	local has_check_deps
 	declare -f python_check_deps >/dev/null && has_check_deps=1
@@ -747,9 +742,6 @@ python_setup() {
 	local found
 	for (( i = ${#_PYTHON_SUPPORTED_IMPLS[@]} - 1; i >= 0; i-- )); do
 		local impl=${_PYTHON_SUPPORTED_IMPLS[i]}
-
-		# check PYTHON_COMPAT[_OVERRIDE]
-		has "${impl}" "${pycompat[@]}" || continue
 
 		# match USE flags only if override is not in effect
 		# and python_check_deps() is not defined

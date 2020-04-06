@@ -41,7 +41,8 @@ inherit toolchain-funcs
 _PYTHON_ALL_IMPLS=(
 	pypy3
 	python2_7
-	python3_6 python3_7 python3_8 python3_9
+	python3_6 python3_7 python3_8
+#	python3_9
 )
 readonly _PYTHON_ALL_IMPLS
 
@@ -122,7 +123,6 @@ _python_set_impls() {
 
 	declare -A supp
 	declare -A unsupp
-	echo "ALL IMPLS ${_PYTHON_ALL_IMPLS[@]}"
 	for i in "${PYTHON_COMPAT[@]}"; do
 			case $i in
 
@@ -141,7 +141,7 @@ _python_set_impls() {
 					supp['python2_7']=1
 					supp['python3_7']=1
 					supp['python3_8']=1
-					supp['python3_9']=1
+#					supp['python3_9']=1
 					supp['pypy']=1
 					supp['pypy3']=1
 					;;
@@ -163,23 +163,36 @@ _python_set_impls() {
 				python3+)
 					supp['python3_7']=1
 					supp['python3_8']=1
-					supp['python3_9']=1
+#					supp['python3_9']=1
 					;;
 			esac
 	done
 
+	declare -A supp_filt
+
+	# filter!
+
+	# Extra filtering of PYTHON_COMPAT settings against all python implementations defined in here.
+
+	for i in "${!supp[@]}"; do
+		if has ${i} "${_PYTHON_ALL_IMPLS[@]}"; then
+			supp_filt[$i]=1
+		fi
+	done
+
 	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if [ -z "${supp[$i]}" ]; then
+		if [ -z "${supp_filt[$i]}" ]; then
 			unsupp[$i]=1
 		fi
 	done
-	echo "SUPP IS ${!supp[@]}"
-	if [[ -z "${!supp[@]}" ]]; then
+	
+	if [[ -z "${!supp_filt[@]}" ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
 
-	_PYTHON_SUPPORTED_IMPLS=( "${!supp[@]}" )
+	_PYTHON_SUPPORTED_IMPLS=( "${!supp_filt[@]}" )
 	_PYTHON_UNSUPPORTED_IMPLS=( "${!unsupp[@]}" )
+
 	readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
 }
 

@@ -80,7 +80,7 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[5678]|jython2_7)
+		python2_7|python3_[5678]|jython2_7|python2+|python3+)
 			return 0
 			;;
 		pypy1_[89]|pypy2_0|python2_[56]|python3_[1234])
@@ -199,8 +199,8 @@ _python_set_impls() {
 
 
 	if [[ -z "${_PYTHON_SUPPORTED_IMPLS[@]}" ]]; then
-		_PYTHON_SUPPORTED_IMPLS=( "${supp[@]}" )
-		_PYTHON_UNSUPPORTED_IMPLS=( "${unsupp[@]}" )
+		_PYTHON_SUPPORTED_IMPLS=( "${!supp_filt[@]}" )
+		_PYTHON_UNSUPPORTED_IMPLS=( "${!unsupp[@]}" )
 		readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
 	fi
 }
@@ -416,7 +416,7 @@ python_export() {
 		*)
 			impl=${EPYTHON}
 			if [[ -z ${impl} ]]; then
-				die "python_export called without a python implementation and EPYTHON is unset"
+				die "python_export called with ${1} python implementation and EPYTHON is unset"
 			fi
 			;;
 	esac

@@ -1,0 +1,26 @@
+diff -ru a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	2020-02-25 07:16:45.000000000 -0800
++++ b/CMakeLists.txt	2020-04-07 01:12:19.435993346 -0700
+@@ -52,14 +52,14 @@
+ if(NOT ${URANIUM_DIR} STREQUAL "")
+     set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${URANIUM_DIR}/cmake")
+ endif()
+-if(NOT ${URANIUM_SCRIPTS_DIR} STREQUAL "")
+-    list(APPEND CMAKE_MODULE_PATH ${URANIUM_DIR}/cmake)
+-    include(UraniumTranslationTools)
+-    # Extract Strings
+-    add_custom_target(extract-messages ${URANIUM_SCRIPTS_DIR}/extract-messages ${CMAKE_SOURCE_DIR} cura)
+-    # Build Translations
+-    CREATE_TRANSLATION_TARGETS()
+-endif()
++#if(NOT ${URANIUM_SCRIPTS_DIR} STREQUAL "")
++#    list(APPEND CMAKE_MODULE_PATH ${URANIUM_DIR}/cmake)
++#    include(UraniumTranslationTools)
++#    # Extract Strings
++#    add_custom_target(extract-messages ${URANIUM_SCRIPTS_DIR}/extract-messages ${CMAKE_SOURCE_DIR} cura)
++#    # Build Translations
++#    CREATE_TRANSLATION_TARGETS()
++#endif()
+ 
+ 
+ install(DIRECTORY resources

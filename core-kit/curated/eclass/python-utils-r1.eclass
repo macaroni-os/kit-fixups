@@ -162,8 +162,6 @@ _python_set_impls() {
 				supp['python3_7']=1
 				supp['python3_8']=1
 				supp['python3_9']=1
-				supp['pypy']=1
-				supp['pypy3']=1
 				;;
 
 			# Below, short-hand for python3.7 and up compatibility:

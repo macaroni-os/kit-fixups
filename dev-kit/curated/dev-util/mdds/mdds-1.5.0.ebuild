@@ -3,18 +3,12 @@
 
 EAPI=7
 
-if [[ ${PV} == 9999 ]]; then
-	EGIT_REPO_URI="https://gitlab.com/mdds/mdds.git"
-	inherit git-r3
-else
-	SRC_URI="https://kohei.us/files/${PN}/src/${P}.tar.bz2"
-	KEYWORDS="amd64 ~arm ~arm64 ~ppc ~ppc64 x86 ~amd64-linux ~x86-linux"
-fi
 inherit autotools toolchain-funcs
 
 DESCRIPTION="A collection of multi-dimensional data structure and indexing algorithm"
 HOMEPAGE="https://gitlab.com/mdds/mdds"
-
+SRC_URI="https://kohei.us/files/${PN}/src/${P}.tar.bz2"
+KEYWORDS="*"
 LICENSE="MIT"
 SLOT="1/${PV%.*}"
 IUSE="doc valgrind"

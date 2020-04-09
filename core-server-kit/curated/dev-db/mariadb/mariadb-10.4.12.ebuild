@@ -27,8 +27,8 @@ HOMEPAGE="https://mariadb.org/"
 DESCRIPTION="An enhanced, drop-in replacement for MySQL"
 LICENSE="GPL-2 LGPL-2.1+"
 SLOT="0/${SUBSLOT:-0}"
-IUSE="+backup bindist client-libs cracklib debug extraengine galera innodb-lz4
-	innodb-lzo innodb-snappy jdbc jemalloc kerberos latin1 libressl mroonga
+IUSE="+backup bindist client-libs cracklib debug extraengine galera +innodb-lz4
+	+innodb-lzo +innodb-snappy jdbc jemalloc kerberos latin1 libressl mroonga
 	numa odbc oqgraph pam +perl profiling rocksdb selinux +server sphinx
 	sst-rsync sst-mariabackup sst-xtrabackup static static-libs systemd systemtap tcmalloc
 	test tokudb xml yassl"
@@ -358,7 +358,7 @@ src_configure(){
 		-DINSTALL_MANDIR=share/man
 		-DINSTALL_MYSQLSHAREDIR=share/mariadb
 		-DINSTALL_PLUGINDIR=$(get_libdir)/mariadb/plugin
-		-DINSTALL_SCRIPTDIR=share/mariadb/scripts
+		-DINSTALL_SCRIPTDIR=bin
 		-DINSTALL_MYSQLDATADIR="${EPREFIX}/var/lib/mysql"
 		-DINSTALL_SBINDIR=sbin
 		-DINSTALL_SUPPORTFILESDIR="${EPREFIX}/usr/share/mariadb"
@@ -917,7 +917,7 @@ pkg_config() {
 	"${EROOT}/usr/bin/mysql_tzinfo_to_sql" "${EROOT}/usr/share/zoneinfo" > "${sqltmp}" 2>/dev/null
 
 	local cmd=( "${EROOT}usr/share/mariadb/scripts/mysql_install_db" )
-	[[ -f "${cmd}" ]] || cmd=( "${EROOT}usr/bin/mysql_install_db" )
+	[[ -f "${cmd}" ]] || cmd=( "${EROOT}/usr/bin/mysql_install_db" )
 	cmd+=( "--basedir=${EPREFIX}/usr" ${options} "--datadir=${ROOT}/${MY_DATADIR}" "--tmpdir=${ROOT}/${MYSQL_TMPDIR}" )
 	einfo "Command: ${cmd[*]}"
 	su -s /bin/sh -c "${cmd[*]}" mysql \
@@ -938,12 +938,12 @@ pkg_config() {
 		${options} \
 		--log-warnings=0 \
 		--basedir=${EROOT}/usr \
-		--datadir=${ROOT}/${MY_DATADIR} \
+		--datadir=${EROOT}/${MY_DATADIR} \
 		--max_allowed_packet=8M \
 		--net_buffer_length=16K \
 		--socket=${socket} \
 		--pid-file=${pidfile} \
-		--tmpdir=${ROOT}/${MYSQL_TMPDIR}"
+		--tmpdir=${EROOT}/${MYSQL_TMPDIR}"
 	#einfo "About to start mysqld: ${mysqld}"
 	ebegin "Starting mysqld"
 	einfo "Command ${mysqld}"

@@ -1,9 +1,0 @@
-The fork of this catpkg in Funtoo has a long history. An important bug to make sense of it seems to be FL-1430, where
-Dantrell says "...guile is not intended to be slotted at all. You should only have one version installed". However,
-Gentoo's guile is slotted, which appears due to them moving to SLOT 12 instead of previously-used SLOT 0. This means
-that Portage is in essence 'faked out' into thinking that two guiles can be installed alongside one another when they
-cannot.
-
-However, this is basically an ancient problem as guile 1.x is very old. Gentoo uses SLOT=12 for all guiles, whereas
-we have SLOT 0 for guile-1.8 for some reason. But we should be able to just keep this with 1.3-release and eventually
-phase out this fork.

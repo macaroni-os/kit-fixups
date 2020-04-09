@@ -20,7 +20,6 @@ ADDONS_URI="https://dev-www.libreoffice.org/src/"
 BRANDING="${PN}-branding-gentoo-0.8.tar.xz"
 # PATCHSET="${P}-patchset-01.tar.xz"
 
-[[ ${MY_PV} == *9999* ]] && inherit git-r3
 inherit autotools bash-completion-r1 check-reqs flag-o-matic java-pkg-opt-2 multiprocessing python-single-r1 qmake-utils toolchain-funcs xdg-utils
 
 DESCRIPTION="A full office productivity suite"
@@ -28,16 +27,6 @@ HOMEPAGE="https://www.libreoffice.org"
 SRC_URI="branding? ( https://dev.gentoo.org/~dilfridge/distfiles/${BRANDING} )"
 [[ -n ${PATCHSET} ]] && SRC_URI+=" https://dev.gentoo.org/~asturm/distfiles/${PATCHSET}"
 
-# Split modules following git/tarballs; Core MUST be first!
-# Help is used for the image generator
-# Only release has the tarballs
-if [[ ${MY_PV} != *9999* ]]; then
-	for i in ${DEV_URI}; do
-		SRC_URI+=" ${i}/${PN}-${MY_PV}.tar.xz"
-		SRC_URI+=" ${i}/${PN}-help-${MY_PV}.tar.xz"
-	done
-	unset i
-fi
 unset DEV_URI
 
 # Really required addons
@@ -80,9 +69,7 @@ RESTRICT="!test? ( test )"
 
 LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
-
-[[ ${MY_PV} == *9999* ]] || \
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="*"
 
 BDEPEND="
 	dev-util/intltool
@@ -238,13 +225,7 @@ RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.8 )
 	kde? ( kde-frameworks/breeze-icons:* )
 "
-if [[ ${MY_PV} != *9999* ]] && [[ ${PV} != *_* ]]; then
-	PDEPEND="=app-office/libreoffice-l10n-$(ver_cut 1-2)*"
-else
-	# Translations are not reliable on live ebuilds
-	# rather force people to use english only.
-	PDEPEND="!app-office/libreoffice-l10n"
-fi
+PDEPEND="!app-office/libreoffice-l10n"
 
 PATCHES=(
 	# "${WORKDIR}"/${PATCHSET/.tar.xz/}
@@ -287,20 +268,6 @@ pkg_setup() {
 
 src_unpack() {
 	default
-
-	if [[ ${MY_PV} = *9999* ]]; then
-		local base_uri branch mypv
-		base_uri="https://anongit.freedesktop.org/git"
-		branch="master"
-		mypv=${MY_PV/.9999}
-		[[ ${mypv} != ${MY_PV} ]] && branch="${PN}-${mypv/./-}"
-		git-r3_fetch "${base_uri}/${PN}/core" "refs/heads/${branch}"
-		git-r3_checkout "${base_uri}/${PN}/core"
-		LOCOREGIT_VERSION=${EGIT_VERSION}
-
-		git-r3_fetch "${base_uri}/${PN}/help" "refs/heads/master"
-		git-r3_checkout "${base_uri}/${PN}/help" "helpcontent2" # doesn't match on help
-	fi
 }
 
 src_prepare() {

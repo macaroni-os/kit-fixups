@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+inherit distutils-r1
+
+DESCRIPTION="Polyfill package for Flake8 plugins"
+HOMEPAGE="https://gitlab.com/pycqa/flake8"
+SRC_URI="{{artifacts[0].src_uri}}"
+EGIT_REPO_URI="https://gitlab.com/pycqa/flake8-polyfill.git"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="*"
+IUSE="test"
+
+RDEPEND="dev-python/flake8[${PYTHON_USEDEP}]"
+DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
+	test? ( ${RDEPEND}
+		dev-python/mock[${PYTHON_USEDEP}]
+		dev-python/pytest[${PYTHON_USEDEP}]
+	)"
+
+python_test() {
+	py.test -v || die "Tests fail with ${EPYTHON}"
+}

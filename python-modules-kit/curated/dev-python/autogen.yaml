@@ -49,4 +49,9 @@ dev_python_autogen_rule:
     - pop
     - pymongo:
         python_compat: python2+
-
+    - flake8-polyfill:
+        python_compat: python2+
+    - pep8-naming:
+        python_compat: python2+
+    - pyjwt:
+        python_compat: python2+ pypy{,3)

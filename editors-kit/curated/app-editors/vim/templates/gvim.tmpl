@@ -1,9 +1,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
-VIM_VERSION="8.1"
 PYTHON_COMPAT=( {{python_compat}} )
 inherit eutils vim-doc flag-o-matic fdo-mime gnome2-utils versionator bash-completion-r1 prefix python-r1
+VIM_VERSION="$(get_version_component_range 1-2)"
 
 SRC_URI="https://github.com/vim/vim/archive/v${PV}.tar.gz -> vim-${PV}.tar.gz"
 KEYWORDS="*"
@@ -61,7 +61,7 @@ RDEPEND="
 	perl? ( dev-lang/perl:= )
 	python? ( ${PYTHON_DEPS} )
 	racket? ( dev-scheme/racket )
-	ruby? ( || ( dev-lang/ruby:2.3 dev-lang/ruby:2.2 dev-lang/ruby:2.1 dev-lang/ruby:2.0 ) )
+	ruby? ( dev-lang/ruby:= )
 	selinux? ( sys-libs/libselinux )
 	session? ( x11-libs/libSM )
 	tcl? ( dev-lang/tcl:0= )

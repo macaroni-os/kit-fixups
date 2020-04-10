@@ -5,7 +5,9 @@ import re
 
 async def generate(hub, **pkginfo):
 	slots = [
-		7.4,
+		'7.2',
+		'7.3',
+		'7.4'
 	]
 	php_url = "https://www.php.net/downloads.php"
 	php_data = await hub.pkgtools.fetch.get_page(php_url)

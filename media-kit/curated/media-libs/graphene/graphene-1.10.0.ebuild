@@ -1,8 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python3_{5,6,7} )
+PYTHON_COMPAT=( python3+ )
 inherit xdg-utils meson python-any-r1
 
 DESCRIPTION="A thin layer of types for graphic libraries"

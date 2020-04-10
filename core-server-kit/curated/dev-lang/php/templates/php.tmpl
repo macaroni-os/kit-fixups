@@ -154,11 +154,10 @@ REQUIRED_USE="
 	mysql? ( || ( mysqli pdo ) )
 	zip-encryption? ( zip )
 "
-PATCHES=(
-	"${FILESDIR}/php-freetype-2.9.1.patch"
-)
 
 PHP_MV="$(ver_cut 1)"
+
+PATCHES=( "${FILESDIR}/php-iodbc-header-location.patch" )
 
 php_install_ini() {
 	local phpsapi="${1}"
@@ -229,10 +228,11 @@ src_prepare() {
 		sapi/fpm/php-fpm.conf.in \
 		|| die 'failed to move the include directory in php-fpm.conf'
 
-	# Bug 669566 - necessary so that build tools are updated for commands like pecl
-	# Force rebuilding aclocal.m4
-	rm -f aclocal.m4 || die "failed to remove aclocal.m4 in src_prepare"
-	eautoreconf
+	# Emulate buildconf to support cross-compilation
+	rm -fr aclocal.m4 autom4te.cache config.cache \
+		configure main/php_config.h.in || die
+	eautoconf --force
+	eautoheader
 }
 
 src_configure() {

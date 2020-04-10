@@ -22,7 +22,7 @@ DEPEND="test? (
 		)"
 RDEPEND="
 	>=dev-python/requests-2.0.0[${PYTHON_USEDEP}]
-	>=dev-python/oauthlib-0.6.2[${PYTHON_USEDEP}]"
+	>=dev-python/oauthlib-3.0.0[${PYTHON_USEDEP}]"
 
 #Refrain from a doc build for now
 #python_compile_all() {

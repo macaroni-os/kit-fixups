@@ -2,12 +2,12 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2+ )
+PYTHON_COMPAT=( {{python_compat}} )
 inherit distutils-r1
 
 DESCRIPTION="Polyfill package for Flake8 plugins"
 HOMEPAGE="https://gitlab.com/pycqa/flake8"
-SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 EGIT_REPO_URI="https://gitlab.com/pycqa/flake8-polyfill.git"
 
 LICENSE="MIT"

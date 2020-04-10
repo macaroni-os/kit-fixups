@@ -1,0 +1,23 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Funtoo's franken-chroot tool."
+HOMEPAGE="https://pypi.org/project/fchroot/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+RDEPEND="
+	app-emulation/qemu[static-user,qemu_user_targets_aarch64,qemu_user_targets_arm,qemu_user_targets_riscv64]
+	dev-libs/glib[static-libs]
+	sys-apps/attr[static-libs]
+	sys-libs/zlib[static-libs]
+	dev-libs/libpcre[static-libs]
+"

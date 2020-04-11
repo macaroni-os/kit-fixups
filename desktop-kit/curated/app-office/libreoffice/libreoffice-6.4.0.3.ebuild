@@ -1,4 +1,3 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -27,6 +26,14 @@ HOMEPAGE="https://www.libreoffice.org"
 SRC_URI="branding? ( https://dev.gentoo.org/~dilfridge/distfiles/${BRANDING} )"
 [[ -n ${PATCHSET} ]] && SRC_URI+=" https://dev.gentoo.org/~asturm/distfiles/${PATCHSET}"
 
+# Split modules following git/tarballs; Core MUST be first!
+# Help is used for the image generator
+# Only release has the tarballs
+for i in ${DEV_URI}; do
+	SRC_URI+=" ${i}/${PN}-${MY_PV}.tar.xz"
+	SRC_URI+=" ${i}/${PN}-help-${MY_PV}.tar.xz"
+done
+unset i
 unset DEV_URI
 
 # Really required addons
@@ -143,9 +150,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	x11-libs/libXinerama
 	x11-libs/libXrandr
 	x11-libs/libXrender
-	accessibility? (
-		dev-python/lxml[python,${PYTHON_USEDEP}]
-	)
+	accessibility? ( dev-python/lxml[${PYTHON_USEDEP}] )
 	bluetooth? (
 		dev-libs/glib:2
 		net-wireless/bluez
@@ -225,7 +230,7 @@ RDEPEND="${COMMON_DEPEND}
 	java? ( >=virtual/jre-1.8 )
 	kde? ( kde-frameworks/breeze-icons:* )
 "
-PDEPEND="!app-office/libreoffice-l10n"
+PDEPEND="=app-office/libreoffice-l10n-$(ver_cut 1-2)*"
 
 PATCHES=(
 	# "${WORKDIR}"/${PATCHSET/.tar.xz/}
@@ -234,6 +239,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.4-system-pyuno.patch"
 	"${FILESDIR}/${PN}-5.3.4.2-kioclient5.patch"
 	"${FILESDIR}/${PN}-6.1-nomancompress.patch"
+
+	# TODO: upstream (for now taken from Arch Linux)
+	"${FILESDIR}/${P}-poppler-0.86.patch" # bug 711102
 )
 
 S="${WORKDIR}/${PN}-${MY_PV}"
@@ -264,10 +272,6 @@ pkg_setup() {
 	xdg_environment_reset
 
 	[[ ${MERGE_TYPE} != binary ]] && _check_reqs pkg_setup
-}
-
-src_unpack() {
-	default
 }
 
 src_prepare() {

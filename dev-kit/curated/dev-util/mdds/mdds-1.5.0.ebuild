@@ -9,7 +9,7 @@ HOMEPAGE="https://gitlab.com/mdds/mdds"
 SRC_URI="https://kohei.us/files/${PN}/src/${P}.tar.bz2"
 KEYWORDS=""
 LICENSE="MIT"
-SLOT="${PV%.*}"
+SLOT="${PV%.*}/${PV}"
 IUSE="doc valgrind"
 
 BDEPEND="

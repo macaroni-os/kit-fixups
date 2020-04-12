@@ -4,21 +4,14 @@
 EAPI=7
 
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python{2_7,3_{5,6,7}} )
+PYTHON_COMPAT=( python3+ )
 
-inherit bash-completion-r1 flag-o-matic linux-info linux-mod distutils-r1 systemd toolchain-funcs udev usr-ldscript
+inherit bash-completion-r1 flag-o-matic linux-info linux-mod distutils-r1 toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://zfsonlinux.org/"
-
-if [[ ${PV} == "9999" ]] ; then
-	inherit autotools git-r3
-	EGIT_REPO_URI="https://github.com/zfsonlinux/zfs.git"
-else
-	SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~ppc64"
-fi
-
+SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
+KEYWORDS="*"
 LICENSE="BSD-2 CDDL MIT"
 SLOT="0"
 IUSE="custom-cflags debug kernel-builtin python +rootfs test-suite static-libs"
@@ -98,12 +91,8 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	if [[ ${PV} == "9999" ]]; then
-		eautoreconf
-	else
-		# Set revision number
-		sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-gentoo/" META || die "Could not set Gentoo release"
-	fi
+	# Set revision number
+	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-gentoo/" META || die "Could not set Gentoo release"
 
 	# Update paths
 	sed -e "s|/sbin/lsmod|/bin/lsmod|" \
@@ -123,7 +112,7 @@ src_configure() {
 
 	local myconf=(
 		--bindir="${EPREFIX}/bin"
-		--enable-systemd
+		--disable-systemd
 		--enable-sysvinit
 		--localstatedir="${EPREFIX}/var"
 		--sbindir="${EPREFIX}/sbin"
@@ -132,8 +121,6 @@ src_configure() {
 		--with-linux="${KV_DIR}"
 		--with-linux-obj="${KV_OUT_DIR}"
 		--with-udevdir="$(get_udevdir)"
-		--with-systemdunitdir="$(systemd_get_systemunitdir)"
-		--with-systemdpresetdir="${EPREFIX}/lib/systemd/system-preset"
 		$(use_enable debug)
 		$(use_enable python pyzfs)
 	)
@@ -181,12 +168,6 @@ pkg_postinst() {
 		einfo " use dracut or genkernel-9999 if you requre this functionality"
 	fi
 
-	if ! use kernel-builtin && [[ ${PV} = "9999" ]]; then
-		einfo "Adding ${P} to the module database to ensure that the"
-		einfo "kernel modules and userland utilities stay in sync."
-		update_moduledb
-	fi
-
 	if [[ -e "${EROOT}/etc/runlevels/boot/zfs" ]]; then
 		einfo 'The zfs boot script has been split into the zfs-import,'
 		einfo 'zfs-mount and zfs-share scripts.'
@@ -232,19 +213,5 @@ pkg_postinst() {
 	if [[ -e "${EROOT}/etc/runlevels/shutdown/zfs-shutdown" ]]; then
 		einfo "The zfs-shutdown script is obsolete. Removing it from runlevel."
 		rm "${EROOT}/etc/runlevels/shutdown/zfs-shutdown"
-	fi
-
-	systemd_reenable zfs-zed.service
-	systemd_reenable zfs-import-cache.service
-	systemd_reenable zfs-import-scan.service
-	systemd_reenable zfs-mount.service
-	systemd_reenable zfs-share.service
-	systemd_reenable zfs-import.target
-	systemd_reenable zfs.target
-}
-
-pkg_postrm() {
-	if ! use kernel-builtin && [[ ${PV} == "9999" ]]; then
-		remove_moduledb
 	fi
 }

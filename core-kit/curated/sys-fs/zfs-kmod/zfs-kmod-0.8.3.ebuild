@@ -7,17 +7,10 @@ inherit flag-o-matic linux-info linux-mod toolchain-funcs
 
 DESCRIPTION="Linux ZFS kernel module for sys-fs/zfs"
 HOMEPAGE="https://zfsonlinux.org/"
-
-if [[ ${PV} == "9999" ]]; then
-	inherit autotools git-r3
-	EGIT_REPO_URI="https://github.com/zfsonlinux/zfs.git"
-else
-	SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
-	KEYWORDS="~amd64 ~ppc64"
-	S="${WORKDIR}/zfs-${PV}"
-	ZFS_KERNEL_COMPAT="5.1"
-fi
-
+SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
+KEYWORDS="*"
+S="${WORKDIR}/zfs-${PV}"
+ZFS_KERNEL_COMPAT="5.4"
 LICENSE="CDDL debug? ( GPL-2+ )"
 SLOT="0"
 IUSE="custom-cflags debug +rootfs"
@@ -69,15 +62,13 @@ pkg_setup() {
 
 	kernel_is -ge 2 6 32 || die "Linux 2.6.32 or newer required"
 
-	if [[ ${PV} != "9999" ]]; then
-		local kv_major_max kv_minor_max zcompat
-		zcompat="${ZFS_KERNEL_COMPAT_OVERRIDE:-${ZFS_KERNEL_COMPAT}}"
-		kv_major_max="${zcompat%%.*}"
-		zcompat="${zcompat#*.}"
-		kv_minor_max="${zcompat%%.*}"
-		kernel_is -le "${kv_major_max}" "${kv_minor_max}" || die \
-			"Linux ${kv_major_max}.${kv_minor_max} is the latest supported version"
-	fi
+	local kv_major_max kv_minor_max zcompat
+	zcompat="${ZFS_KERNEL_COMPAT_OVERRIDE:-${ZFS_KERNEL_COMPAT}}"
+	kv_major_max="${zcompat%%.*}"
+	zcompat="${zcompat#*.}"
+	kv_minor_max="${zcompat%%.*}"
+	kernel_is -le "${kv_major_max}" "${kv_minor_max}" || die \
+		"Linux ${kv_major_max}.${kv_minor_max} is the latest supported version"
 
 	check_extra_config
 }
@@ -85,12 +76,8 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	if [[ ${PV} == "9999" ]]; then
-		eautoreconf
-	else
-		# Set module revision number
-		sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-gentoo/" META || die "Could not set Gentoo release"
-	fi
+	# Set module revision number
+	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-gentoo/" META || die "Could not set Gentoo release"
 
 	# Remove GPLv2-licensed ZPIOS unless we are debugging
 	use debug || sed -e 's/^subdir-m += zpios$//' -i module/Makefile.in

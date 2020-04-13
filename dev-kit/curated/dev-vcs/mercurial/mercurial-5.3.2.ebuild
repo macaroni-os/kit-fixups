@@ -1,9 +1,8 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{6..8} )
+PYTHON_COMPAT=( python2+ python3+ )
 PYTHON_REQ_USE="threads(+)"
 
 inherit bash-completion-r1 elisp-common eutils distutils-r1 flag-o-matic
@@ -17,16 +16,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="+chg emacs gpg test tk zsh-completion"
 
-BROKEN_PYTHON="
-	!~dev-python/python-3.5.0
-	!~dev-python/python-3.5.1
-	!~dev-python/python-3.5.2
-	!~dev-python/python-3.6.0
-	!~dev-python/python-3.6.1"
-
-BDEPEND="${BROKEN_PYTHON}"
-
-RDEPEND="${BROKEN_PYTHON}
+RDEPEND="
 	app-misc/ca-certificates
 	dev-python/zstandard[${PYTHON_USEDEP}]
 	gpg? ( app-crypt/gnupg )

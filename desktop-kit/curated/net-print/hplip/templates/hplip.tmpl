@@ -86,6 +86,10 @@ https://wiki.gentoo.org/wiki/Printing
 Any user who wants to print must be in the lp group.
 "
 
+PATCHES=(
+	"${FILESDIR}/hplip-3.18.10-remove-imageprocessor.patch"
+)
+
 pkg_setup() {
 	use !minimal && python-single-r1_pkg_setup
 

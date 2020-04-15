@@ -1,0 +1,8 @@
+--- a/Makefile	2017-06-06 12:32:31.777667885 +0200
++++ b/Makefile	2017-06-06 12:32:58.071668674 +0200
+@@ -30,4 +30,4 @@
+ 
+ $(LIBDIR)/libGL.so.1: libglfork.cpp
+ 	mkdir -p $(LIBDIR)
+-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fvisibility=hidden -fPIC -shared -Wl,-Bsymbolic -o $@ $< -lX11 -lpthread -lrt
++	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fvisibility=hidden -fPIC -shared -Wl,-Bsymbolic -o $@ $< $(LDFLAGS) -lX11 -lpthread -lrt

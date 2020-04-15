@@ -10,7 +10,6 @@ async def generate(hub, **pkginfo):
 	svn_ver = match.group(1)
 	version = f"{main_ver}.{svn_ver}"
 	url = f"https://download.virtualbox.org/virtualbox/{main_ver}/VirtualBox-{main_ver}.tar.bz2"
-	urlmod = f"mirror://funtoo/virtualbox/vbox-kernel-module-src-{main_ver}.tar.xz"
 	urlbin = f"https://download.virtualbox.org/virtualbox/{main_ver}/{match.group(0)}"
 	urlext = f"https://download.virtualbox.org/virtualbox/{main_ver}/Oracle_VM_VirtualBox_Extension_Pack-{main_ver}-{svn_ver}.vbox-extpack"
 	urlsdk = f"https://download.virtualbox.org/virtualbox/{main_ver}/VirtualBoxSDK-{main_ver}-{svn_ver}.zip"
@@ -20,7 +19,7 @@ async def generate(hub, **pkginfo):
 		hub.pkgtools.ebuild.Artifact(url=url)
 	]
 	mod_artifacts = [
-		hub.pkgtools.ebuild.Artifact(url=urlmod)
+		hub.pkgtools.ebuild.Artifact(url=urlbin)
 	]
 	bin_artifacts = [
 		hub.pkgtools.ebuild.Artifact(url=urlbin),

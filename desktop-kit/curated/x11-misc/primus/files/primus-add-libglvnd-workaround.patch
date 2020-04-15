@@ -1,0 +1,11 @@
+--- a/primusrun	2017-06-06 12:27:52.946659513 +0200
++++ b/primusrun	2017-06-06 12:28:20.257660333 +0200
+@@ -1,5 +1,8 @@
+ #!/bin/bash
+ 
++# primus needs this variable workaround for libglvnd enabled mesa
++export __GLVND_DISALLOW_PATCHING=1
++
+ # Readback-display synchronization method
+ # 0: no sync, 1: D lags behind one frame, 2: fully synced
+ # export PRIMUS_SYNC=${PRIMUS_SYNC:-0}

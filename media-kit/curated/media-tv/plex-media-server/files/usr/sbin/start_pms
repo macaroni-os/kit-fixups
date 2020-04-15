@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Set identification variables
+export PLEX_MEDIA_SERVER_INFO_VENDOR="$(grep ^NAME= /etc/os-release|awk -F= '{print $2}'|tr -d \" )"
+export PLEX_MEDIA_SERVER_INFO_DEVICE="PC"
+export PLEX_MEDIA_SERVER_INFO_MODEL="$(uname -m)"
+export PLEX_MEDIA_SERVER_INFO_PLATFORM_VERSION="$(grep ^VERSION= /etc/os-release|awk -F= '{print $2}'|tr -d \" )"
+
+# change these parameters in /etc/plex/plexmediaserver
+export PLEX_MEDIA_SERVER_MAX_PLUGIN_PROCS=6
+export PLEX_MEDIA_SERVER_HOME=/usr/lib/plexmediaserver
+export PLEX_MEDIA_SERVER_MAX_STACK_SIZE=3000
+export PLEX_MEDIA_SERVER_TMPDIR=/tmp
+export PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="${HOME}/Library/Application Support"
+
+if [ -f /etc/default/locale ]; then
+  export LANG="$(cat /etc/default/locale|awk -F '=' '/LANG=/{print $2}'|sed 's/"//g')"
+  export LC_ALL="$LANG"
+fi
+
+test -f /etc/plex/plexmediaserver && . /etc/plex/plexmediaserver
+
+# Activate python virtualenv
+. "${PLEX_MEDIA_SERVER_HOME}"/Resources/Python/bin/activate
+
+if [ ! -d "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR" ]
+then
+  mkdir -p "$PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR"
+  if [ ! $? -eq 0 ]
+  then
+    echo "WARNING COULDN'T CREATE $PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR, MAKE SURE I HAVE PERMISSON TO DO THAT!"
+    exit 1
+  fi
+fi
+
+export LD_LIBRARY_PATH="${PLEX_MEDIA_SERVER_HOME}/lib":"${PLEX_MEDIA_SERVER_HOME}"
+export TMPDIR="${PLEX_MEDIA_SERVER_TMPDIR}"
+
+echo $PLEX_MEDIA_SERVER_MAX_PLUGIN_PROCS $PLEX_MEDIA_SERVER_MAX_STACK_SIZE $PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR
+
+ulimit -s $PLEX_MAX_STACK_SIZE
+
+# Add sleep - Possible fix for start on boot.
+sleep 3
+
+(cd /usr/lib/plexmediaserver; ./Plex\ Media\ Server)

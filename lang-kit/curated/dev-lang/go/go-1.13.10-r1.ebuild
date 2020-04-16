@@ -17,13 +17,7 @@ case ${PV}  in
 *)
 	SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
 	S="${WORKDIR}"/go
-	case ${PV} in
-	*_beta*|*_rc*) ;;
-	*)
-		# KEYWORDS="-* ~amd64 ~arm ~arm64 ~ppc64 ~s390 ~x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
-		KEYWORDS=""
-		;;
-	esac
+	KEYWORDS="*"
 esac
 
 DESCRIPTION="A concurrent garbage collected and typesafe programming language"
@@ -37,8 +31,16 @@ BDEPEND="|| (
 		dev-lang/go-bootstrap )"
 RDEPEND="!<dev-go/go-tools-0_pre20150902"
 
+# These test data objects have writable/executable stacks.
+QA_EXECSTACK="
+	usr/lib/go/src/debug/elf/testdata/*.obj
+	usr/lib/go/src/*.gox
+	"
+
 # Do not complain about CFLAGS, etc, since Go doesn't use them.
 QA_FLAGS_IGNORED='.*'
+
+REQUIRES_EXCLUDE="/usr/lib/go/src/debug/elf/testdata/*"
 
 # The tools in /usr/lib/go should not cause the multilib-strict check to fail.
 QA_MULTILIB_PATHS="usr/lib/go/pkg/tool/.*/.*"
@@ -62,8 +64,6 @@ go_arch()
 	case "${portage_arch}" in
 		x86)	echo 386;;
 		x64-*)	echo amd64;;
-		ppc64) [[ $(tc-endian $@) = big ]] && echo ppc64 || echo ppc64le ;;
-		s390) echo s390x ;;
 		*)		echo "${portage_arch}";;
 	esac
 }
@@ -84,14 +84,6 @@ go_os()
 {
 	case "${1:-${CHOST}}" in
 		*-linux*)	echo linux;;
-		*-darwin*)	echo darwin;;
-		*-freebsd*)	echo freebsd;;
-		*-netbsd*)	echo netbsd;;
-		*-openbsd*)	echo openbsd;;
-		*-solaris*)	echo solaris;;
-		*-cygwin*|*-interix*|*-winnt*)
-			echo windows
-			;;
 		*)
 			die "unknown GOOS for ${1:-${CHOST}}"
 			;;
@@ -110,10 +102,10 @@ go_cross_compile()
 
 src_compile()
 {
-	if has_version -b dev-lang/go; then
-		export GOROOT_BOOTSTRAP="${BROOT}/usr/lib/go"
-	elif has_version -b dev-lang/go-bootstrap; then
+	if has_version -b dev-lang/go-bootstrap; then
 		export GOROOT_BOOTSTRAP="${BROOT}/usr/lib/go-bootstrap"
+	elif has_version -b dev-lang/go; then
+		export GOROOT_BOOTSTRAP="${BROOT}/usr/lib/go"
 	else
 		eerror "Go cannot be built without go or go-bootstrap installed"
 		die "Should not be here, please report a bug"
@@ -177,12 +169,4 @@ src_install()
 		dosym ../lib/go/${bin_path}/${f} /usr/bin/${f}
 	done
 	einstalldocs
-
-	if [[ ${CHOST} == *-darwin* ]] ; then
-		# fix install_name for test object (binutils_test) on Darwin, it
-		# is never used in real circumstances
-		local libmac64="${EPREFIX}"/usr/lib/go/src/cmd/vendor/github.com/
-		      libmac64+=google/pprof/internal/binutils/testdata/lib_mac_64
-		install_name_tool -id "${libmac64}" "${D}${libmac64}"
-	fi
 }

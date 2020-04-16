@@ -1,14 +1,14 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit eutils pax-utils xdg-utils gnome2-utils
+inherit eutils pax-utils xdg-utils
 
 DESCRIPTION="Git GUI client"
-SRC_URI="https://release.gitkraken.com/linux/GitKraken-v${PV}.tar.gz -> ${PN}-amd64-${PV}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 HOMEPAGE="https://www.gitkraken.com/"
-KEYWORDS="~amd64"
+KEYWORDS="*"
 SLOT="0"
 LICENSE="Axosoft, LLC"
 IUSE=""
@@ -42,7 +42,9 @@ src_install() {
 	#!/bin/sh
 	exec /opt/${PN}/${PN} "\$@"
 	EOF
+
 	fperms 0755 /usr/bin/${PN}
+	fperms 4755 /opt/gitkraken/chrome-sandbox
 
 	insinto /usr/share/applications
 	doins "${FILESDIR}/gitkraken.desktop"

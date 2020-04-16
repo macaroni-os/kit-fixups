@@ -1,0 +1,39 @@
+# This is a work-in-progress yaml rule for the next round of automation.
+
+dev_python_compat_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python2+
+  generator: pypi-compat-1
+  packages:
+    - pyyaml:
+        compat: '3.12'
+        rdepend: libyaml? ( dev-libs/libyaml:= )
+        depend: |
+          libyaml? ( dev-libs/libyaml:= )
+          libyaml? (
+              $(python_gen_cond_dep '
+                  dev-python/cython[${PYTHON_USEDEP}]
+              ' 'python*')
+          )
+        description: YAML parser and emitter for Python
+        homepage: |
+          https://pyyaml.org/wiki/PyYAML
+          https://pypi.org/project/PyYAML/
+          https://github.com/yaml/pyyaml
+        license: MIT
+        iuse: examples +libyaml
+        body: |
+          distutils_enable_tests setup.py
+
+          python_configure_all() {
+            mydistutilsargs=( $(use_with libyaml) )
+          }
+
+          python_install_all() {
+            distutils-r1_python_install_all
+            if use examples; then
+              dodoc -r examples
+              docompress -x /usr/share/doc/${PF}
+            fi
+          }

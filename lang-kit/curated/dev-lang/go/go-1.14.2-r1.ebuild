@@ -9,16 +9,9 @@ MY_PV=${PV/_/}
 
 inherit toolchain-funcs
 
-case ${PV}  in
-*9999*)
-	EGIT_REPO_URI="https://github.com/golang/go.git"
-	inherit git-r3
-	;;
-*)
-	SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
-	S="${WORKDIR}"/go
-	KEYWORDS="*"
-esac
+SRC_URI="https://storage.googleapis.com/golang/go${MY_PV}.src.tar.gz "
+S="${WORKDIR}"/go
+KEYWORDS="*"
 
 DESCRIPTION="A concurrent garbage collected and typesafe programming language"
 HOMEPAGE="https://golang.org"
@@ -29,7 +22,6 @@ SLOT="0/${PV}"
 BDEPEND="|| (
 		dev-lang/go
 		dev-lang/go-bootstrap )"
-RDEPEND="!<dev-go/go-tools-0_pre20150902"
 
 # Do not complain about CFLAGS, etc, since Go doesn't use them.
 QA_FLAGS_IGNORED='.*'
@@ -94,6 +86,7 @@ go_cross_compile()
 
 src_compile()
 {
+	# try go-bootstrap first
 	if has_version -b dev-lang/go-bootstrap; then
 		export GOROOT_BOOTSTRAP="${BROOT}/usr/lib/go-bootstrap"
 	elif has_version -b dev-lang/go; then
@@ -142,11 +135,6 @@ src_install()
 
 	dodir /usr/lib/go
 
-	# There is a known issue which requires the source tree to be installed [1].
-	# Once this is fixed, we can consider using the doc use flag to control
-	# installing the doc and src directories.
-	# [1] https://golang.org/issue/2775
-	#
 	# deliberately use cp to retain permissions
 	cp -R api bin doc lib pkg misc src test "${ED}"/usr/lib/go
 	# testdata directories are not needed on the installed system

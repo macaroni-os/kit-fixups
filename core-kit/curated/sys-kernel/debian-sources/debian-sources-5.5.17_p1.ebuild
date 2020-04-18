@@ -12,9 +12,9 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="5.3.9"
-DEB_EXTRAVERSION="-3"
-EXTRAVERSION="_p3"
+DEB_PV_BASE="5.5.17"
+DEB_EXTRAVERSION="-1"
+EXTRAVERSION="_p1"
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -27,7 +27,7 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
@@ -141,6 +141,9 @@ src_prepare() {
 
 	## increase bluetooth polling patch
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-fix-bluetooth-polling.patch
+
+	## fix for USB device enumeration for USBPre2:
+	#epatch "${FILESDIR}/${DEB_PV_BASE}/usb-blacklist-endpoint-sound-devices-usbpre2.patch"
 
 	local arch featureset subarch
 	featureset="standard"

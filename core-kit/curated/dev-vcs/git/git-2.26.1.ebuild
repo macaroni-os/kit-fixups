@@ -1,33 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python{2_7,3_{5,6,7}} )
+PYTHON_COMPAT=( python2+ )
 
-inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-single-r1 systemd
+inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-single-r1
 
 PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
-if [[ ${PV} == *9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="git://git.kernel.org/pub/scm/git/git.git"
-	# Please ensure that all _four_ 9999 ebuilds get updated; they track the 4 upstream branches.
-	# See https://git-scm.com/docs/gitworkflows#_graduation
-	# In order of stability:
-	# 9999-r0: maint
-	# 9999-r1: master
-	# 9999-r2: next
-	# 9999-r3: pu
-	case "${PVR}" in
-		9999) EGIT_BRANCH=maint ;;
-		9999-r1) EGIT_BRANCH=master ;;
-		9999-r2) EGIT_BRANCH=next;;
-		9999-r3) EGIT_BRANCH=pu ;;
-	esac
-fi
 
 MY_PV="${PV/_rc/.rc}"
 MY_P="${PN}-${MY_PV}"
@@ -36,18 +18,16 @@ DOC_VER="${MY_PV}"
 
 DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
 HOMEPAGE="https://www.git-scm.com/"
-if [[ ${PV} != *9999 ]]; then
-	SRC_URI_SUFFIX="xz"
-	SRC_URI_KORG="https://www.kernel.org/pub/software/scm/git"
-	[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
-	SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
-			${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-			doc? (
-			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-			)"
-	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh sparc ~x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-fi
+SRC_URI_SUFFIX="xz"
+SRC_URI_KORG="https://www.kernel.org/pub/software/scm/git"
+[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
+SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
+		${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+		doc? (
+		${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+		)"
+[[ "${PV}" == *_rc* ]] || \
+KEYWORDS="*"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -69,7 +49,7 @@ DEPEND="
 		net-misc/curl
 		webdav? ( dev-libs/expat )
 	)
-	emacs? ( virtual/emacs )
+	emacs? ( >=app-editors/emacs-23.1:* )
 	iconv? ( virtual/libiconv )
 "
 
@@ -116,12 +96,6 @@ BDEPEND="
 	nls? ( sys-devel/gettext )
 	test? (	app-crypt/gnupg	)
 "
-
-# Live ebuild builds man pages and HTML docs, additionally
-if [[ ${PV} == *9999 ]]; then
-	BDEPEND="${BDEPEND}
-		app-text/asciidoc"
-fi
 
 SITEFILE="50${PN}-gentoo.el"
 S="${WORKDIR}/${MY_P}"
@@ -263,18 +237,13 @@ exportmakeopts() {
 }
 
 src_unpack() {
-	if [[ ${PV} != *9999 ]]; then
-		unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
-		cd "${S}" || die
-		unpack ${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-		if use doc ; then
-			pushd "${S}"/Documentation &>/dev/null || die
-			unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-			popd &>/dev/null || die
-		fi
-	else
-		git-r3_src_unpack
-		#cp "${FILESDIR}"/GIT-VERSION-GEN .
+	unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
+	cd "${S}" || die
+	unpack ${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+	if use doc ; then
+		pushd "${S}"/Documentation &>/dev/null || die
+		unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+		popd &>/dev/null || die
 	fi
 
 }
@@ -353,18 +322,9 @@ src_compile() {
 	fi
 
 	pushd Documentation &>/dev/null || die
-	if [[ ${PV} == *9999 ]] ; then
-		git_emake man \
-			|| die "emake man failed"
-		if use doc ; then
-			git_emake info html \
-				|| die "emake info html failed"
-		fi
-	else
-		if use doc ; then
-			git_emake info \
-				|| die "emake info html failed"
-		fi
+	if use doc ; then
+		git_emake info \
+			|| die "emake info html failed"
 	fi
 	popd &>/dev/null || die
 
@@ -578,8 +538,6 @@ src_install() {
 	if use !prefix ; then
 		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
-		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" "git-daemon@.service"
-		systemd_dounit "${FILESDIR}/git-daemon.socket"
 	fi
 
 	perl_delete_localpod

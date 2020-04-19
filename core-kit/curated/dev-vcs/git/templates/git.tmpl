@@ -11,27 +11,16 @@ inherit toolchain-funcs elisp-common l10n perl-module bash-completion-r1 python-
 
 PLOCALES="bg ca de es fr is it ko pt_PT ru sv vi zh_CN"
 
-MY_PV="${PV/_rc/.rc}"
-MY_P="${PN}-${MY_PV}"
-
-DOC_VER="${MY_PV}"
-
 DESCRIPTION="stupid content tracker: distributed VCS designed for speed and efficiency"
 HOMEPAGE="https://www.git-scm.com/"
-SRC_URI_SUFFIX="xz"
-SRC_URI_KORG="https://www.kernel.org/pub/software/scm/git"
-[[ "${PV/rc}" != "${PV}" ]] && SRC_URI_KORG+='/testing'
-SRC_URI="${SRC_URI_KORG}/${MY_P}.tar.${SRC_URI_SUFFIX}
-		${SRC_URI_KORG}/${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-		doc? (
-		${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
-		)"
-[[ "${PV}" == *_rc* ]] || \
+SRC_URI="{% for artifact in artifacts %}
+{{artifact.src_uri}}
+{%- endfor %}"
 KEYWORDS="*"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl mediawiki mediawiki-experimental +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs subversion test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -68,11 +57,6 @@ RDEPEND="${DEPEND}
 			dev-perl/DBI
 			dev-perl/DBD-SQLite
 		)
-		mediawiki? (
-			dev-perl/DateTime-Format-ISO8601
-			dev-perl/HTML-Tree
-			dev-perl/MediaWiki-API
-		)
 		subversion? (
 			dev-vcs/subversion[-dso,perl]
 			dev-perl/libwww-perl
@@ -98,13 +82,10 @@ BDEPEND="
 "
 
 SITEFILE="50${PN}-gentoo.el"
-S="${WORKDIR}/${MY_P}"
 
 REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
-	mediawiki? ( perl )
-	mediawiki-experimental? ( mediawiki )
 	subversion? ( perl )
 	webdav? ( curl )
 	pcre-jit? ( pcre )
@@ -114,13 +95,7 @@ REQUIRED_USE="
 RESTRICT="!test? ( test )"
 
 PATCHES=(
-	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.22.0_rc0-optional-cvs.patch
-
 	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-
-	# Make submodule output quiet
-	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
 )
 
 pkg_setup() {
@@ -237,9 +212,9 @@ exportmakeopts() {
 }
 
 src_unpack() {
-	unpack ${MY_P}.tar.${SRC_URI_SUFFIX}
+	unpack {{artifacts[0].final_name}}
 	cd "${S}" || die
-	unpack ${PN}-manpages-${DOC_VER}.tar.${SRC_URI_SUFFIX}
+	unpack {{artifacts[1].final_name}}
 	if use doc ; then
 		pushd "${S}"/Documentation &>/dev/null || die
 		unpack ${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
@@ -249,16 +224,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# add experimental patches to improve mediawiki support
-	# see patches for origin
-	if use mediawiki-experimental ; then
-		PATCHES+=(
-			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
-		)
-	fi
-
 	default
 
 	sed -i \
@@ -362,13 +327,6 @@ src_compile() {
 	pushd contrib/diff-highlight &>/dev/null || die
 	git_emake
 	popd &>/dev/null || die
-
-	if use mediawiki ; then
-		pushd contrib/mw-to-git &>/dev/null || die
-		git_emake
-		popd &>/dev/null || die
-
-	fi
 }
 
 src_install() {
@@ -430,12 +388,6 @@ src_install() {
 	newdoc README README.git-subtree
 	dodoc git-subtree.txt
 	popd &>/dev/null || die
-
-	if use mediawiki ; then
-		pushd contrib/mw-to-git &>/dev/null || die
-		git_emake install
-		popd &>/dev/null || die
-	fi
 
 	# diff-highlight
 	dobin contrib/diff-highlight/diff-highlight
@@ -678,7 +630,6 @@ pkg_postinst() {
 	showpkgdeps git-instaweb \
 		"|| ( www-servers/lighttpd www-servers/apache www-servers/nginx )"
 	echo
-	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
 
 pkg_postrm() {

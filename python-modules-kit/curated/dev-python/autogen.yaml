@@ -15,7 +15,11 @@ dev_python_autogen_rule:
                 python_compat: python2+ pypy3
     - bitarray:
         python_compat: python2+ pypy3
+    - cffi:
+        python_compat: python2+ pypy{,3}
     - cloudflare
+    - cryptography:
+        python_compat: python2+ pypy{,3}
     - construct:
         python_compat: python2+ pypy3
     - cython:
@@ -26,6 +30,20 @@ dev_python_autogen_rule:
     - dns-lexicon
     - dnspython:
         python_compat: python2+ pypy3
+    - entrypoints:
+        python_compat: python2+ pypy3
+    - feedgenerator:
+        python_compat: python2+ pypy{,3}
+    - flake8:
+        python_compat: python2+ pypy{,3}
+    - flask-jwt:
+        python_compat: python2+ pypy{,3}
+    - h5py:
+        python_compat: python2+ pypy{,3}
+    - importlib_metadata:
+        python_compat: python2+ pypy{,3}
+    - ipy:
+        python_compat: python2+ pypy{,3}
     - pycares:
         python_compat: python3+ pypy3
     - python-digitalocean
@@ -47,6 +65,8 @@ dev_python_autogen_rule:
     - msgpack
     - pop-config
     - pop
+    - py:
+        python_compat: python2+ pypy{,3}
     - pymongo:
         python_compat: python2+
     - flake8-polyfill:
@@ -54,4 +74,6 @@ dev_python_autogen_rule:
     - pep8-naming:
         python_compat: python2+
     - pyjwt:
+        python_compat: python2+ pypy{,3}
+    - pyzmq:
         python_compat: python2+ pypy{,3}

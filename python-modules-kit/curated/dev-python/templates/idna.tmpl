@@ -1,0 +1,22 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Internationalized Domain Names in Applications (IDNA)"
+HOMEPAGE="https://github.com/kjd/idna https://pypi.org/project/idna/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+SLOT="0"
+LICENSE="BSD"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
+
+python_test() {
+	esetup.py test
+}

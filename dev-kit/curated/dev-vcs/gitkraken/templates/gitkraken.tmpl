@@ -38,7 +38,7 @@ src_install() {
 
 	# Create /usr/bin/gitkraken
 	dodir /usr/bin/
-	cat <<-EOF >"${ED}"usr/bin/${PN}
+	cat <<-EOF >"${ED}"/usr/bin/${PN}
 	#!/bin/sh
 	exec /opt/${PN}/${PN} "\$@"
 	EOF

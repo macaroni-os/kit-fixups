@@ -1,0 +1,33 @@
+# Copyright 1999-2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Universal encoding detector"
+HOMEPAGE="https://github.com/chardet/chardet https://pypi.org/project/chardet/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="LGPL-2.1"
+SLOT="0"
+KEYWORDS="*"
+IUSE="test"
+RESTRICT="!test? ( test )"
+
+RDEPEND="
+	dev-python/setuptools[${PYTHON_USEDEP}]
+"
+
+DEPEND="${RDEPEND}
+	test? (
+		dev-python/pytest[${PYTHON_USEDEP}]
+		dev-python/hypothesis[${PYTHON_USEDEP}]
+	)
+"
+
+python_test() {
+	py.test -v || die "Tests fail with ${EPYTHON}"
+}

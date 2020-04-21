@@ -26,6 +26,7 @@ RDEPEND="
 		>=dev-python/cryptography-1.3.4[${PYTHON_USEDEP}]
 		>=dev-python/pyopenssl-0.14[$(python_gen_usedep 'python*' pypy)]
 	)
+	dev-python/urllib3[${PYTHON_USEDEP}]
 "
 
 DEPEND="${RDEPEND}

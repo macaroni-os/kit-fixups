@@ -87,9 +87,7 @@ _python_impl_supported() {
 			return 1
 			;;
 		pypy|pypy3)
-			if [[ ${EAPI:-0} == [01234] ]]; then
-				die "PyPy is supported in EAPI 5 and newer only."
-			fi
+			[[ ${EAPI:-0} == [01234] ]] && return 0 || return 1
 			;;
 		*)
 			[[ ${PYTHON_COMPAT_NO_STRICT} ]] && return 1
@@ -123,24 +121,20 @@ _python_set_impls() {
 	if [[ $(declare -p PYTHON_COMPAT) != "declare -a"* ]]; then
 		die 'PYTHON_COMPAT must be an array.'
 	fi
-	for i in "${PYTHON_COMPAT[@]}"; do
-		# trigger validity checks
-		_python_impl_supported "${i}"
-	done
 
 	declare -A supp
 	declare -A unsupp
 	for i in "${PYTHON_COMPAT[@]}"; do
+		_python_impl_supported "${i}" || continue
 		case $i in
 			# Below, bump any older python3_5 or 3_6 deps to python3_7.
 
 			python3_5|python3_6|python3_7)
 				supp['python3_7']=1
 				;;
-			python2_7|python3_8|python3_9)
-				supp[$i]=1
-				;;
+
 			# When adding new '+' entries, also update line 83 ^^
+
 			python3+|python3_7+)
 				supp['python3_7']=1
 				supp['python3_8']=1
@@ -163,9 +157,9 @@ _python_set_impls() {
 				supp['python3_8']=1
 				supp['python3_9']=1
 				;;
-
-			# Below, short-hand for python3.7 and up compatibility:
-
+			*)
+				# Anything else valid in the list is also supported as-is
+				supp[$i]=1
 			esac
 	done
 

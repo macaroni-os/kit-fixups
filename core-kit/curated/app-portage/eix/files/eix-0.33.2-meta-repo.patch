@@ -1,0 +1,12 @@
+diff -Nuar eix-0.33.2/src/eix-sync.sh.in eix-0.33.2-fixed/src/eix-sync.sh.in
+--- eix-0.33.2/src/eix-sync.sh.in	2017-01-20 21:44:53.000000000 +0200
++++ eix-0.33.2-fixed/src/eix-sync.sh.in	2017-09-22 20:08:42.317653399 +0300
+@@ -277,7 +277,7 @@
+ # Get options from cli
+ 
+ DefaultOpts() {
+-	Push -c emergecmd 'emerge' '--sync'
++	Push -c emergecmd 'ego' 'sync'
+ 	Push -c updatecmd 'eix-update'
+ 	Push -c layman_opt
+ 	have_changed=false

@@ -23,7 +23,8 @@ dev-python/zope-event[${PYTHON_USEDEP}]
 	dev-python/zope-location[${PYTHON_USEDEP}]
 	dev-python/zope-proxy[${PYTHON_USEDEP}]
 	dev-python/zope-deferredimport[${PYTHON_USEDEP}]
-	dev-python/zope-deprecation[${PYTHON_USEDEP}]
+	python_targets_python3_7? ( dev-python/zope-deprecation[python_targets_python3_7] )
+	python_targets_pypy3? ( dev-python/zope-deprecation[python_targets_pypy3] )
 	dev-python/zope-hookable[${PYTHON_USEDEP}]
 	>=dev-python/zope-interface-4.1.0[${PYTHON_USEDEP}]"
 DEPEND="test? ( ${RDEPEND}

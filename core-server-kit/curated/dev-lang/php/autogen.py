@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 	slots = [
 		('7.2', ['php-freetype-2.9.1.patch', 'php-7.2.13-intl-use-icu-namespace.patch']),
 		('7.3', ['php-freetype-2.9.1.patch']),
-		('7.4', ['php-iodbc-header-location.patch']),
+		('7.4', ['php-iodbc-header-location.patch', 'apache.patch']),
 	]
 	php_url = 'https://www.php.net/downloads.php'
 	php_data = await hub.pkgtools.fetch.get_page(php_url)
@@ -18,8 +18,13 @@ async def generate(hub, **pkginfo):
 			patches += "\t\"${FILESDIR}/" + patch + "\"\n"
 		patches += ")"
 		version = re.findall(f"php-({slot}\\.\\d+).tar", php_data)[0]
+		if slot in ['7.2', '7.3']:
+			template='php-default.tmpl'
+		else:
+			template=f'php-{slot}.tmpl'
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
+			template=template,
 			version=version,
 			slot=slot,
 			patches=patches,

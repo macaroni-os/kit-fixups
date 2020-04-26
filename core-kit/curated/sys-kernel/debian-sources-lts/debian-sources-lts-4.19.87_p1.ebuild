@@ -3,7 +3,7 @@
 # Documentation for adding new kernels -- do not remove!
 #
 # Find latest stable kernel release for debian here:
-#   https://packages.debian.org/unstable/kernel/
+#   https://packages.debian.org/stable/kernel/
 
 EAPI=5
 
@@ -45,7 +45,7 @@ zfs? ( binary )
 "
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
-HOMEPAGE="https://packages.debian.org/unstable/kernel/"
+HOMEPAGE="https://packages.debian.org/stable/kernel/"
 SRC_URI="$DEB_UPSTREAM/${KERNEL_ARCHIVE} $DEB_UPSTREAM/${PATCH_ARCHIVE}"
 S="$WORKDIR/linux-${DEB_PV_BASE}"
 

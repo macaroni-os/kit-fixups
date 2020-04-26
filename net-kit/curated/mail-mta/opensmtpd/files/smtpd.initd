@@ -1,0 +1,10 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+command="smtpd"
+pidfile="/run/smtpd.pid"
+description="SMTP daemon from OpenBSD"
+
+depend() {
+	need net
+}

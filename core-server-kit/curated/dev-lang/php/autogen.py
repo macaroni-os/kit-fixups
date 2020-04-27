@@ -18,13 +18,9 @@ async def generate(hub, **pkginfo):
 			patches += "\t\"${FILESDIR}/" + patch + "\"\n"
 		patches += ")"
 		version = re.findall(f"php-({slot}\\.\\d+).tar", php_data)[0]
-		if slot in ['7.2', '7.3']:
-			template='php-default.tmpl'
-		else:
-			template=f'php-{slot}.tmpl'
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
-			template=template,
+			template=f'php-{slot}.tmpl',
 			version=version,
 			slot=slot,
 			patches=patches,

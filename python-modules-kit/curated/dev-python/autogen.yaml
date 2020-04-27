@@ -51,6 +51,8 @@ dev_python_autogen_rule:
         - versions:
             - 1.1.1:
                 python_compat: python2+ pypy3
+    - Babel:
+        python_compat: python2+ pypy3
     - backports-functools-lru-cache:
         python_compat: python2+ pypy{,3}
         pypi_name: backports.functools-lru-cache
@@ -136,6 +138,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - enum34:
         python_compat: python2_7 pypy
+    - freezegun:
+        python_compat: python2+ pypy3
     - idna:
         python_compat: python2+ pypy{,3}
     - ipaddress:
@@ -158,6 +162,10 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - pyopenssl:
         python_compat: python2+ pypy{,3}
+    - pyrsistent:
+        python_compat: python3+ pypy3
+    - pytz:
+        python_compat: python2+ pypy3
     - requests:
         python_compat: python2+ pypy{,3}
     - setuptools:

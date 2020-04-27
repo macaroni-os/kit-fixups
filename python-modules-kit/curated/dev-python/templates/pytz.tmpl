@@ -18,17 +18,21 @@ IUSE=""
 
 RDEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	|| ( >=sys-libs/timezone-data-2017a sys-libs/glibc[vanilla] )"
+	sys-libs/timezone-data"
 DEPEND="${RDEPEND}
 	app-arch/unzip"
 
-PATCHES=(
-	# Use timezone-data zoneinfo.
-	"${FILESDIR}"/2018.4-zoneinfo.patch
-	# ...and do not install a copy of it.
-	"${FILESDIR}"/${PN}-2018.4-zoneinfo-noinstall.patch
-)
+src_prepare() {
+	default
+	# configure the source code to grab zoneinfo files from /usr/share/zoneinfo by default:
+	sed -i -e "/zoneinfo_dir = os.environ.get/s:None:'/usr/share/zoneinfo':" $S/pytz/__init__.py || die
+}
 
 python_test() {
 	"${EPYTHON}" pytz/tests/test_tzinfo.py -v || die "Tests fail with ${EPYTHON}"
+}
+
+post_src_install() {
+	# Remove all bundled zoneinfo data:
+	find "$D" -type d -name zoneinfo -exec rm -rf {} \; 2>/dev/null
 }

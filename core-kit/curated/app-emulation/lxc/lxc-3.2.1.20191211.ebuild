@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools bash-completion-r1 linux-info flag-o-matic systemd readme.gentoo-r1 pam
+inherit autotools bash-completion-r1 linux-info flag-o-matic readme.gentoo-r1 pam
 
 DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
@@ -148,19 +148,11 @@ src_install() {
 	# Gentoo-specific additions!
 	newinitd "${FILESDIR}/${PN}.initd.7" ${PN}
 
-	# Remember to compare our systemd unit file with the upstream one
-	# config/init/systemd/lxc.service.in
-	systemd_newunit "${FILESDIR}"/${PN}_at.service.4 "lxc@.service"
-
 	DOC_CONTENTS="
 	For openrc, there is an init script provided with the package.
 	You _should_ only need to symlink /etc/init.d/lxc to
 	/etc/init.d/lxc.configname to start the container defined in
 	/etc/lxc/configname.conf.
-
-	Correspondingly, for systemd a service file lxc@.service is installed.
-	Enable and start lxc@configname in order to start the container defined
-	in /etc/lxc/configname.conf.
 
 	If you want checkpoint/restore functionality, please install criu
 	(sys-process/criu)."

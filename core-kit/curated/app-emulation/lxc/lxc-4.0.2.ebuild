@@ -2,19 +2,16 @@
 
 EAPI=7
 
-WANT_AUTOMAKE="1.15"
-
-inherit autotools bash-completion-r1 linux-info flag-o-matic systemd readme.gentoo-r1 pam
+inherit autotools bash-completion-r1 linux-info flag-o-matic readme.gentoo-r1 pam
 
 DESCRIPTION="LinuX Containers userspace utilities"
 HOMEPAGE="https://linuxcontainers.org/"
-SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
-KEYWORDS="*"
-
+KEYWORDS=""
 LICENSE="LGPL-3"
 SLOT="0"
 IUSE="apparmor examples pam python seccomp selinux +templates"
+SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
 RDEPEND="
 	net-libs/gnutls
@@ -32,8 +29,8 @@ RDEPEND="${RDEPEND}
 	app-misc/pax-utils
 	virtual/awk"
 
-PDEPEND="templates? ( app-emulation/lxc-templates )
-	python? ( dev-python/python3-lxc )"
+PDEPEND="templates? ( =app-emulation/lxc-templates-3.0.4* )
+	python? ( =dev-python/python3-lxc-3.0.4* )"
 
 CONFIG_CHECK="~CGROUPS ~CGROUP_DEVICE
 	~CPUSETS ~CGROUP_CPUACCT
@@ -89,9 +86,14 @@ pkg_setup() {
 }
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.0.0-bash-completion.patch
-	"${FILESDIR}"/${PN}-2.0.5-omit-sysconfig.patch # bug 558854
+	"${FILESDIR}"/${PV}/${PN}-bash-completion.patch
+	"${FILESDIR}"/${PV}/${PN}-omit-sysconfig.patch # bug 558854
 )
+
+src_prepare() {
+	default
+	eautoreconf
+}
 
 src_configure() {
 	append-flags -fno-strict-aliasing
@@ -106,7 +108,6 @@ src_configure() {
 		--with-rootfs-path=/var/lib/lxc/rootfs
 		--with-distro=gentoo
 		--with-runtime-path=/run
-		--disable-apparmor
 		--disable-werror
 		--enable-doc
 		$(use_enable apparmor)
@@ -122,6 +123,10 @@ src_configure() {
 src_install() {
 	default
 
+	if use apparmor; then
+		keepdir /etc/apparmor.d/tunables/global
+	fi
+
 	mv "${ED}"/usr/share/bash-completion/completions/${PN} "${ED}"/$(get_bashcompdir)/${PN}-start || die
 	bashcomp_alias ${PN}-start \
 		${PN}-{attach,cgroup,copy,console,create,destroy,device,execute,freeze,info,monitor,snapshot,stop,unfreeze,wait}
@@ -132,21 +137,13 @@ src_install() {
 	find "${D}" -name '*.la' -delete
 
 	# Gentoo-specific additions!
-	newinitd "${FILESDIR}/${PN}.initd.7" ${PN}
-
-	# Remember to compare our systemd unit file with the upstream one
-	# config/init/systemd/lxc.service.in
-	systemd_newunit "${FILESDIR}"/${PN}_at.service.4 "lxc@.service"
+	newinitd "${FILESDIR}/${PV}/${PN}.initd" ${PN}
 
 	DOC_CONTENTS="
 	For openrc, there is an init script provided with the package.
 	You _should_ only need to symlink /etc/init.d/lxc to
 	/etc/init.d/lxc.configname to start the container defined in
 	/etc/lxc/configname.conf.
-
-	Correspondingly, for systemd a service file lxc@.service is installed.
-	Enable and start lxc@configname in order to start the container defined
-	in /etc/lxc/configname.conf.
 
 	If you want checkpoint/restore functionality, please install criu
 	(sys-process/criu)."

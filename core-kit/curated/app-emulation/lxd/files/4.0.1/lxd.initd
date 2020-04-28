@@ -1,22 +1,24 @@
 #!/sbin/openrc-run
-# Copyright 2004-2018 Gentoo Foundation, Copryight 2018 Funtoo Solutions
 # Distributed under the terms of the GNU General Public License v2
 
-DAEMON=/usr/libexec/lxd
+DAEMON=/usr/sbin/lxd
 PIDFILE=/run/lxd.pid
+TIMEOUT=10
 
 extra_commands="stopall"
 
 depend() {
 	need net
-	use lxcfs
+	need lxcfs
 }
 
 start() {
-	# required for lxd in lxd:
-	modprobe -q ip6_tables
 	ebegin "Starting lxd service"
-	LD_LIBRARY_PATH=/usr/__LIBDIR__/lxd start-stop-daemon --start \
+	# required for loopback storage pools:
+	modprobe -f loop > /dev/null 2>&1
+	# fixing permissions on /var/lib/lxd and make sure it exists
+	install -d /var/lib/lxd --group lxd --owner root --mode 0775
+	start-stop-daemon --start \
 		--pidfile ${PIDFILE} \
 		--exec ${DAEMON} \
 		--background \
@@ -38,9 +40,13 @@ stop() {
 
 stopall() {
 	ebegin "Stopping lxd service and containers"
+	lxc stop --all --timeout $TIMEOUT >/dev/null 2>&1
+	if [ "$?" -ne 0 ]; then
+		lxc stop --all --force || eerror "Could not stop all containers"
+	fi
 	if "${DAEMON}" shutdown; then
-		/etc/init.d/lxd zap
 		rm -f ${PIDFILE}
-		fi
+		eend 0
+	fi
 	eend $?
 }

@@ -122,6 +122,8 @@ src_prepare() {
 	# We put the libraries that lxd uses in /usr/lib/lxd, since the sqlite library conflicts with the
 	# official one in Funtoo. LDFLAGS are tweaked during build to allow the binaries to find the lxd
 	# versions of the libraries even though they aren't in the official system library path.
+	cd ${GOPATH} && eapply "${FILESDIR}/${PV}/disable-raft-zfs-test.patch"
+
 
 	einfo "Tweaking Makefile to put libraries in /usr/lib/lxd ..."
 	sed -i \

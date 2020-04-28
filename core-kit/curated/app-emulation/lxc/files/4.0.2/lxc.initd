@@ -1,5 +1,4 @@
 #!/sbin/openrc-run
-# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 CONTAINER=${SVCNAME#*.}
@@ -29,6 +28,8 @@ lxc_get_net_link_type() {
 	awk 'BEGIN { FS="[ \t]*=[ \t]*"; _link=""; _type="" }
 		$1 == "lxc.network.type" {_type=$2;}
 		$1 == "lxc.network.link" {_link=$2;}
+		match($1, /lxc\.net\.[[:digit:]]+\.type/) {_type=$2;}
+		match($1, /lxc\.net\.[[:digit:]]+\.link/) {_link=$2;}
 		{if(_link != "" && _type != ""){
 			printf("%s:%s\n", _link, _type );
 			_link=""; _type="";
@@ -45,8 +46,12 @@ checkconfig() {
 	# no need to output anything, the function takes care of that.
 	[ -z "${CONFIGFILE}" ] && return 1
 
-	utsname=$(lxc_get_var lxc.utsname)
-	if [ ${CONTAINER} != ${utsname} ]; then
+	utsname=$(lxc_get_var lxc.uts.name)
+	if [ -z "$utsname" ] ; then
+		utsname=$(lxc_get_var lxc.utsname)
+	fi
+
+	if [ "${CONTAINER}" != "${utsname}" ]; then
 	    eerror "You should use the same name for the service and the"
 	    eerror "container. Right now the container is called ${utsname}"
 	    return 1
@@ -60,6 +65,7 @@ depend() {
 
 	config ${CONFIGFILE}
 	need localmount
+	use lxcfs
 
 	local _x _if
 	for _x in $(lxc_get_net_link_type); do
@@ -92,8 +98,8 @@ start() {
 	esac
 
 	ebegin "Starting ${CONTAINER}"
-	env -i ${setarch} $(type -p lxc-start) -l WARN -n ${CONTAINER} -f ${CONFIGFILE} -d -o /var/log/lxc/${CONTAINER}.log
-	sleep 0.5
+	env -i ${setarch} $(which lxc-start) -l WARN -n ${CONTAINER} -f ${CONFIGFILE} -d -o /var/log/lxc/${CONTAINER}.log
+	sleep 1
 
 	# lxc-start -d will _always_ report a correct startup, even if it
 	# failed, so rather than trust that, check that the cgroup exists.

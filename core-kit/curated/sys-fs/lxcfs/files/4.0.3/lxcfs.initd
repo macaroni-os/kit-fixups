@@ -1,5 +1,4 @@
 #!/sbin/openrc-run
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 DAEMON=/usr/bin/lxcfs
@@ -14,8 +13,8 @@ start() {
 			--exec ${DAEMON} \
 			--background \
 			--make-pidfile \
-			-- \
-			-o allow_other,nonempty /var/lib/lxcfs
+			-- $LXCFS_OPTS \
+			/var/lib/lxcfs
 	eend $?
 }
 

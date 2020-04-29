@@ -12,8 +12,7 @@ UPSTREAM_PV=$(replace_version_separator 3 '.' )
 SRC_URI="https://github.com/lxc/lxcfs/archive/${PN}-${UPSTREAM_PV}.tar.gz -> ${P}.tar.gz"
 KEYWORDS=""
 S=${WORKDIR}/${PN}-${P}
-# Omit all dbus.  Upstream appears to require it because systemd, but
-# lxcfs makes no direct use of dbus.
+
 RDEPEND="
 	dev-libs/glib:2
 	sys-fs/fuse:0
@@ -40,7 +39,6 @@ src_test() {
 
 src_install() {
 	default
-	newinitd "${FILESDIR}"/lxcfs-4.0.2.initd lxcfs
-	newconfd "${FILESDIR}"/lxcfs-4.0.2.confd lxcfs
-	systemd_dounit config/init/systemd/lxcfs.service
+	newinitd "${FILESDIR}"/${PV}/lxcfs.initd lxcfs
+	newconfd "${FILESDIR}"/${PV}/lxcfs.confd lxcfs
 }

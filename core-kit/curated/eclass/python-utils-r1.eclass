@@ -87,7 +87,7 @@ _python_impl_supported() {
 			return 1
 			;;
 		pypy|pypy3)
-			[[ ${EAPI:-0} == [01234] ]] && return 0 || return 1
+			[[ ${EAPI:-0} == [01234] ]] && return 1 || return 0
 			;;
 		*)
 			[[ ${PYTHON_COMPAT_NO_STRICT} ]] && return 1
@@ -160,7 +160,7 @@ _python_set_impls() {
 			*)
 				# Anything else valid in the list is also supported as-is
 				supp[$i]=1
-			esac
+		esac
 	done
 
 	declare -A supp_filt

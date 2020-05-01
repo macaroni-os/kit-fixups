@@ -3,14 +3,8 @@
 EAPI=7
 inherit mount-boot savedconfig
 
-if [[ ${PV} == 99999999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/${PN}.git"
-else
-	#GIT_COMMIT="eefb5f7410150c00d0ab5c41c5d817ae9bf449b3"
-	SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS=""
-fi
+SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="*"
 
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git"
@@ -75,16 +69,6 @@ RDEPEND="!savedconfig? (
 
 pkg_pretend() {
 	use initramfs && mount-boot_pkg_pretend
-}
-
-src_unpack() {
-	if [[ ${PV} == 99999999* ]]; then
-		git-r3_src_unpack
-	else
-		default
-		# rename directory from git snapshot tarball
-		#mv ${PN}-*/ ${P} || die
-	fi
 }
 
 src_prepare() {

@@ -1,0 +1,17 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="A configurable sidebar-enabled Sphinx theme"
+HOMEPAGE="https://github.com/bitprophet/alabaster"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="BSD"
+KEYWORDS="*"
+SLOT="0"
+
+DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"

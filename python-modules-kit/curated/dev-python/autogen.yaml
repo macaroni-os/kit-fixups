@@ -38,6 +38,8 @@ dev_python_autogen_rule:
     python_compat: python3+
   generator: pypi-1
   packages:
+    - alabaster:
+        python_compat: python2+ pypy{,3}
     - aiohttp
     - aiohttp-socks:
         python_compat: python3+ pypy3
@@ -75,6 +77,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - entrypoints:
         python_compat: python2+ pypy3
+    - extras:
+        python_compat: python2+ pypy{,3}
     - feedgenerator:
         python_compat: python2+ pypy{,3}
     - flake8:
@@ -83,10 +87,14 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - h5py:
         python_compat: python2+ pypy{,3}
+    - imagesize:
+        python_compat: python2+ pypy{,3}
     - importlib_metadata:
         python_compat: python2+ pypy{,3}
     - ipy:
         python_compat: python2+ pypy{,3}
+    - jsonschema:
+        python_compat: python3+ pypy3
     - psutil:
         python_compat: python2+ pypy{,3}
     - pycares:
@@ -106,6 +114,10 @@ dev_python_autogen_rule:
     - terminado:
         python_compat: python3+
     - testtools:
+        python_compat: python3+ pypy3
+    - testresources:
+        python_compat: python2+ pypy{,3}
+    - testscenarios:
         python_compat: python3+ pypy3
     - fixtures:
         python_compat: python3+ pypy3
@@ -179,6 +191,54 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - six:
         python_compat: python2+ pypy{,3}
+    - snowballstemmer:
+        python_compat: python2+ pypy{,3}
+    - sphinx:
+        python_compat: python3+ pypy3
+    - sphinx_rtd_theme:
+        python_compat: python2+ pypy{,3}
+    - sphinxcontrib-applehelp:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-asyncio:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-blockdiag:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-cheeseshop:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-devhelp:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-ditaa:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-documentedlist:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-doxylink:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-github-alt:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-googleanalytics:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-htmlhelp:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-httpdomain:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-issuetracker:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-jsmath:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-napoleon:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-newsfeed:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-programoutput:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-qthelp:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-serializinghtml:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-spelling:
+        python_compat: python3+ pypy3
+    - sphinxcontrib-websupport:
+        python_compat: python3+ pypy3
     - urllib3:
         python_compat: python2+ pypy{,3}
     - zope-component:

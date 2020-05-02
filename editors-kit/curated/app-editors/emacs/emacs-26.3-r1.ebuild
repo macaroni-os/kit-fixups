@@ -12,7 +12,7 @@ SRC_URI="mirror://gnu/emacs/${P}.tar.xz"
 LICENSE="GPL-3+ FDL-1.3+ BSD HPND MIT W3C unicode PSF-2"
 SLOT="26"
 KEYWORDS="*"
-IUSE="acl alsa aqua athena cairo dbus dynamic-loading games gconf gfile gif gpm gsettings gtk gtk2 gzip-el imagemagick +inotify jpeg kerberos lcms libxml2 livecd m17n-lib mailutils motif png selinux sound source ssl svg systemd +threads tiff toolkit-scroll-bars wide-int X Xaw3d xft +xpm xwidgets zlib"
+IUSE="acl alsa aqua athena cairo dbus dynamic-loading games gconf gfile gif gpm gsettings gtk gtk2 +gzip-el imagemagick +inotify jpeg kerberos lcms +libxml2 livecd m17n-lib mailutils motif png selinux sound source ssl svg systemd +threads tiff toolkit-scroll-bars wide-int X Xaw3d xft +xpm xwidgets zlib"
 REQUIRED_USE="?? ( aqua X )"
 
 RDEPEND="sys-libs/ncurses:0=
@@ -175,13 +175,11 @@ src_configure() {
 		if use gtk; then
 			einfo "Configuring to build with GIMP Toolkit (GTK+)"
 			while read line; do ewarn "${line}"; done <<-EOF
-				Your version of GTK+ will have problems with closing open
-				displays. This is no problem if you just use one display, but
-				if you use more than one and close one of them Emacs may crash.
-				See <https://bugzilla.gnome.org/show_bug.cgi?id=85715>.
-				If you intend to use more than one display, then it is strongly
-				recommended that you compile Emacs with the Athena/Lucid or the
-				Motif toolkit instead.
+				  Your version of Gtk+ will have problems with closing
+				  open displays.  This is no problem if you just use one
+				  display, but if you use more than one and close one of
+				  them Emacs may crash.  See
+				  https://gitlab.gnome.org/GNOME/gtk/issues/221
 			EOF
 			if use gtk2; then
 				myconf+=" --with-x-toolkit=gtk2 --without-xwidgets"

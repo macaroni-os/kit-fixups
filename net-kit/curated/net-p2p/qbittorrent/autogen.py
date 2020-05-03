@@ -5,7 +5,7 @@ import json
 async def generate(hub, **pkginfo):
 	user = 'qbittorrent'
 	repo = 'qBittorrent'
-	app = repo
+	app = 'qbittorrent'
 	json_data = await hub.pkgtools.fetch.get_page(f'https://api.github.com/repos/{user}/{repo}/tags?search=RELEASE')
 	json_list = json.loads(json_data)
 	version = json_list[0]['name'].split('-', 1)[1]

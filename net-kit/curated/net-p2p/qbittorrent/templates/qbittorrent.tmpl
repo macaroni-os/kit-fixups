@@ -8,14 +8,9 @@ DESCRIPTION="BitTorrent client in C++ and Qt"
 HOMEPAGE="https://www.qbittorrent.org
 	  https://github.com/qbittorrent"
 
-if [[ ${PV} == *9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/${PN}/qBittorrent.git"
-else
-	SRC_URI="https://github.com/qbittorrent/qBittorrent/archive/release-${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="*"
-	S="${WORKDIR}/qBittorrent-release-${PV}"
-fi
+SRC_URI="https://github.com/qbittorrent/qBittorrent/archive/release-${PV}.tar.gz -> ${P}.tar.gz"
+KEYWORDS="*"
+S="${WORKDIR}/qBittorrent-release-${PV}"
 
 LICENSE="GPL-2"
 SLOT="0"

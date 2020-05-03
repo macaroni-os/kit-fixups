@@ -177,11 +177,13 @@ src_configure() {
 		if use gtk; then
 			einfo "Configuring to build with GIMP Toolkit (GTK+)"
 			while read line; do ewarn "${line}"; done <<-EOF
-				  Your version of Gtk+ will have problems with closing
-				  open displays.  This is no problem if you just use one
-				  display, but if you use more than one and close one of
-				  them Emacs may crash.  See
-				  https://gitlab.gnome.org/GNOME/gtk/issues/221
+				Your version of Gtk+ will have problems with closing open
+				displays.  This is no problem if you just use one display, but
+				if you use more than one and close one of them Emacs may crash.
+				See <https://gitlab.gnome.org/GNOME/gtk/issues/221>.
+				If you intend to use more than one display, then it is strongly
+				recommended that you compile Emacs with the Athena/Lucid or the
+				Motif toolkit instead.
 			EOF
 			if use gtk2; then
 				myconf+=" --with-x-toolkit=gtk2 --without-xwidgets"

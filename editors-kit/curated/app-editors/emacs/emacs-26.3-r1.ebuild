@@ -12,7 +12,7 @@ SRC_URI="mirror://gnu/emacs/${P}.tar.xz"
 LICENSE="GPL-3+ FDL-1.3+ BSD HPND MIT W3C unicode PSF-2"
 SLOT="26"
 KEYWORDS="*"
-IUSE="acl alsa aqua athena cairo dbus dynamic-loading games gconf gfile gif gpm gsettings gtk gtk2 +gzip-el imagemagick +inotify jpeg kerberos lcms +libxml2 livecd m17n-lib mailutils motif png selinux sound source ssl svg systemd +threads tiff toolkit-scroll-bars wide-int X Xaw3d xft +xpm xwidgets zlib"
+IUSE="acl alsa aqua athena cairo dbus dynamic-loading +ebuild-mode games gconf gfile gif gpm gsettings gtk gtk2 +gzip-el imagemagick +inotify jpeg kerberos lcms +libxml2 livecd m17n-lib mailutils motif png selinux sound source ssl svg systemd +threads tiff toolkit-scroll-bars wide-int X Xaw3d xft +xpm xwidgets zlib"
 REQUIRED_USE="?? ( aqua X )"
 
 RDEPEND="sys-libs/ncurses:0=
@@ -102,6 +102,8 @@ BDEPEND="virtual/pkgconfig
 
 RDEPEND="${RDEPEND}
 	!<app-editors/emacs-vcs-${PV}"
+
+PDEPEND="ebuild-mode? ( app-emacs/ebuild-mode )"
 
 EMACS_SUFFIX="${PN/emacs/emacs-${SLOT}}"
 SITEFILE="20${PN}-${SLOT}-gentoo.el"

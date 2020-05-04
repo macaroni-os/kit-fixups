@@ -1,8 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python2_7 python3_6 )
+PYTHON_COMPAT=( {{python_compat}} )
 
 inherit eutils systemd distutils-r1
 
@@ -10,32 +9,23 @@ DESCRIPTION="Salt is a remote execution and configuration manager"
 HOMEPAGE="https://www.saltstack.com/resources/community/
 	https://github.com/saltstack"
 
-if [[ ${PV} == 9999* ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="git://github.com/${PN}stack/${PN}.git"
-	EGIT_BRANCH="develop"
-	SRC_URI=""
-	KEYWORDS=""
-else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
-	KEYWORDS="~amd64 ~x86"
-fi
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE="cherrypy ldap libcloud libvirt gnupg keyring mako mongodb mysql neutron nova"
 IUSE+=" openssl portage profile redis selinux test timelib raet +zeromq vim-syntax"
+KEYWORDS="*"
 
 RDEPEND="sys-apps/pciutils
 	dev-python/jinja[${PYTHON_USEDEP}]
 	dev-python/libnacl[${PYTHON_USEDEP}]
-	>=dev-python/msgpack-0.3[${PYTHON_USEDEP}]
+	dev-python/msgpack-compat[${PYTHON_USEDEP}]
 	dev-python/pyyaml[${PYTHON_USEDEP}]
 	dev-python/markupsafe[${PYTHON_USEDEP}]
 	>=dev-python/requests-1.0.0[${PYTHON_USEDEP}]
 	dev-python/setuptools[${PYTHON_USEDEP}]
-	>=www-servers/tornado-4.2.1[${PYTHON_USEDEP}]
-	<www-servers/tornado-5.0[${PYTHON_USEDEP}]
+	www-servers/tornado-compat[${PYTHON_USEDEP}]
 	virtual/python-futures[${PYTHON_USEDEP}]
 	libcloud? ( >=dev-python/libcloud-0.14.0[${PYTHON_USEDEP}] )
 	mako? ( dev-python/mako[${PYTHON_USEDEP}] )

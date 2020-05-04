@@ -1,0 +1,13 @@
+dev_python_autogen_rule:
+  defaults:
+    cat: app-admin
+    python_compat: python3+
+  generator: pypi-1
+  packages:
+    - salt:
+        - versions:
+            - 2019.2.4:
+                python_compat: python2_7
+                template: salt-2019.tmpl
+            - latest:
+                python_compat: python2+ pypy{,3}

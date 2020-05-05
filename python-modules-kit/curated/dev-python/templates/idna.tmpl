@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( {{python_compat}} )
 
@@ -15,8 +15,4 @@ LICENSE="BSD"
 KEYWORDS="*"
 IUSE=""
 
-DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
-
-python_test() {
-	esetup.py test
-}
+distutils_enable_tests setup.py

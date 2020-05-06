@@ -198,6 +198,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - setuptools:
         python_compat: python2+ pypy{,3}
+    - setuptools_scm:
+        python_compat: python2+ pypy3
     - six:
         python_compat: python2+ pypy{,3}
     - snowballstemmer:
@@ -248,8 +250,14 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - sphinxcontrib-websupport:
         python_compat: python3+ pypy3
+    - testtools:
+        python_compat: python2+ pypy3
     - urllib3:
         python_compat: python2+ pypy{,3}
+    - wcwidth:
+        python_compat: python2+ pypy3
+    - wstools:
+        python_compat: python2+
     - yarl:
         python_compat: python3+
     - zope-component:

@@ -128,9 +128,12 @@ dev_python_autogen_rule:
     - readme_renderer:
         python_compat: python2+ pypy3
     - pygments:
-        - versions:
-            - 2.5.2:
-                python_compat: python2+ pypy3
+        python_compat: python3+
+    - pygments-compat:
+        version: 2.5.2
+        python_compat: python2_7
+        template: pygments-old.tmpl
+        pypi_name: pygments
     - msgpack
     - msgpack-compat:
         version: 0.6.2

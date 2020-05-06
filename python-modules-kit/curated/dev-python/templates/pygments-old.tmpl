@@ -3,7 +3,7 @@
 EAPI=7
 
 DISTUTILS_USE_SETUPTOOLS=rdepend
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( {{python_compat}} )
 
 inherit distutils-r1 bash-completion-r1
 
@@ -16,7 +16,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="BSD"
-SLOT="2.7-compat"
+SLOT="0"
 KEYWORDS="*"
 IUSE="test"
 RESTRICT="!test? ( test )"
@@ -26,6 +26,7 @@ DEPEND="
 		dev-python/pytest[${PYTHON_USEDEP}]
 		virtual/ttf-fonts
 	)"
+RDEPEND="!<=dev-python/pygments-2.5.2"
 
 distutils_enable_sphinx doc
 

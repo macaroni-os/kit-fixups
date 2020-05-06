@@ -26,10 +26,6 @@ RDEPEND=""
 python_prepare_all() {
 	# don't use pytest-runner for tests
 	sed -i "s|'pytest-runner'||" setup.py || die
-
-	# don't enable coverage or other pytest settings
-	rm pytest.ini || die
-
 	distutils-r1_python_prepare_all
 }
 

@@ -16,6 +16,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="examples test"
 RESTRICT="!test? ( test )"
+S="${WORKDIR}/tornado-${PV}"
 
 CDEPEND="
 	dev-python/certifi[${PYTHON_USEDEP}]
@@ -29,7 +30,11 @@ DEPEND="
 		dev-python/mock[${PYTHON_USEDEP}]
 	)
 "
-RDEPEND="${CDEPEND}"
+
+# Block against older version for safety
+RDEPEND="${CDEPEND}
+	!<www-servers/tornado-6.0.4
+"
 
 distutils_enable_sphinx docs \
 	dev-python/sphinx_rtd_theme

@@ -10,6 +10,9 @@ HOMEPAGE="https://msgpack.org
 	https://github.com/msgpack/msgpack-python/
 	https://pypi.org/project/msgpack/"
 SRC_URI="{{artifacts[0].src_uri}}"
+{%- if name == 'msgpack-compat' %}
+S="$WORKDIR/msgpack-$PV"
+{%- endif %}
 
 LICENSE="Apache-2.0"
 SLOT="0"

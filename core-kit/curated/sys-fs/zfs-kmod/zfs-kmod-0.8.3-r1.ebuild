@@ -7,9 +7,10 @@ inherit flag-o-matic linux-info linux-mod toolchain-funcs
 DESCRIPTION="Linux ZFS kernel module for sys-fs/zfs"
 HOMEPAGE="https://zfsonlinux.org/"
 SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
-KEYWORDS="*"
+KEYWORDS=""
 S="${WORKDIR}/zfs-${PV}"
-ZFS_KERNEL_COMPAT="5.4"
+ZFS_KERNEL_COMPAT="5.6"
+
 LICENSE="CDDL debug? ( GPL-2+ )"
 SLOT="0"
 IUSE="custom-cflags debug +rootfs"
@@ -30,9 +31,13 @@ RESTRICT="debug? ( strip ) test"
 
 DOCS=( AUTHORS COPYRIGHT META README.md )
 
+PATCHES=(
+	"${FILESDIR}/2fcab8795c7c493845bfa277d44bc443802000b8.diff"
+	"${FILESDIR}/k5.6.3.patch"
+)
+
 pkg_setup() {
 	linux-info_pkg_setup
-
 	CONFIG_CHECK="
 		!DEBUG_LOCK_ALLOC
 		EFI_PARTITION
@@ -59,8 +64,6 @@ pkg_setup() {
 
 	kernel_is -lt 5 && CONFIG_CHECK="${CONFIG_CHECK} IOSCHED_NOOP"
 
-	kernel_is -ge 2 6 32 || die "Linux 2.6.32 or newer required"
-
 	local kv_major_max kv_minor_max zcompat
 	zcompat="${ZFS_KERNEL_COMPAT_OVERRIDE:-${ZFS_KERNEL_COMPAT}}"
 	kv_major_max="${zcompat%%.*}"
@@ -73,13 +76,24 @@ pkg_setup() {
 }
 
 src_prepare() {
-	default
 
 	# Set module revision number
-	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-gentoo/" META || die "Could not set Gentoo release"
+	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Funtoo release"
 
 	# Remove GPLv2-licensed ZPIOS unless we are debugging
 	use debug || sed -e 's/^subdir-m += zpios$//' -i module/Makefile.in
+
+	# Linux 5.5 blkg_tryget() compat   #
+	# https://github.com/openzfs/zfs/commit/2fcab8795c7c493845bfa277d44bc443802000b8
+	# kernel_is -eq 5 6 && patch -Np1 -i ${FILESDIR}/2fcab8795c7c493845bfa277d44bc443802000b8.diff
+	kernel_is -eq 5 6 && eapply -Np1 "${FILESDIR}/2fcab8795c7c493845bfa277d44bc443802000b8.diff"
+
+	# Port of ZFS 5.6 compat patches to 0.8.3
+	# https://gist.github.com/satmandu/67cbae9c4d461be0e64428a1707aef1c
+	# kernel_is -eq 5 6 && patch -Np1 -i ${FILESDIR}/k5.6.3.patch
+	kernel_is -eq 5 6 && eapply -Np1 "${FILESDIR}/k5.6.3.patch"
+
+	eapply_user
 }
 
 src_configure() {
@@ -88,6 +102,8 @@ src_configure() {
 	use custom-cflags || strip-flags
 
 	filter-ldflags -Wl,*
+
+	kernel_is -eq 5 6 && ./autogen.sh
 
 	local myconf=(
 		--bindir="${EPREFIX}/bin"

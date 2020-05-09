@@ -10,7 +10,8 @@ inherit bash-completion-r1 flag-o-matic linux-info linux-mod distutils-r1 toolch
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://zfsonlinux.org/"
 SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-KEYWORDS="*"
+KEYWORDS=""
+
 LICENSE="BSD-2 CDDL MIT"
 SLOT="0"
 IUSE="custom-cflags debug kernel-builtin python +rootfs test-suite static-libs"
@@ -63,7 +64,11 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RESTRICT="test"
 
-PATCHES=( "${FILESDIR}/bash-completion-sudo.patch" )
+PATCHES=(
+	"${FILESDIR}/bash-completion-sudo.patch"
+	"${FILESDIR}/${PV}-fno-common.patch"
+	"${FILESDIR}/${PV}-zfs-functions.patch"
+)
 
 pkg_setup() {
 	if use kernel_linux && use test-suite; then
@@ -98,19 +103,28 @@ src_prepare() {
 		-e "s|/usr/bin/scsi-rescan|/usr/sbin/rescan-scsi-bus|" \
 		-e "s|/sbin/parted|/usr/sbin/parted|" \
 		-i scripts/common.sh.in || die
-
 	if use python; then
 		pushd contrib/pyzfs >/dev/null || die
 		distutils-r1_src_prepare
 		popd >/dev/null || die
 	fi
+
+	# prevent errors showing up on zfs-mount stop, #647688
+	# openrc will unmount all filesystems anyway.
+	sed -i "/^ZFS_UNMOUNT=/ s/yes/no/" etc/init.d/zfs.in || die
+
+	# needed to get files regenerated
+	# https://github.com/zfsonlinux/zfs/issues/9443
+	rm -v etc/init.d/zfs{,-functions} || die
 }
 
 src_configure() {
 	use custom-cflags || strip-flags
+	python_setup
 
 	local myconf=(
 		--bindir="${EPREFIX}/bin"
+		--enable-shared
 		--disable-systemd
 		--enable-sysvinit
 		--localstatedir="${EPREFIX}/var"
@@ -120,6 +134,7 @@ src_configure() {
 		--with-linux="${KV_DIR}"
 		--with-linux-obj="${KV_OUT_DIR}"
 		--with-udevdir="$(get_udevdir)"
+		--with-python="${EPYTHON}"
 		$(use_enable debug)
 		$(use_enable python pyzfs)
 	)

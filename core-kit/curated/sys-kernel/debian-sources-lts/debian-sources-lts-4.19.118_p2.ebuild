@@ -31,7 +31,7 @@ KEYWORDS="*"
 IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
-	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
+	binary? ( >=sys-kernel/genkernel-4 )
 	btrfs? ( sys-fs/btrfs-progs sys-kernel/genkernel[btrfs] )
 	zfs? ( sys-fs/zfs )
 	luks? ( sys-kernel/genkernel[cryptsetup] )"
@@ -216,6 +216,7 @@ src_compile() {
 	install -d "${T}"/{cache,twork}
 	install -d "${WORKDIR}"/build
 	cp "${T}"/config "${WORKDIR}"/build/.config
+	use zfs && addwrite /dev/zfs
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 		--no-save-config \
 		--no-oldconfig \

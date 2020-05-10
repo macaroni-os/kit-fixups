@@ -16,6 +16,7 @@ SLOT="0"
 KEYWORDS="-* amd64"
 IUSE=""
 
+BDEPEND="app-admin/chrpath"
 RDEPEND="
 	dev-libs/nss
 	media-libs/mesa[X(+)]
@@ -26,11 +27,17 @@ RDEPEND="
 
 QA_PREBUILT="opt/Signal/signal-desktop
 	opt/Signal/chrome-sandbox
+	opt/Signal/crashpad_handler
 	opt/Signal/libffmpeg.so
 	opt/Signal/libGLESv2.so
 	opt/Signal/libnode.so
 	opt/Signal/libVkICD_mock_icd.so
-	opt/Signal/swiftshader/libGLESv2.so"
+	opt/Signal/libvk_swiftshader.so
+	opt/Signal/swiftshader/libGLESv2.so
+	opt/Signal/resources/app.asar.unpacked/node_modules/sharp/build/Release/sharp.node
+	opt/Signal/resources/app.asar.unpacked/node_modules/sharp/vendor/lib/*"
+
+RESTRICT="splitdebug"
 
 S="${WORKDIR}"
 
@@ -39,6 +46,9 @@ src_prepare(){
 	sed -e 's|\("/opt/Signal/signal-desktop"\)|\1 --start-in-tray|g' \
 		-i usr/share/applications/signal-desktop.desktop || die
 	unpack usr/share/doc/signal-desktop/changelog.gz
+	# Fix Bug 706352
+	chrpath opt/Signal/resources/app.asar.unpacked/node_modules/sharp/vendor/lib/libjpeg.so.8.2.2 -r '$ORIGIN:/target/lib' || die
+	chrpath opt/Signal/resources/app.asar.unpacked/node_modules/sharp/vendor/lib/libffi.so.6.0.4 -d || die
 }
 
 src_install() {
@@ -60,6 +70,8 @@ src_install() {
 pkg_postinst() {
 	xdg_desktop_database_update
 	xdg_icon_cache_update
+
+	optfeature "using the tray icon in Xfce desktop environments" xfce-extra/xfce4-statusnotifier-plugin
 }
 
 pkg_postrm() {

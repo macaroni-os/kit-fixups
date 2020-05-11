@@ -10,11 +10,11 @@ inherit bash-completion-r1 flag-o-matic linux-info linux-mod distutils-r1 toolch
 DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://zfsonlinux.org/"
 SRC_URI="https://github.com/zfsonlinux/${PN}/releases/download/${P}/${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="BSD-2 CDDL MIT"
 SLOT="0"
-IUSE="custom-cflags debug kernel-builtin python +rootfs test-suite static-libs"
+IUSE="custom-cflags debug python +rootfs test-suite static-libs"
 
 COMMON_DEPEND="
 	${PYTHON_DEPS}
@@ -36,18 +36,13 @@ BDEPEND="${COMMON_DEPEND}
 
 RDEPEND="${COMMON_DEPEND}
 	!=sys-apps/grep-2.13*
-	!kernel-builtin? ( ~sys-fs/zfs-kmod-${PV} )
+	=sys-fs/zfs-kmod-${PVR}
 	!sys-fs/zfs-fuse
 	!prefix? ( virtual/udev )
 	sys-fs/udev-init-scripts
 	rootfs? (
 		app-arch/cpio
 		app-misc/pax-utils
-		!<sys-boot/grub-2.00-r2:2
-		!<sys-kernel/genkernel-3.4
-		!<sys-kernel/genkernel-next-67
-		!<sys-kernel/bliss-initramfs-7.1.0
-		!<sys-kernel/dracut-044-r1
 	)
 	test-suite? (
 		sys-apps/util-linux
@@ -176,12 +171,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	if has_version "<=sys-kernel/genkernel-3.5.3.3"; then
-		einfo "genkernel version 3.5.3.3 and earlier does NOT support"
-		einfo " unlocking pools with native zfs encryption enabled at boot"
-		einfo " use dracut or genkernel-9999 if you requre this functionality"
-	fi
-
 	if [[ -e "${EROOT}/etc/runlevels/boot/zfs" ]]; then
 		einfo 'The zfs boot script has been split into the zfs-import,'
 		einfo 'zfs-mount and zfs-share scripts.'

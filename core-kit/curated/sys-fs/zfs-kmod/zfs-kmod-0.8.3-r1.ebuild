@@ -7,7 +7,7 @@ inherit flag-o-matic linux-info linux-mod toolchain-funcs
 DESCRIPTION="Linux ZFS kernel module for sys-fs/zfs"
 HOMEPAGE="https://zfsonlinux.org/"
 SRC_URI="https://github.com/zfsonlinux/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 S="${WORKDIR}/zfs-${PV}"
 ZFS_KERNEL_COMPAT="5.6"
 
@@ -170,8 +170,4 @@ pkg_postinst() {
 	ewarn "	-o feature@enabled_txg=enabled "
 	ewarn "	-o feature@extensible_dataset=enabled -o feature@bookmarks=enabled"
 	ewarn "	..."
-	ewarn
-	ewarn "GRUB2 support will be updated as soon as either the GRUB2"
-	ewarn "developers do a tag or the Gentoo developers find time to backport"
-	ewarn "support from GRUB2 HEAD."
 }

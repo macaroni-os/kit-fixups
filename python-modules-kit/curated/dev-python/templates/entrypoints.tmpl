@@ -29,24 +29,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}"-0.2.1-init.py.patch
 )
 
-python_prepare_all() {
-	# Prevent un-needed download during build
-	if use doc; then
-		sed -e "/^    'sphinx.ext.intersphinx',/d" -i doc/conf.py || die
-	fi
-
-	distutils-r1_python_prepare_all
-
-	mv "${WORKDIR}/${P}"/entrypoints.py "${WORKDIR}/${P}/${PN}/" || die
-}
-
-python_compile_all() {
-	if use doc; then
-		emake -C doc html
-		HTML_DOCS=( doc/_build/html/. )
-	fi
-}
-
 python_test() {
 	distutils_install_for_testing
 	cd "${TEST_DIR}"/lib || die

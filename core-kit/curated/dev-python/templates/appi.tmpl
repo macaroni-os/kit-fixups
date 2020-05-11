@@ -1,0 +1,15 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="Another Portage Python Interface"
+HOMEPAGE="https://pypi.org/project/appi/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="GPL-2"
+SLOT="0/{{version.split('.')[0]}}"
+KEYWORDS="*"
+IUSE=""

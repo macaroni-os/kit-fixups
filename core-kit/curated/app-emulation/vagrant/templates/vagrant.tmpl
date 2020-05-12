@@ -27,11 +27,11 @@ RDEPEND="${RDEPEND}
 
 ruby_add_rdepend "
 	>=dev-ruby/bcrypt_pbkdf-1.0.0
-	>=dev-ruby/childprocess-0.6.0
+	>=dev-ruby/childprocess-3
 	>=dev-ruby/ed25519-1.2.4
 	>=dev-ruby/erubis-2.7.0
 	>=dev-ruby/hashicorp-checkpoint-0.1.5
-	>=dev-ruby/i18n-1.1.1:1
+	>=dev-ruby/i18n-1.8.0
 	>=dev-ruby/listen-3.1.5
 	<dev-ruby/log4r-1.1.11
 	<dev-ruby/mime-types-3:*
@@ -39,7 +39,7 @@ ruby_add_rdepend "
 	>=dev-ruby/net-sftp-2.1
 	>=dev-ruby/net-scp-1.2.0
 	dev-ruby/rest-client:2
-	>=dev-ruby/rubyzip-1.3:1
+	>=dev-ruby/rubyzip-2
 	>=dev-ruby/vagrant_cloud-2.0.3
 "
 

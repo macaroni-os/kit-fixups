@@ -1,0 +1,476 @@
+diff -ru a/dix/dispatch.c b/dix/dispatch.c
+--- a/dix/dispatch.c	2020-05-06 05:52:34.654907723 -0700
++++ b/dix/dispatch.c	2020-05-06 05:59:05.210898662 -0700
+@@ -1480,7 +1480,7 @@
+ ProcCreateGC(ClientPtr client)
+ {
+     int error, rc;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+     unsigned len;
+ 
+@@ -1497,7 +1497,7 @@
+     len = client->req_len - bytes_to_int32(sizeof(xCreateGCReq));
+     if (len != Ones(stuff->mask))
+         return BadLength;
+-    pGC = (GC *) CreateGC(pDraw, stuff->mask, (XID *) &stuff[1], &error,
++    pGC = (GC_Xorg *) CreateGC(pDraw, stuff->mask, (XID *) &stuff[1], &error,
+                           stuff->gc, client);
+     if (error != Success)
+         return error;
+@@ -1509,7 +1509,7 @@
+ int
+ ProcChangeGC(ClientPtr client)
+ {
+-    GC *pGC;
++    GC_Xorg *pGC;
+     int result;
+     unsigned len;
+ 
+@@ -1530,8 +1530,8 @@
+ int
+ ProcCopyGC(ClientPtr client)
+ {
+-    GC *dstGC;
+-    GC *pGC;
++    GC_Xorg *dstGC;
++    GC_Xorg *pGC;
+     int result;
+ 
+     REQUEST(xCopyGCReq);
+@@ -1555,7 +1555,7 @@
+ int
+ ProcSetDashes(ClientPtr client)
+ {
+-    GC *pGC;
++    GC_Xorg *pGC;
+     int result;
+ 
+     REQUEST(xSetDashesReq);
+@@ -1581,7 +1581,7 @@
+ ProcSetClipRectangles(ClientPtr client)
+ {
+     int nr, result;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST(xSetClipRectanglesReq);
+ 
+@@ -1606,7 +1606,7 @@
+ int
+ ProcFreeGC(ClientPtr client)
+ {
+-    GC *pGC;
++    GC_Xorg *pGC;
+     int rc;
+ 
+     REQUEST(xResourceReq);
+@@ -1696,7 +1696,7 @@
+ {
+     DrawablePtr pDst;
+     DrawablePtr pSrc;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST(xCopyAreaReq);
+     RegionPtr pRgn;
+@@ -1734,7 +1734,7 @@
+ ProcCopyPlane(ClientPtr client)
+ {
+     DrawablePtr psrcDraw, pdstDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST(xCopyPlaneReq);
+     RegionPtr pRgn;
+@@ -1780,7 +1780,7 @@
+ ProcPolyPoint(ClientPtr client)
+ {
+     int npoint;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyPointReq);
+@@ -1803,7 +1803,7 @@
+ ProcPolyLine(ClientPtr client)
+ {
+     int npoint;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyLineReq);
+@@ -1826,7 +1826,7 @@
+ ProcPolySegment(ClientPtr client)
+ {
+     int nsegs;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolySegmentReq);
+@@ -1846,7 +1846,7 @@
+ ProcPolyRectangle(ClientPtr client)
+ {
+     int nrects;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyRectangleReq);
+@@ -1867,7 +1867,7 @@
+ ProcPolyArc(ClientPtr client)
+ {
+     int narcs;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyArcReq);
+@@ -1887,7 +1887,7 @@
+ ProcFillPoly(ClientPtr client)
+ {
+     int things;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xFillPolyReq);
+@@ -1917,7 +1917,7 @@
+ ProcPolyFillRectangle(ClientPtr client)
+ {
+     int things;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyFillRectangleReq);
+@@ -1939,7 +1939,7 @@
+ ProcPolyFillArc(ClientPtr client)
+ {
+     int narcs;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+ 
+     REQUEST(xPolyFillArcReq);
+@@ -2012,7 +2012,7 @@
+ int
+ ProcPutImage(ClientPtr client)
+ {
+-    GC *pGC;
++    GC_Xorg *pGC;
+     DrawablePtr pDraw;
+     long length;                /* length of scanline server padded */
+     long lengthProto;           /* length of scanline protocol padded */
+@@ -2283,7 +2283,7 @@
+ 
+     REQUEST(xPolyTextReq);
+     DrawablePtr pDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST_AT_LEAST_SIZE(xPolyTextReq);
+     VALIDATE_DRAWABLE_AND_GC(stuff->drawable, pDraw, DixWriteAccess);
+@@ -2307,7 +2307,7 @@
+ {
+     int err;
+     DrawablePtr pDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST(xImageTextReq);
+ 
+@@ -2333,7 +2333,7 @@
+ {
+     int err;
+     DrawablePtr pDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     REQUEST(xImageTextReq);
+ 
+diff -ru a/dix/dixfonts.c b/dix/dixfonts.c
+--- a/dix/dixfonts.c	2020-05-06 05:52:34.654907723 -0700
++++ b/dix/dixfonts.c	2020-05-06 06:00:52.166896180 -0700
+@@ -1098,7 +1098,7 @@
+     int err = Success, lgerr;   /* err is in X error, not font error, space */
+     enum { NEVER_SLEPT, START_SLEEP, SLEEPING } client_state = NEVER_SLEPT;
+     FontPathElementPtr fpe;
+-    GC *origGC = NULL;
++    GC_Xorg *origGC = NULL;
+     int itemSize = c->reqType == X_PolyText8 ? 1 : 2;
+ 
+     if (client->clientGone) {
+@@ -1208,7 +1208,7 @@
+             if (lgerr == Suspended) {
+                 if (!ClientIsAsleep(client)) {
+                     int len;
+-                    GC *pGC;
++                    GC_Xorg *pGC;
+                     PTclosurePtr new_closure;
+ 
+                     /*  We're putting the client to sleep.  We need to do a few things
+@@ -1217,9 +1217,9 @@
+                        request into a safe malloc'd area.  Second, create a scratch GC
+                        to use for the remainder of the request.  Third, mark all fonts
+                        referenced in the remainder of the request to prevent their
+-                       deallocation.  Fourth, make the original GC look like the
++                       deallocation.  Fourth, make the original GC_Xorg look like the
+                        request has completed...  set its font to the final font value
+-                       from this request.  These GC manipulations are for the unlikely
++                       from this request.  These GC_Xorg manipulations are for the unlikely
+                        (but possible) event that some other client is using the GC.
+                        Steps 3 and 4 are performed by running this procedure through
+                        the remainder of the request in a special no-render mode
+@@ -1337,7 +1337,7 @@
+         ClientWakeup(c->client);
+         ChangeGC(NullClient, c->pGC, clearGCmask, clearGC);
+ 
+-        /* Unreference the font from the scratch GC */
++        /* Unreference the font from the scratch GC_Xorg */
+         CloseFont(c->pGC->font, (Font) 0);
+         c->pGC->font = NullFont;
+ 
+@@ -1349,7 +1349,7 @@
+ }
+ 
+ int
+-PolyText(ClientPtr client, DrawablePtr pDraw, GC * pGC, unsigned char *pElt,
++PolyText(ClientPtr client, DrawablePtr pDraw, GC_Xorg * pGC, unsigned char *pElt,
+          unsigned char *endReq, int xorg, int yorg, int reqType, XID did)
+ {
+     PTclosureRec local_closure;
+@@ -1404,7 +1404,7 @@
+     lgerr = LoadGlyphs(client, c->pGC->font, c->nChars, itemSize, c->data);
+     if (lgerr == Suspended) {
+         if (!ClientIsAsleep(client)) {
+-            GC *pGC;
++            GC_Xorg *pGC;
+             unsigned char *data;
+             ITclosurePtr new_closure;
+             ITclosurePtr old_closure;
+@@ -1483,7 +1483,7 @@
+         ClientWakeup(c->client);
+         ChangeGC(NullClient, c->pGC, clearGCmask, clearGC);
+ 
+-        /* Unreference the font from the scratch GC */
++        /* Unreference the font from the scratch GC_Xorg */
+         CloseFont(c->pGC->font, (Font) 0);
+         c->pGC->font = NullFont;
+ 
+@@ -1495,7 +1495,7 @@
+ }
+ 
+ int
+-ImageText(ClientPtr client, DrawablePtr pDraw, GC * pGC, int nChars,
++ImageText(ClientPtr client, DrawablePtr pDraw, GC_Xorg * pGC, int nChars,
+           unsigned char *data, int xorg, int yorg, int reqType, XID did)
+ {
+     ITclosureRec local_closure;
+diff -ru a/dix/dixutils.c b/dix/dixutils.c
+--- a/dix/dixutils.c	2020-05-06 05:52:34.654907723 -0700
++++ b/dix/dixutils.c	2020-05-06 07:49:37.358744782 -0700
+@@ -243,7 +243,7 @@
+ dixLookupFontable(FontPtr *pFont, XID id, ClientPtr client, Mask access)
+ {
+     int rc;
+-    GC *pGC;
++    GC_Xorg *pGC;
+ 
+     client->errorValue = id;    /* EITHER font or gc */
+     rc = dixLookupResourceByType((void **) pFont, id, RT_FONT, client,
+diff -ru a/dix/gc.c b/dix/gc.c
+--- a/dix/gc.c	2020-05-06 05:52:34.654907723 -0700
++++ b/dix/gc.c	2020-05-06 08:06:28.658721318 -0700
+@@ -72,7 +72,7 @@
+ static unsigned char DefaultDash[2] = { 4, 4 };
+ 
+ void
+-ValidateGC(DrawablePtr pDraw, GC * pGC)
++ValidateGC(DrawablePtr pDraw, GC_Xorg * pGC)
+ {
+     (*pGC->funcs->ValidateGC) (pGC, pGC->stateChanges, pDraw);
+     pGC->stateChanges = 0;
+@@ -120,7 +120,7 @@
+     _var = (_type)pUnion->ptr; pUnion++; }
+ 
+ int
+-ChangeGC(ClientPtr client, GC * pGC, BITS32 mask, ChangeGCValPtr pUnion)
++ChangeGC(ClientPtr client, GC_Xorg * pGC, BITS32 mask, ChangeGCValPtr pUnion)
+ {
+     BITS32 index2;
+     int error = 0;
+@@ -428,7 +428,7 @@
+ };
+ 
+ int
+-ChangeGCXIDs(ClientPtr client, GC * pGC, BITS32 mask, CARD32 *pC32)
++ChangeGCXIDs(ClientPtr client, GC_Xorg * pGC, BITS32 mask, CARD32 *pC32)
+ {
+     ChangeGCVal vals[GCLastBit + 1];
+     int i;
+@@ -465,7 +465,7 @@
+ {
+     GCPtr pGC;
+ 
+-    pGC = dixAllocateScreenObjectWithPrivates(pScreen, GC, PRIVATE_GC);
++    pGC = dixAllocateScreenObjectWithPrivates(pScreen, GC_Xorg, PRIVATE_GC);
+     if (!pGC) {
+         return (GCPtr) NULL;
+     }
+@@ -614,7 +614,7 @@
+ }
+ 
+ int
+-CopyGC(GC * pgcSrc, GC * pgcDst, BITS32 mask)
++CopyGC(GC_Xorg * pgcSrc, GC_Xorg * pgcDst, BITS32 mask)
+ {
+     BITS32 index2;
+     BITS32 maskQ;
+diff -ru a/dix/privates.c b/dix/privates.c
+--- a/dix/privates.c	2020-05-06 05:52:34.654907723 -0700
++++ b/dix/privates.c	2020-05-06 08:04:14.530724430 -0700
+@@ -565,7 +565,7 @@
+     -1,                         /* RT_NONE */
+     offsetof(WindowRec, devPrivates),   /* RT_WINDOW */
+     offsetof(PixmapRec, devPrivates),   /* RT_PIXMAP */
+-    offsetof(GC, devPrivates),  /* RT_GC */
++    offsetof(GC_Xorg, devPrivates),  /* RT_GC */
+     -1,                         /* RT_FONT */
+     offsetof(CursorRec, devPrivates),   /* RT_CURSOR */
+     offsetof(ColormapRec, devPrivates), /* RT_COLORMAP */
+diff -ru a/hw/xfree86/common/xf86VGAarbiter.c b/hw/xfree86/common/xf86VGAarbiter.c
+--- a/hw/xfree86/common/xf86VGAarbiter.c	2020-05-06 05:52:34.626907724 -0700
++++ b/hw/xfree86/common/xf86VGAarbiter.c	2020-05-06 08:19:08.162703696 -0700
+@@ -610,7 +610,7 @@
+ /* GC Ops */
+ static void
+ VGAarbiterFillSpans(DrawablePtr pDraw,
+-                    GC * pGC,
++                    GC_Xorg * pGC,
+                     int nInit,
+                     DDXPointPtr pptInit, int *pwidthInit, int fSorted)
+ {
+@@ -659,7 +659,7 @@
+ static RegionPtr
+ VGAarbiterCopyArea(DrawablePtr pSrc,
+                    DrawablePtr pDst,
+-                   GC * pGC,
++                   GC_Xorg * pGC,
+                    int srcx, int srcy,
+                    int width, int height, int dstx, int dsty)
+ {
+diff -ru a/hw/xfree86/common/xf86VGAarbiterPriv.h b/hw/xfree86/common/xf86VGAarbiterPriv.h
+--- a/hw/xfree86/common/xf86VGAarbiterPriv.h	2020-05-06 05:52:34.626907724 -0700
++++ b/hw/xfree86/common/xf86VGAarbiterPriv.h	2020-05-06 08:16:12.946707761 -0700
+@@ -202,7 +202,7 @@
+ static void VGAarbiterCopyClip(GCPtr pgcDst, GCPtr pgcSrc);
+ 
+ /* GC ops */
+-static void VGAarbiterFillSpans(DrawablePtr pDraw, GC * pGC, int nInit,
++static void VGAarbiterFillSpans(DrawablePtr pDraw, GC_Xorg * pGC, int nInit,
+                                 DDXPointPtr pptInit, int *pwidthInit,
+                                 int fSorted);
+ static void VGAarbiterSetSpans(DrawablePtr pDraw, GCPtr pGC, char *pcharsrc,
+@@ -212,7 +212,7 @@
+                                int y, int w, int h, int leftPad, int format,
+                                char *pImage);
+ static RegionPtr VGAarbiterCopyArea(DrawablePtr pSrc, DrawablePtr pDst,
+-                                    GC * pGC, int srcx, int srcy, int width,
++                                    GC_Xorg * pGC, int srcx, int srcy, int width,
+                                     int height, int dstx, int dsty);
+ static RegionPtr VGAarbiterCopyPlane(DrawablePtr pSrc, DrawablePtr pDst,
+                                      GCPtr pGC, int srcx, int srcy, int width,
+diff -ru a/include/closestr.h b/include/closestr.h
+--- a/include/closestr.h	2020-05-06 05:52:34.614907724 -0700
++++ b/include/closestr.h	2020-05-06 07:49:22.310745131 -0700
+@@ -99,7 +99,7 @@
+ typedef struct _PTclosure {
+     ClientPtr client;
+     DrawablePtr pDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     unsigned char *pElt;
+     unsigned char *endReq;
+     unsigned char *data;
+@@ -115,7 +115,7 @@
+ typedef struct _ITclosure {
+     ClientPtr client;
+     DrawablePtr pDraw;
+-    GC *pGC;
++    GC_Xorg *pGC;
+     BYTE nChars;
+     unsigned char *data;
+     int xorg;
+diff -ru a/include/gcstruct.h b/include/gcstruct.h
+--- a/include/gcstruct.h	2020-05-06 05:52:34.614907724 -0700
++++ b/include/gcstruct.h	2020-05-06 05:52:55.726907234 -0700
+@@ -279,6 +279,6 @@
+     const GCOps *ops;
+     PrivateRec *devPrivates;
+     RegionPtr pCompositeClip;
+-} GC;
++} GC_Xorg;
+ 
+ #endif                          /* GCSTRUCT_H */
+diff -ru a/mi/miglblt.c b/mi/miglblt.c
+--- a/mi/miglblt.c	2020-05-06 05:52:34.606907724 -0700
++++ b/mi/miglblt.c	2020-05-06 08:09:00.778717788 -0700
+@@ -81,7 +81,7 @@
+ */
+ 
+ void
+-miPolyGlyphBlt(DrawablePtr pDrawable, GC * pGC, int x, int y, unsigned int nglyph, CharInfoPtr * ppci,  /* array of character info */
++miPolyGlyphBlt(DrawablePtr pDrawable, GC_Xorg * pGC, int x, int y, unsigned int nglyph, CharInfoPtr * ppci,  /* array of character info */
+                void *pglyphBase       /* start of array of glyphs */
+     )
+ {
+@@ -182,7 +182,7 @@
+ }
+ 
+ void
+-miImageGlyphBlt(DrawablePtr pDrawable, GC * pGC, int x, int y, unsigned int nglyph, CharInfoPtr * ppci, /* array of character info */
++miImageGlyphBlt(DrawablePtr pDrawable, GC_Xorg * pGC, int x, int y, unsigned int nglyph, CharInfoPtr * ppci, /* array of character info */
+                 void *pglyphBase      /* start of array of glyphs */
+     )
+ {
+diff -ru a/miext/damage/damage.c b/miext/damage/damage.c
+--- a/miext/damage/damage.c	2020-05-06 05:52:34.646907724 -0700
++++ b/miext/damage/damage.c	2020-05-06 06:02:20.590894128 -0700
+@@ -633,7 +633,7 @@
+ 
+ static void
+ damageFillSpans(DrawablePtr pDrawable,
+-                GC * pGC, int npt, DDXPointPtr ppt, int *pwidth, int fSorted)
++                GC_Xorg * pGC, int npt, DDXPointPtr ppt, int *pwidth, int fSorted)
+ {
+     DAMAGE_GC_OP_PROLOGUE(pGC, pDrawable);
+ 
+@@ -752,7 +752,7 @@
+ static RegionPtr
+ damageCopyArea(DrawablePtr pSrc,
+                DrawablePtr pDst,
+-               GC * pGC,
++               GC_Xorg * pGC,
+                int srcx, int srcy, int width, int height, int dstx, int dsty)
+ {
+     RegionPtr ret;
+@@ -1614,12 +1614,12 @@
+ }
+ 
+ /*
+- * We only wrap into the GC when there's a registered listener.  For windows,
+- * damage includes damage to children.  So if there's a GC validated against
++ * We only wrap into the GC_Xorg when there's a registered listener.  For windows,
++ * damage includes damage to children.  So if there's a GC_Xorg validated against
+  * a subwindow and we then register a damage on the parent, we need to bump
+  * the serial numbers of the children to re-trigger validation.
+  *
+- * Since we can't know if a GC has been validated against one of the affected
++ * Since we can't know if a GC_Xorg has been validated against one of the affected
+  * children, just bump them all to be safe.
+  */
+ static int

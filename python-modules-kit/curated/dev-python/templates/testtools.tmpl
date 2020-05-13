@@ -17,7 +17,7 @@ KEYWORDS="*"
 IUSE="doc test"
 
 CDEPEND="
-	dev-python/pbr-0.11[${PYTHON_USEDEP}]
+	dev-python/pbr[${PYTHON_USEDEP}]
 "
 DEPEND="
 	dev-python/setuptools[${PYTHON_USEDEP}]

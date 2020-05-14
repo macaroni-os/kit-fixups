@@ -28,18 +28,18 @@ for card in ${ALL_DRI_DRIVERS% swrast*}; do
 	ALL_DRI_CARDS+=" video_cards_${card}"
 done
 
-ALL_GALLIUM_DRIVERS="pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d etnaviv imx tegra i915 svga virgl swr swrast"
+ALL_SWR_ARCHES="avx avx2 knl skx"
+IUSE_SWR_CPUFLAGS="cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512er cpu_flags_x86_avx512bw"
+
+ALL_GALLIUM_DRIVERS="iris pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d etnaviv imx tegra i915 svga virgl swr swrast"
 for card in ${ALL_GALLIUM_DRIVERS% swrast*}; do
 	case "$card" in
-		etnaviv) card="vivante" ;;
-		svga) card="vmware" ;;
-		*) : ;;
+			etnaviv) card="vivante" ;;
+			svga) card="vmware" ;;
+			*) : ;;
 	esac
 	ALL_GALLIUM_CARDS+=" video_cards_gallium-${card}"
 done
-
-ALL_SWR_ARCHES="avx avx2 knl skx"
-IUSE_SWR_CPUFLAGS="cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512er cpu_flags_x86_avx512bw"
 
 IUSE_VIDEO_CARDS="${ALL_DRI_CARDS} ${ALL_GALLIUM_CARDS}"
 
@@ -77,7 +77,7 @@ IUSE="${IUSE_VIDEO_CARDS}
 	video_cards_gallium-swrast
 	video_cards_virgl
 	video_cards_gallium-i915
-
+	video_cards_gallium-iris
 "
 
 REQUIRED_USE_APIS="
@@ -109,6 +109,7 @@ REQUIRED_USE="
 	video_cards_vulkan-intel? ( video_cards_intel )
 	video_cards_i915? ( video_cards_intel )
 	video_cards_i965? ( video_cards_intel )
+	video_cards_gallium-iris? ( video_cards_intel )
 	video_cards_gallium-i915? ( video_cards_intel )
 	video_cards_r100? ( video_cards_radeon )
 	video_cards_r200? ( video_cards_radeon )
@@ -385,6 +386,9 @@ src_configure() {
 	if use video_cards_gallium-i915 ; then
 		gallium_enable video_cards_gallium-i915 i915
 	fi
+	if use video_cards_gallium-iris ; then
+		gallium_enable video_cards_gallium-iris iris
+	fi
 	if use video_cards_i915 ; then
 		dri_enable i915
 	fi
@@ -540,6 +544,7 @@ src_configure() {
 		-Dtools=${TOOLS}
 		-Dxlib-lease=auto
 	)
+	use video_cards_gallium-iris && emesonargs+=( -Dprefer-iris=true )
 
 #	if use llvm ; then
 #		export LLVM_CONFIG="$(llvm-config --prefix)/bin/${CHOST}-llvm-config"

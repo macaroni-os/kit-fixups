@@ -26,7 +26,7 @@ async def generate(hub, **pkginfo):
 			continue
 		if minor < 26:
 			continue
-		if "rc-" in v:
+		if "-rc" in v:
 			continue
 		version = v
 		break

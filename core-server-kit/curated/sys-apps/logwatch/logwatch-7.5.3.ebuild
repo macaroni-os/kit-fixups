@@ -40,14 +40,6 @@ src_install() {
 	dodir /usr/share/logwatch/default.conf/logfiles
 	dodir /usr/share/logwatch/default.conf/services
 	dodir /usr/share/logwatch/default.conf/html
-	keepdir /etc/logwatch
-	keepdir /etc/logwatch/scripts
-	keepdir /etc/logwatch/conf
-	keepdir /etc/logwatch/conf/logfiles
-	keepdir /etc/logwatch/conf/services
-	touch "${EROOT}/etc/logwatch/conf/logwatch.conf"
-	touch "${EROOT}/etc/logwatch/conf/ignore.conf"
-	touch "${EROOT}/etc/logwatch/conf/override.conf"
 
 	# logwatch.pl requires cache dir (bug #607668)
 	newtmpfiles "${FILESDIR}"/logwatch.tmpfile ${PN}.conf
@@ -86,9 +78,20 @@ src_install() {
 	insinto /usr/share/logwatch/scripts/logfiles
 	insopts -m755
 	doins -r scripts/logfiles/*
+
+	keepdir /etc/logwatch
+	keepdir /etc/logwatch/scripts
+	keepdir /etc/logwatch/conf
+	keepdir /etc/logwatch/conf/logfiles
+	keepdir /etc/logwatch/conf/services
+
+	insinto /etc/logwatch/conf
+	newins /usr/share/logwatch/default.conf/logwatch.conf logwatch.conf
+
 }
 
 pkg_postinst() {
+
 	# Migration from /etc/cron.daily/logwatch -> /etc/cron.daily/00-logwatch (bug #100243)
 	if [[ -e ${ROOT}/etc/cron.daily/logwatch ]] ; then
 		local md5=$(md5sum "${ROOT}"/etc/cron.daily/logwatch)

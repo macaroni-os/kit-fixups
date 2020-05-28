@@ -72,6 +72,8 @@ dev_python_autogen_rule:
         pypi_name: Cython
     - daemonize:
         python_compat: python2+ pypy3
+    - defusedxml:
+        python_compat: python2+ pypy{,3}
     - dns-lexicon
     - dnspython:
         python_compat: python2+ pypy3

@@ -31,7 +31,54 @@ dev_python_compat_rule:
             sed -e "s:html_theme = 'default':html_theme = 'classic':" -i doc/conf.py || die
             distutils-r1_python_prepare_all
           }
+    - setuptools:
+        description: Collection of extensions to Distutils
+        license: MIT
+        iuse: test
+        blocker: '!<dev-python/setuptools-47'
+        restrict: '!test? ( test )'
+        homepage: >
+          https://github.com/pypa/setuptools
+          https://pypi.org/project/setuptools/
+        compat: '44.1.1'
+        python_compat: python3+ pypy{,3}
+        depend: |
+          app-arch/unzip
+          test? (
+            dev-python/mock[${PYTHON_USEDEP}]
+            dev-python/pip[${PYTHON_USEDEP}]
+            >=dev-python/pytest-3.7.0[${PYTHON_USEDEP}]
+            <dev-python/pytest-4
+            dev-python/pytest-fixture-config[${PYTHON_USEDEP}]
+            dev-python/pytest-virtualenv[${PYTHON_USEDEP}]
+            dev-python/wheel[${PYTHON_USEDEP}]
+            virtual/python-futures[${PYTHON_USEDEP}]
+          )
+        pdepend: ">=dev-python/certifi-2016.9.26[${PYTHON_USEDEP}]"
+        body: |
+          python_prepare_all() {
+            # disable tests requiring a network connection
+            rm setuptools/tests/test_packageindex.py || die
+            # don't run integration tests
+            rm setuptools/tests/test_integration.py || die
+            distutils-r1_python_prepare_all
+          }
 
+          python_test() {
+            # test_easy_install raises a SandboxViolation due to ${HOME}/.pydistutils.cfg
+            # It tries to sandbox the test in a tempdir
+            HOME="${PWD}" pytest -vv ${PN} || die "Tests failed under ${EPYTHON}"
+          }
+
+          python_install() {
+            export DISTRIBUTE_DISABLE_VERSIONED_EASY_INSTALL_SCRIPT=1
+            distutils-r1_python_install
+            # Remove any wrapper
+            if [ "$PN"  == 'setuptools-compat' ]; then
+              rm -rf ${D}/usr/bin
+            fi
+
+          }
 dev_python_autogen_rule:
   defaults:
     cat: dev-python
@@ -203,8 +250,6 @@ dev_python_autogen_rule:
     - pytz:
         python_compat: python2+ pypy3
     - requests:
-        python_compat: python2+ pypy{,3}
-    - setuptools:
         python_compat: python2+ pypy{,3}
     - setuptools_scm:
         python_compat: python2+ pypy3

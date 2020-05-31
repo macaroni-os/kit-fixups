@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
@@ -25,7 +24,7 @@ S=${WORKDIR}/${P/_/.}
 # GPL-2 for the init scripts
 LICENSE="HPND BSD GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+KEYWORDS="*"
 IUSE="X bzip2 doc elf ipv6 libressl lm_sensors mfd-rewrites minimal mysql netlink pci perl python rpm selinux smux ssl tcpd ucd-compat zlib"
 
 COMMON_DEPEND="
@@ -42,7 +41,7 @@ COMMON_DEPEND="
 	zlib? ( >=sys-libs/zlib-1.1.4 )
 	elf? ( dev-libs/elfutils )
 	python? (
-		dev-python/setuptools[${PYTHON_USEDEP}]
+		dev-python/setuptools-compat
 		${PYTHON_DEPS}
 	)
 	pci? ( sys-apps/pciutils )

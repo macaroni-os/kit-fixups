@@ -1,4 +1,3 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -27,7 +26,7 @@ PATCHES=(
 )
 
 src_compile() {
-	export PRIMUS_libGLa='/usr/$$LIB/opengl/nvidia/lib/libGL.so.1'
+	export PRIMUS_libGLa='/usr/$$LIB/libGL.so.1'
 	mymake() {
 		emake LIBDIR=$(get_libdir)
 	}

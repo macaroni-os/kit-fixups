@@ -9,7 +9,7 @@ MY_PV="${PV/_/-}"
 # Change this when you update the ebuild
 RUNC_COMMIT=dc9208a3303feef5b3839f4323d9beb36df0a9dd
 SRC_URI="https://${EGO_PN}/archive/${RUNC_COMMIT}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 inherit linux-info golang-build golang-vcs-snapshot
 
 DESCRIPTION="runc container cli tools"

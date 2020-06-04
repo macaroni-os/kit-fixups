@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/docker/libnetwork"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
+IUSE="*"
 
 S=${WORKDIR}/${P}/src/${EGO_PN}
 

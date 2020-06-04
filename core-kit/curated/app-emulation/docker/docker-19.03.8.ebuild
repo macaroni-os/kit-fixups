@@ -7,7 +7,7 @@ EGO_PN="github.com/docker/docker-ce"
 DOCKER_GITCOMMIT=afacb8b7f0
 MY_PV=${PV/_/-}
 SRC_URI="https://${EGO_PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 [ "$DOCKER_GITCOMMIT" ] || die "DOCKER_GITCOMMIT must be added manually for each bump!"
 inherit golang-vcs-snapshot bash-completion-r1 golang-base linux-info udev
 

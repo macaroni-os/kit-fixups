@@ -10,7 +10,7 @@ MY_PV="${PV/_rc/-rc.}"
 EGIT_COMMIT="v${MY_PV}"
 CONTAINERD_COMMIT=814b7956
 SRC_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 inherit toolchain-funcs golang-vcs-snapshot
 
 LICENSE="Apache-2.0"

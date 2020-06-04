@@ -136,8 +136,12 @@ dev_python_autogen_rule:
         pypi_name: backports.functools-lru-cache
     - bitarray:
         python_compat: python2+ pypy3
+    - blinker:
+        python_compat: python2+ pypy3
     - cffi:
         python_compat: python2+ pypy{,3}
+    - click:
+        python_compat: python2+ pypy3
     - cloudflare
     - cryptography:
         python_compat: python2+ pypy{,3}
@@ -162,6 +166,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - flake8:
         python_compat: python2+ pypy{,3}
+    - flask:
+        python_comapt: python2+ pypy3
     - flask-jwt:
         python_compat: python2+ pypy{,3}
     - h5py:
@@ -172,8 +178,12 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - importlib_metadata:
         python_compat: python2+ pypy{,3}
+    - itsdangerous:
+        python_compat: python2+ pypy3
     - ipy:
         python_compat: python2+ pypy{,3}
+    - jeepney:
+        python_compat: python3+ pypy3
     - jsonschema:
         python_compat: python3+ pypy3
     - matplotlib:
@@ -280,6 +290,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - requests:
         python_compat: python2+ pypy{,3}
+    - secretstorage:
+        python_compat: python3+ pypy3
     - setuptools_scm:
         python_compat: python2+ pypy3
     - six:
@@ -337,6 +349,8 @@ dev_python_autogen_rule:
     - urllib3:
         python_compat: python2+ pypy{,3}
     - wcwidth:
+        python_compat: python2+ pypy3
+    - werkzeug:
         python_compat: python2+ pypy3
     - wstools:
         python_compat: python2+

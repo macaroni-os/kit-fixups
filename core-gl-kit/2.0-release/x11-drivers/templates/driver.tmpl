@@ -4,6 +4,10 @@ EAPI=7
 
 inherit autotools linux-info flag-o-matic {{inherit}}
 
+{%- if python_compat is defined %}
+PYTHON_COMPAT=( {{python_compat}} )
+{%- endif %}
+
 DESCRIPTION="Driver for xorg-server"
 KEYWORDS="*"
 IUSE="{{iuse}} {% if iuse_dri is defined and iuse_dri != 'force' %}{{iuse_dri}}{%- endif %}"

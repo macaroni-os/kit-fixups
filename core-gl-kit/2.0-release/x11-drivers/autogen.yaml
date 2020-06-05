@@ -1,0 +1,50 @@
+drivers_rule:
+  defaults:
+    cat: x11-drivers
+    revision: 1
+  packages:
+    - xf86-input-elographics:
+        gitlab_id: 570
+    - xf86-input-evdev:
+        gitlab_id: 571
+        rdepend: |
+          x11-base/xorg-server[udev]
+          dev-libs/libevdev
+          sys-libs/mtdev
+          virtual/libudev:=
+        kernel_config:
+          - INPUT_EVDEV
+    - xf86-input-joystick:
+        gitlab_id: 575
+        src_install: |
+          insinto /usr/share/X11/xorg.conf.d
+          doins config/50-joystick-all.conf
+    - xf86-input-keyboard:
+        gitlab_id: 576
+    - xf86-input-libinput:
+        gitlab_id: 577
+        depend: |
+          >=dev-libs/libinput-1.5.0:0=
+    - xf86-input-mouse:
+        gitlab_id: 581
+    - xf86-input-synaptics:
+        gitlab_id: 588
+        rdepend: |
+          >=dev-libs/libevdev-0.4
+          >=x11-libs/libXi-1.2
+          >=x11-libs/libXtst-1.1.0
+        kernel_config:
+          - INPUT_EVDEV
+    - xf86-input-vmmouse:
+        revision: 2
+        gitlab_id: 591
+        inherit: udev
+        config_options: |
+          --with-hal-bin-dir=/punt
+          --with-hal-callouts-dir=/punt
+          --with-hal-fdi-dir=/punt
+          --with-udev-rules-dir=$(get_udevdir)/rules.d
+        src_install: |
+          rm -rf "${ED}"/punt
+    - xf86-input-void:
+        gitlab_id: 592

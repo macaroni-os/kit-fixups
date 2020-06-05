@@ -6,7 +6,7 @@ inherit autotools linux-info flag-o-matic {{inherit}}
 
 DESCRIPTION="Driver for xorg-server"
 KEYWORDS="*"
-IUSE=""
+IUSE="{{iuse}} {% if iuse_dri is defined and iuse_dri != 'force' %}{{iuse_dri}}{%- endif %}"
 SRC_URI="{{artifacts[0].src_uri}}"
 SLOT="0"
 S="$WORKDIR/${PN}-${P}"
@@ -17,7 +17,14 @@ DEPEND="
 	>=sys-devel/libtool-2.2.6a
 	sys-devel/m4
 	>=x11-misc/util-macros-1.18
-	{{depend}}"
+	{{depend}}
+	{%- if use_dri == 'force' %}
+	x11-base/xorg-server[-minimal]
+	x11-libs/libdrm
+	{%- elif use_dri is defined %}
+	{{use_dri}}? ( x11-base/xorg-server[-minimal] x11-libs/libdrm )
+	{%- endif %}
+"
 
 RDEPEND="
 	${DEPEND}
@@ -54,3 +61,12 @@ src_install() {
 	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
 {{newline}}{%- endfor %}{%- endif %}
 }
+
+{%- if src_prepare is defined %}
+src_prepare() {
+{%- for line in src_prepare.split('\n') %}
+	{%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
+{{newline}}{%- endfor %}
+}
+{%- endif %}

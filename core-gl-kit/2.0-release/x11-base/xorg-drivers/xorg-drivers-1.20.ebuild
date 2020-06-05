@@ -100,7 +100,7 @@ PDEPEND="
 	video_cards_vesa?          ( x11-drivers/xf86-video-vesa )
 	video_cards_via?           ( x11-drivers/xf86-video-openchrome )
 	video_cards_virtualbox?    ( || (
-					x11-drivers/xf86-video-vboxvideo
+			x11-drivers/xf86-video-vbox
 					>=x11-drivers/xf86-video-virtualbox-5.1.14
 					) )
 	video_cards_vmware?        ( >=x11-drivers/xf86-video-vmware-13.3.0 )

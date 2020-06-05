@@ -48,3 +48,101 @@ drivers_rule:
           rm -rf "${ED}"/punt
     - xf86-input-void:
         gitlab_id: 592
+    - xf86-video-amdgpu:
+        gitlab_id: 593
+        dri_use: force
+        rdepend: |
+          x11-libs/libdrm[video_cards_amdgpu]
+          x11-base/xorg-server[glamor]
+        config_options: |
+          --enable-glamor
+    - xf86-video-ast:
+        gitlab_id: 597
+    - xf86-video-ati:
+        gitlab_id: 598
+        iuse: +glamor udev
+        rdepend:
+          x11-libs/libdrm[video_cards_radeon]
+          glamor? ( x11-base/xorg-server[glamor] )
+          udev? ( virtual/libudev:= )
+        kernel_config: |
+          !DRM_RADEON_UMS
+          !FB_RADEON
+        config_options: |
+          $(use_enable glamor)
+          $(use_enable udev)
+    - xf86-video-dummy:
+        gitlab_id: 602
+        iuse: dga
+        config_options: |
+          $(use_enable dga)
+    - xf86-video-fbdev:
+        gitlab_id: 603
+    - xf86-video-geode:
+        gitlab_id: 605
+        iuse: ztv
+        config_options: |
+          $(use_enable ztv)
+        depend: |
+          ztv? ( sys-kernel/linux-headers )
+    - xf86-video-glint:
+        gitlab_id: 607
+    - xf86-video-mga:
+        dri_use: dri
+        gitlab_id: 614
+        config_options: |
+          $(use_enable dri)
+    - xf86-video-nouveau:
+        dri_use: force
+        gitlab_id: 5034
+        rdepend: |
+          x11-libs/libdrm[video_cards_nouveau]
+    - xf86-video-nv:
+        gitlab_id: 620
+    - xf86-video-omap:
+        gitlab_id: 621
+        rdepend: |
+          x11-libs/libdrm[video_cards_omap]
+    - xf86-video-qxl:
+        python_compat: python2_7
+        inherit: python-single-r1
+        gitlab_id: 623
+        iuse: xspice
+        rdepend: |
+          xspice? (
+            app-emulation/spice
+            ${PYTHON_DEPS}
+          )
+          x11-libs/libdrm
+        depend: |
+          >=app-emulation/spice-protocol-0.12.0
+        config_options: |
+          $(use_enable xspice)
+        src_prepare: |
+          python_fix_shebang scripts
+    - xf86-video-r128:
+        dri_use: dri
+        gitlab_id: 624
+        config_options: |
+          $(use_enable dri)
+    - xf86-video-siliconmotion:
+        gitlab_id: 631
+    - xf86-video-tdfx:
+        dri_use: dri
+        gitlab_id: 641
+        config_options: |
+          $(use_enable dri)
+    - xf86-video-vesa:
+        gitlab_id: 648
+        kernel_config: |
+          DEVMEM
+    - xf86-video-vbox:
+        gitlab_id: 646
+        rdepend: |
+          x11-libs/libXcomposite
+    - xf86-video-vmware:
+        dri_use: force
+        gitlab_id: 651
+        rdepend: |
+          x11-libs/libdrm[libkms,video_cards_vmware]
+          media-libs/mesa[video_cards_xa]

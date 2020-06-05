@@ -1,0 +1,72 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools linux-info flag-o-matic {{inherit}}
+
+DESCRIPTION="Driver for xorg-server"
+KEYWORDS="*"
+IUSE="{{iuse}} {% if iuse_dri is defined and iuse_dri != 'force' %}{{iuse_dri}}{%- endif %}"
+SRC_URI="{{artifacts[0].src_uri}}"
+SLOT="0"
+S="$WORKDIR/${PN}-${P}"
+
+DEPEND="
+	{%- if kernel_config is defined %}sys-kernel/linux-headers{%- endif %}
+	x11-base/xorg-proto
+	>=sys-devel/libtool-2.2.6a
+	sys-devel/m4
+	>=x11-misc/util-macros-1.18
+	{{depend}}
+	{%- if use_dri == 'force' %}
+	x11-base/xorg-server[-minimal]
+	x11-libs/libdrm
+	{%- elif use_dri is defined %}
+	{{use_dri}}? ( x11-base/xorg-server[-minimal] x11-libs/libdrm )
+	{%- endif %}
+"
+
+RDEPEND="
+	${DEPEND}
+	{%- if name.startswith('xf86-video') %}x11-libs/libpciaccess{%- endif %}
+	{{rdepend}}
+"
+
+WANT_AUTOCONF="latest"
+WANT_AUTOMAKE="latest"
+AUTOTOOLS_AUTORECONF="1"
+
+src_configure() {
+	XORG_CONFIGURE_OPTIONS=(
+		{{config_options}}
+	)
+	append-ldflags -Wl,-z,lazy
+	eautoreconf || die
+	econf ${XORG_CONFIGURE_OPTIONS[@]} || die
+}
+
+{%- if kernel_config is defined %}
+pkg_pretend() {
+	CONFIG_CHECK="{%- for opt in kernel_config %}~{{opt}} {% endfor %}"
+	check_extra_config
+}
+{%- endif %}
+
+src_install() {
+	default
+	find "${D}" -type f -name '*.la' -delete || die
+{%- if src_install is defined %}
+{%- for line in src_install.split('\n') %}
+	{%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
+{{newline}}{%- endfor %}{%- endif %}
+}
+
+{%- if src_prepare is defined %}
+src_prepare() {
+{%- for line in src_prepare.split('\n') %}
+	{%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
+{{newline}}{%- endfor %}
+}
+{%- endif %}

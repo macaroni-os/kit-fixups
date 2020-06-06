@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -81,7 +80,7 @@ RDEPEND="
 	${RDEPEND}
 	acpi? ( sys-power/acpid )
 	X? (
-		<x11-base/xorg-server-1.20.99:=
+		>=x11-base/xorg-server-1.20.8
 		>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
 		>=x11-libs/libXext-1.3.2[${MULTILIB_USEDEP}]
 		>=x11-libs/libvdpau-1.0[${MULTILIB_USEDEP}]
@@ -112,7 +111,7 @@ NV_OPENCL_VEND_DIR="OpenCL/nvidia"
 NV_X_MODDIR="xorg/modules"
 
 # Maximum supported kernel version in form major.minor
-: "${NV_MAX_KERNEL_VERSION:=5.4}"
+: "${NV_MAX_KERNEL_VERSION:=4.20}"
 
 # Fixups for issues with particular versions of the package.
 nv_do_fixups() {
@@ -225,10 +224,8 @@ nv_install_modprobe() {
 # <dir> <template> <perms> <MODULE:>
 nv_install_vulkan_icd() {
 	nv_use "${4#MODULE:}" || return 0
-	if [ -e nvidia_icd.json.template ]; then
-		rm -f "nvidia_icd.json" || die
-		sed -e 's:__NV_VK_ICD__:'"${NV_NATIVE_LIBDIR}"'/libGLX_nvidia.so.0:g' nvidia_icd.json.template > nvidia_icd.json || die
-	fi
+	rm -f "nvidia_icd.json" || die
+	sed -e 's:__NV_VK_ICD__:'"${NV_NATIVE_LIBDIR}"'/libGLX_nvidia.so.0:g' nvidia_icd.json.template > nvidia_icd.json || die
 	nv_install "$1" "nvidia_icd.json" "$3" "$4"
 }
 
@@ -517,10 +514,12 @@ src_install() {
 		newconfd "${FILESDIR}/nvidia-persistenced.conf" nvidia-persistenced
 	fi
 
-	# If we're not using glvnd support, then set up directory expected by eselect opengl: 
+	# If we're not using glvnd support, link nvidia opengl vendor directory into system opengl vendor directory
 	if ! use_if_iuse glvnd ; then
 		dosym "${NV_NATIVE_LIBDIR}/opengl/nvidia" "${EPREFIX}/usr/lib/opengl/nvidia"
+		dosym "${NV_NATIVE_LIBDIR}" "${NV_NATIVE_LIBDIR}/opengl/nvidia/lib"
 	fi
+
 
 	readme.gentoo_create_doc
 

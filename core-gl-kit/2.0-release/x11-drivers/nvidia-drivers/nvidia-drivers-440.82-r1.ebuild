@@ -17,10 +17,7 @@ X86_NV_PACKAGE="NVIDIA-Linux-x86-${PV}"
 NV_URI="http://download.nvidia.com/XFree86/"
 
 SRC_URI="
-	amd64? (
-		compat32? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}.run )
-		!compat32? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}-no-compat32.run )
-	)
+	amd64? ( ${NV_URI}Linux-x86_64/${PV}/${AMD64_NV_PACKAGE}-no-compat32.run )
 	amd64-fbsd? ( ${NV_URI}FreeBSD-x86_64/${PV}/${AMD64_FBSD_NV_PACKAGE}.tar.gz )
 "
 
@@ -38,7 +35,7 @@ KEYWORDS="-* ~amd64 ~amd64-fbsd"
 RESTRICT="bindist strip"
 EMULTILIB_PKG="true"
 
-IUSE="+X +opencl +cuda tools +compat32"
+IUSE="+X +opencl +cuda tools"
 IUSE_KERNELS="kernel_FreeBSD kernel_linux"
 IUSE_NV_PKG="+opengl +gpgpu +nvpd +nvifr +nvfbc +nvcuvid +nvml +encodeapi +vdpau +xutils +xdriver"
 
@@ -46,7 +43,7 @@ if [ ${PV%%.*} -ge 384 ] ; then IUSE_NV_PKG="${IUSE_NV_PKG} +egl" ; IUSE="${IUSE
 if [ ${PV%%.*} -ge 400 ] ; then IUSE_NV_PKG="${IUSE_NV_PKG} +optix +raytracing" ; fi
 if [ ${PV%%.*} -ge 418 ] ; then IUSE_NV_PKG="${IUSE_NV_PKG} +opticalflow" ; fi
 
-IUSE_DUMMY="static-libs driver acpi"
+IUSE_DUMMY="static-libs acpi"
 
 IUSE="${IUSE} ${IUSE_KERNELS} ${IUSE_NV_PKG} ${IUSE_DUMMY}"
 
@@ -68,7 +65,7 @@ if [ ${PV%%.*} -ge 384 ] ; then
 			glvnd? ( >=media-libs/libglvnd-1.0.0.20180424 )
 		)
 	"
-	RDEPEND="wayland? ( dev-libs/wayland[${MULTILIB_USEDEP}] )"
+	RDEPEND="wayland? ( dev-libs/wayland )"
 fi
 
 DEPEND="
@@ -81,15 +78,14 @@ RDEPEND="
 	${RDEPEND}
 	acpi? ( sys-power/acpid )
 	X? (
-		<x11-base/xorg-server-1.20.99:=
-		>=x11-libs/libX11-1.6.2[${MULTILIB_USEDEP}]
-		>=x11-libs/libXext-1.3.2[${MULTILIB_USEDEP}]
-		>=x11-libs/libvdpau-1.0[${MULTILIB_USEDEP}]
-		sys-libs/zlib[${MULTILIB_USEDEP}]
+		>=x11-base/xorg-server-1.20.8
+		>=x11-libs/libX11-1.6.2
+		>=x11-libs/libXext-1.3.2
+		>=x11-libs/libvdpau-1.0
+		sys-libs/zlib
+		x11-libs/gtk+:3
 	)
 "
-
-
 
 S="${WORKDIR}/"
 
@@ -112,7 +108,7 @@ NV_OPENCL_VEND_DIR="OpenCL/nvidia"
 NV_X_MODDIR="xorg/modules"
 
 # Maximum supported kernel version in form major.minor
-: "${NV_MAX_KERNEL_VERSION:=4.20}"
+: "${NV_MAX_KERNEL_VERSION:=5.7}"
 
 # Fixups for issues with particular versions of the package.
 nv_do_fixups() {
@@ -122,9 +118,6 @@ nv_do_fixups() {
 		&& ! [ -h "${NV_NATIVE_LIBDIR}/libnvidia-egl-wayland.so.1" ] \
 		&& dosym "$(cd "${D}${NV_NATIVE_LIBDIR}" && ls -1 libnvidia-egl-wayland.so.1.* | tail -1)" "${NV_NATIVE_LIBDIR}/libnvidia-egl-wayland.so.1"
 }
-
-# Install 32 bit compat libs if we have the compat32 use flag enabled or have the abi_x86_32 flag set
-docompat32() { use_if_iuse compat32 && return 0; use_if_iuse abi_x86_32 && return 0 ; return 1 ; }
 
 # Check if we should use a given nvidia MODULE:<arg>
 # Convert module names to use-flags as appropriate
@@ -184,7 +177,6 @@ nv_install_lib_arch() {
 	local libdir
 	case "${4}" in
 		NATIVE) libdir="${NV_NATIVE_LIBDIR}" ;;
-		COMPAT32) docompat32 || return ; libdir="${NV_COMPAT32_LIBDIR}" ;;
 		*) die "nv_install_lib_arch called with something other than NATIVE or COMPAT32 arch" ;;
 	esac
 	nv_install "${libdir}/${1#/}" "$2" "$3" "$5"
@@ -207,7 +199,6 @@ nv_symlink_lib_arch() {
 	local libdir
 	case "${3}" in
 		NATIVE) libdir="${NV_NATIVE_LIBDIR}" ;;
-		COMPAT32) docompat32 || return ; libdir="${NV_COMPAT32_LIBDIR}" ;;
 		*) die "nv_install_lib_arch called with something other than NATIVE or COMPAT32 arch" ;;
 	esac
 	nv_symlink "${libdir%/}/${1#/}" "$2" "$4" "$5"
@@ -225,8 +216,10 @@ nv_install_modprobe() {
 # <dir> <template> <perms> <MODULE:>
 nv_install_vulkan_icd() {
 	nv_use "${4#MODULE:}" || return 0
-	rm -f "nvidia_icd.json" || die
-	sed -e 's:__NV_VK_ICD__:'"${NV_NATIVE_LIBDIR}"'/libGLX_nvidia.so.0:g' nvidia_icd.json.template > nvidia_icd.json || die
+	if [ -e nvidia_icd.json.template ]; then
+		rm -f "nvidia_icd.json" || die
+		sed -e 's:__NV_VK_ICD__:'"${NV_NATIVE_LIBDIR}"'/libGLX_nvidia.so.0:g' nvidia_icd.json.template > nvidia_icd.json || die
+	fi
 	nv_install "$1" "nvidia_icd.json" "$3" "$4"
 }
 
@@ -456,6 +449,12 @@ src_unpack() {
 	fi
 }
 
+src_prepare() {
+	# Reclassify wayland-related files to MODULE:wayland
+	sed -e 's:\(wayland.*\)egl:\1wayland:g' -i .manifest
+	default
+}
+
 src_install() {
 
 	# Parse our manifest file and install to our destroot.
@@ -473,10 +472,13 @@ src_install() {
 
 	# If 'tools' flag is enabled, link nvidia-settings utility into /usr/bin, install an xinitrc.d file to start it, and link it's desktop file.
 	if use tools; then
-		[ -f "${D}${NV_ROOT}/bin/nvidia-settings" ] && dosym "${NV_ROOT}/bin/nvidia-settings" "/usr/bin/nvidia-settings"
+		for tool in settings xconfig; do
+			[ -f "${D}${NV_ROOT}/bin/nvidia-${tool}" ] && dosym "${NV_ROOT}/bin/nvidia-${tool}" "/usr/bin/nvidia-${tool}"
+		done
 		exeinto /etc/X11/xinit/xinitrc.d
 		newexe "${FILESDIR}"/95-nvidia-settings.xinitrc 95-nvidia-settings
 		dosym "${NV_ROOT}/share/applications/nvidia-settings.desktop" "/usr/share/applications/nvidia-settings.desktop"
+		dosym "${NV_ROOT}/share/nvidia" "/usr/share/nvidia"
 	fi
 
 	# If 'X' flag is enabled, link nvidia-drm-outputclass.conf into system xorg.conf.d directory (xorg 1.16 and up),
@@ -515,23 +517,29 @@ src_install() {
 		newconfd "${FILESDIR}/nvidia-persistenced.conf" nvidia-persistenced
 	fi
 
-	# If we're not using glvnd support, link nvidia opengl vendor directory into system opengl vendor directory
+	# If we're not using glvnd support, then set up directory expected by eselect opengl: 
 	if ! use_if_iuse glvnd ; then
 		dosym "${NV_NATIVE_LIBDIR}/opengl/nvidia" "${EPREFIX}/usr/lib/opengl/nvidia"
-		dosym "${NV_NATIVE_LIBDIR}" "${NV_NATIVE_LIBDIR}/opengl/nvidia/lib"
 	fi
 
+	# Support link for Bumblebee
+	dosym "${NV_NATIVE_LIBDIR}" "${EPREFIX}/usr/lib/nvidia"
 
 	readme.gentoo_create_doc
 
 	# Setup an env.d file with appropriate lib paths.
 	ldpath="${NV_NATIVE_LIBDIR}:${NV_NATIVE_LIBDIR}/tls"
-	docompat32 && ldpath+=":${NV_COMPAT32_LIBDIR}:${NV_COMPAT32_LIBDIR}/tls"
 	printf -- "LDPATH=\"${ldpath}\"\n" > "${T}/09nvidia"
 	doenvd "${T}/09nvidia"
 
 	# Run fixups specific to this driver (defined at top)
 	nv_do_fixups
+
+	for x in ${D}/${NV_ROOT}/share/man/man1/*; do
+		gzip -d $x
+		doman ${x%.gz}
+	done
+	rm -rf ${D}/${NV_ROOT}/share/man || die
 
 }
 
@@ -569,7 +577,7 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	 ! use_if_iuse glvnd && use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
+	! use_if_iuse glvnd && use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
 }
 
 pkg_postrm() {

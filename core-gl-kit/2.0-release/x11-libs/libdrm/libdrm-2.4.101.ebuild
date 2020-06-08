@@ -1,24 +1,15 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 EGIT_REPO_URI="https://anongit.freedesktop.org/git/mesa/drm.git"
 
-if [[ ${PV} = 9999* ]]; then
-	GIT_ECLASS="git-r3"
-fi
-
 inherit ${GIT_ECLASS} meson multilib-minimal
 
 DESCRIPTION="X.Org libdrm library"
 HOMEPAGE="https://dri.freedesktop.org/"
-if [[ ${PV} = 9999* ]]; then
-	SRC_URI=""
-else
-	SRC_URI="https://dri.freedesktop.org/libdrm/${P}.tar.xz"
-	KEYWORDS="*"
-fi
+SRC_URI="https://dri.freedesktop.org/libdrm/${P}.tar.xz"
+KEYWORDS="*"
 
 VIDEO_CARDS="amdgpu exynos freedreno intel nouveau omap radeon tegra vc4 vivante vmware"
 for card in ${VIDEO_CARDS}; do

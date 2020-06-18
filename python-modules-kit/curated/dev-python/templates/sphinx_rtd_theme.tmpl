@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( {{python_compat}} )
 
@@ -15,4 +15,9 @@ SLOT="0"
 KEYWORDS="*"
 IUSE=""
 
+pkg_setup() {
+	export CI=1
+}
+
+PDEPEND="dev-python/sphinx[${PYTHON_USEDEP}]"
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"

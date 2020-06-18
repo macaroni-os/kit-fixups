@@ -5,7 +5,11 @@ import json
 async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/keepassxreboot/keepassxc/releases")
 	json_dict = json.loads(json_data)
-	release = json_dict[0]
+	for r in json_dict:
+		if 'prerelease' in r and r['prerelease'] is True:
+			continue
+		release = r
+		break
 	version = release['tag_name']
 	for asset in release["assets"]:
 		if asset['content_type'] == 'application/x-xz':

@@ -61,7 +61,7 @@ drivers_rule:
     - xf86-video-ati:
         gitlab_id: 598
         iuse: +glamor udev
-        rdepend:
+        rdepend: |
           x11-libs/libdrm[video_cards_radeon]
           glamor? ( x11-base/xorg-server[glamor] )
           udev? ( virtual/libudev:= )

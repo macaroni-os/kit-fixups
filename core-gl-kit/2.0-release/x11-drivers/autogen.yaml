@@ -13,7 +13,7 @@ drivers_rule:
           sys-libs/mtdev
           virtual/libudev:=
         kernel_config:
-          - INPUT_EVDEV
+          - ~INPUT_EVDEV
     - xf86-input-joystick:
         gitlab_id: 575
         src_install: |
@@ -34,7 +34,7 @@ drivers_rule:
           >=x11-libs/libXi-1.2
           >=x11-libs/libXtst-1.1.0
         kernel_config:
-          - INPUT_EVDEV
+          - ~INPUT_EVDEV
     - xf86-input-vmmouse:
         revision: 2
         gitlab_id: 591
@@ -65,9 +65,9 @@ drivers_rule:
           x11-libs/libdrm[video_cards_radeon]
           glamor? ( x11-base/xorg-server[glamor] )
           udev? ( virtual/libudev:= )
-        kernel_config: |
-          !DRM_RADEON_UMS
-          !FB_RADEON
+        kernel_config:
+          - ~!DRM_RADEON_UMS
+          - ~!FB_RADEON
         config_options: |
           $(use_enable glamor)
           $(use_enable udev)
@@ -134,8 +134,8 @@ drivers_rule:
           $(use_enable dri)
     - xf86-video-vesa:
         gitlab_id: 648
-        kernel_config: |
-          DEVMEM
+        kernel_config:
+          - ~DEVMEM
     - xf86-video-vbox:
         tag_name: xf86-video-vboxvideo
         gitlab_id: 646

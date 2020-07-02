@@ -40,21 +40,45 @@ WANT_AUTOCONF="latest"
 WANT_AUTOMAKE="latest"
 AUTOTOOLS_AUTORECONF="1"
 
+pkg_setup() {
+	append-ldflags -Wl,-z,lazy
+}
+
+{%- if src_prepare is defined %}
+src_prepare() {
+{%- for line in src_prepare.split('\n') %}
+	{%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
+{{newline}}{%- endfor %}
+}
+{%- else %}
+src_prepare() {
+	eautoreconf || die
+	default
+}
+{%- endif %}
+
+{%- if config_options is defined %}
 src_configure() {
 	XORG_CONFIGURE_OPTIONS=(
 		{{config_options}}
 	)
-	append-ldflags -Wl,-z,lazy
-	eautoreconf || die
 	econf ${XORG_CONFIGURE_OPTIONS[@]} || die
 }
+{%- endif %}
 
 {%- if kernel_config is defined %}
 pkg_pretend() {
-	CONFIG_CHECK="{{kernel_config}}"
+	CONFIG_CHECK="{%- for opt in kernel_config %}{{opt}} {% endfor %}"
+	check_extra_config
+}
+
+pkg_postinst() {
+	CONFIG_CHECK="{%- for opt in kernel_config %}{{opt}} {% endfor %}"
 	check_extra_config
 }
 {%- endif %}
+
 
 src_install() {
 	default
@@ -66,11 +90,3 @@ src_install() {
 {{newline}}{%- endfor %}{%- endif %}
 }
 
-{%- if src_prepare is defined %}
-src_prepare() {
-{%- for line in src_prepare.split('\n') %}
-	{%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
-	{%- set newline = "\t" * ( indent_level + 1 ) + line[indent_level*2:] %}
-{{newline}}{%- endfor %}
-}
-{%- endif %}

@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -81,7 +80,6 @@ PDEPEND="
 	video_cards_glint?         ( >=x11-drivers/xf86-video-glint-1.2.9 )
 	video_cards_i915?          ( x11-drivers/xf86-video-intel )
 	video_cards_i965?          ( >=x11-base/xorg-server-${PV}[glamor] )
-	video_cards_intel?         ( !video_cards_i965? ( >=x11-drivers/xf86-video-intel-2.99.917_p20180214-r1 ) )
 	video_cards_mga?           ( >=x11-drivers/xf86-video-mga-1.6.5 )
 	video_cards_nouveau?       ( >=x11-drivers/xf86-video-nouveau-1.0.13 )
 	video_cards_nv?            ( >=x11-drivers/xf86-video-nv-2.1.21 )
@@ -135,6 +133,5 @@ PDEPEND="
 	!x11-drivers/xf86-video-tga
 	!x11-drivers/xf86-video-trident
 	!x11-drivers/xf86-video-tseng
-
 	!<x11-drivers/xf86-input-evdev-2.10.4
 "

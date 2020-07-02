@@ -42,6 +42,7 @@ IUSE_VIDEO_CARDS="
 	video_cards_r128
 	video_cards_radeon
 	video_cards_radeonsi
+	video_cards_gallium-iris
 	video_cards_gallium-radeonsi
 	video_cards_siliconmotion
 	video_cards_tdfx
@@ -103,7 +104,7 @@ PDEPEND="
 					) )
 	video_cards_vmware?        ( >=x11-drivers/xf86-video-vmware-13.3.0 )
 	video_cards_voodoo?        ( x11-drivers/xf86-video-voodoo )
-
+    video_cards_gallium-iris?  ( !x11-drivers/xf86-video-intel )
 	!x11-drivers/xf86-input-citron
 	!x11-drivers/xf86-video-apm
 	!x11-drivers/xf86-video-ark

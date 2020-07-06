@@ -34,7 +34,6 @@ IUSE_VIDEO_CARDS="
 	video_cards_i915
 	video_cards_i965
 	video_cards_intel
-	video_cards_intel-classic
 	video_cards_mga
 	video_cards_nouveau
 	video_cards_nv
@@ -57,7 +56,6 @@ IUSE_VIDEO_CARDS="
 	video_cards_voodoo
 	video_cards_nvidia
 "
-REQUIRED_USE=" ^^ ( video_cards_intel video_cards_intel-classic )"
 IUSE="${IUSE_VIDEO_CARDS} ${IUSE_INPUT_DEVICES}"
 
 PDEPEND="

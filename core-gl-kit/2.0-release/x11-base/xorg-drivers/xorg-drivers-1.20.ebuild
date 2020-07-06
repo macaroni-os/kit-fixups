@@ -34,6 +34,7 @@ IUSE_VIDEO_CARDS="
 	video_cards_i915
 	video_cards_i965
 	video_cards_intel
+	video_cards_intel-classic
 	video_cards_mga
 	video_cards_nouveau
 	video_cards_nv
@@ -56,7 +57,7 @@ IUSE_VIDEO_CARDS="
 	video_cards_voodoo
 	video_cards_nvidia
 "
-
+REQUIRED_USE=" ^^ ( video_cards_intel video_cards_intel-classic )"
 IUSE="${IUSE_VIDEO_CARDS} ${IUSE_INPUT_DEVICES}"
 
 PDEPEND="
@@ -79,8 +80,7 @@ PDEPEND="
 	video_cards_freedreno?     ( >=x11-base/xorg-server-${PV}[glamor] )
 	video_cards_geode?         ( x11-drivers/xf86-video-geode )
 	video_cards_glint?         ( >=x11-drivers/xf86-video-glint-1.2.9 )
-	video_cards_i915?          ( x11-drivers/xf86-video-intel )
-	video_cards_i965?          ( >=x11-base/xorg-server-${PV}[glamor] )
+
 	video_cards_mga?           ( >=x11-drivers/xf86-video-mga-1.6.5 )
 	video_cards_nouveau?       ( >=x11-drivers/xf86-video-nouveau-1.0.13 )
 	video_cards_nv?            ( >=x11-drivers/xf86-video-nv-2.1.21 )
@@ -105,6 +105,9 @@ PDEPEND="
 	video_cards_vmware?        ( >=x11-drivers/xf86-video-vmware-13.3.0 )
 	video_cards_voodoo?        ( x11-drivers/xf86-video-voodoo )
     video_cards_gallium-iris?  ( !x11-drivers/xf86-video-intel )
+    video_cards_intel          ( x11-drivers/xf86-video-intel )
+    video_cards_i915?          ( x11-drivers/xf86-video-intel )
+	video_cards_i965?          ( >=x11-base/xorg-server-${PV}[glamor] )
 	!x11-drivers/xf86-input-citron
 	!x11-drivers/xf86-video-apm
 	!x11-drivers/xf86-video-ark

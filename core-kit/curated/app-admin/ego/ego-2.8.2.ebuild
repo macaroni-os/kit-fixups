@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 PYTHON_COMPAT=( python3+ )
 
 inherit python-single-r1
@@ -62,6 +62,6 @@ pkg_postinst() {
 	fi
 	[ -h $ROOT/usr/sbin/epro ] && rm $ROOT/usr/sbin/epro
 	if [ "$ROOT" = "/" ]; then
-		/usr/bin/ego sync --config-only
+		/usr/bin/ego sync --in-place
 	fi
 }

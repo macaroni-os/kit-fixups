@@ -137,6 +137,7 @@ REQUIRED_USE="
 RDEPEND="
 	!<x11-base/xorg-server-1.7
 	glvnd? ( >=media-libs/libglvnd-0.2.0 )
+	!media-libs/mesa-gl-headers
 	>=app-eselect/eselect-opengl-1.3.0
 	>=dev-libs/expat-2.1.0-r3:=
 	>=sys-libs/zlib-1.2.8

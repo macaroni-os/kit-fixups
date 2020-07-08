@@ -1,44 +1,30 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 EGIT_REPO_URI="https://github.com/anholt/${PN}.git"
 
-if [[ ${PV} = 9999* ]]; then
-	GIT_ECLASS="git-r3"
-fi
-
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6} )
+PYTHON_COMPAT=( python2+ )
 PYTHON_REQ_USE='xml(+)'
-inherit ${GIT_ECLASS} meson multilib-minimal python-any-r1
+inherit meson python-any-r1
 
 DESCRIPTION="Epoxy is a library for handling OpenGL function pointer management for you"
 HOMEPAGE="https://github.com/anholt/libepoxy"
-if [[ ${PV} = 9999* ]]; then
-	SRC_URI=""
-else
-	KEYWORDS="*"
-	SRC_URI="https://github.com/anholt/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-fi
+KEYWORDS="*"
+SRC_URI="https://github.com/anholt/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-IUSE="test +X"
+IUSE="+X"
 
-RDEPEND="media-libs/mesa[egl,${MULTILIB_USEDEP}]"
+RDEPEND="media-libs/mesa[egl]"
 DEPEND="${PYTHON_DEPS}
 	${RDEPEND}
 	virtual/opengl
-	X? ( x11-libs/libX11[${MULTILIB_USEDEP}] )
+	X? ( x11-libs/libX11 )
 	virtual/pkgconfig"
 
-src_unpack() {
-	default
-	[[ $PV = 9999* ]] && git-r3_src_unpack
-}
-
-multilib_src_configure() {
+src_configure() {
 	local emesonargs=(
 		-Degl=yes
 		-Dglx=$(usex X)
@@ -47,14 +33,10 @@ multilib_src_configure() {
 	meson_src_configure
 }
 
-multilib_src_compile() {
+src_compile() {
 	meson_src_compile
 }
 
-multilib_src_test() {
-	meson_src_test
-}
-
-multilib_src_install() {
+src_install() {
 	meson_src_install
 }

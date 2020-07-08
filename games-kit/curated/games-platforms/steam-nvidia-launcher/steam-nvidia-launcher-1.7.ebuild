@@ -11,10 +11,11 @@ KEYWORDS="amd64"
 
 GITHUB_REPO="steam-launcher"
 GITHUB_USER="funtoo"
-GITHUB_TAG="1ca1c45ca9392f962ecb37875acf1131737e3e87"
+GITHUB_TAG="d316bc3b82475b339526b2e056c52bd1842d93d3"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-
+DOCKER_IMG_DRIVER_MIN=440.100
 RDEPEND="
+	>=x11-drivers/nvidia-drivers-${DOCKER_IMG_DRIVER_MIN}
 	app-emulation/nvidia-docker
 	app-emulation/nvidia-container-runtime
 	x11-apps/xhost"
@@ -32,5 +33,5 @@ pkg_postinst() {
 	einfo "Please visit https://www.funtoo.org/Steam for steps on how to configure your system."
 	einfo
 	einfo "Pulseaudio will require some slight configuration changes, and you will need to add"
-	einfo "your regular user account to the docker group."
+	einfo "your regular user account to the docker group. Details are in the link above."
 }

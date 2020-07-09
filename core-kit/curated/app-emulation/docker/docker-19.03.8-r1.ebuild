@@ -1,12 +1,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 EGO_PN="github.com/docker/docker-ce"
 
-DOCKER_GITCOMMIT="c38f3f8"
-GIT_COMMIT="c38f3f8cb20a779ef83b05ccdc7368db938219cf"
-SRC_URI="https://${EGO_PN}/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz"
+DOCKER_GITCOMMIT=afacb8b7f0
+MY_PV=${PV/_/-}
+SRC_URI="https://${EGO_PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="*"
 [ "$DOCKER_GITCOMMIT" ] || die "DOCKER_GITCOMMIT must be added manually for each bump!"
 inherit golang-vcs-snapshot bash-completion-r1 golang-base linux-info udev user
@@ -15,10 +15,10 @@ DESCRIPTION="The core functions you need to create Docker images and run Docker 
 HOMEPAGE="https://dockerproject.org"
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE="apparmor aufs btrfs +container-init device-mapper hardened +overlay pkcs11 seccomp"
+IUSE="apparmor aufs btrfs +container-init device-mapper hardened +overlay seccomp"
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
-CDEPEND="
+COMMON_DEPEND="
 	>=dev-db/sqlite-3.7.9:3
 	device-mapper? (
 		>=sys-fs/lvm2-2.02.89[thin]
@@ -28,8 +28,9 @@ CDEPEND="
 "
 
 DEPEND="
-	${CDEPEND}
+	${COMMON_DEPEND}
 
+	>=dev-lang/go-1.12
 	dev-go/go-md2man
 
 	btrfs? (
@@ -40,15 +41,15 @@ DEPEND="
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#runtime-dependencies
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#optional-dependencies
 RDEPEND="
-	${CDEPEND}
+	${COMMON_DEPEND}
 	>=net-firewall/iptables-1.4
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	~app-emulation/containerd-1.2.13
-	>=app-emulation/runc-1.0.0_rc9[apparmor?,seccomp?]
-	~app-emulation/docker-proxy-0.8.0_p20190513
+	~app-emulation/containerd-1.3.4
+	~app-emulation/runc-1.0.0_rc10[apparmor?,seccomp?]
+	~app-emulation/docker-proxy-0.8.0_p20191011
 	container-init? ( >=sys-process/tini-0.18.0[static] )
 "
 
@@ -62,9 +63,9 @@ CONFIG_CHECK="
 	~CGROUPS ~CGROUP_CPUACCT ~CGROUP_DEVICE ~CGROUP_FREEZER ~CGROUP_SCHED ~CPUSETS ~MEMCG
 	~KEYS
 	~VETH ~BRIDGE ~BRIDGE_NETFILTER
-	~NF_NAT_IPV4 ~IP_NF_FILTER ~IP_NF_TARGET_MASQUERADE
+	~IP_NF_FILTER ~IP_NF_TARGET_MASQUERADE
 	~NETFILTER_XT_MATCH_ADDRTYPE ~NETFILTER_XT_MATCH_CONNTRACK ~NETFILTER_XT_MATCH_IPVS
-	~IP_NF_NAT ~NF_NAT ~NF_NAT_NEEDED
+	~IP_NF_NAT ~NF_NAT
 	~POSIX_MQUEUE
 
 	~USER_NS
@@ -72,7 +73,7 @@ CONFIG_CHECK="
 	~CGROUP_PIDS
 	~MEMCG_SWAP ~MEMCG_SWAP_ENABLED
 
-	~BLK_CGROUP ~BLK_DEV_THROTTLING ~IOSCHED_CFQ ~CFQ_GROUP_IOSCHED
+	~BLK_CGROUP ~BLK_DEV_THROTTLING
 	~CGROUP_PERF
 	~CGROUP_HUGETLB
 	~NET_CLS_CGROUP
@@ -132,6 +133,20 @@ pkg_setup() {
 		"
 	fi
 
+	if kernel_is lt 5 1; then
+		CONFIG_CHECK+="
+			~NF_NAT_IPV4
+			~IOSCHED_CFQ
+			~CFQ_GROUP_IOSCHED
+		"
+	fi
+
+	if kernel_is lt 5 2; then
+		CONFIG_CHECK+="
+			~NF_NAT_NEEDED
+		"
+	fi
+
 	if use aufs; then
 		CONFIG_CHECK+="
 			~AUFS_FS
@@ -158,10 +173,7 @@ pkg_setup() {
 			~OVERLAY_FS ~EXT4_FS_SECURITY ~EXT4_FS_POSIX_ACL
 		"
 	fi
-
 	linux-info_pkg_setup
-
-	# create docker group for the code checking for it in /etc/group
 	enewgroup docker
 }
 
@@ -174,7 +186,7 @@ src_compile() {
 	export CGO_LDFLAGS="-L${ROOT}/usr/$(get_libdir)"
 
 	# if we're building from a tarball, we need the GITCOMMIT value
-	[ "$DOCKER_GITCOMMIT" ] && export DOCKER_GITCOMMIT
+	[[ ${DOCKER_GITCOMMIT} ]] && export DOCKER_GITCOMMIT
 
 	# fake golang layout
 	ln -s docker-ce/components/engine ../docker || die
@@ -188,7 +200,7 @@ src_compile() {
 		fi
 	done
 
-	for tag in apparmor pkcs11 seccomp; do
+	for tag in apparmor seccomp; do
 		if use $tag; then
 			DOCKER_BUILDTAGS+=" $tag"
 		fi
@@ -218,7 +230,7 @@ src_compile() {
 		VERSION="$(cat ../../VERSION)" \
 		GITCOMMIT="${DOCKER_GITCOMMIT}" \
 		DISABLE_WARN_OUTSIDE_CONTAINER=1 \
-		dynbinary || die
+		dynbinary
 
 	# build man pages
 	go build -o gen-manpages github.com/docker/cli/man || die
@@ -237,7 +249,7 @@ src_install() {
 	use container-init && dosym tini /usr/bin/docker-init
 
 	pushd components/engine || die
-	newbin "$(readlink -f bundles/latest/dynbinary-daemon/dockerd)" dockerd
+	newbin bundles/dynbinary-daemon/dockerd-${PV} dockerd
 
 	newinitd contrib/init/openrc/docker.initd docker
 	newconfd contrib/init/openrc/docker.confd docker

@@ -1,4 +1,4 @@
-# Copyright 2000-2019 Gentoo Authors
+# Copyright 2000-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -19,7 +19,7 @@ else
 	else
 		SRC_URI="https://download.videolan.org/pub/videolan/testing/${MY_P}/${MY_P}.tar.xz"
 	fi
-	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 -sparc ~x86"
+	KEYWORDS="~amd64 ~arm arm64 ~ppc ~ppc64 -sparc ~x86"
 fi
 inherit autotools flag-o-matic toolchain-funcs virtualx xdg
 
@@ -27,17 +27,18 @@ DESCRIPTION="Media player and framework with support for most multimedia files a
 HOMEPAGE="https://www.videolan.org/vlc/"
 
 LICENSE="LGPL-2.1 GPL-2"
-SLOT="0/12-9" # vlc - vlccore
+SLOT="0/5-9" # vlc - vlccore
 
-IUSE="a52 alsa altivec aom archive aribsub bidi bluray cddb chromaprint chromecast
+IUSE="a52 alsa aom archive aribsub bidi bluray cddb chromaprint chromecast
 	dav1d dbus dc1394 debug directx dts +dvbpsi dvd +encode faad fdk +ffmpeg flac
-	fluidsynth fontconfig +gcrypt gme gnome-keyring gstreamer ieee1394 jack jpeg kate kms
-	libass libav libcaca libnotify libplacebo +libsamplerate libtar libtiger linsys lirc
+	fluidsynth fontconfig +gcrypt gme gnome-keyring gstreamer ieee1394 jack jpeg kate
+	libass libcaca libnotify +libsamplerate libtar libtiger linsys lirc
 	live lua macosx-notifications mad matroska modplug mp3 mpeg mtp musepack ncurses
-	nfs ogg omxil opencv optimisememory opus png postproc projectm pulseaudio +qt5 rdp
+	nfs ogg omxil optimisememory opus png projectm pulseaudio +qt5 rdp
 	run-as-root samba sdl-image sftp shout sid skins soxr speex srt ssl svg taglib
 	theora tremor truetype twolame udev upnp vaapi v4l vdpau vnc vorbis vpx wayland +X
-	x264 x265 xml zeroconf zvbi cpu_flags_arm_neon cpu_flags_x86_mmx cpu_flags_x86_sse
+	x264 x265 xml zeroconf zvbi cpu_flags_arm_neon cpu_flags_ppc_altivec cpu_flags_x86_mmx
+	cpu_flags_x86_sse
 "
 REQUIRED_USE="
 	chromecast? ( encode )
@@ -46,7 +47,6 @@ REQUIRED_USE="
 	libcaca? ( X )
 	libtar? ( skins )
 	libtiger? ( kate )
-	postproc? ( ffmpeg )
 	skins? ( qt5 truetype X xml )
 	ssl? ( gcrypt )
 	vaapi? ( ffmpeg X )
@@ -95,10 +95,7 @@ RDEPEND="
 	)
 	faad? ( media-libs/faad2 )
 	fdk? ( media-libs/fdk-aac:= )
-	ffmpeg? (
-		!libav? ( >=media-video/ffmpeg-3.1.3:0=[vaapi?,vdpau?] )
-		libav? ( >=media-video/libav-12.2:0=[vaapi?,vdpau?] )
-	)
+	ffmpeg? ( >=media-video/ffmpeg-3.1.3:0=[postproc,vaapi?,vdpau?] )
 	flac? (
 		media-libs/flac
 		media-libs/libogg
@@ -119,7 +116,6 @@ RDEPEND="
 	jack? ( virtual/jack )
 	jpeg? ( virtual/jpeg:0 )
 	kate? ( media-libs/libkate )
-	kms? ( x11-libs/libdrm )
 	libass? (
 		media-libs/fontconfig:1.0
 		media-libs/libass:=
@@ -131,7 +127,6 @@ RDEPEND="
 		x11-libs/gtk+:3
 		x11-libs/libnotify
 	)
-	libplacebo? ( media-libs/libplacebo )
 	libsamplerate? ( media-libs/libsamplerate )
 	libtar? ( dev-libs/libtar )
 	libtiger? ( media-libs/libtiger )
@@ -152,10 +147,8 @@ RDEPEND="
 	ncurses? ( sys-libs/ncurses:0=[unicode] )
 	nfs? ( >=net-fs/libnfs-0.10.0:= )
 	ogg? ( media-libs/libogg )
-	opencv? ( media-libs/opencv:= )
 	opus? ( >=media-libs/opus-1.0.3 )
 	png? ( media-libs/libpng:0= )
-	postproc? ( libav? ( media-libs/libpostproc ) )
 	projectm? (
 		media-fonts/dejavu
 		media-libs/libprojectm
@@ -171,7 +164,7 @@ RDEPEND="
 			x11-libs/libX11
 		)
 	)
-	rdp? ( >=net-misc/freerdp-2.0.0_rc0:=[client] )
+	rdp? ( >=net-misc/freerdp-2.0.0_rc0:=[client(+)] )
 	samba? ( >=net-fs/samba-4.0.0:0[client,-debug(-)] )
 	sdl-image? ( media-libs/sdl-image )
 	sftp? ( net-libs/libssh2 )
@@ -187,7 +180,7 @@ RDEPEND="
 		>=media-libs/speex-1.2.0
 		media-libs/speexdsp
 	)
-	srt? ( >=net-libs/srt-1.3.0 )
+	srt? ( net-libs/srt )
 	ssl? ( net-libs/gnutls:= )
 	svg? (
 		gnome-base/librsvg:2
@@ -212,13 +205,11 @@ RDEPEND="
 	vpx? ( media-libs/libvpx:= )
 	wayland? (
 		>=dev-libs/wayland-1.15
-		>=dev-libs/wayland-protocols-1.12
+		dev-libs/wayland-protocols
 	)
 	X? (
 		x11-libs/libX11
-		x11-libs/libxcb[xkb]
-		x11-libs/libXcursor
-		x11-libs/libxkbcommon[X]
+		x11-libs/libxcb
 		x11-libs/xcb-util
 		x11-libs/xcb-util-keysyms
 	)
@@ -235,6 +226,8 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1.0-fix-libtremor-libs.patch # build system
 	"${FILESDIR}"/${PN}-2.2.8-freerdp-2.patch # bug 590164
+	"${FILESDIR}"/${PN}-3.0.6-fdk-aac-2.0.0.patch # bug 672290
+	"${FILESDIR}"/${PN}-3.0.8-qt-5.15.patch # TODO: upstream
 )
 
 DOCS=( AUTHORS THANKS NEWS README doc/fortunes.txt )
@@ -245,7 +238,7 @@ src_prepare() {
 	xdg_src_prepare # bug 608256
 
 	has_version 'net-libs/libupnp:1.8' && \
-		eapply "${FILESDIR}"/${P}-libupnp-slot-1.8.patch
+		eapply "${FILESDIR}"/${PN}-2.2.8-libupnp-slot-1.8.patch
 
 	# Bootstrap when we are on a git checkout.
 	if [[ ${PV} = *9999 ]] ; then
@@ -275,7 +268,7 @@ src_prepare() {
 
 src_configure() {
 	local myeconfargs=(
-		--disable-dependency-tracking
+		--disable-aa
 		--disable-optimizations
 		--disable-rpath
 		--disable-update-check
@@ -285,7 +278,6 @@ src_configure() {
 		--enable-vlc
 		$(use_enable a52)
 		$(use_enable alsa)
-		$(use_enable altivec)
 		$(use_enable aom)
 		$(use_enable archive)
 		$(use_enable aribsub)
@@ -297,6 +289,7 @@ src_configure() {
 		$(use_enable chromecast)
 		$(use_enable chromecast microdns)
 		$(use_enable cpu_flags_arm_neon neon)
+		$(use_enable cpu_flags_ppc_altivec altivec)
 		$(use_enable cpu_flags_x86_mmx mmx)
 		$(use_enable cpu_flags_x86_sse sse)
 		$(use_enable dav1d)
@@ -317,6 +310,7 @@ src_configure() {
 		$(use_enable fdk fdkaac)
 		$(use_enable ffmpeg avcodec)
 		$(use_enable ffmpeg avformat)
+		$(use_enable ffmpeg postproc)
 		$(use_enable ffmpeg swscale)
 		$(use_enable flac)
 		$(use_enable fluidsynth)
@@ -329,11 +323,9 @@ src_configure() {
 		$(use_enable jack)
 		$(use_enable jpeg)
 		$(use_enable kate)
-		$(use_enable kms)
 		$(use_enable libass)
 		$(use_enable libcaca caca)
 		$(use_enable libnotify notify)
-		$(use_enable libplacebo)
 		$(use_enable libsamplerate samplerate)
 		$(use_enable libtar)
 		$(use_enable libtiger tiger)
@@ -350,13 +342,13 @@ src_configure() {
 		$(use_enable mtp)
 		$(use_enable musepack mpc)
 		$(use_enable ncurses)
+		$(use_enable nfs)
 		$(use_enable ogg)
 		$(use_enable omxil)
-		$(use_enable opencv)
+		$(use_enable omxil omxil-vout)
 		$(use_enable optimisememory optimize-memory)
 		$(use_enable opus)
 		$(use_enable png)
-		$(use_enable postproc)
 		$(use_enable projectm)
 		$(use_enable pulseaudio pulse)
 		$(use_enable qt5 qt)
@@ -389,6 +381,7 @@ src_configure() {
 		$(use_enable wayland)
 		$(use_with X x)
 		$(use_enable X xcb)
+		$(use_enable X xvideo)
 		$(use_enable x264)
 		$(use_enable x264 x26410b)
 		$(use_enable x265)
@@ -406,10 +399,12 @@ src_configure() {
 		--disable-goom
 		--disable-kai
 		--disable-kva
+		--disable-libplacebo
 		--disable-maintainer-mode
 		--disable-merge-ffmpeg
 		--disable-mfx
 		--disable-mmal
+		--disable-opencv
 		--disable-opensles
 		--disable-oss
 		--disable-rpi-omxil
@@ -419,6 +414,7 @@ src_configure() {
 		--disable-spatialaudio
 		--disable-vsxu
 		--disable-wasapi
+		--disable-wma-fixed
 	)
 	# ^ We don't have these disabled libraries in the Portage tree yet.
 
@@ -472,12 +468,12 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ -z ${ROOT} ]] && [[ -x "/usr/libexec/vlc/vlc-cache-gen" ]] ; then
-		einfo "Running /usr/libexec/vlc/vlc-cache-gen on /usr/libexec/vlc/plugins/"
-		"/usr/libexec/vlc/vlc-cache-gen" "/usr/libexec/vlc/plugins/"
+	if [[ -z ${ROOT} ]] && [[ -x "/usr/$(get_libdir)/vlc/vlc-cache-gen" ]] ; then
+		einfo "Running /usr/$(get_libdir)/vlc/vlc-cache-gen on /usr/$(get_libdir)/vlc/plugins/"
+		"/usr/$(get_libdir)/vlc/vlc-cache-gen" "/usr/$(get_libdir)/vlc/plugins/"
 	else
 		ewarn "We cannot run vlc-cache-gen (most likely ROOT!=/)"
-		ewarn "Please run /usr/libexec/vlc/vlc-cache-gen manually"
+		ewarn "Please run /usr/$(get_libdir)/vlc/vlc-cache-gen manually"
 		ewarn "If you do not do it, vlc will take a long time to load."
 	fi
 
@@ -485,8 +481,8 @@ pkg_postinst() {
 }
 
 pkg_postrm() {
-	if [[ -e /usr/libexec/vlc/plugins/plugins.dat ]]; then
-		rm /usr/libexec/vlc/plugins/plugins.dat || die "Failed to rm plugins.dat"
+	if [[ -e /usr/$(get_libdir)/vlc/plugins/plugins.dat ]]; then
+		rm /usr/$(get_libdir)/vlc/plugins/plugins.dat || die "Failed to rm plugins.dat"
 	fi
 
 	xdg_pkg_postrm

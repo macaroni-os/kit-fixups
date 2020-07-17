@@ -1,0 +1,17 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DISTUTILS_USE_SETUPTOOLS=bdepend
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit distutils-r1
+
+DESCRIPTION="File support for asyncio"
+HOMEPAGE="https://github.com/Tinche/aiofiles"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="~amd64 ~x86"
+

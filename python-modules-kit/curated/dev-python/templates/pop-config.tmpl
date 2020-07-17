@@ -19,4 +19,7 @@ src_prepare() {
 	default
 }
 
-RDEPEND="dev-python/pyyaml[${PYTHON_USEDEP}]"
+RDEPEND="
+	dev-python/pyyaml[${PYTHON_USEDEP}]
+	dev-python/aiologger[aiofiles,${PYTHON_USEDEP}]
+"

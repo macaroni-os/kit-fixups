@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic systemd toolchain-funcs
+inherit autotools flag-o-matic systemd toolchain-funcs user
 
 DESCRIPTION="A persistent caching system, key-value and data structures database"
 HOMEPAGE="https://redis.io"
@@ -10,7 +10,7 @@ SRC_URI="http://download.redis.io/releases/${P}.tar.gz"
 
 LICENSE="BSD"
 KEYWORDS="*"
-IUSE="+jemalloc tcmalloc luajit split-conf test"
+IUSE="+jemalloc tcmalloc luajit split-conf +ssl test"
 SLOT="0"
 
 # Redis does NOT build with Lua 5.2 or newer at this time.
@@ -38,6 +38,25 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-5.0.8-ppc-atomic.patch
 	"${FILESDIR}"/${PN}-sentinel-5.0-config.patch
 )
+
+pkg_setup() {
+	if egetent group ${PN} > /dev/null ; then
+		elog "${PN} group already exist."
+		elog "group creation step skipped."
+	else
+		enewgroup  ${PN} > /dev/null
+		elog "${PN} group created by portage."
+	fi
+
+	if egetent passwd ${PN} > /dev/null ; then
+		elog "${PN} user already exist."
+		elog "user creation step skipped."
+	else
+		enewuser ${PN} \
+			${PN} > /dev/null
+		elog "${PN} user was created by portage."
+	fi
+}
 
 src_prepare() {
 	default
@@ -97,6 +116,10 @@ src_prepare() {
 
 src_configure() {
 	econf $(use_with luajit)
+	
+	# Linenoise can't be built with -std=c99, see https://bugs.gentoo.org/451164
+	# also, don't define ANSI/c99 for lua twice
+	sed -i -e "s:-std=c99::g" deps/linenoise/Makefile deps/Makefile || die
 
 }
 
@@ -104,12 +127,16 @@ src_compile() {
 	local myconf=""
 
 	if use jemalloc; then
-		myconf+="MALLOC=jemalloc"
+		myconf+="MALLOC=jemalloc "
 	elif use tcmalloc; then
-		myconf+="MALLOC=tcmalloc"
+		myconf+="MALLOC=tcmalloc "
 	else
-		myconf+="MALLOC=libc"
+		myconf+="MALLOC=libc "
 	fi
+	
+	if use ssl; then
+        myconf+="BUILD_TLS=yes "
+    fi
 
 #	emake ${myconf} V=1 CC="${CC}" AR="${AR} rcu" RANLIB="${RANLIB}"
 	tc-export CC

@@ -27,7 +27,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PV}-eglmesaext-include.patch
+	"${FILESDIR}"/1.4.0-eglmesaext-include.patch
 )
 
 src_configure() {

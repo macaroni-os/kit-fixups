@@ -513,13 +513,10 @@ src_install() {
 		done
 		newconfd "${FILESDIR}/nvidia-persistenced.conf" nvidia-persistenced
 	fi
-
 	# If we're not using glvnd support, link nvidia opengl vendor directory into system opengl vendor directory
 	if ! use_if_iuse glvnd ; then
 		dosym "${NV_NATIVE_LIBDIR}/opengl/nvidia" "${EPREFIX}/usr/lib/opengl/nvidia"
-		dosym "${NV_NATIVE_LIBDIR}" "${NV_NATIVE_LIBDIR}/opengl/nvidia/lib"
 	fi
-
 
 	readme.gentoo_create_doc
 
@@ -568,7 +565,7 @@ pkg_postinst() {
 }
 
 pkg_prerm() {
-	 ! use_if_iuse glvnd && use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
+	! use_if_iuse glvnd && use X && "${ROOT}"/usr/bin/eselect opengl set --use-old xorg-x11
 }
 
 pkg_postrm() {

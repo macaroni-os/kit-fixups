@@ -3,8 +3,6 @@
 import json
 import re
 
-lightning_version = "68.0b6"
-
 async def get_lang_artifacts(hub, version):
 	lang_page = await hub.pkgtools.fetch.get_page(f"https://archive.mozilla.org/pub/thunderbird/releases/{version}/linux-x86_64/xpi/")
 	lang_codes = []
@@ -42,10 +40,8 @@ async def generate(hub, **pkginfo):
 		artifacts=[
 			get_artifact(hub, version, "amd64"),
 			get_artifact(hub, version, "x86"),
-			hub.pkgtools.ebuild.Artifact(url=f"https://dev.gentoo.org/~juippis/distfiles/lightning-{lightning_version}.tar.xz"),
 			*lang_data['artifacts']
 		],
-		lightning_version=lightning_version
 	)
 	ebuild.push()
 

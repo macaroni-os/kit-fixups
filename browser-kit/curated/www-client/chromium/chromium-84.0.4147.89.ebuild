@@ -28,6 +28,7 @@ RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 REQUIRED_USE="
 	component-build? ( !suid )
 	wayland? ( ozone )
+	vaapi? ( !ozone )
 "
 
 COMMON_X_DEPEND="

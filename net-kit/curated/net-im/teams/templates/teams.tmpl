@@ -49,12 +49,15 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"
 
-PATCHES=( "${FILESDIR}/teams-desktop.patch" )
-
 src_unpack() {
 	unpack ${A}
 	rm _gpgorigin control.tar.gz debian-binary
 	tar Jxf data.tar.xz && rm data.tar.xz || die
+}
+
+src_prepare() {
+	sed -i -e "s#Exec=.*teams#Exec=/opt/teams/bin/teams#g" -e "s#Icon=.*teams#Icon=/opt/teams/share/pixmaps/teams#g" usr/share/applications/teams.desktop
+	default
 }
 
 src_install() {

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import json
 import re
-from datetime import timedelta
 
 RELEASE = re.compile(r'Version: ([0-9.]+)')
 

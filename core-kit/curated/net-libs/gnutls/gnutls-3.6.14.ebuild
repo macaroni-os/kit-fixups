@@ -121,6 +121,7 @@ src_configure() {
 }
 
 src_install() {
+	default
 	einstalldocs
 	find "${ED}" -type f -name '*.la' -delete || die
 

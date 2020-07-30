@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import json
 import re
 
 async def generate(hub, **pkginfo):
 	hplip_url = 'https://sourceforge.net/projects/hplip/best_release.json'
-	hplip_json = await hub.pkgtools.fetch.get_page(hplip_url)
-	json_dict = json.loads(hplip_json)
+	json_dict = await hub.pkgtools.fetch.get_page(hplip_url, is_json=True)
 	release_dict = json_dict['release']
 	dist_url = 'https://sourceforge.net/projects/hplip/files/hplip/{}/hplip-{}.tar.gz'
 	version = re.findall(r'\d+.\d+.\d+', release_dict["url"])[0]

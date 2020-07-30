@@ -9,9 +9,6 @@ DISTUTILS_IN_SOURCE_BUILD=true
 
 inherit autotools distutils-r1
 
-MY_PV=$(ver_rs 1-2 '_')
-MY_P=${PN/-rasterbar}-${MY_PV}
-
 DESCRIPTION="C++ BitTorrent implementation focusing on efficiency and scalability"
 HOMEPAGE="https://libtorrent.org https://github.com/arvidn/libtorrent"
 SRC_URI="{{artifacts[0].src_uri}}"
@@ -42,10 +39,8 @@ DEPEND="${RDEPEND}
 	sys-devel/libtool
 "
 
-S="${WORKDIR}/${PN/-rasterbar}-${MY_P}"
-
 src_prepare() {
-	mkdir "${S}"/build-aux/ || die
+	mkdir -p "${S}"/build-aux/ || die
 	touch "${S}"/build-aux/config.rpath || die
 	eautoreconf
 

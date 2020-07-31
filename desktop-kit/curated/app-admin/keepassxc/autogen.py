@@ -11,10 +11,7 @@ async def generate(hub, **pkginfo):
 		release = r
 		break
 	version = release['tag_name']
-	for asset in release["assets"]:
-		if asset['content_type'] == 'application/x-xz':
-			url = asset['browser_download_url']
-			break
+	url = f'https://github.com/keepassxreboot/keepassxc/releases/download/{version}/keepassxc-{version}-src.tar.xz'
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

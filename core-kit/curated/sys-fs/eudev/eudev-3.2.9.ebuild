@@ -14,7 +14,7 @@ HOMEPAGE="https://github.com/gentoo/eudev"
 
 LICENSE="LGPL-2.1 MIT GPL-2"
 SLOT="0"
-IUSE="+hwdb +kmod introspection rule-generator selinux static-libs test"
+IUSE="+hwdb +kmod introspection rule-generator selinux static-libs test user"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND=">=sys-apps/util-linux-2.20
@@ -34,9 +34,6 @@ DEPEND="${COMMON_DEPEND}
 	test? ( app-text/tree dev-lang/perl )"
 
 RDEPEND="${COMMON_DEPEND}
-	acct-group/input
-	acct-group/kvm
-	acct-group/render
 	!<sys-fs/lvm2-2.02.103
 	!<sec-policy/selinux-base-2.20120725-r10
 	!sys-fs/udev
@@ -135,6 +132,9 @@ src_install() {
 }
 
 pkg_postinst() {
+	enewgroup input
+	enewgroup kvm 78
+	enewgroup render
 	mkdir -p "${EROOT}"run
 	# "losetup -f" is confused if there is an empty /dev/loop/, Bug #338766
 	# So try to remove it here (will only work if empty).

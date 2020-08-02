@@ -20,9 +20,8 @@ RDEPEND="
 	!!app-office/borg
 	app-arch/lz4
 	virtual/acl
+	=dev-python/msgpack-1.0.0*[${PYTHON_USEDEP}]
 	dev-python/llfuse[${PYTHON_USEDEP}]
-	~dev-python/msgpack-0.5.6[${PYTHON_USEDEP}]
-	dev-python/pyzmq[${PYTHON_USEDEP}]
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:0= )
 "

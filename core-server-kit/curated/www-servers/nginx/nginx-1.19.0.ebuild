@@ -307,9 +307,9 @@ mods[standard]="access auth_basic autoindex browser charset empty_gif fastcgi
 	
 mods[upstream]="upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone"
 
-mods[optional]="addition auth_request dav degradation flv geoip gunzip 
-	gzip_static image_filter mp4 perl random_index realip secure_link 
-    ssl stub_status sub xslt auth_pam"
+mods[optional]="addition auth_request dav degradation flv geoip gunzip
+	gzip_static image_filter mp4 perl random_index realip secure_link
+	ssl stub_status sub xslt auth_pam"
 
 mods[standard_stream]="access geo limit_conn map return split_clients upstream_hash upstream_least_conn upstream_zone"
 
@@ -382,26 +382,26 @@ RDEPEND="
 	)	
 	
 	nginx_modules_http_xslt? ( dev-libs/libxml2 dev-libs/libxslt )
-	nginx_modules_external_lua? ( 
+	nginx_modules_external_lua? (
 		!luajit? ( dev-lang/lua )
-		luajit? ( dev-lang/luajit:2= ) 
-    )
+		luajit? ( dev-lang/luajit:2= )
+	)
 	nginx_modules_external_auth_pam? ( virtual/pam )
 	nginx_modules_external_metrics? ( dev-libs/yajl )
 	nginx_modules_external_dav_ext? ( dev-libs/expat )
-	nginx_modules_external_modsecurity? ( 
+	nginx_modules_external_modsecurity? (
 		dev-libs/libxml2
 		dev-libs/apr
 		net-misc/curl
-		dev-libs/apr-util 
-		www-servers/apache 
+		dev-libs/apr-util
+		www-servers/apache
 	)
 
 	nginx_modules_stream_geoip? ( dev-libs/geoip )
 	"
-    # 	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )
-    # 	nginx_modules_http_auth_ldap? ( net-nds/openldap[ssl?] )
-    
+	# 	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )
+	# 	nginx_modules_http_auth_ldap? ( net-nds/openldap[ssl?] )
+
 DEPEND="${CDEPEND}
 	arm? ( dev-libs/libatomic_ops )
 	libatomic? ( dev-libs/libatomic_ops )"
@@ -414,7 +414,7 @@ PDEPEND="vim-syntax? ( app-vim/nginx-syntax )"
 #   nginx_modules_stream_upstream_random
 
 REQUIRED_USE="
-    full? (
+	full? (
         nginx_modules_http_access
         nginx_modules_http_addition
         nginx_modules_http_auth_basic
@@ -477,7 +477,7 @@ REQUIRED_USE="
         nginx_modules_stream_upstream_least_conn
         nginx_modules_stream_upstream_zone
     )
-    pcre-jit? ( pcre )
+	pcre-jit? ( pcre )
 	nginx_modules_external_dav_ext? ( nginx_modules_http_dav )
 	nginx_modules_external_lua? ( nginx_modules_http_rewrite )
 	nginx_modules_external_metrics? ( nginx_modules_http_stub_status )
@@ -538,11 +538,11 @@ src_prepare() {
 
 #   Gentoo Patch to review
 #
-# 	if use nginx_modules_external_brotli; then
-# 		cd "${HTTP_BROTLI_MODULE_WD}" || die
-# 		eapply "${FILESDIR}"/http_brotli-detect-brotli-r2.patch
-# 		cd "${S}" || die
-# 	fi
+#	if use nginx_modules_external_brotli; then
+#		cd "${HTTP_BROTLI_MODULE_WD}" || die
+#		eapply "${FILESDIR}"/http_brotli-detect-brotli-r2.patch
+#		cd "${S}" || die
+#	fi
 
 	if use nginx_modules_external_upstream_check; then
 		epatch "${FILESDIR}/check-1.11.5.patch"
@@ -550,11 +550,11 @@ src_prepare() {
 
 #   Gentoo Patch to review
 #
-# 	if use nginx_modules_external_cache_purge; then
-# 		cd "${HTTP_CACHE_PURGE_MODULE_WD}" || die
-# 		eapply "${FILESDIR}"/http_cache_purge-1.11.6+.patch
-# 		cd "${S}" || die
-# 	fi
+#	if use nginx_modules_external_cache_purge; then
+#		cd "${HTTP_CACHE_PURGE_MODULE_WD}" || die
+#		eapply "${FILESDIR}"/http_cache_purge-1.11.6+.patch
+#		cd "${S}" || die
+#	fi
 
 	if use nginx_modules_external_lua ; then
 		sed -e "s/-llua5.1/-llua/" \
@@ -572,7 +572,7 @@ src_prepare() {
 	local m
 	for m in fastcgi scgi uwsgi ; do
 		if ! use nginx_modules_http_${m} ; then
-			sed -e "/${m}/d"]-i "${S}/auto/install" || die
+			sed -e "/${m}/d" -i "${S}/auto/install" || die
 		fi
 	done
 
@@ -611,7 +611,6 @@ src_configure() {
 		WITHOUT_IPV6=" -DNGX_HAVE_INET6=0"
 	fi
 
-
 	for m in ${mods[upstream]}; do
 		use nginx_modules_http_${m} && http_enabled=1 || nginx_configure+=" --without-http_${m}_module"
 	done
@@ -619,7 +618,7 @@ src_configure() {
 	for m in ${mods[standard]}; do
 		use nginx_modules_http_${m} && http_enabled=1 || nginx_configure+=" --without-http_${m}_module"
 	done
-	
+
 	for m in ${mods[standard_stream]}; do
 		use nginx_modules_stream_${m} && stream_enabled=1 && nginx_configure+=" --without-stream_${m}_module"
 	done
@@ -627,40 +626,31 @@ src_configure() {
 	for m in ${mods[optional]}; do
 		use nginx_modules_http_${m} && http_enabled=1 && nginx_configure+=" --with-http_${m}_module"
 	done
-	
+
 	for m in ${mods[optional_stream]}; do
 		use nginx_modules_stream_${m} && stream_enabled=1 && nginx_configure+=" --with-stream_${m}_module"
 	done
-	
+
 	# enable dynamic ngx_http_geoip_module
-    if $nginx_modules_dynamic_geoip ; then
-        nginx_configure+=" --with-http_geoip_module=dynamic"    
-    fi
-    # enable dynamic ngx_http_image_filter_module  
-    if $nginx_modules_dynamic_image_filter ; then
-        nginx_configure+=" --with-http_image_filter_module=dynamic"
-    fi
-    # enable dynamic POP3/IMAP4/SMTP proxy module
-    if $nginx_modules_dynamic_mail ; then
-        nginx_configure+=" --with-mail=dynamic"
-    fi
-    # # enable dynamic ngx_http_perl_module
-    #     if $nginx_modules_dynamic_perl ; then
-    #         nginx_configure+=" --with-http_perl_module=dynamic"
-    #     fi
-    # enable dynamic TCP/UDP proxy module
-    if $nginx_modules_dynamic_stream ; then
-        nginx_configure+=" --with-stream=dynamic"
-    fi
-    # enable dynamic ngx_stream_geoip_module
-    if $nginx_modules_dynamic_stream_geoip ; then
-        nginx_configure+=" --with-stream_geoip_module=dynamic"
-    fi
-    
-    # enable dynamic ngx_http_xslt_module
-    if $nginx_modules_dynamic_xslt ; then
-        nginx_configure+=" --with-http_xslt_module=dynamic"
-    fi
+	use nginx_modules_dynamic_geoip && nginx_configure+=" --with-http_geoip_module=dynamic"
+
+	# enable dynamic ngx_http_image_filter_module
+	use nginx_modules_dynamic_image_filter && nginx_configure+=" --with-http_image_filter_module=dynamic"
+
+	# enable dynamic POP3/IMAP4/SMTP proxy module
+	use nginx_modules_dynamic_mail && nginx_configure+=" --with-mail=dynamic"
+
+	#	# enable dynamic ngx_http_perl_module
+	#	use nginx_modules_dynamic_perl && nginx_configure+=" --with-http_perl_module=dynamic"
+
+	# enable dynamic TCP/UDP proxy module
+	use nginx_modules_dynamic_stream && nginx_configure+=" --with-stream=dynamic"
+
+	# enable dynamic ngx_stream_geoip_module
+	use nginx_modules_dynamic_stream_geoip && nginx_configure+=" --with-stream_geoip_module=dynamic"
+
+	# enable dynamic ngx_http_xslt_module
+	use nginx_modules_dynamic_xslt && nginx_configure+=" --with-http_xslt_module=dynamic"
 
 	for m in ${!mod_a[@]} ; do
 		use nginx_modules_external_${m} && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd[$m]}"

@@ -1,112 +1,68 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-inherit autotools flag-o-matic multilib-minimal toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
-SRC_PV="$(printf "%u%02u%02u%02u" $(ver_rs 1- " "))"
-DOC_PV="${SRC_PV}"
-# DOC_PV="$(printf "%u%02u%02u00" $(ver_rs 1-3 " "))"
-
+SRC_PV=3320300
 DESCRIPTION="SQL database engine"
 HOMEPAGE="https://sqlite.org/"
-SRC_URI="doc? ( https://sqlite.org/2019/${PN}-doc-${DOC_PV}.zip )
-	tcl? ( https://sqlite.org/2019/${PN}-src-${SRC_PV}.zip )
-	test? ( https://sqlite.org/2019/${PN}-src-${SRC_PV}.zip )
-	tools? ( https://sqlite.org/2019/${PN}-src-${SRC_PV}.zip )
-	!tcl? ( !test? ( !tools? ( https://sqlite.org/2019/${PN}-autoconf-${SRC_PV}.tar.gz ) ) )"
+SRC_URI="https://sqlite.org/2020/${PN}-src-${SRC_PV}.zip
+		doc? ( https://sqlite.org/2020/${PN}-doc-${SRC_PV}.zip )"
 
 LICENSE="public-domain"
 SLOT="3"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~riscv s390 ~sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="*"
 IUSE="debug doc icu +readline secure-delete static-libs tcl test tools"
 RESTRICT="!test? ( test )"
 
-BDEPEND="doc? ( app-arch/unzip )
-	tcl? (
-		app-arch/unzip
-		>=dev-lang/tcl-8.6:0
-	)
-	test? (
-		app-arch/unzip
-		>=dev-lang/tcl-8.6:0
-	)
-	tools? (
-		app-arch/unzip
-		>=dev-lang/tcl-8.6:0
-	)"
-RDEPEND="sys-libs/zlib:0=[${MULTILIB_USEDEP}]
-	icu? ( dev-libs/icu:0=[${MULTILIB_USEDEP}] )
-	readline? ( sys-libs/readline:0=[${MULTILIB_USEDEP}] )
-	tcl? ( dev-lang/tcl:0=[${MULTILIB_USEDEP}] )
-	tools? ( dev-lang/tcl:0=[${MULTILIB_USEDEP}] )"
+BDEPEND="app-arch/unzip
+		>=dev-lang/tcl-8.6:0"
+RDEPEND="sys-libs/zlib:0=
+	icu? ( dev-libs/icu:0= )
+	readline? ( sys-libs/readline:0= )
+	tcl? ( dev-lang/tcl:0= )
+	tools? ( dev-lang/tcl:0= )"
 DEPEND="${RDEPEND}
-	test? ( >=dev-lang/tcl-8.6:0[${MULTILIB_USEDEP}] )"
+	test? ( >=dev-lang/tcl-8.6:0 )"
 
-full_archive() {
-	use tcl || use test || use tools
-}
-
-pkg_setup() {
-	if full_archive; then
-		S="${WORKDIR}/${PN}-src-${SRC_PV}"
-	else
-		S="${WORKDIR}/${PN}-autoconf-${SRC_PV}"
-	fi
-}
+S="${WORKDIR}/${PN}-src-${SRC_PV}"
 
 src_prepare() {
-	if full_archive; then
-		eapply "${FILESDIR}/${PN}-3.28.0-full_archive-build.patch"
-		eapply "${FILESDIR}/${PN}-3.28.0-full_archive-segmentation_fault_fixes.patch"
-		eapply "${FILESDIR}/${PN}-3.28.0-full_archive-tests.patch"
+	eapply "${FILESDIR}/"${PN}-3.32.1-full_archive-build_{1,2}.patch
+	eapply "${FILESDIR}/"${PN}-3.32.3-backports_{1,2,3}.patch
+	eapply_user
 
-		eapply_user
-
-		# Fix AC_CHECK_FUNCS.
-		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-		sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac || die "sed failed"
-	else
-		eapply "${FILESDIR}/${PN}-3.25.0-nonfull_archive-build.patch"
-		eapply "${FILESDIR}/${PN}-3.28.0-nonfull_archive-segmentation_fault_fixes.patch"
-
-		eapply_user
-
-		# Fix AC_CHECK_FUNCS.
-		# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
-		sed \
-			-e "s/AC_CHECK_FUNCS(\[fdatasync.*/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" \
-			-e "/AC_CHECK_FUNCS(posix_fallocate)/d" \
-			-i configure.ac || die "sed failed"
-	fi
+	# Fix AC_CHECK_FUNCS.
+	# https://mailinglists.sqlite.org/cgi-bin/mailman/private/sqlite-dev/2016-March/002762.html
+	sed -e "s/AC_CHECK_FUNCS(.*)/AC_CHECK_FUNCS([fdatasync fullfsync gmtime_r isnan localtime_r localtime_s malloc_usable_size posix_fallocate pread pread64 pwrite pwrite64 strchrnul usleep utime])/" -i configure.ac || die "sed failed"
 
 	eautoreconf
-
-	multilib_copy_sources
 }
 
-multilib_src_configure() {
-	local CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" options=()
+src_configure() {
+	local -x CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}"
+	local options=()
 
 	options+=(
-		--enable-$(full_archive && echo load-extension || echo dynamic-extensions)
+		--enable-load-extension
 		--enable-threadsafe
 	)
-	if ! full_archive; then
-		options+=(--disable-static-shell)
-	fi
 
 	# Support detection of misuse of SQLite API.
 	# https://sqlite.org/compile.html#enable_api_armor
 	append-cppflags -DSQLITE_ENABLE_API_ARMOR
+
+	# Support bytecode and tables_used virtual tables.
+	# https://sqlite.org/bytecodevtab.html
+	append-cppflags -DSQLITE_ENABLE_BYTECODE_VTAB
 
 	# Support column metadata functions.
 	# https://sqlite.org/c3ref/column_database_name.html
 	append-cppflags -DSQLITE_ENABLE_COLUMN_METADATA
 
 	# Support sqlite_dbpage virtual table.
-	# https://sqlite.org/compile.html#enable_dbpage_vtab
+	# https://sqlite.org/dbpage.html
 	append-cppflags -DSQLITE_ENABLE_DBPAGE_VTAB
 
 	# Support dbstat virtual table.
@@ -114,7 +70,6 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_DBSTAT_VTAB
 
 	# Support sqlite3_serialize() and sqlite3_deserialize() functions.
-	# https://sqlite.org/compile.html#enable_deserialize
 	# https://sqlite.org/c3ref/serialize.html
 	# https://sqlite.org/c3ref/deserialize.html
 	append-cppflags -DSQLITE_ENABLE_DESERIALIZE
@@ -183,14 +138,9 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_ENABLE_UNLOCK_NOTIFY
 
 	# Support LIMIT and ORDER BY clauses on DELETE and UPDATE statements.
-	# https://sqlite.org/compile.html#enable_update_delete_limit
+	# https://sqlite.org/lang_delete.html#optional_limit_and_order_by_clauses
+	# https://sqlite.org/lang_update.html#optional_limit_and_order_by_clauses
 	append-cppflags -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT
-
-	# Support PRAGMA function_list, PRAGMA module_list and PRAGMA pragma_list statements.
-	# https://sqlite.org/pragma.html#pragma_function_list
-	# https://sqlite.org/pragma.html#pragma_module_list
-	# https://sqlite.org/pragma.html#pragma_pragma_list
-	append-cppflags -DSQLITE_INTROSPECTION_PRAGMAS
 
 	# Support soundex() function.
 	# https://sqlite.org/lang_corefunc.html#soundex
@@ -201,26 +151,14 @@ multilib_src_configure() {
 	append-cppflags -DSQLITE_USE_URI
 
 	# debug USE flag.
-	if full_archive; then
-		options+=($(use_enable debug))
-	else
-		if use debug; then
-			append-cppflags -DSQLITE_DEBUG
-		else
-			append-cppflags -DNDEBUG
-		fi
-	fi
+	options+=($(use_enable debug))
 
 	# icu USE flag.
 	if use icu; then
 		# Support ICU extension.
 		# https://sqlite.org/compile.html#enable_icu
 		append-cppflags -DSQLITE_ENABLE_ICU
-		if full_archive; then
-			sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
-		else
-			sed -e "s/^LIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
-		fi
+		sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
 	fi
 
 	# readline USE flag.
@@ -228,8 +166,8 @@ multilib_src_configure() {
 		--disable-editline
 		$(use_enable readline)
 	)
-	if full_archive && use readline; then
-		options+=(--with-readline-inc="-I${EPREFIX}/usr/include/readline")
+	if use readline; then
+		options+=(--with-readline-inc="-I${ESYSROOT}/usr/include/readline")
 	fi
 
 	# secure-delete USE flag.
@@ -243,9 +181,7 @@ multilib_src_configure() {
 	options+=($(use_enable static-libs static))
 
 	# tcl, test, tools USE flags.
-	if full_archive; then
-		options+=(--enable-tcl)
-	fi
+	options+=(--enable-tcl)
 
 	if [[ "${CHOST}" == *-mint* ]]; then
 		append-cppflags -DSQLITE_OMIT_WAL
@@ -262,15 +198,15 @@ multilib_src_configure() {
 	econf "${options[@]}"
 }
 
-multilib_src_compile() {
+src_compile() {
 	emake HAVE_TCL="$(usex tcl 1 "")" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}"
 
-	if use tools && multilib_is_native_abi; then
+	if use tools; then
 		emake changeset dbdump dbhash dbtotxt index_usage rbu scrub showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_checker sqlite3_expert sqltclsh
 	fi
 }
 
-multilib_src_test() {
+src_test() {
 	if [[ "${EUID}" -eq 0 ]]; then
 		ewarn "Skipping tests due to root permissions"
 		return
@@ -281,10 +217,9 @@ multilib_src_test() {
 	emake HAVE_TCL="$(usex tcl 1 "")" $(use debug && echo fulltest || echo test)
 }
 
-multilib_src_install() {
+src_install() {
 	emake DESTDIR="${D}" HAVE_TCL="$(usex tcl 1 "")" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}" install
-
-	if use tools && multilib_is_native_abi; then
+	if use tools; then
 		install_tool() {
 			if [[ -f ".libs/${1}" ]]; then
 				newbin ".libs/${1}" "${2}"
@@ -313,15 +248,12 @@ multilib_src_install() {
 
 		unset -f install_tool
 	fi
-}
-
-multilib_src_install_all() {
-	find "${D}" -name "*.la" -delete || die
+	find "${D}" -name "*.la" -type f -delete || die
 
 	doman sqlite3.1
 
 	if use doc; then
-		rm "${WORKDIR}/${PN}-doc-${DOC_PV}/"*.{db,txt}
+		rm "${WORKDIR}/${PN}-doc-${DOC_PV}/"*.{db,txt} || die
 		(
 			docinto html
 			dodoc -r "${WORKDIR}/${PN}-doc-${DOC_PV}/"*

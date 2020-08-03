@@ -6,8 +6,8 @@ dev_python_autogen_rule:
   packages:
     - salt:
         - versions:
-            - 2019.2.4:
+            - 2019.2.5:
                 python_compat: python2_7
                 template: salt-2019.tmpl
             - latest:
-                python_compat: python2+ pypy{,3}
+                python_compat: python3+

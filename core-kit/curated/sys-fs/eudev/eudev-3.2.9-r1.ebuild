@@ -4,7 +4,7 @@ EAPI="7"
 
 KV_min=2.6.39
 
-inherit autotools linux-info toolchain-funcs
+inherit autotools linux-info toolchain-funcs user
 
 SRC_URI="https://dev.gentoo.org/~blueness/${PN}/${P}.tar.gz"
 KEYWORDS="*"

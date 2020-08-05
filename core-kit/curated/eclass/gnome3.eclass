@@ -17,7 +17,7 @@
 GNOME3_EAUTORECONF=${GNOME3_EAUTORECONF:-""}
 
 [[ ${GNOME3_EAUTORECONF} == 'yes' ]] && inherit autotools
-inherit eutils libtool gnome.org gnome3-utils xdg
+inherit eutils libtool gnome.org gnome3-utils xdg ltprune
 
 case "${EAPI:-0}" in
 	4|5)

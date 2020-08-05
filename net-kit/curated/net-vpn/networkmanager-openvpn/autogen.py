@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 			continue
 		version = tag['name']
 		break
-	url = f'https://gitlab.gnome.org/GNOME/NetworkManager-openvpn/-/archive/{version}/fetchmail-{version}.tar.gz'
+	url = f'https://gitlab.gnome.org/GNOME/NetworkManager-openvpn/-/archive/{version}/NetworkManager-openvpn-{version}.tar.gz'
 	final_name = f'networkmanager-openvpn-{version}.tar.gz'
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

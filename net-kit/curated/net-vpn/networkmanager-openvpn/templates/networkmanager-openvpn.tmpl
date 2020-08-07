@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GNOME_ORG_MODULE="NetworkManager-${PN##*-}"
+GNOME_ORG_MODULE="${P/networkmanager/NetworkManager}"
 
 inherit gnome3 user
 

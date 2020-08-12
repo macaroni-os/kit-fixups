@@ -208,7 +208,18 @@ php_set_ini_dir() {
 }
 
 src_prepare() {
-	default
+
+    if use apache2; then
+    
+    eapply "${FILESDIR}/php-iodbc-header-location.patch" || die
+	
+	fi
+	
+	if use iodbc; then
+        eapply "${FILESDIR}/apache.patch" || die
+    fi
+    
+    eapply_user
 
 	# In php-7.x, the FPM pool configuration files have been split off
 	# of the main config. By default the pool config files go in
@@ -220,6 +231,7 @@ src_prepare() {
 		sapi/fpm/php-fpm.conf.in \
 		|| die 'failed to move the include directory in php-fpm.conf'
 
+		
 	# Emulate buildconf to support cross-compilation
 	# rm -fr aclocal.m4 autom4te.cache config.cache \
 	# 	configure main/php_config.h.in || die

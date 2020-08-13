@@ -5,34 +5,27 @@ EAPI=7
 PYTHON_COMPAT=( {{python_compat}} )
 PYTHON_REQ_USE='tk?,threads(+)'
 
-DISTUTILS_USE_SETUPTOOLS=bdepend
-
 inherit distutils-r1 flag-o-matic virtualx toolchain-funcs prefix
 
 DESCRIPTION="Pure python plotting library with matlab like syntax"
 HOMEPAGE="https://matplotlib.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
-SLOT="0"
 # Main license: matplotlib
 # Some modules: BSD
 # matplotlib/backends/qt4_editor: MIT
 # Fonts: BitstreamVera, OFL-1.1
 LICENSE="BitstreamVera BSD matplotlib MIT OFL-1.1"
+SLOT="0"
 KEYWORDS="*"
 IUSE="cairo doc excel examples gtk3 latex qt5 tk wxwidgets"
 
-REQUIRED_USE="
-	test? (
-		cairo latex qt5 tk wxwidgets gtk3
-	)
-"
-
 # internal copy of pycxx highly patched
 #	dev-python/pycxx
-
 RDEPEND="
-	dev-python/numpy[${PYTHON_USEDEP}]
+	>=dev-python/cycler-0.10.0[${PYTHON_USEDEP}]
+	>=dev-python/kiwisolver-1.2.0[${PYTHON_USEDEP}]
+	>=dev-python/numpy-1.18.2[${PYTHON_USEDEP}]
 	>=dev-python/pyparsing-1.5.6[${PYTHON_USEDEP}]
 	dev-python/python-dateutil:0[${PYTHON_USEDEP}]
 	>=dev-python/pytz-2019.3[${PYTHON_USEDEP}]
@@ -67,12 +60,13 @@ RDEPEND="
 		dev-python/PyQt5[gui,widgets,${PYTHON_USEDEP}]
 	)
 	wxwidgets? (
-		dev-python/wxpython:*[${PYTHON_USEDEP}]
+		dev-python/wxpython[${PYTHON_USEDEP}]
 	)
 "
 
 BDEPEND="
 	${RDEPEND}
+	dev-python/setuptools[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
 		>=app-text/dvipng-1.15-r1
@@ -89,16 +83,13 @@ BDEPEND="
 		dev-texlive/texlive-latexrecommended
 		>=media-gfx/graphviz-2.42.3[cairo]
 	)
-	test? ( dev-python/mock[${PYTHON_USEDEP}] )
 "
 
-MAKEOPTS="-j1"
+RESTRICT="test"
 
 # A few C++ source files are written to srcdir.
 # Other than that, the ebuild shall be fit for out-of-source build.
 DISTUTILS_IN_SOURCE_BUILD=1
-
-distutils_enable_tests nose
 
 pkg_setup() {
 	unset DISPLAY # bug #278524
@@ -106,7 +97,7 @@ pkg_setup() {
 
 use_setup() {
 	local uword="${2:-${1}}"
-	if use ${1}; then
+	if use "${1}"; then
 		echo "${uword} = True"
 		echo "${uword}agg = True"
 	else
@@ -116,10 +107,6 @@ use_setup() {
 }
 
 python_prepare_all() {
-	local PATCHES=(
-		"${FILESDIR}"/${PN}-qhull.patch
-	)
-
 	sed \
 		-e 's/matplotlib.pyparsing_py[23]/pyparsing/g' \
 		-i lib/matplotlib/{mathtext,fontconfig_pattern}.py \
@@ -132,10 +119,6 @@ python_prepare_all() {
 	export XDG_RUNTIME_DIR="${T}/runtime-dir"
 	mkdir "${XDG_RUNTIME_DIR}" || die
 	chmod 0700 "${XDG_RUNTIME_DIR}" || die
-
-	local freetype_version
-	freetype_version="$(best_version media-libs/freetype | sed -r -e 's/.*-([0-9].*[0-9])(-r[0-9]+|$)/\1/g')"
-	sed -i -r -e "s:(LOCAL_FREETYPE_VERSION =).*:\\1 \"${freetype_version}\":g" setupext.py lib/matplotlib/__init__.py || die
 
 	distutils-r1_python_prepare_all
 }
@@ -158,8 +141,11 @@ python_configure() {
 		[provide_packages]
 		pytz = False
 		dateutil = False
+		[libs]
+		system_freetype = True
+		system_qhull = True
 		[packages]
-		tests = $(usex test True False)
+		tests = False
 		[gui_support]
 		agg = True
 		pyside = False
@@ -214,13 +200,6 @@ python_compile_all() {
 		VARTEXFONTS="${T}"/fonts \
 		emake SPHINXOPTS= O=-Dplot_formats=png:100 html
 	fi
-}
-
-python_test() {
-	wrap_setup distutils_install_for_testing
-
-	distutils_install_for_testing
-	"${EPYTHON}" -c "import sys, matplotlib as m; sys.exit(0 if m.test(verbosity=2) else 1)" || die
 }
 
 python_install() {

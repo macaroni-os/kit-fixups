@@ -4,6 +4,8 @@ dev_python_autogen_rule:
     python_compat: python3+
   generator: pypi-1
   packages:
+    - ansible:
+        python_compat: python2+ pypy3
     - salt:
         - versions:
             - 2019.2.5:

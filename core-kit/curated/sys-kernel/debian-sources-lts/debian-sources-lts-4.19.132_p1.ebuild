@@ -2,7 +2,7 @@
 
 # Documentation for adding new kernels -- do not remove!
 #
-# Find latest stable kernel release for debian here:
+# Find latest stable kernel release for debian here (linux-image-4.19.0*-amd64)
 #   https://packages.debian.org/stable/kernel/
 
 EAPI=5
@@ -12,9 +12,9 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="4.19.67"
-DEB_EXTRAVERSION=-2
-EXTRAVERSION=_p2
+DEB_PV_BASE="4.19.132"
+DEB_EXTRAVERSION="-1"
+EXTRAVERSION=""
 
 # install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
 MODULE_EXT=${EXTRAVERSION}
@@ -27,11 +27,11 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
-	binary? ( >=sys-kernel/genkernel-3.4.40.7 )
+	binary? ( >=sys-kernel/genkernel-4 )
 	btrfs? ( sys-fs/btrfs-progs sys-kernel/genkernel[btrfs] )
 	zfs? ( sys-fs/zfs )
 	luks? ( sys-kernel/genkernel[cryptsetup] )"
@@ -128,18 +128,22 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 
 	## XFS LIBCRC kernel config fixes, FL-823
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-xfs-libcrc32c-fix.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/xfs-libcrc32c-fix.patch
 
 	## FL-4424: enable legacy support for MCELOG.
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-mcelog.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/mcelog.patch
 
 	## do not configure debian devs certs.
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-nocerts.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/nocerts.patch
 
 	## FL-3381. enable IKCONFIG
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-${DEB_PV_BASE}-ikconfig.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/ikconfig.patch
 
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/${PN}-4.19.67-fix-bluetooth-polling.patch
+	## increase bluetooth polling patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/fix-bluetooth-polling.patch
+
+	## add support for newer AMD APUs to AMDGPU
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/amdgpu-picasso.patch
 
 	local arch featureset subarch
 	featureset="standard"
@@ -208,6 +212,7 @@ src_compile() {
 	install -d "${T}"/{cache,twork}
 	install -d "${WORKDIR}"/build
 	cp "${T}"/config "${WORKDIR}"/build/.config
+	use zfs && addwrite /dev/zfs
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 		--no-save-config \
 		--no-oldconfig \

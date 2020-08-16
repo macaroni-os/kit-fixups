@@ -728,7 +728,7 @@ src_compile() {
 	if use memsaver; then
 		# limit number of jobs based on available memory:
 		mem=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
-		jobs=$((mem/5000000))
+		jobs=$((mem/2500000))
 		if [ ${jobs} -lt 1 ]; then
 			jobs=-j1
 		else

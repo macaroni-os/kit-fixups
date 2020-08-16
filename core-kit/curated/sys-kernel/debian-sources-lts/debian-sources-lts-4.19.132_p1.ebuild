@@ -27,7 +27,7 @@ KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
@@ -145,6 +145,9 @@ src_prepare() {
 	## add support for newer AMD APUs to AMDGPU
 	epatch "${FILESDIR}"/${DEB_PV_BASE}/amdgpu-picasso.patch
 
+	## Disable iwlwifi 802.11n RX link aggregation (buggy routers can kill WiFi)
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/iwlwifi-disable-80211n-rxagg.patch
+
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then
@@ -244,7 +247,6 @@ src_install() {
 	make mrproper || die
 	cp "${T}"/config .config || die
 	cp -a "${T}"/debian debian || die
-
 
 	# if we didn't use genkernel, we're done. The kernel source tree is left in
 	# an unconfigured state - you can't compile 3rd-party modules against it yet.

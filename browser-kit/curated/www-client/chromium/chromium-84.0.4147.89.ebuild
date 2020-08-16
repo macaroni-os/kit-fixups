@@ -22,7 +22,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="amd64 arm64 ~x86"
-IUSE="+closure-compile component-build cups cpu_flags_arm_neon +hangouts headless kerberos ozone pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg +system-icu +system-libvpx +tcmalloc vaapi wayland widevine"
+IUSE="+closure-compile component-build cups cpu_flags_arm_neon +hangouts headless kerberos +memsaver ozone pic +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg +system-icu +system-libvpx +tcmalloc vaapi wayland widevine"
 RESTRICT="!system-ffmpeg? ( proprietary-codecs? ( bindist ) )"
 REQUIRED_USE="
 	component-build? ( !suid )
@@ -725,6 +725,20 @@ src_configure() {
 }
 
 src_compile() {
+	if use memsaver; then
+		# limit number of jobs based on available memory:
+		mem=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
+		jobs=$((mem/5000000))
+		if [ ${jobs} -lt 1 ]; then
+			jobs=-j1
+		else
+			jobs=-j${jobs}
+		fi
+		einfo "Using jobs setting of ${jobs}"
+	else
+		jobs=""
+		einfo "Using default Portage jobs setting."
+	fi
 	# Final link uses lots of file descriptors.
 	ulimit -n 2048
 
@@ -741,18 +755,16 @@ src_compile() {
 	local x
 	for x in mksnapshot v8_context_snapshot_generator; do
 		if tc-is-cross-compiler; then
-			eninja -C out/Release "host/${x}"
+			eninja ${jobs} -C out/Release "host/${x}"
 			pax-mark m "out/Release/host/${x}"
 		else
-			eninja -C out/Release "${x}"
+			eninja ${jobs} -C out/Release "${x}"
 			pax-mark m "out/Release/${x}"
 		fi
 	done
 
-	# Even though ninja autodetects number of CPUs, we respect
-	# user's options, for debugging with -j 1 or any other reason.
-	eninja -C out/Release chrome chromedriver
-	use suid && eninja -C out/Release chrome_sandbox
+	eninja ${jobs} -C out/Release chrome chromedriver
+	use suid && eninja ${jobs} -C out/Release chrome_sandbox
 
 	pax-mark m out/Release/chrome
 

@@ -10,7 +10,7 @@ SRC_URI="https://download.nvidia.com/XFree86/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
+KEYWORDS="*"
 IUSE="dbus +gtk3 vdpau +system-jansson"
 
 RDEPEND="x11-drivers/nvidia-drivers

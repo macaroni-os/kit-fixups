@@ -11,11 +11,12 @@ KEYWORDS="amd64"
 
 GITHUB_REPO="steam-launcher"
 GITHUB_USER="funtoo"
-GITHUB_TAG="d316bc3b82475b339526b2e056c52bd1842d93d3"
+GITHUB_TAG="230c21ae862f99aea61c711ef51facb58bca7938"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-DOCKER_IMG_DRIVER_MIN=440.100
+DOCKER_IMG_DRIVER=450.57
 RDEPEND="
-	>=x11-drivers/nvidia-drivers-${DOCKER_IMG_DRIVER_MIN}
+	=x11-drivers/nvidia-drivers-${DOCKER_IMG_DRIVER}*
+	=x11-drivers/nvidia-kernel-modules-${DOCKER_IMG_DRIVER}*
 	app-emulation/nvidia-docker
 	app-emulation/nvidia-container-runtime
 	x11-apps/xhost"

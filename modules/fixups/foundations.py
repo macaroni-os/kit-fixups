@@ -90,7 +90,7 @@ class KitFoundation:
 				{'name': 'xfce-kit', 'branch': '4.14-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED}, # primary
 				{'name': 'xfce-kit', 'branch': '4.13-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 				{'name': 'qt-kit', 'branch': '5.12.7-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
-				{'name': 'kde-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},
+				{'name': 'kde-kit', 'branch': '1.4-release', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED}, # primary
 				{'name': 'browser-kit', 'branch': '1.4-release', 'source': 'funtoo_current', 'stability': KitStabilityRating.PRIME},
 				{'name': 'mate-kit', 'branch': '1.24-prime', 'stability': KitStabilityRating.PRIME, "type": KitType.INDEPENDENTLY_MAINTAINED},
 				{'name': 'desktop-kit', 'branch': '1.4-release', 'source': 'funtoo_release_1.4', 'stability': KitStabilityRating.PRIME},

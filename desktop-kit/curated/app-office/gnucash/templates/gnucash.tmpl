@@ -93,13 +93,6 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.8-exclude-license.patch
 )
 
-src_unpack() {
-	unpack ${A}
-	mv ${WORKDIR}/Gnucash-* ${S} || die
-	rm ${S}/util/gnc-vcs-info || die
-	ln -s /bin/false ${S}/util/gnc-vcs-info || die
-}
-
 pkg_pretend() {
 	if tc-is-gcc; then
 		if [[ $(gcc-major-version) -lt 8 ]]; then
@@ -110,11 +103,6 @@ pkg_pretend() {
 			die "GnuCash needs at least clang version 6."
 		fi
 	fi
-}
-
-pkg_setup() {
-	use python && python-single-r1_pkg_setup
-	xdg_environment_reset
 }
 
 src_prepare() {

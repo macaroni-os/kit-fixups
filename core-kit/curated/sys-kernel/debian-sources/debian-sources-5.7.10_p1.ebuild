@@ -13,16 +13,19 @@ SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
 DEB_PV_BASE="5.7.10"
-DEB_EXTRAVERSION="-1"
-EXTRAVERSION=""
+DEB_EXTRAVERSION="1"
+# Debian version -1 becomes _p1 in Funtoo:
+if [ -z "$DEB_EXTRAVERSION" ]; then
+	EXTRAVERSION="-${PN}"
+else
+	EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
+fi
+# This sets the module dir in /lib/modules. This starts with the version (reversed from normal.)
+MODULE_EXT=${PVR}-${PN}
 
-# install modules to /lib/modules/${DEB_PV_BASE}${EXTRAVERSION}-$MODULE_EXT
-MODULE_EXT=${EXTRAVERSION}
-[ "$PR" != "r0" ] && MODULE_EXT=$MODULE_EXT-$PR
-MODULE_EXT=$MODULE_EXT-${PN}
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-DEB_PV="$DEB_PV_BASE${DEB_EXTRAVERSION}"
+DEB_PV="$DEB_PV_BASE-${DEB_EXTRAVERSION}"
 KERNEL_ARCHIVE="linux_${DEB_PV_BASE}.orig.tar.xz"
 PATCH_ARCHIVE="linux_${DEB_PV}.debian.tar.xz"
 RESTRICT="binchecks strip mirror"
@@ -118,7 +121,7 @@ src_prepare() {
 	# do not include debian devs certificates
 	rm -rf "${WORKDIR}"/debian/certs
 
-	sed -i -e "s:^\(EXTRAVERSION =\).*:\1 ${MODULE_EXT}:" Makefile || die
+	sed -i -e "s:^\(EXTRAVERSION =\).*:\1 ${EXTRAVERSION}:" Makefile || die
 	sed	-i -e 's:#export\tINSTALL_PATH:export\tINSTALL_PATH:' Makefile || die
 	rm -f .config >/dev/null
 	cp -a "${WORKDIR}"/debian "${T}"
@@ -128,20 +131,20 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 
 	## XFS LIBCRC kernel config fixes, FL-823
-	epatch "${FILESDIR}"/5.6.7/${PN}-5.6.7-xfs-libcrc32c-fix.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/xfs-libcrc32c-fix.patch
 
 	## FL-4424: enable legacy support for MCELOG.
-	epatch "${FILESDIR}"/5.6.7/${PN}-5.6.7-mcelog.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/mcelog.patch
 
 	## do not configure debian devs certs.
-	epatch "${FILESDIR}"/5.6.7/${PN}-5.6.7-nocerts.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/nocerts.patch
 
 	## FL-3381. enable IKCONFIG
-	epatch "${FILESDIR}"/5.6.7/${PN}-5.6.7-ikconfig.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/ikconfig.patch
 
 	## increase bluetooth polling patch
-	epatch "${FILESDIR}"/5.6.7/${PN}-5.6.7-fix-bluetooth-polling.patch
-	epatch "${FILESDIR}"/5.6.7/export_kernel_fpu_functions_5_3.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/fix-bluetooth-polling.patch
+	epatch "${FILESDIR}"/${DEB_PV_BASE}/export_kernel_fpu_functions_5_3.patch
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then

@@ -8,10 +8,10 @@ inherit xdg-utils gnome2 pax-utils python-r1 udev unpacker eapi7-ver
 
 DESCRIPTION="Family of powerful x86 virtualization products for enterprise and home use"
 HOMEPAGE="https://www.virtualbox.org/"
-SRC_URI=" {{artifacts[0].src_uri}}
-	sdk? ( {{artifacts[1].src_uri}} )"
+SRC_URI=" {{artifacts[0].src_uri}} {{artifacts[1].src_uri}}
+	sdk? ( {{artifacts[2].src_uri}} )"
 
-LICENSE="GPL-2"
+LICENSE="GPL-2 PUEL"
 SLOT="0"
 KEYWORDS="*"
 IUSE="+additions +chm headless python vboxwebsrv rdesktop-vrdp sdk"
@@ -62,6 +62,11 @@ src_unpack() {
 	unpack_makeself VirtualBox-{{main_ver}}-{{svn_ver}}-Linux_amd64.run
 	unpack ./VirtualBox.tar.bz2
 
+	mkdir "${S}"/Oracle_VM_VirtualBox_Extension_Pack || die
+	pushd "${S}"/Oracle_VM_VirtualBox_Extension_Pack &>/dev/null || die
+	unpack Oracle_VM_VirtualBox_Extension_Pack-{{main_ver}}-{{svn_ver}}.tar.gz
+	popd &>/dev/null || die
+
 	if use sdk ; then
 		unpack VirtualBoxSDK-{{main_ver}}-{{svn_ver}}.zip
 	fi
@@ -104,6 +109,13 @@ src_install() {
 		insinto /usr/share/pixmaps
 		newins "${S}"/icons/48x48/virtualbox.png ${PN}.png
 	fi
+
+	pushd "${S}"/Oracle_VM_VirtualBox_Extension_Pack &>/dev/null || die
+	insinto /opt/VirtualBox/ExtensionPacks/Oracle_VM_VirtualBox_Extension_Pack
+	doins -r linux.${ARCH}
+	doins ExtPack* PXE-Intel.rom
+	popd &>/dev/null || die
+	rm -rf "${S}"/Oracle_VM_VirtualBox_Extension_Pack
 
 	insinto /opt/VirtualBox
 	dodir /opt/bin
@@ -236,9 +248,6 @@ pkg_postinst() {
 	elog "For advanced networking setups you should emerge:"
 	elog "net-misc/bridge-utils and sys-apps/usermode-utilities"
 	elog ""
-	elog "For installation of the USB2, USB3, VRDP and PXE boot ROM modules,"
-	elog "please emerge "
-	elog "  app-emulation/virtualbox-extpack-oracle"
 	elog "Please visit http://www.virtualbox.org/wiki/Editions for"
 	elog "an overview about the different features of ${PN}"
 	elog "and virtualbox-ose"

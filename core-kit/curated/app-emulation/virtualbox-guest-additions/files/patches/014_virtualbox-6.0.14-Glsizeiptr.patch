@@ -1,0 +1,14 @@
+--- a/include/VBox/VBoxGL2D.h	2020-01-25 22:48:54.000000000 +0700
++++ b/include/VBox/VBoxGL2D.h	2020-01-25 22:57:14.000000000 +0700
+@@ -113,8 +113,8 @@
+ 
+ /* GL_ARB_pixel_buffer_object*/
+-#ifndef Q_WS_MAC
++/*#ifndef Q_WS_MAC*/
+ /* apears to be defined on mac */
+-typedef ptrdiff_t GLsizeiptr;
+-#endif
++/*typedef ptrdiff_t GLsizeiptr;*/
++/*#endif*/
+ 
+ #ifndef GL_READ_ONLY

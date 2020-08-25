@@ -199,6 +199,8 @@ simple_python_autogen_rule:
           }
     - colorama:
         python_compat: python2+ pypy3
+    - rfc3986:
+        python_compat: python2+ pypy{,3}
 
 dev_python_autogen_rule:
   defaults:

@@ -197,6 +197,8 @@ simple_python_autogen_rule:
             touch ${S}/requirements.txt
             default
           }
+    - colorama:
+        python_compat: python2+ pypy3
 
 dev_python_autogen_rule:
   defaults:

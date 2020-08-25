@@ -93,7 +93,12 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.8-exclude-license.patch
 )
 
-S="${WORKDIR}/${PN}-$(ver_cut 1-2)"
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/Gnucash-* ${S} || die
+	rm ${S}/util/gnc-vcs-info || die
+	ln -s /bin/false ${S}/util/gnc-vcs-info || die
+}
 
 pkg_pretend() {
 	if tc-is-gcc; then

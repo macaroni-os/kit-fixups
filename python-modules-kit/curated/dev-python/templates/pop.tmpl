@@ -23,4 +23,5 @@ RDEPEND="
 	dev-python/pyyaml[${PYTHON_USEDEP}]
 	dev-python/pop-config[${PYTHON_USEDEP}]
 	dev-python/msgpack[${PYTHON_USEDEP}]
+	dev-python/dict-toolbox[${PYTHON_USEDEP}]
 "

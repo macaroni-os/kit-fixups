@@ -15,14 +15,18 @@ IUSE="pax_kernel"
 
 RDEPEND="!=app-emulation/virtualbox-9999"
 
-S="${WORKDIR}"
-
 BUILD_TARGETS="all"
 BUILD_TARGET_ARCH="${ARCH}"
 MODULE_NAMES="vboxdrv(misc:${S}) vboxnetflt(misc:${S}) vboxnetadp(misc:${S})"
 MODULESD_VBOXDRV_ENABLED="yes"
 MODULESD_VBOXNETADP_ENABLED="no"
 MODULESD_VBOXNETFLT_ENABLED="no"
+
+src_unpack() {
+	sh ${DISTDIR}/${A} --noexec --keep --nox11 || die
+	cd install && tar -xaf VirtualBox.tar.bz2
+	mv src/vboxhost ${S}
+}
 
 pkg_setup() {
 	enewgroup vboxusers

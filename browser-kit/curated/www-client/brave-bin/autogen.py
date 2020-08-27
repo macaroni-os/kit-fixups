@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+from datetime import timedelta
 
 def find_release(json_dict, channel='Release'):
 	releases = filter(lambda x: x['name'].startswith(f"{channel} Channel") and x['prerelease'] is False and not x['name'].endswith('-android'), json_dict)
@@ -11,8 +12,7 @@ def find_release(json_dict, channel='Release'):
 
 async def generate(hub, **pkginfo):
 
-	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/brave/brave-browser/releases")
-	json_dict = json.loads(json_data)
+	json_dict = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/brave/brave-browser/releases", is_json=True, refresh_interval=timedelta(days=5))
 
 	# Try to use the latest release version, but fall back to latest nightly if none found:
 	release = None

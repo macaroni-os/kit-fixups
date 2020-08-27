@@ -119,6 +119,8 @@ drivers_rule:
         config_options: |
           $(use_enable xspice)
         src_prepare: |
+          eapply_user
+          eautoreconf || die
           python_fix_shebang scripts
     - xf86-video-r128:
         dri_use: dri

@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit linux-mod systemd user toolchain-funcs
+inherit linux-mod user toolchain-funcs
 
 DESCRIPTION="VirtualBox kernel modules and user-space tools for Gentoo guests"
 HOMEPAGE="https://www.virtualbox.org/"
@@ -35,9 +35,7 @@ DEPEND="
 	sys-power/iasl
 	x11-base/xorg-proto
 "
-PDEPEND="
-	X? ( x11-drivers/xf86-video-vboxvideo )
-"
+
 BUILD_TARGETS="all"
 BUILD_TARGET_ARCH="${ARCH}"
 
@@ -163,8 +161,6 @@ src_install() {
 	# sample xorg.conf
 	insinto /usr/share/doc/${PF}
 	doins "${FILESDIR}"/xorg.conf.vbox
-
-	systemd_dounit "${FILESDIR}/${PN}.service"
 }
 
 pkg_preinst() {
@@ -195,9 +191,6 @@ pkg_postinst() {
 	elog "file as your /etc/X11/xorg.conf:"
 	elog "    /usr/share/doc/${PF}/xorg.conf.vbox"
 	elog ""
-	elog "Also make sure you use the Mesa library for OpenGL:"
-	elog "    eselect opengl set xorg-x11"
-	elog ""
 	elog "An autostart .desktop file has been installed to start"
 	elog "VBoxClient in desktop sessions."
 	elog ""
@@ -205,7 +198,7 @@ pkg_postinst() {
 	elog "    mount -t vboxsf <shared_folder_name> <mount_point>"
 	elog ""
 	elog "Warning:"
-	elog "this ebuild is only needed if you are running gentoo"
+	elog "this ebuild is only needed if you are running Funtoo"
 	elog "inside a VirtualBox Virtual Machine, you don't need"
 	elog "it to run VirtualBox itself."
 	elog ""

@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -31,13 +30,8 @@ done
 ALL_SWR_ARCHES="avx avx2 knl skx"
 IUSE_SWR_CPUFLAGS="cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512er cpu_flags_x86_avx512bw"
 
-ALL_GALLIUM_DRIVERS="iris pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d etnaviv imx tegra i915 svga virgl swr swrast"
+ALL_GALLIUM_DRIVERS="iris pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d vivante imx tegra i915 vmware virgl swr swrast"
 for card in ${ALL_GALLIUM_DRIVERS% swrast*}; do
-	case "$card" in
-			etnaviv) card="vivante" ;;
-			svga) card="vmware" ;;
-			*) : ;;
-	esac
 	ALL_GALLIUM_CARDS+=" video_cards_gallium-${card}"
 done
 
@@ -445,7 +439,7 @@ src_configure() {
 
 	# SVGA drivers (needed for vmware)
 	if use video_cards_gallium-vmware ; then
-		gallium_enable gallium-svga
+		gallium_enable svga
 	fi
 
 

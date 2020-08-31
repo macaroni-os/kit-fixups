@@ -6,12 +6,12 @@ from re import match
 async def generate(hub, **pkginfo):
 	github_user = 'obsproject'
 	github_repo = 'obs-studio'
-	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases")
-	json_list = json.loads(json_data)
+	json_list = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True)
 	for release in json_list:
-		for attr in [ 'prerelease', 'draft' ]:
-			if attr in release and release[attr] is not False:
-				continue
+		if 'draft' in release and release['draft'] is not False:
+			continue
+		if 'prerelease' in release and release['prerelease'] is not False:
+			continue
 		version = release['tag_name']
 		url = release['tarball_url']
 		break

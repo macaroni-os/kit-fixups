@@ -271,7 +271,7 @@ class KitFoundation:
 				"media-tv/plex-media-server",
 			]},
 			# damex's deadbeef (music player like foobar2000) overlay
-			"deadbeef": {"url": "https://github.com/damex/deadbeef-overlay.git", "copyfiles": {
+			"deadbeef": {"url": "", "copyfiles": {
 				"profiles/package.mask": "profiles/package.mask/deadbeef.mask"
 			}, "eclasses" : [
 				"deadbeef-plugins"

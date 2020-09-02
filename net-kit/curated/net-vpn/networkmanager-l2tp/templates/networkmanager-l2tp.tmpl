@@ -17,7 +17,7 @@ KEYWORDS="*"
 IUSE="gnome static-libs"
 
 RDEPEND="
-	>=net-misc/networkmanager-1.2[ppp]
+	>=net-misc/networkmanager-1.8[ppp]
 	dev-libs/dbus-glib
 	net-dialup/ppp[eap-tls]
 	net-dialup/xl2tpd
@@ -27,9 +27,9 @@ RDEPEND="
 		net-vpn/libreswan
 	)
 	gnome? (
-		x11-libs/gtk+:3
-		app-crypt/libsecret
-		gnome-extra/nm-applet
+		>=x11-libs/gtk+-3.14:3
+		>=app-crypt/libsecret-0.18
+		>=net-libs/libnma-1.8.0
 	)"
 
 BDEPEND="${RDEPEND}

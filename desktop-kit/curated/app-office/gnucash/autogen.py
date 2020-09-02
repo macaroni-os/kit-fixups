@@ -5,9 +5,8 @@ async def generate(hub, **pkginfo):
 	github_repo = 'gnucash'
 	json_list = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True)
 	for release in json_list:
-		for attr in [ 'prerelease', 'draft' ]:
-			if attr in release and release[attr] is not False:
-				continue
+		if release['prerelease'] or release['draft']:
+			continue
 		version = release['tag_name']
 		url = release['html_url']
 		for asset in release['assets']:

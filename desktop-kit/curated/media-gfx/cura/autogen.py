@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/releases")
 	json_dict = json.loads(json_data)
 	for release in json_dict:
-		if release['prerelease']:
+		if release['prerelease'] or release['draft']:
 			continue
 		GITHUB_TAG = release['tag_name']
 		break

@@ -9,9 +9,8 @@ async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases")
 	json_list = json.loads(json_data)
 	for release in json_list:
-		for attr in [ 'prerelease', 'draft' ]:
-			if attr in release and release[attr] is not False:
-				continue
+		if release['prerelease'] or release['draft']:
+			continue
 		version = release['tag_name']
 		url = release['tarball_url']
 		break

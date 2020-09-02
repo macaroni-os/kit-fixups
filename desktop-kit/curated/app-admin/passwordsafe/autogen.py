@@ -4,11 +4,16 @@ import json
 from re import match
 
 async def generate(hub, **pkginfo):
-	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/pwsafe/pwsafe/releases")
-	json_list = json.loads(json_data)
-	version = json_list[0]["tag_name"]
-	url = f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz'
-	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+	json_list = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/pwsafe/pwsafe/releases", is_json=True)
+	for release in json_list:
+		if release["prerelease"] or release["draft"]:
+			continue
+		if "Linux" not in release["name"]:
+			continue
+		version = release["tag_name"]
+		url = f'https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz'
+		final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+		break
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

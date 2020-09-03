@@ -2,10 +2,13 @@
 
 import re
 
-RELEASE = re.compile(r'Version: ([0-9.]+)')
+RELEASE = re.compile(r"Version: ([0-9.]+)")
+
 
 async def generate(hub, **pkginfo):
-	text_data = await hub.pkgtools.fetch.get_page("https://packages.microsoft.com/repos/ms-teams/dists/stable/main/binary-amd64/Packages")
+	text_data = await hub.pkgtools.fetch.get_page(
+		"https://packages.microsoft.com/repos/ms-teams/dists/stable/main/binary-amd64/Packages"
+	)
 	text_list = text_data.split("\n")
 	version = None
 
@@ -19,10 +22,9 @@ async def generate(hub, **pkginfo):
 		pkg_file = f"teams_{version}_amd64.deb"
 		url = f"https://packages.microsoft.com/repos/ms-teams/pool/main/t/teams/{pkg_file}"
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
-			**pkginfo,
-			version=version,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+			**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 		)
 		ebuild.push()
+
 
 # vim: ts=4 sw=4 noet

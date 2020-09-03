@@ -1,21 +1,21 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
-import os,sys,re
+import os, sys, re
 import getopt
 
-re_head = re.compile('^binary-arch_(.*)_real::')
-re_flav = re.compile('binary-arch-flavour')
+re_head = re.compile("^binary-arch_(.*)_real::")
+re_flav = re.compile("binary-arch-flavour")
 re_item = re.compile("[A-Z_]*='[^']*'")
 
 try:
-	f=open("debian/rules.gen","r")
+	f = open("debian/rules.gen", "r")
 except:
-	print "Unable to open debian/rules.gen; can't continue."
+	print("Unable to open debian/rules.gen; can't continue.")
 	sys.exit(1)
-lines=f.readlines()
+lines = f.readlines()
 f.close()
 
-line=0
+line = 0
 
 configlist = []
 configdict = {}
@@ -27,14 +27,14 @@ while line < len(lines):
 	if not head_match:
 		line += 1
 		continue
-	config_name = head_match.group(1)	
+	config_name = head_match.group(1)
 	line += 1
 	if not re_flav.findall(lines[line]):
 		continue
 	lsplit = re_item.findall(lines[line])
 	groovydict = {}
 	for item in lsplit:
-		kv = item.split("=",1)
+		kv = item.split("=", 1)
 		if len(kv) < 2:
 			continue
 		groovydict[kv[0]] = kv[1][1:-1]
@@ -50,27 +50,30 @@ archdict = {}
 for config in configlist:
 	cs = config.split("_")
 	if not cs[0] in archdict:
-		archdict[cs[0]] = { } 
+		archdict[cs[0]] = {}
 	if cs[1] == "none":
 		cs[1] = None
 	if cs[1] not in archdict[cs[0]]:
 		archdict[cs[0]][cs[1]] = []
 	archdict[cs[0]][cs[1]].append(cs[2])
 
-arches = archdict.keys()
+arches = list(archdict.keys())
 arches.sort()
 
-features = [ None ]
+features = [None]
 for arch in arches:
 	for flav in archdict[arch]:
 		if flav not in features:
 			features.append(flav)
 
-PROG="config-extract"
-def usage():
-	print """This work is free software.
+PROG = "config-extract"
 
-Copyright 2011 Funtoo Technologies. You can redistribute and/or modify it under
+
+def usage():
+	print(
+		"""This work is free software.
+
+Copyright 2011-2020 Funtoo Solutions. You can redistribute and/or modify it under
 the terms of the GNU General Public License version 3 as published by the Free
 Software Foundation. Alternatively you may (at your option) use any other
 license that has been publicly approved for use with this program by Funtoo
@@ -101,22 +104,25 @@ pick one (and the program will remind you to do this.)
 
 The kernel configuration will be written to ".config" in the current directory,
 or the location you specified using the -o/--outfile option.
-""" % PROG
+"""
+		% PROG
+	)
 	sys.exit(2)
 
+
 try:
-        opts, args = getopt.getopt(sys.argv[1:], "o:hl", ["help", "list","outfile="])
-except getopt.GetoptError, err:
-	print str(err) 
+	opts, args = getopt.getopt(sys.argv[1:], "o:hl", ["help", "list", "outfile="])
+except getopt.GetoptError as err:
+	print(str(err))
 	usage()
 
-mode="run"
-outfile=None
-for o,a in opts:
+mode = "run"
+outfile = None
+for o, a in opts:
 	if o in ("-h", "--help"):
 		usage()
 	elif o in ("-l", "--list"):
-		mode="list"
+		mode = "list"
 	elif o in ("-o", "--outfile"):
 		outfile = a
 	else:
@@ -124,14 +130,14 @@ for o,a in opts:
 if mode == "run":
 	if len(args) < 1 or len(args) > 3:
 		if len(args) == 0:
-			print "Please specify an arch - one of: "+", ".join(arches)
+			print("Please specify an arch - one of: " + ", ".join(arches))
 			sys.exit(2)
 		else:
-			print "Too many arguments."
+			print("Too many arguments.")
 			usage()
 	arch = args[0]
 	if outfile == None:
-		outfile = os.path.join(os.getcwd(),".config")
+		outfile = os.path.join(os.getcwd(), ".config")
 	featureset = None
 	subarch = None
 	if len(args) == 3:
@@ -144,31 +150,31 @@ if mode == "run":
 
 # print out optimized list of available kernel configurations:
 
-if mode=="list":
-	print
+if mode == "list":
+	print()
 	for flav in features:
 		label = flav
 		if label == None:
 			label = "standard"
-		print "====== %s featureset ======" % label
-		print
+		print("====== %s featureset ======" % label)
+		print()
 		for arch in arches:
 			if flav in archdict[arch]:
 				if len(archdict[arch][flav]) == 1:
-					print arch.rjust(12)
+					print(arch.rjust(12))
 				else:
 					flavlist = archdict[arch][flav]
 					flavlist.sort()
-					variants = ", ".join(flavlist) 
-					print arch.rjust(12) + ":", variants
-		print
+					variants = ", ".join(flavlist)
+					print(arch.rjust(12) + ":", variants)
+		print()
 	sys.exit(0)
 
 # featureset defaults to None.
 
 if featureset not in archdict[arch]:
-	print "Error: There is no '%s' featureset kernel config for arch '%s'. Exiting." % ( featureset, arch )
-	print archdict[arch]
+	print("Error: There is no '%s' featureset kernel config for arch '%s'. Exiting." % (featureset, arch))
+	print(archdict[arch])
 	sys.exit(2)
 
 # If a subarch is not specified (None), then we will auto-pick the subarch if only one is available.
@@ -178,19 +184,19 @@ if subarch == None:
 	if len(archdict[arch][featureset]) == 1:
 		subarch = archdict[arch][featureset][0]
 	else:
-		print "Error: there is more than one 'sub-architecture' for this arch."
-		print "Please specify [arch] [featureset] [subarch], with one of these subarches:"
-		print ", ".join(archdict[arch][featureset])
+		print("Error: there is more than one 'sub-architecture' for this arch.")
+		print("Please specify [arch] [featureset] [subarch], with one of these subarches:")
+		print(", ".join(archdict[arch][featureset]))
 		sys.exit(2)
 else:
 	if subarch not in archdict[arch][featureset]:
-		print "Error: specified sub-architecture '%s' is not available for this arch. Exiting." % subarch
+		print("Error: specified sub-architecture '%s' is not available for this arch. Exiting." % subarch)
 		sys.exit(2)
 
 # We've done all our arg processing, now let's construct the master_key that we will use to look up the
 # proper settings to pass to Debian's debian/bin/kconfig.py command:
 
-master_key=arch
+master_key = arch
 if featureset == None:
 	master_key += "_none"
 else:
@@ -200,20 +206,19 @@ if subarch == None:
 else:
 	master_key += "_%s" % subarch
 if master_key not in configdict:
-	print "Master key lookup failed; can't continue. Please report this bug."
+	print("Master key lookup failed; can't continue. Please report this bug.")
 	sys.exit(1)
 if "KCONFIG" not in configdict[master_key]:
-	print "Unable to find KCONFIG option; can't continue. Please report this bug."
+	print("Unable to find KCONFIG option; can't continue. Please report this bug.")
 	sys.exit(1)
-cmd = "python2 debian/bin/kconfig.py '%s' %s" % ( outfile, configdict[master_key]["KCONFIG"] )
+cmd = "python2 debian/bin/kconfig.py '%s' %s" % (outfile, configdict[master_key]["KCONFIG"])
 if "KCONFIG_OPTIONS" in configdict[master_key]:
 	cmd += " %s" % configdict[master_key]["KCONFIG_OPTIONS"]
 os.environ["PYTHONPATH"] = "debian/lib/python"
 retval = os.system(cmd)
 if retval == 0:
-	print "Wrote %s kernel configuration to %s." % ( master_key, outfile )
+	print("Wrote %s kernel configuration to %s." % (master_key, outfile))
 	sys.exit(0)
 else:
-	print "There was an error extracting the Debian kernel config."
+	print("There was an error extracting the Debian kernel config.")
 	sys.exit(1)
-

@@ -22,8 +22,7 @@ async def get_meson_mappings(hub, master_cpv, artifact):
 	meson_file = meson_file[0]
 	meta_mappings = defaultdict(set)
 	for master_cpv, pkg, ver in itertools.chain(
-		get_pkgs_from_meson(master_cpv, meson_file),
-		get_pkgs_from_meson(master_cpv, meson_file, "legacy_pcs")
+		get_pkgs_from_meson(master_cpv, meson_file), get_pkgs_from_meson(master_cpv, meson_file, "legacy_pcs")
 	):
 		meta_mappings[(pkg, ver)].add(master_cpv)
 	artifact.cleanup()
@@ -61,7 +60,7 @@ async def generate(hub, **pkginfo):
 
 	"""
 	The goal here is to generate the xorg-proto ebuild(s) -- as well as a bunch of "stub" ebuilds.
-	
+
 	We get the names of the necessary stub ebuilds from the meson.build file which is part of
 	the xorg-proto sources.
 
@@ -133,19 +132,16 @@ src_install() { return 0; }
 		all_meta_atoms = sorted(list(all_meta_atoms))
 		sub_ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			name=pv_key[0],
-			cat='x11-proto',
+			cat="x11-proto",
 			version=pv_key[1],
 			all_meta_atoms=all_meta_atoms,
-			template_text=sub_ebuild_template
+			template_text=sub_ebuild_template,
 		)
 		sub_ebuild.push()
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		artifacts=[artifact],
-		peeves=sorted(peeves),
-		**template_args
-	)
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(artifacts=[artifact], peeves=sorted(peeves), **template_args)
 
 	ebuild.push()
+
 
 # vim: ts=4 sw=4 noet

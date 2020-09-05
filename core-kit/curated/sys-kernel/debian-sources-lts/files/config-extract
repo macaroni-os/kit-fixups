@@ -211,7 +211,7 @@ if master_key not in configdict:
 if "KCONFIG" not in configdict[master_key]:
 	print("Unable to find KCONFIG option; can't continue. Please report this bug.")
 	sys.exit(1)
-cmd = "python2 debian/bin/kconfig.py '%s' %s" % (outfile, configdict[master_key]["KCONFIG"])
+cmd = "python3 debian/bin/kconfig.py '%s' %s" % (outfile, configdict[master_key]["KCONFIG"])
 if "KCONFIG_OPTIONS" in configdict[master_key]:
 	cmd += " %s" % configdict[master_key]["KCONFIG_OPTIONS"]
 os.environ["PYTHONPATH"] = "debian/lib/python"

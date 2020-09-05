@@ -34,7 +34,7 @@ KEYWORDS="-* ~amd64 ~amd64-fbsd"
 RESTRICT="bindist strip"
 EMULTILIB_PKG="true"
 
-IUSE="+X +opencl +cuda tools"
+IUSE="+X +opencl +cuda +tools"
 IUSE_KERNELS="kernel_FreeBSD kernel_linux"
 IUSE_NV_PKG="+opengl +gpgpu +nvpd +nvifr +nvfbc +nvcuvid +nvml +encodeapi +vdpau +xutils +xdriver"
 

@@ -15,9 +15,13 @@ async def generate(hub, **pkginfo):
 		break
 	url = f"https://libvirt.org/sources/libvirt-{version}.tar.xz"
 	urlpy = f"https://libvirt.org/sources/python/libvirt-python-{version}.tar.gz"
+	python_compat = "python3+"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		**pkginfo,
+		version=version,
+		python_compat=python_compat,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 	ebuild.push()
 
@@ -25,7 +29,7 @@ async def generate(hub, **pkginfo):
 		template_path=ebuild.template_path,
 		cat="dev-python",
 		name="libvirt-python",
-		python_compat="python3+",
+		python_compat=python_compat,
 		version=version,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=urlpy)],
 	)

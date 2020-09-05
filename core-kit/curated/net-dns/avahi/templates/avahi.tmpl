@@ -13,7 +13,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
-IUSE="autoipd bookmarks +dbus doc gdbm gtk gtk2 howl-compat +introspection ipv6 kernel_linux mdnsresponder-compat mono nls python qt5 selinux systemd test"
+IUSE="autoipd bookmarks +dbus doc gdbm gtk howl-compat -introspection ipv6 kernel_linux +mdnsresponder-compat mono nls python qt5 selinux systemd test"
 
 REQUIRED_USE="
 	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
@@ -32,7 +32,6 @@ DEPEND="
 	dev-libs/glib:2
 	gdbm? ( sys-libs/gdbm:= )
 	qt5? ( dev-qt/qtcore:5 )
-	gtk2? ( x11-libs/gtk+:2 )
 	gtk?  ( x11-libs/gtk+:3 )
 	dbus? ( sys-apps/dbus )
 	kernel_linux? ( sys-libs/libcap )
@@ -112,9 +111,9 @@ src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--with-distro=gentoo
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+		--disable-gtk2
 		$(use_enable dbus)
 		$(use_enable gdbm)
-		$(use_enable gtk2 gtk)
 		$(use_enable gtk  gtk3)
 		$(use_enable howl-compat compat-howl)
 		$(use_enable mdnsresponder-compat compat-libdns_sd)

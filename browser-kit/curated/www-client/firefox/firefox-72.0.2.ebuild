@@ -55,7 +55,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 IUSE="bindist clang cpu_flags_x86_avx2 debug eme-free geckodriver
 	+gmp-autoupdate hardened hwaccel jack lto cpu_flags_arm_neon pgo
 	pulseaudio +screenshot selinux startup-notification +system-av1
-	+system-icu +system-jpeg +system-libevent  +system-sqlite +system-libvpx
+	+system-icu +system-jpeg +system-libevent +system-sqlite system-libvpx
 	+system-webp test wayland wifi"
 
 REQUIRED_USE="pgo? ( lto )"

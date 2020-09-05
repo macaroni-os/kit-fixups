@@ -261,7 +261,7 @@ src_install() {
 	rm -f "${D}"/lib/modules/*/source || die
 	rm -f "${D}"/lib/modules/*/build || die
 	cd "${D}"/lib/modules
-	local moddir="$(ls -d [234]*)"
+	local moddir="$(ls -d [1-9]*)"
 	ln -s /usr/src/${LINUX_SRCDIR} "${D}"/lib/modules/${moddir}/source || die
 	ln -s /usr/src/${LINUX_SRCDIR} "${D}"/lib/modules/${moddir}/build || die
 	# Fixes FL-14

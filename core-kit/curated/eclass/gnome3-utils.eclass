@@ -382,9 +382,20 @@ gnome3_query_immodules_gtk3() {
 	[[ ! -x ${updater} ]] && updater=${EPREFIX}/usr/bin/gtk-query-immodules-3.0
 
 	ebegin "Updating gtk3 input method module cache"
-	GTK_IM_MODULE_FILE="${EROOT}usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache" \
-		"${updater}" --update-cache
-	eend $?
+	GTK_IM_MODULE_FILE="${EROOT}usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
+	einfo "updater: ${updater}"
+	einfo "GTK_IM_MODULE_FILE: $GTK_IM_MODULE_FILE"
+	echo "Directory contents: "
+	ls -l "${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules"
+	"${updater}" --update-cache
+	if [ $? -ne 0 ]; then
+		ewarn "Immodules cache failure."
+		ldd ${updater}
+		return 1
+	else
+		einfo "Immodules cache update success."
+		return 0
+	fi
 }
 
 # @FUNCTION: gnome3_giomodule_cache_update

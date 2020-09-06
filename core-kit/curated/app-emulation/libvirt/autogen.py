@@ -18,10 +18,7 @@ async def generate(hub, **pkginfo):
 	python_compat = "python3+"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=version,
-		python_compat=python_compat,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		**pkginfo, version=version, python_compat=python_compat, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 	ebuild.push()
 

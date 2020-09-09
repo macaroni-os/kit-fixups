@@ -6,7 +6,7 @@ import json
 async def generate(hub, **pkginfo):
 	user = "arvidn"
 	repo = "libtorrent"
-	app = pkginfo['name']
+	app = pkginfo["name"]
 	json_list = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)
 	for release in json_list:
 		if release["prerelease"]:

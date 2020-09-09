@@ -1,27 +1,39 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+inherit bash-completion-r1 go-module
 
-inherit golang-build bash-completion-r1 golang-vcs-snapshot
+EGO_SUM=(
+{{gosum}})
 
-EGO_PN="github.com/rclone/${PN}"
+go-module_set_globals
+
+KEYWORDS="*"
+SRC_URI="{{artifacts[0].src_uri}}
+	${EGO_SUM_SRC_URI}"
+
 
 DESCRIPTION="A program to sync files to and from various cloud storage providers"
 HOMEPAGE="https://rclone.org/"
-SRC_URI="{{artifacts[0].src_uri}}"
-KEYWORDS="*"
 
-LICENSE="MIT"
+LICENSE="Apache-2.0 BSD BSD-2 ISC MIT"
 SLOT="0"
 IUSE=""
 
-DEPEND=""
-RDEPEND="${DEPEND}"
+S="${WORKDIR}/${PN}-v${PV}"
+
+src_unpack() {
+	go-module_src_unpack
+}
+
+src_compile() {
+	go build -mod=mod . || die "compile failed"
+}
 
 src_install() {
 	dobin ${PN}
-	doman src/${EGO_PN}/${PN}.1
-	dodoc src/${EGO_PN}/README.md
+	doman ${PN}.1
+	dodoc README.md
 
 	./rclone genautocomplete bash ${PN}.bash || die
 	newbashcomp ${PN}.bash ${PN}

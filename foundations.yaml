@@ -12,15 +12,19 @@ python-settings:
           mask: ">=dev-lang/python-3.8"
 
 overlays:
-  - gentoo-staging
-  - fusion809:
-      url: https://github.com/fusion809/fusion809-overlay.git
   - deadbeef:
       url: https://github.com/damex/deadbeef-overlay.git
       eclasses:
         - deadbeef-plugins
+  - faustoo:
+      url: https://github.com/fmoro/faustoo.git
+      eclasses:
+        - waf
+        - googlecode
   - flora
-
+  - fusion809:
+      url: https://github.com/fusion809/fusion809-overlay.git
+  - gentoo-staging
 
 source-defs:
   - funtoo_current:

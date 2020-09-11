@@ -35,10 +35,7 @@ async def generate(hub, **pkginfo):
 	vbox_bin.push()
 
 	vbox = hub.pkgtools.ebuild.BreezyBuild(
-		template_path=vbox_bin.template_path,
-		cat=pkginfo["cat"],
-		name="virtualbox",
-		version=version,
+		template_path=vbox_bin.template_path, cat=pkginfo["cat"], name="virtualbox", version=version,
 	)
 	vbox.push()
 

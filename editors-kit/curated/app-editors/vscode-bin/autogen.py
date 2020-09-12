@@ -13,8 +13,10 @@ async def generate(hub, **pkginfo):
 		)
 	url, version = versions[0]
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=f"vscode-bin-{version}.tar.gz")
+	await artifact.fetch()
+	artifact.extract()
 	unpack_path = Path(artifact.extract_path)
-	src_path = next(unpack_path.iterdir())  # path to `VSCode-linux-x64`
+	src_path = next(unpack_path.iterdir())	# path to `VSCode-linux-x64`
 	sh_paths = [path.relative_to(src_path) for path in src_path.rglob("*.sh")]
 	so_paths = [path.relative_to(src_path) for path in src_path.rglob("*.so")]
 	node_paths = [path.relative_to(src_path) for path in src_path.rglob("*.node")]

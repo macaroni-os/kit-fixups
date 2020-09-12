@@ -21,8 +21,7 @@ RESTRICT="mirror"
 DEPEND="app-arch/unzip
 	${PYTHON_DEPS}"
 
-RDEPEND="!!app-emulation/virtualbox
-	!app-emulation/virtualbox-additions
+RDEPEND="!app-emulation/virtualbox-additions
 	~app-emulation/virtualbox-modules-{{main_ver}}
 	!headless? (
 		dev-libs/glib

@@ -16,6 +16,7 @@ KEYWORDS="*"
 BDEPEND="dev-python/setuptools"
 
 src_prepare() {
-	sed -E "N;s/,\n 'tests'\]/\]/" -i setup.py
+	sed -E "/tests.*,$/d" -i setup.py
+	sed -E "N;s/,\n 'tests.*\]/\]/" -i setup.py
 	default
 }

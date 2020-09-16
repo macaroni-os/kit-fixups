@@ -294,6 +294,10 @@ pkg_postinst() {
 	if use binary && [[ ! -e "${ROOT}"usr/src/linux ]]; then
 		ewarn "With binary use flag enabled /usr/src/linux"
 		ewarn "symlink automatically set to debian kernel"
+		ewarn "If you have external modules, don't forget to rebuild them with:"
+		ewarn ""
+		ewarn "  emerge @module-rebuild"
+		ewarn ""
 		ln -sf ${LINUX_SRCDIR} "${ROOT}"usr/src/linux
 	fi
 

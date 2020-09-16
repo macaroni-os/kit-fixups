@@ -1,4 +1,3 @@
-# Copyright 2011-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
@@ -38,6 +37,7 @@ RDEPEND="
 	dev-libs/expat
 	dev-libs/glib:2
 	dev-libs/nspr
+	dev-libs/wayland
 	>=dev-libs/nss-3.26
 	media-libs/alsa-lib
 	media-libs/fontconfig

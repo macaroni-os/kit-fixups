@@ -6,7 +6,7 @@ inherit webapp
 
 DESCRIPTION="A browser-based multilingual IMAP client with an application-like user interface"
 HOMEPAGE="https://roundcube.net"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="https://api.github.com/repos/roundcube/roundcubemail/tarball/1.4.8 -> roundcube-1.4.8.tar.gz"
 
 # roundcube is GPL-licensed, the rest of the licenses here are
 # for bundled PEAR components, googiespell and utf8.class.php
@@ -36,17 +36,18 @@ RDEPEND="
 		)
 	)
 	spell? ( dev-lang/php[curl,spell] )
-        dev-php/PEAR-Net_Socket
-        dev-php/PEAR-Auth_SASL
-        dev-php/PEAR-Net_IDNA2
-        dev-php/PEAR-Mail_Mime
-        dev-php/PEAR-Net_SMTP
-        dev-php/PEAR-Crypt_GPG
+	dev-php/PEAR-Net_Socket
+	dev-php/PEAR-Auth_SASL
+	dev-php/PEAR-Net_IDNA2
+	dev-php/PEAR-Mail_Mime
+	dev-php/PEAR-Net_SMTP
+	dev-php/PEAR-Crypt_GPG
+
 "
 
 src_unpack() {
 	unpack ${A} || die
-	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-??????? ${P} || die
+	mv ${WORKDIR}/roundcube-roundcubemail-??????? ${P} || die
 }
 
 src_install() {

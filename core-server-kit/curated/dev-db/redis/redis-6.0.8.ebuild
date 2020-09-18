@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,8 +9,8 @@ HOMEPAGE="https://redis.io"
 SRC_URI="http://download.redis.io/releases/${P}.tar.gz"
 
 LICENSE="BSD"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ppc ~ppc64 ~x86 ~amd64-linux ~x86-linux ~x86-macos ~x86-solaris"
-IUSE="+jemalloc tcmalloc luajit test"
+KEYWORDS="*"
+IUSE="+jemalloc tcmalloc luajit split-conf +ssl test"
 SLOT="0"
 
 # Redis does NOT build with Lua 5.2 or newer at this time.
@@ -32,19 +31,40 @@ DEPEND="${RDEPEND}
 	test? ( dev-lang/tcl:0= )"
 
 REQUIRED_USE="?? ( tcmalloc jemalloc )"
+PATCHES=(
+	"${FILESDIR}"/${PN}-3.2.3-config.patch
+	"${FILESDIR}"/${PN}-5.0-shared.patch
+	"${FILESDIR}"/${PN}-6.0.3-sharedlua.patch
+	"${FILESDIR}"/${PN}-5.0.8-ppc-atomic.patch
+	"${FILESDIR}"/${PN}-sentinel-5.0-config.patch
+)
 
 pkg_setup() {
-	enewgroup redis 75
-	enewuser redis 75 -1 /var/lib/redis redis
+	if egetent group ${PN} > /dev/null ; then
+		elog "${PN} group already exist."
+		elog "group creation step skipped."
+	else
+		enewgroup  ${PN} > /dev/null
+		elog "${PN} group created by portage."
+	fi
+
+        if egetent passwd  ${PN} > /dev/null ; then
+                elog "${PN} user already exist."
+                elog "user creation step skipped."
+        else
+                enewuser ${PN} -1 -1 /dev/null ${PN} > /dev/null
+                elog "${PN} user with ${NGINX_HOME} home"
+                elog "was created by portage."
+        fi
+
+
 }
 
 src_prepare() {
-	eapply \
-		"${FILESDIR}"/${PN}-3.2.3-config.patch \
-		"${FILESDIR}"/${PN}-5.0-shared.patch \
-		"${FILESDIR}"/${PN}-5.0-sharedlua.patch \
-		"${FILESDIR}"/${PN}-sentinel-5.0-config.patch
-	eapply_user
+	default
+
+	# unstable on jemalloc
+	> tests/unit/memefficiency.tcl || die
 
 	# Copy lua modules into build dir
 	cp "${S}"/deps/lua/src/{fpconv,lua_bit,lua_cjson,lua_cmsgpack,lua_struct,strbuf}.c "${S}"/src || die
@@ -97,35 +117,73 @@ src_prepare() {
 }
 
 src_configure() {
-	econf \
-		$(use_with luajit)
-
+	econf $(use_with luajit)
+	
 	# Linenoise can't be built with -std=c99, see https://bugs.gentoo.org/451164
 	# also, don't define ANSI/c99 for lua twice
 	sed -i -e "s:-std=c99::g" deps/linenoise/Makefile deps/Makefile || die
+
 }
 
 src_compile() {
-	tc-export CC AR RANLIB
-
 	local myconf=""
 
-	if use tcmalloc; then
-		myconf="${myconf} USE_TCMALLOC=yes"
-	elif use jemalloc; then
-		myconf="${myconf} JEMALLOC_SHARED=yes"
+	if use jemalloc; then
+		myconf+="MALLOC=jemalloc "
+	elif use tcmalloc; then
+		myconf+="MALLOC=tcmalloc "
 	else
-		myconf="${myconf} MALLOC=yes"
+		myconf+="MALLOC=libc "
 	fi
+	
+	if use ssl; then
+        myconf+="BUILD_TLS=yes "
+    fi
 
-	emake ${myconf} V=1 CC="${CC}" AR="${AR} rcu" RANLIB="${RANLIB}"
+#	emake ${myconf} V=1 CC="${CC}" AR="${AR} rcu" RANLIB="${RANLIB}"
+	tc-export CC
+	emake V=1 ${myconf} CC="${CC}"
 }
 
 src_install() {
-	insinto /etc/
-	doins redis.conf sentinel.conf
-	use prefix || fowners redis:redis /etc/{redis,sentinel}.conf
-	fperms 0644 /etc/{redis,sentinel}.conf
+	
+    keepdir "${EROOT}etc/${PN}"
+    keepdir "${EROOT}etc/${PN}/conf"
+	
+	if use split-conf; then
+        insinto "${EROOT}etc/${PN}"
+        doins sentinel.conf
+        
+        newins "${FILESDIR}/redis_split.conf" "${PN}.conf"
+        insinto "${EROOT}etc/${PN}/conf"
+        newins "${FILESDIR}/10_general.conf"    10_general.conf
+        newins "${FILESDIR}/10_memory.conf"     10_memory.conf
+        newins "${FILESDIR}/10_network.conf"    10_network.conf
+        newins "${FILESDIR}/10_security.conf"   10_security.conf
+        newins "${FILESDIR}/10_snapshot.conf"   10_snapshot.conf
+        newins "${FILESDIR}/10_ssl.conf"        10_ssl.conf
+        newins "${FILESDIR}/20_cluster.conf"    20_cluster.conf
+        newins "${FILESDIR}/20_replication.conf"    20_replication.conf
+        newins "${FILESDIR}/30_advance_config.conf" 30_advance_config.conf
+        newins "${FILESDIR}/30_append.conf"         30_append.conf
+        newins "${FILESDIR}/30_defragmentation.conf" 30_defragmentation.conf
+        newins "${FILESDIR}/30_latency.conf"    30_latency.conf
+        newins "${FILESDIR}/30_lazy.conf"   30_lazy.conf
+        newins "${FILESDIR}/30_nat.conf"    30_nat.conf
+        newins "${FILESDIR}/30_slowlog.conf"    30_slowlog.conf
+        newins "${FILESDIR}/30_threads.conf"    30_threads.conf
+        newins "${FILESDIR}/40_event.conf"  40_event.conf
+        newins "${FILESDIR}/40_gopher.conf" 40_gopher.conf
+        newins "${FILESDIR}/40_keys_tracking.conf" 40_keys_tracking.conf
+        newins "${FILESDIR}/40_lua.conf"    40_lua.conf
+      
+	else
+      insinto "${EROOT}etc/${PN}"
+      doins redis.conf sentinel.conf
+	fi
+	
+	use prefix || fowners redis:redis "${EROOT}/etc/${PN}/"{redis,sentinel}.conf
+	fperms 0644 "${EROOT}/etc/${PN}/"{redis,sentinel}.conf
 
 	newconfd "${FILESDIR}/redis.confd-r1" redis
 	newinitd "${FILESDIR}/redis.initd-5" redis

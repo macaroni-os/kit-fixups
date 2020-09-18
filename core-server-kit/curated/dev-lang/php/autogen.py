@@ -10,9 +10,9 @@ async def generate(hub, **pkginfo):
 		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch"], None),
 		(
 			"8.0",
-			"8.0.0_beta1",
+			"8.0.0_beta4",
 			["php-iodbc-header-location.patch", "apache.patch"],
-			"https://downloads.php.net/~carusogabriel/php-8.0.0beta1.tar.gz",
+			"https://downloads.php.net/~pollita/php-8.0.0beta4.tar.gz",
 		),
 	]
 	php_url = "https://www.php.net/downloads.php"

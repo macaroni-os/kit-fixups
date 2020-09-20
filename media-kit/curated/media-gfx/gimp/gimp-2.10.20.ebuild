@@ -57,8 +57,10 @@ COMMON_DEPEND="
 	postscript? ( app-text/ghostscript-gpl )
 	python?	(
 		${PYTHON_DEPS}
+		$(python_gen_cond_dep '
 		>=dev-python/pycairo-1.0.2[${PYTHON_USEDEP}]
 		>=dev-python/pygtk-2.10.4:2[${PYTHON_USEDEP}]
+		')
 	)
 	udev? ( dev-libs/libgudev:= )
 	unwind? ( >=sys-libs/libunwind-1.1.0:= )

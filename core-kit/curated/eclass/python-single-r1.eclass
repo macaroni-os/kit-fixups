@@ -212,15 +212,7 @@ _python_single_set_globals() {
     local flags_mt=( "${_PYTHON_SUPPORTED_IMPLS[@]/#/python_targets_}" )
     local unflags=( "${_PYTHON_UNSUPPORTED_IMPLS[@]/#/-python_single_target_}" )
     local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
-    #IUSE="${flags_mt[*]}"
-
-	if [[ ${#_PYTHON_SUPPORTED_IMPLS[@]} -eq 1 ]]; then
-		# if only one implementation is supported, use IUSE defaults
-		# to avoid requesting the user to enable it
-		IUSE="+${flags[0]}"
-	else
-		IUSE="${flags[*]} ${flags_mt[*]}"
-	fi
+    IUSE="${flags_mt[*]}"
 
 	local requse="^^ ( ${flags[*]} )"
 	local single_flags="${flags[@]/%/(-)?}"

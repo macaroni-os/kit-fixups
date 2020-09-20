@@ -4,7 +4,7 @@ EAPI=6
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE='threads(+),xml(+)'
 
-inherit python-single-r1 waf-utils multilib-minimal linux-info systemd pam
+inherit python-single-r1 waf-utils linux-info systemd pam
 
 MY_PV="${PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
@@ -25,46 +25,39 @@ IUSE="acl addc addns ads ceph client cluster cups debug dmapi fam gpg iprint
 json ldap pam profiling-data python quota selinux syslog system-heimdal 
 +system-mitkrb5 systemd test winbind zeroconf"
 
-MULTILIB_WRAPPED_HEADERS=(
-/usr/include/samba-4.0/policy.h
-/usr/include/samba-4.0/dcerpc_server.h
-/usr/include/samba-4.0/ctdb.h
-/usr/include/samba-4.0/ctdb_client.h
-/usr/include/samba-4.0/ctdb_protocol.h
-/usr/include/samba-4.0/ctdb_private.h
-/usr/include/samba-4.0/ctdb_typesafe_cb.h
-/usr/include/samba-4.0/ctdb_version.h
-)
-
 # sys-apps/attr is an automagic dependency (see bug #489748)
 CDEPEND="
-	>=app-arch/libarchive-3.1.2[${MULTILIB_USEDEP}]
+	>=app-arch/libarchive-3.1.2
 	dev-lang/perl:=
-	dev-libs/libaio[${MULTILIB_USEDEP}]
-	dev-libs/libbsd[${MULTILIB_USEDEP}]
+	dev-libs/libaio
+	dev-libs/libbsd
 	dev-libs/libgcrypt:0
 	dev-libs/iniparser:0
-	dev-libs/popt[${MULTILIB_USEDEP}]
-	dev-python/subunit[${PYTHON_USEDEP},${MULTILIB_USEDEP}]
-	>=dev-util/cmocka-1.1.1[${MULTILIB_USEDEP}]
+	dev-libs/popt
+	$(python_gen_cond_dep '
+	dev-python/subunit[${PYTHON_USEDEP}]
+	>=sys-libs/ldb-2.0.6[ldap(+)?,python?,${PYTHON_USEDEP}]
+	<sys-libs/ldb-2.2.0[ldap(+)?,python?,${PYTHON_USEDEP}]
+	>=sys-libs/talloc-2.2.0[python?,${PYTHON_USEDEP}]
+	>=sys-libs/tdb-1.4.2[python?,${PYTHON_USEDEP}]
+	>=sys-libs/tevent-0.10.0[python?,${PYTHON_USEDEP}]
+	')
+	>=dev-util/cmocka-1.1.1
 	>=net-libs/gnutls-3.2.0
-	net-libs/libnsl:=[${MULTILIB_USEDEP}]
-	sys-apps/attr[${MULTILIB_USEDEP}]
-	>=sys-libs/ldb-2.0.6[ldap(+)?,python?,${PYTHON_USEDEP},${MULTILIB_USEDEP}]
-	<sys-libs/ldb-2.2.0[ldap(+)?,python?,${PYTHON_USEDEP},${MULTILIB_USEDEP}]
+	net-libs/libnsl:=
+	sys-apps/attr
 	sys-libs/libcap
-	sys-libs/ncurses:0=[${MULTILIB_USEDEP}]
+	sys-libs/ncurses:0=
 	sys-libs/readline:0=
-	>=sys-libs/talloc-2.2.0[python?,${PYTHON_USEDEP},${MULTILIB_USEDEP}]
-	>=sys-libs/tdb-1.4.2[python?,${PYTHON_USEDEP},${MULTILIB_USEDEP}]
-	>=sys-libs/tevent-0.10.0[python?,${PYTHON_USEDEP},${MULTILIB_USEDEP}]
-	sys-libs/zlib[${MULTILIB_USEDEP}]
+	sys-libs/zlib
 	virtual/libiconv
 	pam? ( virtual/pam )
 	acl? ( virtual/acl )
 	addns? (
 		net-dns/bind-tools[gssapi]
+		$(python_gen_cond_dep '
 		dev-python/dnspython:=[${PYTHON_USEDEP}]
+		')
 	)
 	ceph? ( sys-cluster/ceph )
 	cluster? (
@@ -76,9 +69,9 @@ CDEPEND="
 	dmapi? ( sys-apps/dmapi )
 	fam? ( virtual/fam )
 	json? ( dev-libs/jansson )
-	ldap? ( net-nds/openldap[${MULTILIB_USEDEP}] )
-	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl,${MULTILIB_USEDEP}] )
-	system-mitkrb5? ( >=app-crypt/mit-krb5-1.15.1[${MULTILIB_USEDEP}] )
+	ldap? ( net-nds/openldap )
+	system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl] )
+	system-mitkrb5? ( >=app-crypt/mit-krb5-1.15.1 )
 	systemd? ( sys-apps/systemd:0= )
 "
 
@@ -86,7 +79,7 @@ DEPEND="${CDEPEND}
 	${PYTHON_DEPS}
 	app-text/docbook-xsl-stylesheets
 	dev-libs/libxslt
-	net-libs/libtirpc[${MULTILIB_USEDEP}]
+	net-libs/libtirpc
 	virtual/pkgconfig
 	|| (
 		net-libs/rpcsvc-proto
@@ -134,14 +127,16 @@ PATCHES=(
 CONFDIR="${FILESDIR}/4.4"
 WAF_BINARY="${S}/buildtools/bin/waf"
 SHAREDMODS=""
+
 pkg_setup() {
-python-single-r1_pkg_setup
-if use cluster ; then
-SHAREDMODS="idmap_rid,idmap_tdb2,idmap_ad"
-elif use ads ; then
-SHAREDMODS="idmap_ad"
-fi
+	python-single-r1_pkg_setup
+	if use cluster ; then
+		SHAREDMODS="idmap_rid,idmap_tdb2,idmap_ad"
+	elif use ads ; then
+		SHAREDMODS="idmap_ad"
+	fi
 }
+
 src_prepare() {
 	default
 	# un-bundle dnspython
@@ -155,11 +150,9 @@ src_prepare() {
 	sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
 	-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 	|| die
-	# Friggin' WAF shit
-	multilib_copy_sources
 }
 
-multilib_src_configure() {
+src_configure() {
 	# when specifying libs for samba build you must append NONE to the end to
 	# stop it automatically including things
 	local bundled_libs="NONE"
@@ -179,55 +172,53 @@ multilib_src_configure() {
 		--disable-rpath-install
 		--nopyc
 		--nopyo
-		$(multilib_native_use_with acl acl-support)
-		$(multilib_native_usex addc '' '--without-ad-dc')
-		$(multilib_native_use_with addns dnsupdate)
-		$(multilib_native_use_with ads)
-		$(multilib_native_use_enable ceph cephfs)
-		$(multilib_native_use_with cluster cluster-support)
-		$(multilib_native_use_enable cups)
-		$(multilib_native_use_with dmapi)
-		$(multilib_native_use_with fam)
-		$(multilib_native_use_with gpg gpgme)
-		$(multilib_native_use_with json )
-		$(multilib_native_use_enable iprint)
-		$(multilib_native_use_with pam)
-		$(multilib_native_usex pam "--with-pammodulesdir=${EPREFIX}/$(get_libdir)/security" '')
-		$(multilib_native_use_with quota quotas)
-		$(multilib_native_use_with syslog)
-		$(multilib_native_use_with systemd)
-		$(multilib_native_use_with winbind)
-		$(multilib_native_usex python '' '--disable-python')
-		$(multilib_native_use_enable zeroconf avahi)
-		$(multilib_native_usex test '--enable-selftest' '')
-		$(usex system-mitkrb5 "--with-system-mitkrb5 $(multilib_native_usex addc --with-experimental-mit-ad-dc '')" '')
+		$(use_with acl acl-support)
+		$(usex addc '' '--without-ad-dc')
+		$(use_with addns dnsupdate)
+		$(use_with ads)
+		$(use_enable ceph cephfs)
+		$(use_with cluster cluster-support)
+		$(use_enable cups)
+		$(use_with dmapi)
+		$(use_with fam)
+		$(use_with gpg gpgme)
+		$(use_with json )
+		$(use_enable iprint)
+		$(use_with pam)
+		$(usex pam "--with-pammodulesdir=${EPREFIX}/$(get_libdir)/security" '')
+		$(use_with quota quotas)
+		$(use_with syslog)
+		$(use_with systemd)
+		$(use_with winbind)
+		$(usex python '' '--disable-python')
+		$(use_enable zeroconf avahi)
+		$(usex test '--enable-selftest' '')
+		$(usex system-mitkrb5 "--with-system-mitkrb5 $(usex addc --with-experimental-mit-ad-dc '')" '')
 		$(use_with debug lttng)
 		$(use_with ldap)
 		$(use_with profiling-data)
+		--with-shared-modules=${SHAREDMODS}
 	)
 
-	multilib_is_native_abi && myconf+=( --with-shared-modules=${SHAREDMODS} )
 
 	CPPFLAGS="-I${SYSROOT}${EPREFIX}/usr/include/et ${CPPFLAGS}" \
 	waf-utils_src_configure ${myconf[@]}
 }
 
-multilib_src_compile() {
+src_compile() {
 	waf-utils_src_compile
 }
 
-multilib_src_install() {
+src_install() {
 	waf-utils_src_install
 
 	# Make all .so files executable
 	find "${ED}" -type f -name "*.so" -exec chmod +x {} +
 
-	if multilib_is_native_abi ; then
 	# install ldap schema for server (bug #491002)
 	if use ldap ; then
 	insinto /etc/openldap/schema
 	doins examples/LDAP/samba.schema
-	fi
 
 	# create symlink for cups (bug #552310)
 	if use cups ; then
@@ -257,31 +248,27 @@ multilib_src_install() {
 	systemd_dounit "${FILESDIR}"/samba.service
 	fi
 
-		if use pam && use winbind ; then
-			newpamd "${CONFDIR}/system-auth-winbind.pam" system-auth-winbind
-			# bugs #376853 and #590374
-			insinto /etc/security
-			doins examples/pam_winbind/pam_winbind.conf || die
-		fi
+	if use pam && use winbind ; then
+		newpamd "${CONFDIR}/system-auth-winbind.pam" system-auth-winbind
+		# bugs #376853 and #590374
+		insinto /etc/security
+		doins examples/pam_winbind/pam_winbind.conf || die
+	fi
 	keepdir /var/cache/samba
 	keepdir /var/lib/ctdb
 	keepdir /var/lib/samba/{bind-dns,private}
 	keepdir /var/log/samba
-}
 
-multilib_src_install_all() {
 	# Attempt to fix bug #673168
 	find "${ED}" -type d -name "Yapp" -print0 \
 		| xargs -0 --no-run-if-empty rm -r || die
 }
 
-multilib_src_test() {
-	if multilib_is_native_abi ; then
+src_test() {
 	"${WAF_BINARY}" test || die "test failed"
-	fi
-	}
+}
 
-	pkg_postinst() {
+pkg_postinst() {
 	ewarn "Be aware the this release contains the best of all of Samba's"
 	ewarn "technology parts, both a file server (that you can reasonably expect"
 	ewarn "to upgrade existing Samba 3.x releases to) and the AD domain"

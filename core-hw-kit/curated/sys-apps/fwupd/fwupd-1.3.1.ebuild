@@ -1,9 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{5,6,7} )
+PYTHON_COMPAT=( python3+ )
 
 inherit meson python-single-r1 vala xdg-utils
 
@@ -13,7 +12,7 @@ SRC_URI="https://github.com/hughsie/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-KEYWORDS="amd64 arm x86"
+KEYWORDS="*"
 IUSE="agent +colorhug consolekit +dell doc elogind +gpg +intel-amt +man +nvme +pkcs7 +redfish +synaptics systemd test +thunderbolt +uefi"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
@@ -31,9 +30,11 @@ RDEPEND="${PYTHON_DEPS}
 	dev-libs/libgudev:=
 	>=dev-libs/libgusb-0.2.9[introspection]
 	>=dev-libs/libxmlb-0.1.7
+	$(python_gen_cond_dep '
 	dev-python/pillow[${PYTHON_USEDEP}]
 	dev-python/pycairo[${PYTHON_USEDEP}]
 	dev-python/pygobject:3[cairo,${PYTHON_USEDEP}]
+	')
 	>=net-libs/libsoup-2.51.92:2.4[introspection]
 	>=sys-auth/polkit-0.103
 	virtual/libelf:0=

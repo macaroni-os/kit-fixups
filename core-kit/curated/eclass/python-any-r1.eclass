@@ -227,6 +227,7 @@ python_gen_any_dep() {
 
 	local i PYTHON_PKG_DEP out=
 	for i in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
+		echo "DOING IMPL ${i} !!!!!!!!!!!!!!!!!!!" 1>&2
 		local PYTHON_USEDEP="python_targets_${i}(-),python_single_target_${i}(+)"
 		python_export "${i}" PYTHON_PKG_DEP
 
@@ -234,6 +235,7 @@ python_gen_any_dep() {
 		# note: need to strip '=' slot operator for || deps
 		out="( ${PYTHON_PKG_DEP%=} ${i_depstr} ) ${out}"
 	done
+	echo "$PF GENERATED THIS BABY::::: || ( ${out})" 1>&2
 	echo "|| ( ${out})"
 }
 

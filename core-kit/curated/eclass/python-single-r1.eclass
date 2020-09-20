@@ -260,7 +260,12 @@ _python_single_set_globals() {
 	else
 		PYTHON_DEPS=${deps}
 		PYTHON_REQUIRED_USE=${requse}
-		PYTHON_USEDEP=${single_usedep}
+
+		local flags_mt=( "${_PYTHON_SUPPORTED_IMPLS[@]/#/python_targets_}" )
+        local unflags=( "${_PYTHON_UNSUPPORTED_IMPLS[@]/#/-python_single_target_}" )
+        local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
+
+		PYTHON_USEDEP=${optflags// /,}
 		PYTHON_SINGLE_USEDEP=${single_usedep}
 		readonly PYTHON_DEPS PYTHON_REQUIRED_USE PYTHON_SINGLE_USEDEP \
 			PYTHON_USEDEP

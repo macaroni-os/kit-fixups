@@ -153,8 +153,9 @@ _python_set_impls() {
 
 	declare -A supp
 	declare -A unsupp
-
+	echo "SLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL" 1>&2
 	for i in "${PYTHON_COMPAT[@]}"; do
+		echo "PROCESSING $i" 1>&2
 		# trigger validity checks
 		_python_impl_supported "${i}" || continue
 		case $i in
@@ -193,17 +194,20 @@ _python_set_impls() {
 				supp[$i]=1
 		esac
 	done
+	echo "SLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL@" 1>&2
 
 	declare -A supp_filt
 	# filter!
 
 	# Extra filtering of PYTHON_COMPAT settings against all python implementations defined in here.
-
+	echo ALL IMPLS "${_PYTHON_ALL_IMPLS[@]}" 1>&2
+	echo "${!supp[@]} SUPP"
 	for i in "${!supp[@]}"; do
 		if has ${i} "${_PYTHON_ALL_IMPLS[@]}"; then
 			supp_filt[$i]=1
  		fi
  	done
+	echo "${!supp_filt[@]} SUPP FILT"
 
 
 	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
@@ -215,9 +219,10 @@ _python_set_impls() {
 	if [[ -z "${!supp_filt[@]}" ]]; then
 		die "No supported implementation in PYTHON_COMPAT."
 	fi
+	echo "UNSUPPPPPPPPP ${!unsupp[@]}"
 	if [[ -z "${_PYTHON_SUPPORTED_IMPLS[@]}" ]]; then
-		_PYTHON_SUPPORTED_IMPLS=( "${!supp_filt[@]}" )
-		_PYTHON_UNSUPPORTED_IMPLS=( "${!unsupp[@]}" )
+		_PYTHON_SUPPORTED_IMPLS=( ${!supp_filt[@]} )
+		_PYTHON_UNSUPPORTED_IMPLS=( ${!unsupp[@]} )
 		readonly _PYTHON_SUPPORTED_IMPLS _PYTHON_UNSUPPORTED_IMPLS
 	fi
 }

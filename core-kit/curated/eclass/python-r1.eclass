@@ -632,7 +632,6 @@ _python_obtain_impls() {
 
 	local impl
 	for impl in "${_PYTHON_SUPPORTED_IMPLS[@]}"; do
-		has "${impl}" "${PYTHON_COMPAT[@]}" && \
 		use "python_targets_${impl}" && MULTIBUILD_VARIANTS+=( "${impl}" )
 	done
 }
@@ -668,8 +667,10 @@ _python_multibuild_wrapper() {
 # For each command being run, EPYTHON, PYTHON and BUILD_DIR are set
 # locally, and the former two are exported to the command environment.
 python_foreach_impl() {
-	debug-print-function ${FUNCNAME} "${@}"
-
+	echo ${PF} ${FUNCNAME} "${@}" 1>&2
+	echo "OVERRIDE ${PYTHON_COMPAT_OVERRIDE}" 1>&2
+	echo "SUPPPP IMPLKMOMOMKOM ${_PYTHON_SUPPORTED_IMPLS[@]}" 1>&2
+	echo "COMPATTTTTTTT ${PYTHON_COMPAT[@]}" 1>&2
 	local MULTIBUILD_VARIANTS
 	_python_obtain_impls
 
@@ -759,9 +760,7 @@ python_setup() {
 	_python_verify_patterns "${@}"
 	for (( i = ${#_PYTHON_SUPPORTED_IMPLS[@]} - 1; i >= 0; i-- )); do
 		local impl=${_PYTHON_SUPPORTED_IMPLS[i]}
-
-		# check PYTHON_COMPAT[_OVERRIDE]
-		has "${impl}" "${pycompat[@]}" || continue
+		echo "TESTING SUPPPPPP $impl" 1>&2
 
 		# match USE flags only if override is not in effect
 		# and python_check_deps() is not defined

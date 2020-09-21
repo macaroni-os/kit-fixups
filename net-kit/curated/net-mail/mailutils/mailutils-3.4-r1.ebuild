@@ -33,7 +33,7 @@ RDEPEND="!mail-client/nmh
 	kerberos? ( virtual/krb5 )
 	kyotocabinet? ( dev-db/kyotocabinet )
 	ldap? ( net-nds/openldap )
-	mysql? ( virtual/mysql )
+	mysql? ( >=dev-db/mysql-connector-c-8.0.16-r1 )
 	nls? ( sys-devel/gettext )
 	pam? ( virtual/pam )
 	postgres? ( dev-db/postgresql:= )

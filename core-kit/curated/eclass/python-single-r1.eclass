@@ -212,7 +212,7 @@ _python_single_set_globals() {
     local flags_mt=( "${_PYTHON_SUPPORTED_IMPLS[@]/#/python_targets_}" )
     local unflags=( "${_PYTHON_UNSUPPORTED_IMPLS[@]/#/-python_single_target_}" )
     local optflags=${flags_mt[@]/%/(-)?},${unflags[@]/%/(-)}
-    IUSE="${flags_mt[*]}"
+    IUSE="${flags[*]} ${flags_mt[*]}"
 
 	local requse="^^ ( ${flags[*]} )"
 	local single_flags="${flags[@]/%/(-)?}"

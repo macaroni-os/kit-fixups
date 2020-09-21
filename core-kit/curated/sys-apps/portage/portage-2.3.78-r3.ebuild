@@ -115,6 +115,7 @@ PATCHES=(
 	"${FILESDIR}/portage-2.3.68-set-backtracking-to-6.patch"
 	"${FILESDIR}/portage-2.3.68-allow-matches-in-package-updates.patch"
 	"${FILESDIR}/portage-2.3.78-enhanced-metadata.patch"
+	"${FILESDIR}/portage-2.3.78-static-libs-belong-where-I-put-them.patch"
 )
 
 python_prepare_all() {

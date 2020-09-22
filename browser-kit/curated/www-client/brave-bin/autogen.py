@@ -6,9 +6,10 @@ from datetime import timedelta
 
 def find_release(json_dict, channel="Release"):
 	releases = filter(
-		lambda x: x["name"].startswith(f"{channel} Channel")
-		and x["prerelease"] is False
-		and not x["name"].endswith("-android"),
+		lambda x: x["prerelease"] is False
+		and x["draft"] is False
+		and f"{channel} Channel" in x["name"]
+		and not "Android" in x["name"],
 		json_dict,
 	)
 	releases = list(releases)
@@ -25,7 +26,7 @@ async def generate(hub, **pkginfo):
 
 	# Try to use the latest release version, but fall back to latest nightly if none found:
 	release = None
-	for channel in ["Release", "Beta", "Nightly"]:
+	for channel in ["Release", "Beta", "Dev", "Nightly"]:
 		release = find_release(json_dict, channel=channel)
 		if release:
 			break

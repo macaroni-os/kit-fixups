@@ -1,10 +1,10 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python{3_6,3_7} )
+PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="xml"
+DISTUTILS_USE_SETUPTOOLS="no"
 DISTUTILS_IN_SOURCE_BUILD=1
 inherit desktop distutils-r1 xdg-utils
 
@@ -14,10 +14,10 @@ SRC_URI="https://launchpad.net/${PN}/$(ver_cut 1-2)/${PV}/+download/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="*"
 
 DEPEND="
-	dev-python/python-distutils-extra[${PYTHON_USEDEP}]
+	>=dev-python/python-distutils-extra-2.45[${PYTHON_USEDEP}]
 "
 RDEPEND="
 	dev-libs/gobject-introspection

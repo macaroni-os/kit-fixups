@@ -141,14 +141,17 @@ src_prepare() {
 	default
 	# un-bundle dnspython
 	sed -i -e '/"dns.resolver":/d' "${S}"/third_party/wscript || die
+
 	# unbundle iso8601 unless tests are enabled
 	use test || sed -i -e '/"iso8601":/d' "${S}"/third_party/wscript || die
+
 	# ugly hackaround for bug #592502
 	cp /usr/include/tevent_internal.h "${S}"/lib/tevent/ || die
+
 	# get rid of annoying xattr.h warning:
-	find -iname *.c -exec sed -i -e 's:<attr/xattr\.h>:\<sys/xattr.h>:g' {} \; || die
+	find -iname *.[ch] -exec sed -i -e 's:<attr/xattr\.h>:\<sys/xattr.h>:g' {} \; || die
 	sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
-	-i source4/dsdb/samdb/ldb_modules/password_hash.c \
+		-i source4/dsdb/samdb/ldb_modules/password_hash.c \
 	|| die
 }
 
@@ -157,7 +160,7 @@ src_configure() {
 	# stop it automatically including things
 	local bundled_libs="NONE"
 	if ! use system-heimdal && ! use system-mitkrb5 ; then
-	bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
+		bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
 	fi
 
 	local myconf=(
@@ -202,7 +205,7 @@ src_configure() {
 
 
 	CPPFLAGS="-I${SYSROOT}${EPREFIX}/usr/include/et ${CPPFLAGS}" \
-	waf-utils_src_configure ${myconf[@]}
+		waf-utils_src_configure ${myconf[@]}
 }
 
 src_compile() {
@@ -217,12 +220,13 @@ src_install() {
 
 	# install ldap schema for server (bug #491002)
 	if use ldap ; then
-	insinto /etc/openldap/schema
-	doins examples/LDAP/samba.schema
+		insinto /etc/openldap/schema
+		doins examples/LDAP/samba.schema
+	fi
 
 	# create symlink for cups (bug #552310)
 	if use cups ; then
-	dosym ../../../bin/smbspool /usr/libexec/cups/backend/smb
+		dosym ../../../bin/smbspool /usr/libexec/cups/backend/smb
 	fi
 
 	# install example config file
@@ -230,22 +234,24 @@ src_install() {
 	doins examples/smb.conf.default
 
 	# Fix paths in example file (#603964)
-	sed \
-	-e '/log file =/s@/usr/local/samba/var/@/var/log/samba/@' \
-	-e '/include =/s@/usr/local/samba/lib/@/etc/samba/@' \
-	-e '/path =/s@/usr/local/samba/lib/@/var/lib/samba/@' \
-	-e '/path =/s@/usr/local/samba/@/var/lib/samba/@' \
-	-e '/path =/s@/usr/spool/samba@/var/spool/samba@' \
-	-i "${ED%/}"/etc/samba/smb.conf.default || die
+	sed -e '/log file =/s@/usr/local/samba/var/@/var/log/samba/@' \
+		-e '/include =/s@/usr/local/samba/lib/@/etc/samba/@' \
+		-e '/path =/s@/usr/local/samba/lib/@/var/lib/samba/@' \
+		-e '/path =/s@/usr/local/samba/@/var/lib/samba/@' \
+		-e '/path =/s@/usr/spool/samba@/var/spool/samba@' \
+		-i "${ED%/}"/etc/samba/smb.conf.default || die
+
 	# Install init script and conf.d file
 	newinitd "${CONFDIR}/samba4.initd-r1" samba
 	newconfd "${CONFDIR}/samba4.confd" samba
-	systemd_dotmpfilesd "${FILESDIR}"/samba.conf
-	systemd_dounit "${FILESDIR}"/nmbd.service
-	systemd_dounit "${FILESDIR}"/smbd.{service,socket}
-	systemd_newunit "${FILESDIR}"/smbd_at.service 'smbd@.service'
-	systemd_dounit "${FILESDIR}"/winbindd.service
-	systemd_dounit "${FILESDIR}"/samba.service
+
+	if use systemd ; then
+		systemd_dotmpfilesd "${FILESDIR}"/samba.conf
+		systemd_dounit "${FILESDIR}"/nmbd.service
+		systemd_dounit "${FILESDIR}"/smbd.{service,socket}
+		systemd_newunit "${FILESDIR}"/smbd_at.service 'smbd@.service'
+		systemd_dounit "${FILESDIR}"/winbindd.service
+		systemd_dounit "${FILESDIR}"/samba.service
 	fi
 
 	if use pam && use winbind ; then

@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
+
 async def generate(hub, **pkginfo):
-	pkginfo['version'] = "2.0.3"
+	pkginfo["version"] = "2.0.3"
 	GITHUB_USER = "hashicorp"
 	GITHUB_REPO = "vagrant_cloud"
-	json_list = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/tags", is_json=True)
+	json_list = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/tags", is_json=True
+	)
 	version = None
 	tag_name = None
 	for tag in json_list:

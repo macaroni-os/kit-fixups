@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -12,7 +11,7 @@ SRC_URI="https://files.dyne.org/frei0r/releases/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="doc +facedetect +scale0tilt"
+IUSE="doc -facedetect +scale0tilt"
 
 RDEPEND="x11-libs/cairo
 	facedetect? ( >=media-libs/opencv-4:= )

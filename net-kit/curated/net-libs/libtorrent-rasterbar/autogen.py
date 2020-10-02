@@ -18,26 +18,19 @@ async def generate(hub, **pkginfo):
 			continue
 		version.append(release["tag_name"].rsplit(sep="-")[-1])
 		url.append(
-			list(
-				filter(
-					lambda x: x["browser_download_url"].endswith("tar.gz"),
-					release["assets"]
-				)
-			)[0]["browser_download_url"]
+			list(filter(lambda x: x["browser_download_url"].endswith("tar.gz"), release["assets"]))[0]["browser_download_url"]
 		)
 	final_name = f"{app}-{version[0]}.tar.gz"
 	last_api_name = f"{app}-{last_api_ver}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=version[0],
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url[0], final_name=final_name)]
+		**pkginfo, version=version[0], artifacts=[hub.pkgtools.ebuild.Artifact(url=url[0], final_name=final_name)]
 	)
 	ebuild.push()
 	last_api_ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=last_api_ver,
-		template=app+"-last_api.tmpl",
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url[version.index(last_api_ver)], final_name=last_api_name)]
+		template=app + "-last_api.tmpl",
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url[version.index(last_api_ver)], final_name=last_api_name)],
 	)
 	last_api_ebuild.push()
 

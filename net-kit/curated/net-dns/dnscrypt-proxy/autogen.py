@@ -2,6 +2,7 @@
 
 import json
 
+
 async def generate(hub, **pkginfo):
 	github_user = "DNSCrypt"
 	github_repo = "dnscrypt-proxy"

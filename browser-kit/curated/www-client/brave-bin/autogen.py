@@ -26,19 +26,28 @@ async def generate(hub, **pkginfo):
 
 	# Try to use the latest release version, but fall back to latest nightly if none found:
 	release = None
+	dl_asset = None
 	for channel in ["Release", "Beta", "Dev", "Nightly"]:
-		release = find_release(json_dict, channel=channel)
-		if release:
-			break
+		r = find_release(json_dict, channel=channel)
+		if r:
+			dl_assets = list(
+				filter(
+					lambda x: x["browser_download_url"].endswith("-linux-amd64.zip")
+					or x["browser_download_url"].endswith("-linux-x64.zip"),
+					r["assets"],
+				)
+			)
+			if len(dl_assets):
+				release = r
+				dl_asset = dl_assets[0]
+				break
 
-	if release is None:
+	if release is None or dl_asset is None:
 		raise hub.pkgtools.ebuild.BreezyError("Can't find a suitable release of Brave.")
 
 	version = release["tag_name"][1:]  # strip leading 'v'
 
-	url = list(filter(lambda x: x["browser_download_url"].endswith("-linux-x64.zip"), release["assets"]))[0][
-		"browser_download_url"
-	]
+	url = dl_asset["browser_download_url"]
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]

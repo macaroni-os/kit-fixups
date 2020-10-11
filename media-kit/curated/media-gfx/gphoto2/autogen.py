@@ -1,16 +1,32 @@
 #!/usr/bin/env python3
 
-import json
 import re
 
 
 async def generate(hub, **pkginfo):
-	gphoto_json = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/gphoto/gphoto2/releases")
-	json_list = json.loads(gphoto_json)
-	vtag = json_list[0]["tag_name"]
-	version = str.join(".", re.findall(r"gphoto2-(\d+_\d+_\d+)", vtag)[0].split("_"))
+	json_list = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/gphoto/gphoto2/releases", is_json=True)
+	version = None
+	for release in json_list:
+		try:
+			# new versions seem to have tag "v2.5.6"
+			vtag = release["tag_name"]
+			if vtag.startswith("v"):
+				version = vtag[1:]
+				break
+			else:
+				# old versions seem to have an annoying "gphoto2-2_3_1-release" tag.
+				version = str.join(".", re.findall(r"gphoto2-(\d+_\d+_\d+)", vtag)[0].split("_"))
+		except IndexError:
+			print("Couldn't extract version info from", vtag)
+			# regex fail
+			continue
+	if version is None:
+		raise hub.pkgtools.ebuild.BreezyError("Could not find suitable version.")
 	url = f"https://github.com/gphoto/gphoto2/archive/{vtag}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, version=version, vtag=vtag, artifacts=[hub.pkgtools.ebuild.Artifact(url=url),],
 	)
 	ebuild.push()
+
+
+# vim: ts=4 sw=4 noet

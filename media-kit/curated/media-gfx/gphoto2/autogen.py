@@ -24,7 +24,10 @@ async def generate(hub, **pkginfo):
 		raise hub.pkgtools.ebuild.BreezyError("Could not find suitable version.")
 	url = f"https://github.com/gphoto/gphoto2/archive/{vtag}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, vtag=vtag, artifacts=[hub.pkgtools.ebuild.Artifact(url=url),],
+		**pkginfo,
+		version=version,
+		vtag=vtag,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=f"gphoto2-{version}.tar.gz"),],
 	)
 	ebuild.push()
 

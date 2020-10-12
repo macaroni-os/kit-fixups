@@ -29,8 +29,6 @@ DEPEND="${RDEPEND}
 	nls? ( >=sys-devel/gettext-0.14.1 )
 "
 
-S=${WORKDIR}/${PN}-{{vtag}}
-
 src_prepare() {
 	default
 	if ! use exif ; then

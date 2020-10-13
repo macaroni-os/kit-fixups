@@ -25,6 +25,7 @@ COMMON_DEPEND="
 	net-print/cups
 	virtual/jpeg:0
 	hpijs? ( net-print/cups-filters[foomatic] )
+	net-dns/avahi
 	!minimal? (
 		${PYTHON_DEPS}
 		sys-apps/dbus

@@ -32,10 +32,12 @@ overlays:
       date: '17 Sep 2020'
 
 source-defs:
-  - funtoo_current:
+  - funtoo_oct_2020:
       - repo: flora
       - repo: fusion809
       - repo: gentoo-staging
+        src_sha1: 9ea736991281cf349dc1a7c64f164c62c119407d
+        date: '11 Oct 2020'
   - funtoo_release_1.4:
       - repo: flora
       - repo: faustoo
@@ -71,7 +73,7 @@ kit-groups:
           - security-kit:
               source: funtoo_release_1.4_bump
           - browser-kit:
-              source: funtoo_current
+              source: funtoo_oct_2020
           - desktop-kit
           - media-kit
           - editors-kit

@@ -8,7 +8,7 @@ def find_release(json_dict, channel="Release"):
 	releases = filter(
 		lambda x: x["prerelease"] is False
 		and x["draft"] is False
-		and f"{channel} Channel" in x["name"]
+		and x["name"].startswith(channel)
 		and not "Android" in x["name"],
 		json_dict,
 	)

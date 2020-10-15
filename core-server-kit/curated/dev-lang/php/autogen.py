@@ -8,12 +8,6 @@ async def generate(hub, **pkginfo):
 		("7.2", "latest", ["php-freetype-2.9.1.patch", "php-7.2.13-intl-use-icu-namespace.patch"], None),
 		("7.3", "latest", ["php-freetype-2.9.1.patch"], None),
 		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch"], None),
-		(
-			"8.0",
-			"8.0.0_beta4",
-			["php-iodbc-header-location.patch", "apache.patch"],
-			"https://downloads.php.net/~pollita/php-8.0.0beta4.tar.gz",
-		),
 	]
 	php_url = "https://www.php.net/downloads.php"
 	php_data = await hub.pkgtools.fetch.get_page(php_url)

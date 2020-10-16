@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -76,7 +75,7 @@ LANG="en_US.UTF-8"
 LC_COLLATE="POSIX"
 EOF
 	insinto /etc
-	newins ${FILESDIR}/profile-2.6.1-r1 profile || die
+	newins ${FILESDIR}/profile-2.6.1-r2 profile || die
 	insinto /usr/share/baselayout
 	doins ${FILESDIR}/fstab
 }

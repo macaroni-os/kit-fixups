@@ -1,0 +1,100 @@
+# How To Add New Kernels
+# ======================
+#
+# The latest debian stable or unstable kernel can be found by visiting the
+# following URLs::
+#
+#   https://packages.debian.org/stable/kernel/
+#   https://packages.debian.org/unstable/kernel/
+#
+# Then look for linux-image-4.x-*amd64 or linux-image-5.x-*amd64. If you click
+# on the page, you will then see a version in parenthesis on the main "Package:"
+# heading, such as: "Package: linux-image-5.8.0-3-amd64 (5.8.14-1). This
+# indicates a 5.8.14-1 Debian kernel version which would map to 5.8.14_p1 in
+# Funtoo.
+#
+# To add a new kernel version, you will also need to ensure that any specified
+# patches exist in, for example::
+#
+#   core-kit/curated/sys-kernel/debian-sources{-lts}/files/5.8.14/
+#
+# This is where the autogen template is designed to look for them.
+#
+# Since we like to mask kernels for testing, by default an ebuild will be
+# masked, unless under the version you have set `unmasked: True`, in which
+# case it will be available to everyone.
+#
+# Funtoo Patch Descriptions
+# =========================
+#
+# xfs-libcrc32c-fix.patch         XFS LIBCRC kernel config fixes, FL-823
+# mcelog.patch                    FL-4424: enable legacy support for MCELOG.
+# nocerts.patch                   do not configure debian dev certs.
+# ikconfig.patch                  FL-3381: enable IKCONFIG
+# fix-bluetooth-polling.patch     increase bluetooth polling (for mice)
+# amdgpu-picasso.patch            add support for newer AMD APUs to AMDGPU.
+# export_kernel_fpu_functions_5_3.patch (needs description)
+
+stable_kernel_gen:
+  defaults:
+    cat: sys-kernel
+    template: debian-sources.tmpl
+    unmasked: False
+  generator: debian-sources
+  packages:
+    - debian-sources-lts:
+        versions:
+          4.19.132_p1:
+            unmasked: True
+            deb_pv_base: 4.19.132
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - amdgpu-picasso.patch
+          # Still being tested:
+          4.19.146_p1:
+            deb_pv_base: 4.19.146
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - amdgpu-picasso.patch
+
+unstable_kernel_gen:
+  defaults:
+    cat: sys-kernel
+    unmasked: False
+  generator: debian-sources
+  packages:
+    - debian-sources:
+        versions:
+          5.7.10_p1:
+            unmasked: True
+            deb_pv_base: 5.7.10
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - export_kernel_fpu_functions_5_3.patch
+          # Still being tested:
+          5.8.14_p1:
+            deb_pv_base: 5.8.14
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - export_kernel_fpu_functions_5_3.patch
+

@@ -201,6 +201,15 @@ simple_python_autogen_rule:
         python_compat: python2+ pypy3
     - rfc3986:
         python_compat: python2+ pypy{,3}
+    - hg-git:
+        cat: dev-vcs
+        desc: push to and pull from a Git repository using Mercurial
+        homepage: https://hg-git.github.io  https://pypi.org/project/hg-git/
+        license: GPL-2
+        depend: ${RDEPEND}
+        rdepend: |
+          >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
+          >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
 
 dev_python_autogen_rule:
   defaults:

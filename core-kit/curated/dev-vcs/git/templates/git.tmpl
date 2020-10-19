@@ -94,10 +94,6 @@ REQUIRED_USE="
 
 RESTRICT="!test? ( test )"
 
-PATCHES=(
-	"${FILESDIR}"/git-2.2.0-svn-fe-linking.patch
-)
-
 pkg_setup() {
 	if use subversion && has_version "dev-vcs/subversion[dso]"; then
 		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
@@ -225,15 +221,6 @@ src_unpack() {
 
 src_prepare() {
 	default
-
-	sed -i \
-		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
-		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
-		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
-		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
-		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
-		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
-		Makefile contrib/svn-fe/Makefile || die
 
 	# Fix docbook2texi command
 	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \

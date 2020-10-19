@@ -20,7 +20,7 @@ KEYWORDS="*"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs subversion test"
+IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl +nls +pcre +pcre-jit perforce +perl +ppcsha1 tk +threads +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -57,11 +57,6 @@ RDEPEND="${DEPEND}
 			dev-perl/DBI
 			dev-perl/DBD-SQLite
 		)
-		subversion? (
-			dev-vcs/subversion[-dso,perl]
-			dev-perl/libwww-perl
-			dev-perl/TermReadKey
-		)
 	)
 	perforce? ( ${PYTHON_DEPS} )
 "
@@ -86,7 +81,6 @@ SITEFILE="50${PN}-gentoo.el"
 REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
-	subversion? ( perl )
 	webdav? ( curl )
 	pcre-jit? ( pcre )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
@@ -95,11 +89,6 @@ REQUIRED_USE="
 RESTRICT="!test? ( test )"
 
 pkg_setup() {
-	if use subversion && has_version "dev-vcs/subversion[dso]"; then
-		ewarn "Per Gentoo bugs #223747, #238586, when subversion is built"
-		ewarn "with USE=dso, there may be weird crashes in git-svn. You"
-		ewarn "have been warned."
-	fi
 	if use perforce ; then
 		python-single-r1_pkg_setup
 	fi
@@ -118,7 +107,6 @@ exportmakeopts() {
 		$(usex nls '' NO_GETTEXT=YesPlease)
 		$(usex perl 'INSTALLDIRS=vendor NO_PERL_CPAN_FALLBACKS=YesPlease' NO_PERL=YesPlease)
 		$(usex perforce '' NO_PYTHON=YesPlease)
-		$(usex subversion '' NO_SVN_TESTS=YesPlease)
 		$(usex threads '' NO_PTHREAD=YesPlease)
 		$(usex tk '' NO_TCLTK=YesPlease)
 	)
@@ -146,9 +134,6 @@ exportmakeopts() {
 		OLD_ICONV=
 		NO_EXTERNAL_GREP=
 	)
-
-	# For svn-fe
-	extlibs=( -lz -lssl ${S}/xdiff/lib.a $(usex threads -lpthread '') )
 
 	# can't define this to null, since the entire makefile depends on it
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile || die
@@ -222,6 +207,15 @@ src_unpack() {
 src_prepare() {
 	default
 
+	sed -i \
+		-e 's:^\(CFLAGS[[:space:]]*=\).*$:\1 $(OPTCFLAGS) -Wall:' \
+		-e 's:^\(LDFLAGS[[:space:]]*=\).*$:\1 $(OPTLDFLAGS):' \
+		-e 's:^\(CC[[:space:]]* =\).*$:\1$(OPTCC):' \
+		-e 's:^\(AR[[:space:]]* =\).*$:\1$(OPTAR):' \
+		-e "s:\(PYTHON_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		-e "s:\(PERL_PATH[[:space:]]\+=[[:space:]]\+\)\(.*\)$:\1${EPREFIX}\2:" \
+		Makefile || die
+
 	# Fix docbook2texi command
 	sed -r -i 's/DOCBOOK2X_TEXI[[:space:]]*=[[:space:]]*docbook2x-texi/DOCBOOK2X_TEXI = docbook2texi.pl/' \
 		Documentation/Makefile || die
@@ -279,25 +273,6 @@ src_compile() {
 			|| die "emake info html failed"
 	fi
 	popd &>/dev/null || die
-
-	if use subversion ; then
-		pushd contrib/svn-fe &>/dev/null || die
-		# by defining EXTLIBS we override the detection for libintl and
-		# libiconv, bug #516168
-		local nlsiconv=()
-		use nls && use !elibc_glibc && nlsiconv+=( -lintl )
-		use iconv && use !elibc_glibc && nlsiconv+=( -liconv )
-		git_emake EXTLIBS="${EXTLIBS} ${nlsiconv[@]}" \
-			|| die "emake svn-fe failed"
-		if use doc ; then
-			# svn-fe.1 requires the full USE=doc dependency stack
-			git_emake svn-fe.1 \
-				|| die "emake svn-fe.1 failed"
-			git_emake svn-fe.html \
-				|| die "svn-fe.html failed"
-		fi
-		popd &>/dev/null || die
-	fi
 
 	if use gnome-keyring ; then
 		pushd contrib/credential/libsecret &>/dev/null || die
@@ -396,19 +371,6 @@ src_install() {
 		popd &>/dev/null || die
 	fi
 
-	if use subversion ; then
-		pushd contrib/svn-fe &>/dev/null || die
-		dobin svn-fe
-		dodoc svn-fe.txt
-		if use doc ; then
-			# Do not move svn-fe.1 outside USE=doc!
-			doman svn-fe.1
-			docinto html
-			dodoc svn-fe.html
-		fi
-		popd &>/dev/null || die
-	fi
-
 	dodir /usr/share/${PN}/contrib
 	# The following are excluded:
 	# completion - installed above
@@ -462,11 +424,6 @@ src_install() {
 		done
 	else
 		rm -rf "${ED}"/usr/share/gitweb
-	fi
-
-	if ! use subversion ; then
-		rm -f "${ED}"/usr/libexec/git-core/git-svn \
-			"${ED}"/usr/share/man/man1/git-svn.1*
 	fi
 
 	if use xinetd ; then

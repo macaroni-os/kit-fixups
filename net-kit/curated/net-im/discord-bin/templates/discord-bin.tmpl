@@ -23,7 +23,6 @@ RDEPEND="
 	dev-libs/glib:2
 	dev-libs/nspr
 	dev-libs/nss
-	gnome-base/gconf:2
 	media-libs/alsa-lib
 	media-libs/fontconfig:1.0
 	media-libs/freetype:2

@@ -4,7 +4,7 @@ import json
 
 
 async def generate(hub, **pkginfo):
-	python_compat="python3+"
+	python_compat = "python3+"
 	github_user = "open-source-parsers"
 	github_repo = "jsoncpp"
 	app = pkginfo["name"]

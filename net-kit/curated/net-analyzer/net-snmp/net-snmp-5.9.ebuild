@@ -1,52 +1,59 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python2_7 )
-DISTUTILS_SINGLE_IMPL=yesplz
+EAPI=7
 DISTUTILS_OPTIONAL=yesplz
-WANT_AUTOMAKE=none
-PATCHSET=3
+DISTUTILS_SINGLE_IMPL=yesplz
 GENTOO_DEPEND_ON_PERL=no
-
-inherit autotools distutils-r1 eutils perl-module systemd
+PATCHSET=3
+PYTHON_COMPAT=( python3_{6,7,8} )
+WANT_AUTOMAKE=none
+inherit autotools distutils-r1 perl-module systemd
 
 DESCRIPTION="Software for generating and retrieving SNMP data"
 HOMEPAGE="http://www.net-snmp.org/"
 SRC_URI="
-	mirror://sourceforge/project/${PN}/${PN}/${PV/_p*/}/${P/_p*/}.tar.gz
 	https://dev.gentoo.org/~jer/${PN}-5.7.3-patches-3.tar.xz
+	mirror://sourceforge/project/${PN}/${PN}/${PV}/${P}.tar.gz
 "
-
-S=${WORKDIR}/${P/_/.}
 
 # GPL-2 for the init scripts
 LICENSE="HPND BSD GPL-2"
-SLOT="0/35"
+SLOT="0/40"
 KEYWORDS="*"
-IUSE="X bzip2 doc elf kmem ipv6 libressl lm_sensors mfd-rewrites minimal mysql netlink pci perl python rpm selinux smux ssl tcpd ucd-compat zlib"
+IUSE="
+	X bzip2 doc elf kmem ipv6 libressl lm-sensors mfd-rewrites minimal mysql
+	netlink pcap pci perl python rpm selinux smux ssl tcpd ucd-compat zlib systemd
+"
+REQUIRED_USE="
+	python? ( ${PYTHON_REQUIRED_USE} )
+	rpm? ( bzip2 zlib )
+"
 
 COMMON_DEPEND="
+	bzip2? ( app-arch/bzip2 )
+	elf? ( dev-libs/elfutils )
+	lm-sensors? ( sys-apps/lm-sensors )
+	mysql? ( dev-db/mysql-connector-c:0= )
+	netlink? ( dev-libs/libnl:3 )
+	pcap? ( net-libs/libpcap )
+	pci? ( sys-apps/pciutils )
+	perl? ( dev-lang/perl:= )
+	python? (
+		$(python_gen_cond_dep '
+			dev-python/setuptools[${PYTHON_MULTI_USEDEP}]
+		')
+		${PYTHON_DEPS}
+	)
+	rpm? (
+		app-arch/rpm
+		dev-libs/popt
+	)
 	ssl? (
 		!libressl? ( >=dev-libs/openssl-0.9.6d:0= )
 		libressl? ( dev-libs/libressl:= )
 	)
 	tcpd? ( >=sys-apps/tcp-wrappers-7.6 )
-	rpm? (
-		app-arch/rpm
-		dev-libs/popt
-	)
-	bzip2? ( app-arch/bzip2 )
 	zlib? ( >=sys-libs/zlib-1.1.4 )
-	elf? ( dev-libs/elfutils )
-	python? (
-		dev-python/setuptools-compat
-		${PYTHON_DEPS}
-	)
-	pci? ( sys-apps/pciutils )
-	lm_sensors? ( sys-apps/lm_sensors )
-	netlink? ( dev-libs/libnl:3 )
-	mysql? ( dev-db/mysql-connector-c:0= )
-	perl? ( dev-lang/perl:= )
 "
 DEPEND="
 	${COMMON_DEPEND}
@@ -60,14 +67,17 @@ RDEPEND="
 	)
 	selinux? ( sec-policy/selinux-snmp )
 "
-
-REQUIRED_USE="
-	python? ( ${PYTHON_REQUIRED_USE} )
-	rpm? ( bzip2 zlib )
-"
-S=${WORKDIR}/${P/_p*/}
-
 RESTRICT=test
+PATCHES=(
+	"${FILESDIR}"/${PN}-5.7.3-include-limits.patch
+	"${FILESDIR}"/${PN}-5.8-do-not-conflate-LDFLAGS-and-LIBS.patch
+	"${FILESDIR}"/${PN}-5.8-pcap.patch
+	"${FILESDIR}"/${PN}-5.8.1-pkg-config.patch
+	"${FILESDIR}"/${PN}-5.8.1-net-snmp-config-libdir.patch
+	"${FILESDIR}"/${PN}-5.8.1-mysqlclient.patch
+	"${FILESDIR}"/${PN}-5.9-MakeMaker.patch
+	"${FILESDIR}"/${PN}-99999999-tinfo.patch
+)
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -77,17 +87,11 @@ src_prepare() {
 	# snmpconf generates config files with proper selinux context
 	use selinux && eapply "${FILESDIR}"/${PN}-5.1.2-snmpconf-selinux.patch
 
-	eapply "${FILESDIR}"/${PN}-5.7.3-include-limits.patch
-	eapply "${FILESDIR}"/${PN}-5.8-do-not-conflate-LDFLAGS-and-LIBS.patch
-	eapply "${FILESDIR}"/${PN}-5.8-my_bool.patch
-	eapply "${FILESDIR}"/${PN}-5.8-pcap.patch
-	eapply "${FILESDIR}"/${PN}-5.8-tinfo.patch
-
 	mv "${WORKDIR}"/patches/0002-Respect-DESTDIR-for-pythoninstall.patch{,.disabled} || die
 	mv "${WORKDIR}"/patches/0004-Don-t-report-CFLAGS-and-LDFLAGS-in-net-snmp-config.patch{,.disabled} || die
 	eapply "${WORKDIR}"/patches/*.patch
 
-	eapply_user
+	default
 
 	eautoconf
 }
@@ -95,7 +99,7 @@ src_prepare() {
 src_configure() {
 	# keep this in the same line, configure.ac arguments are passed down to config.h
 	local mibs="host ucd-snmp/dlmod ucd-snmp/diskio ucd-snmp/extensible mibII/mta_sendmail etherlike-mib/dot3StatsTable"
-	use lm_sensors && mibs="${mibs} ucd-snmp/lmsensorsMib"
+	use lm-sensors && mibs="${mibs} ucd-snmp/lmsensorsMib"
 	use smux && mibs="${mibs} smux"
 
 	# Assume /etc/mtab is not present with a recent baselayout/openrc (bug #565136)
@@ -112,6 +116,7 @@ src_configure() {
 		$(use_with kmem kmem-usage) \
 		$(use_with mysql) \
 		$(use_with netlink nl) \
+		$(use_with pcap) \
 		$(use_with pci) \
 		$(use_with perl perl-modules INSTALLDIRS=vendor) \
 		$(use_with python python-modules) \
@@ -119,7 +124,8 @@ src_configure() {
 		$(use_with ssl openssl) \
 		$(use_with tcpd libwrap) \
 		$(use_with zlib) \
-		--enable-shared --disable-static \
+		--disable-static \
+		--enable-shared \
 		--with-default-snmp-version="3" \
 		--with-install-prefix="${D}" \
 		--with-ldflags="${LDFLAGS}" \
@@ -131,16 +137,21 @@ src_configure() {
 }
 
 src_compile() {
-	for target in snmplib agent sedscript all; do
-		emake OTHERLDFLAGS="${LDFLAGS}" ${target}
+	emake sedscript
+
+	local subdir
+	for subdir in snmplib agent/mibgroup agent apps .; do
+		emake OTHERLDFLAGS="${LDFLAGS}" -C ${subdir} all
 	done
 
 	use doc && emake docsdox
 }
 
-src_install () {
+src_install() {
 	# bug #317965
 	emake -j1 DESTDIR="${D}" install
+
+	use python && python_optimize
 
 	if use perl ; then
 		perl_delete_localpod
@@ -179,9 +190,10 @@ src_install () {
 	newinitd "${FILESDIR}"/snmptrapd.init.2 snmptrapd
 	newconfd "${FILESDIR}"/snmptrapd.conf snmptrapd
 
-	systemd_dounit "${FILESDIR}"/snmpd.service
-	systemd_dounit "${FILESDIR}"/snmptrapd.service
-
+	if use systemd; then
+		systemd_dounit "${FILESDIR}"/snmpd.service
+		systemd_dounit "${FILESDIR}"/snmptrapd.service
+	fi
 	insinto /etc/snmp
 	newins "${S}"/EXAMPLE.conf snmpd.conf.example
 
@@ -196,5 +208,7 @@ src_install () {
 			|| die
 	fi
 
-	prune_libtool_files
+	find "${ED}" -name '*.la' -delete || die
 }
+
+

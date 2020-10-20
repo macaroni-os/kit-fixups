@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -40,8 +39,8 @@ lbmethod_heartbeat log_config log_forensic logio macro md mime mime_magic negoti
 proxy proxy_ajp proxy_balancer proxy_connect proxy_ftp proxy_html proxy_http proxy_scgi
 proxy_http2 proxy_fcgi  proxy_wstunnel rewrite ratelimit remoteip reqtimeout
 session session_cookie session_crypto session_dbd setenvif slotmem_shm speling
-socache_shmcb status substitute unique_id userdir usertrack unixd version vhost_alias
-watchdog xml2enc"
+socache_memcache socache_shmcb status substitute unique_id userdir usertrack
+unixd version vhost_alias watchdog xml2enc"
 # The following are also in the source as of this version, but are not available
 # for user selection:
 # bucketeer case_filter case_filter_in echo http isapi optional_fn_export
@@ -84,6 +83,7 @@ MODULE_DEPENDS="
 	session_cookie:session
 	session_dbd:dbd
 	session_dbd:session
+	socache_memcache:cache
 	substitute:filter
 "
 
@@ -113,6 +113,7 @@ MODULE_DEFINES="
 	proxy_scgi:PROXY
 	proxy_wstunnel:PROXY
 	socache_shmcb:SSL
+	socache_memcache:CACHE
 	ssl:SSL
 	status:STATUS
 	suexec:SUEXEC
@@ -136,13 +137,13 @@ HOMEPAGE="https://httpd.apache.org/"
 # some helper scripts are Apache-1.1, thus both are here
 LICENSE="Apache-2.0 Apache-1.1"
 SLOT="2"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x64-macos ~x86-macos ~m68k-mint ~sparc64-solaris ~x64-solaris"
+KEYWORDS="*"
 
 # Enable http2 by default (bug #563452)
 # FIXME: Move to apache-2.eclass once this has reached stable.
 IUSE="${IUSE/apache2_modules_http2/+apache2_modules_http2}"
 # New suexec options (since 2.4.34)
-IUSE="${IUSE} +suexec-caps suexec-syslog"
+IUSE="${IUSE} +suexec-caps suexec-syslog split-usr"
 
 CDEPEND="apache2_modules_brotli? ( >=app-arch/brotli-0.6.0:= )
 	apache2_modules_http2? ( >=net-libs/nghttp2-1.2.1 )
@@ -165,18 +166,18 @@ PATCHES=(
 )
 
 pkg_setup() {
-	# dependend critical modules which are not allowed in global scope due
-	# to USE flag conditionals (bug #499260)
-	use ssl && MODULE_CRITICAL+=" socache_shmcb"
-	use doc && MODULE_CRITICAL+=" alias negotiation setenvif"
-	apache-2_pkg_setup
+# dependend critical modules which are not allowed in global scope due
+# to USE flag conditionals (bug #499260)
+use ssl && MODULE_CRITICAL+=" socache_shmcb"
+use doc && MODULE_CRITICAL+=" alias negotiation setenvif"
+apache-2_pkg_setup
 }
 
 src_configure() {
-	# Brain dead check.
-	tc-is-cross-compiler && export ap_cv_void_ptr_lt_long="no"
+# Brain dead check.
+tc-is-cross-compiler && export ap_cv_void_ptr_lt_long="no"
 
-	apache-2_src_configure
+apache-2_src_configure
 }
 
 src_compile() {
@@ -194,79 +195,79 @@ src_compile() {
 }
 
 src_install() {
-	apache-2_src_install
-	local i
-	local apache_tools_prune_list=(
-		/usr/bin/{htdigest,logresolve,htpasswd,htdbm,ab,httxt2dbm}
-		/usr/sbin/{checkgid,fcgistarter,htcacheclean,rotatelogs}
-		/usr/share/man/man1/{logresolve.1,htdbm.1,htdigest.1,htpasswd.1,dbmmanage.1,ab.1}
-		/usr/share/man/man8/{rotatelogs.8,htcacheclean.8}
-	)
-	for i in ${apache_tools_prune_list[@]} ; do
-		rm "${ED%/}"/${i} || die "Failed to prune apache-tools bits"
-	done
+apache-2_src_install
+local i
+local apache_tools_prune_list=(
+/usr/bin/{htdigest,logresolve,htpasswd,htdbm,ab,httxt2dbm}
+/usr/sbin/{checkgid,fcgistarter,htcacheclean,rotatelogs}
+/usr/share/man/man1/{logresolve.1,htdbm.1,htdigest.1,htpasswd.1,dbmmanage.1,ab.1}
+/usr/share/man/man8/{rotatelogs.8,htcacheclean.8}
+)
+for i in ${apache_tools_prune_list[@]} ; do
+rm "${ED%/}"/${i} || die "Failed to prune apache-tools bits"
+done
 
-	# install apxs in /usr/bin (bug #502384) and put a symlink into the
-	# old location until all ebuilds and eclasses have been modified to
-	# use the new location.
-	dobin support/apxs
-	dosym ../bin/apxs /usr/sbin/apxs
+# install apxs in /usr/bin (bug #502384) and put a symlink into the
+# old location until all ebuilds and eclasses have been modified to
+# use the new location.
+dobin support/apxs
+dosym ../bin/apxs /usr/sbin/apxs
 
-	# Note: wait for mod_systemd to be included in some forthcoming release,
-	# Then apache2.4.service can be used and systemd support controlled
-	# through --enable-systemd
-	systemd_newunit "${FILESDIR}/apache2.2-hardened.service" "apache2.service"
-	systemd_dotmpfilesd "${FILESDIR}/apache.conf"
-	#insinto /etc/apache2/modules.d
-	#doins "${FILESDIR}/00_systemd.conf"
+# Note: wait for mod_systemd to be included in some forthcoming release,
+# Then apache2.4.service can be used and systemd support controlled
+# through --enable-systemd
+systemd_newunit "${FILESDIR}/apache2.2-hardened.service" "apache2.service"
+systemd_dotmpfilesd "${FILESDIR}/apache.conf"
+#insinto /etc/apache2/modules.d
+#doins "${FILESDIR}/00_systemd.conf"
 
-	# Install http2 module config
-	insinto /etc/apache2/modules.d
-	doins "${FILESDIR}"/41_mod_http2.conf
+# Install http2 module config
+insinto /etc/apache2/modules.d
+doins "${FILESDIR}"/41_mod_http2.conf
 
-	# Fix path to apache libdir
-	sed "s|@LIBDIR@|$(get_libdir)|" -i "${ED%/}"/usr/sbin/apache2ctl || die
+# Fix path to apache libdir
+sed "s|@LIBDIR@|$(get_libdir)|" -i "${ED%/}"/usr/sbin/apache2ctl || die
 }
 
 pkg_postinst() {
-	apache-2_pkg_postinst || die "apache-2_pkg_postinst failed"
+apache-2_pkg_postinst || die "apache-2_pkg_postinst failed"
 
-	tmpfiles_process apache.conf #662544
+tmpfiles_process apache.conf #662544
 
-	# warnings that default config might not work out of the box
-	local mod cmod
-	for mod in ${MODULE_CRITICAL} ; do
-		if ! use "apache2_modules_${mod}"; then
-			echo
-			ewarn "Warning: Critical module not installed!"
-			ewarn "Modules 'authn_core', 'authz_core' and 'unixd'"
-			ewarn "are highly recomended but might not be in the base profile yet."
-			ewarn "Default config for ssl needs module 'socache_shmcb'."
-			ewarn "Enabling the following flags is highly recommended:"
-			for cmod in ${MODULE_CRITICAL} ; do
-				use "apache2_modules_${cmod}" || \
-					ewarn "+ apache2_modules_${cmod}"
-			done
-			echo
-			break
-		fi
-	done
-	# warning for proxy_balancer and missing load balancing scheduler
-	if use apache2_modules_proxy_balancer; then
-		local lbset=
-		for mod in lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness lbmethod_heartbeat; do
-			if use "apache2_modules_${mod}"; then
-				lbset=1 && break
-			fi
-		done
-		if [ ! ${lbset} ] ; then
-			echo
-			ewarn "Info: Missing load balancing scheduler algorithm module"
-			ewarn "(They were split off from proxy_balancer in 2.3)"
-			ewarn "In order to get the ability of load balancing, at least"
-			ewarn "one of these modules has to be present:"
-			ewarn "lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness lbmethod_heartbeat"
-			echo
-		fi
-	fi
+# warnings that default config might not work out of the box
+local mod cmod
+for mod in ${MODULE_CRITICAL} ; do
+if ! use "apache2_modules_${mod}"; then
+echo
+ewarn "Warning: Critical module not installed!"
+ewarn "Modules 'authn_core', 'authz_core' and 'unixd'"
+ewarn "are highly recomended but might not be in the base profile yet."
+ewarn "Default config for ssl needs module 'socache_shmcb'."
+ewarn "Enabling the following flags is highly recommended:"
+for cmod in ${MODULE_CRITICAL} ; do
+use "apache2_modules_${cmod}" || \
+ewarn "+ apache2_modules_${cmod}"
+done
+echo
+break
+fi
+done
+# warning for proxy_balancer and missing load balancing scheduler
+if use apache2_modules_proxy_balancer; then
+local lbset=
+for mod in lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness lbmethod_heartbeat; do
+if use "apache2_modules_${mod}"; then
+lbset=1 && break
+fi
+done
+if [ ! ${lbset} ] ; then
+echo
+ewarn "Info: Missing load balancing scheduler algorithm module"
+ewarn "(They were split off from proxy_balancer in 2.3)"
+ewarn "In order to get the ability of load balancing, at least"
+ewarn "one of these modules has to be present:"
+ewarn "lbmethod_byrequests lbmethod_bytraffic lbmethod_bybusyness lbmethod_heartbeat"
+echo
+fi
+fi
 }

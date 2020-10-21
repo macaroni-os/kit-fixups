@@ -212,6 +212,62 @@ simple_python_autogen_rule:
           >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
           >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
 
+
+salt_stuff_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - acct:
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
+        rdepend: |
+          dev-python/pop[${PYTHON_USEDEP}]
+          dev-python/pop-config[${PYTHON_USEDEP}]
+          dev-python/cryptography[${PYTHON_USEDEP}]
+          dev-python/msgpack[${PYTHON_USEDEP}]
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+    - idem:
+        rdepend: |
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+          dev-python/pyyaml[${PYTHON_USEDEP}]
+          dev-python/wheel[${PYTHON_USEDEP}]
+          dev-python/jinja[${PYTHON_USEDEP}]
+          dev-python/pop[${PYTHON_USEDEP}]
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+          dev-python/rend[${PYTHON_USEDEP}]
+          dev-python/toml[${PYTHON_USEDEP}]
+          dev-python/acct[${PYTHON_USEDEP}]
+    - pop-config:
+        rdepend: |
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+          dev-python/aiologger[${PYTHON_USEDEP}]
+          dev-python/aiofiles[${PYTHON_USEDEP}]
+    - pop:
+        rdepend: |
+          dev-python/pop-config[${PYTHON_USEDEP}]
+          dev-python/pyyaml[${PYTHON_USEDEP}]
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+          dev-python/msgpack[${PYTHON_USEDEP}]
+    - rend:
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
+        rdepend: |
+          dev-python/pop[${PYTHON_USEDEP}]
+          dev-python/colored[${PYTHON_USEDEP}]
+          dev-python/pyyaml[${PYTHON_USEDEP}]
+          dev-python/jinja[${PYTHON_USEDEP}]
+          dev-python/toml[${PYTHON_USEDEP}]
+    - colored:
+        python_compat: python2+
+
 dev_python_autogen_rule:
   defaults:
     cat: dev-python
@@ -249,10 +305,10 @@ dev_python_autogen_rule:
     - click:
         python_compat: python2+ pypy3
     - cloudflare
-    - cryptography:
-        python_compat: python2+ pypy{,3}
     - construct:
         python_compat: python2+ pypy3
+    - cryptography:
+        python_compat: python2+ pypy{,3}
     - cython:
         python_compat: python2+ pypy3
         pypi_name: Cython
@@ -341,8 +397,6 @@ dev_python_autogen_rule:
         python_compat: python2_7
     - multidict:
         python_compat: python3+
-    - pop-config
-    - pop
     - py:
         python_compat: python2+ pypy{,3}
     - pymongo:

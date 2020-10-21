@@ -212,7 +212,23 @@ simple_python_autogen_rule:
           >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
           >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
 
-
+salt_misc_deps_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - httpx:
+        rdepend: |
+          dev-python/httpcore[${PYTHON_USEDEP}]
+          dev-python/brotlipy[${PYTHON_USEDEP}]
+    - httpcore:
+        rdepend: |
+          dev-python/h11[${PYTHON_USEDEP}]
+          dev-python/sniffio[${PYTHON_USEDEP}]
+    - sniffio
+    - h11
+ 
 salt_stuff_rule:
   defaults:
     cat: dev-python

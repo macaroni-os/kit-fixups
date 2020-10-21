@@ -270,7 +270,12 @@ salt_stuff_rule:
           dev-python/aiologger[${PYTHON_USEDEP}]
           dev-python/aiofiles[${PYTHON_USEDEP}]
     - pop:
-        rdepend: |
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
+         rdepend: |
           dev-python/pop-config[${PYTHON_USEDEP}]
           dev-python/pyyaml[${PYTHON_USEDEP}]
           dev-python/dict-toolbox[${PYTHON_USEDEP}]

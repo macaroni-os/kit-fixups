@@ -4,11 +4,11 @@ EAPI=7
 
 EGO_PN="github.com/DNSCrypt/${PN}"
 
-inherit fcaps go-module
+inherit fcaps go-module user
 
 DESCRIPTION="A flexible DNS proxy, with support for encrypted DNS protocols"
 HOMEPAGE="https://github.com/DNSCrypt/dnscrypt-proxy"
-SRC_URI="https://${EGO_PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://api.github.com/repos/DNSCrypt/dnscrypt-proxy/tarball/2.0.44 -> dnscrypt-proxy-2.0.44.tar.gz"
 
 KEYWORDS="*"
 LICENSE="Apache-2.0 BSD ISC MIT MPL-2.0"
@@ -20,6 +20,16 @@ DEPEND=">=dev-lang/go-1.13"
 FILECAPS=( cap_net_bind_service+ep usr/bin/dnscrypt-proxy )
 
 PATCHES=( "${FILESDIR}"/config-full-paths-r11.patch )
+
+pkg_setup() {
+	enewgroup dnscrypt-proxy
+	enewuser dnscrypt-proxy -1 -1 /dev/null dnscrypt-proxy
+}
+
+src_unpack() {
+	unpack "${A}"
+	mv "${WORKDIR}/DNSCrypt-${PN}"-* "${S}" || die
+}
 
 src_compile() {
 	pushd "${PN}" >/dev/null || die

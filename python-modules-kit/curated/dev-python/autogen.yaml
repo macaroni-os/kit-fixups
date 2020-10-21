@@ -259,6 +259,11 @@ salt_stuff_rule:
           dev-python/toml[${PYTHON_USEDEP}]
           dev-python/acct[${PYTHON_USEDEP}]
     - pop-config:
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
         rdepend: |
           dev-python/dict-toolbox[${PYTHON_USEDEP}]
           dev-python/aiologger[${PYTHON_USEDEP}]

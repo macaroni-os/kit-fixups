@@ -18,11 +18,15 @@ RDEPEND="
 	!<net-fs/samba-3.6_rc1
 	sys-apps/keyutils
 	ads? (
-		sys-libs/talloc
+		>=sys-libs/talloc-2.3.1
 		virtual/krb5
 	)
 	caps? ( sys-libs/libcap-ng )
-	pam? ( virtual/pam )
+	pam? (
+		virtual/pam
+		>=sys-apps/keyutils-1.6.1
+	)
+	dev-python/docutils
 "
 DEPEND="${RDEPEND}"
 PDEPEND="

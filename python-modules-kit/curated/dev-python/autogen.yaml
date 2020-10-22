@@ -212,24 +212,109 @@ simple_python_autogen_rule:
           >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
           >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
 
+
 salt_misc_deps_rule:
   defaults:
     cat: dev-python
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - colored:
+        python_compat: python2+
+    - h11
+    - httpcore:
+        rdepend: |
+          dev-python/h11[${PYTHON_USEDEP}]
+          dev-python/sniffio[${PYTHON_USEDEP}]
     - httpx:
         rdepend: |
           dev-python/httpcore[${PYTHON_USEDEP}]
           dev-python/brotlipy[${PYTHON_USEDEP}]
           dev-python/rfc3986[${PYTHON_USEDEP}]
-    - httpcore:
-        rdepend: |
-          dev-python/h11[${PYTHON_USEDEP}]
-          dev-python/sniffio[${PYTHON_USEDEP}]
     - sniffio
-    - h11
- 
+
+# Stuff that has moved on to python3 but that we need compat ebuilds for ---
+# for compatibility.
+#
+compat_testing_deps_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy3
+  generator: pypi-compat-1
+  packages:
+    - pytest:
+        body: |
+          post_src_install() {
+            if [ "$PV" == "4.6.9" ]; then
+              rm -rf ${D}/usr/bin
+            fi
+          }
+        compat: '4.6.9'
+        rdepend: |
+          $(python_gen_cond_dep '
+              dev-python/atomicwrites[${PYTHON_USEDEP}]
+              dev-python/pathlib2[${PYTHON_USEDEP}]
+              dev-python/funcsigs[${PYTHON_USEDEP}]
+              dev-python/wcwidth[${PYTHON_USEDEP}]
+              dev-python/six[${PYTHON_USEDEP}]
+          ' -2)
+          >=dev-python/attrs-17.4.0[${PYTHON_USEDEP}]
+          $(python_gen_cond_dep '
+              dev-python/importlib_metadata[${PYTHON_USEDEP}]
+          ' -2 python3_{6,7} pypy3)
+          dev-python/iniconfig[${PYTHON_USEDEP}]
+          >=dev-python/more-itertools-4.0.0[${PYTHON_USEDEP}]
+          dev-python/packaging[${PYTHON_USEDEP}]
+          >=dev-python/pluggy-0.12[${PYTHON_USEDEP}]
+          <dev-python/pluggy-1
+          >=dev-python/py-1.8.2[${PYTHON_USEDEP}]
+          dev-python/toml[${PYTHON_USEDEP}]
+        depend: |
+          dev-python/setuptools_scm[${PYTHON_USEDEP}]
+    - mock:
+        desc: 'Stand-alone version of unittest.mock included in py3.3+'
+        compat: '3.0.5'
+        blocker: '!<dev-python/mock-3.0.5'
+        homepage: 'https://github.com/testing-cabal/mock'
+        license: BSD
+        rdepend: |
+            $(python_gen_cond_dep '
+                dev-python/funcsigs[${PYTHON_USEDEP}]
+            ' -2)
+            >=dev-python/six-1.9[${PYTHON_USEDEP}]
+        depend: |
+          >=dev-python/setuptools-17.1[${PYTHON_USEDEP}]
+
+testing_deps_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - iniconfig:
+        python_compat: python2+ pypy3
+        bdepend: |
+          dev-python/setuptools_scm[${PYTHON_USEDEP}]
+    - pluggy:
+        python_compat: python2+ pypy3
+        rdepend: |
+          dev-python/importlib_metadata[${PYTHON_USEDEP}]
+    # TODO: move all the pytest stuff over here.
+    # TODO: add pytest-pop, silly.
+    - pytest-salt-factories:
+        body: |
+          src_prepare() {
+            rm ${S}/tests/__init__.py || die
+            default
+          }
+        rdepend: |
+          dev-python/pytest[${PYTHON_USEDEP}]
+    - pytest-asyncio:
+        rdepend: |
+          dev-python/pytest[${PYTHON_USEDEP}]
+    # required by pytest-pop:
+    - asynctest
+
 salt_stuff_rule:
   defaults:
     cat: dev-python
@@ -280,6 +365,21 @@ salt_stuff_rule:
           dev-python/pyyaml[${PYTHON_USEDEP}]
           dev-python/dict-toolbox[${PYTHON_USEDEP}]
           dev-python/msgpack[${PYTHON_USEDEP}]
+    - pytest-pop:
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
+        rdepend: |
+          dev-python/asynctest[${PYTHON_USEDEP}]
+          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+          >=dev-python/mock-4.0.1[${PYTHON_USEDEP}]
+          dev-python/pop[${PYTHON_USEDEP}]
+          >=dev-python/pop-config-6.8[${PYTHON_USEDEP}]
+          dev-python/pytest-salt-factories[${PYTHON_USEDEP}]
+          >=dev-python/pytest-asyncio-0.12[${PYTHON_USEDEP}]
+          >=dev-python/pytest-5.4[${PYTHON_USEDEP}]
     - rend:
         body: |
           src_prepare() {
@@ -292,8 +392,6 @@ salt_stuff_rule:
           dev-python/pyyaml[${PYTHON_USEDEP}]
           dev-python/jinja[${PYTHON_USEDEP}]
           dev-python/toml[${PYTHON_USEDEP}]
-    - colored:
-        python_compat: python2+
 
 dev_python_autogen_rule:
   defaults:

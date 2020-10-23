@@ -309,6 +309,8 @@ testing_deps_rule:
           }
         rdepend: |
           dev-python/pytest[${PYTHON_USEDEP}]
+          # This dep may be missing from upstream:
+          dev-python/psutil[${PYTHON_USEDEP}]
     - pytest-asyncio:
         rdepend: |
           dev-python/pytest[${PYTHON_USEDEP}]

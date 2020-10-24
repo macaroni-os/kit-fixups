@@ -11,9 +11,7 @@ async def generate(hub, **pkginfo):
 	version = json_list[0]["name"].split(sep="/")[-1]
 	url = f"https://download.mono-project.com/sources/{app}/{app}-{version}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 	ebuild.push()
 

@@ -250,6 +250,7 @@ compat_testing_deps_rule:
             fi
           }
         compat: '4.6.9'
+        blocker: '!<dev-python/pytest-6.1.1'
         rdepend: |
           $(python_gen_cond_dep '
               dev-python/atomicwrites[${PYTHON_USEDEP}]

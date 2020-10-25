@@ -66,6 +66,17 @@ stable_kernel_gen:
               - ikconfig.patch
               - fix-bluetooth-polling.patch
               - amdgpu-picasso.patch
+          # Still being tested:
+          4.19.152_p1:
+            deb_pv_base: 4.19.152
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - amdgpu-picasso.patch
 
 unstable_kernel_gen:
   defaults:

@@ -83,6 +83,10 @@ dev_python_compat_rule:
             # We should start to do this automatically:
             [ "$PV" == "3.1.1" ] && rm -rf ${D}/usr/bin
           }
+    - more-itertools:
+        compat: '4.3.0'
+        blocker: '!<dev-python/more-itertools-8'
+        homepage: 'https://pypi.org/project/more-itertools/'
     - pyhamcrest:
         compat: '1.9.0'
         blocker: '!<dev-python/pyhamcrest-2.0.0'

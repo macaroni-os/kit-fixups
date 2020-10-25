@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
 	ebuild.push()
 	last_api_ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=last_api_ver,
+		version=last_api_ver + "-r1",
 		template=app + "-last_api.tmpl",
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url[version.index(last_api_ver)], final_name=last_api_name)],
 	)

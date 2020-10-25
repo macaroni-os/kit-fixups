@@ -7,7 +7,7 @@ PYTHON_REQ_USE="threads(+)"
 DISTUTILS_OPTIONAL=true
 DISTUTILS_IN_SOURCE_BUILD=true
 
-inherit autotools flag-o-matic distutils-r1
+inherit autotools distutils-r1
 
 DESCRIPTION="C++ BitTorrent implementation focusing on efficiency and scalability"
 HOMEPAGE="https://libtorrent.org https://github.com/arvidn/libtorrent"
@@ -42,6 +42,9 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	mkdir -p "${S}"/build-aux/ || die
 	touch "${S}"/build-aux/config.rpath || die
+
+	# replace c++11 for c++14
+	sed -i -e "s/STDCXX_11(/STDCXX([14],/" configure.ac || die
 	eautoreconf
 
 	default
@@ -57,8 +60,6 @@ src_prepare() {
 }
 
 src_configure() {
-	append-cxxflags -std=c++14
-
 	local myeconfargs=(
 		$(use_enable debug)
 		$(use_enable debug export-all)

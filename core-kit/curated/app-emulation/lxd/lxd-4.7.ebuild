@@ -16,6 +16,7 @@ IUSE="apparmor +ipv6 nls"
 
 DEPEND="app-arch/xz-utils
 	>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
+	>=sys-kernel/linux-headers-4.15
 	dev-lang/tcl
 	dev-libs/libuv
 	dev-libs/lzo
@@ -84,7 +85,6 @@ src_prepare() {
 		-e "s:make:make ${MAKEOPTS}:g" \
 		Makefile || die
 
-	sed -i 's#lib$#lib/lxd#' "${GOPATH}"/deps/libco/Makefile || die
 	sed -i 's#zfs version 2>/dev/null | cut -f 2 -d - | head -1#< /sys/module/zfs/version cut -f 1#' "${GOPATH}"/deps/raft/configure.ac || die
 
 	common_op eautoreconf
@@ -93,19 +93,10 @@ src_prepare() {
 src_configure() {
 	export GOPATH="${S}/_dist"
 
-	export CO_CFLAGS="-I${GOPATH}/deps/libco/"
-	export CO_LIBS="${GOPATH}/deps/libco/"
-
 	export RAFT_CFLAGS="-I${GOPATH}/deps/raft/include/"
 	export RAFT_LIBS="${GOPATH}/deps/raft/.libs"
 
-	export SQLITE_CFLAGS="-I${GOPATH}/deps/sqlite"
-	export SQLITE_LIBS="${GOPATH}/deps/sqlite/.libs"
-
-	export PKG_CONFIG_PATH="${GOPATH}/sqlite/:${GOPATH}/libco/:${GOPATH}/raft/"
-
-	cd "${GOPATH}/deps/sqlite" || die
-	econf --enable-replication --disable-amalgamation --disable-tcl --libdir="${EPREFIX}/usr/lib/lxd"
+	export PKG_CONFIG_PATH="${GOPATH}/raft/"
 
 	common_op econf --libdir="${EPREFIX}"/usr/lib/lxd
 }
@@ -113,21 +104,18 @@ src_configure() {
 src_compile() {
 	export GOPATH="${S}/_dist"
 
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/ -I${GOPATH}/deps/libco/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -L${GOPATH}/deps/libco/ -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${GOPATH}/deps/libco/:${LD_LIBRARY_PATH}"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
+	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs/:${LD_LIBRARY_PATH}"
 
 	local j
-	for j in sqlite raft libco; do
+	for j in raft; do
 		cd "${GOPATH}"/deps/${j} || die
 		emake
 	done
 
-	ln -s libco.so.0.1.0 libco.so || die
-	ln -s libco.so.0.1.0 libco.so.0 || die
-
 	cd "${GOPATH}/deps/dqlite" || die
-	emake CFLAGS="-I${GOPATH}/deps/sqlite -I${GOPATH}/deps/raft/include" LDFLAGS="-L${GOPATH}/deps/sqlite -L${GOPATH}/deps/raft"
+	emake CFLAGS="-I${GOPATH}/deps/raft/include" LDFLAGS="-L${GOPATH}/deps/raft"
 
 	cd "${S}" || die
 
@@ -143,9 +131,9 @@ src_compile() {
 src_test() {
 	export GOPATH="${S}/_dist"
 
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/ -I${GOPATH}/deps/libco/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -L${GOPATH}/deps/libco/ -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${GOPATH}/deps/libco/:${LD_LIBRARY_PATH}"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
+	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${LD_LIBRARY_PATH}"
 
 	go test -v ${EGO_PN}/lxd || die
 }
@@ -160,7 +148,7 @@ src_install() {
 		dobin ${bindir}/${l}
 	done
 
-	for m in dqlite libco raft sqlite; do
+	for m in dqlite raft; do
 		cd "${GOPATH}"/deps/${m} || die "failed switching into ${GOPATH}/${m}"
 		emake DESTDIR="${D}" install
 	done
@@ -169,7 +157,6 @@ src_install() {
 
 	# We only need bundled libs during src_compile, and we don't want anything
 	# to link against these.
-	rm "${ED}"/usr/bin/sqlite3 || die
 	rm -r "${ED}"/usr/include || die
 	rm -r "${ED}"/usr/lib/lxd/*.a || die
 	rm -r "${ED}"/usr/lib/lxd/pkgconfig || die
@@ -185,13 +172,19 @@ src_install() {
 
 pkg_postinst() {
 	elog
-	elog "Consult https://wiki.gentoo.org/wiki/LXD for more information,"
+	elog "Consult https://www.funtoo.org/LXD for more information,"
 	elog "including a Quick Start."
+
+	# The control socket will be owned by (and writeable by) this group.
+	enewgroup lxd
+
 	elog
-	elog "Optional features:"
-	optfeature "btrfs storage backend" sys-fs/btrfs-progs
-	optfeature "lvm2 storage backend" sys-fs/lvm2
-	optfeature "zfs storage backend" sys-fs/zfs
+	elog "Though not strictly required, some features are enabled at run-time"
+	elog "when the relevant helper programs are detected:"
+	elog "- sys-fs/btrfs-progs"
+	elog "- sys-fs/lvm2"
+	elog "- sys-fs/zfs"
+	elog "- sys-process/criu"
 	elog
 	elog "Be sure to add your local user to the lxd group."
 }

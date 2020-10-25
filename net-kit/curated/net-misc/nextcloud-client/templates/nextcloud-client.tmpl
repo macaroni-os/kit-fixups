@@ -49,7 +49,10 @@ DEPEND="${COMMON_DEPEND}
 		dev-qt/qttest:5
 	)"
 
-S=${WORKDIR}/desktop-${PV/_/-}
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/nextcloud-* ${S} || die
+}
 
 src_prepare() {
 	# Keep tests in ${T}

@@ -35,6 +35,12 @@ DEPEND="${RDEPEND}
 	dev-python/commonmark
 	static? ( ${LIB_DEPEND} )"
 
+src_compile() {
+	rm -f proto.h-tstamp
+	make proto || die
+	emake || die
+}
+
 src_unpack() {
 	unpack "${A}"
 	mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "$S" || die

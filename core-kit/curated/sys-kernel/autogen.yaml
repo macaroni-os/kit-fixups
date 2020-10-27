@@ -44,30 +44,8 @@ stable_kernel_gen:
   packages:
     - debian-sources-lts:
         versions:
-          4.19.132_p1:
-            unmasked: True
-            deb_pv_base: 4.19.132
-            deb_extraversion: 1
-            patches:
-              - xfs-libcrc32c-fix.patch
-              - mcelog.patch
-              - nocerts.patch
-              - ikconfig.patch
-              - fix-bluetooth-polling.patch
-              - amdgpu-picasso.patch
-          # Still being tested:
-          4.19.146_p1:
-            deb_pv_base: 4.19.146
-            deb_extraversion: 1
-            patches:
-              - xfs-libcrc32c-fix.patch
-              - mcelog.patch
-              - nocerts.patch
-              - ikconfig.patch
-              - fix-bluetooth-polling.patch
-              - amdgpu-picasso.patch
-          # Still being tested:
           4.19.152_p1:
+            unmasked: True
             deb_pv_base: 4.19.152
             deb_extraversion: 1
             patches:
@@ -86,18 +64,6 @@ unstable_kernel_gen:
   packages:
     - debian-sources:
         versions:
-          5.7.10_p1:
-            unmasked: True
-            deb_pv_base: 5.7.10
-            deb_extraversion: 1
-            patches:
-              - xfs-libcrc32c-fix.patch
-              - mcelog.patch
-              - nocerts.patch
-              - ikconfig.patch
-              - fix-bluetooth-polling.patch
-              - export_kernel_fpu_functions_5_3.patch
-          # Still being tested:
           5.8.14_p1:
             unmasked: True
             deb_pv_base: 5.8.14

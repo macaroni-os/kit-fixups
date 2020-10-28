@@ -19,8 +19,6 @@ LICENSE="|| ( FTL GPL-2 )"
 KEYWORDS="*"
 IUSE+=" doc"
 
-	inherit autotools git-r3
-
 SLOT="2"
 RESTRICT="!bindist? ( bindist )" # bug 541408
 
@@ -43,52 +41,7 @@ BDEPEND="
 "
 PDEPEND="infinality? ( media-libs/fontconfig-infinality )"
 
-_egit_repo_handler() {
-	if [[ "${PV}" ]] ; then
-		local phase="${1}"
-		case ${phase} in
-			fetch|unpack)
-				:;
-			;;
-			*)
-				die "Please use this function with either \"fetch\" or \"unpack\""
-			;;
-		esac
-
-		local EGIT_REPO_URI
-		EGIT_REPO_URI="https://git.sv.nongnu.org/r/freetype/freetype2.git"
-		git-r3_src_${phase}
-		if use utils ; then
-			EGIT_REPO_URI="https://git.sv.nongnu.org/r/freetype/freetype2-demos.git"
-			local EGIT_CHECKOUT_DIR="${WORKDIR}/ft2demos-${PV}"
-			git-r3_src_${phase}
-		fi
-	else
-		default
-	fi
-}
-
-src_fetch() {
-	_egit_repo_handler ${EBUILD_PHASE}
-}
-
-src_unpack() {
-	_egit_repo_handler ${EBUILD_PHASE}
-}
-
 src_prepare() {
-	if [[ "${PV}" ]] ; then
-		# inspired by shipped autogen.sh script
-		eval $(sed -nf version.sed include/freetype/freetype.h)
-		pushd builds/unix &>/dev/null || die
-		sed -e "s;@VERSION@;$freetype_major$freetype_minor$freetype_patch;" \
-			< configure.raw > configure.ac || die
-		# eautoheader produces broken ftconfig.in
-		eautoheader() { return 0 ; }
-		AT_M4DIR="." eautoreconf
-		unset freetype_major freetype_minor freetype_patch
-		popd &>/dev/null || die
-	fi
 
 	default
 
@@ -208,9 +161,7 @@ src_install() {
 				"${ED}"/usr/bin || die
 		done
 	fi
-}
 
-src_install_all() {
 	if use fontforge; then
 		# Probably fontforge needs less but this way makes things simplier...
 		einfo "Installing internal headers required for fontforge"
@@ -223,7 +174,7 @@ src_install_all() {
 	fi
 
 	dodoc docs/{CHANGES,CUSTOMIZE,DEBUG,INSTALL.UNIX,*.txt,PROBLEMS,TODO}
-	if [[ "${PV}" ]] && use doc ; then
+	if use doc ; then
 		docinto html
 		dodoc -r docs/*
 	fi

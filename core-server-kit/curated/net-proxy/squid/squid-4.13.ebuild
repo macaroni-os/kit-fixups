@@ -1,11 +1,10 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 WANT_AUTOMAKE="1.15"
 
-inherit autotools linux-info pam toolchain-funcs user
+inherit autotools flag-o-matic linux-info pam toolchain-funcs user
 
 DESCRIPTION="A full-featured web proxy cache"
 HOMEPAGE="http://www.squid-cache.org/"
@@ -22,14 +21,15 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~hppa ia64 ~mips ppc ppc64 ~sparc x86"
-IUSE="caps gnutls ipv6 pam ldap libressl samba sasl kerberos nis radius ssl snmp selinux logrotate test \
+KEYWORDS="*"
+IUSE="caps gnutls ipv6 pam ldap samba sasl kerberos nis radius ssl snmp selinux logrotate test \
 	ecap esi ssl-crtd \
 	mysql postgres sqlite \
-	perl qos tproxy \
+	perl qos tproxy libressl \
 	+htcp +wccp +wccpv2 \
 	pf-transparent ipf-transparent kqueue \
 	elibc_uclibc kernel_linux"
+
 RESTRICT="!test? ( test )"
 
 BDEPEND="dev-lang/perl"
@@ -40,10 +40,11 @@ COMMON_DEPEND="caps? ( >=sys-libs/libcap-2.16 )
 	kerberos? ( virtual/krb5 )
 	qos? ( net-libs/libnetfilter_conntrack )
 	ssl? (
-		!gnutls? (
-			libressl? ( dev-libs/libressl:0 )
-			!libressl? ( dev-libs/openssl:0 ) )
-		dev-libs/nettle:= )
+		!gnutls? ( dev-libs/openssl:0 )
+		libressl? ( dev-libs/libressl:0 )
+		!libressl? ( dev-libs/openssl:0 ) 
+		dev-libs/nettle:=
+	)
 	sasl? ( dev-libs/cyrus-sasl )
 	ecap? ( net-libs/libecap:1 )
 	esi? ( dev-libs/expat dev-libs/libxml2 )
@@ -51,18 +52,19 @@ COMMON_DEPEND="caps? ( >=sys-libs/libcap-2.16 )
 	logrotate? ( app-admin/logrotate )
 	>=sys-libs/db-4:*
 	dev-libs/libltdl:0"
+
 DEPEND="${COMMON_DEPEND}
 	${BDEPEND}
 	ecap? ( virtual/pkgconfig )
 	test? ( dev-util/cppunit )"
+
 RDEPEND="${COMMON_DEPEND}
 	samba? ( net-fs/samba )
 	perl? ( dev-lang/perl )
 	mysql? ( dev-perl/DBD-mysql )
 	postgres? ( dev-perl/DBD-Pg )
 	selinux? ( sec-policy/selinux-squid )
-	sqlite? ( dev-perl/DBD-SQLite )
-	!<=sci-biology/meme-4.8.1-r1"
+	sqlite? ( dev-perl/DBD-SQLite )"
 
 REQUIRED_USE="tproxy? ( caps )
 		qos? ( caps )"
@@ -75,8 +77,23 @@ pkg_pretend() {
 }
 
 pkg_setup() {
-	enewgroup squid
-	enewuser squid -1 -1 /var/cache/squid squid
+
+	if egetent group ${PN} > /dev/null ; then
+		elog "${PN} group already exist."
+		elog "group creation step skipped."
+	else
+		enewgroup  ${PN} > /dev/null
+		elog "${PN} group created by portage."
+	fi
+
+	if egetent passwd  ${PN} > /dev/null ; then
+		elog "${PN} user already exist."
+		elog "user creation step skipped."
+	else
+		enewuser ${PN} -1 -1 /var/cache/squid ${PN} > /dev/null
+		elog "${PN} user with ${NGINX_HOME} home"
+		elog "was created by portage."
+	fi
 }
 
 src_prepare() {
@@ -174,6 +191,9 @@ src_configure() {
 	# Should be able to drop this workaround with newer versions.
 	# https://bugs.squid-cache.org/show_bug.cgi?id=4224
 	tc-is-cross-compiler && export squid_cv_gnu_atomics=no
+
+	# Bug #719662
+	(use ppc || use arm || use hppa) && append-libs -latomic
 
 	econf \
 		--sysconfdir=/etc/squid \

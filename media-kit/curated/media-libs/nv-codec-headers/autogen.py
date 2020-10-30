@@ -4,6 +4,7 @@ import re
 import glob
 import os
 
+
 async def generate(hub, **pkginfo):
 	wanted_version = "10.0.26.1"
 	github_user = "FFmpeg"
@@ -26,11 +27,10 @@ async def generate(hub, **pkginfo):
 	await artifact.fetch()
 	artifact.extract()
 	readme = list(glob.iglob(os.path.join(artifact.extract_path, "*/README")))[0]
-	with open(readme, 'r') as readmefile:
+	with open(readme, "r") as readmefile:
 		readme_str = readmefile.read()
 		print(readme_str)
 	drivers_minver = re.search(r"Linux: ([0-9.]+)", readme_str).group(1)
-
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

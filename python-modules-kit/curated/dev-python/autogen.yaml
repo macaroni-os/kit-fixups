@@ -6,31 +6,34 @@
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
 
-aiobotostuff:
-  defaults:
-    cat: dev-python
-    python_compat: python3+
-  generator: pypi-simple-1
-  packages:
-    - typing-extensions
-    - aioitertools:
-        pydeps: |
-          - typing-extensions
-    - aiobotocore:
-        pydeps: |
-          - aiohttp
-          - aioitertools
-          - botocore
-          - wrapt
-    - botocore:
-        pydeps:
-          - tox
-          - nose
-          - mock
-          - wheel
-          - behave
-          - jsonschema
-    - wrapt
+# Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
+# (drobbins, 2020-10-30)
+#
+#aiobotostuff:
+#  defaults:
+#    cat: dev-python
+#    python_compat: python3+
+#  generator: pypi-simple-1
+#  packages:
+#    - typing-extensions
+#    - aioitertools:
+#        pydeps:
+#          - typing-extensions
+#    - aiobotocore:
+#        pydeps:
+#          - aiohttp
+#          - aioitertools
+#          - botocore
+#          - wrapt
+#    - botocore:
+#        pydeps:
+#          - tox
+#          - nose
+#          - mock
+#          - wheel
+#          - behave
+#          - jsonschema
+#    - wrapt
 
 
 dev_python_namespaces_rule:
@@ -282,25 +285,24 @@ compat_testing_deps_rule:
           }
         compat: '4.6.9'
         blocker: '!<dev-python/pytest-6.1.1'
-        rdepend: |
-          $(python_gen_cond_dep '
-              dev-python/atomicwrites[${PYTHON_USEDEP}]
-              dev-python/pathlib2[${PYTHON_USEDEP}]
-              dev-python/funcsigs[${PYTHON_USEDEP}]
-              dev-python/wcwidth[${PYTHON_USEDEP}]
-              dev-python/six[${PYTHON_USEDEP}]
-          ' -2)
-          >=dev-python/attrs-17.4.0[${PYTHON_USEDEP}]
-          $(python_gen_cond_dep '
-              dev-python/importlib_metadata[${PYTHON_USEDEP}]
-          ' -2 python3_{6,7} pypy3)
-          dev-python/iniconfig[${PYTHON_USEDEP}]
-          >=dev-python/more-itertools-4.0.0[${PYTHON_USEDEP}]
-          dev-python/packaging[${PYTHON_USEDEP}]
-          >=dev-python/pluggy-0.12[${PYTHON_USEDEP}]
-          <dev-python/pluggy-1
-          >=dev-python/py-1.8.2[${PYTHON_USEDEP}]
-          dev-python/toml[${PYTHON_USEDEP}]
+        pydeps:
+          py:all:
+            - attrs >= 17.4.0
+            - iniconfig
+            - more-itertools >= 4
+            - packaging
+            - pluggy >= 0.12
+            - pluggy < 1
+            - py >= 1.8.2
+            - toml
+          py:2:
+            - atomicwrites
+            - pathlib2
+            - funcsigs
+            - wcwidth
+            - six
+          py:2,3.6,3.7,pypy3:
+            - importlib_metadata
         depend: |
           dev-python/setuptools_scm[${PYTHON_USEDEP}]
     - mock:
@@ -309,11 +311,11 @@ compat_testing_deps_rule:
         blocker: '!<dev-python/mock-3.0.5'
         homepage: 'https://github.com/testing-cabal/mock'
         license: BSD
-        rdepend: |
-            $(python_gen_cond_dep '
-                dev-python/funcsigs[${PYTHON_USEDEP}]
-            ' -2)
-            >=dev-python/six-1.9[${PYTHON_USEDEP}]
+        pydeps:
+          py:2:
+            - funcsigs
+          py:all:
+            - six >= 1.9
         depend: |
           >=dev-python/setuptools-17.1[${PYTHON_USEDEP}]
 
@@ -339,13 +341,13 @@ testing_deps_rule:
             rm ${S}/tests/__init__.py || die
             default
           }
-        rdepend: |
-          dev-python/pytest[${PYTHON_USEDEP}]
+        pydeps:
+          - pytest
           # This dep may be missing from upstream:
-          dev-python/psutil[${PYTHON_USEDEP}]
+          - psutil
     - pytest-asyncio:
-        rdepend: |
-          dev-python/pytest[${PYTHON_USEDEP}]
+        pydeps:
+          - pytest
     # required by pytest-pop:
     - asynctest
 
@@ -361,71 +363,71 @@ salt_stuff_rule:
             touch ${S}/requirements.txt
             default
           }
-        rdepend: |
-          dev-python/pop[${PYTHON_USEDEP}]
-          dev-python/pop-config[${PYTHON_USEDEP}]
-          dev-python/cryptography[${PYTHON_USEDEP}]
-          dev-python/msgpack[${PYTHON_USEDEP}]
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
+        pydeps:
+          - pop
+          - pop-config
+          - cryptography
+          - msgpack
+          - dict-toolbox
     - idem:
-        rdepend: |
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
-          dev-python/pyyaml[${PYTHON_USEDEP}]
-          dev-python/wheel[${PYTHON_USEDEP}]
-          dev-python/jinja[${PYTHON_USEDEP}]
-          dev-python/pop[${PYTHON_USEDEP}]
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
-          dev-python/rend[${PYTHON_USEDEP}]
-          dev-python/toml[${PYTHON_USEDEP}]
-          dev-python/acct[${PYTHON_USEDEP}]
+        pydeps:
+          - dict-toolbox
+          - pyyaml
+          - wheel
+          - jinja
+          - pop
+          - dict-toolbox
+          - rend
+          - toml
+          - acct
     - pop-config:
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
-        rdepend: |
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
-          dev-python/aiologger[${PYTHON_USEDEP}]
-          dev-python/aiofiles[${PYTHON_USEDEP}]
+        pydeps:
+          - dict-toolbox
+          - aiologger
+          - aiofiles
     - pop:
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
-        rdepend: |
-          dev-python/pop-config[${PYTHON_USEDEP}]
-          dev-python/pyyaml[${PYTHON_USEDEP}]
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
-          dev-python/msgpack[${PYTHON_USEDEP}]
+        pydeps:
+          - pop-config
+          - pyyaml
+          - dict-toolbox
+          - msgpack
     - pytest-pop:
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
-        rdepend: |
-          dev-python/asynctest[${PYTHON_USEDEP}]
-          dev-python/dict-toolbox[${PYTHON_USEDEP}]
-          >=dev-python/mock-4.0.1[${PYTHON_USEDEP}]
-          dev-python/pop[${PYTHON_USEDEP}]
-          >=dev-python/pop-config-6.8[${PYTHON_USEDEP}]
-          dev-python/pytest-salt-factories[${PYTHON_USEDEP}]
-          >=dev-python/pytest-asyncio-0.12[${PYTHON_USEDEP}]
-          >=dev-python/pytest-5.4[${PYTHON_USEDEP}]
+        pydeps:
+          - asynctest
+          - dict-toolbox
+          - mock >= 4.0.1
+          - pop
+          - pop-config >= 6.8
+          - pytest-salt-factories
+          - pytest-asyncio >= 0.12
+          - pytest >= 5.4
     - rend:
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
-        rdepend: |
-          dev-python/pop[${PYTHON_USEDEP}]
-          dev-python/colored[${PYTHON_USEDEP}]
-          dev-python/pyyaml[${PYTHON_USEDEP}]
-          dev-python/jinja[${PYTHON_USEDEP}]
-          dev-python/toml[${PYTHON_USEDEP}]
+        pydeps:
+          - pop
+          - colored
+          - pyyaml
+          - jinja
+          - toml
 
 dev_python_autogen_rule:
   defaults:

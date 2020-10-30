@@ -6,6 +6,33 @@
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
 
+aiobotostuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - typing-extensions
+    - aioitertools:
+        pydeps: |
+          - typing-extensions
+    - aiobotocore:
+        pydeps: |
+          - aiohttp
+          - aioitertools
+          - botocore
+          - wrapt
+    - botocore:
+        pydeps:
+          - tox
+          - nose
+          - mock
+          - wheel
+          - behave
+          - jsonschema
+    - wrapt
+
+
 dev_python_namespaces_rule:
   defaults:
     cat: dev-python

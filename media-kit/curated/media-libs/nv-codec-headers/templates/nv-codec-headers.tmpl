@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="FFmpeg version of headers required to interface with Nvidias codec APIs"
+HOMEPAGE="https://git.videolan.org/?p=ffmpeg/nv-codec-headers.git"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE=""
+
+RDEPEND=">=x11-drivers/nvidia-drivers-{{drivers_minver}}"
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "${S}" || die
+}
+
+src_compile() {
+	make PREFIX=/usr
+}
+
+src_install() {
+	make PREFIX=/usr DESTDIR="${D}" install || die
+}

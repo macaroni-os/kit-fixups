@@ -10,7 +10,6 @@ SRC_URI="https://fontconfig.org/release/${P}.tar.bz2"
 
 LICENSE="MIT"
 SLOT="1.0"
-[[ $(ver_cut 3) -ge 90 ]] || \
 KEYWORDS="*"
 IUSE="doc static-libs"
 

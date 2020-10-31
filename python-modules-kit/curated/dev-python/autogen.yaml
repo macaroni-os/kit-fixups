@@ -9,32 +9,81 @@
 # Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
 # (drobbins, 2020-10-30)
 #
-#aiobotostuff:
-#  defaults:
-#    cat: dev-python
-#    python_compat: python3+
-#  generator: pypi-simple-1
-#  packages:
-#    - typing-extensions
-#    - aioitertools:
-#        pydeps:
-#          - typing-extensions
-#    - aiobotocore:
-#        pydeps:
-#          - aiohttp
-#          - aioitertools
-#          - botocore
-#          - wrapt
-#    - botocore:
-#        pydeps:
-#          - tox
-#          - nose
-#          - mock
-#          - wheel
-#          - behave
-#          - jsonschema
-#    - wrapt
+aiobotostuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - idem-aws:
+        pydeps:
+          - acct >= 2.3
+          - aioboto3
+          - dict-toolbox >= 1.12
+          - pop >= 15
+          - idem >= 7.6
+        body: |
+          src_prepare() {
+            touch ${S}/requirements.txt
+            default
+          }
+    - aioboto3:
+        pydeps:
+          - aiobotocore
+          # This is actually needed during regular install:
+          - pytest-runner
+    - aioitertools:
+        pydeps:
+          - typing-extensions
+    - aiobotocore:
+        pydeps:
+          - aiohttp
+          - aioitertools
+          - botocore
+          - wrapt
+    - behave:
+        pydeps:
+          - cucumber-tag-expressions >= 1.1.2
+          - parse >= 1.18.0
+          - parse_type >= 0.4.2
+          - six >= 1.12.0
+          - colorama
+    - botocore:
+        pydeps:
+          - tox
+          - wheel
+          - behave
+          - jsonschema
+    - cucumber-tag-expressions
+    - parse
+    - parse_type:
+        pydeps:
+          - parse >= 1.18.0
+          - six >= 1.11
+    - typing-extensions:
+        body: |
+          src_unpack() {
+            unpack ${A}
+            # archive has "typing_extensions" dir with underscore. This fixes it:
+            mv "${WORKDIR}/typing_"* "${S}" || die
+          }
+    - wrapt
 
+stuff_orphaned_in_python2:
+  defaults:
+    cat: dev-python
+    python_compat: python2_7
+  generator: pypi-simple-1
+  packages:
+    - configparser:
+        version: 4.0.2
+        pydeps:
+          - backports
+        body: |
+          post_src_install() {
+            # This is installed by backports:
+            rm -f ${D}/usr/lib*/python*/site-packages/backports/__init__.py
+          }
 
 dev_python_namespaces_rule:
   defaults:

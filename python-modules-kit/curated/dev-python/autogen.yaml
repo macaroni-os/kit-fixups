@@ -9,6 +9,44 @@
 # Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
 # (drobbins, 2020-10-30)
 #
+
+botostuff:
+  defaults:
+    cat: dev-python
+    python_compat: python2+
+  generator: pypi-simple-1
+  packages:
+    - boto3:
+        pydeps:
+          - botocore
+          - jmespath
+          - s3transfer
+    - botocore:
+        pydeps:
+          - tox
+          - wheel
+          - behave
+          - jsonschema
+    - behave:
+        pydeps:
+          - cucumber-tag-expressions >= 1.1.2
+          - parse >= 1.18.0
+          - parse_type >= 0.4.2
+          - six >= 1.12.0
+          - colorama
+    - cucumber-tag-expressions
+    - jmespath
+    - s3transfer:
+        pydeps:
+          py:2:
+            - futures >= 2.2.0
+            - futures < 4.0.0
+    - parse
+    - parse_type:
+        pydeps:
+          - parse >= 1.18.0
+          - six >= 1.11
+
 aiobotostuff:
   defaults:
     cat: dev-python
@@ -41,25 +79,6 @@ aiobotostuff:
           - aioitertools
           - botocore
           - wrapt
-    - behave:
-        pydeps:
-          - cucumber-tag-expressions >= 1.1.2
-          - parse >= 1.18.0
-          - parse_type >= 0.4.2
-          - six >= 1.12.0
-          - colorama
-    - botocore:
-        pydeps:
-          - tox
-          - wheel
-          - behave
-          - jsonschema
-    - cucumber-tag-expressions
-    - parse
-    - parse_type:
-        pydeps:
-          - parse >= 1.18.0
-          - six >= 1.11
     - typing-extensions:
         body: |
           src_unpack() {

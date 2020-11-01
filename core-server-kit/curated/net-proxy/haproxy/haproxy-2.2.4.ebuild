@@ -1,22 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
 
-[[ ${PV} == *9999 ]] && SCM="git-r3"
-inherit user toolchain-funcs flag-o-matic systemd linux-info $SCM
+inherit user toolchain-funcs flag-o-matic systemd linux-info
 
 MY_P="${PN}-${PV/_beta/-dev}"
 
 DESCRIPTION="A TCP/HTTP reverse proxy for high availability environments"
 HOMEPAGE="http://www.haproxy.org"
-if [[ ${PV} != *9999 ]]; then
-	SRC_URI="http://haproxy.1wt.eu/download/$(ver_cut 1-2)/src/${MY_P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~ppc ~x86"
-else
-	EGIT_REPO_URI="http://git.haproxy.org/git/haproxy-$(ver_cut 1-2).git/"
-	EGIT_BRANCH=master
-fi
+SRC_URI="http://haproxy.1wt.eu/download/$(ver_cut 1-2)/src/${MY_P}.tar.gz"
+KEYWORDS="*"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"

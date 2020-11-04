@@ -373,16 +373,14 @@ gnome3_query_immodules_gtk2() {
 	eend $?
 }
 
-# @FUNCTION: gnome3_query_immodules_gtk3
-# @USAGE: gnome3_query_immodules_gtk3
+# @FUNCTION: gnome3_update_immodules_cache_gtk3
+# @USAGE: gnome3_update_immodules_cache_gtk3
 # @DESCRIPTION:
 # Updates gtk3 immodules/gdk-pixbuf loaders listing.
-gnome3_query_immodules_gtk3() {
-	local updater=${EPREFIX}/usr/bin/${CHOST}-gtk-query-immodules-3.0
-	[[ ! -x ${updater} ]] && updater=${EPREFIX}/usr/bin/gtk-query-immodules-3.0
-
+gnome3_update_immodules_cache_gtk3() {
+	local updater=${EPREFIX}/usr/bin/gtk-query-immodules-3.0
 	ebegin "Updating gtk3 input method module cache"
-	GTK_IM_MODULE_FILE="${EROOT}usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
+	GTK_IM_MODULE_FILE="${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
 	einfo "updater: ${updater}"
 	einfo "GTK_IM_MODULE_FILE: $GTK_IM_MODULE_FILE"
 	echo "Directory contents: "
@@ -394,7 +392,6 @@ gnome3_query_immodules_gtk3() {
 		return 1
 	else
 		einfo "Immodules cache update success."
-		return 0
 	fi
 }
 

@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit eutils dotnet ltprune
+inherit eutils ltprune
 
 DESCRIPTION="Library for using System.Drawing with Mono"
 HOMEPAGE="https://www.mono-project.com"
@@ -38,8 +38,6 @@ src_configure() {
 
 src_install() {
 	default
-
-	dotnet_multilib_comply
 	local commondoc=( AUTHORS ChangeLog README TODO )
 	for docfile in "${commondoc[@]}"; do
 		[[ -e "${docfile}" ]] && dodoc "${docfile}"

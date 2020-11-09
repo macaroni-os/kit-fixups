@@ -6,7 +6,7 @@ KEYWORDS="*"
 
 SLOT="0"
 
-IUSE="nls minimal pax_kernel xen doc"
+IUSE="nls pax_kernel xen doc"
 
 inherit autotools eutils linux-info mono-env flag-o-matic pax-utils
 
@@ -19,7 +19,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 #Note: mono works incorrect with older versions of libgdiplus
 #details on dotnet overlay issue: https://github.com/gentoo/dotnet/issues/429
 COMMONDEPEND="
-	!minimal? ( >=dev-dotnet/libgdiplus-6.0.2 )
+	>=dev-dotnet/libgdiplus-6.0.2
 	ia64? ( sys-libs/libunwind )
 	nls? ( sys-devel/gettext )
 "
@@ -77,6 +77,7 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		$(use_with xen xen_opt)
+		--with-libgdiplus=installed
 		--without-ikvm-native
 		--disable-dtrace
 		--enable-system-aot

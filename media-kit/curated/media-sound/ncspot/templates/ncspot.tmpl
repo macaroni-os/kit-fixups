@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{crates}}"
+
+inherit cargo
+
+DESCRIPTION="ncurses Spotify client written in Rust using librespot, inspired by ncmpc and the likes"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{artifacts[0].src_uri}}
+	$(cargo_crate_uris ${CRATES})"
+RESTRICT="mirror"
+LICENSE="BSD"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND=""
+RDEPEND=""
+
+src_unpack() {
+	cargo_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}

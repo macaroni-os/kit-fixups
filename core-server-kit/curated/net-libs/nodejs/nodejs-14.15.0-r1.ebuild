@@ -1,65 +1,62 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads"
+PYTHON_COMPAT=( python3+ )
+PYTHON_REQ_USE="threads(+)"
 
-inherit bash-completion-r1 eutils flag-o-matic pax-utils python-any-r1 toolchain-funcs
+inherit bash-completion-r1 flag-o-matic python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="A JavaScript runtime built on Chrome's V8 JavaScript engine"
 HOMEPAGE="https://nodejs.org/"
 SRC_URI="https://nodejs.org/dist/v${PV}/node-v${PV}.tar.xz"
 
 LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT"
-SLOT="0"
+SLOT="0/$(ver_cut 1)"
 KEYWORDS="*"
-IUSE="cpu_flags_x86_sse2 debug doc icu inspector +npm +snapshot +ssl systemtap test"
-REQUIRED_USE="
-	inspector? ( icu ssl )
-	npm? ( ssl )
-"
 
-RDEPEND="
-	>=dev-libs/libuv-1.28.0:=
-	>=net-dns/c-ares-1.15.0
-	>=net-libs/http-parser-2.9.0:=
-	>=net-libs/nghttp2-1.39.2
+IUSE="cpu_flags_x86_sse2 debug doc +icu inspector +npm +snapshot +ssl system-icu +system-ssl systemtap test"
+REQUIRED_USE="inspector? ( icu ssl )
+	npm? ( ssl )
+	system-icu? ( icu )
+	system-ssl? ( ssl )"
+
+# FIXME: test-fs-mkdir fails with "no such file or directory". Investigate.
+RESTRICT="test"
+
+RDEPEND=">=app-arch/brotli-1.0.9
+	>=dev-libs/libuv-1.40.0:=
+	>=net-dns/c-ares-1.16.1
+	>=net-libs/nghttp2-1.41.0
 	sys-libs/zlib
-	icu? ( >=dev-libs/icu-64.2:= )
-	ssl? ( >=dev-libs/openssl-1.1.1:0= )
-"
-DEPEND="
-	${RDEPEND}
-	${PYTHON_DEPS}
+	system-icu? ( >=dev-libs/icu-67:= )
+	system-ssl? ( >=dev-libs/openssl-1.1.1:0= )"
+BDEPEND="${PYTHON_DEPS}
+	sys-apps/coreutils
 	systemtap? ( dev-util/systemtap )
-	test? ( net-misc/curl )
-"
+	test? ( net-misc/curl )"
+DEPEND="${RDEPEND}"
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-10.3.0-global-npm-config.patch
+	"${FILESDIR}"/${PN}-14.15.0-fix_ppc64_crashes.patch
 )
+
 S="${WORKDIR}/node-v${PV}"
 
 pkg_pretend() {
 	(use x86 && ! use cpu_flags_x86_sse2) && \
 		die "Your CPU doesn't support the required SSE2 instruction."
-
-	( [[ ${MERGE_TYPE} != "binary" ]] && ! test-flag-CXX -std=c++11 ) && \
-		die "Your compiler doesn't support C++11. Use GCC 4.8, Clang 3.3 or newer."
 }
 
 src_prepare() {
-	tc-export CC CXX PKG_CONFIG
+	tc-export AR CC CXX PKG_CONFIG
 	export V=1
 	export BUILDTYPE=Release
 
 	# fix compilation on Darwin
 	# https://code.google.com/p/gyp/issues/detail?id=260
 	sed -i -e "/append('-arch/d" tools/gyp/pylib/gyp/xcode_emulation.py || die
-
-	# make sure we use python2.* while using gyp
-	sed -i -e "s/python/${EPYTHON}/" deps/npm/node_modules/node-gyp/gyp/gyp || die
-	sed -i -e "s/|| 'python2'/|| '${EPYTHON}'/" deps/npm/node_modules/node-gyp/lib/configure.js || die
 
 	# less verbose install output (stating the same as portage, basically)
 	sed -i -e "/print/d" tools/install.py || die
@@ -72,7 +69,7 @@ src_prepare() {
 	# Avoid writing a depfile, not useful
 	sed -i -e "/DEPFLAGS =/d" tools/gyp/pylib/gyp/generator/make.py || die
 
-	sed -i -e "/'-O3'/d" common.gypi deps/v8/gypfiles/toolchain.gypi || die
+	sed -i -e "/'-O3'/d" common.gypi node.gypi || die
 
 	# Avoid a test that I've only been able to reproduce from emerge. It doesnt
 	# seem sandbox related either (invoking it from a sandbox works fine).
@@ -91,13 +88,31 @@ src_prepare() {
 }
 
 src_configure() {
-	local myconf=( --shared-cares --shared-http-parser --shared-libuv --shared-nghttp2 --shared-zlib )
+	xdg_environment_reset
+
+	local myconf=(
+		--shared-brotli
+		--shared-cares
+		--shared-libuv
+		--shared-nghttp2
+		--shared-zlib
+	)
 	use debug && myconf+=( --debug )
-	use icu && myconf+=( --with-intl=system-icu ) || myconf+=( --with-intl=none )
+	if use system-icu; then
+		myconf+=( --with-intl=system-icu )
+	elif use icu; then
+		myconf+=( --with-intl=full-icu )
+	else
+		myconf+=( --with-intl=none )
+	fi
 	use inspector || myconf+=( --without-inspector )
 	use npm || myconf+=( --without-npm )
-	use snapshot && myconf+=( --with-snapshot )
-	use ssl && myconf+=( --shared-openssl ) || myconf+=( --without-ssl )
+	use snapshot || myconf+=( --without-node-snapshot )
+	if use ssl; then
+		use system-ssl && myconf+=( --shared-openssl --openssl-use-def-ca-store )
+	else
+		myconf+=( --without-ssl )
+	fi
 
 	local myarch=""
 	case ${ABI} in
@@ -113,7 +128,7 @@ src_configure() {
 	GYP_DEFINES="linux_use_gold_flags=0
 		linux_use_bundled_binutils=0
 		linux_use_bundled_gold=0" \
-	"${PYTHON}" configure \
+	"${EPYTHON}" configure.py \
 		--prefix="${EPREFIX}"/usr \
 		--dest-cpu=${myarch} \
 		$(use_with systemtap dtrace) \
@@ -121,15 +136,12 @@ src_configure() {
 }
 
 src_compile() {
-	emake -C out mksnapshot
-	pax-mark m "out/${BUILDTYPE}/mksnapshot"
 	emake -C out
 }
 
 src_install() {
 	local LIBDIR="${ED}/usr/$(get_libdir)"
-	emake install DESTDIR="${D}"
-	pax-mark -m "${ED}"usr/bin/node
+	default
 
 	# set up a symlink structure that node-gyp expects..
 	dodir /usr/include/node/deps/{v8,uv}
@@ -139,11 +151,6 @@ src_install() {
 	done
 
 	if use doc; then
-		# Patch docs to make them offline readable
-		for i in `grep -rl 'fonts.googleapis.com' "${S}"/out/doc/api/*`; do
-			sed -i '/fonts.googleapis.com/ d' $i;
-		done
-		# Install docs
 		docinto html
 		dodoc -r "${S}"/doc/*
 	fi
@@ -156,7 +163,7 @@ src_install() {
 		# npm otherwise tries to write outside of the sandbox
 		local npm_config="usr/$(get_libdir)/node_modules/npm/lib/config/core.js"
 		sed -i -e "s|'/etc'|'${ED}/etc'|g" "${ED}/${npm_config}" || die
-		local tmp_npm_completion_file="$(emktemp)"
+		local tmp_npm_completion_file="$(TMPDIR="${T}" mktemp -t npm.XXXXXXXXXX)"
 		"${ED}/usr/bin/npm" completion > "${tmp_npm_completion_file}"
 		newbashcomp "${tmp_npm_completion_file}" npm
 		sed -i -e "s|'${ED}/etc'|'/etc'|g" "${ED}/${npm_config}" || die
@@ -185,19 +192,10 @@ src_install() {
 			\) \) -exec rm -rf "{}" \;
 	fi
 
-	mv "${D}"/usr/share/doc/node "${D}"/usr/share/doc/${PF} || die
+	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
 }
 
 src_test() {
 	out/${BUILDTYPE}/cctest || die
-	"${PYTHON}" tools/test.py --mode=${BUILDTYPE,,} -J message parallel sequential || die
-}
-
-pkg_postinst() {
-	einfo "The global npm config lives in /etc/npm. This deviates slightly"
-	einfo "from upstream which otherwise would have it live in /usr/etc/."
-	einfo ""
-	einfo "Protip: When using node-gyp to install native modules, you can"
-	einfo "avoid having to download extras by doing the following:"
-	einfo "$ node-gyp --nodedir /usr/include/node <command>"
+	"${EPYTHON}" tools/test.py --mode=${BUILDTYPE,,} -J message parallel sequential || die
 }

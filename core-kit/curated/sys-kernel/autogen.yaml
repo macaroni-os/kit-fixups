@@ -34,6 +34,8 @@
 # fix-bluetooth-polling.patch     increase bluetooth polling (for mice)
 # amdgpu-picasso.patch            add support for newer AMD APUs to AMDGPU.
 # export_kernel_fpu_functions_5_3.patch (needs description)
+# extra_cpu_optimizations.patch   enable expanded gcc CPU optimizations from
+#                                 https://github.com/graysky2/kernel_gcc_patch
 
 stable_kernel_gen:
   defaults:
@@ -55,6 +57,7 @@ stable_kernel_gen:
               - ikconfig.patch
               - fix-bluetooth-polling.patch
               - amdgpu-picasso.patch
+              - extra_cpu_optimizations.patch
 
 unstable_kernel_gen:
   defaults:
@@ -64,9 +67,9 @@ unstable_kernel_gen:
   packages:
     - debian-sources:
         versions:
-          5.8.14_p1:
+          5.9.6_p1:
             unmasked: True
-            deb_pv_base: 5.8.14
+            deb_pv_base: 5.9.6
             deb_extraversion: 1
             patches:
               - xfs-libcrc32c-fix.patch
@@ -75,4 +78,5 @@ unstable_kernel_gen:
               - ikconfig.patch
               - fix-bluetooth-polling.patch
               - export_kernel_fpu_functions_5_3.patch
+              - extra_cpu_optimizations.patch
 

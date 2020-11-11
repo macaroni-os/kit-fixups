@@ -18,20 +18,20 @@ declare -A mods
 # Must be behind encrypted_session
 mod_a["ndk"]="simpl"
 mod_pn["ndk"]="ngx_devel_kit"
-mod_pv["ndk"]="0.3.1rc1"
+mod_pv["ndk"]="0.3.1"
 mod_lic["ndk"]="BSD"
 mod_p["ndk"]="${mod_pn["ndk"]}-${mod_pv["ndk"]}"
 mod_uri["ndk"]="https://github.com/${mod_a["ndk"]}/${mod_pn["ndk"]}/archive/v${mod_pv["ndk"]}.tar.gz"
 mod_wd["ndk"]="${WORKDIR}/${mod_p["ndk"]}"
-mod_doc["ndk"]="README.md README_AUTO_LIB"
+mod_doc["ndk"]="README.md README_AUTO_LIB.md"
 
 # # ngx_brotli (https://github.com/eustas/ngx_brotli, BSD-2)
-mod_a["brotli"]="eustas"
+mod_a["brotli"]="google"
 mod_pn["brotli"]="ngx_brotli"
-mod_pv["brotli"]="8104036af9cff4b1d34f22d00ba857e2a93a243c"
+mod_pv["brotli"]="25f86f0bac1101b6512135eac5f93c49c63609e3"
 mod_lic["brotli"]="BSD-2"
 mod_p["brotli"]="${mod_pn["brotli"]}-${mod_pv["brotli"]}"
-mod_uri["brotli"]="https://github.com/${mod_a["brotli"]}/${mod_pn["brotli"]}/archive/v${mod_pv["brotli"]}.tar.gz"
+mod_uri["brotli"]="https://github.com/${mod_a["brotli"]}/${mod_pn["brotli"]}/archive/${mod_pv["brotli"]}.tar.gz"
 mod_wd["brotli"]="${WORKDIR}/${mod_p["brotli"]}"
 mod_doc["brotli"]="README.md"
 
@@ -59,7 +59,7 @@ mod_wd["encrypted_session"]="${WORKDIR}/${mod_p["encrypted_session"]}"
 # Fancy Index (https://github.com/aperezdc/ngx-fancyindex)
 mod_a["fancyindex"]="aperezdc"
 mod_pn["fancyindex"]="ngx-fancyindex"
-mod_pv["fancyindex"]="0.4.3"
+mod_pv["fancyindex"]="0.4.4"
 mod_lic["fancyindex"]="BSD-2"
 mod_p["fancyindex"]="${mod_pn["fancyindex"]}-${mod_pv["fancyindex"]}"
 mod_uri["fancyindex"]="https://github.com/${mod_a["fancyindex"]}/${mod_pn["fancyindex"]}/archive/v${mod_pv["fancyindex"]}.tar.gz"
@@ -67,16 +67,16 @@ mod_wd["fancyindex"]="${WORKDIR}/${mod_p["fancyindex"]}"
 mod_doc["fancyindex"]="README.rst HACKING.md CHANGELOG.md"
 
 # MogileFS Client (http://www.grid.net.ru/nginx/mogilefs.en.html)
-#mod_a["mogilefs"]="vkholodkov"
-#mod_pn["mogilefs"]="nginx-mogilefs-module"
-#mod_pv["mogilefs"]="1.0.4"
-#mod_sha["mogilefs"]="020937ff4624fc31928adb51a5c43753bf256b34"
-#mod_lic["mogilefs"]="BSD"
-#mod_p["mogilefs"]="${mod_pn["mogilefs"]}-${mod_pv["mogilefs"]}"
-#mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_pv["mogilefs"]}.tar.gz"
-#mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_sha["mogilefs"]}.tar.gz"
-#mod_wd["mogilefs"]="${WORKDIR}/${mod_p["mogilefs"]}"
-#mod_doc["mogilefs"]="README Changelog"
+mod_a["mogilefs"]="vkholodkov"
+mod_pn["mogilefs"]="nginx-mogilefs-module"
+mod_pv["mogilefs"]="1.0.4"
+# mod_sha["mogilefs"]="020937ff4624fc31928adb51a5c43753bf256b34"
+mod_lic["mogilefs"]="BSD"
+mod_p["mogilefs"]="${mod_pn["mogilefs"]}-${mod_pv["mogilefs"]}"
+mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_pv["mogilefs"]}.tar.gz"
+mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_sha["mogilefs"]}.tar.gz"
+mod_wd["mogilefs"]="${WORKDIR}/${mod_p["mogilefs"]}"
+mod_doc["mogilefs"]="README Changelog"
 
 # Phusion Passenger (https://github.com/phusion/passenger)
 #mod_a["passenger"]="phusion"
@@ -145,18 +145,18 @@ mod_doc["slowfs_cache"]="README.md CHANGES"
 mod_a["lua"]="openresty"
 mod_pn["lua"]="lua-nginx-module"
 mod_pv["lua"]="v0.10.15"
-mod_sha["lua"]="59b6430f7b7c407e15b19035c566a56cfd2eb3e8"
+mod_sha["lua"]="28cf5ce3b6ec8e7ab44eadac9cc1c3b6f5c387ba"
 mod_lic["lua"]="BSD-2"
-mod_p["lua"]="${mod_pn["lua"]}-${mod_sha["lua"]}"
+mod_p["lua"]="${mod_pn["lua"]}-${mod_pv["lua"]/v/}"
 mod_uri["lua"]="https://github.com/${mod_a["lua"]}/${mod_pn["lua"]}/archive/${mod_pv["lua"]}.tar.gz"
-mod_wd["lua"]="${WORKDIR}/lua-nginx-module-0.10.15"
-#mod_doc["lua"]="README.markdown"
+mod_wd["lua"]="${WORKDIR}/${mod_p["lua"]}"
+mod_doc["lua"]="README.markdown doc/HttpLuaModule.wiki"
 
 # Auth PAM (https://github.com/sto/ngx_http_auth_pam_module)
 mod_a["auth_pam"]="stogh"
 mod_pn["auth_pam"]="ngx_http_auth_pam_module"
-mod_pv["auth_pam"]="1.5.1"
-mod_sha["auth_pam"]="f5d706ac299dc3c517fef644873739e975556e6b"
+mod_pv["auth_pam"]="1.5.2"
+# mod_sha["auth_pam"]="f5d706ac299dc3c517fef644873739e975556e6b"
 mod_lic["auth_pam"]="BSD-2"
 mod_p["auth_pam"]="${mod_pn["auth_pam"]}-${mod_pv["auth_pam"]}"
 mod_uri["auth_pam"]="https://github.com/${mod_a["auth_pam"]}/${mod_pn["auth_pam"]}/archive/v${mod_pv["auth_pam"]}.tar.gz"
@@ -228,12 +228,12 @@ mod_doc["concat"]="README.md"
 # Echo (https://github.com/openresty/echo-nginx-module)
 mod_a["echo"]="openresty"
 mod_pn["echo"]="echo-nginx-module"
-mod_pv["echo"]="v0.61"
+mod_pv["echo"]="v0.62"
 #mod_sha["echo"]="0525d0c2db1f2a5c19a141687cd055e09b5cded1"
 mod_lic["echo"]="BSD-2"
-mod_p["echo"]="${mod_pn["echo"]}-${mod_pv["echo"]}"
+mod_p["echo"]="${mod_pn["echo"]}-${mod_pv["echo"]/v/}"
 mod_uri["echo"]="https://github.com/${mod_a["echo"]}/${mod_pn["echo"]}/archive/${mod_pv["echo"]}.tar.gz"
-mod_wd["echo"]="${WORKDIR}/echo-nginx-module-0.61"
+mod_wd["echo"]="${WORKDIR}/${mod_p["echo"]}"
 #mod_doc["echo"]="README.markdown"
 
 # ModSecurity (https://www.modsecurity.org/download.html)
@@ -278,7 +278,7 @@ mod_uri["ajp"]="https://github.com/${mod_a["ajp"]}/${mod_pn["ajp"]}/archive/${mo
 mod_wd["ajp"]="${WORKDIR}/${mod_p["ajp"]}"
 mod_doc["ajp"]="README"
 
-inherit eutils ssl-cert toolchain-funcs perl-module flag-o-matic user versionator
+inherit autotools eutils ssl-cert toolchain-funcs perl-module flag-o-matic user versionator pax-utils
 
 DESCRIPTION="Robust, small and high performance http and reverse proxy server"
 HOMEPAGE="http://nginx.org"
@@ -302,14 +302,14 @@ KEYWORDS="*"
 RESTRICT="test"
 
 mods[standard]="access auth_basic autoindex browser charset empty_gif fastcgi
-	geo  grpc gzip limit_conn limit_req map memcached mirror 
+	geo  grpc gzip limit_conn limit_req map memcached mirror
 	proxy referer rewrite scgi ssi split_clients userid uwsgi"
-	
+
 mods[upstream]="upstream_hash upstream_ip_hash upstream_keepalive upstream_least_conn upstream_zone"
 
 mods[optional]="addition auth_request dav degradation flv geoip gunzip
 	gzip_static image_filter mp4 perl random_index realip secure_link
-	ssl stub_status sub xslt auth_pam"
+	ssl stub_status sub xslt"
 
 mods[standard_stream]="access geo limit_conn map return split_clients upstream_hash upstream_least_conn upstream_zone"
 
@@ -342,7 +342,7 @@ for m in ${mods[mail]} ; do
 
 for m in ${mods[dynamic]} ; do
     IUSE+=" nginx_modules_dynamic_${m}" ; done
-    
+
 for m in ${!mod_a[@]} ; do
 	IUSE+=" nginx_modules_external_${m}" ; done
 
@@ -354,11 +354,8 @@ RDEPEND="
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:= )
 	)
-	
-	
 	pcre? ( dev-libs/libpcre )
 	pcre-jit? ( dev-libs/libpcre[jit] )
-	
 	ssl? (
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:= )
@@ -373,36 +370,30 @@ RDEPEND="
 	nginx_modules_http_gzip? ( sys-libs/zlib )
 	nginx_modules_http_gzip_static? ( sys-libs/zlib )
 	nginx_modules_http_image_filter? ( media-libs/gd[jpeg,png] )
-	nginx_modules_http_perl? ( dev-lang/perl )
+	nginx_modules_http_perl? ( >=dev-lang/perl-5.8:= )
 	nginx_modules_http_rewrite? ( dev-libs/libpcre )
-	
 	nginx_modules_http_secure_link? (
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:= )
-	)	
-	
-	nginx_modules_http_xslt? ( dev-libs/libxml2 dev-libs/libxslt )
-	nginx_modules_external_lua? (
-		!luajit? ( dev-lang/lua )
-		luajit? ( dev-lang/luajit:2= )
 	)
+	nginx_modules_http_xslt? ( dev-libs/libxml2 dev-libs/libxslt )
+	nginx_modules_external_lua? ( dev-lang/luajit:2= )
 	nginx_modules_external_auth_pam? ( virtual/pam )
 	nginx_modules_external_metrics? ( dev-libs/yajl )
-	nginx_modules_external_dav_ext? ( dev-libs/expat )
+	nginx_modules_external_dav_ext? ( dev-libs/libxml2 )
 	nginx_modules_external_modsecurity? (
-		dev-libs/libxml2
 		dev-libs/apr
-		net-misc/curl
 		dev-libs/apr-util
+		dev-libs/libxml2
+		net-misc/curl
 		www-servers/apache
 	)
-
 	nginx_modules_stream_geoip? ( dev-libs/geoip )
 	"
 	# 	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )
 	# 	nginx_modules_http_auth_ldap? ( net-nds/openldap[ssl?] )
 
-DEPEND="${CDEPEND}
+DEPEND="${RDEPEND}
 	arm? ( dev-libs/libatomic_ops )
 	libatomic? ( dev-libs/libatomic_ops )"
 
@@ -478,14 +469,19 @@ REQUIRED_USE="
         nginx_modules_stream_upstream_zone
     )
 	pcre-jit? ( pcre )
-	nginx_modules_external_dav_ext? ( nginx_modules_http_dav )
-	nginx_modules_external_lua? ( nginx_modules_http_rewrite )
+	nginx_modules_http_grpc? ( http2 )
+	nginx_modules_external_dav_ext? ( nginx_modules_http_dav nginx_modules_http_xslt )
+	nginx_modules_external_lua? (
+		luajit
+		nginx_modules_http_rewrite
+	)
 	nginx_modules_external_metrics? ( nginx_modules_http_stub_status )
 	nginx_modules_external_modsecurity? ( pcre )
 	nginx_modules_external_naxsi? ( pcre )
 	nginx_modules_external_push_stream? ( ssl )"
 
 pkg_setup() {
+
 	NGINX_HOME="${EROOT}var/lib/${PN}"
 	NGINX_HOME_TMP="${NGINX_HOME}/tmp"
 
@@ -524,41 +520,33 @@ pkg_setup() {
 		ewarn "To actually disable all http-functionality you also have"
 		ewarn "to disable all nginx http modules."
 	fi
+
+	if use nginx_modules_external_mogilefs && use threads; then
+		eerror "mogilefs won't compile with threads support."
+		eerror "Please disable either flag and try again."
+		die "Can't compile mogilefs with threads support"
+	fi
 }
 
 src_prepare() {
+
 	eapply "${FILESDIR}/${PN}-fix-perl-install-path.patch"
 	eapply "${FILESDIR}/${PN}-httpoxy-mitigation-r1.patch"
-
-	if use nginx_modules_http_auth_pam; then
-		cd "${HTTP_AUTH_PAM_MODULE_WD}" || die
-		eapply "${FILESDIR}"/http_auth_pam-1.5.1-adjust-loglevel-for-authentication-failures.patch
-		cd "${S}" || die
-	fi
-
-#   Gentoo Patch to review
-#
-#	if use nginx_modules_external_brotli; then
-#		cd "${HTTP_BROTLI_MODULE_WD}" || die
-#		eapply "${FILESDIR}"/http_brotli-detect-brotli-r2.patch
-#		cd "${S}" || die
-#	fi
 
 	if use nginx_modules_external_upstream_check; then
 		epatch "${FILESDIR}/check-1.11.5.patch"
 	fi
 
-#   Gentoo Patch to review
-#
-#	if use nginx_modules_external_cache_purge; then
-#		cd "${HTTP_CACHE_PURGE_MODULE_WD}" || die
-#		eapply "${FILESDIR}"/http_cache_purge-1.11.6+.patch
-#		cd "${S}" || die
-#	fi
+	if use nginx_modules_external_modsecurity; then
+		cd "${WORKDIR}/${mod_p[modsecurity]}"
 
-	if use nginx_modules_external_lua ; then
-		sed -e "s/-llua5.1/-llua/" \
-			-i "${mod_wd[lua]}/config" || die
+		eautoreconf
+
+		if use luajit ; then
+			sed -i -e 's|^\(LUA_PKGNAMES\)=.*|\1="luajit"|' configure || die
+		fi
+
+		cd "${S}" || die
 	fi
 
 	find auto/ -type f -print0 | xargs -0 sed -i 's:\&\& make:\&\& \\$(MAKE):' || die
@@ -583,12 +571,11 @@ src_configure() {
 	# modsecurity needs to generate nginx/modsecurity/config before including it
 	if use nginx_modules_external_modsecurity; then
 		cd "${WORKDIR}/${mod_p[modsecurity]}"
-		if use luajit ; then
-			sed -i -e 's|^\(LUA_PKGNAMES\)=.*|\1="luajit"|' configure || die
-		fi
 
 		./configure \
 			--enable-standalone-module \
+			--disable-mlogc \
+			--with-ssdeep=no \
 			$(use_enable pcre-jit) \
 			$(use_with nginx_modules_external_lua lua) || die "configure failed for modsecurity"
 	fi
@@ -596,7 +583,7 @@ src_configure() {
 	cd "${S}"
 
 	local nginx_configure= http_enabled= mail_enabled= stream_enabled= WITHOUT_IPV6=
-	
+
 	use aio                && nginx_configure+=" --with-file-aio"
 	use cpp_test           && nginx_configure+=" --with-cpp_test_module"
 	use debug              && nginx_configure+=" --with-debug"
@@ -652,19 +639,27 @@ src_configure() {
 	# enable dynamic ngx_http_xslt_module
 	use nginx_modules_dynamic_xslt && nginx_configure+=" --with-http_xslt_module=dynamic"
 
+	# Fix https://bugs.funtoo.org/browse/FL-6539
+	local _ndk_used=no
 	for m in ${!mod_a[@]} ; do
+
+		if [[ $m == "encrypted_session" ]]; then
+			# encrypted_session requires ndk added before it
+			[[ $_ndk_used != "yes" ]] && nginx_configure+=" --add-module=${mod_wd['ndk']}"
+			_ndk_used=yes
+		elif [[ $m == "ndk" ]]; then
+			# if ndk already used not adding for the second time
+			[[ $_ndk_used == "yes" ]] && continue
+			_ndk_used=yes
+		fi
+
 		use nginx_modules_external_${m} && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd[$m]}"
 	done
 
 	if use nginx_modules_external_lua ; then
 		http_enabled=1
-		if use luajit ; then
-			export LUAJIT_LIB=$(pkg-config --variable libdir luajit)
-			export LUAJIT_INC=$(pkg-config --variable includedir luajit)
-		else
-			export LUA_LIB=$(pkg-config --variable libdir lua)
-			export LUA_INC=$(pkg-config --variable includedir lua)
-		fi
+		export LUAJIT_LIB=$(pkg-config --variable libdir luajit)
+		export LUAJIT_INC=$(pkg-config --variable includedir luajit)
 	fi
 
 	if use http || use http-cache || use http2; then
@@ -677,11 +672,11 @@ src_configure() {
 	else
 		nginx_configure+=" --without-http --without-http-cache"
 	fi
-	
+
 	if use stream ; then
 		stream_enabled=1
 	fi
-	
+
 	if [[ $stream_enabled ]] ; then
 		nginx_configure+=" --with-stream"
 		use ssl && nginx_configure+=" --with-stream_ssl_module"
@@ -749,7 +744,7 @@ src_install() {
 	insinto "${EROOT}etc/${PN}"
 	doins "${FILESDIR}/${PN}.conf"
 
-	newinitd "${FILESDIR}/1.13.7/${PN}.initd" "${PN}"
+	newinitd "${FILESDIR}/${PN}.initd" "${PN}"
 
 	keepdir "${EROOT}etc/${PN}"/sites-{available,enabled}
 	insinto "${EROOT}etc/${PN}/sites-available"
@@ -790,14 +785,14 @@ src_install() {
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}/${PN}.logrotate" "${PN}"
 	keepdir_list+=" /var/log/${PN}"
-	
+
 	# Don't create /run
 	rm -rf "${ED%/}"/run || die
-	
-# 	if use luajit; then
-# 		pax-mark m "${ED%/}/usr/sbin/nginx"
-# 	fi
-	
+
+#	if use luajit; then
+#		pax-mark m "${ED%/}/usr/sbin/nginx"
+#	fi
+
 	if use nginx_modules_http_perl ; then
 		cd "${S}/objs/src/http/modules/perl"
 		emake DESTDIR="${ED}" INSTALLDIRS=vendor install
@@ -849,7 +844,7 @@ pkg_postinst() {
 # 		ewarn "officially supported target yet. You are on your own."
 # 		ewarn "Expect runtime failures, memory leaks and other problems!"
 # 	fi
-# 
+#
 # 	if use nginx_modules_http_lua && use http2; then
 # 		ewarn ""
 # 		ewarn "Lua 3rd party module author warns against using ${P} with"

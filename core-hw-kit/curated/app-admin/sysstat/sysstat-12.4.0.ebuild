@@ -1,3 +1,4 @@
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,11 +11,11 @@ SRC_URI="https://github.com/${PN}/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="debug nls lm-sensors selinux static systemd"
+IUSE="debug nls lm_sensors selinux static"
 
 CDEPEND="
 	nls? ( virtual/libintl )
-	lm-sensors? ( sys-apps/lm-sensors:= )
+	lm_sensors? ( sys-apps/lm_sensors:= )
 "
 DEPEND="
 	${CDEPEND}
@@ -48,15 +49,12 @@ src_configure() {
 	tc-export AR
 	use static && append-ldflags -static
 
-	# --enable-compress-manpg <= Yes, that is inverted.
 	sa_lib_dir=/usr/lib/sa \
 		conf_dir=/etc \
 		econf \
-			$(use_enable !systemd use-crond) \
-			$(use_enable lm-sensors sensors) \
+			$(use_enable debug debuginfo) \
+			$(use_enable lm_sensors sensors) \
 			$(use_enable nls) \
-			$(usex debug --enable-debuginfo '') \
-			--enable-compress-manpg \
 			--enable-copy-only \
 			--enable-documentation \
 			--enable-install-cron \
@@ -78,5 +76,5 @@ src_install() {
 	newinitd "${FILESDIR}"/${PN}.init.d ${PN}
 	systemd_dounit ${PN}.service
 
-	rm "${D}"/usr/share/doc/${PF}/COPYING || die
+	rm -f "${D}"usr/share/doc/${PF}/COPYING
 }

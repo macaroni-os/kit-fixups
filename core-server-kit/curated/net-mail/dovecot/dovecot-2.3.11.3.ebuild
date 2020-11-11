@@ -31,7 +31,7 @@ LICENSE="LGPL-2.1 MIT"
 KEYWORDS="*"
 
 IUSE_DOVECOT_AUTH="kerberos ldap lua mysql pam postgres sqlite vpopmail"
-IUSE_DOVECOT_COMPRESS="bzip2 lzma lz4 zlib"
+IUSE_DOVECOT_COMPRESS="bzip2 lzma lz4 zlib zstd"
 IUSE_DOVECOT_OTHER="argon2 caps doc ipv6 libressl lucene managesieve selinux sieve solr static-libs suid tcpd textcat"
 
 IUSE="${IUSE_DOVECOT_AUTH} ${IUSE_DOVECOT_STORAGE} ${IUSE_DOVECOT_COMPRESS} ${IUSE_DOVECOT_OTHER}"
@@ -57,6 +57,7 @@ DEPEND="argon2? ( dev-libs/libsodium )
 	textcat? ( app-text/libexttextcat )
 	vpopmail? ( net-mail/vpopmail )
 	zlib? ( sys-libs/zlib )
+	zstd? ( app-arch/zstd )
 	virtual/libiconv
 	dev-libs/icu:="
 
@@ -124,6 +125,7 @@ src_configure() {
 		$( use_with textcat ) \
 		$( use_with vpopmail ) \
 		$( use_with zlib ) \
+                $( use_with zstd ) \
 		$( use_enable static-libs static ) \
 		${conf}
 

@@ -1,11 +1,10 @@
-# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 CMAKE_IN_SOURCE_BUILD=1
 
-inherit autotools cmake-utils eutils flag-o-matic java-pkg-opt-2 systemd xdg-utils gnome2-utils
+inherit autotools cmake eutils flag-o-matic java-pkg-opt-2 systemd xdg xdg-utils
 
 XSERVER_VERSION="1.20.0"
 
@@ -25,10 +24,11 @@ CDEPEND="
 	>=x11-libs/fltk-1.3.1
 	gnutls? ( net-libs/gnutls:= )
 	nls? ( virtual/libiconv )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 	x11-libs/libX11
 	x11-libs/libXext
 	x11-libs/libXrender
+	x11-libs/pixman
 	server? (
 		x11-libs/libXau
 		x11-libs/libXdamage
@@ -75,17 +75,13 @@ DEPEND="${CDEPEND}
 		opengl? ( >=media-libs/mesa-10.3.4-r1 )
 	)"
 
-PATCHES=(
-	"${FILESDIR}"/${P}-030_manpages.patch
-	"${FILESDIR}"/${P}-055_xstartup.patch
-)
 
 src_prepare() {
 	if use server ; then
 		cp -r "${WORKDIR}"/xorg-server-${XSERVER_VERSION}/. unix/xserver || die
 	fi
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 
 	if use server ; then
 		cd unix/xserver || die
@@ -108,7 +104,7 @@ src_configure() {
 		-DBUILD_JAVA=$(usex java)
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 
 	if use server ; then
 		cd unix/xserver || die
@@ -146,7 +142,7 @@ src_configure() {
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 
 	if use server ; then
 		# deps of the vnc module and the module itself
@@ -161,36 +157,36 @@ src_compile() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
-	if use server ; then
+	if use server; then
 		emake -C unix/xserver/hw/vnc DESTDIR="${D}" install
 		if ! use xorgmodule; then
-			rm -rv "${ED%/}"/usr/$(get_libdir)/xorg || die
+			rm -rv "${ED}"/usr/$(get_libdir)/xorg || die
 		else
-			rm -v "${ED%/}"/usr/$(get_libdir)/xorg/modules/extensions/libvnc.la || die
+			rm -v "${ED}"/usr/$(get_libdir)/xorg/modules/extensions/libvnc.la || die
 		fi
 
 		newconfd "${FILESDIR}"/${PN}.confd ${PN}
 		newinitd "${FILESDIR}"/${PN}.initd ${PN}
 
-		systemd_douserunit contrib/systemd/user/vncserver@.service
+		systemd_douserunit unix/vncserver/vncserver@.service
 	else
 		local f
-		cd "${ED}" || die
-		for f in vncserver x0vncserver vncconfig; do
-			rm usr/bin/$f || die
-			rm usr/share/man/man1/$f.1 || die
+		for f in x0vncserver vncconfig; do
+			rm "${ED}"/usr/bin/${f} || die
+			rm "${ED}"/usr/share/man/man1/${f}.1 || die
 		done
+		rm -r "${ED}"/usr/{sbin,libexec} || die
+		rm -r "${ED}"/usr/share/man/man8 || die
 	fi
+
 }
 
 pkg_postinst() {
 	xdg_desktop_database_update
-	gnome2_icon_cache_update
 }
 
 pkg_postrm() {
 	xdg_desktop_database_update
-	gnome2_icon_cache_update
 }

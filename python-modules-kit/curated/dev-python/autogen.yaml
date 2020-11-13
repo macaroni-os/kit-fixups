@@ -461,7 +461,8 @@ salt_stuff_rule:
     - pop:
         body: |
           src_prepare() {
-            touch ${S}/requirements.txt
+            install -d ${S}/requirements
+            touch ${S}/requirements/base.txt
             default
           }
         pydeps:

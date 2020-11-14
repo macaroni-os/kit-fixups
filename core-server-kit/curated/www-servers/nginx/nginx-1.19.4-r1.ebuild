@@ -471,6 +471,7 @@ REQUIRED_USE="
 	pcre-jit? ( pcre )
 	nginx_modules_http_grpc? ( http2 )
 	nginx_modules_external_dav_ext? ( nginx_modules_http_dav nginx_modules_http_xslt )
+	nginx_modules_external_encrypted_session? ( nginx_modules_external_ndk )
 	nginx_modules_external_lua? (
 		luajit
 		nginx_modules_http_rewrite
@@ -640,19 +641,10 @@ src_configure() {
 	use nginx_modules_dynamic_xslt && nginx_configure+=" --with-http_xslt_module=dynamic"
 
 	# Fix https://bugs.funtoo.org/browse/FL-6539
-	local _ndk_used=no
+	use nginx_modules_external_ndk && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd['ndk']}"
+
 	for m in ${!mod_a[@]} ; do
-
-		if [[ $m == "encrypted_session" ]]; then
-			# encrypted_session requires ndk added before it
-			[[ $_ndk_used != "yes" ]] && nginx_configure+=" --add-module=${mod_wd['ndk']}"
-			_ndk_used=yes
-		elif [[ $m == "ndk" ]]; then
-			# if ndk already used not adding for the second time
-			[[ $_ndk_used == "yes" ]] && continue
-			_ndk_used=yes
-		fi
-
+		[[ $m == "ndk" ]] && continue
 		use nginx_modules_external_${m} && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd[$m]}"
 	done
 

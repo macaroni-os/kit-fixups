@@ -429,19 +429,37 @@ testing_deps_rule:
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
     # TODO: move all the pytest stuff over here.
     # TODO: add pytest-pop, silly.
+    - setuptools_scm
+    - setuptools-declarative-requirements:
+        pydeps:
+          - setuptools_scm
+        body: |
+          src_prepare() {
+            rm ${S}/tests/__init__.py || die
+            default
+          }
     - pytest-salt-factories:
+        du_setuptools: rdepend
         body: |
           src_prepare() {
             rm ${S}/tests/__init__.py || die
             default
           }
         pydeps:
-          - pytest
-          # This dep may be missing from upstream:
+          - pytest > 6.1.1
+          - attrs >= 19.2.0
+          - pytest-tempdir >= 2019.9.6
           - psutil
+          - pyzmq
+          - msgpack 
+          - setuptools-declarative-requirements
     - pytest-asyncio:
         pydeps:
           - pytest
+    - pytest-tempdir:
+        python_compat: python2+
+        pydeps:
+          - pytest >= 2.8.1
     # required by pytest-pop:
     - asynctest
 

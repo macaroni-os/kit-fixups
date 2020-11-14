@@ -222,6 +222,32 @@ dev_python_compat_rule:
             sed -e "s:html_theme = 'default':html_theme = 'classic':" -i doc/conf.py || die
             distutils-r1_python_prepare_all
           }
+    - pyzmq:
+        compat: '19.0.2'
+        blocker: '!<=dev-python/pyzmq-19.0.2'
+        python_compat: python3+ pypy{,3}
+        depend: |
+          dev-python/cython[${PYTHON_USEDEP}]
+        rdepend: |
+          >=net-libs/zeromq-4.2.2-r2:=[drafts]
+        inherit:
+          - toolchain-funcs
+          - flag-o-matic
+        license: LGPL-3
+        description: Lightweight and super-fast messaging library built on top of the ZeroMQ library
+        homepage: |
+          http://www.zeromq.org/bindings:python https://pypi.org/project/pyzmq/
+        pydeps:
+          py:all:
+            - py
+            - cffi
+          py:2:
+            - gevent
+        body: |
+          python_configure_all() {
+            tc-export CC
+            append-cppflags -DZMQ_BUILD_DRAFT_API=1
+          }
     - setuptools:
         du_setuptools: 'no'
         desc: Collection of extensions to Distutils
@@ -636,8 +662,6 @@ dev_python_autogen_rule:
     - pep8-naming:
         python_compat: python2+
     - pyjwt:
-        python_compat: python2+ pypy{,3}
-    - pyzmq:
         python_compat: python2+ pypy{,3}
     - PySocks:
         python_compat: python2+ pypy{,3}

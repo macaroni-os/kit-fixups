@@ -1,9 +1,8 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="6"
 
-inherit eutils systemd toolchain-funcs
+inherit eutils toolchain-funcs
 
 DESCRIPTION="Very Secure FTP Daemon written with speed, size and security in mind"
 HOMEPAGE="http://vsftpd.beasts.org/"
@@ -11,7 +10,7 @@ SRC_URI="http://security.appspot.com/downloads/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~x86-fbsd"
+KEYWORDS="*"
 IUSE="caps libressl pam tcpd ssl selinux xinetd"
 
 DEPEND="caps? ( >=sys-libs/libcap-2 )
@@ -117,9 +116,6 @@ src_install() {
 
 	exeinto /usr/libexec
 	doexe "${FILESDIR}/vsftpd-checkconfig.sh"
-	systemd_dounit "${FILESDIR}/${PN}.service"
-	systemd_newunit "${FILESDIR}/${PN}_at.service" "${PN}@.service"
-	systemd_dounit "${FILESDIR}/${PN}.socket"
 }
 
 pkg_preinst() {

@@ -1,7 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="4"
+EAPI="6"
 
 inherit eutils toolchain-funcs
 
@@ -11,20 +10,22 @@ SRC_URI="http://security.appspot.com/downloads/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~hppa ia64 ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
-IUSE="caps pam tcpd ssl selinux xinetd"
+KEYWORDS="*"
+IUSE="caps libressl pam tcpd ssl selinux xinetd"
 
 DEPEND="caps? ( >=sys-libs/libcap-2 )
 	pam? ( virtual/pam )
 	tcpd? ( >=sys-apps/tcp-wrappers-7.6 )
-	ssl? ( >=dev-libs/openssl-0.9.7d )"
+	ssl? (
+		!libressl? ( dev-libs/openssl:0= )
+		libressl? ( dev-libs/libressl:0= )
+	)"
 RDEPEND="${DEPEND}
 	net-ftp/ftpbase
 	selinux? ( sec-policy/selinux-ftp )
 	xinetd? ( sys-apps/xinetd )"
 
 src_prepare() {
-
 	# kerberos patch. bug #335980
 	epatch "${FILESDIR}/${PN}-2.3.2-kerberos.patch"
 
@@ -53,12 +54,36 @@ src_prepare() {
 
 	#Bug #335977
 	epatch "${FILESDIR}"/${PN}-3.0.0-Makefile.patch
+
+	#Bug #450536
+	epatch "${FILESDIR}"/${PN}-3.0.2-remove-legacy-cap.patch
+
+	#Bug #630704
+	epatch "${FILESDIR}"/${PN}-3.0.3-sparc.patch
+
+	# FL-4665
+	epatch "${FILESDIR}"/0001-Fix-unable-to-list-dirs-w-more-than-31-items.patch
+
+	# CVE-2015-1419 fix
+	epatch "${FILESDIR}"/0050-CVE-2015-1419.patch
+
+	# FL-7675
+	epatch "${FILESDIR}"/vsftpd-3.0.3-getdents64.patch
+
+	eapply_user
 }
 
 src_compile() {
+	# Override LIBS variable. Bug #508192
+	LIBS=
+	use caps && LIBS+=" -lcap"
+	use pam && LIBS+=" -lpam"
+	use tcpd && LIBS+=" -lwrap"
+	use ssl && LIBS+=" -lssl -lcrypto"
+
 	CFLAGS="${CFLAGS}" \
 	CC="$(tc-getCC)" \
-	emake
+	emake LIBS="${LIBS}"
 }
 
 src_install() {
@@ -105,7 +130,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	einfo "vsftpd init script can now be multiplexed."
+	einfo "vsftpd openRC init script can now be multiplexed."
 	einfo "The default init script forces /etc/vsftpd/vsftpd.conf to exist."
 	einfo "If you symlink the init script to another one, say vsftpd.foo"
 	einfo "then that uses /etc/vsftpd/foo.conf instead."

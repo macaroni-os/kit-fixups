@@ -1,0 +1,11 @@
+diff -ur vsftpd-3.0.3.orig/seccompsandbox.c vsftpd-3.0.3/seccompsandbox.c
+--- vsftpd-3.0.3.orig/seccompsandbox.c	2020-11-12 12:18:40.225768556 +0300
++++ vsftpd-3.0.3/seccompsandbox.c	2020-11-12 12:20:32.677771224 +0300
+@@ -409,6 +409,7 @@
+   allow_nr(__NR_getcwd);
+   allow_nr(__NR_chdir);
+   allow_nr(__NR_getdents);
++  allow_nr(__NR_getdents64);
+   /* Misc */
+   allow_nr(__NR_umask);
+ 

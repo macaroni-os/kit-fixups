@@ -20,7 +20,7 @@ KEYWORDS="*"
 
 RDEPEND="
 	sys-apps/pciutils
-	dev-python/distro[${PYTHON_USEDEP}]
+	>=dev-python/distro-1.5[${PYTHON_USEDEP}]
 	dev-python/jinja[${PYTHON_USEDEP}]
 	dev-python/libnacl[${PYTHON_USEDEP}]
 	dev-python/msgpack[${PYTHON_USEDEP}]

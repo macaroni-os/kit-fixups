@@ -321,6 +321,9 @@ simple_python_autogen_rule:
   generator: pypi-simple-1
   packages:
     - dict-toolbox:
+        desc: Dict tools for Python projects
+        homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
+        license: Apache-2.0
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
@@ -328,7 +331,13 @@ simple_python_autogen_rule:
           }
     - colorama:
         python_compat: python2+ pypy3
+        desc: ANSI escape character sequences for colored terminal text & cursor positioning
+        homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
+        license: BSD
     - rfc3986:
+        desc: A Python implementation of RFC 3986 including validation and authority parsing
+        homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
+        license: Apache-2.0
         python_compat: python2+ pypy{,3}
     - hg-git:
         cat: dev-vcs
@@ -339,6 +348,14 @@ simple_python_autogen_rule:
         rdepend: |
           >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
           >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
+    - pypeg2:
+        pypi_name: pyPEG2
+        du_setuptools: 'no'
+        desc: An intrinsic PEG Parser-Interpreter for Python
+        homepage: https://pypi.org/project/pyPEG2/ https://fdik.org/pyPEG/
+        license: GPL-2
+        restrict: test
+        rdepend: dev-python/lxml[${PYTHON_USEDEP}]
 
 
 salt_misc_deps_rule:

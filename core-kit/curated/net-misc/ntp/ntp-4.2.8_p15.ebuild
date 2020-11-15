@@ -1,8 +1,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit autotools toolchain-funcs flag-o-matic user systemd
+inherit autotools toolchain-funcs flag-o-matic user
 
 MY_P=${P/_p/p}
 DESCRIPTION="Network Time Protocol suite/programs"
@@ -42,6 +42,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.2.8-sntp-test-pthreads.patch #563922
 	"${FILESDIR}"/${PN}-4.2.8_p10-fix-build-wo-ssl-or-libressl.patch
 	"${FILESDIR}"/${PN}-4.2.8_p12-libressl-2.8.patch
+	"${FILESDIR}"/${PN}-4.2.8_p14-add_cap_ipc_lock.patch #711530
 )
 
 pkg_setup() {
@@ -91,14 +92,14 @@ src_install() {
 	default
 	# move ntpd/ntpdate to sbin #66671
 	dodir /usr/sbin
-	mv "${ED%/}"/usr/bin/{ntpd,ntpdate} "${ED%/}"/usr/sbin/ || die "move to sbin"
+	mv "${ED}"/usr/bin/{ntpd,ntpdate} "${ED}"/usr/sbin/ || die "move to sbin"
 
 	dodoc INSTALL WHERE-TO-START
 	doman "${WORKDIR}"/man/*.[58]
 
 	insinto /etc
 	doins "${FILESDIR}"/ntp.conf
-	use ipv6 || sed -i '/^restrict .*::1/d' "${ED%/}"/etc/ntp.conf #524726
+	use ipv6 || sed -i '/^restrict .*::1/d' "${ED}"/etc/ntp.conf #524726
 	newinitd "${FILESDIR}"/ntpd.rc-r1 ntpd
 	newconfd "${FILESDIR}"/ntpd.confd ntpd
 	newinitd "${FILESDIR}"/ntp-client.rc ntp-client
@@ -106,9 +107,9 @@ src_install() {
 	newinitd "${FILESDIR}"/sntp.rc sntp
 	newconfd "${FILESDIR}"/sntp.confd sntp
 	if ! use caps ; then
-		sed -i "s|-u ntp:ntp||" "${ED%/}"/etc/conf.d/ntpd || die
+		sed -i "s|-u ntp:ntp||" "${ED}"/etc/conf.d/ntpd || die
 	fi
-	sed -i "s:/usr/bin:/usr/sbin:" "${ED%/}"/etc/init.d/ntpd || die
+	sed -i "s:/usr/bin:/usr/sbin:" "${ED}"/etc/init.d/ntpd || die
 
 	keepdir /var/lib/ntp
 	use prefix || fowners ntp:ntp /var/lib/ntp
@@ -119,25 +120,12 @@ src_install() {
 		rm -r var/lib || die
 		rm etc/{conf,init}.d/ntpd || die
 		rm usr/share/man/*/ntpd.8 || die
-	else
-		systemd_newunit "${FILESDIR}"/ntpd.service-r2 ntpd.service
-		if use caps ; then
-			sed -i '/ExecStart/ s|$| -u ntp:ntp|' \
-				"${D%/}$(systemd_get_systemunitdir)"/ntpd.service \
-				|| die
-		fi
-		systemd_enable_ntpunit 60-ntpd ntpd.service
 	fi
-    
+
     if use ntp-cron ; then
         exeinto /etc/cron.daily
         newexe "${FILESDIR}"/net-client.sh net-client.sh
     fi
-
-    systemd_newunit "${FILESDIR}"/ntpdate.service-r1 ntpdate.service
-    systemd_install_serviced "${FILESDIR}"/ntpdate.service.conf
-    systemd_newunit "${FILESDIR}"/sntp.service-r2 sntp.service
-    systemd_install_serviced "${FILESDIR}"/sntp.service.conf
 
 }
 

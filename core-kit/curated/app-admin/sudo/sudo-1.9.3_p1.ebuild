@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -6,25 +5,15 @@ EAPI=6
 inherit pam multilib libtool tmpfiles
 
 MY_P="${P/_/}"
-MY_P="${MY_P/beta/b}"
 
 DESCRIPTION="Allows users or groups to run commands as other users"
 HOMEPAGE="https://www.sudo.ws/"
-if [[ ${PV} == "9999" ]] ; then
-	inherit mercurial
-	EHG_REPO_URI="https://www.sudo.ws/repos/sudo"
-else
-	uri_prefix=
-	case ${P} in
-		*_beta*|*_rc*) uri_prefix=beta/ ;;
-	esac
 
-	SRC_URI="https://www.sudo.ws/sudo/dist/${uri_prefix}${MY_P}.tar.gz
-		ftp://ftp.sudo.ws/pub/sudo/${uri_prefix}${MY_P}.tar.gz"
-	if [[ ${PV} != *_beta* ]] && [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~sparc-solaris"
-	fi
-fi
+SRC_URI="https://www.sudo.ws/sudo/dist/${MY_P}.tar.gz
+	ftp://ftp.sudo.ws/pub/sudo/${MY_P}.tar.gz"
+
+KEYWORDS="*"
+
 
 # Basic license is ISC-style as-is, some files are released under
 # 3-clause BSD license

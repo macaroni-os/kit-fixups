@@ -36,7 +36,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/chro
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="cfi clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos optimize-thinlto +optimize-webui ozone ozone-wayland +proprietary-codecs pulseaudio selinux suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 +system-openjpeg +tcmalloc thinlto vaapi vdpau widevine"
+IUSE="cfi clang closure-compile convert-dict cups custom-cflags enable-driver hangouts headless kerberos optimize-thinlto +optimize-webui ozone ozone-wayland +proprietary-codecs pulseaudio selinux +suid +system-ffmpeg +system-harfbuzz +system-icu +system-jsoncpp +system-libevent system-libvpx +system-openh264 +system-openjpeg +tcmalloc thinlto vaapi vdpau widevine"
 RESTRICT="
 	!system-ffmpeg? ( proprietary-codecs? ( bindist ) )
 	!system-openh264? ( bindist )

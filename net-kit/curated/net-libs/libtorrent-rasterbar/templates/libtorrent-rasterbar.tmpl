@@ -43,11 +43,6 @@ DEPEND="${RDEPEND}
 	sys-devel/libtool
 "
 
-src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}"/"${PN}"* "${S}" || die
-}
-
 pkg_setup() {
 	use python && python_setup
 }

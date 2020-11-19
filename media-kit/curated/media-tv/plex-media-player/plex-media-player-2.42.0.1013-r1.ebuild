@@ -25,7 +25,7 @@ SRC_URI="
 		https://artifacts.plex.tv/web-client-pmp/${WEB_CLIENT_BUILD_ID}/buildid.cmake -> buildid-${WEB_CLIENT_BUILD_ID}.cmake
 		https://artifacts.plex.tv/web-client-pmp/${WEB_CLIENT_BUILD_ID}/web-client-tv-${WEB_CLIENT_TV_VERSION}.tar.xz
 		desktop? (
-			https://artifacts.plex.tv/web-client-pmp/${WEB_CLIENT_BUILD_ID}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz
+			https://artifacts.plex.tv/web-client-pmp/${WEB_CLIENT_BUILD_ID}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz -> web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}_${COMMIT}.tar.xz
 		)
 	)
 "
@@ -99,8 +99,8 @@ src_prepare() {
 		cp "${DISTDIR}/buildid-${WEB_CLIENT_BUILD_ID}.cmake" "${DEPENDENCIES_DIR}"
 		# Desktop client
 		if use desktop; then
-			cp "${DISTDIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz" "${DEPENDENCIES_DIR}"
-			sha1sum -b "${DISTDIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz" > "${DEPENDENCIES_DIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz.sha1"
+			cp "${DISTDIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}_${COMMIT}.tar.xz" "${DEPENDENCIES_DIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz"
+			sha1sum -b "${DISTDIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}_${COMMIT}.tar.xz" > "${DEPENDENCIES_DIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}.tar.xz.sha1"
 			mkdir -p "${DEPENDENCIES_DIR}/universal-web-client-desktop/${WEB_CLIENT_BUILD_ID}"
 			mv "${WORKDIR}/web-client-desktop-${WEB_CLIENT_DESKTOP_VERSION}" "${DEPENDENCIES_DIR}/universal-web-client-desktop/${WEB_CLIENT_BUILD_ID}"
 		fi

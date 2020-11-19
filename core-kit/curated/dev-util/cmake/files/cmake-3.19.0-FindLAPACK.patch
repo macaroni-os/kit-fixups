@@ -1,17 +1,7 @@
-From 7459f27dd4bb9b60067ac49ee2c6be93d20c2c1e Mon Sep 17 00:00:00 2001
-From: Lars Wendler <polynomial-c@gentoo.org>
-Date: Thu, 13 Feb 2020 13:16:16 +0100
-Subject: [PATCH] Prefer pkgconfig in FindLAPACK
-
----
- Modules/FindLAPACK.cmake | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/Modules/FindLAPACK.cmake b/Modules/FindLAPACK.cmake
-index c9629769f0..de852d562c 100644
---- a/Modules/FindLAPACK.cmake
-+++ b/Modules/FindLAPACK.cmake
-@@ -7,6 +7,10 @@ FindLAPACK
+diff -urN a/Modules/FindLAPACK.cmake b/Modules/FindLAPACK.cmake
+--- a/Modules/FindLAPACK.cmake	2020-11-18 22:04:23.845347306 -0300
++++ b/Modules/FindLAPACK.cmake	2020-11-18 22:13:03.141351641 -0300
+@@ -7,6 +7,10 @@
  
  Find Linear Algebra PACKage (LAPACK) library
  
@@ -22,9 +12,9 @@ index c9629769f0..de852d562c 100644
  This module finds an installed Fortran library that implements the
  LAPACK linear-algebra interface (see http://www.netlib.org/lapack/).
  
-@@ -186,6 +190,22 @@ macro(CHECK_LAPACK_LIBRARIES LIBRARIES _prefix _name _flags _list _threadlibs _a
-   #message("DEBUG: ${LIBRARIES} = ${${LIBRARIES}}")
- endmacro()
+@@ -224,6 +228,22 @@
+ 
+ _lapack_find_library_setup()
  
 +# first, try PkgConfig
 +find_package(PkgConfig REQUIRED)
@@ -45,12 +35,8 @@ index c9629769f0..de852d562c 100644
  set(LAPACK_LINKER_FLAGS)
  set(LAPACK_LIBRARIES)
  set(LAPACK95_LIBRARIES)
-@@ -494,3 +514,5 @@ endif()
+@@ -553,3 +573,4 @@
+ endif()
  
- cmake_pop_check_state()
- set(CMAKE_FIND_LIBRARY_SUFFIXES ${_lapack_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
-+
+ _lapack_find_library_teardown()
 +endif(PC_LAPACK_FOUND)
--- 
-2.25.0
-

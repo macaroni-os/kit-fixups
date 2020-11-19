@@ -52,7 +52,7 @@ PATCHES=(
 
 	# handle gentoo packaging in find modules
 	"${FILESDIR}"/${PN}-3.17.0_rc1-FindBLAS.patch
-	"${FILESDIR}"/${PN}-3.17.0_rc1-FindLAPACK.patch
+	"${FILESDIR}"/${PN}-3.19.0-FindLAPACK.patch
 	"${FILESDIR}"/${PN}-3.5.2-FindQt4.patch
 
 	# respect python eclasses

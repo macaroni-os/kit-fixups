@@ -39,7 +39,11 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}
 	convert? ( sys-apps/acl )
-	python? ( dev-python/setuptools[${PYTHON_USEDEP}] )
+	python? (
+		$(python_gen_cond_dep '
+			dev-python/setuptools[${PYTHON_MULTI_USEDEP}]
+		')
+	)
 	static? (
 		dev-libs/lzo:2[static-libs(+)]
 		sys-apps/util-linux:0[static-libs(+)]
@@ -63,10 +67,6 @@ BDEPEND="
 "
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
-
-PATCHES=(
-	"${FILESDIR}/btrfs-progs-5.6-raid56-filesystem-usage.patch"
-)
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup

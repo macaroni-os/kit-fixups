@@ -25,7 +25,7 @@ REQUIRED_USE="
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	dev-libs/boost:=[threads]
+	>=dev-libs/boost-1.72:=[threads]
 	examples? ( !net-p2p/mldonkey )
 	python? (
 		${PYTHON_DEPS}

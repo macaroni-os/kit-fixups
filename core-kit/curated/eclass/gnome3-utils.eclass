@@ -379,17 +379,12 @@ gnome3_query_immodules_gtk2() {
 # Updates gtk3 immodules/gdk-pixbuf loaders listing.
 gnome3_update_immodules_cache_gtk3() {
 	local updater=${EPREFIX}/usr/bin/gtk-query-immodules-3.0
+	[ ! -e "$updater" ] && die "Updater $updater not found."
 	ebegin "Updating gtk3 input method module cache"
 	GTK_IM_MODULE_FILE="${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
-	einfo "updater: ${updater}"
-	einfo "GTK_IM_MODULE_FILE: $GTK_IM_MODULE_FILE"
-	echo "Directory contents: "
-	ls -l "${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules"
-	"${updater}" --update-cache
+	output="$(${updater} --update-cache 2>&1)"
 	if [ $? -ne 0 ]; then
-		ewarn "Immodules cache failure."
-		ldd ${updater}
-		return 1
+	    die "immodules cache update failed: $output"
 	else
 		einfo "Immodules cache update success."
 	fi

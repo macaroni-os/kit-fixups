@@ -4,7 +4,7 @@ import json
 
 
 async def generate(hub, **pkginfo):
-	python_compat="python3+"
+	python_compat = "python3+"
 	github_user = "qutebrowser"
 	github_repo = "qutebrowser"
 	app = pkginfo["name"]

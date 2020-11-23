@@ -29,8 +29,8 @@ async def generate(hub, **pkginfo):
 			url_l = tag_l["tarball_url"]
 			break
 	final_name_l = f'{pkginfo["name"]}-{version_l}.tar.gz'
-	final_name_h1 = f'vulkan-headers-{version_l}.tar.gz'
-	final_name_h2 = f'vulkan-headers-{version_h[0]}.tar.gz'
+	final_name_h1 = f'vulkan-headers-{version_h[0]}.tar.gz'
+	final_name_h2 = f'vulkan-headers-{version_l}.tar.gz'
 
 	ebuild_l = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
@@ -46,13 +46,13 @@ async def generate(hub, **pkginfo):
 		template_path=ebuild_l.template_path,
 		cat="dev-util",
 		name="vulkan-headers",
-		version=version_l,
+		version=version_h[0],
 		python_compat=python_compat,
+		keywords="",
 		github_user=github_user,
 		github_repo=github_repo_h,
 		artifacts=[hub.pkgtools.ebuild.Artifact(
-			url=url_h[version_h.index(version_l)],
-			final_name=final_name_h1)]
+			url=url_h[0],final_name=final_name_h1)]
 	)
 	ebuild_h1.push()
 
@@ -60,12 +60,14 @@ async def generate(hub, **pkginfo):
 		template_path=ebuild_l.template_path,
 		cat="dev-util",
 		name="vulkan-headers",
-		version=version_h[0],
+		version=version_l,
 		python_compat=python_compat,
+		keywords="*",
 		github_user=github_user,
 		github_repo=github_repo_h,
 		artifacts=[hub.pkgtools.ebuild.Artifact(
-			url=url_h[0],final_name=final_name_h2)]
+			url=url_h[version_h.index(version_l)],
+			final_name=final_name_h2)]
 	)
 	ebuild_h2.push()
 

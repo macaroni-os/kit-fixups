@@ -11,7 +11,7 @@ JAVA_PKG_OPT_USE="jdbc"
 inherit eutils systemd flag-o-matic prefix toolchain-funcs \
 	java-pkg-opt-2 user cmake-utils multilib-build
 
-SRC_URI="https://downloads.mariadb.org/interstitial/${P}/source/${P}.tar.gz "
+SRC_URI="https://archive.mariadb.org/${P}/source/${P}.tar.gz "
 
 # Gentoo patches to MySQL
 if [[ "${MY_EXTRAS_VER}" != "live" && "${MY_EXTRAS_VER}" != "none" ]]; then

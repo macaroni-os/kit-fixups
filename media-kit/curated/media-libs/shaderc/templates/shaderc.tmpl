@@ -1,0 +1,91 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+PYTHON_COMPAT=( {{python_compat}} )
+
+inherit cmake-utils python-any-r1
+
+DESCRIPTION="Collection of tools, libraries and tests for shader compilation"
+HOMEPAGE="https://github.com/{{github_repo}}/{{github_user}}"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE="doc test"
+
+RDEPEND="
+	>=dev-util/glslang-10.11.0.0_pre20200924
+	>=dev-util/spirv-tools-2020.5_pre20201107
+"
+DEPEND="${RDEPEND}
+	${PYTHON_DEPS}
+	>=dev-util/spirv-headers-1.5.4
+	doc? ( dev-ruby/asciidoctor )
+	test? (
+		dev-cpp/gtest
+		$(python_gen_any_dep 'dev-python/nose[${PYTHON_USEDEP}]')
+	)
+"
+
+# https://github.com/google/shaderc/issues/470
+RESTRICT=test
+
+python_check_deps() {
+	if use test; then
+		has_version --host-root "dev-python/nose[${PYTHON_USEDEP}]"
+	fi
+}
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+}
+
+src_prepare() {
+	cmake_comment_add_subdirectory examples
+
+	# Unbundle glslang, spirv-headers, spirv-tools
+	cmake_comment_add_subdirectory third_party
+	sed -i \
+		-e "s|\$<TARGET_FILE:spirv-dis>|${EPREFIX}/usr/bin/spirv-dis|" \
+		glslc/test/CMakeLists.txt || die
+
+	# Disable git versioning
+	sed -i -e '/build-version/d' glslc/CMakeLists.txt || die
+
+	# Manually create build-version.inc as we disabled git versioning
+	cat <<- EOF > glslc/src/build-version.inc || die
+		"${P}\n"
+		"$(best_version dev-util/spirv-tools)\n"
+		"$(best_version dev-util/glslang)\n"
+	EOF
+
+	# Fix GlslangToSpv.h path
+	sed -i \
+		-e 's|#include "SPIRV/GlslangToSpv.h"|#include "glslang/SPIRV/GlslangToSpv.h"|' \
+		libshaderc_util/src/compiler.cc || die
+
+	cmake-utils_src_prepare
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DSHADERC_SKIP_TESTS="$(usex !test)"
+		-DSHADERC_ENABLE_WERROR_COMPILE="false"
+	)
+	cmake-utils_src_configure
+}
+
+src_compile() {
+	use doc && cmake-utils_src_make glslc_doc_README
+
+	cmake-utils_src_compile
+}
+
+src_install() {
+	use doc && local HTML_DOCS=( "${BUILD_DIR}/glslc/README.html" )
+
+	cmake-utils_src_install
+}

@@ -112,10 +112,11 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.4.3-remove-gentoo-repos-conf.patch"
 	"${FILESDIR}/${PN}-2.3.68-change-global-paths.patch"
 	"${FILESDIR}/${PN}-2.3.41-ebuild-nodie.patch"
-	"${FILESDIR}/portage-2.3.68-set-backtracking-to-6.patch"
-	"${FILESDIR}/portage-2.3.68-allow-matches-in-package-updates.patch"
-	"${FILESDIR}/portage-2.3.78-enhanced-metadata.patch"
-	"${FILESDIR}/portage-2.3.78-static-libs-belong-where-I-put-them.patch"
+	"${FILESDIR}/${PN}-2.3.68-set-backtracking-to-6.patch"
+	"${FILESDIR}/${PN}-2.3.68-allow-matches-in-package-updates.patch"
+	"${FILESDIR}/${PN}-2.3.78-enhanced-metadata.patch"
+	"${FILESDIR}/${PN}-2.3.78-static-libs-belong-where-I-put-them.patch"
+	"${FILESDIR}/${PN}-2.3.78-module-rebuild.patch"
 )
 
 python_prepare_all() {

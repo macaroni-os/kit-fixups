@@ -34,7 +34,7 @@ DEPEND="${RDEPEND}
 "
 
 src_unpack() {
-	unpack ${A}
+	unpack "${A}"
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 

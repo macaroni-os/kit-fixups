@@ -36,7 +36,7 @@ pkg_setup() {
 
 src_prepare() {
 	if use pax_kernel && kernel_is -ge 3 0 0 ; then
-		eapply -p0 "${FILESDIR}"/${PN}-5.2.8-pax-const.patch
+		eapply -p0 "${FILESDIR}"/${PN}-pax-const.patch
 	fi
 
 	default

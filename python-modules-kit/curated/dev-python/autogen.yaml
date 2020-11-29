@@ -598,8 +598,6 @@ dev_python_autogen_rule:
     - click:
         python_compat: python2+ pypy3
     - cloudflare
-    - construct:
-        python_compat: python2+ pypy3
     - cryptography:
         python_compat: python2+ pypy{,3}
     - cython:
@@ -649,7 +647,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - pycares:
         python_compat: python3+ pypy3
-    - python-digitalocean
     - pyproject2setuppy:
         python_compat: python3+ pypy3
     - pyxdg:
@@ -695,8 +692,6 @@ dev_python_autogen_rule:
     - pymongo:
         python_compat: python2+
     - flake8-polyfill:
-        python_compat: python2+
-    - pep8-naming:
         python_compat: python2+
     - pyjwt:
         python_compat: python2+ pypy{,3}

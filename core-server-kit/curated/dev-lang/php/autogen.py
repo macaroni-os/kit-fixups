@@ -3,6 +3,7 @@
 import re
 import logging
 
+
 async def generate(hub, **pkginfo):
 	slots = [
 		("7.2", "latest", ["php-freetype-2.9.1.patch", "php-7.2.13-intl-use-icu-namespace.patch"], None),

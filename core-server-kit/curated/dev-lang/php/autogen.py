@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import re
-
+import logging
 
 async def generate(hub, **pkginfo):
 	slots = [
@@ -17,7 +17,12 @@ async def generate(hub, **pkginfo):
 			patches += '\t"${FILESDIR}/' + patch + '"\n'
 		patches += ")"
 		if v_spec == "latest":
-			version = re.findall(f"php-({slot}\\.\\d+).tar", php_data)[0]
+			v_find = re.findall(f"php-({slot}\\.\\d+).tar", php_data)
+			if len(v_find):
+				version = v_find[0]
+			else:
+				logging.warning(f"Couldn't find a version for PHP {slot}, so skipping autogen for this slot.")
+				continue
 		else:
 			version = v_spec
 		if dists_url is None:

@@ -46,9 +46,10 @@ src_prepare() {
 	# SOCKSv5 support needed for Portage, bug #537616
 	eapply "${FILESDIR}/${PN}-3.2_rc1-socks5.patch"
 	# backport py3.8 fixes
-	eapply "${FILESDIR}/${P}-py38.patch"
+	eapply "${FILESDIR}/${PN}-3.3.3-py38.patch"
 	# gcc-10 fix, #707502
-	eapply "${FILESDIR}/${P}-gcc-10-fix.patch"
+	eapply "${FILESDIR}/${PN}-3.3.3-gcc-10-fix.patch"
+	eapply "${FILESDIR}/${PN}-3.3.3-fix-symlink-path.patch"
 	eapply_user
 
 	# Bugs #120001, #167844 and probably more. See patch for description.

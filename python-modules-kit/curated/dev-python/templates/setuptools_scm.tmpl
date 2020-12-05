@@ -18,9 +18,9 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
+	dev-python/toml[${PYTHON_USEDEP}]
 	test? (
 		dev-python/pytest[${PYTHON_USEDEP}]
-		dev-python/toml[${PYTHON_USEDEP}]
 		dev-vcs/git
 		dev-vcs/mercurial )"
 

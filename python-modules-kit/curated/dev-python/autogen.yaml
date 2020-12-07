@@ -453,6 +453,7 @@ testing_deps_rule:
         pydeps:
           - setuptools_scm
         body: |
+          # https://github.com/s0undt3ch/setuptools-declarative-requirements/pull/3
           src_prepare() {
             rm ${S}/tests/__init__.py || die
             default
@@ -460,6 +461,7 @@ testing_deps_rule:
     - pytest-salt-factories:
         du_setuptools: rdepend
         body: |
+          # submitted PR https://github.com/saltstack/pytest-salt-factories/pull/33
           src_prepare() {
             rm ${S}/tests/__init__.py || die
             default
@@ -490,6 +492,7 @@ salt_stuff_rule:
   packages:
     - acct:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             touch ${S}/requirements.txt
             default
@@ -513,16 +516,19 @@ salt_stuff_rule:
           - acct
     - pop-config:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
         pydeps:
+          - pop
           - dict-toolbox
           - aiologger
           - aiofiles
     - pop:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             install -d ${S}/requirements
             touch ${S}/requirements/base.txt
@@ -534,6 +540,7 @@ salt_stuff_rule:
           - dict-toolbox
           - msgpack
     - pytest-pop:
+        # drobbins fixed upstream
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
@@ -549,6 +556,7 @@ salt_stuff_rule:
           - pytest-asyncio >= 0.12
           - pytest >= 5.4
     - rend:
+        # drobbins fixed upstream
         body: |
           src_prepare() {
             touch ${S}/requirements.txt

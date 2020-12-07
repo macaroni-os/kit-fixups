@@ -17,7 +17,6 @@ KEYWORDS="*"
 IUSE="debug +dht doc examples gnutls libressl python +ssl static-libs test"
 
 REQUIRED_USE="
-	python? ( ${PYTHON_REQUIRED_USE} )
 	gnutls? ( ssl )
 	libressl? ( ssl )
 "

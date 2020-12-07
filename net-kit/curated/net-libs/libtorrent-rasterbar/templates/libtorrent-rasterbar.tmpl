@@ -5,7 +5,7 @@ EAPI=7
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="threads(+)"
 
-inherit cmake-utils python-r1
+inherit cmake-utils python-any-r1
 
 DESCRIPTION="C++ BitTorrent implementation focusing on efficiency and scalability"
 HOMEPAGE="https://libtorrent.org https://github.com/arvidn/libtorrent"
@@ -26,10 +26,14 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=dev-libs/boost-1.72:=[threads]
-	examples? ( !net-p2p/mldonkey )
+	examples? (
+		!net-p2p/mldonkey
+		dev-util/patchelf
+	)
 	python? (
 		${PYTHON_DEPS}
-		dev-libs/boost:=[python,${PYTHON_USEDEP}]
+		$(python_gen_any_dep '
+			dev-libs/boost:=[python,${PYTHON_USEDEP}]')
 	)
 	ssl? (
 		gnutls? ( net-libs/gnutls:0= )
@@ -44,14 +48,12 @@ DEPEND="${RDEPEND}
 "
 
 pkg_setup() {
-	use python && python_setup
+	use python && python-any-r1_pkg_setup
 }
 
 src_configure() {
-	append-cflags -Wno-dev
-	append-cxxflags -Wno-dev -std=c++14
-
 	local mycmakeargs=(
+		-DCMAKE_CXX_STANDARD=14
 		-Dlogging=$(usex debug ON OFF)
 		-Ddht=$(usex dht ON OFF)
 		-Dbuild_examples=$(usex examples ON OFF)
@@ -59,48 +61,18 @@ src_configure() {
 		-DBUILD_SHARED_LIBS=$(usex static-libs OFF ON)
 		-Dbuild_tests=$(usex test ON OFF)
 		-Dgnutls=$(usex gnutls ON OFF)
+		-Dpython-bindings=$(usex python ON OFF)
 	)
+	use python && mycmakeargs+=( -Dboost-python-module-name="${EPYTHON}" )
 
-	if use python; then
-		python_configure() {
-			BUILD_DIR="${BUILD_DIR}_build"
-			mycmakeargs+=(
-				-Dpython-bindings=ON
-				-Dboost-python-module-name="${EPYTHON}"
-			)
-			cmake-utils_src_configure
-		}
-		python_foreach_impl python_configure
-	else
-		cmake-utils_src_configure
-	fi
-}
-
-src_compile() {
-	python_compile() {
-		BUILD_DIR="${BUILD_DIR}_build"
-		cmake-utils_src_compile
-	}
-
-	if use python; then
-		python_foreach_impl python_compile
-	else
-		cmake-utils_src_compile
-	fi
+	cmake-utils_src_configure
 }
 
 src_install() {
 	use doc && HTML_DOCS+=( "${S}"/docs )
+	cmake-utils_src_install
 
-	python_install() {
-		BUILD_DIR="${BUILD_DIR}_build"
-		cmake-utils_src_install
-	}
-
-	if use python; then
-		python_foreach_impl python_install
-		python_optimize
-	else
-		cmake-utils_src_install
-	fi
+	use python && python_optimize
+	use examples && dobin $(find ${BUILD_DIR}/examples -type f -executable \
+		-print -exec patchelf --remove-rpath \{\} \+)
 }

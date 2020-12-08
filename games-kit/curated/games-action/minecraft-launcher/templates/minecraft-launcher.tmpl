@@ -59,10 +59,3 @@ src_install() {
 	doicon -s scalable "${FILESDIR}/${PN}.svg"
 	make_desktop_entry ${PN} "Minecraft" ${PN} Game
 }
-
-pkg_postinst() {
-	default
-	einfo "This package has installed the Java Minecraft launcher."
-	einfo "To actually play the game, you need to purchase an account at:"
-	einfo "    ${HOMEPAGE}"
-}

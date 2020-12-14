@@ -45,10 +45,18 @@ stop_vmblock() {
 }
 
 start_pre() {
+	# This line will allow this service to successfully "start" (as noop) if
+	# not running inside a virtual machine:
+	[ -n "$( lspci | grep VMware )" ] || exit 0
+
 	if [ x"${VM_DRAG_AND_DROP}" = xyes ]; then
 		start_vmblock
 	fi
 	return 0
+}
+
+stop_pre() {
+	[ -n "$( lspci | grep VMware )" ] || exit 0
 }
 
 stop_post() {

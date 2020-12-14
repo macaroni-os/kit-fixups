@@ -144,8 +144,12 @@ drivers_rule:
         rdepend: |
           x11-libs/libXcomposite
     - xf86-video-vmware:
+        revision: 2
         dri_use: force
         gitlab_id: 651
         rdepend: |
           x11-libs/libdrm[libkms,video_cards_vmware]
-          media-libs/mesa[video_cards_xa]
+          || (
+            media-libs/mesa[xa]
+            media-libs/mesa[video_cards_xa]
+          )

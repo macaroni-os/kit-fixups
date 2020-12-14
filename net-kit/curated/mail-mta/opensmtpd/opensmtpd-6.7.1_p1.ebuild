@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit multilib user flag-o-matic eutils pam toolchain-funcs autotools systemd
+inherit user flag-o-matic eutils pam toolchain-funcs autotools
 
 DESCRIPTION="Lightweight but featured SMTP daemon from OpenBSD"
 HOMEPAGE="https://www.opensmtpd.org"
@@ -10,20 +10,19 @@ SRC_URI="https://www.opensmtpd.org/archives/${P/_}.tar.gz"
 
 LICENSE="ISC BSD BSD-1 BSD-2 BSD-4"
 SLOT="0"
-KEYWORDS=""
-IUSE="pam +mta libressl"
+KEYWORDS="*"
+IUSE="libressl pam +mta berkdb"
 
 DEPEND="
-	!libressl? ( dev-libs/openssl:0= )
-	libressl? ( dev-libs/libressl:= )
+	!libressl? ( >=dev-libs/openssl-1.1:0= )
+	libressl? ( dev-libs/libressl:0= )
 	elibc_musl? ( sys-libs/fts-standalone )
 	sys-libs/zlib
-	pam? ( virtual/pam )
-	sys-libs/db:=
+	pam? ( sys-libs/pam )
+	berkdb? ( sys-libs/db:= )
 	dev-libs/libevent
 	app-misc/ca-certificates
 	net-mail/mailbase
-	net-libs/libasr
 	!mail-mta/courier
 	!mail-mta/esmtp
 	!mail-mta/exim
@@ -41,29 +40,31 @@ RDEPEND="${DEPEND}"
 S=${WORKDIR}/${P/_}
 
 src_configure() {
-	tc-export AR
-	AR="$(which "$AR")" econf \
-		--with-table-db \
+	econf \
+		--sysconfdir=/etc/smtpd \
+		--with-path-mbox=/var/spool/mail \
+		--with-path-empty=/var/empty \
+		--with-path-socket=/run \
+		--with-path-CAfile=/etc/ssl/certs/ca-certificates.crt \
 		--with-user-smtpd=smtpd \
 		--with-user-queue=smtpq \
 		--with-group-queue=smtpq \
-		--with-path-socket=/run \
-		--with-path-CAfile=/etc/ssl/certs/ca-certificates.crt \
-		--sysconfdir=/etc/opensmtpd \
-		$(use_with pam auth-pam)
+		$(use_with pam auth-pam) \
+		$(use_with berkdb table-db)
 }
 
 src_install() {
 	default
 	newinitd "${FILESDIR}"/smtpd.initd smtpd
 	use pam && newpamd "${FILESDIR}"/smtpd.pam smtpd
-	dosym /usr/sbin/smtpctl /usr/sbin/makemap
-	dosym /usr/sbin/smtpctl /usr/sbin/newaliases
+	dosym smtpctl /usr/sbin/makemap
+	dosym smtpctl /usr/sbin/newaliases
 	if use mta ; then
 		dodir /usr/sbin
-		dosym /usr/sbin/smtpctl /usr/sbin/sendmail
-		dosym /usr/sbin/smtpctl /usr/bin/sendmail
-		dosym /usr/sbin/smtpctl /usr/$(get_libdir)/sendmail
+		dosym smtpctl /usr/sbin/sendmail
+		dosym ../sbin/smtpctl /usr/bin/sendmail
+		mkdir -p "${ED}"/usr/$(get_libdir) || die
+		ln -s --relative "${ED}"/usr/sbin/smtpctl "${ED}"/usr/$(get_libdir)/sendmail || die
 	fi
 }
 
@@ -72,12 +73,4 @@ pkg_preinst() {
 	enewuser smtpd 25 -1 /var/empty smtpd
 	enewgroup smtpq 252
 	enewuser smtpq 252 -1 /var/empty smtpq
-}
-
-pkg_postinst() {
-	einfo
-	einfo "Plugins for SQLite, MySQL, PostgreSQL, LDAP, socketmaps,"
-	einfo "Redis, and many other useful addons and filters are"
-	einfo "available in the mail-filter/opensmtpd-extras package."
-	einfo
 }

@@ -359,7 +359,7 @@ src_configure() {
 		dri_enable swrast
 	fi
 	if use video_cards_gallium-swrast; then
-		gallium_enable gallium-swrast
+		gallium_enable video_cards_gallium-swrast swrast
 		# swr only builds on 64bit intel -- it's an opt-in for more optimization on these platforms:
 		if [[ "${ABI}" == "amd64" ]] ; then
 			gallium_enable video_cards_gallium-swr swr

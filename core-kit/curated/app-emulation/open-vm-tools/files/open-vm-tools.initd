@@ -44,10 +44,23 @@ stop_vmblock() {
 	fi
 }
 
+inside_vmware() {
+	inside_vbox="$( lspci | grep 'VirtualBox Guest' )"
+	if [ -n '$inside_vbox' ]; then
+		# virtualbox isn't vmware, so fail:
+		return 1
+	fi
+	inside_vmware="$( lspci | grep VMware )"
+	if [ -n "$inside_vmware" ]; then
+		return 0
+	fi
+	return 1
+}
+
 start_pre() {
 	# This line will allow this service to successfully "start" (as noop) if
 	# not running inside a virtual machine:
-	[ -n "$( lspci | grep VMware )" ] || exit 0
+	inside_vmware || exit 0
 
 	if [ x"${VM_DRAG_AND_DROP}" = xyes ]; then
 		start_vmblock
@@ -56,7 +69,7 @@ start_pre() {
 }
 
 stop_pre() {
-	[ -n "$( lspci | grep VMware )" ] || exit 0
+	inside_vmware || exit 0
 }
 
 stop_post() {

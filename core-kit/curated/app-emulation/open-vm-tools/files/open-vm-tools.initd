@@ -46,7 +46,7 @@ stop_vmblock() {
 
 inside_vmware() {
 	inside_vbox="$( lspci | grep 'VirtualBox Guest' )"
-	if [ -n '$inside_vbox' ]; then
+	if [ -n "$inside_vbox" ]; then
 		# virtualbox isn't vmware, so fail:
 		return 1
 	fi

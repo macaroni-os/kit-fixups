@@ -180,7 +180,7 @@ RDEPEND="
 	vdpau? ( >=x11-libs/libvdpau-1.1:= )
 	xvmc? ( >=x11-libs/libXvMC-1.0.8:= )
 
-	>=x11-libs/libdrm-2.4.96
+	>=x11-libs/libdrm-2.4.102
 	video_cards_gallium-radeonsi? ( x11-libs/libdrm[video_cards_radeon,video_cards_amdgpu] )
 	video_cards_r100? ( x11-libs/libdrm[video_cards_radeon] )
 	video_cards_r200? ( x11-libs/libdrm[video_cards_radeon] )

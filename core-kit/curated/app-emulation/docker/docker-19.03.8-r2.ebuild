@@ -47,7 +47,7 @@ RDEPEND="
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	~app-emulation/containerd-1.3.4
+	~app-emulation/containerd-1.3.9
 	~app-emulation/runc-1.0.0_rc10[apparmor?,seccomp?]
 	~app-emulation/docker-proxy-0.8.0_p20191011
 	container-init? ( >=sys-process/tini-0.18.0[static] )

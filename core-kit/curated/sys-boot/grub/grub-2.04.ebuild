@@ -24,7 +24,7 @@ else
 	S=${WORKDIR}/${P%_*}
 fi
 
-KEYWORDS=""
+KEYWORDS="*"
 
 PATCHES=(
 	"${FILESDIR}"/gfxpayload.patch

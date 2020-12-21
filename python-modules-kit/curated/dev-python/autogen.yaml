@@ -185,6 +185,9 @@ dev_python_compat_rule:
         compat: '4.3.0'
         blocker: '!<dev-python/more-itertools-8'
         homepage: 'https://pypi.org/project/more-itertools/'
+    - mwparserfromhell:
+        compat: '0.5.4'
+        blocker: '!<dev-python/mwparserfromhell-0.6'
     - pyhamcrest:
         compat: '1.9.0'
         blocker: '!<dev-python/pyhamcrest-2.0.0'
@@ -727,8 +730,6 @@ dev_python_autogen_rule:
     - mako:
         python_compat: python2+ pypy{,3}
     - markupsafe:
-        python_compat: python2+ pypy{,3}
-    - mwparserfromhell:
         python_compat: python2+ pypy{,3}
     - pyblake2:
         python_compat: python2+ pypy{,3}

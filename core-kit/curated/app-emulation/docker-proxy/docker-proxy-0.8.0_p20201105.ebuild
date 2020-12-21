@@ -1,11 +1,11 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 EGO_PN="github.com/docker/libnetwork"
 
-EGIT_COMMIT="e7933d41e7b206756115aa9df5e0599fc5169742"
+EGIT_COMMIT="55e924b8a84231a065879156c0de95aefc5f5435"
 SRC_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
-KEYWORDS="*"
+KEYWORDS=""
 inherit golang-vcs-snapshot
 
 DESCRIPTION="Docker container networking"
@@ -17,13 +17,14 @@ IUSE=""
 
 S=${WORKDIR}/${P}/src/${EGO_PN}
 
-RESTRICT="test" # needs dockerd
+# needs dockerd
+RESTRICT="test"
 
 src_compile() {
 	GOPATH="${WORKDIR}/${P}" go build -o "bin/docker-proxy" ./cmd/proxy || die
 }
 
 src_install() {
-	dodoc ROADMAP.md README.md CHANGELOG.md
+	dodoc README.md CHANGELOG.md
 	dobin bin/docker-proxy
 }

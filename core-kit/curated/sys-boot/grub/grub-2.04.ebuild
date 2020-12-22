@@ -129,7 +129,6 @@ src_prepare() {
 	default
 
 	sed -i -e /autoreconf/d autogen.sh || die
-
 	# Nothing in Gentoo packages 'american-english' in the exact path
 	# wanted for the test, but all that is needed is a compressible text
 	# file, and we do have 'words' from miscfiles in the same path.
@@ -152,6 +151,8 @@ src_prepare() {
 	if [[ -n ${GRUB_AUTORECONF} ]]; then
 		eautoreconf
 	fi
+	# FL-7823: gcc can have trouble turning off SSE on ryzen:
+	sed -i -e 's/mno-sse/mno-sse -U__BMI__/' configure || die
 }
 
 grub_do() {

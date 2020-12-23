@@ -37,7 +37,7 @@ def get_pkgs_from_meson(master_cpv, fn, prefix="pcs"):
 	return it and process the results in a more pipeline-oriented fashion. We
 	also accept the arguments ``fn`` -- filename of the meson file, and a
 	prefix parameter used to tweak the specific result sets we want to grab
-	from the meson file.  """
+	from the meson file."""
 
 	capture = False
 	with open(fn, "r") as f:

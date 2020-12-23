@@ -26,7 +26,9 @@ async def generate(hub, **pkginfo):
 			version=version,
 			vtag=vtag,
 			template=f"{pkginfo['name']}.tmpl",
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz"),],
+			artifacts=[
+				hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{version}.tar.gz"),
+			],
 		)
 		ebuild.push()
 

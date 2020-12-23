@@ -90,7 +90,12 @@ class KitFoundation:
 					"source": "funtoo_release_1.4",
 					"stability": KitStabilityRating.PRIME,
 				},
-				{"name": "core-gl-kit", "branch": "2.0-release", "source": None, "stability": KitStabilityRating.PRIME,},
+				{
+					"name": "core-gl-kit",
+					"branch": "2.0-release",
+					"source": None,
+					"stability": KitStabilityRating.PRIME,
+				},
 				{
 					"name": "security-kit",
 					"branch": "1.4-release",
@@ -261,12 +266,19 @@ class KitFoundation:
 					"source": "funtoo_release_1.4",
 					"stability": KitStabilityRating.PRIME,
 				},
-				{"name": "nokit", "branch": "1.4-release", "source": "funtoo_release_1.4", "stability": KitStabilityRating.PRIME,},
+				{
+					"name": "nokit",
+					"branch": "1.4-release",
+					"source": "funtoo_release_1.4",
+					"stability": KitStabilityRating.PRIME,
+				},
 			],
 		}
 
 	python_kit_settings = {
-		"1.4-release": {"3.7-release": {"primary": "python3_7", "alternate": "python2_7", "mask": ">=dev-lang/python-3.8"},}
+		"1.4-release": {
+			"3.7-release": {"primary": "python3_7", "alternate": "python2_7", "mask": ">=dev-lang/python-3.8"},
+		}
 	}
 
 	release_info = {
@@ -302,7 +314,9 @@ class KitFoundation:
 	kit_source_defs = {
 		"funtoo_current": [{"repo": "flora"}, {"repo": "faustoo"}, {"repo": "fusion809"}, {"repo": "gentoo-staging"}],
 		"funtoo_mk2_prime": [
-			{"repo": "flora",},
+			{
+				"repo": "flora",
+			},
 			{"repo": "faustoo"},
 			{"repo": "fusion809", "src_sha1": "489b46557d306e93e6dc58c11e7c1da52abd34b0", "date": "31 Aug 2017"},
 			{"repo": "gentoo-staging", "src_sha1": "80d2f3782e7f351855664919d679e94a95793a06", "date": "31 Aug 2017"},
@@ -310,8 +324,12 @@ class KitFoundation:
 			{"repo": "gentoo-staging-underlay"},
 		],
 		"funtoo_mk4_prime": [
-			{"repo": "flora",},
-			{"repo": "faustoo",},
+			{
+				"repo": "flora",
+			},
+			{
+				"repo": "faustoo",
+			},
 			{"repo": "fusion809", "src_sha1": "574f9f6f69b30f4eec7aa2eb53f55059d3c05b6a", "date": "23 Oct 2017"},
 			{"repo": "gentoo-staging", "src_sha1": "bb740efd8e9667dc19f162e936c5c876fb716b5c", "date": "19 Jan 2018"},
 			{"repo": "gentoo-staging-underlay"},
@@ -345,17 +363,33 @@ class KitFoundation:
 			{"repo": "gentoo-staging", "src_sha1": "76f9a0f535ec2dd32545801a9e62e86499ffc58e", "date": "7 Sep 2018"}
 		],
 		"funtoo_release_1.4": [
-			{"repo": "flora",},
-			{"repo": "faustoo",},
-			{"repo": "fusion809",},
-			{"repo": "deadbeef",},
+			{
+				"repo": "flora",
+			},
+			{
+				"repo": "faustoo",
+			},
+			{
+				"repo": "fusion809",
+			},
+			{
+				"repo": "deadbeef",
+			},
 			{"repo": "gentoo-staging", "src_sha1": "9292583023a6610905c79a4707db3ac6c63b3a31", "date": "21 Jun 2019"},
 		],
 		"funtoo_release_1.4_bump": [
-			{"repo": "flora",},
-			{"repo": "faustoo",},
-			{"repo": "fusion809",},
-			{"repo": "deadbeef",},
+			{
+				"repo": "flora",
+			},
+			{
+				"repo": "faustoo",
+			},
+			{
+				"repo": "fusion809",
+			},
+			{
+				"repo": "deadbeef",
+			},
 			{"repo": "gentoo-staging", "src_sha1": "a40e31d83f4be169ca3d3dc362e2a0d880a30c40", "date": "21 Dec 2019"},
 		],
 	}
@@ -404,7 +438,12 @@ class KitFoundation:
 					"app-editors/sublime-text",
 				],
 			},  # FL-3633, FL-3663, FL-3776
-			"plex": {"url": "https://github.com/Ghent/funtoo-plex.git", "select": ["media-tv/plex-media-server",]},
+			"plex": {
+				"url": "https://github.com/Ghent/funtoo-plex.git",
+				"select": [
+					"media-tv/plex-media-server",
+				],
+			},
 			# damex's deadbeef (music player like foobar2000) overlay
 			"deadbeef": {
 				"url": "https://github.com/damex/deadbeef-overlay.git",

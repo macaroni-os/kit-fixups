@@ -25,7 +25,10 @@ async def generate(hub, **pkginfo):
 		github_repo=github_repo,
 		waf_version=waf_version,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name), hub.pkgtools.ebuild.Artifact(url=waf_url),],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name),
+			hub.pkgtools.ebuild.Artifact(url=waf_url),
+		],
 	)
 	ebuild.push()
 

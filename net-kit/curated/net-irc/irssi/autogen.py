@@ -21,8 +21,7 @@ def get_artifact(hub, dl_assets):
 	extension = "tar.xz"
 	dl_asset = list(
 		filter(
-			lambda x: x["name"].startswith(artifact_name)
-			and x["name"].endswith(extension),
+			lambda x: x["name"].startswith(artifact_name) and x["name"].endswith(extension),
 			dl_assets,
 		)
 	).pop()
@@ -35,9 +34,7 @@ async def generate(hub, **pkginfo):
 	)
 	release = get_release(parsed_json)
 	if release is None:
-		raise hub.pkgtools.ebuild.BreezyError(
-			f"Can't find a suitable release of {GITHUB_RELEASE_NAME}"
-		)
+		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {GITHUB_RELEASE_NAME}")
 	version = release["tag_name"]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

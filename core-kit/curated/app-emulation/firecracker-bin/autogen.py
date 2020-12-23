@@ -25,7 +25,10 @@ def get_release(parsed_json):
 
 def get_artifact(hub, artifact_name, firecracker_arch, dl_assets):
 	dl_asset = list(
-		filter(lambda x: x["name"].startswith(artifact_name) and x["name"].endswith(firecracker_arch), dl_assets,)
+		filter(
+			lambda x: x["name"].startswith(artifact_name) and x["name"].endswith(firecracker_arch),
+			dl_assets,
+		)
 	).pop()
 	return hub.pkgtools.ebuild.Artifact(url=dl_asset["browser_download_url"])
 
@@ -49,7 +52,10 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[*get_artifacts(hub, release, "amd64"), *get_artifacts(hub, release, "arm64"),],
+		artifacts=[
+			*get_artifacts(hub, release, "amd64"),
+			*get_artifacts(hub, release, "arm64"),
+		],
 	)
 	ebuild.push()
 

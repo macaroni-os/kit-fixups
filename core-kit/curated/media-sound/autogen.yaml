@@ -1,0 +1,28 @@
+alsa:
+  generator: alsa
+  defaults:
+    cat: media-libs
+    version: 1.2.4
+  packages:
+    - alsa-firmware:
+        cat: sys-firmware
+    - alsa-lib
+    - alsa-ucm-conf:
+        subdir: lib
+    - alsa-topology-conf:
+        subdir: lib
+    - alsa-utils:
+        cat: media-sound
+    - alsa-tools:
+        cat: media-sound
+        version: 1.2.2
+    - alsa-plugins:
+        cat: media-plugins
+        version: 1.2.2
+    - alsa-oss:
+        version: 1.1.8
+        subdir: oss-lib
+    - pyalsa:
+        cat: dev-python
+        version: 1.1.6
+

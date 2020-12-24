@@ -7,7 +7,7 @@ inherit autotools python-single-r1
 
 DESCRIPTION="Advanced Linux Sound Architecture Library"
 HOMEPAGE="https://alsa-project.org/"
-SRC_URI="https://www.alsa-project.org/files/pub/lib/${P}.tar.bz2"
+SRC_URI="https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.4.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
@@ -24,7 +24,7 @@ RDEPEND="python? ( ${PYTHON_DEPS} )
 DEPEND="${RDEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.1.6-missing_files.patch" #652422
+	"${REPODIR}/media-sound/files/${PN}/${PN}-1.1.6-missing_files.patch" #652422
 )
 
 pkg_setup() {
@@ -62,8 +62,10 @@ src_configure() {
 
 src_compile() {
 	emake
-	emake doc
-	grep -FZrl "${S}" doc/doxygen/html | xargs -0 sed -i -e "s:${S}::" || die
+	if use doc; then
+		emake doc
+		grep -FZrl "${S}" doc/doxygen/html | xargs -0 sed -i -e "s:${S}::" || die
+	fi
 }
 
 src_install() {

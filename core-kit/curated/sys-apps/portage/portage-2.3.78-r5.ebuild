@@ -117,6 +117,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.78-enhanced-metadata.patch"
 	"${FILESDIR}/${PN}-2.3.78-static-libs-belong-where-I-put-them.patch"
 	"${FILESDIR}/${PN}-2.3.78-module-rebuild.patch"
+	"${FILESDIR}/${PN}-2.3.78-add-repodir-variable.patch"
 )
 
 python_prepare_all() {

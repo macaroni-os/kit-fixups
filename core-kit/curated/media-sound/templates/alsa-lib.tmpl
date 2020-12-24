@@ -62,8 +62,10 @@ src_configure() {
 
 src_compile() {
 	emake
-	emake doc
-	grep -FZrl "${S}" doc/doxygen/html | xargs -0 sed -i -e "s:${S}::" || die
+	if use doc; then
+		emake doc
+		grep -FZrl "${S}" doc/doxygen/html | xargs -0 sed -i -e "s:${S}::" || die
+	fi
 }
 
 src_install() {

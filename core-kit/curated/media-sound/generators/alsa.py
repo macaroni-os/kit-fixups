@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
 GLOBAL_DEFAULTS = {}
-ALSA_BASE_URL="https://www.alsa-project.org/files/pub"
+ALSA_BASE_URL = "https://www.alsa-project.org/files/pub"
+
+
 async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
 	version = pkginfo["version"]

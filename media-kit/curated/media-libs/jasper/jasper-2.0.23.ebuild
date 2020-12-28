@@ -46,11 +46,9 @@ multilib_src_configure() {
 
 		# JPEG
 		-DJAS_ENABLE_LIBJPEG=$(usex jpeg)
-		-DCMAKE_DISABLE_FIND_PACKAGE_JPEG=$(usex !jpeg)
 
 		# OpenGL
 		-DJAS_ENABLE_OPENGL=$(usex opengl)
-		-DCMAKE_DISABLE_FIND_PACKAGE_OpenGL=$(usex !opengl)
 
 		# Doxygen
 		-DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=$(multilib_native_usex doc OFF ON)

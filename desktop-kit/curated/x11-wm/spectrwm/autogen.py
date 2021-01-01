@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from datetime import timedelta
 
 async def generate(hub, **pkginfo):
     github_user = "conformal"

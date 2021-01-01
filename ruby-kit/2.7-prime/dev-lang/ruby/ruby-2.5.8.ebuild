@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -17,7 +16,7 @@ HOMEPAGE="https://www.ruby-lang.org/"
 SRC_URI="mirror://ruby/${SLOT}/${MY_P}.tar.xz"
 
 LICENSE="|| ( Ruby-BSD BSD-2 )"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="*"
 IUSE="berkdb debug doc examples gdbm ipv6 jemalloc libressl +rdoc rubytests socks5 +ssl static-libs tk xemacs"
 
 RDEPEND="
@@ -34,7 +33,7 @@ RDEPEND="
 		dev-lang/tk:0=[threads]
 	)
 	dev-libs/libyaml
-	virtual/libffi:=
+	dev-libs/libffi:=
 	sys-libs/readline:0=
 	sys-libs/zlib
 	>=app-eselect/eselect-ruby-20171225

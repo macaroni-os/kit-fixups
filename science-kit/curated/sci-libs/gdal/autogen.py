@@ -2,9 +2,11 @@
 
 import json
 
+
 def get_release(release_data):
 	releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False, release_data))
 	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
+
 
 async def generate(hub, **pkginfo):
 	github_user = "OSGeo"
@@ -18,13 +20,13 @@ async def generate(hub, **pkginfo):
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {github_repo}")
 	tag = latest_release["tag_name"]
 	version = tag.lstrip("v")
-	src_artifact = hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{github_user}/{github_repo}/releases/download/{tag}/{pkginfo['name']}-{version}.tar.gz")
+	src_artifact = hub.pkgtools.ebuild.Artifact(
+		url=f"https://github.com/{github_user}/{github_repo}/releases/download/{tag}/{pkginfo['name']}-{version}.tar.gz"
+	)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=version,
-		github_user=github_user,
-		github_repo=github_repo,
-		artifacts=[src_artifact])
+		**pkginfo, version=version, github_user=github_user, github_repo=github_repo, artifacts=[src_artifact]
+	)
 	ebuild.push()
+
 
 # vim: ts=4 sw=4 noet

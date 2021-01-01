@@ -1,10 +1,9 @@
-# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=7
 
-USE_RUBY="ruby23 ruby24 ruby25 ruby26"
+USE_RUBY="ruby24 ruby25 ruby26 ruby27"
 
 inherit autotools multilib-minimal ruby-single
 

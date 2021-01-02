@@ -142,6 +142,10 @@ dev_python_compat_rule:
         homepage: |
           https://pypi.org/project/et_xmlfile/
           https://pypi.org/project/et_xmlfile/
+    - idna:
+        compat: '2.9'
+        blocker: '!<dev-python/idna-3'
+        license: BSD
     - jdcal:
         python_compat: python2+ pypy3
         homepage: |
@@ -636,8 +640,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - h5py:
         python_compat: python2+ pypy{,3}
-    - idna:
-        python_compat: python2+ pypy3
     - imagesize:
         python_compat: python2+ pypy{,3}
     - importlib_metadata:

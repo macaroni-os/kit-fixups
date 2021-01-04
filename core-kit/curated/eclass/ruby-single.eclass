@@ -73,7 +73,7 @@ inherit ruby-utils
 
 _ruby_single_implementations_depend() {
 	local depend
-	for _ruby_implementation in ${ALL_RUBY_TARGETS}; do
+	for _ruby_implementation in ruby27 ruby25; do
 		for ruse in ${USE_RUBY}; do
 			if [[ "${ruse}" == "${_ruby_implementation}" ]]; then
 				depend="${depend} $(_ruby_implementation_depend $_ruby_implementation)"

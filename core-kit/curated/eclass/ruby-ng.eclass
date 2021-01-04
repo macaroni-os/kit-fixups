@@ -116,7 +116,7 @@ ruby_implementation_depend() {
 _ruby_get_all_impls() {
 	local i
 	for implementation in ${USE_RUBY}; do
-		for target in ${ALL_RUBY_TARGETS}; do
+		for target in ruby27 ruby25; do
 			[ "$implementation" != "$target" ] && continue
 			echo $target
 		done

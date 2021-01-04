@@ -85,9 +85,6 @@ _ruby_single_implementations_depend() {
 
 _ruby_single_set_globals() {
 	RUBY_DEPS=$(_ruby_single_implementations_depend)
-	echo "RUBY_TARGETS IS $RUBY_TARGETS"
-	echo "USE_RUBY IS ${USE_RUBY}"
-	echo "DEPS IS $RUBY_DEPS"
 }
 _ruby_single_set_globals
 

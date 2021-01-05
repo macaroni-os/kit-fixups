@@ -115,12 +115,19 @@ ruby_implementation_depend() {
 # implementations that are no longer supported.
 _ruby_get_all_impls() {
 	local i
+	local found_one=0
+	local BACKUP_RUBY=ruby26
+	# like in ruby-single.eclass, we will fall back to ruby26 if we do not find a valid imp.
 	for implementation in ${USE_RUBY}; do
 		for target in ruby27 ruby26; do
 			[ "$implementation" != "$target" ] && continue
 			echo $target
+			found_one=1
 		done
 	done
+	if [ "$found_one" == "0" ]; then
+		echo $BACKUP_RUBY
+	fi
 }
 
 # @FUNCTION: ruby_samelib

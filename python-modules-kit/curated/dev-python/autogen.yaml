@@ -320,6 +320,24 @@ dev_python_compat_rule:
           https://github.com/martinblech/xmltodict
         bdepend:
           dev-python/setuptools[$PYTHON_USEDEP]
+    - zstandard:
+        compat: '0.14.1'
+        blocker: '!<dev-python/zstandard-0.15.0'
+        desc: Zstandard Bindings for Python
+        homepage: https://pypi.org/project/zstandard/ https://github.com/indygreg/python-zstandard
+        license: BSD
+        iuse: test
+        restrict: '!test? ( test )'
+        rdepend: 'dev-python/cffi:=[${PYTHON_USEDEP}]'
+        depend: 'test? ( dev-python/hypothesis[${PYTHON_USEDEP}] )'
+        body: |
+          python_compile() {
+            local MAKEOPTS=-j1
+            distutils-r1_python_compile
+          }
+          python_test() {
+            esetup.py test
+          }
 
 simple_python_autogen_rule:
   defaults:
@@ -843,8 +861,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - zope-testrunner:
         python_compat: python2+ pypy3
-    - zstandard:
-        python_compat: python3+
     - cheroot:
         python_compat: python2+ pypy3
     - aiofiles

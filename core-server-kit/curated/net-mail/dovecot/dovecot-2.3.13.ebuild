@@ -1,16 +1,15 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
 
 # do not add a ssl USE flag.  ssl is mandatory
 SSL_DEPS_SKIP=1
-inherit autotools eapi7-ver ssl-cert systemd user
+inherit autotools eapi7-ver ssl-cert systemd toolchain-funcs user
 
 MY_P="${P/_/.}"
 #MY_S="${PN}-ce-${PV}"
 major_minor="$(ver_cut 1-2)"
-sieve_version="0.5.11"
+sieve_version="0.5.13"
 if [[ ${PV} == *_rc* ]] ; then
 	rc_dir="rc/"
 else
@@ -30,24 +29,25 @@ SLOT="0"
 LICENSE="LGPL-2.1 MIT"
 KEYWORDS="*"
 
-IUSE_DOVECOT_AUTH="kerberos ldap lua mysql pam postgres sqlite vpopmail"
+IUSE_DOVECOT_AUTH="kerberos ldap lua mysql pam postgres sqlite"
 IUSE_DOVECOT_COMPRESS="bzip2 lzma lz4 zlib zstd"
-IUSE_DOVECOT_OTHER="argon2 caps doc ipv6 libressl lucene managesieve selinux sieve solr static-libs suid tcpd textcat"
+IUSE_DOVECOT_OTHER="argon2 caps doc ipv6 libressl lucene managesieve rpc selinux sieve solr static-libs suid tcpd textcat unwind"
 
-IUSE="${IUSE_DOVECOT_AUTH} ${IUSE_DOVECOT_STORAGE} ${IUSE_DOVECOT_COMPRESS} ${IUSE_DOVECOT_OTHER}"
+IUSE="${IUSE_DOVECOT_AUTH} ${IUSE_DOVECOT_COMPRESS} ${IUSE_DOVECOT_OTHER}"
 
 DEPEND="argon2? ( dev-libs/libsodium )
 	bzip2? ( app-arch/bzip2 )
 	caps? ( sys-libs/libcap )
 	kerberos? ( virtual/krb5 )
 	ldap? ( net-nds/openldap )
-	lua? ( dev-lang/lua:* )
+	lua? ( dev-lang/lua:0= )
 	lucene? ( >=dev-cpp/clucene-2.3 )
 	lzma? ( app-arch/xz-utils )
 	lz4? ( app-arch/lz4 )
 	mysql? ( dev-db/mysql-connector-c:0= )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 	postgres? ( dev-db/postgresql:* !dev-db/postgresql[ldap,threads] )
+	rpc? ( net-libs/libtirpc net-libs/rpcsvc-proto )
 	selinux? ( sec-policy/selinux-dovecot )
 	solr? ( net-misc/curl dev-libs/expat )
 	sqlite? ( dev-db/sqlite:* )
@@ -55,7 +55,7 @@ DEPEND="argon2? ( dev-libs/libsodium )
 	libressl? ( dev-libs/libressl )
 	tcpd? ( sys-apps/tcp-wrappers )
 	textcat? ( app-text/libexttextcat )
-	vpopmail? ( net-mail/vpopmail )
+	unwind? ( sys-libs/libunwind )
 	zlib? ( sys-libs/zlib )
 	zstd? ( app-arch/zstd )
 	virtual/libiconv
@@ -64,7 +64,10 @@ DEPEND="argon2? ( dev-libs/libsodium )
 RDEPEND="${DEPEND}
 	net-mail/mailbase"
 
-PATCHES=( "${FILESDIR}"/${P}-apop-fix.patch )
+PATCHES=(
+	"${FILESDIR}/${PN}"-unwind-generic.patch
+	"${FILESDIR}/${PN}"-socket-name-too-long.patch
+	)
 
 pkg_setup() {
 	if use managesieve && ! use sieve; then
@@ -85,8 +88,8 @@ pkg_setup() {
 src_prepare() {
 	default
 	# bug 657108
-	elibtoolize
-	#eautoreconf
+	#elibtoolize
+	eautoreconf
 }
 
 src_configure() {
@@ -123,9 +126,9 @@ src_configure() {
 		$( use_with solr ) \
 		$( use_with tcpd libwrap ) \
 		$( use_with textcat ) \
-		$( use_with vpopmail ) \
+		$( use_with unwind libunwind ) \
 		$( use_with zlib ) \
-                $( use_with zstd ) \
+		$( use_with zstd ) \
 		$( use_enable static-libs static ) \
 		${conf}
 
@@ -136,7 +139,7 @@ src_configure() {
 		cd "../dovecot-${major_minor}-pigeonhole-${sieve_version}" || die "cd failed"
 		econf \
 			$( use_enable static-libs static ) \
-			--localstatedir="${EPREFIX%/}/var" \
+			--localstatedir="${EPREFIX}/var" \
 			--enable-shared \
 			--with-dovecot="${S}" \
 			$( use_with managesieve )
@@ -159,7 +162,7 @@ src_test() {
 	fi
 }
 
-src_install () {
+src_install() {
 	default
 
 	# insecure:
@@ -167,8 +170,8 @@ src_install () {
 	# better:
 	if use suid;then
 		einfo "Changing perms to allow deliver to be suided"
-		fowners root:mail "${EPREFIX}/usr/libexec/dovecot/dovecot-lda"
-		fperms 4750 "${EPREFIX}/usr/libexec/dovecot/dovecot-lda"
+		fowners root:mail "/usr/libexec/dovecot/dovecot-lda"
+		fperms 4750 "/usr/libexec/dovecot/dovecot-lda"
 	fi
 
 	newinitd "${FILESDIR}"/dovecot.init-r6 dovecot
@@ -194,7 +197,7 @@ src_install () {
 	doins doc/example-config/*.{conf,ext}
 	insinto /etc/dovecot/conf.d
 	doins doc/example-config/conf.d/*.{conf,ext}
-	fperms 0600 "${EPREFIX}"/etc/dovecot/dovecot-{ldap,sql}.conf.ext
+	fperms 0600 /etc/dovecot/dovecot-{ldap,sql}.conf.ext
 	rm -f "${confd}/../README"
 
 	# .maildir is the Gentoo default
@@ -246,13 +249,6 @@ src_install () {
 			|| die "failed to update ldap settings in 10-auth.conf"
 	fi
 
-	if use vpopmail; then
-		sed -i -e \
-			's/#!include auth-vpopmail.conf.ext/!include auth-vpopmail.conf.ext/' \
-			"${confd}/10-auth.conf" \
-			|| die "failed to update vpopmail settings in 10-auth.conf"
-	fi
-
 	if use sieve || use managesieve ; then
 		cd "../dovecot-${major_minor}-pigeonhole-${sieve_version}" || die "cd failed"
 		emake DESTDIR="${ED}" install
@@ -290,5 +286,5 @@ pkg_postinst() {
 		install_cert /etc/ssl/dovecot/server
 	fi
 
-	elog "Please read http://wiki2.dovecot.org/Upgrading/ for upgrade notes."
+	elog "Please read https://doc.dovecot.org/installation_guide/upgrading/ for upgrade notes."
 }

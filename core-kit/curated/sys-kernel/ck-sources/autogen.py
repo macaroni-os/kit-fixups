@@ -3,24 +3,21 @@
 import json
 import re
 
+
 async def generate(hub, **pkginfo):
 	app = pkginfo["name"]
 	ck_patches = None
-	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://www.kernel.org/releases.json", is_json=True
-	)
+	json_list = await hub.pkgtools.fetch.get_page(f"https://www.kernel.org/releases.json", is_json=True)
 	version = json_list["latest_stable"]["version"]
-	
+
 	# We want just the major version to check ck patch is avaiable
-	output = re.search('5\.[0-9]+', version)
+	output = re.search("5\.[0-9]+", version)
 	if output is not None:
 		major = output.group(0)
 
 	# Download the ck archive html to parse for possible versions
 	try:
-		ck_patches = await hub.pkgtools.fetch.get_page(
-			f"http://ck.kolivas.org/patches/5.0/{major}/", is_json=False
-		)
+		ck_patches = await hub.pkgtools.fetch.get_page(f"http://ck.kolivas.org/patches/5.0/{major}/", is_json=False)
 	except:
 		pass
 
@@ -40,8 +37,10 @@ async def generate(hub, **pkginfo):
 		version=version,
 		ck_extraversion=ck_version,
 		branch_id=major,
-		src_uri=f"http://ck.kolivas.org/patches/5.0/{major}/{major}-ck{ck_version}/patch-{major}-ck{ck_version}.xz"
+		src_uri=f"http://ck.kolivas.org/patches/5.0/{major}/{major}-ck{ck_version}/patch-{major}-ck{ck_version}.xz",
 	)
 
 	ebuild.push()
+
+
 # vim: ts=4 sw=4 noet

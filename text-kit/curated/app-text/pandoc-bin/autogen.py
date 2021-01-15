@@ -11,7 +11,9 @@ def get_release(releases_data):
 async def generate(hub, **pkginfo):
 	user = "jgm"
 	repo = pkginfo["name"].rstrip("-bin")
-	releases_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)
+	releases_data = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
+	)
 	latest_release = get_release(releases_data)
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
@@ -19,6 +21,10 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/releases/download/{version}/{repo}-{version}-linux-amd64.tar.gz")],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(
+				url=f"https://github.com/{user}/{repo}/releases/download/{version}/{repo}-{version}-linux-amd64.tar.gz"
+			)
+		],
 	)
 	ebuild.push()

@@ -17,10 +17,9 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version,
 		python_compat=python_compat,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=url)
-		],
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
 	)
 	ebuild.push()
+
 
 # vim: ts=4 sw=4 noet

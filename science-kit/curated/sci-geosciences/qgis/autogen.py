@@ -13,9 +13,7 @@ async def generate(hub, **pkginfo):
 
 	if version is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {pkginfo['name']}")
-	src_artifact = hub.pkgtools.ebuild.Artifact(
-		url=f"{download_page}/qgis-{version}.tar.bz2"
-	)
+	src_artifact = hub.pkgtools.ebuild.Artifact(url=f"{download_page}/qgis-{version}.tar.bz2")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, version=version, github_user=github_user, github_repo=github_repo, artifacts=[src_artifact]
 	)

@@ -37,7 +37,7 @@ async def generate(hub, **pkginfo):
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {github_repo}")
 	version = latest_release["tag_name"]
 	url = latest_release["tarball_url"]
-	final_name = f'{crate_name}-{version}.tar.gz'
+	final_name = f"{crate_name}-{version}.tar.gz"
 	artifacts = await get_crates_artifacts(hub, github_user, github_repo, crate_name, version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
@@ -45,6 +45,9 @@ async def generate(hub, **pkginfo):
 		crates=artifacts["crates"],
 		github_user=github_user,
 		github_repo=github_repo,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name), *artifacts["crates_artifacts"],],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name),
+			*artifacts["crates_artifacts"],
+		],
 	)
 	ebuild.push()

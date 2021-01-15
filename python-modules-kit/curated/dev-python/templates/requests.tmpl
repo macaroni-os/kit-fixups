@@ -28,10 +28,6 @@ RDEPEND="
 	dev-python/urllib3[${PYTHON_USEDEP}]
 "
 
-DEPEND="${RDEPEND}
-	dev-python/setuptools[${PYTHON_USEDEP}]
-"
-
 # tests connect to various remote sites
 RESTRICT="test"
 
@@ -44,6 +40,15 @@ RESTRICT="test"
 #		>=dev-python/PySocks-1.5.6[${PYTHON_USEDEP}]
 #	)
 #"
+
+src_prepare() {
+	if ! use python_targets_python2_7; then
+		sed -i -e "s#<3,##" requests.egg-info/requires.txt
+		sed -i -e "s#,<3##" setup.py
+	fi
+
+	distutils-r1_src_prepare
+}
 
 python_test() {
 	py.test || die

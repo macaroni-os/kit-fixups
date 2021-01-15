@@ -350,6 +350,8 @@ simple_python_autogen_rule:
         desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
         license: Apache-2.0
+        pydeps:
+          - msgpack
         body: |
           src_prepare() {
             touch ${S}/requirements.txt

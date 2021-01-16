@@ -384,6 +384,31 @@ simple_python_autogen_rule:
         license: GPL-2
         restrict: test
         rdepend: dev-python/lxml[${PYTHON_USEDEP}]
+    - requests:
+        revision: 1
+        desc: HTTP library for human beings
+        homepage: https://requests.readthedocs.io/en/master/
+        license: Apache-2.0
+        iuse: socks5 +ssl
+        pydeps:
+          py:all:
+            - certifi >= 2017.4.17
+            - chardet
+            - idna
+            - urllib3
+          use:socks5:
+            - PySocks >= 1.5.6
+          use:ssl:
+            - cryptography >= 1.3.4
+            - pyopenssl >= 0.14
+        python_compat: python2+ pypy{,3}
+        body: |
+          # FL-7939: relax deps for idna
+          src_prepare() {
+            sed -i -e '/^idna/c idna' requests.egg-info/requires.txt || die
+            sed -i -e "s/'idna.*$/'idna',/" setup.py || die
+            distutils-r1_src_prepare
+          }
 
 
 salt_misc_deps_rule:
@@ -768,8 +793,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - pytz:
         python_compat: python2+ pypy3
-    - requests:
-        python_compat: python2+ pypy{,3}
     - secretstorage:
         python_compat: python3+ pypy3
     - setuptools_scm:

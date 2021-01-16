@@ -22,9 +22,13 @@ drivers_rule:
     - xf86-input-keyboard:
         gitlab_id: 576
     - xf86-input-libinput:
+        revision: 2
         gitlab_id: 577
         depend: |
           >=dev-libs/libinput-1.5.0:0=
+        src_install: |
+          # See FL-7952: Make libinput take priority over synaptics.
+          (cd ${D}/usr/share/X11/xorg.conf.d/ && mv 40-libinput.conf 80-libinput.conf) || die
     - xf86-input-mouse:
         gitlab_id: 581
     - xf86-input-synaptics:

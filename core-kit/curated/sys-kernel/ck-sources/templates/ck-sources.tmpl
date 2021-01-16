@@ -18,13 +18,12 @@ RDEPEND="virtual/linux-sources"
 
 DESCRIPTION="Linux {{version}}, with Con Kolivas' MuQSS scheduler and patchset"
 
-CK_URI="{{src_uri}}"
-
 K_BRANCH_ID="{{branch_id}}"
 
-SRC_URI="${KERNEL_URI}
-	${ARCH_URI}
-	${CK_URI}
+SRC_URI="
+	{{artifacts[1].src_uri}}
+	{{artifacts[2].src_uri}}
+	{{artifacts[0].src_uri}}
 	"
 
 UNIPATCH_LIST="

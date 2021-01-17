@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+from datetime import datetime
 
 
 def get_release(release_data, is_stable=True):
@@ -8,20 +9,40 @@ def get_release(release_data, is_stable=True):
 	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
 
 
-def generate_ebuild(hub, repo_name, release_data, is_stable, **pkginfo):
+def generate_ebuild(hub, repo_name, release_data, commit_sha, is_stable, **pkginfo):
+	# FL-7934: Since neovim deletes the nightly release from time to time,
+	# it can cause the autogen script to fail. To avoid failures and to avoid
+	# forcing nightly users to downgrade to stable, a snapshot ebuild should be
+	# generated instead, that simply pulls in a specific commit and builds it.
 	curr_release = get_release(release_data, is_stable)
+	is_snapshot = False
 	if curr_release is None:
-		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo_name}")
-	tag = curr_release["tag_name"]
-	# version = curr_release["name"].split(" ")[-1].split("-")[0].lstrip("v")
-	version = re.sub("[^0-9.]", "", curr_release["name"])
+		if is_stable:
+			raise hub.pkgtools.ebuild.BreezyError(
+				f"Can't find a suitable stable release of {repo_name}"
+			)
+		else:
+			print(
+				f"Nightly release of {repo_name} not found, generating a snapshot ebuild instead."
+			)
+			is_snapshot = True
+
+	version = ""
+	src_name = ""
+	if is_snapshot:
+		src_name = commit_sha
+		version = datetime.now().strftime("%Y%m%d")
+	else:
+		src_name = curr_release["tag_name"]
+		version = re.sub("[^0-9.]", "", curr_release["name"])
+
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
 		stable=is_stable,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
-				url=f"https://github.com/{repo_name}/{repo_name}/archive/{tag}.tar.gz",
+				url=f"https://github.com/{repo_name}/{repo_name}/archive/{src_name}.tar.gz",
 				final_name=f"{repo_name}-{version}.tar.gz",
 			)
 		],
@@ -31,7 +52,13 @@ def generate_ebuild(hub, repo_name, release_data, is_stable, **pkginfo):
 
 async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
-	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/releases", is_json=True)
+	release_data = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{name}/{name}/releases", is_json=True
+	)
+	commit_data = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{name}/{name}/commits/master", is_json=True
+	)
+	commit_sha = commit_data["sha"]
 
-	generate_ebuild(hub, name, release_data, True, **pkginfo)
-	generate_ebuild(hub, name, release_data, False, **pkginfo)
+	generate_ebuild(hub, name, release_data, commit_sha, True, **pkginfo)
+	generate_ebuild(hub, name, release_data, commit_sha, False, **pkginfo)

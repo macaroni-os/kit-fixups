@@ -433,6 +433,9 @@ src_install() {
 	rm -rf ${D}/usr/share/doc/${PF}
 	dodir /usr/share/doc
 	mv ${D}/${NV_ROOT}/share/doc/NVIDIA_GLX-1.0 ${D}/usr/share/doc/${PF} || die "doc thang"
+	# Fix nvidia-settings icon location... the only thing we don't want to move.
+	dodir ${NV_ROOT}/share/doc/NVIDIA_GLX-1.0
+	mv ${D}/usr/share/doc/${PF}/nvidia-settings.png ${D}/${NV_ROOT}/share/doc/NVIDIA_GLX-1.0
 	readme.gentoo_create_doc
 }
 

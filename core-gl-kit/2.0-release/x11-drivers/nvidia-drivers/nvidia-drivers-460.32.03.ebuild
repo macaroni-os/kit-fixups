@@ -113,15 +113,6 @@ nv_use() {
 	return 0
 }
 
-# Determine whether we should install GLVND, NON_GLVND, or neither version.
-_nv_glvnd() {
-	case "$1" in
-		GLVND) use_if_iuse glvnd && return 1 ;; # We want to use the system libglvnd, so skip installing from packaging.
-		NON_GLVND) ! use_if_iuse glvnd && return 0 ;;
-	esac
-	return 1
-}
-
 # Check tls type
 _nv_tls() {
 	# Always install both.
@@ -129,6 +120,25 @@ _nv_tls() {
 		CLASSIC|NEW) return 0 ;;
 	esac
 	return 1
+}
+
+root_install() {
+	local mydir="${1#${NV_ROOT}}"
+	local myfile="${2#/}"
+	local myperms="$3"
+	local mymodule="${4#MODULE:}"
+
+	nv_use "${mymodule}" || return 0
+	einfo "[${mymodule:-*}] Installing '${myfile}' with perms ${myperms} to '${mydir%/}'."
+
+	if ! [ -e "${myfile}" ] ; then
+		ewarn "File '${myfile}' specified in manifest does not exist!"
+		return 1
+	fi
+
+	insinto "${mydir%/}"
+	insopts "-m${myperms}"
+	doins "${myfile}"
 }
 
 # <dir> <file> <perms> <MODULE:>
@@ -232,21 +242,21 @@ nv_parse_manifest() {
 
 		case "$type" in
 			INTERNAL_UTILITY_BINARY|INTERNAL_UTILITY_LIB|INTERNAL_UTILITY_DATA) ;;
-			GLVND_LIB) _nv_glvnd "GLVND" && nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
+			GLVND_LIB) nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 			OPENGL_LIB|LIBGL_LA|NVCUVID_LIB|ENCODEAPI_LIB|NVIFR_LIB|UTILITY_LIB) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 			OPENCL_LIB|CUDA_LIB|VDPAU_LIB|VDPAU_WRAPPER_LIB) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 			OPENCL_WRAPPER_LIB) nv_install_lib_arch "${NV_OPENCL_VEND_DIR}/lib/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
-			GLX_CLIENT_LIB|EGL_CLIENT_LIB) _nv_glvnd "$f5" && nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$perms" "$f4" "$module" ;;
+			GLX_CLIENT_LIB|EGL_CLIENT_LIB) nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$perms" "$f4" "$module" ;;
 			TLS_LIB)
 				case "$f5" in
 					CLASSIC|NEW) _nv_tls "$f5" && nv_install_lib_arch "${NV_LIBDIR}/${f6%/}" "$name" "$perms" "$f4" "$module" ;;
 					*) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 				esac;;
-			GLVND_SYMLINK)_nv_glvnd "GLVND" && nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
+			GLVND_SYMLINK) nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
 			OPENGL_SYMLINK|NVCUVID_LIB_SYMLINK|ENCODEAPI_LIB_SYMLINK|NVIFR_LIB_SYMLINK|UTILITY_LIB_SYMLINK) nv_symlink_lib_arch "${NV_LIBDIR}" "$name" "$f4" "$f5" "$module" ;;
 			OPENCL_LIB_SYMLINK|CUDA_SYMLINK|VDPAU_SYMLINK|VDPAU_WRAPPER_SYMLINK) nv_symlink_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$f4" "$f6" "$module" ;;
 			OPENCL_WRAPPER_SYMLINK) nv_symlink_lib_arch "${NV_OPENCL_VEND_DIR}/lib/${f5%/}" "$name" "$f4" "$f6" "$module" ;;
-			GLX_CLIENT_SYMLINK|EGL_CLIENT_SYMLINK) _nv_glvnd "$f6" && nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
+			GLX_CLIENT_SYMLINK|EGL_CLIENT_SYMLINK) nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
 			XMODULE_SHARED_LIB) nv_install "$(get_libdir)/${NV_X_MODDIR}/${f4%/}" "$name" "$perms" "$module";;
 			GLX_MODULE_SHARED_LIB) nv_install "$(get_libdir)/${NV_OPENGL_VEND_DIR}/${f4%/}" "$name" "$perms" "$module" ;;
 			XMODULE_SYMLINK|XMODULE_NEWSYM) nv_symlink "$(get_libdir)/${NV_X_MODDIR}/${f4%/}" "$name" "$f5" "$module";;
@@ -262,7 +272,7 @@ nv_parse_manifest() {
 			UTILITY_BINARY) nv_install "${NV_BINDIR}" "$name" "$perms" "$module" ;;
 			XORG_OUTPUTCLASS_CONFIG) nv_install_outputclass_config "${NV_SHAREDIR}/X11/xorg.conf.d" "$name" "$perms" "$module" ;;
 			CUDA_ICD) nv_install "${NV_SHAREDIR}/OpenCL/vendors/" "$name" "$perms" "$module" ;;
-			VULKAN_ICD_JSON) nv_install "${NV_SHAREDIR}/${f4}" "$name" "$perms" "$module" ;;
+			VULKAN_ICD_JSON) root_install "/usr/share/vulkan/${f4}" "$name" "$perms" "$module" ;;
 			GLVND_EGL_ICD_JSON) nv_install "${NV_SHAREDIR}/glvnd/egl_vendor.d/" "$name" "$perms" "$module" ;;
 			EGL_EXTERNAL_PLATFORM_JSON) nv_install "${NV_SHAREDIR}/egl/egl_external_platform.d/" "$name" "$perms" "$module" ;;
 			UTILITY_BIN_SYMLINK) [ "x${f4}" = "xnvidia-installer" ] || nv_symlink "${NV_BINDIR}" "$name" "$f4" "$module" ;;
@@ -376,9 +386,6 @@ src_install() {
 
 		# Xorg driver nvidia_drv.so
 		dosym "${NV_NATIVE_LIBDIR}/xorg/modules/drivers/nvidia_drv.so" "/usr/$(get_libdir)/xorg/modules/drivers/nvidia_drv.so"
-
-		# Vulkan ICD
-		dosym "${NV_ROOT}/share/vulkan/icd.d/nvidia_icd.json" "/etc/vulkan/icd.d/nvidia_icd.json"
 	fi
 
 	# If 'egl' flag is enabled, link 10_nvidia.json into the system egl_vendor.d directory.
@@ -388,7 +395,7 @@ src_install() {
 	use_if_iuse wayland && dosym "${NV_ROOT}/share/egl/egl_external_platform.d/10_nvidia_wayland.json" "/usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
 
 	# OpenCL ICD for NVIDIA
-	# If 'opencl' or 'cuda' flags are enabled, link nvdidia.icd into system OpenCL/vendors directory.
+	# If 'opencl' or 'cuda' flags are enabled, link nvidia.icd into system OpenCL/vendors directory.
 	( use opencl || use cuda ) && dosym "${NV_ROOT}/share/OpenCL/vendors/nvidia.icd" "/etc/OpenCL/vendors/nvidia.icd"
 
 	# On linux kernels, install nvidia-persistenced init and conf files after fixing up paths.

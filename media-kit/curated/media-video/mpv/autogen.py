@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
-import json
+from datetime import datetime, timedelta
+
+
+async def query_github_api(user, repo, query):
+	return await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/{query}", is_json=True, refresh_interval=timedelta(days=15))
 
 
 async def generate(hub, **pkginfo):
@@ -8,14 +12,16 @@ async def generate(hub, **pkginfo):
 	github_user = "mpv-player"
 	github_repo = "mpv"
 	waf_version = "2.0.20"
-	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases")
-	json_list = json.loads(json_data)
-	for release in json_list:
+	json_data = await query_github_api(github_user, github_repo, "releases")
+	for release in json_data:
 		if release["prerelease"] or release["draft"]:
 			continue
 		version = release["tag_name"].lstrip("v")
-		url = release["tarball_url"]
 		break
+	commit_data = await query_github_api(github_user, github_repo, "commits/master")
+	commit_hash = commit_data["sha"]
+	version += "." + datetime.now().strftime("%Y%m%d")
+	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
 	waf_url = f"https://waf.io/waf-{waf_version}"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

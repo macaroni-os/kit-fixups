@@ -6,8 +6,7 @@ inherit cmake xdg
 
 DESCRIPTION="Vim-fork focused on extensibility and agility."
 HOMEPAGE="https://neovim.io"
-
-SRC_URI="{{artifacts[0].url}} -> ${P}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 KEYWORDS="{{'*' if stable else ''}}"
 
 LICENSE="Apache-2.0 vim"
@@ -45,8 +44,8 @@ RDEPEND="
 "
 
 src_unpack() {
-	default
-	mv neovim-* ${S}
+	unpack ${A}
+	mv "${WORKDIR}"/neovim-* "${S}"
 }
 
 src_prepare() {

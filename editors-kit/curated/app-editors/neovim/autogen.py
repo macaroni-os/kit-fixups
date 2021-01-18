@@ -9,7 +9,7 @@ def get_release(release_data, is_stable=True):
 	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
 
 
-def generate_ebuild(hub, repo_name, release_data, commit_sha, is_stable, **pkginfo):
+def generate_ebuild(hub, repo_name, release_data, commit_data, is_stable, **pkginfo):
 	# FL-7934: Since neovim deletes the nightly release from time to time,
 	# it can cause the autogen script to fail. To avoid failures and to avoid
 	# forcing nightly users to downgrade to stable, a snapshot ebuild should be
@@ -30,8 +30,11 @@ def generate_ebuild(hub, repo_name, release_data, commit_sha, is_stable, **pkgin
 	version = ""
 	src_name = ""
 	if is_snapshot:
-		src_name = commit_sha
-		version = datetime.now().strftime("%Y%m%d")
+		src_name = commit_data["sha"]
+		commit_date = datetime.strptime(
+			commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ"
+		)
+		version = commit_date.strftime("%Y%m%d")
 	else:
 		src_name = curr_release["tag_name"]
 		version = re.sub("[^0-9.]", "", curr_release["name"])
@@ -58,7 +61,6 @@ async def generate(hub, **pkginfo):
 	commit_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{name}/{name}/commits/master", is_json=True
 	)
-	commit_sha = commit_data["sha"]
 
-	generate_ebuild(hub, name, release_data, commit_sha, True, **pkginfo)
-	generate_ebuild(hub, name, release_data, commit_sha, False, **pkginfo)
+	generate_ebuild(hub, name, release_data, commit_data, True, **pkginfo)
+	generate_ebuild(hub, name, release_data, commit_data, False, **pkginfo)

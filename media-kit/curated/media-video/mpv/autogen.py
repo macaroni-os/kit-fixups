@@ -4,7 +4,11 @@ from datetime import datetime, timedelta
 
 
 async def query_github_api(user, repo, query):
-	return await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/{query}", is_json=True, refresh_interval=timedelta(days=15))
+	return await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{user}/{repo}/{query}",
+		is_json=True,
+		refresh_interval=timedelta(days=15),
+	)
 
 
 async def generate(hub, **pkginfo):
@@ -20,7 +24,10 @@ async def generate(hub, **pkginfo):
 		break
 	commit_data = await query_github_api(github_user, github_repo, "commits/master")
 	commit_hash = commit_data["sha"]
-	version += "." + datetime.now().strftime("%Y%m%d")
+	commit_date = datetime.strptime(
+		commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ"
+	)
+	version += "." + commit_date.strftime("%Y%m%d")
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
 	waf_url = f"https://waf.io/waf-{waf_version}"

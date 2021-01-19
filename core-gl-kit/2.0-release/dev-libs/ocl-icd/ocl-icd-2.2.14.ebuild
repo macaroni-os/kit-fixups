@@ -15,7 +15,7 @@ KEYWORDS="*"
 BDEPEND="${RUBY_DEPS}"
 DEPEND="dev-util/opencl-headers"
 RDEPEND="${DEPEND}
-	!app-eselect/eselect-opencl
+	!<app-eselect/eselect-opencl-1.2.0
 	!dev-libs/opencl-icd-loader"
 
 src_prepare() {

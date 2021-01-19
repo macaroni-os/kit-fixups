@@ -19,17 +19,13 @@ SRC_URI="
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
-#KEYWORDS="-* ~amd64 ~amd64-fbsd"
+#KEYWORDS="-* amd64"
 KEYWORDS=""
 RESTRICT="bindist strip"
 EMULTILIB_PKG="true"
 
-IUSE="+X +opencl +cuda +tools"
-IUSE_NV_PKG="+opengl +gpgpu +nvpd +nvifr +nvfbc +nvcuvid +nvml +encodeapi +vdpau +xutils +xdriver +egl +glvnd +uvm +wayland +optix +raytracing +opticalflow"
-
 IUSE_DUMMY="static-libs acpi"
-
-IUSE="${IUSE} ${IUSE_NV_PKG} ${IUSE_DUMMY}"
+IUSE="${IUSE_DUMMY} +X +opencl +cuda +tools +egl +glvnd +uvm +wayland"
 
 COMMON="
 	opencl? (
@@ -37,7 +33,7 @@ COMMON="
 		dev-libs/ocl-icd
 	)
 	>=sys-libs/glibc-2.6.1
-	X? ( app-misc/pax-utils 
+	X? ( app-misc/pax-utils
 		!glvnd? ( >=app-eselect/eselect-opengl-1.0.9 )
 		glvnd? ( >=media-libs/libglvnd-1.0.0.20180424 )
 	)
@@ -83,7 +79,7 @@ NV_OPENCL_VEND_DIR="OpenCL/nvidia"
 NV_X_MODDIR="xorg/modules"
 
 # Maximum supported kernel version in form major.minor
-: "${NV_MAX_KERNEL_VERSION:=5.7}"
+: "${NV_MAX_KERNEL_VERSION:=5.10}"
 
 # Fixups for issues with particular versions of the package.
 nv_do_fixups() {
@@ -99,18 +95,8 @@ nv_do_fixups() {
 	fi
 }
 
-# Check if we should use a given nvidia MODULE:<arg>
-# Convert module names to use-flags as appropriate
 nv_use() {
-	local mymodule
-	mymodule="${1}"
-	case "${mymodule}" in
-		installer) mymodule="" ;;
-		compiler|gpgpucomp) mymodule="gpgpu" ;;
-	esac
-
-	[ -z "${mymodule}" ] || use_if_iuse "${mymodule}" || return 1
-	return 0
+	return 0;
 }
 
 # Check tls type
@@ -243,8 +229,7 @@ nv_parse_manifest() {
 		case "$type" in
 			INTERNAL_UTILITY_BINARY|INTERNAL_UTILITY_LIB|INTERNAL_UTILITY_DATA) ;;
 			GLVND_LIB) nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
-			OPENGL_LIB|LIBGL_LA|NVCUVID_LIB|ENCODEAPI_LIB|NVIFR_LIB|UTILITY_LIB) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
-			OPENCL_LIB|CUDA_LIB|VDPAU_LIB|VDPAU_WRAPPER_LIB) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
+			CUDA_LIB|OPENCL_LIB|OPENGL_LIB|NVCUVID_LIB|TLS_LIB|ENCODEAPI_LIB|NVIFR_LIB|UTILITY_LIB|VDPAU_LIB|VDPAU_WRAPPER_LIB) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 			OPENCL_WRAPPER_LIB) nv_install_lib_arch "${NV_OPENCL_VEND_DIR}/lib/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 			GLX_CLIENT_LIB|EGL_CLIENT_LIB) nv_install_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$perms" "$f4" "$module" ;;
 			TLS_LIB)
@@ -290,12 +275,6 @@ nv_parse_manifest() {
 }
 
 nvidia_drivers_versions_check() {
-	if use_if_iuse amd64 && has_multilib_profile && \
-		[ "${DEFAULT_ABI}" != "amd64" ]; then
-		eerror "This ebuild doesn't currently support changing your default ABI"
-		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
-	fi
-
 	if use kernel_linux && kernel_is ge ${NV_MAX_KERNEL_VERSION%%.*} ${NV_MAX_KERNEL_VERSION#*.}; then
 		ewarn "These NVIDIA drivers are designed to work with Linux ${NV_MAX_KERNEL_VERSION} or earlier."
 	fi
@@ -309,9 +288,7 @@ nvidia_drivers_versions_check() {
 	# Kernel features/options to check for
 	CONFIG_CHECK="~ZONE_DMA ~MTRR ~SYSVIPC ~!LOCKDEP"
 	use cuda && CONFIG_CHECK+=" ~NUMA ~CPUSETS"
-
-	# Now do the above checks
-	use kernel_linux && check_extra_config
+	check_extra_config
 }
 
 pkg_pretend() {
@@ -327,8 +304,8 @@ pkg_setup() {
 src_unpack() {
 	if [ -z "${SRC_URI}" ] ; then
 		if [ -d "${NV_DISTFILES_PATH}" ] ; then
-			use_if_iuse amd64 && NV_PACKAGE="${AMD64_NV_PACKAGE}"
-			use_if_iuse arm64 && NV_PACKAGE="${ARM64_NV_PACKAGE}"
+			use amd64 && NV_PACKAGE="${AMD64_NV_PACKAGE}"
+			use arm64 && NV_PACKAGE="${ARM64_NV_PACKAGE}"
 			if [ -f "${NV_DISTFILES_PATH}/${NV_PACKAGE}.run" ] ; then
 				unpacker "${NV_DISTFILES_PATH}/${NV_PACKAGE}.run"
 			else
@@ -389,26 +366,24 @@ src_install() {
 	fi
 
 	# If 'egl' flag is enabled, link 10_nvidia.json into the system egl_vendor.d directory.
-	use_if_iuse egl && dosym "${NV_ROOT}/share/glvnd/egl_vendor.d/10_nvidia.json" "/usr/share/glvnd/egl_vendor.d/10_nvidia.json"
+	use egl && dosym "${NV_ROOT}/share/glvnd/egl_vendor.d/10_nvidia.json" "/usr/share/glvnd/egl_vendor.d/10_nvidia.json"
 
 	# If 'egl' flag is enabled, link 10_nvidia_wayland.json into the system egl_external_platform.d directory.
-	use_if_iuse wayland && dosym "${NV_ROOT}/share/egl/egl_external_platform.d/10_nvidia_wayland.json" "/usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
+	use wayland && dosym "${NV_ROOT}/share/egl/egl_external_platform.d/10_nvidia_wayland.json" "/usr/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
 
 	# OpenCL ICD for NVIDIA
 	# If 'opencl' or 'cuda' flags are enabled, link nvidia.icd into system OpenCL/vendors directory.
 	( use opencl || use cuda ) && dosym "${NV_ROOT}/share/OpenCL/vendors/nvidia.icd" "/etc/OpenCL/vendors/nvidia.icd"
 
 	# On linux kernels, install nvidia-persistenced init and conf files after fixing up paths.
-	if use_if_iuse kernel_linux; then
-		for filename in nvidia-{smi,persistenced}.init ; do
-			sed -e 's:/opt/bin:'"${NV_ROOT}"'/bin:g' "${FILESDIR}/${filename}" > "${T}/${filename}"
-			newinitd "${T}/${filename}" "${filename%.init}"
-		done
-		newconfd "${FILESDIR}/nvidia-persistenced.conf" nvidia-persistenced
-	fi
+	for filename in nvidia-{smi,persistenced}.init ; do
+		sed -e 's:/opt/bin:'"${NV_ROOT}"'/bin:g' "${FILESDIR}/${filename}" > "${T}/${filename}"
+		newinitd "${T}/${filename}" "${filename%.init}"
+	done
+	newconfd "${FILESDIR}/nvidia-persistenced.conf" nvidia-persistenced
 
-	# If we're not using glvnd support, then set up directory expected by eselect opengl: 
-	if ! use_if_iuse glvnd ; then
+	# If we're not using glvnd support, then set up directory expected by eselect opengl:
+	if ! use glvnd ; then
 		dosym "${NV_NATIVE_LIBDIR}/opengl/nvidia" "${EPREFIX}/usr/lib/opengl/nvidia"
 	fi
 

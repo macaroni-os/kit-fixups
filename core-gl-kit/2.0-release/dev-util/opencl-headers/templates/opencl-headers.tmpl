@@ -11,7 +11,7 @@ SLOT="0"
 KEYWORDS="*"
 
 # To avoid file collisions in /usr/include/CL/
-DEPEND="!app-eselect/eselect-opencl"
+DEPEND="!app-eselect/eselect-opencl-1.2.0"
 RDEPEND="${DEPEND}"
 
 src_unpack() {

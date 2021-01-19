@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 	for release in json_list:
 		if release["prerelease"] or release["draft"]:
 			continue
-		version = release["tag_name"].lstrip("v")
+		version = release["tag_name"].lstrip("v").replace(".","")
 		url = release["tarball_url"]
 		break
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

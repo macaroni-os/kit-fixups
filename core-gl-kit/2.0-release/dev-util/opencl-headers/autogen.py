@@ -8,13 +8,13 @@ async def generate(hub, **pkginfo):
 	github_repo = "OpenCL-Headers"
 	app = pkginfo["name"]
 	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
+		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
-	for release in json_list:
-		if release["prerelease"] or release["draft"]:
+	for tag in json_list:
+		if "-rc" in tag["name"]:
 			continue
-		version = release["tag_name"].lstrip("v").replace(".","")
-		url = release["tarball_url"]
+		version = tag["name"].lstrip("v")
+		url = tag["tarball_url"]
 		break
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

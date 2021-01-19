@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -21,8 +20,8 @@ RDEPEND="
 "
 
 PDEPEND="
-	>=dev-util/opencl-headers-20190412
-	>=dev-util/opencl-clhpp-20190207
+	>=dev-util/opencl-headers-2020.03.13
+	>=dev-util/opencl-clhpp-2.0.11
 "
 S="${FILESDIR}"
 

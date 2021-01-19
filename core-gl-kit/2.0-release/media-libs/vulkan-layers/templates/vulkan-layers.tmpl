@@ -19,7 +19,7 @@ BDEPEND=">=dev-util/cmake-3.10.2"
 DEPEND="${PYTHON_DEPS}
 	>=dev-util/glslang-10.11.0.0_pre20200924:=
 	>=dev-util/spirv-tools-2020.5_pre20201107:=
-	>=dev-util/vulkan-headers-${PV}
+	>=dev-util/vulkan-headers-$(ver_cut 1-3)
 	wayland? ( dev-libs/wayland:= )
 	X? (
 		x11-libs/libX11:=

@@ -1,34 +1,17 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python2_7 python3_{4,5,6,7} )
+EAPI=7
+PYTHON_COMPAT=( {{python_compat}} )
 inherit cmake-utils python-any-r1
 
 
-if [[ "${PV}" == "9999" ]]; then
-	EGIT_REPO_URI="https://github.com/KhronosGroup/OpenCL-CLHPP.git"
-	inherit git-r3
-else
-	case "${PV}" in
-		20190207) EGIT_COMMIT="acd6972bc65845aa28bd9f670dec84cbf8b760f3"
-	esac
-	
-	KEYWORDS="~amd64"
-	if [ -n "${EGIT_COMMIT}" ] ; then
-		SRC_URI="https://github.com/KhronosGroup/OpenCL-CLHPP/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
-		S="${WORKDIR}/OpenCL-CLHPP-${EGIT_COMMIT}"
-	else
-		SRC_URI="https://github.com/KhronosGroup/OpenCL-CLHPP/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-		S="${WORKDIR}/OpenCL-CLHPP-${PV}"
-	fi
-fi
-
 DESCRIPTION="OpenCL Host API C++ bindings."
 HOMEPAGE="https://github.com/KhronosGroup/OpenCL-CLHPP"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
+KEYWORDS="*"
 
 IUSE="doc"
 
@@ -46,6 +29,11 @@ RDEPEND="${RDEPEND}
 
 pkg_setup() {
 	python-any-r1_pkg_setup
+}
+
+src_unpack() {
+	unpack "${A}"
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 
 src_configure() {

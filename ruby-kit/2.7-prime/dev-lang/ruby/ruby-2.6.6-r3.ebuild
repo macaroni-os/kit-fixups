@@ -242,14 +242,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ ! -n $(readlink "${EROOT}"/usr/bin/ruby) ]] ; then
-		eselect ruby set ruby${MY_SUFFIX}
-	fi
-
-	elog
-	elog "To switch between available Ruby profiles, execute as root:"
-	elog "\teselect ruby set ruby(23|24|...)"
-	elog
+	eselect ruby set ruby${MY_SUFFIX}
 }
 
 pkg_postrm() {

@@ -41,7 +41,7 @@ src_configure() {
 		-DBUILD_WSI_XLIB_SUPPORT=$(usex X)
 		-DBUILD_TESTS=OFF
 		-DGLSLANG_INSTALL_DIR="${EPREFIX}/usr"
-		-DCMAKE_INSTALL_INCLUDEDIR="${EPREFIX}/usr/include/vulkan/"
+		-DCMAKE_INSTALL_INCLUDEDIR="${EPREFIX}/usr/include/"
 		-DSPIRV_HEADERS_INSTALL_DIR="${EPREFIX}/usr/include/spirv"
 	)
 	cmake-utils_src_configure

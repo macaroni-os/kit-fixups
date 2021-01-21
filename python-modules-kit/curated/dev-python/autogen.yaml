@@ -408,6 +408,24 @@ simple_python_autogen_rule:
             sed -i -e "s/'idna.*$/'idna',/" setup.py || die
             distutils-r1_src_prepare
           }
+    - thefuck:
+        cat: app-shells
+        desc: Magnificent app which corrects your previous console command
+        homepage: https://github.com/nvbn/thefuck
+        license: MIT
+        pydeps:
+          py:all:
+            - psutil
+            - six
+            - decorator
+            - colorama
+            - pyte
+        python_compat: python3+
+        body: |
+          python_prepare_all() {
+            sed -i -e "/import pip/s/^/#/" -e "/pip.__version__/,+3 s/^/#/" setup.py || die
+            distutils-r1_python_prepare_all
+          }
 
 
 salt_misc_deps_rule:

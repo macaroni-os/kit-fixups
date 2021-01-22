@@ -361,6 +361,22 @@ simple_python_autogen_rule:
         desc: ANSI escape character sequences for colored terminal text & cursor positioning
         homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
         license: BSD
+    - fetchcord:
+        cat: net-im
+        pypi_name: FetchCord
+        desc: FetchCord grabs your OS info and displays it as Discord Rich Presence
+        homepage: https://github.com/MrPotatoBobx/FetchCord
+        license: MIT
+        pydeps:
+          py:all:
+            - setuptools
+            - psutil
+            - pypresence
+        depend: |
+          net-im/discord-bin
+          app-misc/neofetch
+          x11-apps/mesa-progs
+        python_compat: python3+
     - rfc3986:
         desc: A Python implementation of RFC 3986 including validation and authority parsing
         homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
@@ -383,6 +399,14 @@ simple_python_autogen_rule:
         license: GPL-2
         restrict: test
         rdepend: dev-python/lxml[${PYTHON_USEDEP}]
+    - pypresence:
+        desc: A Discord RPC library in Python
+        homepage: https://qwertyquerty.github.io/pypresence/html/index.html
+        license: MIT
+        pydeps:
+          py:all:
+            - setuptools
+        python_compat: python3+
     - requests:
         revision: 1
         desc: HTTP library for human beings

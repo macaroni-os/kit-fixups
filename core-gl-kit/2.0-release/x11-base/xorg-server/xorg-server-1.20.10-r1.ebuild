@@ -14,7 +14,8 @@ KEYWORDS="*"
 IUSE_SERVERS="dmx kdrive wayland xephyr xnest xorg xvfb"
 IUSE="${IUSE_SERVERS} debug +glamor glvnd ipv6 libressl minimal selinux +udev unwind xcsecurity"
 
-CDEPEND=">=app-eselect/eselect-opengl-1.3.0
+CDEPEND="
+	>=app-eselect/eselect-opengl-1.3.0
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:0= )
 	>=x11-apps/iceauth-1.0.2
@@ -80,7 +81,8 @@ CDEPEND=">=app-eselect/eselect-opengl-1.3.0
 	>=x11-apps/xinit-1.3.3-r1
 "
 
-DEPEND="${CDEPEND}
+DEPEND="
+	${CDEPEND}
 	sys-devel/flex
 	>=x11-base/xorg-proto-2018.3
 	dmx? (
@@ -93,19 +95,22 @@ DEPEND="${CDEPEND}
 		)
 	)
 	virtual/opengl
-	"
+"
 
-RDEPEND="${CDEPEND}
+RDEPEND="
+	${CDEPEND}
 	selinux? ( sec-policy/selinux-xserver )
 	!x11-drivers/xf86-video-modesetting
 "
 
-PDEPEND=">=x11-base/xorg-drivers-$(ver_cut 1-2)"
+PDEPEND="xorg? ( >=x11-base/xorg-drivers-$(ver_cut 1-2) )"
 
-REQUIRED_USE="!minimal? (
+REQUIRED_USE="
+	!minimal? (
 		|| ( ${IUSE_SERVERS} )
 	)
-	xephyr? ( kdrive )"
+	xephyr? ( kdrive )
+"
 
 UPSTREAMED_PATCHES=(
 )
@@ -148,6 +153,8 @@ src_configure() {
 		$(use_enable !minimal xfree86-utils)
 		$(use_enable !minimal dri)
 		$(use_enable !minimal dri2)
+		$(use_enable !minimal dri3)
+		$(use_enable !minimal glamor)
 		$(use_enable !minimal glx)
 		$(use_enable xcsecurity)
 		$(use_enable xephyr)
@@ -157,7 +164,9 @@ src_configure() {
 		$(use_enable udev config-udev)
 		$(use_with doc doxygen)
 		$(use_with doc xmlto)
+		--disable-suid-wrapper
 		--enable-install-setuid
+		--disable-systemd-logind
 		--enable-libdrm
 		--sysconfdir="${EPREFIX}"/etc/X11
 		--localstatedir="${EPREFIX}"/var
@@ -167,8 +176,9 @@ src_configure() {
 		--disable-linux-acpi
 		--without-dtrace
 		--without-fop
-		--with-os-vendor=Gentoo
+		--with-os-vendor=Funtoo
 		--with-sha1=libcrypto
+		CPP="$(tc-getPROG CPP cpp)"
 	)
 
 	xorg-3_src_configure

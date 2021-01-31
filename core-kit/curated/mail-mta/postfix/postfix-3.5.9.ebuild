@@ -1,9 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic pam systemd toolchain-funcs user
+inherit flag-o-matic pam toolchain-funcs user
 
 MY_PV="${PV/_rc/-RC}"
 MY_SRC="${PN}-${MY_PV}"
@@ -21,7 +20,7 @@ IUSE="+berkdb cdb dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcac
 
 DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
-	berkdb? ( >=sys-libs/db-3.2:* )
+	berkdb? ( =sys-libs/db-6* )
 	cdb? ( || ( >=dev-db/tinycdb-0.76 >=dev-db/cdb-0.75-r4 ) )
 	eai? ( dev-libs/icu:= )
 	ldap? ( net-nds/openldap )
@@ -29,7 +28,7 @@ DEPEND=">=dev-libs/libpcre-3.4
 	lmdb? ( >=dev-db/lmdb-0.9.11 )
 	mysql? ( dev-db/mysql-connector-c:0= )
 	nis? ( net-libs/libnsl )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 	postgres? ( dev-db/postgresql:* )
 	sasl? (  >=dev-libs/cyrus-sasl-2 )
 	sqlite? ( dev-db/sqlite:3 )
@@ -51,8 +50,7 @@ RDEPEND="${DEPEND}
 	!mail-mta/qmail-ldap
 	!mail-mta/sendmail
 	!mail-mta/opensmtpd
-	!<mail-mta/ssmtp-2.64-r2
-	!>=mail-mta/ssmtp-2.64-r2[mta]
+	!mail-mta/ssmtp[mta]
 	!net-mail/fastforward
 	selinux? ( sec-policy/selinux-postfix )"
 
@@ -61,9 +59,10 @@ REQUIRED_USE="ldap-bind? ( ldap sasl )"
 S="${WORKDIR}/${MY_SRC}"
 
 PATCHES=(
+	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
+	"${FILESDIR}/patches/${PN}-3.4.6-db-6-1.patch"
 	"${FILESDIR}/${PN}-libressl-certkey.patch"
 	"${FILESDIR}/${PN}-libressl-server.patch"
-	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
 )
 
 pkg_setup() {
@@ -199,7 +198,7 @@ src_configure() {
 		AUXLIBS_SQLITE="${AUXLIBS_SQLITE}"
 }
 
-src_install () {
+src_install() {
 	LD_LIBRARY_PATH="${S}/lib" \
 	/bin/sh postfix-install \
 		-non-interactive \
@@ -248,6 +247,7 @@ src_install () {
 	else
 		mypostconf="home_mailbox=.maildir/"
 	fi
+
 	LD_LIBRARY_PATH="${S}/lib" \
 	"${D}"/usr/sbin/postconf -c "${D}"/etc/postfix \
 		-e ${mypostconf} || die "postconf failed"
@@ -266,7 +266,9 @@ src_install () {
 	# postfix set-permissions expects uncompressed man files
 	docompress -x /usr/share/man
 
-	pamd_mimic_system smtp auth account
+	if use pam; then
+		pamd_mimic_system smtp auth account
+	fi
 
 	if use sasl; then
 		insinto /etc/sasl2
@@ -281,15 +283,6 @@ src_install () {
 		# let the sysadmin decide when to change the compatibility_level
 		sed -i -e /^compatibility_level/"s/^/#/" "${D}"/etc/postfix/main.cf || die
 	fi
-
-	systemd_dounit "${FILESDIR}/${PN}.service"
-}
-
-add_service() {
-	local initd=$1
-	local runlevel=$2
-	elog "Auto-adding '${initd}' service to your ${runlevel} runlevel"
-	ln -snf /etc/init.d/${initd} "${EROOT}"/etc/runlevels/${runlevel}/${initd}
 }
 
 pkg_preinst() {
@@ -305,11 +298,12 @@ pkg_preinst() {
 
 pkg_postinst() {
 	if [[ ! -e /etc/mail/aliases.db ]] ; then
-		elog "Creating aliases database."
-		/usr/bin/newaliases
+		ewarn
+		ewarn "You must edit /etc/mail/aliases to suit your needs"
+		ewarn "and then run /usr/bin/newaliases. Postfix will not"
+		ewarn "work correctly without it."
+		ewarn
 	fi
-
-	add_service postfix default
 
 	# check and fix file permissions
 	"${EROOT}"/usr/sbin/postfix set-permissions
@@ -318,11 +312,11 @@ pkg_postinst() {
 	if use ssl ; then
 		if "${EROOT}"/usr/sbin/postfix tls all-default-client; then
 			elog "To configure client side TLS settings:"
-			elog "${EROOT}"usr/sbin/postfix tls enable-client
+			elog "${EROOT}"/usr/sbin/postfix tls enable-client
 		fi
 		if "${EROOT}"/usr/sbin/postfix tls all-default-server; then
 			elog "To configure server side TLS settings:"
-			elog "${EROOT}"usr/sbin/postfix tls enable-server
+			elog "${EROOT}"/usr/sbin/postfix tls enable-server
 		fi
 	fi
 }

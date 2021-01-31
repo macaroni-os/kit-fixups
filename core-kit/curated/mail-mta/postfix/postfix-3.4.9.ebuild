@@ -1,9 +1,8 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit flag-o-matic pam systemd toolchain-funcs user
+inherit flag-o-matic pam toolchain-funcs user
 
 MY_PV="${PV/_rc/-RC}"
 MY_SRC="${PN}-${MY_PV}"
@@ -280,8 +279,6 @@ src_install () {
 		# let the sysadmin decide when to change the compatibility_level
 		sed -i -e /^compatibility_level/"s/^/#/" "${D}"/etc/postfix/main.cf || die
 	fi
-
-	systemd_dounit "${FILESDIR}/${PN}.service"
 }
 
 pkg_preinst() {

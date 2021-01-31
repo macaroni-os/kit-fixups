@@ -146,6 +146,19 @@ dev_python_compat_rule:
         compat: '2.9'
         blocker: '!<dev-python/idna-3'
         license: BSD
+    - importlib_resources:
+        compat: '3.3.1'
+        python_compat: 'pypy3 python3_{7,8}'
+        blocker: '!<dev-python/importlib_resources-4'
+        license: Apache-2.0
+        rdepend: |
+          $(python_gen_cond_dep 'dev-python/zipp[${PYTHON_USEDEP}]' pypy3 python3_{6,7})
+        bdepend: |
+          dev-python/toml[${PYTHON_USEDEP}]
+          >=dev-python/setuptools_scm-3.4.1[${PYTHON_USEDEP}]
+        body: |
+          distutils_enable_tests unittest
+          distutils_enable_sphinx docs dev-python/rst-linker dev-python/jaraco-packaging
     - jdcal:
         python_compat: python2+ pypy3
         homepage: |

@@ -29,6 +29,7 @@ RDEPEND="
 	dev-python/PyQt5[${PYTHON_USEDEP},declarative,multimedia,gui,network,opengl,printsupport,sql,widgets]
 	dev-python/PyQtWebEngine[${PYTHON_USEDEP}]
 	>=dev-python/pyyaml-5.3.1[${PYTHON_USEDEP},libyaml]
+	dev-python/importlib_resources[${PYTHON_USEDEP}]
 "
 
 distutils_enable_tests setup.py

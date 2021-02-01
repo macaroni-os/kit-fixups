@@ -1,14 +1,9 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{6,7} )
-# this ebuild currently only supports installing ruby bindings for a single ruby version
-# so USE_RUBY must contain only a single value (the latest stable) as the ebuild calls
-# /usr/bin/${USE_RUBY} directly
-USE_RUBY="ruby25"
-inherit python-single-r1 qmake-utils ruby-single toolchain-funcs
+PYTHON_COMPAT=( python3+ )
+inherit python-single-r1 qmake-utils toolchain-funcs
 
 DESCRIPTION="Open source multimedia framework for television broadcasting"
 HOMEPAGE="https://www.mltframework.org/"
@@ -16,10 +11,10 @@ SRC_URI="https://github.com/mltframework/${PN}/releases/download/v${PV}/${P}.tar
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="*"
 IUSE="compressed-lumas cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2 debug ffmpeg
-+fftw +frei0r +gtk jack kdenlive kernel_linux libav libsamplerate lua +melt opencv opengl python
-qt5 rtaudio ruby sdl vdpau +vidstab xine xml"
+fftw frei0r gtk jack kdenlive kernel_linux libsamplerate lua melt opencv opengl python
+qt5 rtaudio sdl vdpau vidstab xine xml"
 # java perl php tcl
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -29,24 +24,21 @@ SWIG_DEPEND=">=dev-lang/swig-2.0"
 #	perl? ( ${SWIG_DEPEND} )
 #	php? ( ${SWIG_DEPEND} )
 #	tcl? ( ${SWIG_DEPEND} )
+#	ruby? ( ${SWIG_DEPEND} )
 BDEPEND="
 	virtual/pkgconfig
 	compressed-lumas? ( virtual/imagemagick-tools[png] )
 	lua? ( ${SWIG_DEPEND} virtual/pkgconfig )
 	python? ( ${SWIG_DEPEND} )
-	ruby? ( ${SWIG_DEPEND} )"
+"
 #rtaudio will use OSS on non linux OSes
 DEPEND="
 	>=media-libs/libebur128-1.2.2:=
-	ffmpeg? (
-		libav? ( >=media-video/libav-12:0=[vdpau?] )
-		!libav? ( media-video/ffmpeg:0=[vdpau?,-flite] )
-	)
+	ffmpeg? ( media-video/ffmpeg:0=[vdpau?,-flite] )
 	fftw? ( sci-libs/fftw:3.0= )
-	frei0r? ( >=media-plugins/frei0r-plugins-1.6.1.20190222 )
+	frei0r? ( media-plugins/frei0r-plugins )
 	gtk? (
 		media-libs/libexif
-		x11-libs/gtk+:2
 		x11-libs/pango
 	)
 	jack? (
@@ -55,7 +47,7 @@ DEPEND="
 		virtual/jack
 	)
 	libsamplerate? ( >=media-libs/libsamplerate-0.1.2 )
-	lua? ( >=dev-lang/lua-5.1.4-r4:= )
+	lua? ( >=dev-lang/lua-5.1.4-r4:0= )
 	opencv? ( >=media-libs/opencv-3.2.0:= )
 	opengl? ( media-video/movit )
 	python? ( ${PYTHON_DEPS} )
@@ -72,7 +64,6 @@ DEPEND="
 		>=media-libs/rtaudio-4.1.2
 		kernel_linux? ( media-libs/alsa-lib )
 	)
-	ruby? ( ${RUBY_DEPS} )
 	sdl? (
 		media-libs/libsdl2[X,opengl,video]
 		media-libs/sdl2-image
@@ -83,30 +74,17 @@ DEPEND="
 #	java? ( >=virtual/jre-1.5 )
 #	perl? ( dev-lang/perl )
 #	php? ( dev-lang/php )
+#	ruby? ( ${RUBY_DEPS} )
 #	sox? ( media-sound/sox )
 #	tcl? ( dev-lang/tcl:0= )
 RDEPEND="${DEPEND}"
 
-DOCS=( AUTHORS ChangeLog NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
+DOCS=( AUTHORS NEWS README docs/{framework,melt,mlt{++,-xml}}.txt )
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.10.0-swig-underlinking.patch
-#	"${FILESDIR}"/${P}-mlt_consumer-race-condition.patch
-#	"${FILESDIR}"/${P}-rotoscoping-interpolation.patch
-#	"${FILESDIR}"/${P}-crop-filter.patch
-#	"${FILESDIR}"/${P}-consumer_multi-does-not-correctly-handle-in-point.patch
-#	"${FILESDIR}"/${P}-bad-aspect-ratio-resulting-in-black.patch
+	"${FILESDIR}"/${P}-fix-regression-w-multiple-affine-filters.patch
 )
-
-GITHUB_REPO="mlt"
-GITHUB_USER="mltframework"
-GITHUB_TAG="537a32b"
-SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-
-src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
-}
 
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
@@ -117,16 +95,10 @@ src_prepare() {
 
 	# respect CFLAGS LDFLAGS when building shared libraries. Bug #308873
 	for x in python lua; do
-		sed -i "/mlt.so/s: -lmlt++ :& ${CFLAGS} ${LDFLAGS} :" src/swig/$x/build || die
+		sed -i "/mlt.so/s/ -lmlt++ /& ${CFLAGS} ${LDFLAGS} /" src/swig/$x/build || die
 	done
-	sed -i -e "s/env ruby/${USE_RUBY}/" src/swig/ruby/* || die
 
-	# fix python include dir
-	if use python; then
-		python_export PYTHON_INCLUDEDIR
-		sed -e "/PYTHON_INCLUDE=/s:=.*:=${PYTHON_INCLUDEDIR}:" \
-			-i src/swig/python/build || die
-	fi
+	use python && python_fix_shebang src/swig/python
 }
 
 src_configure() {
@@ -137,6 +109,7 @@ src_configure() {
 		--enable-gpl3
 		--enable-motion-est
 		--target-arch=$(tc-arch)
+		--disable-gtk2
 		--disable-kde
 		--disable-sdl
 		--disable-swfdec
@@ -146,7 +119,7 @@ src_configure() {
 		$(use_enable ffmpeg avformat)
 		$(use_enable fftw plus)
 		$(use_enable frei0r)
-		$(use_enable gtk gtk2)
+		$(use_enable gtk gdk)
 		$(use_enable jack jackrack)
 		$(use_enable kdenlive)
 		$(use_enable libsamplerate resample)
@@ -188,8 +161,8 @@ src_configure() {
 	# see also https://www.mltframework.org/twiki/bin/view/MLT/ExtremeMakeover
 
 	local swig_lang=()
-	# TODO: java perl php tcl
-	for i in lua python ruby ; do
+	# not done: java perl php ruby tcl
+	for i in lua python ; do
 		use $i && swig_lang+=( $i )
 	done
 	[[ -z "${swig_lang}" ]] && swig_lang=( none )
@@ -202,7 +175,6 @@ src_configure() {
 src_install() {
 	default
 
-	dodir /usr/share/${PN}
 	insinto /usr/share/${PN}
 	doins -r demo
 
@@ -218,19 +190,11 @@ src_install() {
 
 	if use python; then
 		cd "${S}"/src/swig/python || die
-		insinto $(python_get_sitedir)
-		doins mlt.py
-		exeinto $(python_get_sitedir)
-		doexe _mlt.so
+		python_domodule mlt.py _mlt.so
+		chmod +x "${D}$(python_get_sitedir)/_mlt.so" || die
 		dodoc play.py
 		python_optimize
 	fi
 
-	if use ruby; then
-		cd "${S}"/src/swig/ruby || die
-		exeinto $("${EPREFIX}"/usr/bin/${USE_RUBY} -r rbconfig -e 'print RbConfig::CONFIG["sitearchdir"]')
-		doexe mlt.so
-		dodoc play.rb thumbs.rb
-	fi
-	# TODO: java perl php tcl
+	# not done: java perl php ruby tcl
 }

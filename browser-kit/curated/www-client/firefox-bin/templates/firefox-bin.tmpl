@@ -29,7 +29,7 @@ RESTRICT="strip mirror"
 KEYWORDS="-* amd64 x86"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+alsa +ffmpeg +pulseaudio selinux startup-notification"
+IUSE="+alsa +ffmpeg geckodriver +pulseaudio selinux startup-notification"
 
 DEPEND="app-arch/unzip
 	alsa? (
@@ -62,6 +62,7 @@ RDEPEND="dev-libs/atk
 			media-sound/apulse
 		)
 	)
+	geckodriver? ( www-apps/geckodriver )
 	pulseaudio? ( media-sound/pulseaudio )
 	ffmpeg? ( media-video/ffmpeg )
 	selinux? ( sec-policy/selinux-mozilla )

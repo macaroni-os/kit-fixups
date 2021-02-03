@@ -19,6 +19,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
+	x11-terms/kitty-terminfo
 	media-libs/fontconfig
 	media-libs/freetype:2
 	>=media-libs/harfbuzz-1.5.0:=
@@ -51,9 +52,9 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-0.17.2-flags.patch
-	"${FILESDIR}"/${PN}-0.14.4-svg-icon.patch
-	"${FILESDIR}"/${PN}-0.19.1-tests.patch
+	{%- for patch in patches %}
+		{{gen_path}}/files/{{patch}}
+	{%- endfor %}
 )
 
 src_prepare() {

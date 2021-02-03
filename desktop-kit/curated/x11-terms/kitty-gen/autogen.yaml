@@ -1,0 +1,13 @@
+kitty-gen_rule:
+  defaults:
+    cat: x11-terms
+  packages:
+    - kitty:
+        patches:
+          - kitty-0.14.4-svg-icon.patch
+          - kitty-0.16.0-remove-terminfo.patch
+          - kitty-0.17.2-flags.patch
+          - kitty-0.19.1-tests.patch
+    - kitty-terminfo:
+        patches:
+          - kitty-terminfo-setup-0.19.1.patch

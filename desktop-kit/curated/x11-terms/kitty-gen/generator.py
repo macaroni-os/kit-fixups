@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 
+from packaging import version
+
 
 def get_release(release_data):
-	releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False, release_data))
-	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
+	releases = list(
+		filter(lambda x: x["prerelease"] is False and x["draft"] is False, release_data)
+	)
+	return (
+		None
+		if not releases
+		else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
+	)
 
 
 async def generate(hub, **pkginfo):
 	user = "kovidgoyal"
-	repo = pkginfo["name"]
+	repo = "kitty"
 	releases_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
 	)
@@ -19,6 +27,10 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version.lstrip("v"),
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/archive/{version}.tar.gz")],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(
+				url=f"https://github.com/{user}/{repo}/archive/{version}.tar.gz"
+			)
+		],
 	)
 	ebuild.push()

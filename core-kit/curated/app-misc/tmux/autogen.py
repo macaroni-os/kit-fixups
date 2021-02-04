@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 
-
 async def generate(hub, **pkginfo):
 
 	github_user = "tmux"

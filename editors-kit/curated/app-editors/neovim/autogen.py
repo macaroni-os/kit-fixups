@@ -18,22 +18,16 @@ def generate_ebuild(hub, repo_name, release_data, commit_data, is_stable, **pkgi
 	is_snapshot = False
 	if curr_release is None:
 		if is_stable:
-			raise hub.pkgtools.ebuild.BreezyError(
-				f"Can't find a suitable stable release of {repo_name}"
-			)
+			raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable stable release of {repo_name}")
 		else:
-			print(
-				f"Nightly release of {repo_name} not found, generating a snapshot ebuild instead."
-			)
+			print(f"Nightly release of {repo_name} not found, generating a snapshot ebuild instead.")
 			is_snapshot = True
 
 	version = ""
 	src_name = ""
 	if is_snapshot:
 		src_name = commit_data["sha"]
-		commit_date = datetime.strptime(
-			commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ"
-		)
+		commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 		version = commit_date.strftime("%Y%m%d")
 	else:
 		src_name = curr_release["tag_name"]
@@ -55,9 +49,7 @@ def generate_ebuild(hub, repo_name, release_data, commit_data, is_stable, **pkgi
 
 async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
-	release_data = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{name}/{name}/releases", is_json=True
-	)
+	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/releases", is_json=True)
 	commit_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{name}/{name}/commits/master", is_json=True
 	)

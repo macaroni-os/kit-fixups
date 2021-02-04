@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
 		version=version,
 		github_user=github_user,
 		github_repo=github_repo,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
 	)
 	ebuild.push()
 
@@ -38,7 +38,7 @@ async def generate(hub, **pkginfo):
 			version="1.5.4_p1",
 			github_user=github_user,
 			github_repo=github_repo,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=url_wanted, final_name=final_name_wanted)]
+			artifacts=[hub.pkgtools.ebuild.Artifact(url=url_wanted, final_name=final_name_wanted)],
 		)
 		ebuild.push()
 

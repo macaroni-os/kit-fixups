@@ -25,4 +25,6 @@ async def generate(hub, **pkginfo):
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{app}-{version}.tar.gz")],
 	)
 	ebuild.push()
+
+
 # vim: ts=4 sw=4 noet

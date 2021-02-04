@@ -2,6 +2,7 @@
 
 import json
 
+
 async def generate(hub, **pkginfo):
 
 	github_user = "sudo-project"
@@ -13,11 +14,11 @@ async def generate(hub, **pkginfo):
 	for release in json_list:
 		if release["prerelease"] or release["draft"]:
 			continue
-		version = release["tag_name"].replace('SUDO_','').replace('_','.')
+		version = release["tag_name"].replace("SUDO_", "").replace("_", ".")
 		url = f"https://www.sudo.ws/sudo/dist/{app}-{version}.tar.gz"
 		break
-		
-	version = version.replace('p','_p')
+
+	version = version.replace("p", "_p")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

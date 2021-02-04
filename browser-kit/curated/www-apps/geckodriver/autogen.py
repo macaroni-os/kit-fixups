@@ -8,14 +8,8 @@ from packaging import version
 
 
 def get_release(releases_data):
-	releases = list(
-		filter(lambda x: x["prerelease"] is False and x["draft"] is False, releases_data)
-	)
-	return (
-		None
-		if not releases
-		else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
-	)
+	releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False, releases_data))
+	return None if not releases else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
 
 
 async def get_crates_artifacts(github_repo, lock_path):
@@ -28,17 +22,9 @@ async def get_crates_artifacts(github_repo, lock_path):
 		if package["name"] == github_repo:
 			continue
 		crates = crates + package["name"] + "-" + package["version"] + "\n"
-		crates_url = (
-			"https://crates.io/api/v1/crates/"
-			+ package["name"]
-			+ "/"
-			+ package["version"]
-			+ "/download"
-		)
+		crates_url = "https://crates.io/api/v1/crates/" + package["name"] + "/" + package["version"] + "/download"
 		crates_file = package["name"] + "-" + package["version"] + ".crate"
-		crates_artifacts.append(
-			hub.pkgtools.ebuild.Artifact(url=crates_url, final_name=crates_file)
-		)
+		crates_artifacts.append(hub.pkgtools.ebuild.Artifact(url=crates_url, final_name=crates_file))
 	return dict(crates=crates, crates_artifacts=crates_artifacts)
 
 
@@ -50,22 +36,16 @@ async def generate(hub, **pkginfo):
 	)
 	latest_release = get_release(json_list)
 	if latest_release is None:
-		raise hub.pkgtools.ebuild.BreezyError(
-			f"Can't find a suitable release of {github_repo}"
-		)
+		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {github_repo}")
 	version = latest_release["tag_name"]
 	url = latest_release["tarball_url"]
 	final_name = f"{github_repo}-{version}.tar.gz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 	await src_artifact.fetch()
 	src_artifact.extract()
-	src_dir = glob.glob(
-		os.path.join(src_artifact.extract_path, f"{github_user}-{github_repo}-*")
-	)[0]
+	src_dir = glob.glob(os.path.join(src_artifact.extract_path, f"{github_user}-{github_repo}-*"))[0]
 	cargo_cmd = subprocess.Popen(["cargo", "update"], cwd=src_dir).wait()
-	artifacts = await get_crates_artifacts(
-		github_repo, os.path.join(src_dir, "Cargo.lock")
-	)
+	artifacts = await get_crates_artifacts(github_repo, os.path.join(src_dir, "Cargo.lock"))
 	src_artifact.cleanup()
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

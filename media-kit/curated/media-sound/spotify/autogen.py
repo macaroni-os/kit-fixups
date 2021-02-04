@@ -9,9 +9,7 @@ from bs4 import BeautifulSoup
 def get_release(releases_data):
 	name_pattern = re.compile("(spotify-client_([\d\.]*)\..*_amd64.deb)")
 	matches = [name_pattern.match(x["href"]) for x in releases_data]
-	releases = sorted(
-		(x.groups() for x in matches if x), key=lambda x: version.parse(x[1])
-	)
+	releases = sorted((x.groups() for x in matches if x), key=lambda x: version.parse(x[1]))
 	return releases.pop() if releases else None
 
 

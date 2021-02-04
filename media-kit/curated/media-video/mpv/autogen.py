@@ -24,9 +24,7 @@ async def generate(hub, **pkginfo):
 		break
 	commit_data = await query_github_api(github_user, github_repo, "commits/master")
 	commit_hash = commit_data["sha"]
-	commit_date = datetime.strptime(
-		commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ"
-	)
+	commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	version += "." + commit_date.strftime("%Y%m%d")
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'

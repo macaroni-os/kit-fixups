@@ -190,16 +190,16 @@ esac
 case ${KDE_AUTODEPS} in
 	false)	;;
 	*)
-		BDEPEND+=" $(add_frameworks_dep extra-cmake-modules)"
-		RDEPEND+=" >=kde-frameworks/kf-env-4"
-		COMMONDEPEND+=" $(add_qt_dep qtcore)"
-
 		# all packages need breeze/oxygen icons for basic iconset, bug #564838
 		if [[ ${PN} != breeze-icons && ${PN} != oxygen-icons ]]; then
 			RDEPEND+=" || ( $(add_frameworks_dep breeze-icons) kde-frameworks/oxygen-icons:* )"
 		fi
 		;;
 esac
+
+BDEPEND+=" $(add_frameworks_dep extra-cmake-modules)"
+RDEPEND+=" >=kde-frameworks/kf-env-4"
+COMMONDEPEND+=" $(add_qt_dep qtcore)"
 
 case ${KDE_DEBUG} in
 	false)	;;

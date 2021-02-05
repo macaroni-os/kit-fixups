@@ -212,7 +212,10 @@ case ${KDE_DESIGNERPLUGIN} in
 	false)  ;;
 	*)
 		IUSE+=" designer"
-		BDEPEND+=" designer? ( $(add_frameworks_dep kdesignerplugin) )"
+		BDEPEND+=" designer? (
+			$(add_frameworks_dep kdesignerplugin)
+			$(add_qt_dep designer)
+		)"
 esac
 
 case ${KDE_EXAMPLES} in

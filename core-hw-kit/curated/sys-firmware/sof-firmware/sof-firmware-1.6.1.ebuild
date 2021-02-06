@@ -9,7 +9,7 @@ SRC_URI="https://github.com/thesofproject/sof-bin/archive/stable-v${PV}.tar.gz -
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE=""
 
 S=${WORKDIR}/sof-bin-stable-v${PV}

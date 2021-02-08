@@ -649,7 +649,6 @@ testing_deps_rule:
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
     # TODO: move all the pytest stuff over here.
     # TODO: add pytest-pop, silly.
-    - setuptools_scm
     - setuptools-declarative-requirements:
         pydeps:
           - setuptools_scm
@@ -770,6 +769,42 @@ salt_stuff_rule:
           - jinja
           - toml
 
+dev_python_simplified_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - setuptools_scm
+    - setuptools-rust:
+        pydeps:
+          py:all:
+            - wheel
+            - semantic_version
+            - toml
+    - cryptography:
+        compat: '3.3.2'
+        blocker: "!<dev-python/cryptography-3.3.2"
+        iuse: libressl idna
+        license: "|| ( Apache-2.0 BSD )"
+        desc: |
+          Library providing cryptographic recipes and primitives
+        depend: |
+          libressl? ( dev-libs/libressl:0= )
+          !libressl? ( dev-libs/openssl:0= )
+        pydeps:
+          py:3:
+            - setuptools-rust
+          py:all:
+            - setuptools
+            - six >= 1.4.1
+            - virtual/python-enum34
+            - virtual/python-ipaddress
+            - cffi >= 1.11.3
+          use:idna:
+            - idna >= 2.1
+
+
 dev_python_autogen_rule:
   defaults:
     cat: dev-python
@@ -807,8 +842,6 @@ dev_python_autogen_rule:
     - click:
         python_compat: python2+ pypy3
     - cloudflare
-    - cryptography:
-        python_compat: python2+ pypy{,3}
     - cython:
         python_compat: python2+ pypy3
         pypi_name: Cython
@@ -941,8 +974,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - secretstorage:
         python_compat: python3+ pypy3
-    - setuptools_scm:
-        python_compat: python2+ pypy3
     - six:
         python_compat: python2+ pypy{,3}
     - snowballstemmer:

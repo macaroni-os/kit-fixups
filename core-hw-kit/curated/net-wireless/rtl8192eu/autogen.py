@@ -23,15 +23,11 @@ async def generate(hub, **pkginfo):
 
 	commits = await query_github_api(github_user, github_repo, "commits?sha=realtek-4.4.x")
 
-	valid_commits = (
-		commit for commit in commits if await is_valid(github_user, github_repo, commit)
-	)
+	valid_commits = (commit for commit in commits if await is_valid(github_user, github_repo, commit))
 
 	target_commit = await valid_commits.__anext__()
 
-	commit_date = datetime.strptime(
-		target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ"
-	)
+	commit_date = datetime.strptime(target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	commit_hash = target_commit["sha"]
 	version = commit_date.strftime("%Y%m%d")
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"

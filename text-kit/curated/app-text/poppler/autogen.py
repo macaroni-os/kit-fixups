@@ -26,15 +26,19 @@ async def generate(hub, **pkginfo):
 	await artifact.fetch()
 	artifact.extract()
 	# needed for subslot changes in the future
-	cmake_file = open(glob.glob(os.path.join(artifact.extract_path, f"{GITHUB_USER}-{GITHUB_REPO}-*", "CMakeLists.txt"))[0]).read()
+	cmake_file = open(
+		glob.glob(os.path.join(artifact.extract_path, f"{GITHUB_USER}-{GITHUB_REPO}-*", "CMakeLists.txt"))[0]
+	).read()
 	soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
 	subslot = soversion.group(1)
-	template_args = dict(GITHUB_USER=GITHUB_USER,GITHUB_REPO=GITHUB_REPO,subslot=subslot)
+	template_args = dict(GITHUB_USER=GITHUB_USER, GITHUB_REPO=GITHUB_REPO, subslot=subslot)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=tarball_url, final_name=f"{PN}-{version}.tar.gz"),],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=tarball_url, final_name=f"{PN}-{version}.tar.gz"),
+		],
 		**template_args,
 	)
 	ebuild.push()

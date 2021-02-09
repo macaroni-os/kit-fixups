@@ -25,6 +25,7 @@ COMMON_DEPEND=">=dev-db/sqlite-3.4:3
 	dev-qt/qtsql:5
 	dev-qt/qtsvg:5
 	dev-qt/qtwebengine:5[widgets]
+	dev-qt/qtwebsockets:5
 	dev-qt/qtwidgets:5
 	dev-qt/qtxml:5
 	sys-fs/inotify-tools

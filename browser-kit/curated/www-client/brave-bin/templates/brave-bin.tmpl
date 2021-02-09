@@ -27,6 +27,7 @@ RDEPEND="
 	${DEPEND}
 	dev-libs/libpthread-stubs
 	x11-libs/libxcb
+	x11-libs/libxkbcommon
 	x11-libs/libXcomposite
 	x11-libs/libXcursor
 	x11-libs/libXdamage

@@ -787,6 +787,11 @@ dev_python_simplified_rule:
         blocker: "!<dev-python/cryptography-3.3.2"
         iuse: libressl idna
         license: "|| ( Apache-2.0 BSD )"
+        body: |
+          src_prepare() {
+            default
+            export CRYPTOGRAPHY_DONT_BUILD_RUST=1
+          }
         desc: |
           Library providing cryptographic recipes and primitives
         depend: |

@@ -55,6 +55,11 @@ PATCHES=(
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
 
+src_unpack() {
+	unpack $A
+	mv ${WORKDIR}/{{GITHUB_USER}}-{{GITHUB_REPO}}-* ${S} || die
+}
+
 src_prepare() {
 	cmake_src_prepare
 

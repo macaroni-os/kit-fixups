@@ -15,11 +15,15 @@ async def generate(hub, **pkginfo):
 	# the latest tag is the first dict in the returned list of tag dicts
 	version = tags[0].get("name")
 	tarball_url = tags[0].get("tarball_url")
-	template_args = dict(GITHUB_USER=GITHUB_USER,)
+	template_args = dict(
+		GITHUB_USER=GITHUB_USER,
+	)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=tarball_url, final_name=f"{PN}-{version}.tgz"),],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=tarball_url, final_name=f"{PN}-{version}.tgz"),
+		],
 		**template_args,
 	)
 	ebuild.push()

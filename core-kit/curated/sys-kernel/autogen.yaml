@@ -33,7 +33,6 @@
 # ikconfig.patch                  FL-3381: enable IKCONFIG
 # fix-bluetooth-polling.patch     increase bluetooth polling (for mice)
 # amdgpu-picasso.patch            add support for newer AMD APUs to AMDGPU.
-# export_kernel_fpu_functions_5_3.patch (needs description)
 # extra_cpu_optimizations.patch   enable expanded gcc CPU optimizations from
 #                                 https://github.com/graysky2/kernel_gcc_patch
 
@@ -46,10 +45,10 @@ stable_kernel_gen:
   packages:
     - debian-sources-lts:
         versions:
-          4.19.152_p1:
+          4.19.160_p2:
             unmasked: True
-            deb_pv_base: 4.19.152
-            deb_extraversion: 1
+            deb_pv_base: 4.19.160
+            deb_extraversion: 2
             patches:
               - xfs-libcrc32c-fix.patch
               - mcelog.patch
@@ -67,6 +66,26 @@ unstable_kernel_gen:
   packages:
     - debian-sources:
         versions:
+          5.10.9_p1:
+            deb_pv_base: 5.10.9
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - extra_cpu_optimizations.patch
+          5.9.15_p1:
+            deb_pv_base: 5.9.15
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - extra_cpu_optimizations.patch
           5.9.6_p1:
             unmasked: True
             deb_pv_base: 5.9.6
@@ -77,6 +96,5 @@ unstable_kernel_gen:
               - nocerts.patch
               - ikconfig.patch
               - fix-bluetooth-polling.patch
-              - export_kernel_fpu_functions_5_3.patch
               - extra_cpu_optimizations.patch
 

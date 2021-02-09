@@ -4,6 +4,26 @@ dev_python_autogen_rule:
     python_compat: python3+
   generator: pypi-1
   packages:
+    - fchroot
+
+simple_autogen_rule:
+  defaults:
+    cat: sys-apps
+    python-compat: python3+
+  generator: pypi-simple-1
+  packages:
     - metatools:
         pypi_name: funtoo-metatools
-    - fchroot
+        desc: "Funtoo's metatools -- autogeneration framework."
+        license: Apache-2.0
+        pydeps:
+          py:all:
+            - aiofiles
+            - aiodns
+            - aiohttp
+            - beautifulsoup
+            - dict-toolbox
+            - jinja
+            - toml
+            - www-servers/tornado
+            - xmltodict

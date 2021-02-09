@@ -24,7 +24,7 @@ async def get_crates_artifacts(hub, github_user, github_repo, crate_name, versio
 async def generate(hub, **pkginfo):
 	github_user = "sharkdp"
 	github_repo = pkginfo["name"]
-	crate_name = pkginfo["name"]
+	crate_name = "fd-find"
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)
@@ -42,7 +42,10 @@ async def generate(hub, **pkginfo):
 		crates=artifacts["crates"],
 		github_user=github_user,
 		github_repo=github_repo,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name), *artifacts["crates_artifacts"],],
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name),
+			*artifacts["crates_artifacts"],
+		],
 	)
 	ebuild.push()
 

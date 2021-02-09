@@ -1,0 +1,57 @@
+diff --git a/lib/_emerge/EbuildPhase.py b/lib/_emerge/EbuildPhase.py
+index 4104cefa7..7aca9168f 100644
+--- a/lib/_emerge/EbuildPhase.py
++++ b/lib/_emerge/EbuildPhase.py
+@@ -15,7 +15,7 @@ from _emerge.CompositeTask import CompositeTask
+ from _emerge.PackagePhase import PackagePhase
+ from _emerge.TaskSequence import TaskSequence
+ from portage.package.ebuild.prepare_build_dirs import (_prepare_workdir,
+-		_prepare_fake_distdir, _prepare_fake_filesdir)
++		_prepare_fake_distdir, _prepare_fake_filesdir, _prepare_fake_repodir)
+ from portage.util import writemsg
+ from portage.util._async.AsyncTaskFuture import AsyncTaskFuture
+ 
+@@ -184,6 +184,7 @@ class EbuildPhase(CompositeTask):
+ 			alist = self.settings.configdict["pkg"].get("A", "").split()
+ 			_prepare_fake_distdir(self.settings, alist)
+ 			_prepare_fake_filesdir(self.settings)
++			_prepare_fake_repodir(self.settings)
+ 
+ 		fd_pipes = self.fd_pipes
+ 		if fd_pipes is None:
+diff --git a/lib/portage/package/ebuild/doebuild.py b/lib/portage/package/ebuild/doebuild.py
+index 584ff798b..f09762455 100644
+--- a/lib/portage/package/ebuild/doebuild.py
++++ b/lib/portage/package/ebuild/doebuild.py
+@@ -408,6 +408,7 @@ def doebuild_environment(myebuild, mydo, myroot=None, settings=None,
+ 	mysettings["D"] = os.path.join(mysettings["PORTAGE_BUILDDIR"], "image") + os.sep
+ 	mysettings["T"] = os.path.join(mysettings["PORTAGE_BUILDDIR"], "temp")
+ 	mysettings["FILESDIR"] = os.path.join(settings["PORTAGE_BUILDDIR"], "files")
++	mysettings["REPODIR"] = os.path.join(settings["PORTAGE_BUILDDIR"], "repo")
+ 
+ 	# Prefix forward compatability
+ 	eprefix_lstrip = mysettings["EPREFIX"].lstrip(os.sep)
+diff --git a/lib/portage/package/ebuild/prepare_build_dirs.py b/lib/portage/package/ebuild/prepare_build_dirs.py
+index c325819d1..b2f467846 100644
+--- a/lib/portage/package/ebuild/prepare_build_dirs.py
++++ b/lib/portage/package/ebuild/prepare_build_dirs.py
+@@ -413,6 +413,19 @@ def _prepare_fake_filesdir(settings):
+ 			os.unlink(symlink_path)
+ 			os.symlink(real_filesdir, symlink_path)
+ 
++def _prepare_fake_repodir(settings):
++	real_repodir = os.path.normpath(os.path.join(os.path.dirname(settings["EBUILD"]), "../.."))
++	symlink_path = os.path.dirname(settings["FILESDIR"]) + "/repo"
++	try:
++		link_target = os.readlink(symlink_path)
++	except OSError:
++		os.symlink(real_repodir, symlink_path)
++	else:
++		if link_target != real_repodir:
++			os.unlink(symlink_path)
++			os.symlink(real_repodir, symlink_path)
++
++
+ def _prepare_fake_distdir(settings, alist):
+ 	orig_distdir = settings["DISTDIR"]
+ 	edpath = os.path.join(settings["PORTAGE_BUILDDIR"], "distdir")

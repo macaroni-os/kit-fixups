@@ -2,23 +2,21 @@
 
 EAPI=7
 
-inherit linux-info
+inherit linux-info user
 
 DESCRIPTION="Secure and fast microVMs for serverless computing (static build)"
 HOMEPAGE="https://firecracker-microvm.github.io https://github.com/firecracker-microvm/firecracker"
 SRC_URI="
 	amd64? (
-		https://github.com/firecracker-microvm/firecracker/releases/download/v${PV}/firecracker-v${PV}-x86_64
-		https://github.com/firecracker-microvm/firecracker/releases/download/v${PV}/jailer-v${PV}-x86_64
+		{{artifacts[0].src_uri}}
 	)
 	arm64? (
-		https://github.com/firecracker-microvm/firecracker/releases/download/v${PV}/firecracker-v${PV}-aarch64
-		https://github.com/firecracker-microvm/firecracker/releases/download/v${PV}/jailer-v${PV}-aarch64
+		{{artifacts[1].src_uri}}
 	)"
 
-LICENSE="|| ( Apache-2.0 MIT Apache-2.0-with-LLVM-exceptions ) MPL-2.0"
+LICENSE="|| ( Apache-2.0 BSD-3 )"
 SLOT="0"
-KEYWORDS="-* ~amd64"
+KEYWORDS="~amd64 ~aarch64"
 
 RESTRICT="test strip"
 
@@ -69,7 +67,10 @@ pkg_pretend() {
 	fi
 }
 
-src_unpack() { :; }
+src_unpack() {
+	unpack ${A}
+}
+
 src_compile() { :; }
 
 src_install() {
@@ -79,8 +80,8 @@ src_install() {
 		my_arch=aarch64
 	fi
 
-	newbin "${DISTDIR}/firecracker-v${PV}-${my_arch}" firecracker
-	newbin "${DISTDIR}/jailer-v${PV}-${my_arch}" jailer
+	newbin "${WORKDIR}/release-v${PV}/firecracker-v${PV}-${my_arch}" firecracker
+	newbin "${WORKDIR}/release-v${PV}/jailer-v${PV}-${my_arch}" jailer
 }
 
 

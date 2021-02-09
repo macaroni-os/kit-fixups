@@ -1,0 +1,36 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{crates}}"
+
+inherit cargo
+
+DESCRIPTION="rga is a line-oriented search tool that allows you to look for a regex in a multitude of file types"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{artifacts[0].src_uri}}
+	$(cargo_crate_uris ${CRATES})"
+
+LICENSE="GPL"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+RDEPEND="
+	virtual/rust
+	|| (
+		app-text/pandoc-bin
+		app-text/pandoc
+	)
+	app-text/poppler
+	media-video/ffmpeg
+	sys-apps/ripgrep
+"
+
+src_unpack() {
+	cargo_src_unpack
+
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}

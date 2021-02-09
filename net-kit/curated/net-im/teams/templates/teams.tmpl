@@ -49,6 +49,8 @@ DEPEND="${RDEPEND}"
 
 S="${WORKDIR}"
 
+QA_PREBUILT="*"
+
 src_unpack() {
 	unpack ${A}
 	rm _gpgorigin control.tar.gz debian-binary
@@ -57,6 +59,7 @@ src_unpack() {
 
 src_prepare() {
 	sed -i -e "s#Exec=.*teams#Exec=/opt/teams/bin/teams#g" -e "s#Icon=.*teams#Icon=/opt/teams/share/pixmaps/teams#g" usr/share/applications/teams.desktop
+	sed -i '/OnlyShowIn/d' usr/share/applications/teams.desktop
 	default
 }
 
@@ -76,6 +79,7 @@ src_install() {
 	exec /opt/${PN}/bin/${PN} "\$@"
 	EOF
 	fperms 0755 /usr/bin/${PN}
+	fperms 4755 /opt/teams/share/teams/chrome-sandbox
 
 	dosym '/opt/teams/share/applications/teams.desktop' /usr/share/applications/teams.desktop
 }

@@ -10,11 +10,16 @@ eclasses:
 - faustoo:
   - waf
   - googlecode
+- gentoo-staging-late-2020:
+  - llvm
+  - llvm.org
+  - cmake
+  - cmake-utils
+  - cmake-multilib
 packages:
 - flora:
   - sys-fs/mdev
   - sys-fs/smdev
-  - sys-boot/etcher-bin
 - gentoo-staging:
   - net-misc/whois
   - net-misc/mobile-broadband-provider-info
@@ -109,7 +114,6 @@ packages:
   - app-misc/screen
   - app-misc/mime-types
   - app-misc/realpath
-  - app-misc/tmux
   - sys-libs/pinktrace
   - sys-libs/lib-compat-loki
   - sys-libs/freeipmi
@@ -204,7 +208,6 @@ packages:
   - dev-libs/libpipeline
   - dev-libs/libgpg-error
   - dev-libs/libxslt
-  - app-editors/nano
   - sys-kernel/spl
   - sys-kernel/dracut
   - app-shells/bash
@@ -478,7 +481,6 @@ packages:
   - sys-auth/realtime-base
   - app-shells/bash-completion
   - app-shells/dash
-  - app-shells/fish
   - app-shells/fzf
   - app-shells/gentoo-bashcomp
   - app-shells/gentoo-zsh-completions

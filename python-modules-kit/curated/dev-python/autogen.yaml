@@ -10,6 +10,14 @@
 # (drobbins, 2020-10-30)
 #
 
+funtoo_stuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - subpop
+
 botostuff:
   defaults:
     cat: dev-python
@@ -98,6 +106,7 @@ stuff_orphaned_in_python2:
         version: 4.0.2
         pydeps:
           - backports
+          - setuptools_scm
         body: |
           post_src_install() {
             # This is installed by backports:
@@ -141,7 +150,22 @@ dev_python_compat_rule:
           An implementation of lxml.xmlfile for the standard library
         homepage: |
           https://pypi.org/project/et_xmlfile/
-          https://pypi.org/project/et_xmlfile/
+    - idna:
+        compat: '2.9'
+        blocker: '!<dev-python/idna-3'
+        license: BSD
+    - importlib_resources:
+        compat: '3.3.1'
+        python_compat: 'pypy3 python3_{7,8}'
+        blocker: '!<dev-python/importlib_resources-4'
+        license: Apache-2.0
+        rdepend: |
+          $(python_gen_cond_dep 'dev-python/zipp[${PYTHON_USEDEP}]' pypy3 python3_{6,7})
+        bdepend: |
+          dev-python/toml[${PYTHON_USEDEP}]
+          >=dev-python/setuptools_scm-3.4.1[${PYTHON_USEDEP}]
+        body: |
+          distutils_enable_sphinx docs dev-python/rst-linker dev-python/jaraco-packaging
     - jdcal:
         python_compat: python2+ pypy3
         homepage: |
@@ -185,6 +209,17 @@ dev_python_compat_rule:
         compat: '4.3.0'
         blocker: '!<dev-python/more-itertools-8'
         homepage: 'https://pypi.org/project/more-itertools/'
+    - mwparserfromhell:
+        compat: '0.5.4'
+        blocker: '!<dev-python/mwparserfromhell-0.6'
+    - pycountry:
+        compat: '18.12.8'
+        blocker: '!<dev-python/pycountry-19.7.15'
+        homepage: https://github.com/flyingcircusio/pycountry
+        license: LGPL-2.1
+        restrict: test
+        pydeps:
+          - setuptools
     - pyhamcrest:
         compat: '1.9.0'
         blocker: '!<dev-python/pyhamcrest-2.0.0'
@@ -313,6 +348,43 @@ dev_python_compat_rule:
           https://github.com/martinblech/xmltodict
         bdepend:
           dev-python/setuptools[$PYTHON_USEDEP]
+    - zstandard:
+        compat: '0.14.1'
+        blocker: '!<dev-python/zstandard-0.15.0'
+        desc: Zstandard Bindings for Python
+        homepage: https://pypi.org/project/zstandard/ https://github.com/indygreg/python-zstandard
+        license: BSD
+        iuse: test
+        restrict: '!test? ( test )'
+        rdepend: 'dev-python/cffi:=[${PYTHON_USEDEP}]'
+        depend: 'test? ( dev-python/hypothesis[${PYTHON_USEDEP}] )'
+        body: |
+          python_compile() {
+            local MAKEOPTS=-j1
+            distutils-r1_python_compile
+          }
+          python_test() {
+            esetup.py test
+          }
+    - importlib_metadata:
+        compat: '2.1.1'
+        blocker: '!<=dev-python/importlib_metadata-3.4.0-r1'
+        desc: Read metadata from Python packages
+        homepage: https://importlib-metadata.readthedocs.io/
+        license: Apache-2.0
+        pydeps:
+          py:all:
+            - setuptools_scm
+            - zipp
+          py:3:
+            - typing-extensions >= 3.6.4
+          py:2:
+            - configparser >= 3.5
+            - contextlib2
+            - pathlib2
+        body: |
+          distutils_enable_sphinx "${PN}/docs" '>=dev-python/rst-linker-1.9'
+        revision: 2
 
 simple_python_autogen_rule:
   defaults:
@@ -324,6 +396,8 @@ simple_python_autogen_rule:
         desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
         license: Apache-2.0
+        pydeps:
+          - msgpack
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
@@ -334,6 +408,22 @@ simple_python_autogen_rule:
         desc: ANSI escape character sequences for colored terminal text & cursor positioning
         homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
         license: BSD
+    - fetchcord:
+        cat: net-im
+        pypi_name: FetchCord
+        desc: FetchCord grabs your OS info and displays it as Discord Rich Presence
+        homepage: https://github.com/MrPotatoBobx/FetchCord
+        license: MIT
+        pydeps:
+          py:all:
+            - setuptools
+            - psutil
+            - pypresence
+        depend: |
+          net-im/discord-bin
+          app-misc/neofetch
+          x11-apps/mesa-progs
+        python_compat: python3+
     - rfc3986:
         desc: A Python implementation of RFC 3986 including validation and authority parsing
         homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
@@ -356,7 +446,118 @@ simple_python_autogen_rule:
         license: GPL-2
         restrict: test
         rdepend: dev-python/lxml[${PYTHON_USEDEP}]
+    - pypresence:
+        desc: A Discord RPC library in Python
+        homepage: https://qwertyquerty.github.io/pypresence/html/index.html
+        license: MIT
+        pydeps:
+          py:all:
+            - setuptools
+        python_compat: python3+
+    - requests:
+        revision: 1
+        desc: HTTP library for human beings
+        homepage: https://requests.readthedocs.io/en/master/
+        license: Apache-2.0
+        iuse: socks5 +ssl
+        pydeps:
+          py:all:
+            - certifi >= 2017.4.17
+            - chardet
+            - idna
+            - urllib3
+          use:socks5:
+            - PySocks >= 1.5.6
+          use:ssl:
+            - cryptography >= 1.3.4
+            - pyopenssl >= 0.14
+        python_compat: python2+ pypy{,3}
+        body: |
+          # FL-7939: relax deps for idna
+          src_prepare() {
+            sed -i -e '/^idna/c idna' requests.egg-info/requires.txt || die
+            sed -i -e "s/'idna.*$/'idna',/" setup.py || die
+            distutils-r1_src_prepare
+          }
+    - thefuck:
+        cat: app-shells
+        desc: Magnificent app which corrects your previous console command
+        homepage: https://github.com/nvbn/thefuck
+        license: MIT
+        pydeps:
+          py:all:
+            - psutil
+            - six
+            - decorator
+            - colorama
+            - pyte
+        python_compat: python3+
+        body: |
+          python_prepare_all() {
+            sed -i -e "/import pip/s/^/#/" -e "/pip.__version__/,+3 s/^/#/" setup.py || die
+            distutils-r1_python_prepare_all
+          }
+    - iniparse:
+        desc: Better INI parser for Python
+        homepage: https://pypi.org/project/iniparse
+        license: MIT PSF-2
+        python_compat: python2+
+        pydeps:
+          py:all:
+            - six >= 1.10.0
+    - translate-toolkit:
+        desc: Toolkit to convert between many translation formats
+        homepage: https://github.com/translate/translate
+        license: GPL-2
+        du_setuptools: 'rdepend'
+        iuse: +html +ical +ini +subtitles +yaml
+        restrict: test
+        pydeps:
+          py:all:
+            - six >= 1.11.0
+            - chardet >= 3.0.4
+            - cheroot
+            - lxml >= 4.3.1
+            - pycountry >= 19.8.18
+            - python-levenshtein >= 0.12.0
+            - ruamel-yaml
+          use:html:
+            - utidylib
+          use:ical:
+            - vobject
+          use:ini:
+            - iniparse >= 0.5
+          use:yaml:
+            - pyyaml
+        rdepend: |
+          !dev-python/pydiff
+          app-text/iso-codes
+          sys-devel/gettext
+          subtitles? ( media-video/gaupol[${PYTHON_USEDEP}] )
+        body: |
+          distutils_enable_sphinx docs dev-python/sphinx-bootstrap-theme
+          src_prepare() {
+            sed -i -e 's#"docs", "share"#"share"#' setup.py
+            distutils_src_prepare
+          }
 
+          python_install_all() {
+            distutils-r1_python_install_all
+
+            if ! use html; then
+              rm "${ED}"/usr/bin/{html2po,po2html} || die
+            fi
+            if ! use ical; then
+              rm "${ED}"/usr/bin/{ical2po,po2ical} || die
+            fi
+            if ! use ini; then
+              rm "${ED}"/usr/bin/{ini2po,po2ini} || die
+            fi
+            if ! use subtitles; then
+              rm "${ED}"/usr/bin/{sub2po,po2sub} || die
+            fi
+            python_optimize
+          }
 
 salt_misc_deps_rule:
   defaults:
@@ -448,11 +649,11 @@ testing_deps_rule:
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
     # TODO: move all the pytest stuff over here.
     # TODO: add pytest-pop, silly.
-    - setuptools_scm
     - setuptools-declarative-requirements:
         pydeps:
           - setuptools_scm
         body: |
+          # https://github.com/s0undt3ch/setuptools-declarative-requirements/pull/3
           src_prepare() {
             rm ${S}/tests/__init__.py || die
             default
@@ -460,6 +661,7 @@ testing_deps_rule:
     - pytest-salt-factories:
         du_setuptools: rdepend
         body: |
+          # submitted PR https://github.com/saltstack/pytest-salt-factories/pull/33
           src_prepare() {
             rm ${S}/tests/__init__.py || die
             default
@@ -490,6 +692,7 @@ salt_stuff_rule:
   packages:
     - acct:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             touch ${S}/requirements.txt
             default
@@ -513,16 +716,19 @@ salt_stuff_rule:
           - acct
     - pop-config:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             touch ${S}/requirements.txt
             default
           }
         pydeps:
+          - pop
           - dict-toolbox
           - aiologger
           - aiofiles
     - pop:
         body: |
+          # drobbins fixed upstream
           src_prepare() {
             install -d ${S}/requirements
             touch ${S}/requirements/base.txt
@@ -534,6 +740,7 @@ salt_stuff_rule:
           - dict-toolbox
           - msgpack
     - pytest-pop:
+        # drobbins fixed upstream
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
@@ -549,6 +756,7 @@ salt_stuff_rule:
           - pytest-asyncio >= 0.12
           - pytest >= 5.4
     - rend:
+        # drobbins fixed upstream
         body: |
           src_prepare() {
             touch ${S}/requirements.txt
@@ -560,6 +768,48 @@ salt_stuff_rule:
           - pyyaml
           - jinja
           - toml
+
+dev_python_simplified_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - setuptools_scm:
+        python_compat: python2+
+    - setuptools-rust:
+        pydeps:
+          py:all:
+            - wheel
+            - semantic_version
+            - toml
+    - cryptography:
+        compat: '3.3.2'
+        blocker: "!<dev-python/cryptography-3.4.2"
+        iuse: libressl idna
+        license: "|| ( Apache-2.0 BSD )"
+        body: |
+          src_prepare() {
+            default
+            export CRYPTOGRAPHY_DONT_BUILD_RUST=1
+          }
+        desc: |
+          Library providing cryptographic recipes and primitives
+        depend: |
+          libressl? ( dev-libs/libressl:0= )
+          !libressl? ( dev-libs/openssl:0= )
+        pydeps:
+          py:3:
+            - setuptools-rust
+          py:all:
+            - setuptools
+            - six >= 1.4.1
+            - virtual/python-enum34
+            - virtual/python-ipaddress
+            - cffi >= 1.11.3
+          use:idna:
+            - idna >= 2.1
+
 
 dev_python_autogen_rule:
   defaults:
@@ -598,8 +848,6 @@ dev_python_autogen_rule:
     - click:
         python_compat: python2+ pypy3
     - cloudflare
-    - cryptography:
-        python_compat: python2+ pypy{,3}
     - cython:
         python_compat: python2+ pypy3
         pypi_name: Cython
@@ -625,11 +873,7 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - h5py:
         python_compat: python2+ pypy{,3}
-    - idna:
-        python_compat: python2+ pypy3
     - imagesize:
-        python_compat: python2+ pypy{,3}
-    - importlib_metadata:
         python_compat: python2+ pypy{,3}
     - itsdangerous:
         python_compat: python2+ pypy3
@@ -720,8 +964,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - markupsafe:
         python_compat: python2+ pypy{,3}
-    - mwparserfromhell:
-        python_compat: python2+ pypy{,3}
     - pyblake2:
         python_compat: python2+ pypy{,3}
     - pycparser:
@@ -736,12 +978,8 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - pytz:
         python_compat: python2+ pypy3
-    - requests:
-        python_compat: python2+ pypy{,3}
     - secretstorage:
         python_compat: python3+ pypy3
-    - setuptools_scm:
-        python_compat: python2+ pypy3
     - six:
         python_compat: python2+ pypy{,3}
     - snowballstemmer:
@@ -832,8 +1070,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - zope-testrunner:
         python_compat: python2+ pypy3
-    - zstandard:
-        python_compat: python2+
     - cheroot:
         python_compat: python2+ pypy3
     - aiofiles

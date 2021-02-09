@@ -30,12 +30,20 @@ async def generate(hub, **pkginfo):
 	gst_artifacts = [hub.pkgtools.ebuild.Artifact(url=urlgst)]
 
 	vbox_bin = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, python_compat=python_compat, main_ver=main_ver, svn_ver=svn_ver, version=version, artifacts=bin_artifacts,
+		**pkginfo,
+		python_compat=python_compat,
+		main_ver=main_ver,
+		svn_ver=svn_ver,
+		version=version,
+		artifacts=bin_artifacts,
 	)
 	vbox_bin.push()
 
 	vbox = hub.pkgtools.ebuild.BreezyBuild(
-		template_path=vbox_bin.template_path, cat=pkginfo["cat"], name="virtualbox", version=version,
+		template_path=vbox_bin.template_path,
+		cat=pkginfo["cat"],
+		name="virtualbox",
+		version=version,
 	)
 	vbox.push()
 

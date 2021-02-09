@@ -21,6 +21,8 @@ overlays:
       eclasses:
         - waf
         - googlecode
+  - pf4public:
+      url: https://github.com/PF4Public/gentoo-overlay.git
   - flora
   - fusion809:
       url: https://github.com/fusion809/fusion809-overlay.git
@@ -30,12 +32,22 @@ overlays:
       url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
       src_sha1: a6ffd56a61af60a69aee87a7b59d7382ec71df21
       date: '17 Sep 2020'
+  - gentoo-staging-late-2020:
+      url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+      src_sha1: 2e49e96c41bf524a74ee347c49438612d7d8d392 
+      date: '31 Dec 2020'
   - perl-kit-legacy:
       url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-legacy.git
       src_sha1: 482287e2e6ed7d56e675092ad9658bebc4be6618
       date: '30 Nov 2020 - 5.28-release'
 
 source-defs:
+  - funtoo_late_2020:
+      - repo: flora
+      - repo: fusion809
+      - repo: gentoo-staging
+        src_sha1: f20c47b24bccab1e9807d9215c72bacb2e5ae34e 
+        date: '24 Dec 2020'
   - funtoo_oct_2020:
       - repo: flora
       - repo: fusion809
@@ -51,6 +63,8 @@ source-defs:
         src_sha1: 9292583023a6610905c79a4707db3ac6c63b3a31
         date: '21 Jun 2019'
       - repo: gentoo-staging-Sep-2020
+      - repo: gentoo-staging-late-2020
+      - repo: pf4public
   - funtoo_release_1.4_bump:
       - repo: flora
       - repo: faustoo
@@ -92,13 +106,17 @@ kit-groups:
           - ml-lang-kit
           - lisp-scheme-kit
           - lang-kit
-          - llvm-kit
+          - llvm-kit:
+              source: funtoo_late_2020
           - dev-kit
           - python-modules-kit
           - nokit
           - kde-kit:
               kind: independent
               branch: 5.19-release
+          - kde-kit:
+              kind: independent
+              branch: 5.20-release
           - gnome-kit:
               branch: 3.36-prime
               kind: independent
@@ -110,20 +128,16 @@ kit-groups:
               branch: 4.14-release
           - qt-kit:
               kind: independent
-              branch: 5.12.7-release
+              branch: 5.15.2-release
           - mate-kit:
               kind: independent
               branch: 1.24-prime
           - perl-kit:
-              branch: 5.28-release
-              source: perl-kit-legacy
-          - perl-kit:
               branch: 5.32-release
               source: perl-kit-legacy
-              stability: dev
           - ruby-kit:
-              kind: independent
-              branch: 2.6-prime
+              branch: 2.7-prime
+              source: funtoo_late_2020
           - python-kit:
               kind: independent
               branch: 3.7-release

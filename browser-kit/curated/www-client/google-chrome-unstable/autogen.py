@@ -14,8 +14,7 @@ async def generate(hub, **pkginfo):
 	channel = list(filter(lambda x: x["channel"] == RELEASE_CHANNEL, linux_os["versions"]))[0]
 	version = channel["version"]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		name=f"google-chrome-{PACKAGE_APPENDIX}",
-		cat="www-client",
+		**pkginfo,
 		version=version,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(

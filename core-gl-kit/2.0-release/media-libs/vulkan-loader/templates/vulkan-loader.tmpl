@@ -32,6 +32,11 @@ src_unpack() {
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* ${S} || die
 }
 
+post_src_prepare() {
+	# on 64-bit systems, have pkgconfig file reference 'libvulkan' not 'libvulkan64'.
+	sed -i -e s'/^Libs:.*$/Libs: -L${libdir} -lvulkan/' loader/vulkan.pc.in || die
+}
+
 src_configure() {
 	# Integrated clang assembler doesn't work with x86 - Bug #698164
 	if tc-is-clang && [[ ${ABI} == x86 ]]; then

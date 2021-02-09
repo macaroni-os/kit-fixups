@@ -19,7 +19,7 @@ RDEPEND="
 	media-libs/fontconfig
 	sys-fs/fuse:0
 	geolocation? ( >=app-misc/geoclue-2.5.2:2.0 )
-	screencast? ( >=media-video/pipewire-0.2.90:0/0.3 )
+	screencast? ( >=media-video/pipewire-0.2.90 )
 	test? ( sys-libs/libportal )
 "
 DEPEND="${RDEPEND}

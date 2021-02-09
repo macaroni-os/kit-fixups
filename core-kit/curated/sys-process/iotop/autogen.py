@@ -20,7 +20,10 @@ async def generate(hub, **pkginfo):
 	final_name = f"iotop-{version}.tar.gz"
 	# the latest tag is the first dict in the returned list of tag dicts
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, sha1=sha1, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
+		**pkginfo,
+		sha1=sha1,
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
 	)
 	ebuild.push()
 

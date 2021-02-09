@@ -1,0 +1,49 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="PROJ coordinate transformation software"
+HOMEPAGE="https://proj4.org/"
+SRC_URI="
+	{{artifacts[0].src_uri}}
+	{{artifacts[1].src_uri}}
+	europe? ( {{artifacts[2].src_uri}} )
+"
+
+LICENSE="MIT"
+SLOT="0/19"
+KEYWORDS="*"
+IUSE="curl europe static-libs test +tiff"
+REQUIRED_USE="test? ( !europe )"
+
+RESTRICT="!test? ( test )"
+
+RDEPEND="
+	dev-db/sqlite:3
+	curl? ( net-misc/curl )
+	tiff? ( media-libs/tiff )
+"
+DEPEND="${RDEPEND}"
+
+src_unpack() {
+	unpack ${P}.tar.gz
+	cd "${S}"/data || die
+	mv README README.DATA || die
+	unpack {{artifacts[1].final_name}}
+	use europe && unpack {{artifacts[2].final_name}}
+}
+
+src_configure() {
+	econf \
+		$(use_with curl) \
+		$(use_enable static-libs static) \
+		$(use_enable tiff)
+}
+
+src_install() {
+	default
+	cd data || die
+	dodoc README.{DATA,DATUMGRID}
+	use europe && dodoc README.EUROPE
+	find "${D}" -name '*.la' -type f -delete || die
+}

@@ -48,7 +48,7 @@ src_install() {
 
 	fperms +x "${MY_INSTALL_DIR}/${MY_EXEC}"
 	fperms 4755 "${MY_INSTALL_DIR}/chrome-sandbox"
-	{% for sh_path in fperms_paths -%}
+	{% for sh_path in fperms_paths|sort -%}
 	fperms +x "${MY_INSTALL_DIR}/{{ sh_path }}"
 	{% endfor -%}
 	insinto "/usr/share/licenses/${PN}"

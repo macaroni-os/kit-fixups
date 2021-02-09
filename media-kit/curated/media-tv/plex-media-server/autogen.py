@@ -21,6 +21,9 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=re.findall(r"(\d+\.\d+\.\d+\.\d+)-.+", json_dict["computer"]["Linux"]["version"])[0],
 		python_compat="python2_7",
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=urls["amd64"]), hub.pkgtools.ebuild.Artifact(url=urls["x86"]),]
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=urls["amd64"]),
+			hub.pkgtools.ebuild.Artifact(url=urls["x86"]),
+		]
 	)
 	ebuild.push()

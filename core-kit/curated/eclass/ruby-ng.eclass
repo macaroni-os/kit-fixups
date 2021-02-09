@@ -115,15 +115,20 @@ ruby_implementation_depend() {
 # implementations that are no longer supported.
 _ruby_get_all_impls() {
 	local i
-	for i in ${USE_RUBY}; do
-		case ${i} in
-			# removed implementations
-			ruby19|ruby20|ruby21|ruby22|ruby23|jruby)
-				;;
-			*)
-				echo ${i};;
-		esac
+	local found_one=0
+	local BACKUP_RUBY=ruby26
+	# like in ruby-single.eclass, we will fall back to ruby26 if we do not find a valid imp.
+	for target in ruby27 ruby26; do
+		# ^^ outer loop because it defines the ordering with 'preferred' version coming first.
+		for implementation in ${USE_RUBY}; do
+			[ "$implementation" != "$target" ] && continue
+			echo $target
+			found_one=1
+		done
 	done
+	if [ "$found_one" == "0" ]; then
+		echo $BACKUP_RUBY
+	fi
 }
 
 # @FUNCTION: ruby_samelib
@@ -321,6 +326,14 @@ ruby_get_use_targets() {
 	echo $t
 }
 
+ruby_get_iuse() {
+	local t
+	for implementation in ${USE_RUBY}; do
+		t+=" ruby_targets_${implementation}"
+	done
+	echo $t
+}
+
 # @FUNCTION: ruby_implementations_depend
 # @RETURN: Dependencies suitable for injection into DEPEND and RDEPEND.
 # @DESCRIPTION:
@@ -345,7 +358,7 @@ ruby_implementations_depend() {
 	echo "${depend}"
 }
 
-IUSE+=" $(ruby_get_use_targets)"
+IUSE+=" $(ruby_get_iuse)"
 # If you specify RUBY_OPTIONAL you also need to take care of
 # ruby useflag and dependency.
 if [[ ${RUBY_OPTIONAL} != yes ]]; then

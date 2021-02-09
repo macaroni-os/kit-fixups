@@ -1,0 +1,42 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI="6"
+ETYPE="sources"
+KEYWORDS="~amd64 ~x86"
+
+HOMEPAGE="http://kernel.kolivas.org/"
+
+K_SECURITY_UNSUPPORTED="1"
+
+CK_EXTRAVERSION="ck{{ck_extraversion}}"
+
+inherit kernel-2
+detect_version
+detect_arch
+
+RDEPEND="virtual/linux-sources"
+
+DESCRIPTION="Linux {{version}}, with Con Kolivas' MuQSS scheduler and patchset"
+
+K_BRANCH_ID="{{branch_id}}"
+
+SRC_URI="
+	{{artifacts[1].src_uri}}
+	{{artifacts[2].src_uri}}
+	{{artifacts[0].src_uri}}
+	"
+
+UNIPATCH_LIST="
+        ${DISTDIR}/patch-${K_BRANCH_ID}-${CK_EXTRAVERSION}.xz
+	${FILESDIR}/${CK_EXTRAVERSION}-revert-version.patch
+	"
+
+UNIPATCH_STRICTORDER="yes"
+
+pkg_postinst() {
+	kernel-2_pkg_postinst
+}
+
+pkg_postrm() {
+	kernel-2_pkg_postrm
+}

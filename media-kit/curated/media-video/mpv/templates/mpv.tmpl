@@ -126,7 +126,7 @@ RDEPEND="${COMMON_DEPEND}
 "
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+	mv "${WORKDIR}"/{{github_repo}}-* "${S}" || die
 }
 
 src_prepare() {

@@ -11,7 +11,11 @@ async def generate(hub, **pkginfo):
 	version = (re.search(f"ndiswrapper-([0-9.]*).tar.gz", release_dict["url"])).group(1)
 	url = f"http://downloads.sourceforge.net/project/ndiswrapper/stable/ndiswrapper-{version}.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts,)
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+		**pkginfo,
+		version=version,
+		artifacts=artifacts,
+	)
 	ebuild.push()
 
 

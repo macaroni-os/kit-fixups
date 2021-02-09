@@ -1,0 +1,34 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+EGO_SUM=(
+{{gosum}})
+
+go-module_set_globals
+
+SRC_URI="{{artifacts[0].src_uri}}
+	${EGO_SUM_SRC_URI}"
+
+DESCRIPTION="Fast, cross-platform HTTP/2 web server with automatic HTTPS"
+HOMEPAGE="https://caddyserver.com/ https://github.com/caddyserver/caddy"
+
+LICENSE="Apache-2.0 BSD ECL-2.0 MIT"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+src_unpack() {
+	go-module_src_unpack
+}
+
+src_compile() {
+	go build -mod=mod ./cmd/caddy || die "compile failed"
+}
+
+src_install() {
+	dobin ${PN}
+	dodoc README.md
+}

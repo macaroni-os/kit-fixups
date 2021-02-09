@@ -22,7 +22,7 @@ BDEPEND="${PYTHON_DEPS}
 	cube? ( dev-util/glslang:= )
 "
 RDEPEND="
-	>=media-libs/vulkan-loader-${PV}:=[wayland?,X?]
+	>=media-libs/vulkan-loader-$(ver_cut 1-3):=[wayland?,X?]
 	wayland? ( dev-libs/wayland:= )
 	X? (
 		x11-libs/libX11:=
@@ -30,7 +30,7 @@ RDEPEND="
 	)
 "
 DEPEND="${RDEPEND}
-	>=dev-util/vulkan-headers-${PV}
+	>=dev-util/vulkan-headers-$(ver_cut 1-3)
 "
 
 src_unpack() {

@@ -19,8 +19,6 @@ DEPEND=">=dev-lang/go-1.13"
 
 FILECAPS=( cap_net_bind_service+ep usr/bin/dnscrypt-proxy )
 
-PATCHES=( "${FILESDIR}"/config-full-paths-r11.patch )
-
 pkg_setup() {
 	enewgroup dnscrypt-proxy
 	enewuser dnscrypt-proxy -1 -1 /dev/null dnscrypt-proxy
@@ -29,6 +27,17 @@ pkg_setup() {
 src_unpack() {
 	unpack "${A}"
 	mv "${WORKDIR}/DNSCrypt-${PN}"-* "${S}" || die
+}
+
+src_prepare() {
+	default
+
+	# fix paths of log and cache files
+	sed -i \
+		-e "s# file *= *'\(.\+.log\)'# file = '/var/log/dnscrypt-proxy/\1'#" \
+		-e "s#log_file *= *'\(.\+.log\)'#log_file = '/var/log/dnscrypt-proxy/\1'#" \
+		-e "s#cache_file *= *'\(.\+.md\)'#cache_file = '/var/cache/dnscrypt-proxy/\1'#" \
+		${S}/dnscrypt-proxy/example-dnscrypt-proxy.toml || die
 }
 
 src_compile() {
@@ -49,13 +58,12 @@ src_install() {
 
 	insinto /etc/dnscrypt-proxy
 	newins example-dnscrypt-proxy.toml dnscrypt-proxy.toml
-	doins example-{blacklist.txt,whitelist.txt}
-	doins example-{cloaking-rules.txt,forwarding-rules.txt}
+	doins example-*.txt
 
 	popd >/dev/null || die
 
 	insinto /usr/share/dnscrypt-proxy
-	doins -r "utils/generate-domains-blacklists/."
+	doins -r "utils/generate-domains-blocklist/."
 
 	newinitd "${FILESDIR}"/dnscrypt-proxy.initd dnscrypt-proxy
 	newconfd "${FILESDIR}"/dnscrypt-proxy.confd dnscrypt-proxy

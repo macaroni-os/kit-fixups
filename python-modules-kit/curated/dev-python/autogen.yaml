@@ -392,6 +392,19 @@ simple_python_autogen_rule:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - bpytop:
+        desc: Linux/OSX/FreeBSD resource monitor
+        homepage: https://github.com/aristocratos/bpytop
+        license: Apache-2.0
+        cat: sys-process
+        pydeps:
+          - psutil
+        body: |
+          src_install() {
+            insinto "/usr/share/${PN}/themes"
+            doins bpytop-themes/*.theme
+            distutils-r1_src_install
+          }
     - dict-toolbox:
         desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/

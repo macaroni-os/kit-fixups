@@ -11,7 +11,7 @@ async def generate(hub, **pkginfo):
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)
-	for release in json_list:
+	for release in sorted(json_list, reverse=True, key=lambda x: x["tag_name"]):
 		if release["prerelease"] or release["draft"]:
 			continue
 		version = release["tag_name"].replace("SUDO_", "").replace("_", ".")

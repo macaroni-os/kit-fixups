@@ -604,7 +604,7 @@ kde5_src_configure() {
 	fi
 
 	if in_iuse designer && ! use designer && [[ ${KDE_DESIGNERPLUGIN} != false ]] ; then
-		cmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_KF5DesignerPlugin=ON )
+		cmakeargs+=( -DBUILD_DESIGNERPLUGIN=$(usex designer) )
 	fi
 
 	if [[ ${KDE_QTHELP} != false ]]; then

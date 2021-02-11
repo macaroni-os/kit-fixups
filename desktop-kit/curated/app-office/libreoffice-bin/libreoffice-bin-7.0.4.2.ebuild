@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -103,11 +102,7 @@ COMMON_DEPEND="
 	x11-libs/libXrender
 	net-print/cups
 	sys-apps/dbus
-	gnome? (
-		dev-libs/glib:2
-		gnome-base/dconf
-		gnome-extra/evolution-data-server
-	)
+	gnome? ( gnome-extra/evolution-data-server )
 	gstreamer? ( media-libs/gstreamer:1.0 )
 	media-libs/gst-plugins-base:1.0
 	gtk? (
@@ -149,8 +144,7 @@ PDEPEND="
 
 DEPEND="${COMMON_DEPEND}"
 
-# only one flavor at a time
-REQUIRED_USE="kde? ( !gnome ) gnome? ( gtk !kde )"
+REQUIRED_USE="gnome? ( gtk )"
 
 RESTRICT="test strip"
 
@@ -171,12 +165,10 @@ src_prepare() {
 
 	# Unpack RPMs but consider USE flags
 	for rpms in ./${rpmdir}/*.rpm; do
-		if [[ ${rpms} == "./${rpmdir}/libobasis${MY_PV2}-kde-integration-${PV}-${MY_PV4}.x86_64.rpm" ]]
-		then
+		if [[ ${rpms} == "./${rpmdir}/libobasis${MY_PV2}-kde-integration-${PV}-${MY_PV4}.x86_64.rpm" ]]; then
 			use kde && rpm_unpack ${rpms}
-		elif [[ ${rpms} == "./${rpmdir}/libobasis${MY_PV2}-gnome-integration-${PV}-${MY_PV4}.x86_64.rpm" ]]
-			then
-				use gtk && rpm_unpack ${rpms}
+		elif [[ ${rpms} == "./${rpmdir}/libobasis${MY_PV2}-gnome-integration-${PV}-${MY_PV4}.x86_64.rpm" ]]; then
+			use gnome && rpm_unpack ${rpms}
 		else
 			rpm_unpack ${rpms}
 		fi

@@ -23,7 +23,7 @@ async def generate(hub, **pkginfo):
 	# rg is for ctrl+shift+f
 	rg = [path.relative_to(src_path) for path in src_path.rglob("rg")]
 	revision = 1 if version == "1.48.2" else 0
-
+	artifact.cleanup()
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

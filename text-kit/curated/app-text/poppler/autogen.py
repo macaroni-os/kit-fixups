@@ -32,7 +32,7 @@ async def generate(hub, **pkginfo):
 	soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
 	subslot = soversion.group(1)
 	template_args = dict(GITHUB_USER=GITHUB_USER, GITHUB_REPO=GITHUB_REPO, subslot=subslot)
-
+	artifact.cleanup()
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI="6"
 
 TEXLIVE_MODULE_CONTENTS="arabxetex awesomebox bidi-atbegshi bidicontour bidipagegrid bidishadowtext bidipresentation businesscard-qrcode cqubeamer fixlatvian font-change-xetex fontbook fontwrap interchar na-position philokalia ptext quran quran-de realscripts simple-resume-cv simple-thesis-dissertation tetragonos ucharclasses unicode-bidi unisugar xebaposter xechangebar xecjk xecolor xecyr xeindex xelatex-dev xesearch xespotcolor xetex xetex-itrans xetex-pstricks xetex-tibetan xetexconfig xetexfontinfo xetexko xevlna collection-xetex
 "

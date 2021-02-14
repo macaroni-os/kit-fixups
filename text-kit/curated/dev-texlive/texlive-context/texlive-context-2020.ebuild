@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
@@ -12,17 +11,17 @@ DESCRIPTION="TeXLive ConTeXt and packages"
 
 LICENSE=" BSD BSD-2 GPL-1 GPL-2 GPL-3 public-domain TeX-other-free "
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="*"
 IUSE=""
-DEPEND=">=dev-texlive/texlive-basic-2019
+DEPEND=">=dev-texlive/texlive-basic-2020
 >=dev-texlive/texlive-latex-2010
-!<dev-texlive/texlive-latex-2010
 >=app-text/texlive-core-2010[xetex]
 >=dev-texlive/texlive-metapost-2010
 "
-RDEPEND="${DEPEND} dev-lang/ruby"
+RDEPEND="${DEPEND} dev-lang/ruby
+"
 
-TL_CONTEXT_UNIX_STUBS="context contextjit luatools mtxrunjit mtxrun texexec texmfstart"
+TL_CONTEXT_UNIX_STUBS="contextjit mtxrunjit mtxrun texexec context luatools texmfstart"
 
 TEXLIVE_MODULE_BINSCRIPTS=""
 
@@ -38,7 +37,7 @@ done
 pkg_setup() {
 	if [ -f "${ROOT}/var/lib/texmf/web2c/metapost/metafun.log" ]; then
 		einfo "Removing ${ROOT}/var/lib/texmf/web2c/metapost/metafun.log"
-		rm -f "${ROOT}/var/lib/texmf/web2c/metapost/metafun.log"
+		rm -f "${ROOT}/var/lib/texmf/web2c/metapost/metafun.log" || die
 	fi
 }
 
@@ -48,19 +47,6 @@ src_prepare() {
 	rm -rf texmf-dist/scripts/context/stubs/{mswin,win64} || die
 
 	default
-}
-
-src_install() {
-	dodir /etc/env.d
-	echo "TEXMFDIST=/usr/share/texmf-dist" >> "${ED}"/etc/env.d/99context || die
-
-	texlive-module_src_install
-}
-
-pkg_postinst() {
-	ewarn "Remember to run: env-update && source /etc/profile if you plan"
-	ewarn "to use these tools in a shell before logging out (or restarting"
-	ewarn "your login manager)"
 }
 
 TL_MODULE_INFORMATION="For using ConTeXt mkII simply use 'texexec' to generate

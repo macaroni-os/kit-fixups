@@ -66,6 +66,16 @@ unstable_kernel_gen:
   packages:
     - debian-sources:
         versions:
+          5.10.13_p1:
+            deb_pv_base: 5.10.13
+            deb_extraversion: 1
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - extra_cpu_optimizations.patch
           5.10.9_p1:
             deb_pv_base: 5.10.9
             deb_extraversion: 1

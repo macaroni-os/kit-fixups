@@ -5,7 +5,7 @@ EAPI=7
 DESCRIPTION="Sound Open Firmware (SOF) binary files"
 
 HOMEPAGE="https://www.sofproject.org https://github.com/thesofproject/sof https://github.com/thesofproject/sof-bin"
-SRC_URI="https://github.com/thesofproject/sof-bin/archive/stable-v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/thesofproject/sof-bin/archive/stable-v${PV}.tar.gz -> ${PF}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"

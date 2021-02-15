@@ -6,7 +6,7 @@ XORG_DRI=dri
 XORG_EAUTORECONF=yes
 inherit linux-info xorg-3 flag-o-matic
 
-KEYWORDS=""
+KEYWORDS="x86 amd64"
 COMMIT_ID="31486f40f8e8f8923ca0799aea84b58799754564"
 SRC_URI="https://gitlab.freedesktop.org/xorg/driver/xf86-video-intel/-/archive/${COMMIT_ID}/${P}.tar.bz2"
 S="${WORKDIR}/${PN}-${COMMIT_ID}"

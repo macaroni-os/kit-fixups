@@ -1,0 +1,37 @@
+powerbus_rule:
+  generator: pypi-simple-1
+  defaults:
+    cat: sys-power
+    python_compat: python3+
+  packages:
+    - powerbus:
+        license: "Apache-2.0"
+        pypi_name: "funtoo-powerbus"
+        description: "Funtoo Power Management Bus"
+        depend: |
+          x11-libs/libXscrnSaver
+          x11-libs/libXext
+          x11-libs/libX11
+        # TODO: sys-apps/dbus dep should likely be tied to dbus-next. I don't think it is right now.
+        rdepend: |
+          sys-apps/dbus
+        pydeps:
+          py:all:
+            - dbus-next
+            - colorama
+            - subpop >= 0.4
+            - pyzmq
+        body: |
+          src_compile() {
+            distutils-r1_src_compile
+            gcc $CFLAGS xidle.c -o funtoo-xidle -lX11 -lXext -lXss || die
+          }
+
+          src_install() {
+            distutils-r1_src_install
+            exeinto /usr/bin
+            doexe funtoo-xidle
+            newinitd $FILESDIR/powerbus.initd powerbus
+            insinto /etc/xdg/autostart
+            doins ${FILESDIR}/funtoo-idled.desktop
+          }

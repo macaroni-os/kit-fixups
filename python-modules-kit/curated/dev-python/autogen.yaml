@@ -594,6 +594,39 @@ salt_misc_deps_rule:
           dev-python/rfc3986[${PYTHON_USEDEP}]
     - sniffio
 
+io_stuff_rule:
+  generator: pypi-simple-1
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  packages:
+    - anyio:
+        pydeps:
+          - sniffio >= 1.1
+          - idna >= 2.8
+          - typing-extensions
+          - curio >= 1.4
+          - trio >= 0.16
+    - async-generator:
+        pypi_name: async_generator
+    - trio:
+        pydeps:
+          - attrs >= 19.2.0
+          - sortedcontainers
+          - async-generator >= 1.9
+          - idna
+          - outcome
+          - sniffio
+    - sortedcontainers:
+        python_compat: python2+
+    - outcome:
+        pydeps:
+          - attrs >= 19.2.0
+    - uvloop
+    - curio
+
+
+
 # Stuff that has moved on to python3 but that we need compat ebuilds for ---
 # for compatibility.
 #

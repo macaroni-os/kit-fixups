@@ -30,7 +30,7 @@ async def generate(hub, **pkginfo):
 	if patch_ver is not None:
 		version = f"{major_ver}.{minor_ver}.{patch_ver}"
 		extra_artifact = [
-		hub.pkgtools.ebuild.Artifact(
+			hub.pkgtools.ebuild.Artifact(
 				url=f"https://mirrors.edge.kernel.org/pub/linux/kernel/v{major_ver}.x/patch-{major_ver}.{minor_ver}.{patch_ver}.xz"
 			)
 		]
@@ -61,7 +61,9 @@ async def generate(hub, **pkginfo):
 			),
 			hub.pkgtools.ebuild.Artifact(
 				url=f"https://mirrors.edge.kernel.org/pub/linux/kernel/v{major_ver}.x/linux-{major_ver}.{minor_ver}.tar.xz"
-			)] + extra_artifact,
+			),
+		]
+		+ extra_artifact,
 	)
 
 	ebuild.push()

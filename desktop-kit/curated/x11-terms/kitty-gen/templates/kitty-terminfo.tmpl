@@ -29,6 +29,12 @@ PATCHES=(
 # would fail in this case.
 RESTRICT="test"
 
+src_unpack() {
+	unpack ${A}
+	rm -rf ${S}
+	mv ${WORKDIR}/kitty-* ${S} || die
+}
+
 src_compile() {
 	"${EPYTHON}" setup.py \
 		--verbose $(usex debug --debug "") \

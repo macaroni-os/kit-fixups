@@ -57,8 +57,17 @@ PATCHES=(
 	{%- endfor %}
 )
 
+src_unpack() {
+	unpack ${A}
+	rm -rf ${S}
+	mv ${WORKDIR}/kitty-* ${S} || die
+}
+
 src_prepare() {
 	default
+
+	sed -i -e "/build_terminfo =/,+4d" setup.py # remove terminfo
+	sed -i "s/'launcher'/'..\/linux-package\/bin'/" kitty/constants.py # tests
 
 	# disable wayland as required
 	if ! use wayland; then

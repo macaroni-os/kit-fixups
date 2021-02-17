@@ -69,7 +69,6 @@ src_install() {
 
 	newconfd "${FILESDIR}"/tor.confd tor
 	newinitd "${FILESDIR}"/tor.initd-r8 tor
-	systemd_dounit contrib/dist/tor.service
 
 	keepdir /var/lib/tor
 

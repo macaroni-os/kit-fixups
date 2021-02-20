@@ -4,14 +4,15 @@ import json
 
 
 async def generate(hub, **pkginfo):
-	package_lines = await hub.pkgtools.fetch.get_page(
-		"https://updates.signal.org/desktop/apt/dists/xenial/main/binary-amd64/Packages"
-	)
-	package_lines = package_lines.split("\n")
-	for package_line in package_lines:
-		if package_line.startswith("Version: "):
-			version = package_line[9:].strip()
-			break
+#	package_lines = await hub.pkgtools.fetch.get_page(
+#		"https://updates.signal.org/desktop/apt/dists/xenial/main/binary-amd64/Packages"
+#	)
+#	package_lines = package_lines.split("\n")
+#	for package_line in package_lines:
+#		if package_line.startswith("Version: "):
+#			version = package_line[9:].strip()
+#			break
+	version = "1.39.6"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

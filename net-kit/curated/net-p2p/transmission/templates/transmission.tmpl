@@ -114,12 +114,19 @@ src_install() {
 
 	insinto /usr/lib/sysctl.d
 	doins "${FILESDIR}"/60-transmission.conf
+}
 
-	if [[ ${EUID} == 0 ]]; then
-		diropts -o transmission -g transmission
-	fi
-	keepdir /var/lib/transmission
+pkg_postinst() {
+	xdg_desktop_database_update
+	gnome2_icon_cache_update
 
+	enewgroup transmission
+	enewuser transmission -1 -1 /var/lib/transmission transmission
+
+	if [[ ! -e "${EROOT%/}"/var/lib/transmission ]]; then
+		mkdir -p "${EROOT%/}"/var/lib/transmission || die
+		chown transmission:transmission "${EROOT%/}"/var/lib/transmission || die
+    fi
 }
 
 pkg_postrm() {
@@ -129,14 +136,4 @@ pkg_postrm() {
 	fi
 }
 
-pkg_preinst() {
-	enewgroup transmission
-	enewuser transmission -1 -1 /var/lib/transmission transmission
-}
-
-pkg_postinst() {
-	if use gtk || use qt5; then
-		xdg_desktop_database_update
-		xdg_icon_cache_update
-	fi
-}
+# vim: ts=4 sw=4 noet

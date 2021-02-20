@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
-import yaml
+from bs4 import BeautifulSoup
 
 
 async def generate(hub, **pkginfo):
-
-	yaml_data = await hub.pkgtools.fetch.get_page(
-		"https://raw.githubusercontent.com/mono/website/gh-pages/_data/latestrelease.yml"
-	)
-	yaml_list = yaml.load(yaml_data, Loader=yaml.SafeLoader)
-	version = yaml_list["version"].split()[-1].strip("()")
-	url = f"https://download.mono-project.com/sources/mono/mono-{version}.tar.xz"
+	url = f"https://download.mono-project.com/sources/mono"
+	html_data = await hub.pkgtools.fetch.get_page(url)
+	soup = BeautifulSoup(html_data, "html.parser")
+	best_archive = None
+	for link in soup.find_all("a"):
+		href = link.get("href")
+		if href.startswith("mono") and href.endswith(".xz"):
+			best_archive = href
+	version = best_archive.split(".tar")[0].split("-")[1]
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=f"{best_archive}")]
 	)
 	ebuild.push()
 

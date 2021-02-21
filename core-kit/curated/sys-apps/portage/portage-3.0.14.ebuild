@@ -87,9 +87,9 @@ pkg_pretend() {
 	check_extra_config
 }
 
-GITHUB_REPO="$PN-gentoo"
-GITHUB_USER="funtoo"
-GITHUB_TAG="becd2d4f82ab212fd752848d673a72722af209ff"
+GITHUB_REPO="$PN"
+GITHUB_USER="zmedico"
+GITHUB_TAG="261f0f763888d9392927a6cae2af50292fc694a1"
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
 
 src_unpack() {

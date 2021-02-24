@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 
 async def generate(hub, **pkginfo):
-	url = f"https://download.mono-project.com/sources/mono"
+	url = f"https://download.mono-project.com/sources/mono/"
 	html_data = await hub.pkgtools.fetch.get_page(url)
 	soup = BeautifulSoup(html_data, "html.parser")
 	best_archive = None
@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
 	version = best_archive.split(".tar")[0].split("-")[1]
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=f"{best_archive}")]
+		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url+f"{best_archive}")]
 	)
 	ebuild.push()
 

@@ -1,0 +1,4 @@
+#!/bin/sh
+if [ -n "$(/sbin/lsmod | grep ^nvidia)" ]; then
+	/usr/bin/nvidia-settings --load-config-only
+fi

@@ -345,7 +345,7 @@ src_install() {
 			[ -f "${D}${NV_ROOT}/bin/nvidia-${tool}" ] && dosym "${NV_ROOT}/bin/nvidia-${tool}" "/usr/bin/nvidia-${tool}"
 		done
 		exeinto /etc/X11/xinit/xinitrc.d
-		newexe "${FILESDIR}"/95-nvidia-settings.xinitrc 95-nvidia-settings
+		newexe "${FILESDIR}"/95-nvidia-settings.xinitrc-r1 95-nvidia-settings
 		dosym "${NV_ROOT}/share/applications/nvidia-settings.desktop" "/usr/share/applications/nvidia-settings.desktop"
 		dosym "${NV_ROOT}/share/nvidia" "/usr/share/nvidia"
 	fi

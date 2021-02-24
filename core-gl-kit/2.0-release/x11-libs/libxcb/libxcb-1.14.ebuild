@@ -14,7 +14,7 @@ DESCRIPTION="X C-language Bindings library"
 HOMEPAGE="https://xcb.freedesktop.org/"
 SRC_URI="https://xcb.freedesktop.org/dist/${P}.tar.xz"
 KEYWORDS="*"
-IUSE="doc selinux test xkb"
+IUSE="doc selinux test +xkb"
 SLOT="0/1.12"
 
 RDEPEND=">=dev-libs/libpthread-stubs-0.3-r1[${MULTILIB_USEDEP}]

@@ -21,7 +21,7 @@ SRC_URI="https://github.com/webmproject/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.
 LICENSE="BSD"
 SLOT="0/6"
 KEYWORDS="*"
-IUSE="doc +highbitdepth postproc static-libs svc test +threads"
+IUSE="doc +highbitdepth postproc static-libs +svc test +threads"
 
 REQUIRED_USE="test? ( threads )"
 

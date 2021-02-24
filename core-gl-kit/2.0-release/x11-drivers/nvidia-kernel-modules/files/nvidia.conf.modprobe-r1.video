@@ -1,0 +1,7 @@
+# NVIDIA drivers support
+alias char-major-195 nvidia
+alias /dev/nvidiactl char-major-195
+
+# This configures the device nodes to be part of the video group.
+options nvidia NVreg_DeviceFileGID=VIDEOGID NVreg_DeviceFileMode=432 NVreg_DeviceFileUID=0 NVreg_ModifyDeviceFiles=1
+

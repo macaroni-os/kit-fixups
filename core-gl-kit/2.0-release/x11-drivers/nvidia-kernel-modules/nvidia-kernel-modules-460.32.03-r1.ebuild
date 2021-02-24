@@ -13,11 +13,7 @@ SLOT="0/${PV%.*}"
 KEYWORDS="-* amd64 arm64"
 RESTRICT="bindist"
 
-if [ ${PV%%.*} -ge 364 ] ; then
-	IUSE="${IUSE} +kms +uvm"
-elif [ ${PV%%.*} -ge 331 ] ; then
-	IUSE="${IUSE} uvm"
-fi
+IUSE="+kms +uvm videogroup"
 
 DEPEND="
 	=x11-drivers/nvidia-drivers-${PV}*
@@ -111,12 +107,12 @@ src_compile() {
 
 src_install() {
 	linux-mod_src_install
-
-	# Add the aliases
-	# This file is tweaked with the appropriate video group in
-	# pkg_preinst, see bug #491414
 	insinto /etc/modprobe.d
-	newins "${FILESDIR}"/nvidia.conf.modprobe-r1 nvidia.conf
+	if use videogroup; then
+		newins "${FILESDIR}"/nvidia.conf.modprobe-r1.video nvidia.conf
+	else
+		newins "${FILESDIR}"/nvidia.conf.modprobe-r1 nvidia.conf
+	fi
 	newins "${FILESDIR}"/nvidia-rmmod.conf.modprobe nvidia-rmmod.conf
 
 	# Ensures that our device nodes are created when not using X
@@ -129,14 +125,25 @@ src_install() {
 
 pkg_preinst() {
 	linux-mod_pkg_preinst
-	local videogroup="$(egetent group video | cut -d ':' -f 3)"
-	if [ -z "${videogroup}" ]; then
-		eerror "Failed to determine the video group gid"
-		die "Failed to determine the video group gid"
-	else
-		sed -i \
-			-e "s:PACKAGE:${PF}:g" \
-			-e "s:VIDEOGID:${videogroup}:" \
-			"${D}"/etc/modprobe.d/nvidia.conf || die
+	if use videogroup; then
+		local videogroup="$(egetent group video | cut -d ':' -f 3)"
+		if [ -z "${videogroup}" ]; then
+			eerror "Failed to determine the video group gid"
+			die "Failed to determine the video group gid"
+		else
+			sed -i \
+				-e "s:PACKAGE:${PF}:g" \
+				-e "s:VIDEOGID:${videogroup}:" \
+				"${D}"/etc/modprobe.d/nvidia.conf || die
+		fi
+	fi
+}
+
+pkg_postinst() {
+	if use videogroup; then
+		einfo "NVIDIA device nodes have been configured to require video group"
+		einfo "membership (via videogroup USE variable.) Please be sure to add"
+		einfo "any user accounts that need to access NVIDIA devices to this"
+		einfo "group."
 	fi
 }

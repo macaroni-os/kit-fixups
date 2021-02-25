@@ -24,8 +24,9 @@ async def generate(hub, **pkginfo):
 				raise AttributeError()
 			version = div_text.split()[1]
 	except AttributeError:
-		with open("foo", "w") as myf:
-			myf.write(html)
+		# This is how I debugged the bogus HTML:
+		#with open("foo", "w") as myf:
+		#	myf.write(html)
 		raise hub.pkgtools.ebuild.BreezyError(f"Found unexpected something in slack-bin html.")
 	url = url.format(version=version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

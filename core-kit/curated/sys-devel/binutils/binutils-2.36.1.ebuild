@@ -1,19 +1,17 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit eutils libtool flag-o-matic gnuconfig multilib versionator
+inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-# USE="+cxx" is a transitional flag until llvm migrates to new flags:
-#    bug #677888
-IUSE="+cxx default-gold doc +gold multitarget +nls +plugins static-libs test"
-REQUIRED_USE="cxx? ( gold plugins ) default-gold? ( gold )"
+IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
+REQUIRED_USE="default-gold? ( gold )"
 
-# Variables that can be set here:
+# Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
 #                      Default: empty, no patching
 # PATCH_BINUTILS_VER - the binutils version in the patchset name
@@ -21,40 +19,16 @@ REQUIRED_USE="cxx? ( gold plugins ) default-gold? ( gold )"
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=4
-PATCH_BINUTILS_VER=9999
+PATCH_VER=1
+PATCH_DEV=dilfridge
 
-case ${PV} in
-	9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		SLOT=${PV}
-		;;
-	*.9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		EGIT_BRANCH=$(get_version_component_range 1-2)
-		EGIT_BRANCH="binutils-${EGIT_BRANCH/./_}-branch"
-		SLOT=$(get_version_component_range 1-2)
-		;;
-	*)
-		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
-		SLOT=$(get_version_component_range 1-2)
-		;;
-esac
-
-#
-# The Gentoo patchset
-#
 PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
 PATCH_DEV=${PATCH_DEV:-slyfox}
-
+SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
 [[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
+SLOT=$(ver_cut 1-2)
+KEYWORDS=""
 
 #
 # The cross-compile logic
@@ -74,32 +48,39 @@ RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	doc? ( sys-apps/texinfo )
-	test? ( dev-util/dejagnu )
+	test? (
+		dev-util/dejagnu
+		sys-devel/bc
+	)
 	nls? ( sys-devel/gettext )
 	sys-devel/flex
 	virtual/yacc
 "
 
+RESTRICT="!test? ( test )"
+
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	case ${PV} in
-		*9999)
-			git-r3_src_unpack
-			;;
-		*)
-			;;
-	esac
-	default
-	mkdir -p "${MY_BUILDDIR}"
+	unpack ${P}.tar.xz
+	cd "${WORKDIR}" || die
+	unpack binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz
+	cd "${WORKDIR}" || die
+	mkdir -p "${MY_BUILDDIR}" || die
 }
 
 src_prepare() {
+	local patchsetname
+	patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	if [[ ! -z ${PATCH_VER} ]] ; then
-		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
-		eapply "${WORKDIR}/patch"/*.patch
+		if ! use vanilla; then
+			einfo "Applying binutils patchset ${patchsetname}"
+			eapply "${WORKDIR}/patch"
+			einfo "Done."
+		fi
 	fi
 
 	# This check should probably go somewhere else, like pkg_pretend.
@@ -240,6 +221,8 @@ src_configure() {
 		--enable-relro
 		# Newer versions (>=2.24) make this an explicit option. #497268
 		--enable-install-libiberty
+		# Available from 2.35 on
+		--enable-textrel-check=warning
 		--disable-werror
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
@@ -253,6 +236,15 @@ src_configure() {
 		# Change SONAME to avoid conflict across
 		# {native,cross}/binutils, binutils-libs. #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
@@ -286,8 +278,7 @@ src_test() {
 	# bug 637066
 	filter-flags -Wall -Wreturn-type
 
-	# enable verbose test run and result logging
-	emake -k check RUNTESTFLAGS='-a -v' VERBOSE=1
+	emake -k check
 }
 
 src_install() {
@@ -333,7 +324,7 @@ src_install() {
 		objalloc.h
 		splay-tree.h
 	)
-	doins "${libiberty_headers[@]/#/${S}/include/}" || die
+	doins "${libiberty_headers[@]/#/${S}/include/}"
 	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
 		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
 		rm -r "${ED}"/${LIBPATH}/lib

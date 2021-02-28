@@ -55,7 +55,8 @@ src_prepare() {
 	S="$(pwd)"
 	#use selinux && sed -i 's/###//g' "${S}"/gen_compile.sh || die
 	sed -i -e "s/##VERSION##/${PV}/" "${S}"/genkernel || die
-	epatch "${FILESDIR}"/glibc.patch
+	mkdir patches/busybox/1.21.1/
+	cp "${FILESDIR}"/busybox-1.21.1-glibc.patch patches/busybox/1.21.1/
 	epatch "${FILESDIR}"/initramfs.patch
 }
 

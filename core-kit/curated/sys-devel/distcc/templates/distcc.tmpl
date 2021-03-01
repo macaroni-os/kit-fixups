@@ -41,14 +41,8 @@ pkg_setup() {
 
 src_prepare() {
 	eapply "${FILESDIR}/${PN}-3.0-xinetd.patch"
-	# bug #255188
-	eapply "${FILESDIR}/${PN}-3.3.2-freedesktop.patch"
 	# SOCKSv5 support needed for Portage, bug #537616
 	eapply "${FILESDIR}/${PN}-3.2_rc1-socks5.patch"
-	# backport py3.8 fixes
-	eapply "${FILESDIR}/${PN}-3.3.3-py38.patch"
-	# gcc-10 fix, #707502
-	eapply "${FILESDIR}/${PN}-3.3.3-gcc-10-fix.patch"
 	eapply "${FILESDIR}/${PN}-3.3.3-fix-symlink-path.patch"
 	eapply_user
 

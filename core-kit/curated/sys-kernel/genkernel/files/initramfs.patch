@@ -1,0 +1,19 @@
+diff --git a/gen_initramfs.sh b/gen_initramfs.sh
+index 7c309d2..6c838b1 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -258,14 +258,8 @@ append_mdadm(){
+ 					print_info 1 '			MDADM: Skipping inclusion of mdadm.conf'
+ 			fi
+ 
+-			if [ -e '/sbin/mdadm' ] && LC_ALL="C" ldd /sbin/mdadm | grep -q 'not a dynamic executable' \
+-			&& [ -e '/sbin/mdmon' ] && LC_ALL="C" ldd /sbin/mdmon | grep -q 'not a dynamic executable'
+-			then
+ 					print_info 1 '			MDADM: Adding support (using local static binaries /sbin/mdadm and /sbin/mdmon)...'
+ 					copy_binaries "${TEMP}/initramfs-mdadm-temp" /sbin/{mdadm,mdmon} || gen_die 'Could not copy over mdadm!'
+-			else
+-					gen_die "Could not find /sbin/mdadm or /sbin/mdmon for initramfs"
+-			fi
+ 	fi
+ 	append_to_cpio "${TEMP}/initramfs-mdadm-temp/" mdadm
+ }

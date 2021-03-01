@@ -13,6 +13,6 @@ SLOT="0"
 KEYWORDS="*"
 
 src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+	unpack "${A}"
+	mv "${WORKDIR}"/{{github_repo}}-* "${S}" || die
 }

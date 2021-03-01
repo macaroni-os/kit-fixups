@@ -1,0 +1,53 @@
+diff -urN portage-3.0.9/lib/_emerge/EbuildPhase.py portage-3.0.9-fixed/lib/_emerge/EbuildPhase.py
+--- portage-3.0.9/lib/_emerge/EbuildPhase.py	2021-02-14 21:35:56.000000000 -0700
++++ portage-3.0.9-fixed/lib/_emerge/EbuildPhase.py	2021-02-19 20:48:51.950899240 -0700
+@@ -20,7 +20,7 @@
+ 	_get_unresolved_soname_deps,
+ )
+ from portage.package.ebuild.prepare_build_dirs import (_prepare_workdir,
+-		_prepare_fake_distdir, _prepare_fake_filesdir)
++		_prepare_fake_distdir, _prepare_fake_filesdir, _prepare_fake_repodir)
+ from portage.util.futures.compat_coroutine import coroutine
+ from portage.util import writemsg
+ from portage.util._async.AsyncTaskFuture import AsyncTaskFuture
+@@ -205,6 +205,7 @@
+ 			alist = self.settings.configdict["pkg"].get("A", "").split()
+ 			_prepare_fake_distdir(self.settings, alist)
+ 			_prepare_fake_filesdir(self.settings)
++			_prepare_fake_repodir(self.settings)
+ 
+ 		fd_pipes = self.fd_pipes
+ 		if fd_pipes is None:
+diff -urN portage-3.0.9/lib/portage/package/ebuild/doebuild.py portage-3.0.9-fixed/lib/portage/package/ebuild/doebuild.py
+--- portage-3.0.9/lib/portage/package/ebuild/doebuild.py	2021-02-14 21:35:56.000000000 -0700
++++ portage-3.0.9-fixed/lib/portage/package/ebuild/doebuild.py	2021-02-19 20:50:07.550897134 -0700
+@@ -402,6 +402,7 @@
+ 	mysettings["T"] = os.path.join(mysettings["PORTAGE_BUILDDIR"], "temp")
+ 	mysettings["SANDBOX_LOG"] = os.path.join(mysettings["T"], "sandbox.log")
+ 	mysettings["FILESDIR"] = os.path.join(settings["PORTAGE_BUILDDIR"], "files")
++	mysettings["REPODIR"] = os.path.join(settings["PORTAGE_BUILDDIR"], "repo")
+ 
+ 	# Prefix forward compatability
+ 	eprefix_lstrip = mysettings["EPREFIX"].lstrip(os.sep)
+diff -urN portage-3.0.9/lib/portage/package/ebuild/prepare_build_dirs.py portage-3.0.9-fixed/lib/portage/package/ebuild/prepare_build_dirs.py
+--- portage-3.0.9/lib/portage/package/ebuild/prepare_build_dirs.py	2021-02-14 21:35:56.000000000 -0700
++++ portage-3.0.9-fixed/lib/portage/package/ebuild/prepare_build_dirs.py	2021-02-19 20:51:24.566894989 -0700
+@@ -417,6 +417,18 @@
+ 			os.unlink(symlink_path)
+ 			os.symlink(real_filesdir, symlink_path)
+ 
++def _prepare_fake_repodir(settings):
++	real_repodir = os.path.normpath(os.path.join(os.path.dirname(settings["EBUILD"]), "../.."))
++	symlink_path = os.path.dirname(settings["FILESDIR"]) + "/repo"
++	try:
++		link_target = os.readlink(symlink_path)
++	except OSError:
++		os.symlink(real_repodir, symlink_path)
++	else:
++		if link_target != real_repodir:
++			os.unlink(symlink_path)
++			os.symlink(real_repodir, symlink_path)
++
+ def _prepare_fake_distdir(settings, alist):
+ 	orig_distdir = settings["DISTDIR"]
+ 	edpath = os.path.join(settings["PORTAGE_BUILDDIR"], "distdir")

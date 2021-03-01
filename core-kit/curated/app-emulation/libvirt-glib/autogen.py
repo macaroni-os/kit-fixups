@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 			continue
 		version = v
 		break
-	url = f"https://libvirt.org/sources/glib/libvirt-glib-{version}.tar.gz"
+	url = f"https://libvirt.org/sources/glib/libvirt-glib-{version}.tar.xz"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]

@@ -18,7 +18,7 @@ EMULTILIB_PKG="true"
 PATCH_VER=1
 PATCH_DEV=dilfridge
 
-KEYWORDS=""
+KEYWORDS="*"
 SRC_URI="mirror://gnu/glibc/${P}.tar.xz"
 SRC_URI+=" https://dev.gentoo.org/~${PATCH_DEV}/distfiles/${P}-patches-${PATCH_VER}.tar.xz"
 

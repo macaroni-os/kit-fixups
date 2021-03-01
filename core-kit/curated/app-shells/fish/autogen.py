@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from packaging import version
+import re
 
 
 def get_release(releases_data):
@@ -18,12 +19,17 @@ async def generate(hub, **pkginfo):
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {name}")
 	version = latest_release["tag_name"]
+	print(latest_release["assets"])
+	name_pattern = re.compile(f"({ebuild_name}-{version}\\.tar\\.[^.]+$)")
+	asset_matches = [(x, name_pattern.match(x["name"])) for x in latest_release["assets"]]
+	source_assets = [x for x, y in asset_matches if y]
+	target_asset = source_assets.pop()
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
-				url=f"https://github.com/{name}/{name}/releases/download/{version}/{ebuild_name}-{version}.tar.gz"
+				url=target_asset["browser_download_url"]
 			)
 		],
 	)

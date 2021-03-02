@@ -25,7 +25,7 @@ SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
 
 LICENSE="openssl"
 SLOT="0/${PVR}" # Funtoo change -- force more frequent rebuilds.
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="+asm bindist elibc_musl rfc3779 sctp cpu_flags_x86_sse2 sslv3 static-libs test tls-heartbeat vanilla zlib"
 RESTRICT="!bindist? ( bindist )
 	!test? ( test )"

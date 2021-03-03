@@ -471,7 +471,7 @@ pkg_postinst() {
 	# OpenSSH is a critical service and restarting the daemon may be required for proper operation.
 	# This was needed with the glibc-2.33 update.
 
-	if [ -n "$( rc-service sshd status| grep running )" ]; then
+	if [ -n "$( rc-service sshd status| grep started )" ]; then
 		einfo "Restarting sshd service."
 		/etc/init.d/sshd restart
 	fi

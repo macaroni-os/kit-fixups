@@ -209,7 +209,7 @@ src_configure() {
 		$(usex python '' '--disable-python')
 		$(use_enable zeroconf avahi)
 		$(usex test '--enable-selftest' '')
-		$(usex system-mitkrb5 "--with-system-mitkrb5 $(multilib_native_usex addc --with-experimental-mit-ad-dc '')" '')
+		$(usex system-mitkrb5 "--with-system-mitkrb5 $(usex addc --with-experimental-mit-ad-dc '')" '')
 		$(use_with debug lttng)
 		$(use_with ldap)
 		$(use_with profiling-data)

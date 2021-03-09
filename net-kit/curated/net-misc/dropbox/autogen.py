@@ -28,16 +28,18 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=urlamd64.split('-')[-1].rstrip('.tar.gz'),
 		python_compat='python3+',
-		naut_filename=naut_filename,
-		naut_filename_clean=naut_filename.rstrip('.tar.bz2'),
 		github_repo=github_repo,
 		github_user=github_user,
-		github_tag=github_tag,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(url=urlamd64),
 			hub.pkgtools.ebuild.Artifact(url=urlx86),
 			hub.pkgtools.ebuild.Artifact(url=(urlnaut + naut_filename)),
-			hub.pkgtools.ebuild.Artifact(url=('https://www.github.com/' + github_user + '/' + github_repo + '/tarball/' + github_tag + '/'))
+			hub.pkgtools.ebuild.Artifact(
+				url=f'https://www.github.com/{github_user}/{github_repo}/tarball/{github_tag}',
+				final_name=f'{github_repo}-{github_tag}.tar.gz',
+			),
 		]
 	)
 	ebuild.push()
+
+# vim: ts=4 sw=4 noet

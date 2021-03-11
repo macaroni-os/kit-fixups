@@ -180,7 +180,7 @@ src_prepare() {
 		echo
 	fi
 	if use custom-cflags; then
-		MARCH="$(python -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
+		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 		if [ -n "$MARCH" ]; then
 			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
 			tweak_config .config CONFIG_GENERIC_CPU n && \

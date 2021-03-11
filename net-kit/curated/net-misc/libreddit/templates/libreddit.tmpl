@@ -1,0 +1,29 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{crates}}"
+
+inherit cargo
+
+DESCRIPTION="An alternative private front-end to Reddit"
+HOMEPAGE="https://github.com/spikecodes/libreddit"
+SRC_URI="{{artifacts[0].src_uri}}
+	$(cargo_crate_uris ${CRATES})"
+
+LICENSE="GPL3"
+SLOT="0"
+KEYWORDS="*"
+
+src_unpack() {
+	cargo_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_install() {
+	cargo_src_install
+
+	dodoc README.md
+}

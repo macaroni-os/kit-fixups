@@ -29,6 +29,6 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=version.lstrip("v"),
 		translations=await get_translations(hub, user, repo, version),
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/archive/{version}.tar.gz")],
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/archive/{version}.tar.gz",final_name=f"{repo}-{version}.tar.gz")],
 	)
 	ebuild.push()

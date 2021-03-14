@@ -7,14 +7,11 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="{{deb_pv_base}}"
+DEB_PV_BASE="{{linux_version}}"
 DEB_EXTRAVERSION="{{deb_extraversion}}"
 # Debian version -1 becomes _p1 in Funtoo:
-if [ -z "$DEB_EXTRAVERSION" ]; then
-	EXTRAVERSION="-${PN}"
-else
-	EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
-fi
+EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
+
 # This sets the module dir in /lib/modules. This starts with the version (reversed from normal.)
 MODULE_EXT=${PVR}-${PN}
 

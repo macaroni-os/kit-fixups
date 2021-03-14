@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 
 GLOBAL_DEFAULTS = {}
-generated_versions = dict()
+generated_versions = set()
 
 
 async def get_version_for_release(release_name):
@@ -14,24 +14,48 @@ async def get_version_for_release(release_name):
 
 
 async def generate(hub, **pkginfo):
-	release_prefix = "deb-"
-	deb_pv_base = pkginfo.get("deb_pv_base")
-	deb_extraversion = pkginfo.get("deb_extraversion")
-	if deb_pv_base.startswith(release_prefix):
-		deb_pv_base, deb_extraversion = await get_version_for_release(deb_pv_base.lstrip(release_prefix))
-	base_url = f"http://http.debian.net/debian/pool/main/l/linux"
+	global generated_versions
+
+	if 'patches' not in pkginfo:
+		raise hub.pkgtools.ebuild.BreezyError("No patches!")
+
+	if pkginfo.get("name") == "debian-sources":
+		release_type = "unstable"
+	else:
+		release_type = "stable"
+	if pkginfo['version'] == 'latest':
+		deb_pv_base, deb_extraversion = await get_version_for_release(release_type)
+		pkginfo["version"] = f"{deb_pv_base}_p{deb_extraversion}"
+	else:
+		# Parse the specified version in the autogen.yaml. We expect a "_p" to specify the patchlevel. All kernel
+		# packages have a patchlevel of at least 1.
+		#
+		# We will need to do some string manipulation to get the base version and the patchlevel separated:
+		vsplit = pkginfo['version'].split(".")
+		if "_p" not in vsplit[-1]:
+			raise hub.pkgtools.ebuild.BreezyError(f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
+		last_vpart, deb_extraversion = vsplit[-1].split("_p")
+		vsplit[-1] = last_vpart
+		deb_pv_base = '.'.join(vsplit)
+
+	# Don't generate a version twice -- which can happen if we list a version that is also 'latest':
+
 	deb_pv = f"{deb_pv_base}-{deb_extraversion}"
+	if deb_pv in generated_versions:
+		return
+
+	base_url = f"http://http.debian.net/debian/pool/main/l/linux"
+
 	k_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv_base}.orig.tar.xz")
 	p_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv}.debian.tar.xz")
-	version = pkginfo["version"] = f"{deb_pv_base}_p{deb_extraversion}"
-	pkginfo["deb_extraversion"] = deb_extraversion
-	unmasked = pkginfo["unmasked"]
-	global generated_versions
-	prev_result = generated_versions.get(version, None)
-	if prev_result is None or not prev_result and unmasked:
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, linux_version=deb_pv_base, artifacts=[k_artifact, p_artifact])
-		ebuild.push()
-		generated_versions[version] = unmasked
+
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo,
+	    deb_pv=deb_pv,
+	    deb_extraversion=deb_extraversion,
+		linux_version=deb_pv_base,
+		artifacts=[k_artifact, p_artifact])
+	ebuild.push()
+	generated_versions.add(deb_pv)
 
 
 # vim: ts=4 sw=4 noet

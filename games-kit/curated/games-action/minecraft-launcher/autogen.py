@@ -2,21 +2,17 @@
 
 
 async def generate(hub, **pkginfo):
-	changelog_data = await hub.pkgtools.fetch.get_page(
-		"https://launchercontent.mojang.com/launcherPatchNotes_v2.json", is_json=True
+	json_data = await hub.pkgtools.fetch.get_page(
+		"https://launchermeta.mojang.com/v1/products/launcher/6f083b80d5e6fabbc4236f81d0d8f8a350c665a9/linux.json", is_json=True
 	)
-	for entry in changelog_data["entries"]:
-		version = entry["versions"]["linux"]
-		art = hub.pkgtools.ebuild.Artifact(url=f"https://launcher.mojang.com/download/linux/x86_64/minecraft-launcher_{version}.tar.gz")
-		try:
-			await art.try_fetch()
-			break
-		except hub.pkgtools.fetch.FetchError:
-			continue
+	version = json_data["launcher-bootstrap"][0]["version"]["name"]
+	json_manifest = await hub.pkgtools.fetch.get_page( json_data["launcher-bootstrap"][0]["manifest"]["url"], is_json=True )
+	url = json_manifest["files"]["minecraft-launcher"]["downloads"]["raw"]["url"]
+
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[art]
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url,final_name=f"minecraft-launcher-{version}")]
 	)
 	ebuild.push()
 

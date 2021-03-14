@@ -45,10 +45,9 @@ stable_kernel_gen:
   packages:
     - debian-sources-lts:
         versions:
-          4.19.160_p2:
+          stable:
             unmasked: True
-            deb_pv_base: 4.19.160
-            deb_extraversion: 2
+            deb_pv_base: deb-stable
             patches:
               - xfs-libcrc32c-fix.patch
               - mcelog.patch
@@ -77,4 +76,13 @@ unstable_kernel_gen:
               - ikconfig.patch
               - fix-bluetooth-polling.patch
               - extra_cpu_optimizations.patch
-
+          unstable:
+            unmasked: False
+            deb_pv_base: deb-unstable
+            patches:
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - nocerts.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - extra_cpu_optimizations.patch

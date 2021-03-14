@@ -47,7 +47,7 @@ DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
 SRC_URI="{{artifacts|map(attribute='src_uri')|join(' ')}}"
-S="$WORKDIR/linux-${DEB_PV_BASE}"
+S="$WORKDIR/linux-{{linux_version}}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"

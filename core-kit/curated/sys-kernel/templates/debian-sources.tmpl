@@ -7,7 +7,6 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="{{deb_pv_base}}"
 DEB_EXTRAVERSION="{{deb_extraversion}}"
 # Debian version -1 becomes _p1 in Funtoo:
 EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
@@ -17,7 +16,7 @@ MODULE_EXT=${PVR}-${PN}
 
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-DEB_PV="$DEB_PV_BASE-${DEB_EXTRAVERSION}"
+DEB_PV="{{linux_version}}-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip mirror"
 LICENSE="GPL-2"
 {%- if unmasked %}
@@ -44,7 +43,7 @@ DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
 SRC_URI="{{artifacts|map(attribute='src_uri')|join(' ')}}"
-S="$WORKDIR/linux-{{deb_pv_base}}"
+S="$WORKDIR/linux-{{linux_version}}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -125,7 +124,11 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 
 	{%- for patch in patches %}
-	epatch "${FILESDIR}"/${DEB_PV_BASE}/{{patch}} || die
+	if [ -e "${FILESDIR}/{{linux_version}}/{{patch}}" ]; then
+	    epatch "${FILESDIR}"/{{linux_version}}/{{patch}} || die
+	else
+	    epatch "${FILESDIR}"/latest/{{patch}} || die
+	fi
 	{%- endfor %}
 	local arch featureset subarch
 	featureset="standard"

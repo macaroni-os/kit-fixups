@@ -29,23 +29,27 @@ async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
 		release_type = "unstable"
 	else:
 		release_type = "stable"
-	deb_pv_base, deb_extraversion = await get_version_for_release(release_type)
-	version = f"{deb_pv_base}_p{deb_extraversion}"
+	linux_version, deb_extraversion = await get_version_for_release(release_type)
+	version = f"{linux_version}_p{deb_extraversion}"
 	if f"{name}-{version}" in all_versions_from_yaml:
 		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
 		return None
-
-	# Generate 'latest' version
-	pkginfo['version'] = version
-	pkginfo['deb_pv_base'] = deb_pv_base
-	pkginfo['deb_extraversion'] = deb_extraversion
-	return pkginfo
+	unmask_match = pkginfo.get('unmask_match', None)
+	if unmask_match is None or version.startswith(unmask_match):
+		# Generate 'latest' version
+		pkginfo['version'] = version
+		pkginfo['linux_version'] = linux_version
+		pkginfo['deb_extraversion'] = deb_extraversion
+		return pkginfo
+	else:
+		# Don't generate -- we didn't see an expected unmask_match pattern:
+		return None
 
 
 async def finalize_specific_pkginfo(pkginfo):
 	"""
 	We are finalizing the pkginfo for a kernel that has a version specified in the YAML. In this case, we
-	expect the version to contain a '_p', specifying the patchlevel. We will use this to set deb_pv_base and
+	expect the version to contain a '_p', specifying the patchlevel. We will use this to set linux_version and
 	deb_pv_extraversion.
 
 	:param pkginfo: pkginfo from the YAML
@@ -60,7 +64,7 @@ async def finalize_specific_pkginfo(pkginfo):
 			f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
 	last_vpart, pkginfo['deb_extraversion'] = vsplit[-1].split("_p")
 	vsplit[-1] = last_vpart
-	pkginfo['deb_pv_base'] = '.'.join(vsplit)
+	pkginfo['linux_version'] = '.'.join(vsplit)
 	return pkginfo
 
 
@@ -89,10 +93,10 @@ async def preprocess_packages(hub, pkginfo_list):
 async def generate(hub, **pkginfo):
 	base_url = f"http://http.debian.net/debian/pool/main/l/linux"
 
-	deb_pv_base = pkginfo.get("deb_pv_base")
+	linux_version = pkginfo.get("linux_version")
 	deb_extraversion = pkginfo.get("deb_extraversion")
-	deb_pv = f"{deb_pv_base}-{deb_extraversion}"
-	k_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv_base}.orig.tar.xz")
+	deb_pv = f"{linux_version}-{deb_extraversion}"
+	k_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{linux_version}.orig.tar.xz")
 	p_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv}.debian.tar.xz")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, artifacts=[k_artifact, p_artifact])
 	ebuild.push()

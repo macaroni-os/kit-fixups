@@ -9,6 +9,19 @@
 # amdgpu-picasso.patch            add support for newer AMD APUs to AMDGPU.
 # extra_cpu_optimizations.patch   enable expanded gcc CPU optimizations from
 #                                 https://github.com/graysky2/kernel_gcc_patch
+#
+# Use the following structure for storing patches:
+#
+# debian-sources(-lts)/files/latest <-- this is where the most current version of the patch lives
+# debian-sources(-lts)/files/x.y.z  <-- this is where you put a patch variant that a specific kernel needs
+#
+# Above, the 'x.y.z' version of the patch will always override the 'latest' version, if it exists.
+# This way, we have all the patches we hope will work for autogen in 'latest', and we can keep older
+# variants around for older kernels.
+#
+# Below, under debian-sources-lts, there is an 'unmask_match' field. We are going to auto-unmask debian-sources-lts
+# kernels as long as their version starts with this string. Otherwise, Debian has moved to a brand new LTS
+# kernel and we need to review that before it goes live.
 
 kernel_gen:
   defaults:
@@ -18,6 +31,7 @@ kernel_gen:
   generator: debian-sources
   packages:
     - debian-sources-lts:
+        ummask_match: '4.19.'
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch
@@ -28,7 +42,7 @@ kernel_gen:
           - extra_cpu_optimizations.patch
         versions:
           latest:
-            unmasked: False
+            unmasked: True
           4.19.160_p2:
             unmasked: True
     - debian-sources:
@@ -43,4 +57,4 @@ kernel_gen:
           latest:
             unmasked: False
           5.10.13_p1:
-            unmasked: False
+            unmasked: True

@@ -24,13 +24,14 @@ async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
 	:return: an updated pkginfo dictionary for ``generate()``, or None.
 	:rtype: dict or None
 	"""
-	if pkginfo.get("name") == "debian-sources":
+	name = pkginfo.get("name")
+	if name == "debian-sources":
 		release_type = "unstable"
 	else:
 		release_type = "stable"
 	deb_pv_base, deb_extraversion = await get_version_for_release(release_type)
 	version = f"{deb_pv_base}_p{deb_extraversion}"
-	if version in all_versions_from_yaml:
+	if f"{name}-{version}" in all_versions_from_yaml:
 		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
 		return None
 
@@ -75,7 +76,7 @@ async def preprocess_packages(hub, pkginfo_list):
 	:param pkginfo_list: a list of pkginfo dicts
 	:type pkginfo_list: list
 	"""
-	all_versions_from_yaml = list(map(lambda l: l['version'], pkginfo_list))
+	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
 	for pkginfo in pkginfo_list:
 		if pkginfo['version'] == 'latest':
 			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)

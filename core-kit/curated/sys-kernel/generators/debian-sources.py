@@ -2,9 +2,6 @@
 
 from bs4 import BeautifulSoup
 
-GLOBAL_DEFAULTS = {}
-generated_versions = set()
-
 
 async def get_version_for_release(release_name):
 	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
@@ -13,49 +10,91 @@ async def get_version_for_release(release_name):
 	return target_release.parent.find("a").text.split("-")
 
 
-async def generate(hub, **pkginfo):
-	global generated_versions
+async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
+	"""
+	We are finalizing the pkginfo for a kernel specified as 'latest'. We will need to determine the latest
+	version using HTTP. If the latest version matches a specific version in the YAML, return None -- because
+	we don't want to generate this version but instead should skip it and generate the one directly specified
+	in the YAML. Otherwise return updated pkginfo, ready for processing by ``generate()``.
 
-	if 'patches' not in pkginfo:
-		raise hub.pkgtools.ebuild.BreezyError("No patches!")
-
+	:param pkginfo: pkginfo dictionary
+	:type pkginfo: dict
+	:param all_versions_from_yaml: a list of all version strings specified in the YAML
+	:type all_versions_from_yaml: list
+	:return: an updated pkginfo dictionary for ``generate()``, or None.
+	:rtype: dict or None
+	"""
 	if pkginfo.get("name") == "debian-sources":
 		release_type = "unstable"
 	else:
 		release_type = "stable"
-	if pkginfo['version'] == 'latest':
-		deb_pv_base, deb_extraversion = await get_version_for_release(release_type)
-		pkginfo["version"] = f"{deb_pv_base}_p{deb_extraversion}"
-	else:
-		# Parse the specified version in the autogen.yaml. We expect a "_p" to specify the patchlevel. All kernel
-		# packages have a patchlevel of at least 1.
-		#
-		# We will need to do some string manipulation to get the base version and the patchlevel separated:
-		vsplit = pkginfo['version'].split(".")
-		if "_p" not in vsplit[-1]:
-			raise hub.pkgtools.ebuild.BreezyError(f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
-		last_vpart, deb_extraversion = vsplit[-1].split("_p")
-		vsplit[-1] = last_vpart
-		deb_pv_base = '.'.join(vsplit)
+	deb_pv_base, deb_extraversion = await get_version_for_release(release_type)
+	version = f"{deb_pv_base}_p{deb_extraversion}"
+	if version in all_versions_from_yaml:
+		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
+		return None
 
-	# Don't generate a version twice -- which can happen if we list a version that is also 'latest':
+	# Generate 'latest' version
+	pkginfo['version'] = version
+	pkginfo['deb_pv_base'] = deb_pv_base
+	pkginfo['deb_extraversion'] = deb_extraversion
+	return pkginfo
 
-	deb_pv = f"{deb_pv_base}-{deb_extraversion}"
-	if deb_pv in generated_versions:
-		return
 
+async def finalize_specific_pkginfo(pkginfo):
+	"""
+	We are finalizing the pkginfo for a kernel that has a version specified in the YAML. In this case, we
+	expect the version to contain a '_p', specifying the patchlevel. We will use this to set deb_pv_base and
+	deb_pv_extraversion.
+
+	:param pkginfo: pkginfo from the YAML
+	:type pkginfo: dict
+	:return: pkginfo, updated and ready for ``generate()``
+	:rtype: dict
+	"""
+
+	vsplit = pkginfo['version'].split(".")
+	if "_p" not in vsplit[-1]:
+		raise hub.pkgtools.ebuild.BreezyError(
+			f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
+	last_vpart, pkginfo['deb_extraversion'] = vsplit[-1].split("_p")
+	vsplit[-1] = last_vpart
+	pkginfo['deb_pv_base'] = '.'.join(vsplit)
+	return pkginfo
+
+
+async def preprocess_packages(hub, pkginfo_list):
+	"""
+	This is a new feature being added to metatools that provides a 'hook' to look at all the YAML that will be
+	passed to the ``generate()`` function so you can make modifications as needed. This is an async generator
+	and should ``yield`` all pkginfo that should be actually generated. Arbitrary modifications can be made to
+	the pkginfo. Anything not yielded is not generated.
+
+	:param hub: metatools hub
+	:type hub: Hub
+	:param pkginfo_list: a list of pkginfo dicts
+	:type pkginfo_list: list
+	"""
+	all_versions_from_yaml = list(map(lambda l: l['version'], pkginfo_list))
+	for pkginfo in pkginfo_list:
+		if pkginfo['version'] == 'latest':
+			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)
+		else:
+			pkginfo = await finalize_specific_pkginfo(pkginfo)
+		if pkginfo is not None:
+			yield pkginfo
+
+
+async def generate(hub, **pkginfo):
 	base_url = f"http://http.debian.net/debian/pool/main/l/linux"
 
+	deb_pv_base = pkginfo.get("deb_pv_base")
+	deb_extraversion = pkginfo.get("deb_extraversion")
+	deb_pv = f"{deb_pv_base}-{deb_extraversion}"
 	k_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv_base}.orig.tar.xz")
 	p_artifact = hub.pkgtools.ebuild.Artifact(url=f"{base_url}/linux_{deb_pv}.debian.tar.xz")
-
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo,
-	    deb_pv=deb_pv,
-	    deb_extraversion=deb_extraversion,
-		linux_version=deb_pv_base,
-		artifacts=[k_artifact, p_artifact])
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, artifacts=[k_artifact, p_artifact])
 	ebuild.push()
-	generated_versions.add(deb_pv)
 
 
 # vim: ts=4 sw=4 noet

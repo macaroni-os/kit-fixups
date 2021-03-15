@@ -7,7 +7,7 @@ inherit check-reqs eutils mount-boot
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_PV_BASE="{{linux_version}}"
+DEB_PV_BASE="{{deb_pv_base}}"
 DEB_EXTRAVERSION="{{deb_extraversion}}"
 # Debian version -1 becomes _p1 in Funtoo:
 EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
@@ -44,7 +44,7 @@ DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
 SRC_URI="{{artifacts|map(attribute='src_uri')|join(' ')}}"
-S="$WORKDIR/linux-{{linux_version}}"
+S="$WORKDIR/linux-{{deb_pv_base}}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"

@@ -844,7 +844,9 @@ dev_python_simplified_rule:
     - dbus-next:
         pypi_name: dbus_next
     - setuptools_scm:
-        python_compat: python2+
+        compat: '5.0.2'
+        blocker: "!<dev-python/setuptools_scm-5.0.2"
+        python_compat: python3+
     - setuptools-rust:
         pydeps:
           py:all:

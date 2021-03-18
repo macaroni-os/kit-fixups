@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools bash-completion-r1 linux-info user
+inherit autotools golang-base bash-completion-r1 linux-info user
 
 DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/lxd/introduction/ https://github.com/lxc/lxd"
@@ -12,10 +12,14 @@ SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
 KEYWORDS=""
-IUSE="apparmor +ipv6 nls"
+IUSE="apparmor ipv6 nls"
 
 DEPEND="app-arch/xz-utils
-	>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
+	|| (
+		>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
+		>=app-emulation/lxc-4.0.6[apparmor?]
+	)
+	>=sys-kernel/linux-headers-4.15
 	dev-lang/tcl
 	dev-libs/libuv
 	dev-libs/lzo
@@ -24,33 +28,29 @@ RDEPEND="${DEPEND}
 	net-firewall/ebtables
 	net-firewall/iptables[ipv6?]
 	sys-apps/iproute2[ipv6?]
-	sys-fs/fuse:0=
+	sys-fs/fuse:*
 	sys-fs/lxcfs
-	sys-fs/squashfs-tools
+	sys-fs/squashfs-tools[lzma]
 	virtual/acl"
 BDEPEND=">=dev-lang/go-1.13
 	nls? ( sys-devel/gettext )"
 
 CONFIG_CHECK="
-	~BRIDGE
-	~DUMMY
-	~IP6_NF_NAT
-	~IP6_NF_TARGET_MASQUERADE
-	~IPV6
-	~IP_NF_NAT
-	~IP_NF_TARGET_MASQUERADE
-	~MACVLAN
-	~NETFILTER_XT_MATCH_COMMENT
-	~NET_IPGRE
-	~NET_IPGRE_DEMUX
-	~NET_IPIP
-	~NF_NAT_MASQUERADE
-	~VSOCKETS
-	~VXLAN
+	~CGROUPS
+	~IPC_NS
+	~NET_NS
+	~PID_NS
+
+	~SECCOMP
+	~USER_NS
+	~UTS_NS
 "
 
-# 4.0.3: Network fetching fixed, but tests don't work when ran inside container.
-RESTRICT="test"
+ERROR_IPC_NS="CONFIG_IPC_NS is required."
+ERROR_NET_NS="CONFIG_NET_NS is required."
+ERROR_PID_NS="CONFIG_PID_NS is required."
+ERROR_SECCOMP="CONFIG_SECCOMP is required."
+ERROR_UTS_NS="CONFIG_UTS_NS is required."
 
 # Go magic.
 QA_PREBUILT="/usr/lib/lxd/libdqlite.so.0.0.1
@@ -84,8 +84,15 @@ src_prepare() {
 		-e "s:make:make ${MAKEOPTS}:g" \
 		Makefile || die
 
-	sed -i 's#lib$#lib/lxd#' "${GOPATH}"/deps/libco/Makefile || die
 	sed -i 's#zfs version 2>/dev/null | cut -f 2 -d - | head -1#< /sys/module/zfs/version cut -f 1#' "${GOPATH}"/deps/raft/configure.ac || die
+
+	# Fix hardcoded ovmf file path, see bug 763180
+	sed -i \
+		-e "s:/usr/share/OVMF:/usr/share/edk2-ovmf:g" \
+		-e "s:OVMF_VARS.ms.fd:OVMF_VARS.secboot.fd:g" \
+		doc/environment.md \
+		lxd/apparmor/instance_qemu.go \
+		lxd/instance/drivers/driver_qemu.go || die "Failed to fix hardcoded ovmf paths."
 
 	common_op eautoreconf
 }
@@ -93,59 +100,48 @@ src_prepare() {
 src_configure() {
 	export GOPATH="${S}/_dist"
 
-	export CO_CFLAGS="-I${GOPATH}/deps/libco/"
-	export CO_LIBS="${GOPATH}/deps/libco/"
-
 	export RAFT_CFLAGS="-I${GOPATH}/deps/raft/include/"
 	export RAFT_LIBS="${GOPATH}/deps/raft/.libs"
 
-	export SQLITE_CFLAGS="-I${GOPATH}/deps/sqlite"
-	export SQLITE_LIBS="${GOPATH}/deps/sqlite/.libs"
-
-	export PKG_CONFIG_PATH="${GOPATH}/sqlite/:${GOPATH}/libco/:${GOPATH}/raft/"
-
-	cd "${GOPATH}/deps/sqlite" || die
-	econf --enable-replication --disable-amalgamation --disable-tcl --libdir="${EPREFIX}/usr/lib/lxd"
+	export PKG_CONFIG_PATH="${GOPATH}/raft/"
 
 	common_op econf --libdir="${EPREFIX}"/usr/lib/lxd
 }
 
 src_compile() {
 	export GOPATH="${S}/_dist"
+	export GO111MODULE=auto
+	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly"
 
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/ -I${GOPATH}/deps/libco/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -L${GOPATH}/deps/libco/ -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${GOPATH}/deps/libco/:${LD_LIBRARY_PATH}"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
+	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs/:${LD_LIBRARY_PATH}"
 
-	local j
-	for j in sqlite raft libco; do
-		cd "${GOPATH}"/deps/${j} || die
-		emake
+	cd "${GOPATH}"/deps/raft || die
+	emake
+
+	cd "${GOPATH}"/deps/dqlite || die
+	emake CFLAGS="-I${GOPATH}/deps/raft/include" LDFLAGS="-L${GOPATH}/deps/raft"
+
+	cd "${GOPATH}/src/${EGO_PN}" || die
+	mkdir -p _dist/bin
+	go build -v -x -tags "netgo" -o _dist/bin/ ./lxd-p2c/... || die "Failed to build lxd-p2c"
+	CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -x -tags "agent" -o _dist/bin/ ./lxd-agent/... || die "Failed to build lxd-agent"
+	for k in fuidshift lxc lxc-to-lxd lxd lxd-benchmark; do
+		go build -v -x -tags "libsqlite3" -o _dist/bin/ ./${k}/... || die "failed compiling ${k}"
 	done
-
-	ln -s libco.so.0.1.0 libco.so || die
-	ln -s libco.so.0.1.0 libco.so.0 || die
-
-	cd "${GOPATH}/deps/dqlite" || die
-	emake CFLAGS="-I${GOPATH}/deps/sqlite -I${GOPATH}/deps/raft/include" LDFLAGS="-L${GOPATH}/deps/sqlite -L${GOPATH}/deps/raft"
-
-	cd "${S}" || die
-
-	for k in fuidshift lxd-agent lxd-benchmark lxd-p2c lxc lxc-to-lxd; do
-		go install -v -x ${EGO_PN}/${k} || die "failed compiling ${k}"
-	done
-
-	go install -v -x -tags libsqlite3 ${EGO_PN}/lxd || die "Failed to build the daemon"
 
 	use nls && emake build-mo
 }
 
 src_test() {
+	export GO111MODULE=auto
 	export GOPATH="${S}/_dist"
+	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly"
 
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/sqlite/ -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/ -I${GOPATH}/deps/libco/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/sqlite/.libs/ -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -L${GOPATH}/deps/libco/ -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/sqlite/.libs/:${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${GOPATH}/deps/libco/:${LD_LIBRARY_PATH}"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
+	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${LD_LIBRARY_PATH}"
 
 	go test -v ${EGO_PN}/lxd || die
 }
@@ -160,7 +156,7 @@ src_install() {
 		dobin ${bindir}/${l}
 	done
 
-	for m in dqlite libco raft sqlite; do
+	for m in dqlite raft; do
 		cd "${GOPATH}"/deps/${m} || die "failed switching into ${GOPATH}/${m}"
 		emake DESTDIR="${D}" install
 	done
@@ -169,7 +165,6 @@ src_install() {
 
 	# We only need bundled libs during src_compile, and we don't want anything
 	# to link against these.
-	rm "${ED}"/usr/bin/sqlite3 || die
 	rm -r "${ED}"/usr/include || die
 	rm -r "${ED}"/usr/lib/lxd/*.a || die
 	rm -r "${ED}"/usr/lib/lxd/pkgconfig || die
@@ -191,6 +186,8 @@ pkg_postinst() {
 	# The control socket will be owned by (and writeable by) this group.
 	enewgroup lxd
 
+	elog
+	elog "Please run 'lxc-checkconfig' to see all optional kernel features."
 	elog
 	elog "Though not strictly required, some features are enabled at run-time"
 	elog "when the relevant helper programs are detected:"

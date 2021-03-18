@@ -4,56 +4,53 @@ EAPI=7
 
 inherit autotools bash-completion-r1 linux-info flag-o-matic pam readme.gentoo-r1
 
-DESCRIPTION="LinuX Containers userspace utilities"
+DESCRIPTION="A userspace interface for the Linux kernel containment features"
 HOMEPAGE="https://linuxcontainers.org/ https://github.com/lxc/lxc"
-SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz
-	https://github.com/lxc/lxc/archive/${P}.tar.gz"
+SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
 KEYWORDS=""
 
 LICENSE="LGPL-3"
 SLOT="0"
-IUSE="apparmor +caps doc examples libressl pam seccomp selinux +ssl +templates +tools"
+IUSE="apparmor +caps doc examples libressl man pam selinux +ssl +tools"
 
 RDEPEND="app-misc/pax-utils
 	sys-apps/util-linux
 	sys-libs/libcap
+	sys-libs/libseccomp
 	virtual/awk
 	caps? ( sys-libs/libcap )
 	pam? ( sys-libs/pam )
-	seccomp? ( sys-libs/libseccomp )
 	selinux? ( sys-libs/libselinux )
 	ssl? (
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:0= )
 	)"
 DEPEND="${RDEPEND}
-	>=app-text/docbook-sgml-utils-0.6.14-r2
-	>=sys-kernel/linux-headers-3.2
+	>=sys-kernel/linux-headers-4
 	apparmor? ( sys-apps/apparmor )"
-BDEPEND="doc? ( app-doc/doxygen )"
-PDEPEND="templates? ( app-emulation/lxc-templates )"
+BDEPEND="doc? ( app-doc/doxygen )
+	man? ( app-text/docbook-sgml-utils )"
 
 CONFIG_CHECK="~!NETPRIO_CGROUP
 	~CGROUPS
 	~CGROUP_CPUACCT
 	~CGROUP_DEVICE
-
 	~CGROUP_FREEZER
+
 	~CGROUP_SCHED
 	~CPUSETS
 	~IPC_NS
-
 	~MACVLAN
+
 	~MEMCG
 	~NAMESPACES
 	~NET_NS
-
 	~PID_NS
+
 	~POSIX_MQUEUE
 	~USER_NS
 	~UTS_NS
-
 	~VETH"
 
 ERROR_CGROUP_FREEZER="CONFIG_CGROUP_FREEZER: needed to freeze containers"
@@ -75,8 +72,6 @@ PATCHES=(
 	"${FILESDIR}"/${PV}/${PN}-2.0.5-omit-sysconfig.patch # bug 558854
 )
 
-S="${WORKDIR}/lxc-${P}"
-
 src_prepare() {
 	default
 	eautoreconf
@@ -85,8 +80,6 @@ src_prepare() {
 src_configure() {
 	append-flags -fno-strict-aliasing
 
-	# --enable-doc is for manpages which is why we don't link it to a "doc"
-	# USE flag. We always want man pages.
 	local myeconfargs=(
 		--bindir=/usr/bin
 		--localstatedir=/var
@@ -108,16 +101,16 @@ src_configure() {
 
 		--enable-bash
 		--enable-commands
-		--enable-doc
 		--enable-memfd-rexec
+		--enable-seccomp
 		--enable-thread-safety
 
 		$(use_enable apparmor)
 		$(use_enable caps capabilities)
 		$(use_enable doc api-docs)
 		$(use_enable examples)
+		$(use_enable man doc)
 		$(use_enable pam)
-		$(use_enable seccomp)
 		$(use_enable selinux)
 		$(use_enable ssl openssl)
 		$(use_enable tools)
@@ -144,17 +137,24 @@ src_install() {
 	newinitd "${FILESDIR}/${PV}/${PN}.initd" ${PN}
 
 	DOC_CONTENTS="
-	For openrc, there is an init script provided with the package.
-	You _should_ only need to symlink /etc/init.d/lxc to
-	/etc/init.d/lxc.configname to start the container defined in
-	/etc/lxc/configname.conf.
+		For openrc, there is an init script provided with the package.
+		You should only need to symlink /etc/init.d/lxc to
+		/etc/init.d/lxc.configname to start the container defined in
+		/etc/lxc/configname.conf."
 
-	If you want checkpoint/restore functionality, please install criu
-	(sys-process/criu)."
 	DISABLE_AUTOFORMATTING=true
 	readme.gentoo_create_doc
 }
 
 pkg_postinst() {
 	readme.gentoo_print_elog
+
+	elog "Please run 'lxc-checkconfig' to see optional kernel features."
+	elog
+	elog "Though not strictly required, some features are enabled at run-time"
+	elog "when the relevant helper programs are detected:"
+	elog "- app-emulation/lxc-templates"
+	elog "- dev-util/debootstrap"
+	elog "- sys-process/criu"
+	elog
 }

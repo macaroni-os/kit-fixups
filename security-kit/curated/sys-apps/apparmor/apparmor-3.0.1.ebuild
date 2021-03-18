@@ -8,11 +8,11 @@ MY_PV="$(ver_cut 1-2)"
 
 DESCRIPTION="Userspace utils and init scripts for the AppArmor application security system"
 HOMEPAGE="https://gitlab.com/apparmor/apparmor/wikis/home"
-SRC_URI="https://launchpad.net/${PN}/${MY_PV}/${PV}/+download/${P}.tar.gz"
+SRC_URI="https://launchpad.net/${PN}/${MY_PV}/${PV}/+download/${PN}-${PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="doc"
 
 RESTRICT="test" # bug 675854
@@ -26,13 +26,11 @@ DEPEND="${RDEPEND}
 	doc? ( dev-tex/latex2html )
 "
 
-RDEPEND="${RDEPEND} ~sec-policy/apparmor-profiles-${PV}"
-
 S=${WORKDIR}/apparmor-${PV}/parser
 
 PATCHES=(
-	"${FILESDIR}/${PN}-2.13.1-makefile.patch"
-	"${FILESDIR}/${PN}-2.11.1-dynamic-link.patch"
+	"${FILESDIR}/${PV}/${PN}-3.0.0-makefile.patch"
+	"${FILESDIR}/${PV}/${PN}-2.11.1-dynamic-link.patch"
 )
 
 src_prepare() {
@@ -41,10 +39,21 @@ src_prepare() {
 	# remove warning about missing file that controls features
 	# we don't currently support
 	sed -e "/installation problem/ctrue" -i rc.apparmor.functions || die
+
+	# bug 634782
+	sed -e "s/cpp/$(tc-getCPP) -/" \
+		-i ../common/list_capabilities.sh \
+		-i ../common/list_af_names.sh || die
 }
 
-src_compile()  {
-	emake CC="$(tc-getCC)" CXX="$(tc-getCXX)" USE_SYSTEM=1 arch manpages
+src_compile() {
+	emake \
+		AR="$(tc-getAR)" \
+		CC="$(tc-getCC)" \
+		CPP="$(tc-getCPP) -" \
+		CXX="$(tc-getCXX)" \
+		USE_SYSTEM=1 \
+		arch manpages
 	use doc && emake pdf
 }
 
@@ -53,15 +62,20 @@ src_test() {
 }
 
 src_install() {
-	emake DESTDIR="${D}" DISTRO="unknown" USE_SYSTEM=1 install
+	emake \
+		CPP="$(tc-getCPP) -" \
+		DESTDIR="${D}" \
+		DISTRO="unknown" \
+		USE_SYSTEM=1 \
+		install
 
 	dodir /etc/apparmor.d/disable
 
-	newinitd "${FILESDIR}/${PN}-init" ${PN}
+	newinitd "${FILESDIR}/${PV}/${PN}-init" ${PN}
 
 	use doc && dodoc techdoc.pdf
 
 	exeinto /usr/share/apparmor
-	doexe "${FILESDIR}/apparmor_load.sh"
-	doexe "${FILESDIR}/apparmor_unload.sh"
+	doexe "${FILESDIR}/${PV}/apparmor_load.sh"
+	doexe "${FILESDIR}/${PV}/apparmor_unload.sh"
 }

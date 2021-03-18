@@ -13,7 +13,7 @@ SRC_URI="https://launchpad.net/apparmor/${MY_PV}/${PV}/+download/apparmor-${PV}.
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE=""
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
@@ -27,11 +27,13 @@ DEPEND="${COMMON_DEPEND}
 	sys-devel/gettext
 "
 RDEPEND="${COMMON_DEPEND}
-	~sys-libs/libapparmor-${PV}[perl,python]
+	~sys-libs/libapparmor-${PV}[perl,python,${PYTHON_USEDEP}]
 	~sys-apps/apparmor-${PV}
 	dev-perl/Locale-gettext
 	dev-perl/RPC-XML
 	dev-perl/TermReadKey
+	dev-python/notify2[${PYTHON_USEDEP}]
+	dev-python/psutil[${PYTHON_USEDEP}]
 	virtual/perl-Data-Dumper
 	virtual/perl-Getopt-Long"
 
@@ -69,13 +71,14 @@ src_install() {
 		VIM_INSTALL_PATH="${D}/usr/share/vim/vimfiles/syntax" install
 
 	install_python() {
+		local -x PYTHONDONTWRITEBYTECODE=
 		"${PYTHON}" "${S}"/utils/python-tools-setup.py install --prefix=/usr \
-			--root="${D}" --version="${PV}"
+			--root="${D}" --optimize 2
 	}
 
 	python_foreach_impl install_python
-	python_replicate_script "${D}"/usr/bin/aa-easyprof "${D}"/usr/sbin/apparmor_status \
-		"${D}"/usr/sbin/aa-{audit,autodep,cleanprof,complain,disable,enforce,genprof,logprof,mergeprof,status,unconfined}
+	python_replicate_script "${D}"/usr/bin/aa-easyprof \
+		"${D}"/usr/sbin/aa-{audit,autodep,cleanprof,complain,disable,enforce,genprof,logprof,mergeprof,unconfined}
 	popd > /dev/null || die
 
 	pushd binutils > /dev/null || die

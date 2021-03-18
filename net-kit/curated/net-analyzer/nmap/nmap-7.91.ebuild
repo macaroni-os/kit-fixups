@@ -1,51 +1,42 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
+
+LUA_COMPAT=( lua5-3 )
+LUA_REQ_USE="deprecated"
 
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="sqlite,xml"
-inherit autotools flag-o-matic python-single-r1 toolchain-funcs
 
-MY_P=${P/_beta/BETA}
+inherit autotools flag-o-matic lua-single python-single-r1 toolchain-funcs
 
-DESCRIPTION="A utility for network discovery and security auditing"
+DESCRIPTION="Network exploration tool and security / port scanner"
 HOMEPAGE="https://nmap.org/"
-SRC_URI="
-	https://nmap.org/dist/${MY_P}.tar.bz2
-	https://dev.gentoo.org/~jer/nmap-logo-64.png
-"
+SRC_URI="https://nmap.org/dist/${P}.tar.bz2"
 
-LICENSE="GPL-2"
+LICENSE="|| ( NPSL GPL-2 )"
 SLOT="0"
 KEYWORDS="*"
+IUSE="ipv6 libressl libssh2 ncat nping +nse ssl +system-lua"
+REQUIRED_USE="system-lua? ( nse ${LUA_REQUIRED_USE} )"
 
-IUSE="
-	ipv6 libressl libssh2 ncat nls nmap-update nping +nse ssl system-lua
-"
-NMAP_LINGUAS=( de fr hi hr it ja pl pt_BR ru zh )
-REQUIRED_USE="
-	system-lua? ( nse )
-"
 RDEPEND="
 	dev-libs/liblinear:=
 	dev-libs/libpcre
 	net-libs/libpcap
-	libssh2? ( net-libs/libssh2[zlib] )
-	nls? ( virtual/libintl )
-	nmap-update? (
-		dev-libs/apr
-		dev-vcs/subversion
+	libssh2? (
+		net-libs/libssh2[zlib]
+		sys-libs/zlib
 	)
+	nse? ( sys-libs/zlib )
 	ssl? (
 		!libressl? ( dev-libs/openssl:0= )
 		libressl? ( dev-libs/libressl:= )
 	)
-	system-lua? ( >=dev-lang/lua-5.2:*[deprecated] )
+	system-lua? ( ${LUA_DEPS} )
 "
-DEPEND="
-	${RDEPEND}
-	nls? ( sys-devel/gettext )
-"
+DEPEND="${RDEPEND}"
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.10_beta1-string.patch
 	"${FILESDIR}"/${PN}-5.21-python.patch
@@ -56,15 +47,13 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-7.31-libnl.patch
 	"${FILESDIR}"/${PN}-7.80-ac-config-subdirs.patch
 	"${FILESDIR}"/${PN}-7.91-no-FORTIFY_SOURCE.patch
+	"${FILESDIR}"/${P}-ncat-proxy.patch
+	"${FILESDIR}"/${P}-ncat-unix-sockets.patch
 )
 
-S="${WORKDIR}/${MY_P}"
-
-src_unpack() {
-	# prevent unpacking the logo
-	unpack ${MY_P}.tar.bz2
+pkg_setup() {
+	use system-lua && lua-single_pkg_setup
 }
-
 
 src_prepare() {
 	rm -r liblinear/ libpcap/ libpcre/ libssh2/ libz/ || die
@@ -87,34 +76,29 @@ src_prepare() {
 	fi
 }
 
-
 src_configure() {
 	# The bundled libdnet is incompatible with the version available in the
 	# tree, so we cannot use the system library here.
 	econf \
 		$(use_enable ipv6) \
-		$(use_enable nls) \
 		$(use_with libssh2) \
 		$(use_with ncat) \
-		$(use_with nmap-update) \
 		$(use_with nping) \
 		$(use_with ssl openssl) \
 		$(usex libssh2 --with-zlib) \
-		$(usex nse --with-liblua=$(usex system-lua /usr included '' '') --without-liblua) \
-		--without-ndiff \
-		--without-zenmap \
+		$(usex nse --with-liblua=$(usex system-lua yes included '' '') --without-liblua) \
+		$(usex nse --with-zlib) \
 		--cache-file="${S}"/config.cache \
 		--with-libdnet=included \
-		--with-pcre=/usr
-	#	Commented out because configure does weird things
-	#	--with-liblinear=/usr \
+		--with-pcre=/usr \
+		--without-ndiff \
+		--without-zenmap
 }
 
 src_compile() {
 	local directory
 	for directory in . libnetutil nsock/src \
 		$(usex ncat ncat '') \
-		$(usex nmap-update nmap-update '') \
 		$(usex nping nping '')
 	do
 		emake -C "${directory}" makefile.dep
@@ -131,15 +115,6 @@ src_install() {
 		STRIP=: \
 		nmapdatadir="${EPREFIX}"/usr/share/nmap \
 		install
-	if use nmap-update;then
-		LC_ALL=C emake -j1 \
-			-C nmap-update \
-			DESTDIR="${D}" \
-			STRIP=: \
-			nmapdatadir="${EPREFIX}"/usr/share/nmap \
-			install
-	fi
 
 	dodoc CHANGELOG HACKING docs/README docs/*.txt
-
 }

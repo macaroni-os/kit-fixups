@@ -15,7 +15,7 @@ SRC_URI="mirror://gentoo/gentoo-headers-base-${PV}.tar.xz
 	${PATCH_VER:+https://dev.gentoo.org/~slyfox/distfiles/gentoo-headers-${PV}-${PATCH_VER}.tar.xz}
 "
 
-KEYWORDS=""
+KEYWORDS="*"
 
 DEPEND="app-arch/xz-utils
 	dev-lang/perl"

@@ -1,39 +1,32 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="7"
 
 inherit linux-info toolchain-funcs
 
-# Find updates by searching and clicking the first link (hopefully it's the one):
-# https://www.intel.com/content/www/us/en/search.html?keyword=Processor+Microcode+Data+File
-
-COLLECTION_SNAPSHOT="20190623"
-INTEL_SNAPSHOT="20190312"
-NUM="28087"
+COLLECTION_SNAPSHOT="${PV##*_p}"
 DESCRIPTION="Intel IA32/IA64 microcode update data"
-HOMEPAGE="http://inertiawar.com/microcode/ https://downloadcenter.intel.com/Detail_Desc.aspx?DwnldID=${NUM}"
+HOMEPAGE="https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files http://inertiawar.com/microcode/"
+SRC_URI="!vanilla? ( {{artifacts[0].src_uri}} )
+		{{artifacts[1].src_uri}}"
 
 LICENSE="intel-ucode"
 SLOT="0"
 KEYWORDS="-* amd64 x86"
 IUSE="+split-ucode +vanilla"
-DEPEND="sys-apps/iucode_tool"
+BDEPEND="sys-apps/iucode_tool"
 
 # !<sys-apps/microcode-ctl-1.17-r2 due to bug #268586
-RDEPEND="!<sys-apps/microcode-ctl-1.17-r2
->=app-admin/ego-2.5.0.4"
+RDEPEND="
+	!<sys-apps/microcode-ctl-1.17-r2
+	>=app-admin/ego-2.5.0.4
+"
 
 RESTRICT="binchecks strip"
 
-GITHUB_REPO="Intel-Linux-Processor-Microcode-Data-Files"
-GITHUB_USER="intel"
-GITHUB_TAG="microcode-${PV}"
-SRC_URI="https://dev.gentoo.org/~whissi/dist/intel-microcode/intel-microcode-collection-${COLLECTION_SNAPSHOT}.tar.xz
-https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 
 # Blacklist bad microcode here.
@@ -103,26 +96,26 @@ src_install() {
 	# split location (we use a temporary location so that we are able
 	# to re-run iucode_tool in pkg_preinst; use keepdir instead of dodir to carry
 	# this folder to pkg_preinst to avoid an error even if no microcode was selected):
-	keepdir /tmp/intel-ucode && opts+=( --write-firmware="${ED%/}"/tmp/intel-ucode )
+	keepdir /tmp/intel-ucode && opts+=( --write-firmware="${ED}"/tmp/intel-ucode )
 
 	iucode_tool \
 		"${opts[@]}" \
 		"${MICROCODE_SRC[@]}" \
 		|| die "iucode_tool ${opts[@]} ${MICROCODE_SRC[@]}"
 
-	dodoc releasenote
+	dodoc releasenote.md
 }
 
 pkg_preinst() {
 	if use split-ucode; then
 		# Temporary /tmp/intel-ucode will become final /lib/firmware/intel-ucode ...
 		dodir /lib/firmware
-		mv "${ED%/}/tmp/intel-ucode" "${ED%/}/lib/firmware" || die "Failed to install splitted ucodes!"
+		mv "${ED}/tmp/intel-ucode" "${ED}/lib/firmware" || die "Failed to install splitted ucodes!"
 	fi
 
 	# Cleanup any temporary leftovers so that we don't merge any
 	# unneeded files on disk
-	rm -r "${ED%/}/tmp" || die "Failed to cleanup '${ED%/}/tmp'"
+	rm -r "${ED}/tmp" || die "Failed to cleanup '${ED}/tmp'"
 }
 
 pkg_postinst() {
@@ -145,7 +138,7 @@ pkg_postinst() {
 		ewarn "MICROCODE_BLACKLIST or MICROCODE_SIGNATURES, you maybe have unintentionally"
 		ewarn "re-enabled those microcodes...!"
 		ewarn ""
-		ewarn "Check \"${EROOT%/}/usr/share/doc/${PN}-*/releasenot*\" if your microcode update"
+		ewarn "Check \"${EROOT}/usr/share/doc/${PN}-*/releasenot*\" if your microcode update"
 		ewarn "requires additional kernel patches or not."
 	fi
 }

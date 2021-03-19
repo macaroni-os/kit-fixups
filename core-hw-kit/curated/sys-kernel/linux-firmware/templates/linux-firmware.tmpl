@@ -3,11 +3,9 @@
 EAPI=7
 inherit mount-boot savedconfig
 
-SRC_URI="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/linux-firmware-${PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS="*"
-
 DESCRIPTION="Linux firmware files"
 HOMEPAGE="https://git.kernel.org/?p=linux/kernel/git/firmware/linux-firmware.git"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="GPL-2 GPL-2+ GPL-3 BSD MIT || ( MPL-1.1 GPL-2 )
 	redistributable? (
@@ -15,6 +13,7 @@ LICENSE="GPL-2 GPL-2+ GPL-3 BSD MIT || ( MPL-1.1 GPL-2 )
 	unknown-license? ( all-rights-reserved )"
 SLOT="0"
 IUSE="initramfs +redistributable savedconfig unknown-license"
+KEYWORDS="*"
 RESTRICT="binchecks strip
 	unknown-license? ( bindist )"
 

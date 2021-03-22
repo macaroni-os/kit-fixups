@@ -78,14 +78,15 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 # bug 479092, requires networking
-pkg_setup() {
-ebegin "Creating named group and user"
-enewgroup named 40
-enewuser named 40 -1 /etc/bind named
-eend ${?}
-}
 # bug 710840, cmocka fails LDFLAGS='-Wl,-O1'
 #RESTRICT="test"
+
+pkg_setup() {
+	ebegin "Creating named group and user"
+	enewgroup named 40
+	enewuser named 40 -1 /etc/bind named
+	eend ${?}
+}
 
 src_prepare() {
 	default
@@ -130,6 +131,8 @@ bind_configure() {
 		$(use_with dlz dlz-filesystem)
 		$(use_with dlz dlz-stub)
 		$(use_with gssapi)
+		$(use_with geoip maxminddb)
+		$(use_enable geoip)
 		$(use_with json json-c)
 		$(use_with ldap dlz-ldap)
 		$(use_with mysql dlz-mysql)
@@ -140,11 +143,6 @@ bind_configure() {
 		$(use_with zlib)
 		"${@}"
 	)
-	if use geoip ; then
-		myeconfargs+=( $(use_with geoip maxminddb) --enable-geoip )
-	else
-		myeconfargs+=( --without-maxminddb --disable-geoip )
-	fi
 
 	# bug #158664
 #	gcc-specs-ssp && replace-flags -O[23s] -O

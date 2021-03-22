@@ -1,0 +1,35 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+SRC_URI="{{artifacts[0].src_uri}}"
+KEYWORDS="*"
+
+DESCRIPTION="Additional completion definitions for Zsh"
+HOMEPAGE="https://github.com/zsh-users/zsh-completions"
+
+LICENSE="BSD"
+SLOT="0"
+
+RDEPEND="app-shells/zsh"
+
+src_prepare() {
+	{% for name in removal_list %}
+	rm -rf src/{{name}}
+	{% endfor %}
+
+	default
+}
+
+src_install() {
+	insinto /usr/share/zsh/site-functions
+	doins src/_*
+}
+
+pkg_postinst() {
+	elog
+	elog "If you happen to compile your functions, you may need to delete"
+	elog "~/.zcompdump{,.zwc} and recompile to make the new completions available"
+	elog "to your shell."
+	elog
+}

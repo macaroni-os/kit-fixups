@@ -493,6 +493,10 @@ simple_python_autogen_rule:
             sed -i -e "s/'idna.*$/'idna',/" setup.py || die
             distutils-r1_src_prepare
           }
+    - semantic_version:
+        desc: Python library providing a few tools handling SemVer in Python
+        homepage: https://pypi.org/project/semantic_version/
+        license: BSD
     - thefuck:
         cat: app-shells
         desc: Magnificent app which corrects your previous console command

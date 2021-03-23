@@ -11,7 +11,7 @@ DESCRIPTION="Userland utilities for ZFS Linux kernel module"
 HOMEPAGE="https://github.com/openzfs/zfs"
 
 SRC_URI="https://github.com/openzfs/${PN}/releases/download/${P}/${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="BSD-2 CDDL MIT"
 SLOT="0/2" # just libzfs soname major for now. possible candidates: libuutil, libzpool, libnvpair

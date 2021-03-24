@@ -12,7 +12,7 @@ HOMEPAGE="https://github.com/openzfs/zfs"
 
 MY_P="${P/_rc/-rc}"
 SRC_URI="https://github.com/openzfs/${PN}/releases/download/${MY_P}/${MY_P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 S="${WORKDIR}/${P%_rc?}"
 
 LICENSE="BSD-2 CDDL MIT"

@@ -1,0 +1,48 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{crates}}"
+
+inherit bash-completion-r1 cargo
+
+DESCRIPTION="A command line tool for interacting with Nitrokey devices"
+HOMEPAGE="https://github.com/d-e-s-o/nitrocli.git"
+SRC_URI="{{artifacts[0].src_uri}}
+	$(cargo_crate_uris ${CRATES})"
+
+LICENSE="Apache-2.0 BSD-2 CC0-1.0 GPL-3+ LGPL-3 MIT"
+SLOT="0"
+KEYWORDS="*"
+
+DEPEND="
+	dev-libs/hidapi
+"
+# We require gnupg for /usr/bin/gpg-connect-agent.
+RDEPEND="
+	${DEPEND}
+	app-crypt/gnupg
+"
+
+# Uses a plugged-in Nitrokey and runs tests on it. These tests assumes a
+# pristine configuration and will modify the device's state. Not meant
+# to be run as part of the installation.
+RESTRICT="test"
+QA_FLAGS_IGNORED="/usr/bin/nitrocli"
+
+src_unpack() {
+	cargo_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_install() {
+	cargo_src_install --bin=nitrocli
+
+	target/release/shell-complete bash > nitrocli.bash || die
+	newbashcomp nitrocli.bash ${PN}
+
+	einstalldocs
+	doman "doc/nitrocli.1"
+}

@@ -755,7 +755,7 @@ distutils-r1_python_compile() {
 			build_args+=( -j "${jobs}" )
 		fi
 
-	esetup.py build -j "${build_args[@]}" "${@}"
+	esetup.py build "${build_args[@]}" "${@}"
 }
 
 # @FUNCTION: _distutils-r1_wrap_scripts

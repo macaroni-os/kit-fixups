@@ -754,6 +754,7 @@ distutils-r1_python_compile() {
 			fi
 			build_args+=( -j "${jobs}" )
 		fi
+	fi
 
 	esetup.py build "${build_args[@]}" "${@}"
 }

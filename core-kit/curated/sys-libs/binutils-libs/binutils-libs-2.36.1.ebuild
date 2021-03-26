@@ -1,8 +1,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-PATCH_VER=2
+PATCH_VER=1
 PATCH_DEV=dilfridge
 
 inherit eutils libtool toolchain-funcs
@@ -19,25 +19,22 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 
 LICENSE="|| ( GPL-3 LGPL-3 )"
 SLOT="0/${PV}"
-IUSE="64-bit-bfd multitarget nls static-libs"
+IUSE="64-bit-bfd cet multitarget nls static-libs"
 KEYWORDS="*"
 
-COMMON_DEPEND="sys-libs/zlib"
-DEPEND="${COMMON_DEPEND}
-	>=sys-apps/texinfo-4.7
-	nls? ( sys-devel/gettext )"
+BDEPEND="nls? ( sys-devel/gettext )"
+DEPEND="sys-libs/zlib"
 # Need a newer binutils-config that'll reset include/lib symlinks for us.
-RDEPEND="${COMMON_DEPEND}
+RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
-	nls? ( !<sys-devel/gdb-7.10-r1[nls] )"
+"
+
+PATCHES=("${FILESDIR}"/${PN}-2.35.1-cet.patch)
 
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	if [[ ! -z ${PATCH_VER} ]] ; then
-		# Use upstream patch to enable development mode
-		rm -v "${WORKDIR}/patch"/0000-Gentoo-Git-is-development.patch || die
-
 		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
 		eapply "${WORKDIR}/patch"/*.patch
 	fi
@@ -83,8 +80,17 @@ src_configure() {
 		# We pull in all USE-flags that change ABI in an incompatible
 		# way. #666100
 		# USE=multitarget change size of global arrays
-		# USE=64-bit-bfd changes data structures of exported API 
+		# USE=64-bit-bfd changes data structures of exported API
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
 
 	# mips can't do hash-style=gnu ...
@@ -100,6 +106,12 @@ src_configure() {
 
 	ECONF_SOURCE=${S} \
 	econf "${myconf[@]}"
+
+	# Prevent makeinfo from running as we don't build docs here.
+	# bug #622652
+	sed -i \
+		-e '/^MAKEINFO/s:=.*:= true:' \
+		Makefile || die
 }
 
 src_install() {

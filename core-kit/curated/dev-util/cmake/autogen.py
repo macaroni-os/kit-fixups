@@ -14,6 +14,8 @@ async def generate(hub, **pkginfo):
 		if release["prerelease"] or release["draft"]:
 			continue
 		version = release["tag_name"][1:]
+		if version != '3.19.7':
+			continue
 		if "-rc" in version:
 			continue
 		url = release["tarball_url"]

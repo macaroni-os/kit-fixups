@@ -28,6 +28,7 @@ DEPEND="sys-libs/zlib"
 RDEPEND="${DEPEND}
 	>=sys-devel/binutils-config-5
 "
+PDEPEND="=sys-devel/binutils-2.36.1-r1"
 
 PATCHES=("${FILESDIR}"/${PN}-2.35.1-cet.patch)
 

@@ -47,6 +47,7 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
+	=sys-libs/binutils-libs-2.36.1-r1
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -367,9 +368,8 @@ src_install() {
 }
 
 pkg_postinst() {
-	# Make sure this ${CTARGET} has a binutils version selected
-	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
-	binutils-config ${CTARGET}-${PV}
+	# switch to this binutils
+	binutils-config ${PV}
 }
 
 pkg_postrm() {

@@ -406,6 +406,16 @@ simple_python_autogen_rule:
             doins bpytop-themes/*.theme
             distutils-r1_src_install
           }
+    - cheetah3:
+        pypi_name: Cheetah3
+        desc: Python-powered template engine and code generator
+        homepage: http://www.cheetahtemplate.org/ https://pypi.org/project/Cheetah3/
+        license: MIT
+        du_setuptools: 'no'
+        restrict: test
+        rdepend: "!dev-python/cheetah"
+        pydeps:
+          - markdown
     - dict-toolbox:
         desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
@@ -493,6 +503,14 @@ simple_python_autogen_rule:
             sed -i -e "s/'idna.*$/'idna',/" setup.py || die
             distutils-r1_src_prepare
           }
+    - scons:
+        pypi_name: SCons
+        cat: dev-util
+        desc: Extensible Python-based build utility
+        homepage: https://www.scons.org/
+        license: MIT
+        du_setuptools: rdepend
+        restrict: test
     - semantic_version:
         desc: Python library providing a few tools handling SemVer in Python
         homepage: https://pypi.org/project/semantic_version/

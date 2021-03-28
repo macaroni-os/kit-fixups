@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import json
-
 
 async def generate(hub, **pkginfo):
 
@@ -22,6 +20,14 @@ async def generate(hub, **pkginfo):
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
 	)
 	ebuild.push()
+	ebuild_libs = hub.pkgtools.ebuild.BreezyBuild(
+		template_path=ebuild.template_path,
+		cat="sys-libs",
+		name="e2fsprogs-libs",
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
+	)
+	ebuild_libs.push()
 
 
 # vim: ts=4 sw=4 noet

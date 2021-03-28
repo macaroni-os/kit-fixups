@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit flag-o-matic systemd toolchain-funcs udev usr-ldscript
+inherit flag-o-matic toolchain-funcs udev usr-ldscript
 
 DESCRIPTION="Standard EXT2/EXT3/EXT4 filesystem utilities"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
@@ -60,7 +60,6 @@ src_configure() {
 	local myeconfargs=(
 		--with-root-prefix="${EPREFIX}"
 		$(use_with cron crond-dir "${EPREFIX}/etc/cron.d")
-		--with-systemd-unit-dir="$(systemd_get_systemunitdir)"
 		--with-udev-rules-dir="${EPREFIX}$(get_udevdir)/rules.d"
 		--enable-symlink-install
 		--enable-elf-shlibs

@@ -1,73 +1,54 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
-PYTHON_COMPAT=( python3_{5,6,7} )
+PYTHON_COMPAT=( {{python_compat}} )
 PYTHON_REQ_USE="threads(+)"
 
 FORTRAN_NEEDED=lapack
 
+DISTUTILS_USE_SETUPTOOLS=rdepend
+
 inherit distutils-r1 flag-o-matic fortran-2 multiprocessing toolchain-funcs
 
 DESCRIPTION="Fast array and numerical python library"
-HOMEPAGE="https://www.numpy.org"
+HOMEPAGE="https://numpy.org/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="lapack test"
+IUSE="lapack"
 
-RDEPEND="lapack? (
+RDEPEND="
+	lapack? (
 		virtual/cblas
 		virtual/lapack
-	)"
-DEPEND="${RDEPEND}"
-BDEPEND="app-arch/unzip
-	dev-python/setuptools[${PYTHON_USEDEP}]
+	)
+"
+BDEPEND="
+	${RDEPEND}
+	app-arch/unzip
+	>=dev-python/cython-0.29.21[${PYTHON_USEDEP}]
 	lapack? ( virtual/pkgconfig )
-	test? (
-		dev-python/pytest[${PYTHON_USEDEP}]
-	)"
+"
 
-GITHUB_REPO="$PN"
-GITHUB_USER="numpy"
-GITHUB_TAG="7b3f861" # 1.7.0_rc1 with some bug fixes (12 Jul 2019)
-SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
-
-src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
-}
-
-pc_incdir() {
-	$(tc-getPKG_CONFIG) --cflags-only-I $@ | \
-		sed -e 's/^-I//' -e 's/[ ]*-I/:/g' -e 's/[ ]*$//' -e 's|^:||'
-}
-
-pc_libdir() {
-	$(tc-getPKG_CONFIG) --libs-only-L $@ | \
-		sed -e 's/^-L//' -e 's/[ ]*-L/:/g' -e 's/[ ]*$//' -e 's|^:||'
-}
-
-pc_libs() {
-	$(tc-getPKG_CONFIG) --libs-only-l $@ | \
-		sed -e 's/[ ]-l*\(pthread\|m\)\([ ]\|$\)//g' \
-		-e 's/^-l//' -e 's/[ ]*-l/,/g' -e 's/[ ]*$//' \
-		| tr ',' '\n' | sort -u | tr '\n' ',' | sed -e 's|,$||'
-}
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.20.1-no-hardcode-blasv2.patch
+)
 
 python_prepare_all() {
 	if use lapack; then
-		append-ldflags "$($(tc-getPKG_CONFIG) --libs-only-other cblas lapack)"
+		local incdir="${EPREFIX}"/usr/include
 		local libdir="${EPREFIX}"/usr/$(get_libdir)
 		cat >> site.cfg <<-EOF || die
 			[blas]
-			include_dirs = $(pc_incdir cblas)
-			library_dirs = $(pc_libdir cblas blas):${libdir}
-			blas_libs = $(pc_libs cblas blas)
+			include_dirs = ${incdir}
+			library_dirs = ${libdir}
+			blas_libs = cblas,blas
 			[lapack]
-			library_dirs = $(pc_libdir lapack):${libdir}
-			lapack_libs = $(pc_libs lapack)
+			library_dirs = ${libdir}
+			lapack_libs = lapack
 		EOF
 	else
 		export {ATLAS,PTATLAS,BLAS,LAPACK,MKL}=None
@@ -97,34 +78,42 @@ python_prepare_all() {
 	# don't version f2py, we will handle it.
 	sed -i -e '/f2py_exe/s: + os\.path.*$::' numpy/f2py/setup.py || die
 
+	# disable fuzzed tests
+	find numpy/*/tests -name '*.py' -exec sed -i \
+		-e 's:def \(.*_fuzz\):def _\1:' {} + || die
+	# very memory- and disk-hungry
+	sed -i -e 's:test_large_zip:_&:' numpy/lib/tests/test_io.py || die
+
 	distutils-r1_python_prepare_all
 }
 
 python_compile() {
 	export MAKEOPTS=-j1 #660754
 
-	distutils-r1_python_compile \
-		${python_makeopts_jobs} \
-		${NUMPY_FCONFIG}
+	distutils-r1_python_compile ${NUMPY_FCONFIG}
 }
 
 python_test() {
-	distutils_install_for_testing --single-version-externally-managed --record "${TMPDIR}/record.txt" ${NUMPY_FCONFIG}
+	distutils_install_for_testing --single-version-externally-managed \
+		--record "${TMPDIR}/record.txt" ${NUMPY_FCONFIG}
 
 	cd "${TMPDIR}" || die
 
-	${EPYTHON} -c "
+	"${EPYTHON}" -c "
 import numpy, sys
 r = numpy.test(label='full', verbose=3)
 sys.exit(0 if r else 1)" || die "Tests fail with ${EPYTHON}"
 }
 
 python_install() {
+	# https://github.com/numpy/numpy/issues/16005
+	local mydistutilsargs=( build_src )
 	distutils-r1_python_install ${NUMPY_FCONFIG}
+	python_optimize
 }
 
 python_install_all() {
-	local DOCS=( THANKS.txt )
+	local DOCS=( LICENSE.txt README.md THANKS.txt )
 
 	distutils-r1_python_install_all
 }

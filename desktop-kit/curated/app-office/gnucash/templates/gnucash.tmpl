@@ -88,7 +88,7 @@ PDEPEND="doc? (
 
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-3.2-no-gui.patch
+	"${FILESDIR}"/${PN}-4.5-no-gui.patch
 	"${FILESDIR}"/${PN}-3.8-examples-subdir.patch
 	"${FILESDIR}"/${PN}-3.8-exclude-license.patch
 )

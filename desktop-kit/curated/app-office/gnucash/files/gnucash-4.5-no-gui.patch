@@ -9,6 +9,6 @@ index 5e10a09..cdbdb7a 100644
 +if (WITH_GNUCASH)
  add_subdirectory (doc)
 +endif (WITH_GNUCASH)
+ # Note: po should be processed before gnucash - it provides LINGUAS, used to generate desktop and appdata files
  add_subdirectory (po)
  add_subdirectory (common)
- add_subdirectory (libgnucash)

@@ -11,7 +11,7 @@ KEYWORDS="*"
 
 IUSE="apparmor +ipv6 +dnsmasq nls"
 
-inherit autotools bash-completion-r1 linux-info user
+inherit autotools bash-completion-r1 golang-base linux-info user
 
 SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
 

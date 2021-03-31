@@ -2,6 +2,8 @@
 
 EAPI=7
 
+GRUB_AUTORECONF=1
+
 if [[ -n ${GRUB_AUTOGEN} || -n ${GRUB_BOOTSTRAP} ]]; then
 	PYTHON_COMPAT=( python3+ )
 	inherit python-any-r1
@@ -14,15 +16,8 @@ fi
 
 inherit bash-completion-r1 flag-o-matic multibuild pax-utils toolchain-funcs
 
-if [[ ${PV} == *_alpha* || ${PV} == *_beta* || ${PV} == *_rc* ]]; then
-	# The quote style is to work with <=bash-4.2 and >=bash-4.3 #503860
-	MY_P=${P/_/'~'}
-	SRC_URI="mirror://gnu-alpha/${PN}/${MY_P}.tar.xz"
-	S=${WORKDIR}/${MY_P}
-else
-	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
-	S=${WORKDIR}/${P%_*}
-fi
+SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
+S=${WORKDIR}/${P%_*}
 
 KEYWORDS="*"
 
@@ -112,21 +107,12 @@ QA_PRESTRIPPED="usr/lib/grub/.*"
 QA_MULTILIB_PATHS="usr/lib/grub/.*"
 QA_WX_LOAD="usr/lib/grub/*"
 
-src_unpack() {
-	if [[ ${PV} == 9999 ]]; then
-		git-r3_src_unpack
-		pushd "${P}" >/dev/null || die
-		local GNULIB_URI="https://git.savannah.gnu.org/git/gnulib.git"
-		local GNULIB_REVISION=$(source bootstrap.conf >/dev/null; echo "${GNULIB_REVISION}")
-		git-r3_fetch "${GNULIB_URI}" "${GNULIB_REVISION}"
-		git-r3_checkout "${GNULIB_URI}" gnulib
-		popd >/dev/null || die
-	fi
-	default
-}
-
 src_prepare() {
 	default
+
+	# FL-8245: Remove .gnu.note.property to avoid zero padding.
+	sed -i -e 's/version -R .ARM/version -R .note.gnu.property -R .ARM/g' \
+		gentpl.py grub-core/Makefile.in grub-core/Makefile.core.am || die
 
 	sed -i -e /autoreconf/d autogen.sh || die
 	# Nothing in Gentoo packages 'american-english' in the exact path

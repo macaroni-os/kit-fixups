@@ -8,7 +8,7 @@ SRC_URI=""
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE=""
 
 RDEPEND=">=app-eselect/eselect-lib-bin-symlink-0.1.1"

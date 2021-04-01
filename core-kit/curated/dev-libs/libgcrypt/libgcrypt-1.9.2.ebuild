@@ -10,7 +10,7 @@ SRC_URI="mirror://gnupg/${PN}/${P}.tar.bz2"
 
 LICENSE="LGPL-2.1 MIT"
 SLOT="0/20" # subslot = soname major version
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="+asm cpu_flags_arm_neon cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1 doc o-flag-munging static-libs"
 
 RDEPEND=">=dev-libs/libgpg-error-1.25"
@@ -23,6 +23,12 @@ src_prepare() {
 }
 
 src_configure() {
+	if [[ ${CHOST} == *86*-solaris* ]] ; then
+		# ASM code uses GNU ELF syntax, divide in particular, we need to
+		# allow this via ASFLAGS, since we don't have a flag-o-matic
+		# function for that, we'll have to abuse cflags for this
+		append-cflags -Wa,--divide
+	fi
 	local myeconfargs=(
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
 
@@ -42,9 +48,14 @@ src_configure() {
 		# after libgcrypt drops them (bug #468616)
 		--without-capabilities
 
+		# http://trac.videolan.org/vlc/ticket/620
+		# causes bus-errors on sparc64-solaris
+		$([[ ${CHOST} == *86*-darwin* ]] && echo "--disable-asm")
+		$([[ ${CHOST} == sparcv9-*-solaris* ]] && echo "--disable-asm")
+
 		$(use asm || echo "--disable-asm")
 
-		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/gpg-error-config"
+		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpg-error-config"
 	)
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}" \
 		$("${S}/configure" --help | grep -o -- '--without-.*-prefix')
@@ -58,9 +69,6 @@ src_compile() {
 src_install() {
 	emake DESTDIR="${D}" install
 	use doc && dodoc doc/gcrypt.pdf
-}
 
-src_install_all() {
-	default
 	find "${ED}" -type f -name '*.la' -delete || die
 }

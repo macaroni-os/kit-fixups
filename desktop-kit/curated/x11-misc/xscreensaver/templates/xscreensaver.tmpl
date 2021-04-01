@@ -71,6 +71,9 @@ DEPEND="
 src_prepare() {
 	default
 
+	sed -e 's:/usr/share/fonts/X11:/usr/share/fonts /usr/share/fonts/X11:' \
+    	-i configure.ac || die
+
 	if ! use offensive; then
 		sed -i \
 			-e '/boobies/d;/boobs/d;/cock/d;/pussy/d;/viagra/d;/vibrator/d' \

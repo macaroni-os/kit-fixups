@@ -55,7 +55,7 @@ src_configure() {
 
 		$(use asm || echo "--disable-asm")
 
-		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/${CHOST}-gpg-error-config"
+		GPG_ERROR_CONFIG="${ESYSROOT}/usr/bin/gpg-error-config"
 	)
 	ECONF_SOURCE="${S}" econf "${myeconfargs[@]}" \
 		$("${S}/configure" --help | grep -o -- '--without-.*-prefix')

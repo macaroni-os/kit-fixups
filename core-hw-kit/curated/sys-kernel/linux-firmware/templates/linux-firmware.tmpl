@@ -14,8 +14,9 @@ LICENSE="GPL-2 GPL-2+ GPL-3 BSD MIT || ( MPL-1.1 GPL-2 )
 SLOT="0"
 IUSE="initramfs +redistributable savedconfig unknown-license"
 KEYWORDS="*"
-RESTRICT="binchecks strip
+RESTRICT="strip
 	unknown-license? ( bindist )"
+QA_PREBUILT="*"
 
 REQUIRED_USE="initramfs? ( redistributable )"
 

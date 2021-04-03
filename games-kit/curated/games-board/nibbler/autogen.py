@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
 	version = latest_release["tag_name"]
-	ebuild_version = version.lstrip("v")
+	ebuild_version = version.lstrip("v").rstrip("-hotfix")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=ebuild_version,

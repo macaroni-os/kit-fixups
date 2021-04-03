@@ -140,6 +140,7 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
+	linux-mod_pkg_postinst
 	if use videogroup; then
 		einfo "NVIDIA device nodes have been configured to require video group"
 		einfo "membership (via videogroup USE variable.) Please be sure to add"

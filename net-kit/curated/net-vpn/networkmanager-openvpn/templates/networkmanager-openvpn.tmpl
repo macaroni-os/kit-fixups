@@ -2,6 +2,7 @@
 
 EAPI=7
 GNOME_ORG_MODULE="${P/networkmanager/NetworkManager}"
+GNOME3_EAUTORECONF="yes"
 
 inherit gnome3 user
 
@@ -48,7 +49,6 @@ src_prepare() {
 	sed '/test_non_utf8_import (plugin, test_dir)/ d' \
 		-i properties/tests/test-import-export.c || die "sed failed"
 	gnome3_src_prepare
-	./autogen.sh || die
 }
 
 src_configure() {
@@ -58,6 +58,6 @@ src_configure() {
 		--disable-more-warnings \
 		--disable-static \
 		--with-dist-version=Funtoo \
-		--without-nm-glib \
+		--without-libnm-glib \
 		$(use_with gnome gnome)
 }

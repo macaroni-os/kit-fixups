@@ -35,7 +35,10 @@ BDEPEND="virtual/pkgconfig
 		$(python_gen_any_dep 'dev-python/mako[${PYTHON_USEDEP}]')
 	)"
 
-S="${WORKDIR}/${PN}-v${PV}"
+src_unpack() {
+	unpack "${A}"
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+}
 
 python_check_deps() {
 	has_version -b "dev-python/mako[${PYTHON_USEDEP}]"

@@ -106,6 +106,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.78-static-libs-belong-where-I-put-them.patch"
 	"${FILESDIR}/${PN}-2.3.78-module-rebuild.patch"
 	"${FILESDIR}/${PN}-3.0.9-add-repodir-variable.patch"
+	"${FILESDIR}/${PN}-3.0.14-allow-matches-in-package-updates.patch"
 )
 
 python_prepare_all() {

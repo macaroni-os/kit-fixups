@@ -889,10 +889,11 @@ dev_python_simplified_rule:
           libressl? ( dev-libs/libressl:0= )
           !libressl? ( dev-libs/openssl:0= )
         pydeps:
-          py:3:
+          py:3:build:
             - setuptools-rust
-          py:all:
+          py:all:build:
             - setuptools
+          py:all:
             - six >= 1.4.1
             - virtual/python-enum34
             - virtual/python-ipaddress

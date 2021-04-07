@@ -890,7 +890,7 @@ dev_python_simplified_rule:
           !libressl? ( dev-libs/openssl:0= )
         pydeps:
           py:3:build:
-            - setuptools-rust
+            - setuptools-rust >= 0.12.1
           py:all:build:
             - setuptools
           py:all:

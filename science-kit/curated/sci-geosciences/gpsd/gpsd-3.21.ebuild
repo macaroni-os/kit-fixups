@@ -3,7 +3,7 @@
 EAPI=7
 
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3+ )
+PYTHON_COMPAT=( python2+ )
 
 inherit distutils-r1 scons-utils toolchain-funcs udev user
 

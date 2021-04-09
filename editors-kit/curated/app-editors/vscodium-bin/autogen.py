@@ -4,7 +4,7 @@ from distutils.version import LooseVersion
 
 
 def get_release(releases_data):
-  	bad_versions=["1.55.1"]
+	bad_versions = ["1.55.1"]
 	releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False and x["tag_name"] not in bad_versions, releases_data))
 	return None if not releases else sorted(releases, key=lambda x: LooseVersion(x["tag_name"])).pop()
 

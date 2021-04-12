@@ -1,0 +1,43 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+EGO_SUM=(
+{{gosum}})
+
+go-module_set_globals
+
+DESCRIPTION="Commandline tool to customize Spotify client."
+HOMEPAGE="https://github.com/khanhas/spicetify-cli"
+SRC_URI="{{artifacts[0].src_uri}}
+	${EGO_SUM_SRC_URI}
+"
+
+LICENSE="Apache-2.0 BSD GPL-3 MIT"
+SLOT="0"
+KEYWORDS="*"
+
+INSTALLDIR="/opt/${PN}"
+
+PATCHES=(
+	"${FILESDIR}/${PN}-recognize_funtoo_install_path.patch"
+)
+
+src_unpack() {
+	go-module_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_compile() {
+	go build
+}
+
+src_install() {
+	insinto "${INSTALLDIR}"
+	doins -r {CustomApps,Extensions,Themes,jsHelper,spicetify-cli}
+	fperms +x "${INSTALLDIR}/spicetify-cli"
+	dosym /opt/spicetify-cli/spicetify-cli /usr/bin/spicetify
+}

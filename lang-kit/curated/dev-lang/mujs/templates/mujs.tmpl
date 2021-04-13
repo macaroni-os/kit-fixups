@@ -18,7 +18,7 @@ RDEPEND="sys-libs/readline:0="
 DEPEND="${RDEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.1.0-flags.patch"
+	"${FILESDIR}/${PN}-1.1.1-flags.patch"
 )
 
 src_prepare() {

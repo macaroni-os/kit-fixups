@@ -43,6 +43,13 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${P^}"
 
+# FL-8290: relax deps for docutils
+src_prepare() {
+	sed -i -e '/^docutils/c docutils' Sphinx.egg-info/requires.txt || die
+	sed -i -e "s/'docutils.*$/'docutils',/" setup.py || die
+	distutils-r1_src_prepare
+}
+
 python_compile_all() {
 	if use doc; then
 		esetup.py build_sphinx

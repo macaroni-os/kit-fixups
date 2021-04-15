@@ -564,6 +564,14 @@ simple_python_autogen_rule:
         desc: Python library providing a few tools handling SemVer in Python
         homepage: https://pypi.org/project/semantic_version/
         license: BSD
+    - speedtest-cli:
+        cat: net-analyzer
+        desc: Command line interface for testing internet bandwidth using speedtest.net
+        homepage: https://github.com/sivel/speedtest-cli
+        license: Apache-2.0
+        pydeps:
+          py:all:
+            - setuptools
     - thefuck:
         cat: app-shells
         desc: Magnificent app which corrects your previous console command

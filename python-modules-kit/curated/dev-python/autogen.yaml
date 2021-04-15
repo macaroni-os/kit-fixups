@@ -406,6 +406,24 @@ simple_python_autogen_rule:
             doins bpytop-themes/*.theme
             distutils-r1_src_install
           }
+    - cairocffi:
+        desc: CFFI based drop in replacement for Pycairo
+        homepage: https://github.com/Kozea/cairocffi
+        license: BSD
+        restrict: test
+        pydeps:
+          py:'python*':
+            - cffi >= 1.1.0:=
+          py:all:
+            - xcffib >= 0.3.2
+        rdepend: |
+          x11-libs/cairo:0=[X,xcb(+)]
+          x11-libs/gdk-pixbuf[jpeg]
+        body: |
+          src_prepare() {
+            sed -i -e '/pytest-/d' -e '/addopts/d' setup.cfg || die
+            distutils-r1_src_prepare
+          }
     - cheetah3:
         pypi_name: Cheetah3
         desc: Python-powered template engine and code generator
@@ -478,6 +496,33 @@ simple_python_autogen_rule:
           py:all:
             - setuptools
         python_compat: python3+
+    - qtile:
+        desc: A full-featured, hackable tiling window manager written in Python
+        homepage: http://www.qtile.org/
+        license: MIT
+        cat: x11-wm
+        restrict: test
+        du_setuptools: rdepend
+        pydeps:
+          py:all:
+            - setuptools_scm
+            - cairocffi >= 0.9.0
+            - cffi >= 1.1.0
+            - six >= 1.4.1
+            - xcffib >= 0.8.1
+        rdepend: |
+          x11-libs/cairo[X,xcb(+)]
+          x11-libs/pango
+          media-sound/pulseaudio
+        body: |
+          python_install_all() {
+            local DOCS=( CHANGELOG README.rst )
+            distutils-r1_python_install_all
+            insinto /usr/share/xsessions
+            doins resources/qtile.desktop
+            exeinto /etc/X11/Sessions
+            newexe "${FILESDIR}"/${PN}-session ${PN}
+          }
     - requests:
         revision: 1
         desc: HTTP library for human beings
@@ -506,11 +551,10 @@ simple_python_autogen_rule:
     - scons:
         versions:
           3.1.2:
-            cat: dev-util
             python_compat: python2+
           latest:
-            cat: dev-util
             pypi_name: SCons
+        cat: dev-util
         desc: Extensible Python-based build utility
         homepage: https://www.scons.org/
         license: MIT
@@ -599,6 +643,18 @@ simple_python_autogen_rule:
             fi
             python_optimize
           }
+    - xcffib:
+        desc: A drop-in replacement for xpyb, an XCB python binding
+        homepage: https://github.com/tych0/xcffib
+        license: Apache-2.0
+        restrict: test
+        pydeps:
+          py:'python*':
+            - cffi >= 1.1:=
+          py:all:
+            - six
+        depend: |
+          x11-libs/libxcb
 
 salt_misc_deps_rule:
   defaults:

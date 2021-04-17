@@ -105,8 +105,10 @@ stuff_orphaned_in_python2:
     - configparser:
         version: 4.0.2
         pydeps:
-          - backports
-          - setuptools_scm
+          py:all:
+            - backports
+          py:all:build:
+            - setuptools_scm
         body: |
           post_src_install() {
             # This is installed by backports:

@@ -17,7 +17,7 @@ esac
 
 inherit multilib toolchain-funcs
 
-IUSE="split-usr"
+IUSE="+split-usr"
 
 # @FUNCTION: gen_usr_ldscript
 # @USAGE: [-a] <list of libs to create linker scripts for>

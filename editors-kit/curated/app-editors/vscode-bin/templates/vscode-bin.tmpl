@@ -5,17 +5,16 @@ EAPI=7
 inherit desktop eutils pax-utils xdg
 
 MY_INSTALL_DIR="/opt/${PN}"
-MY_EXEC="code"
+MY_EXEC="{{channel}}"
 MY_PN=${PN/-bin/}
 
 DESCRIPTION="Multiplatform Visual Studio Code from Microsoft"
 HOMEPAGE="https://code.visualstudio.com"
-# linux-x64 folder path implies downloading tarball -> tar.gz
-SRC_URI="https://update.code.visualstudio.com/${PV}/linux-x64/stable -> ${P}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 RESTRICT="mirror strip"
 LICENSE="Microsoft"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS="{{ '*' if unmasked else '' }}"
 IUSE="libsecret hunspell"
 DEPEND="
 	media-libs/libpng

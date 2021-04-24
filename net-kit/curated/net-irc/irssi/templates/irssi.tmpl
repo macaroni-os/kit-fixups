@@ -40,11 +40,6 @@ RESTRICT="test"
 
 S="${WORKDIR}/${MY_P}"
 
-PATCHES=(
-	# https://github.com/irssi/irssi/issues/1180
-	"${FILESDIR}/${PN}-1.2.2-glib-2.63_NUL_unicode_fix.patch"
-)
-
 src_configure() {
 	# Disable automagic dependency on dev-libs/libutf8proc (gentoo bug #677804)
 	export ac_cv_lib_utf8proc_utf8proc_version=no

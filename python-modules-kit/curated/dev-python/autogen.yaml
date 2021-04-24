@@ -285,6 +285,32 @@ dev_python_compat_rule:
             tc-export CC
             append-cppflags -DZMQ_BUILD_DRAFT_API=1
           }
+    - scons:
+        compat: 3.1.2
+        blocker: '!<dev-util/scons-4.0.0'
+        pypi_name: SCons
+        desc: Extensible Python-based build utility
+        homepage: https://www.scons.org/
+        license: MIT
+        cat: dev-util
+        du_setuptools: rdepend
+        restrict: test
+        body: |
+          if [ "$PN"  == 'scons-compat' ]; then
+            S="${WORKDIR}/scons-${PV}"
+          fi
+          python_install() {
+            distutils-r1_python_install
+            rm "${D}"/usr/*.1
+            doman *.1
+
+            if [ "$PN"  == 'scons-compat' ]; then
+              rm -rf "${D}"/usr/bin
+              find "${D}" -type d -name "man" -exec rm -rf \{\} \;
+
+            fi
+
+          }
     - setuptools:
         du_setuptools: 'no'
         desc: Collection of extensions to Distutils
@@ -550,18 +576,6 @@ simple_python_autogen_rule:
             sed -i -e "s/'idna.*$/'idna',/" setup.py || die
             distutils-r1_src_prepare
           }
-    - scons:
-        versions:
-          3.1.2:
-            python_compat: python2+
-          latest:
-            pypi_name: SCons
-        cat: dev-util
-        desc: Extensible Python-based build utility
-        homepage: https://www.scons.org/
-        license: MIT
-        du_setuptools: rdepend
-        restrict: test
     - semantic_version:
         desc: Python library providing a few tools handling SemVer in Python
         homepage: https://pypi.org/project/semantic_version/

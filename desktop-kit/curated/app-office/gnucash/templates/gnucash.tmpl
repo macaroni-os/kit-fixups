@@ -199,6 +199,7 @@ src_install() {
 }
 
 pkg_postinst() {
+	gnome3_pkg_postinst
 	ewarn "Backup all financial files or databases before using GnuCash >=2.7.0!"
 	ewarn
 	ewarn "GnuCash 2.7.0 introduced large changes in its file format and database"

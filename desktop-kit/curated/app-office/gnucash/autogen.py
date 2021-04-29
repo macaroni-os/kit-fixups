@@ -18,6 +18,8 @@ async def generate(hub, **pkginfo):
 				break
 		break
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+	if version == "4.5":
+		pkginfo["revision"] = 1
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		github_user=github_user,

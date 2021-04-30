@@ -1,0 +1,53 @@
+lxqt_single_rule:
+  defaults:
+    cat: lxqt-base
+    user: lxqt
+  generator: lxqt-single
+  packages:
+    - liblxqt
+    - libqtxdg:
+        cat: dev-libs
+    - libsysstat
+    - lximage-qt:
+        cat: media-gfx
+    - lxqt-build-tools:
+        cat: dev-util
+    - obconf-qt:
+        cat: x11-misc
+    - pavucontrol-qt:
+        cat: media-sound
+    - qps:
+        cat: x11-misc
+    - qterminal:
+        cat: x11-terms
+    - qtermwidget:
+        cat: x11-libs
+    - screengrab:
+        cat: x11-misc
+
+lxqt_group_rule:
+  defaults:
+    cat: lxqt-base
+    user: lxqt
+  generator: lxqt-group
+  packages:
+    - libfm-qt:
+        cat: x11-libs
+    - lxqt-about
+    - lxqt-admin
+    - lxqt-config
+    - lxqt-globalkeys
+    - lxqt-meta
+    - lxqt-notificationd
+    - lxqt-openssh-askpass
+    - lxqt-panel
+    - lxqt-policykit
+    - lxqt-powermanagement
+    - lxqt-qtplugin
+    - lxqt-runner
+    - lxqt-session
+    - lxqt-sudo
+    - lxqt-themes:
+        cat: x11-themes
+    - pcmanfm-qt:
+        cat: x11-misc

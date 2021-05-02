@@ -21,7 +21,7 @@ RESTRICT="!test? ( test )"
 S="${WORKDIR}/{{pypi_name}}-{{version}}"
 
 RDEPEND="
-	emacs? ( virtual/emacs )
+	emacs? ( app-editors/emacs )
 "
 DEPEND="${RDEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]

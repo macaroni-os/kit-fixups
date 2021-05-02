@@ -19,7 +19,7 @@ RDEPEND="
 	dev-libs/libltdl:0=
 	sys-devel/gettext
 	sys-libs/ncurses:0=
-	emacs? ( virtual/emacs )
+	emacs? ( app-editors/emacs )
 	readline? ( sys-libs/readline:0= )"
 DEPEND="${RDEPEND}
 	sys-apps/texinfo

@@ -2,6 +2,9 @@
 
 # Taken from https://github.com/rclone/rclone/wiki/rclone-mount-helper-script
 
+# FL-8341: This script was rewritten to get rid of all bashisms in it in order
+#          to make it runnable with any POSIX-compliant shell.
+
 remote=$1
 mountpoint=$2
 shift 2
@@ -10,19 +13,19 @@ shift 2
 while getopts :o: opts; do
     case $opts in
         o)
-            params=${OPTARG//,/ }
+            params=$(printf "%s" "$OPTARG" | tr "," " ")
             for param in $params; do
-                if [ "$param" == "rw"   ]; then continue; fi
-                if [ "$param" == "ro"   ]; then continue; fi
-                if [ "$param" == "dev"  ]; then continue; fi
-                if [ "$param" == "suid" ]; then continue; fi
-                if [ "$param" == "exec" ]; then continue; fi
-                if [ "$param" == "auto" ]; then continue; fi
-                if [ "$param" == "nodev" ]; then continue; fi
-                if [ "$param" == "nosuid" ]; then continue; fi
-                if [ "$param" == "noexec" ]; then continue; fi
-                if [ "$param" == "noauto" ]; then continue; fi
-                if [[ $param == x-systemd.* ]]; then continue; fi
+                if [ "$param" = "rw"          ]; then continue; fi
+                if [ "$param" = "ro"          ]; then continue; fi
+                if [ "$param" = "dev"         ]; then continue; fi
+                if [ "$param" = "suid"        ]; then continue; fi
+                if [ "$param" = "exec"        ]; then continue; fi
+                if [ "$param" = "auto"        ]; then continue; fi
+                if [ "$param" = "nodev"       ]; then continue; fi
+                if [ "$param" = "nosuid"      ]; then continue; fi
+                if [ "$param" = "noexec"      ]; then continue; fi
+                if [ "$param" = "noauto"      ]; then continue; fi
+                if [ "$param" = "x-systemd.*" ]; then continue; fi
                 trans="$trans --$param"
             done
             ;;
@@ -42,3 +45,4 @@ PATH=$PATH rclone mount $trans </dev/null >/dev/null 2>/dev/null &
 until [ "`ls -l $mountpoint`" != 'total 0' ]; do
     sleep 1
 done
+

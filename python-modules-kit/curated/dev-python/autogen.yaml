@@ -966,13 +966,21 @@ dev_python_simplified_rule:
         blocker: "!<dev-python/cryptography-3.4.2"
         inherit:
           - cargo
-        iuse: libressl idna
+        cargo_optional: yes
+        iuse: cpu_flags_x86_sse2 libressl idna
         license: "|| ( Apache-2.0 BSD )"
         desc: |
           Library providing cryptographic recipes and primitives
         depend: |
           libressl? ( dev-libs/libressl:0= )
           !libressl? ( dev-libs/openssl:0= )
+        bdepend: |
+          !x86? ( >=virtual/rust-1.37.0 )
+          x86? (
+            cpu_flags_x86_sse2? (
+              >=virtual/rust-1.37.0
+            )
+          )
         pydeps:
           py:3:build:
             - setuptools-rust >= 0.12.1
@@ -985,6 +993,13 @@ dev_python_simplified_rule:
             - cffi >= 1.11.3
           use:idna:
             - idna >= 2.1
+        body: |
+          pkg_setup() {
+            use x86 && ! use cpu_flags_x86_sse2 && export CRYPTOGRAPHY_DONT_BUILD_RUST=1
+          }
+          src_unpack() {
+            [[ ${CRYPTOGRAPHY_DONT_BUILD_RUST} ]] && default || cargo_src_unpack
+          }
 
 
 dev_python_autogen_rule:

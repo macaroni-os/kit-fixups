@@ -4,13 +4,13 @@ EAPI=7
 
 MY_MAJOR="$(ver_cut 1)"
 MY_P="${PN}${MY_MAJOR}"
-inherit desktop systemd xdg
+inherit desktop xdg
 
 DESCRIPTION="All-In-One Solution for Remote Access and Support over the Internet"
 HOMEPAGE="https://www.teamviewer.com"
 
-SRC_URI="amd64? ( {{artifacts[0].src_uri}} )
-	x86? ( {{artifacts[1].src_uri}} )"
+SRC_URI="amd64? ( {{artifacts["amd64"].src_uri}} )
+	x86? ( {{artifacts["x86"].src_uri}} )"
 
 LICENSE="TeamViewer MIT"
 SLOT="0"
@@ -44,9 +44,6 @@ src_prepare() {
 
 	# Switch operation mode from 'portable' to 'installed'
 	sed -e "s/TAR_NI/TAR_IN/g" -i tv_bin/script/tvw_config || die
-
-	sed -e "/^ExecStart/s/${PN}/${MY_PN}/" \
-		-i tv_bin/script/teamviewerd.service || die
 }
 
 src_install() {
@@ -71,7 +68,6 @@ src_install() {
 
 	# No slotting here, binary expects this service path
 	newinitd "${FILESDIR}"/teamviewerd15.init teamviewerd
-	systemd_dounit tv_bin/script/teamviewerd.service
 
 	insinto /usr/share/dbus-1/services
 	doins tv_bin/script/com.teamviewer.TeamViewer.service

@@ -13,6 +13,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="games gui"
 
+DEPEND="!app-emacs/emacs-common-gentoo"
 PDEPEND="app-editors/emacs"
 
 pkg_setup() {

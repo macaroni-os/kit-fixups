@@ -8,7 +8,11 @@ SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
+{%- if masked %}
+KEYWORDS=""
+{%- else %}
 KEYWORDS="*"
+{%- endif %}
 
 # To avoid file collisions in /usr/include/CL/
 DEPEND="!<app-eselect/eselect-opencl-1.2.0"

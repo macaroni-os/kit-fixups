@@ -1,117 +1,59 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit eutils libtool flag-o-matic gnuconfig multilib versionator
+inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
 
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-# USE="+cxx" is a transitional flag until llvm migrates to new flags:
-#    bug #677888
-IUSE="+cxx default-gold doc +gold multitarget +nls +plugins static-libs test"
-REQUIRED_USE="cxx? ( gold plugins ) default-gold? ( gold )"
+IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
+REQUIRED_USE="default-gold? ( gold )"
 
-# Variables that can be set here:
-# PATCH_VER          - the patchset version
-#                      Default: empty, no patching
-# PATCH_BINUTILS_VER - the binutils version in the patchset name
-#                    - Default: PV
-# PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
-#                      for the patchsets
-#                      Default: dilfridge :)
+SRC_URI="{{artifacts.values()|map(attribute='src_uri')|join(' ')}}"
+SLOT=$(ver_cut 1-2)
 
-PATCH_VER=2
-PATCH_DEV=dilfridge
+S="${WORKDIR}/binutils-{{upstream_version}}"
 
-case ${PV} in
-	9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		SLOT=${PV}
-		;;
-	*.9999)
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
-		inherit git-r3
-		S=${WORKDIR}/binutils
-		EGIT_CHECKOUT_DIR=${S}
-		EGIT_BRANCH=$(get_version_component_range 1-2)
-		EGIT_BRANCH="binutils-${EGIT_BRANCH/./_}-branch"
-		SLOT=$(get_version_component_range 1-2)
-		;;
-	*)
-		SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
-		SLOT=$(get_version_component_range 1-2)
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
-		;;
-esac
+{% if unmasked -%}
+KEYWORDS="*"
+{% else -%}
+KEYWORDS=""
+{% endif -%}
 
-#
-# The Gentoo patchset
-#
-PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
-PATCH_DEV=${PATCH_DEV:-slyfox}
-
-[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
-	https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
-
-#
-# The cross-compile logic
-#
-export CTARGET=${CTARGET:-${CHOST}}
-if [[ ${CTARGET} == ${CHOST} ]] ; then
-	if [[ ${CATEGORY} == cross-* ]] ; then
-		export CTARGET=${CATEGORY#cross-}
-	fi
-fi
-is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
-
-#
-# The dependencies
-#
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
+	=sys-libs/binutils-libs-{{version_and_rev}}
 "
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	doc? ( sys-apps/texinfo )
-	test? ( dev-util/dejagnu )
+	test? (
+		dev-util/dejagnu
+		sys-devel/bc
+	)
 	nls? ( sys-devel/gettext )
 	sys-devel/flex
 	virtual/yacc
 "
 
+RESTRICT="!test? ( test )"
+
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	case ${PV} in
-		*9999)
-			git-r3_src_unpack
-			;;
-		*)
-			;;
-	esac
-	default
-	mkdir -p "${MY_BUILDDIR}"
+	unpack ${P}.tar.xz
+	cd "${WORKDIR}" || die
+	unpack {{artifacts['patches'].final_name}}
+	mkdir -p "${MY_BUILDDIR}" || die
 }
 
 src_prepare() {
-	if [[ ! -z ${PATCH_VER} ]] ; then
-		# Use upstream patch to enable development mode
-		rm -v "${WORKDIR}/patch"/0000-Gentoo-Git-is-development.patch || die
-
-		einfo "Applying binutils-${PATCH_BINUTILS_VER} patchset ${PATCH_VER}"
-		eapply "${WORKDIR}/patch"/*.patch
-	fi
-
-	# This check should probably go somewhere else, like pkg_pretend.
-	if [[ ${CTARGET} == *-uclibc* ]] ; then
-		if grep -qs 'linux-gnu' "${S}"/ltconfig ; then
-			die "sorry, but this binutils doesn't yet support uClibc :("
-		fi
+	if ! use vanilla; then
+		einfo "Applying binutils patchset {{artifacts['patches'].final_name}}"
+		eapply "${WORKDIR}/patch"
+		einfo "Done."
 	fi
 
 	# Make sure our explicit libdir paths don't get clobbered. #562460
@@ -144,24 +86,12 @@ src_prepare() {
 	elibtoolize --portage --no-uclibc
 }
 
-toolchain-binutils_bugurl() {
-	printf "https://bugs.gentoo.org/"
-}
-toolchain-binutils_pkgversion() {
-	printf "Gentoo ${PV}"
-	[[ -n ${PATCH_VER} ]] && printf " p${PATCH_VER}"
-}
-
 src_configure() {
 	# Setup some paths
 	LIBPATH=/usr/$(get_libdir)/binutils/${CTARGET}/${PV}
 	INCPATH=${LIBPATH}/include
 	DATAPATH=/usr/share/binutils-data/${CTARGET}/${PV}
-	if is_cross ; then
-		TOOLPATH=/usr/${CHOST}/${CTARGET}
-	else
-		TOOLPATH=/usr/${CTARGET}
-	fi
+	TOOLPATH=/usr/${CTARGET}
 	BINPATH=${TOOLPATH}/binutils-bin/${PV}
 
 	# Make sure we filter $LINGUAS so that only ones that
@@ -211,15 +141,7 @@ src_configure() {
 
 	[[ -n ${CBUILD} ]] && myconf+=( --build=${CBUILD} )
 
-	is_cross && myconf+=(
-		--with-sysroot="${EPREFIX}"/usr/${CTARGET}
-		--enable-poison-system-directories
-	)
-
-	# glibc-2.3.6 lacks support for this ... so rather than force glibc-2.5+
-	# on everyone in alpha (for now), we'll just enable it when possible
-	has_version ">=${CATEGORY}/glibc-2.5" && myconf+=( --enable-secureplt )
-	has_version ">=sys-libs/glibc-2.5" && myconf+=( --enable-secureplt )
+	myconf+=( --enable-secureplt )
 
 	# mips can't do hash-style=gnu ...
 	if [[ $(tc-arch) != mips ]] ; then
@@ -245,9 +167,11 @@ src_configure() {
 		--enable-relro
 		# Newer versions (>=2.24) make this an explicit option. #497268
 		--enable-install-libiberty
+		# Available from 2.35 on
+		--enable-textrel-check=warning
 		--disable-werror
-		--with-bugurl="$(toolchain-binutils_bugurl)"
-		--with-pkgversion="$(toolchain-binutils_pkgversion)"
+		--with-bugurl="{{bugs_url}}"
+		--with-pkgversion="{{pkg_blurb}}"
 		$(use_enable static-libs static)
 		${EXTRA_ECONF}
 		# Disable modules that are in a combined binutils/gdb tree. #490566
@@ -258,6 +182,15 @@ src_configure() {
 		# Change SONAME to avoid conflict across
 		# {native,cross}/binutils, binutils-libs. #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
+
+		# avoid automagic dependency on (currently prefix) systems
+		# systems with debuginfod library, bug #754753
+		--without-debuginfod
+
+		# Allow user to opt into CET for host libraries.
+		# Ideally we would like automagic-or-disabled here.
+		# But the check does not quite work on i686: bug #760926.
+		$(use_enable cet)
 	)
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
@@ -291,8 +224,7 @@ src_test() {
 	# bug 637066
 	filter-flags -Wall -Wreturn-type
 
-	# enable verbose test run and result logging
-	emake -k check RUNTESTFLAGS='-a -v' VERBOSE=1
+	emake -k check
 }
 
 src_install() {
@@ -312,21 +244,6 @@ src_install() {
 		rmdir ${d} || die
 	done
 
-	# Now we collect everything intp the proper SLOT-ed dirs
-	# When something is built to cross-compile, it installs into
-	# /usr/$CHOST/ by default ... we have to 'fix' that :)
-	if is_cross ; then
-		cd "${ED}"/${BINPATH}
-		for x in * ; do
-			mv ${x} ${x/${CTARGET}-}
-		done
-
-		if [[ -d ${ED}/usr/${CHOST}/${CTARGET} ]] ; then
-			mv "${ED}"/usr/${CHOST}/${CTARGET}/include "${ED}"/${INCPATH}
-			mv "${ED}"/usr/${CHOST}/${CTARGET}/lib/* "${ED}"/${LIBPATH}/
-			rm -r "${ED}"/usr/${CHOST}/{include,lib}
-		fi
-	fi
 	insinto ${INCPATH}
 	local libiberty_headers=(
 		# Not all the libiberty headers.  See libiberty/Makefile.in:install_to_libdir.
@@ -338,7 +255,7 @@ src_install() {
 		objalloc.h
 		splay-tree.h
 	)
-	doins "${libiberty_headers[@]/#/${S}/include/}" || die
+	doins "${libiberty_headers[@]/#/${S}/include/}"
 	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
 		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
 		rm -r "${ED}"/${LIBPATH}/lib
@@ -353,25 +270,22 @@ src_install() {
 	EOF
 	newins "${T}"/env.d ${CTARGET}-${PV}
 
-	# Handle documentation
-	if ! is_cross ; then
-		cd "${S}"
-		dodoc README
-		docinto bfd
-		dodoc bfd/ChangeLog* bfd/README bfd/PORTING bfd/TODO
-		docinto binutils
-		dodoc binutils/ChangeLog binutils/NEWS binutils/README
-		docinto gas
-		dodoc gas/ChangeLog* gas/CONTRIBUTORS gas/NEWS gas/README*
-		docinto gprof
-		dodoc gprof/ChangeLog* gprof/TEST gprof/TODO gprof/bbconv.pl
-		docinto ld
-		dodoc ld/ChangeLog* ld/README ld/NEWS ld/TODO
-		docinto libiberty
-		dodoc libiberty/ChangeLog* libiberty/README
-		docinto opcodes
-		dodoc opcodes/ChangeLog*
-	fi
+	cd "${S}"
+	dodoc README
+	docinto bfd
+	dodoc bfd/ChangeLog* bfd/README bfd/PORTING bfd/TODO
+	docinto binutils
+	dodoc binutils/ChangeLog binutils/NEWS binutils/README
+	docinto gas
+	dodoc gas/ChangeLog* gas/CONTRIBUTORS gas/NEWS gas/README*
+	docinto gprof
+	dodoc gprof/ChangeLog* gprof/TEST gprof/TODO gprof/bbconv.pl
+	docinto ld
+	dodoc ld/ChangeLog* ld/README ld/NEWS ld/TODO
+	docinto libiberty
+	dodoc libiberty/ChangeLog* libiberty/README
+	docinto opcodes
+	dodoc opcodes/ChangeLog*
 
 	# Remove shared info pages
 	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
@@ -381,9 +295,8 @@ src_install() {
 }
 
 pkg_postinst() {
-	# Make sure this ${CTARGET} has a binutils version selected
-	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
-	binutils-config ${CTARGET}-${PV}
+	# switch to this binutils
+	binutils-config ${PV}
 }
 
 pkg_postrm() {

@@ -7,7 +7,7 @@ inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
+IUSE="64-bit-bfd cet default-gold doc +gold multitarget +nls +plugins +programs static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
 SRC_URI="{{artifacts.values()|map(attribute='src_uri')|join(' ')}}"
@@ -22,10 +22,8 @@ KEYWORDS=""
 {% endif -%}
 
 RDEPEND="
-	>=sys-devel/binutils-config-3
-	sys-libs/zlib
-	=sys-libs/binutils-libs-{{version_and_rev}}
-"
+!sys-libs/binutils-libs
+sys-libs/zlib"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	doc? ( sys-apps/texinfo )
@@ -43,7 +41,7 @@ RESTRICT="!test? ( test )"
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	unpack ${P}.tar.xz
+	unpack binutils-{{upstream_version}}.tar.xz
 	cd "${WORKDIR}" || die
 	unpack {{artifacts['patches'].final_name}}
 	mkdir -p "${MY_BUILDDIR}" || die
@@ -55,58 +53,18 @@ src_prepare() {
 		eapply "${WORKDIR}/patch"
 		einfo "Done."
 	fi
-
-	# Make sure our explicit libdir paths don't get clobbered. #562460
-	sed -i \
-		-e 's:@bfdlibdir@:@libdir@:g' \
-		-e 's:@bfdincludedir@:@includedir@:g' \
-		{bfd,opcodes}/Makefile.in || die
-
-	# Fix locale issues if possible #122216
-	if [[ -e ${FILESDIR}/binutils-configure-LANG.patch ]] ; then
-		einfo "Fixing misc issues in configure files"
-		for f in $(find "${S}" -name configure -exec grep -l 'autoconf version 2.13' {} +) ; do
-			ebegin "  Updating ${f/${S}\/}"
-			patch "${f}" "${FILESDIR}"/binutils-configure-LANG.patch >& "${T}"/configure-patch.log \
-				|| eerror "Please file a bug about this"
-			eend $?
-		done
-	fi
-
-	# Fix conflicts with newer glibc #272594
-	if [[ -e libiberty/testsuite/test-demangle.c ]] ; then
-		sed -i 's:\<getline\>:get_line:g' libiberty/testsuite/test-demangle.c
-	fi
-
 	# Apply things from PATCHES and user dirs
 	default
-
 	# Run misc portage update scripts
 	gnuconfig_update
 	elibtoolize --portage --no-uclibc
 }
 
 src_configure() {
-	# Setup some paths
-	LIBPATH=/usr/$(get_libdir)/binutils/${CTARGET}/${PV}
-	INCPATH=${LIBPATH}/include
-	DATAPATH=/usr/share/binutils-data/${CTARGET}/${PV}
-	TOOLPATH=/usr/${CTARGET}
-	BINPATH=${TOOLPATH}/binutils-bin/${PV}
-
-	# Make sure we filter $LINGUAS so that only ones that
-	# actually work make it through #42033
 	strip-linguas -u */po
 
 	# Keep things sane
 	strip-flags
-
-	local x
-	echo
-	for x in CATEGORY CBUILD CHOST CTARGET CFLAGS LDFLAGS ; do
-		einfo "$(printf '%10s' ${x}:) ${!x}"
-	done
-	echo
 
 	cd "${MY_BUILDDIR}"
 	local myconf=()
@@ -139,8 +97,6 @@ src_configure() {
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 
-	[[ -n ${CBUILD} ]] && myconf+=( --build=${CBUILD} )
-
 	myconf+=( --enable-secureplt )
 
 	# mips can't do hash-style=gnu ...
@@ -148,18 +104,17 @@ src_configure() {
 		myconf+=( --enable-default-hash-style=gnu )
 	fi
 
+    if ! use programs; then
+        # We only care about the libs, so disable programs. #528088
+		--disable-{binutils,etc,ld,gas,gold,gprof}
+		# Disable modules that are in a combined binutils/gdb tree. #490566
+		--disable-{gdb,libdecnumber,readline,sim}
+	fi
+
 	myconf+=(
-		--prefix="${EPREFIX}"/usr
+		--prefix=/usr
 		--host=${CHOST}
-		--target=${CTARGET}
-		--datadir="${EPREFIX}"${DATAPATH}
-		--datarootdir="${EPREFIX}"${DATAPATH}
-		--infodir="${EPREFIX}"${DATAPATH}/info
-		--mandir="${EPREFIX}"${DATAPATH}/man
-		--bindir="${EPREFIX}"${BINPATH}
-		--libdir="${EPREFIX}"${LIBPATH}
-		--libexecdir="${EPREFIX}"${LIBPATH}
-		--includedir="${EPREFIX}"${INCPATH}
+		--target=${CHOST}
 		--enable-obsolete
 		--enable-shared
 		--enable-threads
@@ -182,6 +137,12 @@ src_configure() {
 		# Change SONAME to avoid conflict across
 		# {native,cross}/binutils, binutils-libs. #666100
 		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
+		# We pull in all USE-flags that change ABI in an incompatible
+		# way. #666100
+		# USE=multitarget change size of global arrays
+		# USE=64-bit-bfd changes data structures of exported API
+		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
+
 
 		# avoid automagic dependency on (currently prefix) systems
 		# systems with debuginfod library, bug #754753
@@ -191,6 +152,10 @@ src_configure() {
 		# Ideally we would like automagic-or-disabled here.
 		# But the check does not quite work on i686: bug #760926.
 		$(use_enable cet)
+		# This only disables building in the zlib subdir.
+		# For binutils itself, it'll use the system version. #591516
+		--without-zlib
+		--with-system-zlib
 	)
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
@@ -206,7 +171,7 @@ src_configure() {
 src_compile() {
 	cd "${MY_BUILDDIR}"
 	# see Note [tooldir hack for ldscripts]
-	emake tooldir="${EPREFIX}${TOOLPATH}" all
+	emake all
 
 	# only build info pages if the user wants them
 	if use doc ; then
@@ -228,47 +193,14 @@ src_test() {
 }
 
 src_install() {
-	local x d
-
 	cd "${MY_BUILDDIR}"
-	# see Note [tooldir hack for ldscripts]
-	emake DESTDIR="${D}" tooldir="${EPREFIX}${LIBPATH}" install
-	rm -rf "${ED}"/${LIBPATH}/bin
+	emake DESTDIR="${D}" install
 	use static-libs || find "${ED}" -name '*.la' -delete
 
-	# Newer versions of binutils get fancy with ${LIBPATH} #171905
-	cd "${ED}"/${LIBPATH}
-	for d in ../* ; do
-		[[ ${d} == ../${PV} ]] && continue
-		mv ${d}/* . || die
-		rmdir ${d} || die
-	done
+	# Provide libiberty.h directly.
+	dosym libiberty/libiberty.h /usr/include/libiberty.h
 
-	insinto ${INCPATH}
-	local libiberty_headers=(
-		# Not all the libiberty headers.  See libiberty/Makefile.in:install_to_libdir.
-		demangle.h
-		dyn-string.h
-		fibheap.h
-		hashtab.h
-		libiberty.h
-		objalloc.h
-		splay-tree.h
-	)
-	doins "${libiberty_headers[@]/#/${S}/include/}"
-	if [[ -d ${ED}/${LIBPATH}/lib ]] ; then
-		mv "${ED}"/${LIBPATH}/lib/* "${ED}"/${LIBPATH}/
-		rm -r "${ED}"/${LIBPATH}/lib
-	fi
-
-	# Generate an env.d entry for this binutils
-	insinto /etc/env.d/binutils
-	cat <<-EOF > "${T}"/env.d
-		TARGET="${CTARGET}"
-		VER="${PV}"
-		LIBPATH="${EPREFIX}${LIBPATH}"
-	EOF
-	newins "${T}"/env.d ${CTARGET}-${PV}
+#	doins "${libiberty_headers[@]/#/${S}/include/}"
 
 	cd "${S}"
 	dodoc README
@@ -288,64 +220,13 @@ src_install() {
 	dodoc opcodes/ChangeLog*
 
 	# Remove shared info pages
-	rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
+	#rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
 
 	# Trim all empty dirs
 	find "${ED}" -depth -type d -exec rmdir {} + 2>/dev/null
-}
-
-pkg_postinst() {
-	# switch to this binutils
-	binutils-config ${PV}
-}
-
-pkg_postrm() {
-	local current_profile=$(binutils-config -c ${CTARGET})
-
-	# If no other versions exist, then uninstall for this
-	# target ... otherwise, switch to the newest version
-	# Note: only do this if this version is unmerged.  We
-	#       rerun binutils-config if this is a remerge, as
-	#       we want the mtimes on the symlinks updated (if
-	#       it is the same as the current selected profile)
-	if [[ ! -e ${EPREFIX}${BINPATH}/ld ]] && [[ ${current_profile} == ${CTARGET}-${PV} ]] ; then
-		local choice=$(binutils-config -l | grep ${CTARGET} | awk '{print $2}')
-		choice=${choice//$'\n'/ }
-		choice=${choice/* }
-		if [[ -z ${choice} ]] ; then
-			binutils-config -u ${CTARGET}
-		else
-			binutils-config ${choice}
-		fi
-	elif [[ $(CHOST=${CTARGET} binutils-config -c) == ${CTARGET}-${PV} ]] ; then
-		binutils-config ${CTARGET}-${PV}
+	if [ -d ${D}/usr/lib ] && [ -d ${D}/usr/lib64 ]; then
+		mv ${D}/usr/lib/* ${D}/usr/lib64
+		rm -rf ${D}/usr/lib
 	fi
 }
 
-# Note [slotting support]
-# -----------------------
-# Gentoo's layout for binutils files is non-standard as Gentoo
-# supports slotted installation for binutils. Many tools
-# still expect binutils to reside in known locations.
-# binutils-config package restores symlinks into known locations,
-# like:
-#    /usr/bin/${CTARGET}-<tool>
-#    /usr/bin/${CHOST}/${CTARGET}/lib/ldscrips
-#    /usr/include/
-#
-# Note [tooldir hack for ldscripts]
-# ---------------------------------
-# Build system does not allow ./configure to tweak every location
-# we need for slotting binutils hence all the shuffling in
-# src_install(). This note is about SCRIPTDIR define handling.
-#
-# SCRIPTDIR defines 'ldscripts/' directory location. SCRIPTDIR value
-# is set at build-time in ld/Makefile.am as: 'scriptdir = $(tooldir)/lib'
-# and hardcoded as -DSCRIPTDIR='"$(scriptdir)"' at compile time.
-# Thus we can't just move files around after compilation finished.
-#
-# Our goal is the following:
-# - at build-time set scriptdir to point to symlinked location:
-#   ${TOOLPATH}: /usr/${CHOST} (or /usr/${CHOST}/${CTARGET} for cross-case)
-# - at install-time set scriptdir to point to slotted location:
-#   ${LIBPATH}: /usr/$(get_libdir)/binutils/${CTARGET}/${PV}

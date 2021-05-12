@@ -1004,6 +1004,47 @@ dev_python_simplified_rule:
               cargo_src_unpack
             fi
           }
+    - jinja:
+        compat: 2.11.3
+        blocker: '!<dev-python/jinja-3.0.0'
+        pypi_name: Jinja2
+        desc: A full-featured template engine for Python
+        homepage: https://palletsprojects.com/p/jinja/ https://pypi.org/project/Jinja2/
+        license: BSD
+        du_setuptools: rdepend
+        iuse: examples
+        restrict: test
+        rdepend: '!dev-python/jinja:compat'
+        pydeps:
+          - markupsafe
+        body: |
+          distutils_enable_sphinx docs \
+            dev-python/sphinx-issues \
+            dev-python/pallets-sphinx-themes
+          src_prepare() {
+            # avoid unnecessary dep on extra sphinxcontrib modules
+            sed -i '/sphinxcontrib.log_cabinet/ d' docs/conf.py || die
+            distutils-r1_src_prepare
+          }
+          python_install_all() {
+            if use examples ; then
+              docinto examples
+              dodoc -r examples/.
+            fi
+            distutils-r1_python_install_all
+          }
+          pkg_postinst() {
+            if ! has_version dev-python/Babel; then
+              elog "For i18n support, please emerge dev-python/Babel."
+            fi
+          }
+    - markupsafe:
+        compat: 1.1.1
+        blocker: '!<dev-python/markupsafe-2.0.0'
+        pypi_name: MarkupSafe
+        desc: Implements a XML/HTML/XHTML Markup safe string for Python
+        homepage: https://pypi.org/project/MarkupSafe
+        license: BSD
 
 
 dev_python_autogen_rule:
@@ -1151,14 +1192,9 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
     - ipaddress:
         python_compat: python2+ pypy{,3}
-    - jinja:
-        python_compat: python2+ pypy{,3}
-        pypi_name: Jinja2
     - lxml:
         python_compat: python2+ pypy3
     - mako:
-        python_compat: python2+ pypy{,3}
-    - markupsafe:
         python_compat: python2+ pypy{,3}
     - pyblake2:
         python_compat: python2+ pypy{,3}

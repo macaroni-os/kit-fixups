@@ -22,7 +22,10 @@ KEYWORDS=""
 {% endif -%}
 
 RDEPEND="
-!sys-libs/binutils-libs
+!<sys-libs/binutils-libs-2.36.1_p3
+!<sys-devel/binutils-2.36.1_p3
+!sys-devel/binutils:2.36
+!sys-devel/binutils:2.32
 sys-libs/zlib"
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -170,7 +173,6 @@ src_configure() {
 
 src_compile() {
 	cd "${MY_BUILDDIR}"
-	# see Note [tooldir hack for ldscripts]
 	emake all
 
 	# only build info pages if the user wants them
@@ -185,16 +187,38 @@ src_compile() {
 
 src_test() {
 	cd "${MY_BUILDDIR}"
-
 	# bug 637066
 	filter-flags -Wall -Wreturn-type
-
 	emake -k check
 }
 
 src_install() {
 	cd "${MY_BUILDDIR}"
 	emake DESTDIR="${D}" install
+
+	# NORMALIZE BINARY LOCATION
+	# =========================
+
+	# Binutils installs tools in /usr/bin, and a a subset of these (the build-related ones) in /usr/$CHOST/bin.
+	# There are duplications, and hard-links are used.
+
+	# To simplify installation, ensure all these tools are in /usr/$CHOST/bin, and create symlinks in /usr/bin
+	# pointing to them at that location. For tool "x", we want to create an "x" symlink as well as a symlink
+	# named "$CHOST-x".
+
+	cd ${D}/usr/bin || die
+	for x in *; do
+		if ! [ -e ${D}/usr/$CHOST/bin/${x} ]; then
+			mv ${x} ${D}/usr/$CHOST/bin || die
+		fi
+	done
+	rm -f ${D}/usr/bin/* || die
+	cd ${D}/usr/$CHOST/bin || die
+	for x in *; do
+		ln -s ../$CHOST/bin/$x ${D}/usr/bin/$x || die
+		ln -s ../$CHOST/bin/$x ${D}/usr/bin/$CHOST-$x || die
+	done
+
 	use static-libs || find "${ED}" -name '*.la' -delete
 
 	# Provide libiberty.h directly.
@@ -230,3 +254,16 @@ src_install() {
 	fi
 }
 
+pkg_preinst() {
+	# Wipe out legacy gentoo stuff that may conflict with our merge
+	for x in addr2line ar as c++filt dwp elfedit gprof ld ld.bfd ld.gold nm objcopy objdump ranlib readelf size strings strip; do
+		rm -f ${ROOT}/usr/bin/$x
+		rm -f ${ROOT}/usr/${CHOST}/bin/$x
+	done
+	ldscripts_link=${ROOT}/usr/${CHOST}/lib/ldscripts
+	if [ -L $ldscripts_link ]; then
+		rm -f $ldscripts_link
+	else
+		echo $ldscripts_link is NOT a symlink
+	fi
+}

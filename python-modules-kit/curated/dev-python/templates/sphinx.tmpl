@@ -43,10 +43,12 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${P^}"
 
-# FL-8290: relax deps for docutils
+# FL-8369: relax various deps
 src_prepare() {
-	sed -i -e '/^docutils/c docutils' Sphinx.egg-info/requires.txt || die
-	sed -i -e "s/'docutils.*$/'docutils',/" setup.py || die
+	for dep in {docutils,MarkupSafe,Jinja2}; do
+		sed -i -e '/^${dep}/c ${dep}' Sphinx.egg-info/requires.txt || die
+		sed -i -e "s/'${dep}.*$/'${dep}',/" setup.py || die
+	done
 	distutils-r1_src_prepare
 }
 

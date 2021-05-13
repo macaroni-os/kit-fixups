@@ -7,7 +7,7 @@ inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-IUSE="64-bit-bfd cet default-gold doc +gold multitarget +nls +plugins +programs static-libs test vanilla"
+IUSE="64-bit-bfd cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
 REQUIRED_USE="default-gold? ( gold )"
 
 SRC_URI="{{artifacts.values()|map(attribute='src_uri')|join(' ')}}"
@@ -89,8 +89,6 @@ src_configure() {
 		myconf+=( --disable-nls )
 	fi
 
-	myconf+=( --with-system-zlib )
-
 	# For bi-arch systems, enable a 64bit bfd.  This matches
 	# the bi-arch logic in toolchain.eclass. #446946
 	# We used to do it for everyone, but it's slow on 32bit arches. #438522
@@ -100,66 +98,36 @@ src_configure() {
 
 	use multitarget && myconf+=( --enable-targets=all --enable-64-bit-bfd )
 
-	myconf+=( --enable-secureplt )
-
 	# mips can't do hash-style=gnu ...
 	if [[ $(tc-arch) != mips ]] ; then
 		myconf+=( --enable-default-hash-style=gnu )
-	fi
-
-    if ! use programs; then
-        # We only care about the libs, so disable programs. #528088
-		--disable-{binutils,etc,ld,gas,gold,gprof}
-		# Disable modules that are in a combined binutils/gdb tree. #490566
-		--disable-{gdb,libdecnumber,readline,sim}
 	fi
 
 	myconf+=(
 		--prefix=/usr
 		--host=${CHOST}
 		--target=${CHOST}
+		$(use_enable cet)
 		--enable-obsolete
+		--enable-secureplt
 		--enable-shared
+		$(use_enable static-libs static)
 		--enable-threads
-		# Newer versions (>=2.27) offer a configure flag now.
 		--enable-relro
-		# Newer versions (>=2.24) make this an explicit option. #497268
 		--enable-install-libiberty
-		# Available from 2.35 on
 		--enable-textrel-check=warning
 		--disable-werror
 		--with-bugurl="{{bugs_url}}"
 		--with-pkgversion="{{pkg_blurb}}"
-		$(use_enable static-libs static)
-		${EXTRA_ECONF}
-		# Disable modules that are in a combined binutils/gdb tree. #490566
-		--disable-{gdb,libdecnumber,readline,sim}
+		--with-system-zlib
+		--without-zlib
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
-		# Change SONAME to avoid conflict across
-		# {native,cross}/binutils, binutils-libs. #666100
-		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)
-		# We pull in all USE-flags that change ABI in an incompatible
-		# way. #666100
-		# USE=multitarget change size of global arrays
-		# USE=64-bit-bfd changes data structures of exported API
-		--with-extra-soversion-suffix=gentoo-${CATEGORY}-${PN}-$(usex multitarget mt st)-$(usex 64-bit-bfd 64 def)
-
-
-		# avoid automagic dependency on (currently prefix) systems
-		# systems with debuginfod library, bug #754753
 		--without-debuginfod
-
-		# Allow user to opt into CET for host libraries.
-		# Ideally we would like automagic-or-disabled here.
-		# But the check does not quite work on i686: bug #760926.
-		$(use_enable cet)
-		# This only disables building in the zlib subdir.
-		# For binutils itself, it'll use the system version. #591516
-		--without-zlib
-		--with-system-zlib
+		${EXTRA_ECONF}
 	)
+
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die
 
@@ -196,15 +164,11 @@ src_install() {
 	cd "${MY_BUILDDIR}"
 	emake DESTDIR="${D}" install
 
-	# NORMALIZE BINARY LOCATION
-	# =========================
-
 	# Binutils installs tools in /usr/bin, and a a subset of these (the build-related ones) in /usr/$CHOST/bin.
 	# There are duplications, and hard-links are used.
 
-	# To simplify installation, ensure all these tools are in /usr/$CHOST/bin, and create symlinks in /usr/bin
-	# pointing to them at that location. For tool "x", we want to create an "x" symlink as well as a symlink
-	# named "$CHOST-x".
+	# To simplify installation, ensure all the tools installed to /usr/bin are moved to /usr/$CHOST/bin, because
+	# some only appear in /usr/bin:
 
 	cd ${D}/usr/bin || die
 	for x in *; do
@@ -212,6 +176,19 @@ src_install() {
 			mv ${x} ${D}/usr/$CHOST/bin || die
 		fi
 	done
+
+	# Set up /usr/$CHOST/bin/ld to use a symlink rather than a hardlink to point to the correct version of ld:
+
+	rm -f ${D}/usr/$CHOST/bin/ld
+	if use default-gold; then
+	  ln -s ld.gold ${D}/usr/$CHOST/bin/ld || die
+	else
+	  ln -s ld.bfd ${D}/usr/$CHOST/bin/ld || die
+	fi
+
+	# Now set up /usr/bin to contain symlinks to the actual tools which are in /usr/$CHOST/bin. We will also
+	# create a $CHOST-(name-of-bin) symlink in /usr/bin:
+
 	rm -f ${D}/usr/bin/* || die
 	cd ${D}/usr/$CHOST/bin || die
 	for x in *; do
@@ -243,19 +220,22 @@ src_install() {
 	docinto opcodes
 	dodoc opcodes/ChangeLog*
 
-	# Remove shared info pages
-	#rm -f "${ED}"/${DATAPATH}/info/{dir,configure.info,standards.info}
+  # This works around an issue where some things are installed in /usr/lib and others in /usr/lib64, which will
+  # cause Portage to complain and abort. This just combines them:
 
-	# Trim all empty dirs
-	find "${ED}" -depth -type d -exec rmdir {} + 2>/dev/null
 	if [ -d ${D}/usr/lib ] && [ -d ${D}/usr/lib64 ]; then
-		mv ${D}/usr/lib/* ${D}/usr/lib64
+	mv ${D}/usr/lib/* ${D}/usr/lib64
 		rm -rf ${D}/usr/lib
 	fi
 }
 
 pkg_preinst() {
-	# Wipe out legacy gentoo stuff that may conflict with our merge
+
+  # This section includes hacks to remove things that may conflict with the merge. We remove existing tools symlinks
+  # as well as remove the ldscripts symlink so it can be replaced with a real directory. This is done in pkg_preinst()
+  # as it is right before Portage tries to copy things to the filesystem root -- so gets things out of the way just
+  # in time...
+
 	for x in addr2line ar as c++filt dwp elfedit gprof ld ld.bfd ld.gold nm objcopy objdump ranlib readelf size strings strip; do
 		rm -f ${ROOT}/usr/bin/$x
 		rm -f ${ROOT}/usr/${CHOST}/bin/$x

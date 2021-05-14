@@ -4,12 +4,14 @@ import re
 from pathlib import Path
 
 
-async def generate_for(hub, pkg_name, release_channel, unmasked, **pkginfo):
+async def generate_for(hub, pkg_name, release_channel, stable, **pkginfo):
 	url_template = f"https://code.visualstudio.com/sha/download?build={release_channel}&os="
 	redirect_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-deb-x64")
 	deb_filename = redirect_url.split("/")[-1]
-	filename_pattern = re.compile(f"^{pkg_name}_([\d.]+)-\d+_amd64\.deb$")
-	version, = filename_pattern.match(deb_filename).groups()
+	filename_pattern = re.compile(f"^{pkg_name}_([\d.]+)-(\d+)_amd64\.deb$")
+	version, revision = filename_pattern.match(deb_filename).groups()
+	if not stable:
+		version += "_p" + revision
 	src_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-x64")
 	artifact = hub.pkgtools.ebuild.Artifact(src_url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
 	await artifact.fetch()
@@ -26,7 +28,7 @@ async def generate_for(hub, pkg_name, release_channel, unmasked, **pkginfo):
 		**pkginfo,
 		version=version,
 		channel=pkg_name,
-		unmasked=unmasked,
+		unmasked=stable,
 		artifacts=[artifact],
 		fperms_paths=sh_paths + so_paths + node_paths + rg,
 		src_path_name=src_path.name,

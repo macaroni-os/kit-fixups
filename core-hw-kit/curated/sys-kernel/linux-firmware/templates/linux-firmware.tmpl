@@ -67,10 +67,6 @@ RDEPEND="!savedconfig? (
 		)
 	)"
 
-pkg_pretend() {
-	use initramfs && mount-boot_pkg_pretend
-}
-
 src_prepare() {
 	# source and documentation files, not to be installed
 	local source_files=(

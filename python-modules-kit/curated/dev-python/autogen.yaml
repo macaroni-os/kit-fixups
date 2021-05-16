@@ -421,6 +421,15 @@ simple_python_autogen_rule:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - atomicwrites:
+        desc: Atomic file writes
+        homepage: https://github.com/untitaker/python-atomicwrites
+        license: MIT
+        python_compat: python3+ pypy3
+        body: |
+          distutils_enable_tests pytest
+          distutils_enable_sphinx docs \
+            dev-python/sphinx_rtd_theme
     - bpytop:
         desc: Linux/OSX/FreeBSD resource monitor
         homepage: https://github.com/aristocratos/bpytop
@@ -462,6 +471,27 @@ simple_python_autogen_rule:
         rdepend: "!dev-python/cheetah"
         pydeps:
           - markdown
+    - click-log:
+        desc: Logging integration for Click
+        homepage: https://github.com/click-contrib/click-log https://pypi.org/project/click-log/
+        rdepend: |
+          dev-python/click[${PYTHON_USEDEP}]
+        body: |
+          DOCS=( README.rst )
+    - click-threading:
+        desc: Multithreaded Click apps made easy
+        homepage: https://github.com/click-contrib/click-threading https://pypi.org/project/click-threading/
+        license: MIT
+        rdepend: |
+          dev-python/click[${PYTHON_USEDEP}]
+        body: |
+          DOCS=( README.rst )
+    - configobj:
+        desc: Simple config file reader and writer
+        homepage: http://www.voidspace.org.uk/python/configobj.html https://pypi.org/project/configobj/
+        license: BSD
+        rdepend: |
+          dev-python/six[${PYTHON_USEDEP}]
     - dict-toolbox:
         desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
@@ -494,6 +524,37 @@ simple_python_autogen_rule:
           app-misc/neofetch
           x11-apps/mesa-progs
         python_compat: python3+
+    - khal:
+        cat: app-misc
+        desc: A CalDAV based calendar
+        homepage: http://lostpackets.de/khal/
+        license: MIT
+        iuse: zsh-completion
+        rdepend: |
+          dev-python/atomicwrites[${PYTHON_USEDEP}]
+          dev-python/click-log[${PYTHON_USEDEP}]
+          dev-python/click[${PYTHON_USEDEP}]
+          dev-python/configobj[${PYTHON_USEDEP}]
+          dev-python/freezegun[${PYTHON_USEDEP}]
+          dev-python/icalendar[${PYTHON_USEDEP}]
+          dev-python/python-dateutil[${PYTHON_USEDEP}]
+          dev-python/pytz[${PYTHON_USEDEP}]
+          dev-python/pyxdg[${PYTHON_USEDEP}]
+          dev-python/setproctitle[${PYTHON_USEDEP}]
+          dev-python/setuptools_scm[${PYTHON_USEDEP}]
+          dev-python/tzlocal[${PYTHON_USEDEP}]
+          dev-python/urwid[${PYTHON_USEDEP}]
+          dev-python/vdirsyncer[${PYTHON_USEDEP}]
+          zsh-completion? ( app-shells/zsh )
+        body: |
+          DOCS=( AUTHORS.txt CHANGELOG.rst CONTRIBUTING.rst README.rst khal.conf.sample )
+          src_install() {
+            distutils-r1_src_install
+            if use zsh-completion; then
+              insinto /usr/share/zsh/site-functions
+              doins misc/__khal
+            fi
+          }
     - rfc3986:
         desc: A Python implementation of RFC 3986 including validation and authority parsing
         homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
@@ -508,6 +569,21 @@ simple_python_autogen_rule:
         rdepend: |
           >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
           >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
+    - icalendar:
+        desc: Package used for parsing and generating iCalendar files (RFC 2445)
+        homepage: https://github.com/collective/icalendar
+        license: BSD
+        rdepend: |
+          dev-python/python-dateutil[${PYTHON_USEDEP}]
+          dev-python/pytz[${PYTHON_USEDEP}]
+        body: |
+          distutils_enable_sphinx docs
+          python_prepare_all() {
+            # reset conf.py to not read version from an installed instance
+            sed -e "s:pkg_resources.get_distribution('icalendar').version:'${PV}':" \
+              -i docs/conf.py || die
+            distutils-r1_python_prepare_all
+          }
     - pypeg2:
         pypi_name: pyPEG2
         du_setuptools: 'no'
@@ -576,6 +652,13 @@ simple_python_autogen_rule:
             sed -i -e "s/'idna.*$/'idna',/" setup.py || die
             distutils-r1_src_prepare
           }
+    - requests-toolbelt:
+        docs: A utility belt for advanced users of python-requests
+        homepage: https://toolbelt.readthedocs.org/
+        rdepend: |
+          dev-python/requests[${PYTHON_USEDEP}]
+        body: |
+          DOCS=( AUTHORS.rst HISTORY.rst README.rst )
     - semantic_version:
         desc: Python library providing a few tools handling SemVer in Python
         homepage: https://pypi.org/project/semantic_version/
@@ -606,6 +689,12 @@ simple_python_autogen_rule:
             sed -i -e "/import pip/s/^/#/" -e "/pip.__version__/,+3 s/^/#/" setup.py || die
             distutils-r1_python_prepare_all
           }
+    - tzlocal:
+        desc: tzinfo object for the local timezone
+        homepage: https://github.com/regebro/tzlocal
+        license: MIT
+        rdepend: |
+          dev-python/pytz[${PYTHON_USEDEP}]
     - iniparse:
         desc: Better INI parser for Python
         homepage: https://pypi.org/project/iniparse
@@ -667,6 +756,30 @@ simple_python_autogen_rule:
             fi
             python_optimize
           }
+    - urwid:
+        desc: Curses-based user interface library for Python
+        homepage: http://urwid.org/ https://pypi.org/project/urwid/ https://github.com/urwid/urwid/
+        license: LGPL-2.1
+        iuse: examples
+        body: |
+          distutils_enable_sphinx docs
+          python_install_all() {
+            use examples && dodoc -r examples
+            distutils-r1_python_install_all
+          }
+    - vdirsyncer:
+        desc: Synchronize calendars and contacts
+        homepage: https://github.com/pimutils/vdirsyncer
+        license: BSD
+        rdepend: |
+          dev-python/click[${PYTHON_USEDEP}]
+          dev-python/click-log[${PYTHON_USEDEP}]
+          dev-python/click-threading[${PYTHON_USEDEP}]
+          dev-python/requests[${PYTHON_USEDEP}]
+          dev-python/requests-toolbelt[${PYTHON_USEDEP}]
+          dev-python/atomicwrites[${PYTHON_USEDEP}]
+        body: |
+          DOCS=( AUTHORS.rst CHANGELOG.rst CONTRIBUTING.rst README.rst config.example )
     - xcffib:
         desc: A drop-in replacement for xpyb, an XCB python binding
         homepage: https://github.com/tych0/xcffib
@@ -1082,7 +1195,7 @@ dev_python_autogen_rule:
     - cffi:
         python_compat: python2+ pypy{,3}
     - click:
-        python_compat: python2+ pypy3
+        python_compat: python3+ pypy3
     - cloudflare
     - cython:
         python_compat: python2+ pypy3
@@ -1135,7 +1248,7 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy3
         pypi_name: PyYAML
     - python-dateutil:
-        python_compat: python2+ pypy{,3}
+        python_compat: python3+
     - toml:
         python_compat: python2+ pypy3
     - twine:
@@ -1189,7 +1302,7 @@ dev_python_autogen_rule:
     - enum34:
         python_compat: python2_7 pypy
     - freezegun:
-        python_compat: python2+ pypy3
+        python_compat: python3+ pypy3
     - ipaddress:
         python_compat: python2+ pypy{,3}
     - lxml:

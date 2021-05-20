@@ -1,15 +1,15 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python2+ )
+PYTHON_COMPAT=( {{python_compat}} )
 DISTUTILS_OPTIONAL=1
 
 inherit distutils-r1 libtool toolchain-funcs multilib-minimal
 
-SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 KEYWORDS="*"
 
-DESCRIPTION="identify a file's format by scanning binary data for patterns"
+DESCRIPTION="Identify a file's format by scanning binary data for patterns"
 HOMEPAGE="https://www.darwinsys.com/file/"
 
 LICENSE="BSD-2"
@@ -28,14 +28,24 @@ DEPEND="
 RDEPEND="${DEPEND}
 	python? ( !dev-python/python-magic )
 	seccomp? ( sys-libs/libseccomp[${MULTILIB_USEDEP}] )"
-
-PATCHES=(
-	"${FILESDIR}/file-5.39-add-missing-termios.patch" #728416
-	"${FILESDIR}/file-5.39-seccomp-musl.patch"
-	"${FILESDIR}/file-5.39-portage-sandbox.patch" #713710 #728978
-)
+BDEPEND="sys-apps/grep"
 
 src_prepare() {
+	# Bug 728978
+	if ! $(grep getcwd src/seccomp.c) ; then
+		sed -i -e "/ALLOW_RULE(writev)/s@\$@\n\tALLOW_RULE(getcwd);\t// Used by Gentoo's portage sandbox@" \
+			src/seccomp.c || die
+	fi
+	# Bug 784857
+	if ! $(grep fstatat64 src/seccomp.c) ; then
+		sed -i -e "/ALLOW_RULE(fstat64)/s@\$@\n#ifdef __NR_fstatat64\n\tALLOW_RULE(fstatat64);\n#endif@" \
+			src/seccomp.c || die
+	fi
+	# ARM64 new emulated access() syscall
+	if ! $(grep faccessat src/seccomp.c) ; then
+		sed -i -e "/ALLOW_RULE(exit_group)/s@\$@\n#ifdef __NR_faccessat\n\tALLOW_RULE(faccessat);\n#endif@" \
+			src/seccomp.c || die
+	fi
 	default
 	elibtoolize
 
@@ -75,9 +85,9 @@ need_build_file() {
 }
 
 src_configure() {
-	local ECONF_SOURCE=${S}
+	local ECONF_SOURCE="${S}"
 
-	if need_build_file; then
+	if need_build_file ; then
 		mkdir -p "${WORKDIR}"/build || die
 		cd "${WORKDIR}"/build || die
 		build_src_configure
@@ -97,7 +107,7 @@ multilib_src_compile() {
 }
 
 src_compile() {
-	if need_build_file; then
+	if need_build_file ; then
 		emake -C "${WORKDIR}"/build/src magic.h #586444
 		emake -C "${WORKDIR}"/build/src file
 		local -x PATH="${WORKDIR}/build/src:${PATH}"
@@ -122,7 +132,6 @@ multilib_src_install_all() {
 	dodoc ChangeLog MAINT README
 
 	# Required for `file -C`
-	dodir /usr/share/misc/magic
 	insinto /usr/share/misc/magic
 	doins -r magic/Magdir/*
 

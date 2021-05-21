@@ -21,8 +21,8 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	app-arch/xz-utils
-	>=sys-apps/texinfo-6.7
-	>=sys-devel/bison-3.5.4
+	>=sys-apps/texinfo-6.6
+	>=sys-devel/bison-3.4.1
 	nls? ( sys-devel/gettext )
 "
 

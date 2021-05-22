@@ -1,37 +1,50 @@
 #!/usr/bin/env python3
 
 from packaging import version
+import subprocess
+
+REPO_URL = "https://git.marlam.de/git/msmtp.git"
+DOWNLOAD_URL = "https://marlam.de/msmtp/releases/"
 
 
-async def get_latest_version(hub, url):
+def get_latest_version(hub):
 
-	tags_list = await hub.pkgtools.fetch.get_page(url, is_json=True)
-	tags = sorted(
-		filter(
-			lambda t: t.startswith("msmtp-"),
-			[t["name"] for t in tags_list]
-		),
-		key=lambda t: version.parse(t.lstrip("msmtp-"))
+	result = subprocess.run(
+		["git", "ls-remote", "--tags", REPO_URL],
+		capture_output=True,
+		encoding='UTF-8'
 	)
 
-	return None if not tags else tags.pop().lstrip("msmtp-")
+	if result.returncode > 0:
+		cmd = " ".join(result.args)
+		raise hub.pkgtools.ebuild.BreezyError(f"{cmd} failed: {result.stderr}")
+
+	tags = []
+	for ref in result.stdout.split("\n"):
+		bits = ref.split("\t") # <hash><tab>refs/tags/<tag>
+		if len(bits) < 2: continue
+
+		rtt = bits[1].split('/') # refs/tags/<tag>
+		if len(rtt) < 3: continue
+
+		if rtt[2].startswith("msmtp-") and not rtt[2].endswith("^{}"):
+			tags.append(rtt[2].lstrip("msmtp-"))
+
+	tags = sorted(tags, key=lambda t: version.parse(t))
+
+	return None if not tags else tags.pop()
 
 
 async def generate(hub, **pkginfo):
 
-	github_user = "marlam"
-	github_repo = "msmtp-mirror"
-	latest_version = await get_latest_version(
-		hub,
-		f"https://api.github.com/repos/{github_user}/{github_repo}/tags"
-	)
+	latest_version = get_latest_version(hub)
 
 	if latest_version is None:
 		raise hub.pkgtools.ebuild.BreezyError(
 			f"Can't find a latest version of {pkginfo['cat']}/{pkginfo['name']}"
 		)
 
-	url = f"https://marlam.de/msmtp/releases/{pkginfo['name']}-{latest_version}.tar.xz"
+	url = f"{DOWNLOAD_URL}{pkginfo['name']}-{latest_version}.tar.xz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=latest_version,

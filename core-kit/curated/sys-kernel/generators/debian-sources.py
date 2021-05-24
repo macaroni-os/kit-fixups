@@ -3,8 +3,7 @@
 from bs4 import BeautifulSoup
 
 
-async def get_version_for_release(release_name):
-	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
+async def get_version_for_release(tracker_data, release_name):
 	tracker_soup = BeautifulSoup(tracker_data, "lxml")
 	target_release = next(x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == release_name)
 	return target_release.parent.find("a").text.split("-")
@@ -29,7 +28,7 @@ async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
 		release_type = "unstable"
 	else:
 		release_type = "stable"
-	linux_version, deb_extraversion = await get_version_for_release(release_type)
+	linux_version, deb_extraversion = await get_version_for_release(pkginfo['tracker_data'], release_type)
 	version = f"{linux_version}_p{deb_extraversion}"
 	if f"{name}-{version}" in all_versions_from_yaml:
 		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
@@ -80,8 +79,10 @@ async def preprocess_packages(hub, pkginfo_list):
 	:param pkginfo_list: a list of pkginfo dicts
 	:type pkginfo_list: list
 	"""
+	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
 	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
 	for pkginfo in pkginfo_list:
+		pkginfo['tracker_data'] = tracker_data
 		if pkginfo['version'] == 'latest':
 			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)
 		else:

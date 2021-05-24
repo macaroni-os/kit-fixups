@@ -46,7 +46,7 @@ WANT_AUTOMAKE="latest"
 AUTOTOOLS_AUTORECONF="1"
 
 pkg_setup() {
-	{%- if 'python-single-r1' in inherit %}
+	{%- if inherit is defined and 'python-single-r1' in inherit %}
 	python-single-r1_pkg_setup
 	{%- endif %}
 	append-ldflags -Wl,-z,lazy

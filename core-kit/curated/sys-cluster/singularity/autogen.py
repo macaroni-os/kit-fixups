@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)
 	for release in json_list:
-		if release["prerelease"] or release["draft"]:
+		if release["prerelease"] or release["draft"] or "-rc" in release["tag_name"]:
 			continue
 		version = release["tag_name"].lstrip("v")
 		url = f'https://github.com/{github_user}/{github_repo}/releases/download/v{version}/{pkginfo["name"]}-{version}.tar.gz'

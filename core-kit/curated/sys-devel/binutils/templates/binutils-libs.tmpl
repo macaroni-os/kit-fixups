@@ -2,16 +2,8 @@
 
 EAPI=7
 
-inherit eutils libtool toolchain-funcs
-
-DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) for external packages"
-HOMEPAGE="https://sourceware.org/binutils/"
-SRC_URI="{{artifacts.values()|map(attribute='src_uri')|join(' ')}}"
-
-LICENSE="|| ( GPL-3 LGPL-3 )"
-SLOT="0/${PV}"
-IUSE="64-bit-bfd cet multitarget nls static-libs"
-
-
+DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) -- skeleton package"
+RDEPEND="!<sys-libs/binutils-libs-2.36.1_p3"
+KEYWORDS="*"
 
 

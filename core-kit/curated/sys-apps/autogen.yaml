@@ -60,10 +60,11 @@ gnu_core_rule:
     - gzip:
         cat: app-arch
         version: '1.10'
-    - make:
-        cat: sys-devel
-        compression: gz
-        version: '4.3'
+# See FL-8418: gstreamer-1.4.14 and potentially others rely on 'older' backslash handling of make 4.2.1 -- make 4.3 is different.
+#    - make:
+#        cat: sys-devel
+#        compression: gz
+#        version: '4.3'
     - patch:
         cat: sys-devel
         version: '2.7.6'

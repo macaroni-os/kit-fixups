@@ -1117,6 +1117,13 @@ dev_python_simplified_rule:
               cargo_src_unpack
             fi
           }
+    - itsdangerous:
+        revision:
+          2.0.1: 1
+        compat: 1.1.0
+        blocker: '!<dev-python/itsdangerous-2.0.1'
+        description: Various helpers to pass trusted data to untrusted environments and back
+        license: BSD
     - jinja:
         compat: 2.11.3
         blocker: '!<dev-python/jinja-3.0.0'
@@ -1224,8 +1231,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - imagesize:
         python_compat: python2+ pypy{,3}
-    - itsdangerous:
-        python_compat: python2+ pypy3
     - ipy:
         python_compat: python2+ pypy{,3}
     - jeepney:

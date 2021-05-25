@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="sqlite"
 
 SRC_URI="{{artifacts[0].src_uri}}"
-inherit cmake desktop python-single-r1 qmake-utils xdg
+inherit cmake eutils desktop python-single-r1 qmake-utils xdg
 
 DESCRIPTION="User friendly Geographic Information System"
 HOMEPAGE="https://www.qgis.org/en/site/"
@@ -103,6 +103,9 @@ pkg_setup() {
 }
 
 src_prepare() {
+	{%- for patch in patches %}
+	eapply "${FILESDIR}/{{patch}}"
+	{%- endfor %}
 	cmake_src_prepare
 	sed -e "/QtWebKit.*.py/d" \
 		-i python/PyQt/CMakeLists.txt || die

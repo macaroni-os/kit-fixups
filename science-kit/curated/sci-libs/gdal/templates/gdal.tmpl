@@ -159,7 +159,6 @@ src_configure() {
 		--without-podofo
 		--without-python
 		--without-qhull
-		--without-sfcgal
 		--without-sosi
 		--without-teigha
 		$(use_enable debug)
@@ -284,7 +283,7 @@ src_install() {
 		newdoc swig/python/README.rst README-python.rst
 
 		insinto /usr/share/${PN}/samples
-		doins -r swig/python/samples/.
+		doins -r swig/python/gdal-utils/osgeo_utils/samples/.
 	fi
 
 	doman "${S}"/man/man*/*

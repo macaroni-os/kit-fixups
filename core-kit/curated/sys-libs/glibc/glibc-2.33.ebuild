@@ -1393,7 +1393,7 @@ src_install() {
 		rm -rf $D/lib64 || exit 24
 		# Now, we rename the /lib dir as /lib64, and make /lib a symlink that points to it:
 		mv $D/lib $D/lib64 || exit 30
-		ln -s /lib64 $D/lib || exit 31
+		ln -s lib64 $D/lib || exit 31
 	fi
 
 	if ! use static-libs ; then

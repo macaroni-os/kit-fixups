@@ -1384,6 +1384,18 @@ src_install() {
 
 	foreach_abi glibc_do_src_install
 
+	# arm-64bit gets two separate /lib and /lib64 dirs, which is wrong. This should fix it.
+	if [ "$ARCH" == "arm64" ] && [ ! -h $D/lib ]; then
+		echo "Attempting to fix split /lib..."
+		# we have both /lib and /lib64 as regular directories. Need to fix. Sync everything to /lib.
+		rsync -av $D/lib64/ $D/lib/ || exit 23
+		# Now, remove lib64.
+		rm -rf $D/lib64 || exit 24
+		# Now, we rename the /lib dir as /lib64, and make /lib a symlink that points to it:
+		mv $D/lib $D/lib64 || exit 30
+		ln -s /lib64 $D/lib || exit 31
+	fi
+
 	if ! use static-libs ; then
 		einfo "Not installing static glibc libraries"
 		find "${ED}" -name "*.a" -and -not -name "*_nonshared.a" -delete

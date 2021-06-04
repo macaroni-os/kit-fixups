@@ -33,8 +33,8 @@ async def generate(hub, **pkginfo):
 		github_user=github_user,
 		github_repo=github_repo,
 		artifacts=[
-			hub.pkgtools.ebuild.Artifact(url=col_url+f"{best_archive}"),
-			hub.pkgtools.ebuild.Artifact(url=intel_url,final_name=final_name),
+			hub.pkgtools.ebuild.Artifact(url=col_url + f"{best_archive}"),
+			hub.pkgtools.ebuild.Artifact(url=intel_url, final_name=final_name),
 		],
 	)
 	ebuild.push()

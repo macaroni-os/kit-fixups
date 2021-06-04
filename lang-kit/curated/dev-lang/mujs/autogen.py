@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 
+
 async def generate(hub, **pkginfo):
 	html_url = f"https://mujs.com/downloads/"
 	html_data = await hub.pkgtools.fetch.get_page(html_url)

@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 
+
 async def generate(hub, **pkginfo):
 	python_compat = "python2+"
 	app = pkginfo["name"]

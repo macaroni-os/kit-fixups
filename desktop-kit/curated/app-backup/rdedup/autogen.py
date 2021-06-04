@@ -7,19 +7,13 @@ def get_release(releases_data):
 	for release in releases_data:
 		# Some of the tags have this prefix, so we need to strip it first
 		release["name"] = release["name"].lstrip("rdedup-")
-	return (
-		None
-		if not releases_data
-		else sorted(releases_data, key=lambda x: version.parse(x["name"])).pop()
-	)
+	return None if not releases_data else sorted(releases_data, key=lambda x: version.parse(x["name"])).pop()
 
 
 async def generate(hub, **pkginfo):
 	user = "dpc"
 	repo = pkginfo["name"]
-	release_data = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{user}/{repo}/tags", is_json=True
-	)
+	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/tags", is_json=True)
 	latest_release = get_release(release_data)
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")

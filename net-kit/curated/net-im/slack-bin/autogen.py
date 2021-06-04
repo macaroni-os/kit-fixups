@@ -2,10 +2,11 @@
 
 from bs4 import BeautifulSoup
 
+
 async def generate(hub, **pkginfo):
 	html = await hub.pkgtools.fetch.get_page("https://slack.com/downloads/linux")
 	url = "https://downloads.slack-edge.com/linux_releases/slack-desktop-{version}-amd64.deb"
-	soup = BeautifulSoup(html, 'html.parser')
+	soup = BeautifulSoup(html, "html.parser")
 	link = soup.select_one(".page-downloads__hero__meta-text__version")
 	try:
 		version = None
@@ -25,8 +26,8 @@ async def generate(hub, **pkginfo):
 			version = div_text.split()[1]
 	except AttributeError:
 		# This is how I debugged the bogus HTML:
-		#with open("foo", "w") as myf:
-		#	myf.write(html)
+		# with open("foo", "w") as myf:
+		# 	myf.write(html)
 		raise hub.pkgtools.ebuild.BreezyError(f"Found unexpected something in slack-bin html.")
 	url = url.format(version=version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

@@ -8,7 +8,9 @@ async def get_versions(hub, pkginfo):
 	try:
 		user = pkginfo["user"]
 		repo = pkginfo["name"]
-		release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)
+		release_data = await hub.pkgtools.fetch.get_page(
+			f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
+		)
 	except hub.pkgtools.fetch.FetchError:
 		pass
 	release_data = [x for x in release_data if not x["prerelease"] and not x["draft"]]
@@ -42,7 +44,7 @@ async def generate(hub, **pkginfo):
 		target_release = next(x for x in pkginfo["releases"] if x["ver"] >= target_version and x["ver"] < max_version)
 		target_version = target_release["ver"]
 		url = next(x["browser_download_url"] for x in target_release["assets"] if x["name"].endswith(".tar.xz"))
-		final_name= f"{pkginfo['name']}-{target_version}.tar.xz"
+		final_name = f"{pkginfo['name']}-{target_version}.tar.xz"
 		src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 		artifacts.append(src_artifact)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

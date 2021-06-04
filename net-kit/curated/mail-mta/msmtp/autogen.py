@@ -9,11 +9,7 @@ DOWNLOAD_URL = "https://marlam.de/msmtp/releases/"
 
 def get_latest_version(hub):
 
-	result = subprocess.run(
-		["git", "ls-remote", "--tags", REPO_URL],
-		capture_output=True,
-		encoding='UTF-8'
-	)
+	result = subprocess.run(["git", "ls-remote", "--tags", REPO_URL], capture_output=True, encoding="UTF-8")
 
 	if result.returncode > 0:
 		cmd = " ".join(result.args)
@@ -21,11 +17,13 @@ def get_latest_version(hub):
 
 	tags = []
 	for ref in result.stdout.split("\n"):
-		bits = ref.split("\t") # <hash><tab>refs/tags/<tag>
-		if len(bits) < 2: continue
+		bits = ref.split("\t")  # <hash><tab>refs/tags/<tag>
+		if len(bits) < 2:
+			continue
 
-		rtt = bits[1].split('/') # refs/tags/<tag>
-		if len(rtt) < 3: continue
+		rtt = bits[1].split("/")  # refs/tags/<tag>
+		if len(rtt) < 3:
+			continue
 
 		if rtt[2].startswith("msmtp-") and not rtt[2].endswith("^{}"):
 			tags.append(rtt[2].lstrip("msmtp-"))
@@ -40,9 +38,7 @@ async def generate(hub, **pkginfo):
 	latest_version = get_latest_version(hub)
 
 	if latest_version is None:
-		raise hub.pkgtools.ebuild.BreezyError(
-			f"Can't find a latest version of {pkginfo['cat']}/{pkginfo['name']}"
-		)
+		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a latest version of {pkginfo['cat']}/{pkginfo['name']}")
 
 	url = f"{DOWNLOAD_URL}{pkginfo['name']}-{latest_version}.tar.xz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 
+
 async def generate(hub, **pkginfo):
 	app = pkginfo["name"]
 	compression = pkginfo["compression"]

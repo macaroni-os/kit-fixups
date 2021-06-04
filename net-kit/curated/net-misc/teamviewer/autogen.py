@@ -2,9 +2,12 @@
 
 import asyncio
 
+
 async def generate(hub, **pkginfo):
 
-	url = await hub.pkgtools.fetch.get_url_from_redirect("https://download.teamviewer.com/download/linux/teamviewer_amd64.tar.xz")
+	url = await hub.pkgtools.fetch.get_url_from_redirect(
+		"https://download.teamviewer.com/download/linux/teamviewer_amd64.tar.xz"
+	)
 	version = url.split("_")[-2]
 
 	artifacts = {

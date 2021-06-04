@@ -13,7 +13,9 @@ async def generate(hub, **pkginfo):
 	user = "ArcticaProject"
 	repo = "nx-libs"
 	name = pkginfo["name"]
-	tags_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/git/refs/tags", is_json=True)
+	tags_data = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{user}/{repo}/git/refs/tags", is_json=True
+	)
 	target_tag = get_release(tags_data)
 	version = target_tag["ref"].lstrip("ref/tags")
 	url = f"https://github.com/{user}/{repo}/archive/{version}.tar.gz"

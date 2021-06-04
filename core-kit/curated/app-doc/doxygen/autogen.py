@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 
 	for tag in json_list:
 		version = tag["name"]
-		version = version.replace('_','.')
+		version = version.replace("_", ".")
 		version = version.lstrip("Release.")
 		url = tag["tarball_url"]
 		break
@@ -33,4 +33,3 @@ async def generate(hub, **pkginfo):
 
 
 # vim: ts=4 sw=4 noet
-

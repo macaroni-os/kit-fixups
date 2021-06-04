@@ -2,6 +2,7 @@
 
 from bs4 import BeautifulSoup
 
+
 def get_lang_artifacts(hub, lang_url, lang_soup, lang_type):
 	langs = " "
 	artifacts = []
@@ -16,10 +17,9 @@ def get_lang_artifacts(hub, lang_url, lang_soup, lang_type):
 			elif "sa-IN" in abbrv:
 				abbrv = "sa:sa-IN"
 			langs = langs + abbrv + " "
-			artifacts.append(
-				hub.pkgtools.ebuild.Artifact(url=lang_url+href)
-			)
-	return dict(langs=langs,artifacts=artifacts)
+			artifacts.append(hub.pkgtools.ebuild.Artifact(url=lang_url + href))
+	return dict(langs=langs, artifacts=artifacts)
+
 
 async def add_l10n_ebuild(hub, ebuild_bin, version, **pkginfo):
 	dl_url = f"https://downloadarchive.documentfoundation.org/libreoffice/old/{version}/rpm/x86_64/"
@@ -40,6 +40,7 @@ async def add_l10n_ebuild(hub, ebuild_bin, version, **pkginfo):
 		],
 	)
 	ebuild_l10n.push()
+
 
 async def generate(hub, **pkginfo):
 	html_url = f"https://www.libreoffice.org/download/download/"

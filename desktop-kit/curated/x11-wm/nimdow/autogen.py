@@ -2,6 +2,7 @@
 
 import json
 
+
 async def generate(hub, **pkginfo):
 	github_user = "avahe-kellenberger"
 	github_repo = pkginfo["name"]
@@ -10,8 +11,8 @@ async def generate(hub, **pkginfo):
 		is_json=True,
 	)
 	for release in json_list:
-		#Nimdow is currently beta, when a stable version is released, prerelease should also be false 
-		#if release["prerelease"] or release["draft"]:
+		# Nimdow is currently beta, when a stable version is released, prerelease should also be false
+		# if release["prerelease"] or release["draft"]:
 		if release["draft"]:
 			continue
 		version = release["tag_name"].lstrip("v")

@@ -2,10 +2,15 @@
 
 from datetime import datetime, timedelta
 
+
 async def generate(hub, **pkginfo):
 	github_user = "NimParsers"
 	github_repo = pkginfo["name"]
-	commit_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/commits/master", is_json=True, refresh_interval=timedelta(days=15))
+	commit_data = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{github_user}/{github_repo}/commits/master",
+		is_json=True,
+		refresh_interval=timedelta(days=15),
+	)
 	commit_hash = commit_data["sha"]
 	commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	version = commit_date.strftime("%Y%m%d")
@@ -21,4 +26,3 @@ async def generate(hub, **pkginfo):
 	)
 
 	ebuild.push()
-

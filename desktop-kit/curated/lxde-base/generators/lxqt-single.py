@@ -17,7 +17,7 @@ async def generate(hub, **pkginfo):
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
 	version = latest_release["tag_name"].lstrip("v")
 	url = url = next(x["browser_download_url"] for x in latest_release["assets"] if x["name"].endswith(".tar.xz"))
-	final_name= f"{repo}-{version}.tar.xz"
+	final_name = f"{repo}-{version}.tar.xz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

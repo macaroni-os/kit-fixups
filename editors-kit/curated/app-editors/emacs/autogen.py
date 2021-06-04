@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
 	version_pattern = re.compile("Emacs ([\d\.]+)")
 	version_headers = releases_div.find_all("h2")
 	version_matches = (version_pattern.match(x.text.strip()) for x in version_headers)
-	target_version, = next(x.groups() for x in version_matches if x)
+	(target_version,) = next(x.groups() for x in version_matches if x)
 	url = f"http://ftp.gnu.org/gnu/emacs/emacs-{target_version}.tar.xz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

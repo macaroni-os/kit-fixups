@@ -5,7 +5,9 @@ from bs4 import BeautifulSoup
 
 async def get_version_for_release(tracker_data, release_name):
 	tracker_soup = BeautifulSoup(tracker_data, "lxml")
-	target_release = next(x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == release_name)
+	target_release = next(
+		x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == release_name
+	)
 	return target_release.parent.find("a").text.split("-")
 
 
@@ -28,17 +30,17 @@ async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
 		release_type = "unstable"
 	else:
 		release_type = "stable"
-	linux_version, deb_extraversion = await get_version_for_release(pkginfo['tracker_data'], release_type)
+	linux_version, deb_extraversion = await get_version_for_release(pkginfo["tracker_data"], release_type)
 	version = f"{linux_version}_p{deb_extraversion}"
 	if f"{name}-{version}" in all_versions_from_yaml:
 		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
 		return None
-	unmask_match = pkginfo.get('unmask_match', None)
+	unmask_match = pkginfo.get("unmask_match", None)
 	if unmask_match is None or version.startswith(unmask_match):
 		# Generate 'latest' version
-		pkginfo['version'] = version
-		pkginfo['linux_version'] = linux_version
-		pkginfo['deb_extraversion'] = deb_extraversion
+		pkginfo["version"] = version
+		pkginfo["linux_version"] = linux_version
+		pkginfo["deb_extraversion"] = deb_extraversion
 		return pkginfo
 	else:
 		# Don't generate -- we didn't see an expected unmask_match pattern:
@@ -57,13 +59,12 @@ async def finalize_specific_pkginfo(pkginfo):
 	:rtype: dict
 	"""
 
-	vsplit = pkginfo['version'].split(".")
+	vsplit = pkginfo["version"].split(".")
 	if "_p" not in vsplit[-1]:
-		raise hub.pkgtools.ebuild.BreezyError(
-			f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
-	last_vpart, pkginfo['deb_extraversion'] = vsplit[-1].split("_p")
+		raise hub.pkgtools.ebuild.BreezyError(f"Please specify _p patchlevel in {pkginfo['name']} for {pkginfo['version']}")
+	last_vpart, pkginfo["deb_extraversion"] = vsplit[-1].split("_p")
 	vsplit[-1] = last_vpart
-	pkginfo['linux_version'] = '.'.join(vsplit)
+	pkginfo["linux_version"] = ".".join(vsplit)
 	return pkginfo
 
 
@@ -82,8 +83,8 @@ async def preprocess_packages(hub, pkginfo_list):
 	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
 	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
 	for pkginfo in pkginfo_list:
-		pkginfo['tracker_data'] = tracker_data
-		if pkginfo['version'] == 'latest':
+		pkginfo["tracker_data"] = tracker_data
+		if pkginfo["version"] == "latest":
 			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)
 		else:
 			pkginfo = await finalize_specific_pkginfo(pkginfo)

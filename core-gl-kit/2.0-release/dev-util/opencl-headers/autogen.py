@@ -20,7 +20,7 @@ async def generate(hub, **pkginfo):
 		version.append(tag["name"].lstrip("v"))
 		url.append(tag["tarball_url"])
 
-	for v in [version[0],wanted_version]:
+	for v in [version[0], wanted_version]:
 		if v == wanted_version:
 			masked = False
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
@@ -32,7 +32,6 @@ async def generate(hub, **pkginfo):
 			artifacts=[hub.pkgtools.ebuild.Artifact(url=url[version.index(v)], final_name=f"{app}-{v}.tar.gz")],
 		)
 		ebuild.push()
-
 
 
 # vim: ts=4 sw=4 noet

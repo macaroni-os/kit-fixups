@@ -27,10 +27,6 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(
-				url=target_asset["browser_download_url"]
-			)
-		],
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=target_asset["browser_download_url"])],
 	)
 	ebuild.push()

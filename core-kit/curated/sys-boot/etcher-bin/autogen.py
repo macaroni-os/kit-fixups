@@ -5,7 +5,9 @@ from packaging import version
 
 def get_release(releases_data):
 	stable_releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False, releases_data))
-	releases = list(release for release in stable_releases for assets in release["assets"] if "_amd64.deb" in assets["name"])
+	releases = list(
+		release for release in stable_releases for assets in release["assets"] if "_amd64.deb" in assets["name"]
+	)
 	return None if not releases else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
 
 

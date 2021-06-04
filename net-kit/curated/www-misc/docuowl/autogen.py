@@ -8,7 +8,6 @@ def get_release(release_data):
 	return None if not releases else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
 
 
-
 async def generate(hub, **pkginfo):
 	user = repo = pkginfo["name"]
 	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)

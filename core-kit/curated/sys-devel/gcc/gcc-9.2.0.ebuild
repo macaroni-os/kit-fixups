@@ -14,7 +14,7 @@ GCC_MAJOR="${PV%%.*}"
 IUSE="ada +cxx d go +fortran objc objc++ objc-gc " # Languages
 IUSE="$IUSE test" # Run tests
 IUSE="$IUSE doc nls vanilla multilib" # docs/i18n/system flags
-IUSE="$IUSE openmp altivec graphite pch generic_host" # Optimizations/features flags
+IUSE="$IUSE openmp altivec graphite pch generic_host jit" # Optimizations/features flags
 IUSE="$IUSE +bootstrap bootstrap-lean bootstrap-profiled bootstrap-lto bootstrap-O3" # Bootstrap flags
 IUSE="$IUSE libssp +ssp" # Base hardening flags
 IUSE="$IUSE +pie +vtv link_now ssp_all" # Extra hardening flags
@@ -268,6 +268,10 @@ src_unpack() {
 
 	cd $S
 	mkdir ${WORKDIR}/objdir
+
+	if use jit; then
+		mkdir ${WORKDIR}/objdir-jit
+	fi
 }
 
 eapply_gentoo() {
@@ -616,12 +620,46 @@ src_configure() {
 		$(gcc_conf_lang_opts) $(gcc_conf_arm_opts) $confgcc \
 		|| die "configure fail"
 
+	if use jit; then
+		P= cd ${WORKDIR}/objdir-jit && ../gcc-${PV}/configure \
+				${BUILD_CONFIG:+--with-build-config="${BUILD_CONFIG}"} \
+				$(use_enable libssp) \
+				$(use_enable multilib) \
+				--enable-version-specific-runtime-libs \
+				--prefix=${PREFIX} \
+				--bindir=${BINPATH} \
+				--includedir=${LIBPATH}/include \
+				--datadir=${DATAPATH} \
+				--mandir=${DATAPATH}/man \
+				--infodir=${DATAPATH}/info \
+				--with-gxx-include-dir=${STDCXX_INCDIR} \
+				--enable-clocale=gnu \
+				--host=$CHOST \
+				--enable-obsolete \
+				--disable-werror \
+				--enable-libmudflap \
+				--enable-secureplt \
+				--enable-lto \
+				--with-system-zlib \
+				$(use_with graphite cloog) \
+				--with-bugurl=http://bugs.funtoo.org \
+				--with-pkgversion="$branding" \
+				$(gcc_checking_opts stage1) $(gcc_checking_opts) \
+				--enable-languages=jit --enable-host-shared --with-pic \
+				$(gcc_conf_arm_opts) $confgcc \
+				|| die "configure fail"
+	fi
+
 	is_crosscompile && gcc_conf_cross_post
 }
 
 gcc_conf_cross_post() {
 	if use arm ; then		
 		sed -i "s/none-/${CHOST%%-*}-/g" ${WORKDIR}/objdir/Makefile || die
+
+		if use jit; then
+			sed -i "s/none-/${CHOST%%-*}-/g" ${WORKDIR}/objdir-jit/Makefile || die
+		fi
 	fi
 
 }
@@ -630,6 +668,12 @@ src_compile() {
 	cd $WORKDIR/objdir
 	unset ABI
 	emake P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
+
+	if use jit; then
+		cd $WORKDIR/objdir-jit
+		unset ABI
+		emake P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
+	fi
 }
 
 src_test() {
@@ -761,6 +805,12 @@ cross_toolchain_env_setup() {
 }
 				
 src_install() {
+	if use jit; then
+		S=$WORKDIR/objdir-jit; cd $S
+		make -j1 DESTDIR="${D}" install || die
+		mv ${D}${PREFIX}/lib/libgccjit.so* ${D}${LIBPATH}/
+	fi
+
 	S=$WORKDIR/objdir; cd $S
 
 # PRE-MAKE INSTALL SECTION:

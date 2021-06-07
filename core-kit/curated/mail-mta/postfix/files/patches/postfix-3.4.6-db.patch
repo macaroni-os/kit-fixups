@@ -101,7 +101,7 @@ diff -urN postfix-3.4.6/makedefs postfix-3.4.6-fixed/makedefs
 -			: we are all set
 -		    elif [ -f /usr/include/db/db.h ]
 +		 *)
-+			DB_INC_DIR="$(ls -d /usr/include/db6* | sort -Vr | head -n 1)"
++			DB_INC_DIR="$(find /usr/include/ -maxdepth 1 -type d -name db[3-6.]* | sort -Vr | head -n 1)"
 +			if [ -f "$DB_INC_DIR"/db.h ]
  		    then
 -			CCARGS="$CCARGS -I/usr/include/db"

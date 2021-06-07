@@ -2,21 +2,18 @@
 
 EAPI=7
 
-inherit flag-o-matic pam toolchain-funcs user
+inherit pam toolchain-funcs user
 
-MY_PV="${PV/_rc/-RC}"
-MY_SRC="${PN}-${MY_PV}"
-MY_URI="ftp://ftp.porcupine.org/mirrors/postfix-release/official"
 RC_VER="2.7"
 
 DESCRIPTION="A fast and secure drop-in replacement for sendmail"
 HOMEPAGE="http://www.postfix.org/"
-SRC_URI="${MY_URI}/${MY_SRC}.tar.gz"
+SRC_URI="http://cdn.postfix.johnriley.me/mirrors/postfix-release/official/postfix-3.6.0.tar.gz"
 
 LICENSE="|| ( IBM EPL-2.0 )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+berkdb cdb dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl"
+IUSE="+berkdb cdb dovecot-sasl +eai ldap ldap-bind lmdb memcached mbox mysql nis pam postgres sasl selinux sqlite ssl"
 
 DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
@@ -31,14 +28,12 @@ DEPEND=">=dev-libs/libpcre-3.4
 	lmdb? ( >=dev-db/lmdb-0.9.11 )
 	mysql? ( dev-db/mysql-connector-c:0= )
 	nis? ( net-libs/libnsl )
-	pam? ( virtual/pam )
+	pam? ( sys-libs/pam )
 	postgres? ( dev-db/postgresql:* )
 	sasl? (  >=dev-libs/cyrus-sasl-2 )
 	sqlite? ( dev-db/sqlite:3 )
-	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( >=dev-libs/libressl-2.9.1:0= )
-	)"
+	ssl? ( dev-libs/openssl:0= )
+"
 
 RDEPEND="${DEPEND}
 	memcached? ( net-misc/memcached )
@@ -53,20 +48,15 @@ RDEPEND="${DEPEND}
 	!mail-mta/qmail-ldap
 	!mail-mta/sendmail
 	!mail-mta/opensmtpd
-	!<mail-mta/ssmtp-2.64-r2
-	!>=mail-mta/ssmtp-2.64-r2[mta]
+	!mail-mta/ssmtp[mta]
 	!net-mail/fastforward
 	selinux? ( sec-policy/selinux-postfix )"
 
 REQUIRED_USE="ldap-bind? ( ldap sasl )"
 
-S="${WORKDIR}/${MY_SRC}"
-
 PATCHES=(
 	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
 	"${FILESDIR}/patches/${PN}-3.4.6-db.patch"
-	"${FILESDIR}/${PN}-libressl-certkey.patch"
-	"${FILESDIR}/${PN}-libressl-server.patch"
 )
 
 pkg_setup() {
@@ -177,19 +167,6 @@ src_configure() {
 		fi
 	fi
 
-	# Robin H. Johnson <robbat2@gentoo.org> 17/Nov/2006
-	# Fix because infra boxes hit 2Gb .db files that fail a 32-bit fstat signed check.
-	mycc="${mycc} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
-	filter-lfs-flags
-
-	# Workaround for bug #76512
-	if use hardened; then
-		[[ "$(gcc-version)" == "3.4" ]] && replace-flags -O? -Os
-	fi
-
-	# Remove annoying C++ comment style warnings - bug #378099
-	append-flags -Wno-comment
-
 	sed -i -e "/^RANLIB/s/ranlib/$(tc-getRANLIB)/g" "${S}"/makedefs
 	sed -i -e "/^AR/s/ar/$(tc-getAR)/g" "${S}"/makedefs
 
@@ -202,7 +179,7 @@ src_configure() {
 		AUXLIBS_SQLITE="${AUXLIBS_SQLITE}"
 }
 
-src_install () {
+src_install() {
 	LD_LIBRARY_PATH="${S}/lib" \
 	/bin/sh postfix-install \
 		-non-interactive \
@@ -225,13 +202,15 @@ src_install () {
 	# Provide another link for legacy FSH
 	dosym ../sbin/sendmail /usr/$(get_libdir)/sendmail
 
-	# Install qshape, posttls-finger and collate
+	# Install qshape, posttls-finger, collate and tlstype
 	dobin auxiliary/qshape/qshape.pl
 	doman man/man1/qshape.1
 	dobin bin/posttls-finger
 	doman man/man1/posttls-finger.1
 	dobin auxiliary/collate/collate.pl
 	newdoc auxiliary/collate/README README.collate
+	dobin auxiliary/collate/tlstype.pl
+	dodoc auxiliary/collate/README.tlstype
 
 	# Performance tuning tools and their manuals
 	dosbin bin/smtp-{source,sink} bin/qmqp-{source,sink}
@@ -251,7 +230,10 @@ src_install () {
 	else
 		mypostconf="home_mailbox=.maildir/"
 	fi
-	LD_LIBRARY_PATH="${S}/lib" "${D}"/usr/sbin/postconf -c "${D}"/etc/postfix -e ${mypostconf} || die "postconf failed"
+
+	LD_LIBRARY_PATH="${S}/lib" \
+	"${D}"/usr/sbin/postconf -c "${D}"/etc/postfix \
+		-e ${mypostconf} || die "postconf failed"
 
 	insinto /etc/postfix
 	newins "${FILESDIR}"/smtp.pass saslpass
@@ -267,7 +249,9 @@ src_install () {
 	# postfix set-permissions expects uncompressed man files
 	docompress -x /usr/share/man
 
-	pamd_mimic_system smtp auth account
+	if use pam; then
+		pamd_mimic_system smtp auth account
+	fi
 
 	if use sasl; then
 		insinto /etc/sasl2
@@ -296,11 +280,9 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	if [[ -z "$ROOT" ]]; then
-		if [[ ! -e /etc/mail/aliases.db ]]; then
-			einfo "Running newaliases..."
-			/usr/bin/newaliases
-		fi
+	if [[ ! -e /etc/mail/aliases.db ]] ; then
+		einfo "Running newaliases..."
+		/usr/bin/newaliases
 	fi
 
 	# check and fix file permissions

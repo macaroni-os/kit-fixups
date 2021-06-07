@@ -20,7 +20,10 @@ IUSE="+berkdb cdb dovecot-sasl +eai hardened ldap ldap-bind libressl lmdb memcac
 
 DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
-	berkdb? ( =sys-libs/db-6* )
+	berkdb? (
+		>=sys-libs/db-3.2:*
+		<sys-libs/db-7:*
+	)
 	cdb? ( || ( >=dev-db/tinycdb-0.76 >=dev-db/cdb-0.75-r4 ) )
 	eai? ( dev-libs/icu:= )
 	ldap? ( net-nds/openldap )
@@ -60,7 +63,7 @@ S="${WORKDIR}/${MY_SRC}"
 
 PATCHES=(
 	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
-	"${FILESDIR}/patches/${PN}-3.4.6-db-6-1.patch"
+	"${FILESDIR}/patches/${PN}-3.4.6-db.patch"
 	"${FILESDIR}/${PN}-libressl-certkey.patch"
 	"${FILESDIR}/${PN}-libressl-server.patch"
 )
@@ -298,11 +301,8 @@ pkg_preinst() {
 
 pkg_postinst() {
 	if [[ ! -e /etc/mail/aliases.db ]] ; then
-		ewarn
-		ewarn "You must edit /etc/mail/aliases to suit your needs"
-		ewarn "and then run /usr/bin/newaliases. Postfix will not"
-		ewarn "work correctly without it."
-		ewarn
+		einfo "Running newaliases..."
+		/usr/bin/newaliases
 	fi
 
 	# check and fix file permissions

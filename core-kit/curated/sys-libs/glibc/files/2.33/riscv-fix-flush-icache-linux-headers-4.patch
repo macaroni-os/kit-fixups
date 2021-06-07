@@ -1,0 +1,15 @@
+diff -u -r glibc-2.33.b/sysdeps/unix/sysv/linux/riscv/flush-icache.c glibc-2.33/sysdeps/unix/sysv/linux/riscv/flush-icache.c
+--- a/sysdeps/unix/sysv/linux/riscv/flush-icache.c      2021-02-01 18:15:33.000000000 +0100
++++ b/sysdeps/unix/sysv/linux/riscv/flush-icache.c      2021-05-31 09:54:41.313254655 +0200
+@@ -21,11 +21,6 @@
+ #include <stdlib.h>
+ #include <atomic.h>
+ #include <sys/cachectl.h>
+-#if __has_include (<asm/syscalls.h>)
+-# include <asm/syscalls.h>
+-#else
+-# include <asm/unistd.h>
+-#endif
+ #include <sys/syscall.h>
+ 
+ typedef int (*func_type) (void *, void *, unsigned long int);

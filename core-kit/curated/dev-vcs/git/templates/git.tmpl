@@ -30,7 +30,7 @@ DEPEND="
 	sys-libs/zlib
 	pcre? (
 		pcre-jit? ( dev-libs/libpcre2[jit(+)] )
-		!pcre-jit? ( dev-libs/libpcre )
+		!pcre-jit? ( dev-libs/libpcre2 )
 	)
 	perl? ( dev-lang/perl:=[-build(-)] )
 	tk? ( dev-lang/tk:0= )
@@ -139,16 +139,8 @@ exportmakeopts() {
 	sed -i -e '/\/usr\/local/s/BASIC_/#BASIC_/' Makefile || die
 
 	if use pcre; then
-		if use pcre-jit; then
-			myopts+=( USE_LIBPCRE2=YesPlease )
-			extlibs+=( -lpcre2-8 )
-		else
-			myopts+=(
-				USE_LIBPCRE1=YesPlease
-				NO_LIBPCRE1_JIT=YesPlease
-			)
-			extlibs+=( -lpcre )
-		fi
+		myopts+=( USE_LIBPCRE2=YesPlease )
+		extlibs+=( -lpcre2-8 )
 	fi
 # Disabled until ~m68k-mint can be keyworded again
 #	if [[ ${CHOST} == *-mint* ]] ; then

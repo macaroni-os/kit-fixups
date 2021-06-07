@@ -164,6 +164,10 @@ XFAIL_TEST_LIST=(
 	tst-stack4
 )
 
+PATCHES=(
+	"${FILESDIR}/2.33/riscv-fix-flush-icache-linux-headers-4.patch"
+)
+
 #
 # Small helper functions
 #

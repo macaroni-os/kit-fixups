@@ -58,7 +58,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	sed -i -e "s#Exec=.*teams#Exec=/opt/teams/bin/teams#g" -e "s#Icon=.*teams#Icon=/opt/teams/share/pixmaps/teams#g" usr/share/applications/teams.desktop
+	sed -i -e "s#Exec=.*teams#Exec=/opt/teams/bin/teams#g" -e "s#Icon=.*teams#Icon=/opt/teams/share/pixmaps/teams.png#g" usr/share/applications/teams.desktop
 	sed -i '/OnlyShowIn/d' usr/share/applications/teams.desktop
 	default
 }

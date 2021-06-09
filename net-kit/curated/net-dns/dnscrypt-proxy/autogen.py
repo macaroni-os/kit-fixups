@@ -9,7 +9,7 @@ async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases")
 	json_list = json.loads(json_data)
 	for release in json_list:
-		if release["prerelease"] or release["draft"]:
+		if release["prerelease"] or release["draft"] or "beta" in release["tag_name"]:
 			continue
 		version = release["tag_name"]
 		url = release["tarball_url"]

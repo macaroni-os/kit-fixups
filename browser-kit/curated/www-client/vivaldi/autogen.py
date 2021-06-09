@@ -14,7 +14,6 @@ async def generate(hub, **pkginfo):
 		hub.pkgtools.ebuild.Artifact(url=url, final_name=f"vivaldi-{version}-amd64.deb"),
 		hub.pkgtools.ebuild.Artifact(url=url.replace("amd64", "arm64"), final_name=f"vivaldi-{version}-arm64.deb"),
 		hub.pkgtools.ebuild.Artifact(url=url.replace("amd64", "armhf"), final_name=f"vivaldi-{version}-armhf.deb"),
-		hub.pkgtools.ebuild.Artifact(url=url.replace("amd64", "i386"), final_name=f"vivaldi-{version}-i386.deb"),
 	]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts)
 	ebuild.push()

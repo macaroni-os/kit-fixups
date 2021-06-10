@@ -6,17 +6,18 @@
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
 
-# Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
-# (drobbins, 2020-10-30)
-#
-
 funtoo_stuff:
   defaults:
     cat: dev-python
     python_compat: python3+
   generator: pypi-simple-1
   packages:
-    - subpop
+    - subpop:
+        pydeps:
+          - pyyaml
+
+# Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
+# (drobbins, 2020-10-30)
 
 botostuff:
   defaults:

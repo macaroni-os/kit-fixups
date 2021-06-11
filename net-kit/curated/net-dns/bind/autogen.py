@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
+from bs4 import BeautifulSoup
 
 async def generate(hub, **pkginfo):
 	python_compat = "python3+"
-	json_list = await hub.pkgtools.fetch.get_page(
-		"https://gitlab.isc.org/api/v4/projects/1/repository/tags", is_json=True
-	)
-	for tag in json_list:
-		minor = tag["name"].split("_")[1]
+	src_url = "https://downloads.isc.org/isc/bind9/"
+	src_data = await hub.pkgtools.fetch.get_page(src_url)
+	soup = BeautifulSoup(src_data, "html.parser")
+	for link in soup.find_all("a"):
+		href = link.get("href")
+		if href.upper().isupper():
+			continue
+		minor = href.split(".")[1]
 		if int(minor) % 2:
 			continue
-		version = tag["name"].lstrip("v").replace("_", ".")
-		break
-	# WORKAROUND -- see FL-8502
-	version = "9.16.16"
-	url = f"https://downloads.isc.org/isc/bind9/{version}/bind-{version}.tar.xz"
+		version = href.rstrip("/")
+	url = src_url + f"{version}/bind-{version}.tar.xz"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, python_compat=python_compat, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]

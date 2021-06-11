@@ -12,6 +12,8 @@ async def generate(hub, **pkginfo):
 			continue
 		version = tag["name"].lstrip("v").replace("_", ".")
 		break
+	# WORKAROUND -- see FL-8502
+	version = "9.16.16"
 	url = f"https://downloads.isc.org/isc/bind9/{version}/bind-{version}.tar.xz"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

@@ -1,8 +1,11 @@
 # Main RISC-V profile
 
 TRACK_KEYWORDS="~amd64 amd64"
-ARCH="riscv"
-ACCEPT_KEYWORDS="riscv ~riscv"
+ARCH="riscv64"
+# Accept keywords for:
+#   - No restriction on bitness (works on any riscv* hardware)
+#   - Restricted to 64 bits (works only on riscv64 hardware)
+ACCEPT_KEYWORDS="riscv ~riscv riscv64 ~riscv64"
 
 CFLAGS="-O2"
 CXXFLAGS="${CFLAGS}"

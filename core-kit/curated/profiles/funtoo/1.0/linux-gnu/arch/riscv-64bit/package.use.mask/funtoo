@@ -3,3 +3,8 @@
 dev-libs/libpcre jit
 dev-libs/libpcre2 jit
 dev-vcs/git pcre-jit
+
+# Moritz Maxeiner <mm@ucw.sh> (2021-09-12)
+# MongoDB bundles old spidermonkey with no riscv support
+# Upstream support: https://bugzilla.mozilla.org/show_bug.cgi?id=1318905
+dev-db/mongodb -shell

@@ -1,0 +1,153 @@
+https://gcc.gnu.org/PR100767
+https://bugs.gentoo.org/792291
+
+From 0faee8bae391fab7e1ba4a494360dd9793e15fb5 Mon Sep 17 00:00:00 2001
+From: Richard Earnshaw <rearnsha@arm.com>
+Date: Thu, 27 May 2021 10:25:37 +0100
+Subject: [PATCH] arm: Remove use of opts_set in arm_configure_build_target
+ [PR100767]
+
+The variable global_options_set is a reflection of which options have
+been explicitly set from the command line in the structure
+global_options.  But it doesn't describe the contents of a
+cl_target_option.  cl_target_option is a set of options to apply and
+once configured should represent a viable set of options without
+needing to know which were explicitly set by the user.
+
+Unfortunately arm_configure_build_target was incorrectly conflating
+the two.  Fortunately, however, we do not really need to know this
+since the various override_options functions should have sanitized the
+target_options values before constructing a cl_target_option
+structure.  It is safe, therefore, to simply drop this parameter to
+arm_configure_build_target and rely on checking that various string
+parameters are non-null before dereferencing them.
+
+gcc:
+
+	PR target/100767
+	* config/arm/arm.c (arm_configure_build_target): Remove parameter
+	opts_set, directly check opts parameters for being non-null.
+	(arm_option_restore): Update call to arm_configure_build_target.
+	(arm_option_override): Likewise.
+	(arm_can_inline_p): Likewise.
+	(arm_valid_target_attribute_tree): Likewise.
+	* config/arm/arm-c.c (arm_pragma_target_parse): Likewise.
+	* config/arm/arm-protos.h (arm_configure_build_target): Adjust
+	prototype.
+
+(cherry picked from commit 262e75d22c350acbdf4c1fb4f224cc5d3d711eff)
+---
+ gcc/config/arm/arm-c.c      |  3 +--
+ gcc/config/arm/arm-protos.h |  3 +--
+ gcc/config/arm/arm.c        | 23 ++++++++++-------------
+ 3 files changed, 12 insertions(+), 17 deletions(-)
+
+--- a/gcc/config/arm/arm-c.c
++++ b/gcc/config/arm/arm-c.c
+@@ -408,8 +408,7 @@ arm_pragma_target_parse (tree args, tree pop_target)
+        target_option_current_node, but not handle_pragma_target.  */
+       target_option_current_node = cur_tree;
+       arm_configure_build_target (&arm_active_target,
+-				  TREE_TARGET_OPTION (cur_tree),
+-				  &global_options_set, false);
++				  TREE_TARGET_OPTION (cur_tree), false);
+     }
+ 
+   /* Update macros if target_node changes. The global state will be restored
+--- a/gcc/config/arm/arm-protos.h
++++ b/gcc/config/arm/arm-protos.h
+@@ -243,8 +243,7 @@ extern bool arm_change_mode_p (tree);
+ extern tree arm_valid_target_attribute_tree (tree, struct gcc_options *,
+ 					     struct gcc_options *);
+ extern void arm_configure_build_target (struct arm_build_target *,
+-					struct cl_target_option *,
+-					struct gcc_options *, bool);
++					struct cl_target_option *, bool);
+ extern void arm_option_reconfigure_globals (void);
+ extern void arm_options_perform_arch_sanity_checks (void);
+ extern void arm_pr_long_calls (struct cpp_reader *);
+--- a/gcc/config/arm/arm.c
++++ b/gcc/config/arm/arm.c
+@@ -3052,9 +3052,10 @@ arm_override_options_after_change (void)
+ /* Implement TARGET_OPTION_RESTORE.  */
+ static void
+ arm_option_restore (struct gcc_options */* opts */,
+-		    struct gcc_options *opts_set, struct cl_target_option *ptr)
++		    struct gcc_options */* opts_set */,
++		    struct cl_target_option *ptr)
+ {
+-  arm_configure_build_target (&arm_active_target, ptr, opts_set, false);
++  arm_configure_build_target (&arm_active_target, ptr, false);
+ }
+ 
+ /* Reset options between modes that the user has specified.  */
+@@ -3177,7 +3178,6 @@ static sbitmap isa_quirkbits;
+ void
+ arm_configure_build_target (struct arm_build_target *target,
+ 			    struct cl_target_option *opts,
+-			    struct gcc_options *opts_set,
+ 			    bool warn_compatible)
+ {
+   const cpu_option *arm_selected_tune = NULL;
+@@ -3192,7 +3192,7 @@ arm_configure_build_target (struct arm_build_target *target,
+   target->core_name = NULL;
+   target->arch_name = NULL;
+ 
+-  if (opts_set->x_arm_arch_string)
++  if (opts->x_arm_arch_string)
+     {
+       arm_selected_arch = arm_parse_arch_option_name (all_architectures,
+ 						      "-march",
+@@ -3200,7 +3200,7 @@ arm_configure_build_target (struct arm_build_target *target,
+       arch_opts = strchr (opts->x_arm_arch_string, '+');
+     }
+ 
+-  if (opts_set->x_arm_cpu_string)
++  if (opts->x_arm_cpu_string)
+     {
+       arm_selected_cpu = arm_parse_cpu_option_name (all_cores, "-mcpu",
+ 						    opts->x_arm_cpu_string);
+@@ -3210,7 +3210,7 @@ arm_configure_build_target (struct arm_build_target *target,
+ 	 options for tuning.  */
+     }
+ 
+-  if (opts_set->x_arm_tune_string)
++  if (opts->x_arm_tune_string)
+     {
+       arm_selected_tune = arm_parse_cpu_option_name (all_cores, "-mtune",
+ 						     opts->x_arm_tune_string);
+@@ -3474,8 +3474,7 @@ arm_option_override (void)
+     }
+ 
+   cl_target_option_save (&opts, &global_options, &global_options_set);
+-  arm_configure_build_target (&arm_active_target, &opts, &global_options_set,
+-			      true);
++  arm_configure_build_target (&arm_active_target, &opts, true);
+ 
+ #ifdef SUBTARGET_OVERRIDE_OPTIONS
+   SUBTARGET_OVERRIDE_OPTIONS;
+@@ -32857,10 +32856,8 @@ arm_can_inline_p (tree caller, tree callee)
+   caller_target.isa = sbitmap_alloc (isa_num_bits);
+   callee_target.isa = sbitmap_alloc (isa_num_bits);
+ 
+-  arm_configure_build_target (&caller_target, caller_opts, &global_options_set,
+-			      false);
+-  arm_configure_build_target (&callee_target, callee_opts, &global_options_set,
+-			      false);
++  arm_configure_build_target (&caller_target, caller_opts, false);
++  arm_configure_build_target (&callee_target, callee_opts, false);
+   if (!bitmap_subset_p (callee_target.isa, caller_target.isa))
+     can_inline = false;
+ 
+@@ -32996,7 +32993,7 @@ arm_valid_target_attribute_tree (tree args, struct gcc_options *opts,
+     return NULL_TREE;
+ 
+   cl_target_option_save (&cl_opts, opts, opts_set);
+-  arm_configure_build_target (&arm_active_target, &cl_opts, opts_set, false);
++  arm_configure_build_target (&arm_active_target, &cl_opts, false);
+   arm_option_check_internal (opts);
+   /* Do any overrides, such as global options arch=xxx.
+      We do this since arm_active_target was overridden.  */
+-- 
+2.31.1
+

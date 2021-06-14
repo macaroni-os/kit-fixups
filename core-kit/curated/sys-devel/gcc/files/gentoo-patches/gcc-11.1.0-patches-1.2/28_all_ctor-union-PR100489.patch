@@ -1,0 +1,156 @@
+https://bugs.gentoo.org/788829
+https://gcc.gnu.org/PR100489
+
+From 0a1010428b3861464eb319c629c68cb13b9ca01e Mon Sep 17 00:00:00 2001
+From: Jason Merrill <jason@redhat.com>
+Date: Wed, 19 May 2021 21:12:45 -0400
+Subject: [PATCH] c++: designated init with anonymous union [PR100489]
+
+My patch for PR98463 added an assert that tripped on this testcase, because
+we ended up with a U CONSTRUCTOR with an initializer for a, which is not a
+member of U.  We need to wrap the a initializer in another CONSTRUCTOR for
+the anonymous union.
+
+There was already support for this in process_init_constructor_record, but
+not in process_init_constructor_union.  But since this is about brace
+elision, it really belongs under reshape_init rather than digest_init, so
+this patch moves the handling to reshape_init_class, which also handles
+unions.
+
+	PR c++/100489
+
+gcc/cp/ChangeLog:
+
+	* decl.c (reshape_init_class): Handle designator for
+	member of anonymous aggregate here.
+	* typeck2.c (process_init_constructor_record): Not here.
+
+gcc/testsuite/ChangeLog:
+
+	* g++.dg/cpp2a/desig18.C: New test.
+---
+ gcc/cp/decl.c                        | 33 ++++++++++++++++++++++++----
+ gcc/cp/typeck2.c                     | 26 ----------------------
+ gcc/testsuite/g++.dg/cpp2a/desig18.C | 17 ++++++++++++++
+ 3 files changed, 46 insertions(+), 30 deletions(-)
+ create mode 100644 gcc/testsuite/g++.dg/cpp2a/desig18.C
+
+--- a/gcc/cp/decl.c
++++ b/gcc/cp/decl.c
+@@ -6388,10 +6388,9 @@ reshape_init_class (tree type, reshape_iter *d, bool first_initializer_p,
+ 	      /* We already reshaped this.  */
+ 	      if (field != d->cur->index)
+ 		{
+-		  tree id = DECL_NAME (d->cur->index);
+-		  gcc_assert (id);
+-		  gcc_checking_assert (d->cur->index
+-				       == get_class_binding (type, id));
++		  if (tree id = DECL_NAME (d->cur->index))
++		    gcc_checking_assert (d->cur->index
++					 == get_class_binding (type, id));
+ 		  field = d->cur->index;
+ 		}
+ 	    }
+@@ -6412,6 +6411,32 @@ reshape_init_class (tree type, reshape_iter *d, bool first_initializer_p,
+ 		       d->cur->index);
+ 	      return error_mark_node;
+ 	    }
++
++	  /* If the element is an anonymous union object and the initializer
++	     list is a designated-initializer-list, the anonymous union object
++	     is initialized by the designated-initializer-list { D }, where D
++	     is the designated-initializer-clause naming a member of the
++	     anonymous union object.  */
++	  tree ictx = DECL_CONTEXT (field);
++	  if (!same_type_ignoring_top_level_qualifiers_p (ictx, type))
++	    {
++	      gcc_assert (ANON_AGGR_TYPE_P (ictx));
++	      /* Find the anon aggr that is a direct member of TYPE.  */
++	      while (true)
++		{
++		  tree cctx = TYPE_CONTEXT (ictx);
++		  if (same_type_ignoring_top_level_qualifiers_p (cctx, type))
++		    break;
++		  ictx = cctx;
++		}
++	      /* And then the TYPE member with that anon aggr type.  */
++	      tree aafield = TYPE_FIELDS (type);
++	      for (; aafield; aafield = TREE_CHAIN (aafield))
++		if (TREE_TYPE (aafield) == ictx)
++		  break;
++	      gcc_assert (aafield);
++	      field = aafield;
++	    }
+ 	}
+ 
+       /* If we processed all the member of the class, we are done.  */
+diff --git a/gcc/cp/typeck2.c b/gcc/cp/typeck2.c
+index 4e9632f6a7d..142c6fd8e75 100644
+--- a/gcc/cp/typeck2.c
++++ b/gcc/cp/typeck2.c
+@@ -1511,19 +1511,6 @@ process_init_constructor_record (tree type, tree init, int nested, int flags,
+ 			  || identifier_p (ce->index));
+ 	      if (ce->index == field || ce->index == DECL_NAME (field))
+ 		next = ce->value;
+-	      else if (ANON_AGGR_TYPE_P (fldtype)
+-		       && search_anon_aggr (fldtype,
+-					    TREE_CODE (ce->index) == FIELD_DECL
+-					    ? DECL_NAME (ce->index)
+-					    : ce->index))
+-		/* If the element is an anonymous union object and the
+-		   initializer list is a designated-initializer-list, the
+-		   anonymous union object is initialized by the
+-		   designated-initializer-list { D }, where D is the
+-		   designated-initializer-clause naming a member of the
+-		   anonymous union object.  */
+-		next = build_constructor_single (init_list_type_node,
+-						 ce->index, ce->value);
+ 	      else
+ 		{
+ 		  ce = NULL;
+@@ -1669,19 +1656,6 @@ process_init_constructor_record (tree type, tree init, int nested, int flags,
+ 
+ 		  if (ce->index == field || ce->index == DECL_NAME (field))
+ 		    break;
+-		  if (ANON_AGGR_TYPE_P (TREE_TYPE (field)))
+-		    {
+-		      tree t
+-			= search_anon_aggr (TREE_TYPE (field),
+-					    TREE_CODE (ce->index) == FIELD_DECL
+-					    ? DECL_NAME (ce->index)
+-					    : ce->index);
+-		      if (t)
+-			{
+-			  field = t;
+-			  break;
+-			}
+-		    }
+ 		}
+ 	    }
+ 	  if (field)
+diff --git a/gcc/testsuite/g++.dg/cpp2a/desig18.C b/gcc/testsuite/g++.dg/cpp2a/desig18.C
+new file mode 100644
+index 00000000000..4851579b7c7
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/cpp2a/desig18.C
+@@ -0,0 +1,17 @@
++// PR c++/100489
++// { dg-options "" }
++
++union U
++{
++  union
++  {
++    unsigned char a;
++  };
++
++  unsigned char b[1];
++};
++
++void f(unsigned char a)
++{
++  union U u = { .a = a };
++}
+-- 
+2.31.1
+

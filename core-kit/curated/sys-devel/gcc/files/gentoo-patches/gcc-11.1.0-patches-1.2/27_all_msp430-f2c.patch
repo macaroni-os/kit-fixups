@@ -1,0 +1,85 @@
+https://gcc.gnu.org/PR100361
+
+2021-05-18  Joern Rennecke  <joern.rennecke@riscy-ip.com>
+
+    libstdc++: Disable floating_to_chars.cc on 16 bit targets
+    
+    This patch conditionally disables the compilation of floating_to_chars.cc
+    on 16 bit targets, thus fixing a build failure for these targets as
+    the POW10_SPLIT_2 array exceeds the maximum object size.
+
+libstdc++-v3/
+	PR libstdc++/100361
+	* include/std/charconv (to_chars): Hide the overloads for
+	floating-point types for 16 bit targets.
+	* src/c++17/floating_to_chars.cc: Don't compile for 16 bit targets.
+	* testsuite/20_util/to_chars/double.cc: Run this test only on
+	size32plus targets.
+	* testsuite/20_util/to_chars/float.cc: Likewise.
+	* testsuite/20_util/to_chars/long_double.cc: Likewise.
+
+diff --git a/libstdc++-v3/include/std/charconv b/libstdc++-v3/include/std/charconv
+index 193702e677a..ac9c34d4601 100644
+--- a/libstdc++-v3/include/std/charconv
++++ b/libstdc++-v3/include/std/charconv
+@@ -703,7 +703,8 @@ namespace __detail
+ 	     chars_format __fmt = chars_format::general) noexcept;
+ #endif
+ 
+-#if _GLIBCXX_FLOAT_IS_IEEE_BINARY32 && _GLIBCXX_DOUBLE_IS_IEEE_BINARY64
++#if _GLIBCXX_FLOAT_IS_IEEE_BINARY32 && _GLIBCXX_DOUBLE_IS_IEEE_BINARY64 \
++    && __SIZE_WIDTH__ >= 32
+   // Floating-point std::to_chars
+ 
+   // Overloads for float.
+diff --git a/libstdc++-v3/src/c++17/floating_to_chars.cc b/libstdc++-v3/src/c++17/floating_to_chars.cc
+index 1a0abb9e80f..44f547a77b4 100644
+--- a/libstdc++-v3/src/c++17/floating_to_chars.cc
++++ b/libstdc++-v3/src/c++17/floating_to_chars.cc
+@@ -50,7 +50,9 @@ extern "C" int __sprintfieee128(char*, const char*, ...);
+ 
+ // This implementation crucially assumes float/double have the
+ // IEEE binary32/binary64 formats.
+-#if _GLIBCXX_FLOAT_IS_IEEE_BINARY32 && _GLIBCXX_DOUBLE_IS_IEEE_BINARY64
++#if _GLIBCXX_FLOAT_IS_IEEE_BINARY32 && _GLIBCXX_DOUBLE_IS_IEEE_BINARY64 \
++    /* And it also assumes that uint64_t POW10_SPLIT_2[3133][3] is valid.  */\
++    && __SIZE_WIDTH__ >= 32
+ 
+ // Determine the binary format of 'long double'.
+ 
+diff --git a/libstdc++-v3/testsuite/20_util/to_chars/double.cc b/libstdc++-v3/testsuite/20_util/to_chars/double.cc
+index bb6f74424ed..64e62213044 100644
+--- a/libstdc++-v3/testsuite/20_util/to_chars/double.cc
++++ b/libstdc++-v3/testsuite/20_util/to_chars/double.cc
+@@ -33,6 +33,7 @@
+ 
+ // { dg-do run { target c++17 } }
+ // { dg-require-effective-target ieee-floats }
++// { dg-require-effective-target size32plus }
+ 
+ #include <charconv>
+ 
+diff --git a/libstdc++-v3/testsuite/20_util/to_chars/float.cc b/libstdc++-v3/testsuite/20_util/to_chars/float.cc
+index 0c8dd4f66df..73b9081d4ff 100644
+--- a/libstdc++-v3/testsuite/20_util/to_chars/float.cc
++++ b/libstdc++-v3/testsuite/20_util/to_chars/float.cc
+@@ -33,6 +33,7 @@
+ 
+ // { dg-do run { target c++17 } }
+ // { dg-require-effective-target ieee-floats }
++// { dg-require-effective-target size32plus }
+ 
+ #include <charconv>
+ 
+diff --git a/libstdc++-v3/testsuite/20_util/to_chars/long_double.cc b/libstdc++-v3/testsuite/20_util/to_chars/long_double.cc
+index 8cf45ad5e94..447e5368811 100644
+--- a/libstdc++-v3/testsuite/20_util/to_chars/long_double.cc
++++ b/libstdc++-v3/testsuite/20_util/to_chars/long_double.cc
+@@ -35,6 +35,7 @@
+ // { dg-xfail-run-if "Non-conforming printf (see PR98384)" { *-*-solaris* *-*-darwin* } }
+ 
+ // { dg-require-effective-target ieee-floats }
++// { dg-require-effective-target size32plus }
+ 
+ #include <charconv>
+ 

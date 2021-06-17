@@ -1,7 +1,7 @@
-diff --git a/src/addagent/main.c b/src/addagent/main.c
+diff --git a/addagent/main.c b/addagent/main.c
 index 587a8a3d8..ab12f0326 100644
---- a/src/addagent/main.c
-+++ b/src/addagent/main.c
+--- a/addagent/main.c
++++ b/addagent/main.c
 @@ -17,6 +17,7 @@ static void print_banner(void);
  static void manage_shutdown(int sig) __attribute__((noreturn));
  #endif
@@ -10,10 +10,10 @@ index 587a8a3d8..ab12f0326 100644
  
  #if defined(__MINGW32__)
  static int setenv(const char *name, const char *val, __attribute__((unused)) int overwrite)
-diff --git a/src/addagent/manage_agents.c b/src/addagent/manage_agents.c
+diff --git a/addagent/manage_agents.c b/addagent/manage_agents.c
 index ac39c1e66..4f9c266ff 100644
---- a/src/addagent/manage_agents.c
-+++ b/src/addagent/manage_agents.c
+--- a/addagent/manage_agents.c
++++ b/addagent/manage_agents.c
 @@ -85,6 +85,8 @@ int add_agent(int json_output)
  
      char authfile[257];
@@ -23,20 +23,20 @@ index ac39c1e66..4f9c266ff 100644
      if(willchroot > 0) {
          snprintf(authfile, 256, "%s", AUTH_FILE);	//XXX
      } else {
-diff --git a/src/addagent/manage_agents.h b/src/addagent/manage_agents.h
+diff --git a/addagent/manage_agents.h b/addagent/manage_agents.h
 index 4812dba43..f2962e80b 100644
---- a/src/addagent/manage_agents.h
-+++ b/src/addagent/manage_agents.h
+--- a/addagent/manage_agents.h
++++ b/addagent/manage_agents.h
 @@ -147,4 +147,4 @@ extern fpos_t fp_pos;
  #define GMF_UNKN_ERROR  ARGV0 ": Could not run GetModuleFileName which returned (%ld).\n"
  
  
 -int willchroot;
 +//int willchroot;
-diff --git a/src/addagent/manage_keys.c b/src/addagent/manage_keys.c
+diff --git a/addagent/manage_keys.c b/addagent/manage_keys.c
 index 146b48326..ffb9a1f21 100644
---- a/src/addagent/manage_keys.c
-+++ b/src/addagent/manage_keys.c
+--- a/addagent/manage_keys.c
++++ b/addagent/manage_keys.c
 @@ -336,6 +336,8 @@ int k_bulkload(const char *cmdbulk)
      char delims[] = ",";
      char *token = NULL;
@@ -46,10 +46,10 @@ index 146b48326..ffb9a1f21 100644
      /* Check if we can open the input file */
      printf("Opening: [%s]\n", cmdbulk);
      infp = fopen(cmdbulk, "r");
-diff --git a/src/analysisd/analysisd.c b/src/analysisd/analysisd.c
+diff --git a/analysisd/analysisd.c b/analysisd/analysisd.c
 index a220f4421..0a81971de 100644
---- a/src/analysisd/analysisd.c
-+++ b/src/analysisd/analysisd.c
+--- a/analysisd/analysisd.c
++++ b/analysisd/analysisd.c
 @@ -42,7 +42,12 @@
  #endif
  
@@ -64,10 +64,10 @@ index a220f4421..0a81971de 100644
  #endif
  
  /** Prototypes **/
-diff --git a/src/analysisd/config.h b/src/analysisd/config.h
+diff --git a/analysisd/config.h b/analysisd/config.h
 index 8d74c756e..976d1942e 100644
---- a/src/analysisd/config.h
-+++ b/src/analysisd/config.h
+--- a/analysisd/config.h
++++ b/analysisd/config.h
 @@ -12,6 +12,7 @@
  
  #include "config/config.h"
@@ -88,10 +88,10 @@ index 8d74c756e..976d1942e 100644
  
  int GlobalConf(const char *cfgfile);
  
-diff --git a/src/analysisd/decoders/geoip.c b/src/analysisd/decoders/geoip.c
+diff --git a/analysisd/decoders/geoip.c b/analysisd/decoders/geoip.c
 index 464e4bb71..9816b4c81 100644
---- a/src/analysisd/decoders/geoip.c
-+++ b/src/analysisd/decoders/geoip.c
+--- a/analysisd/decoders/geoip.c
++++ b/analysisd/decoders/geoip.c
 @@ -30,6 +30,7 @@ char *GetGeoInfobyIP(char *ip_addr)
      GeoIPRecord *geoiprecord;
      char *geodata = NULL;
@@ -100,10 +100,10 @@ index 464e4bb71..9816b4c81 100644
  
      if(!geoipdb)
      {
-diff --git a/src/analysisd/decoders/syscheck.c b/src/analysisd/decoders/syscheck.c
+diff --git a/analysisd/decoders/syscheck.c b/analysisd/decoders/syscheck.c
 index a6d675892..30339a00d 100644
---- a/src/analysisd/decoders/syscheck.c
-+++ b/src/analysisd/decoders/syscheck.c
+--- a/analysisd/decoders/syscheck.c
++++ b/analysisd/decoders/syscheck.c
 @@ -16,7 +16,7 @@
  #include "decoder.h"
  
@@ -113,10 +113,10 @@ index a6d675892..30339a00d 100644
  #endif
  
  typedef struct __sdb {
-diff --git a/src/analysisd/makelists.c b/src/analysisd/makelists.c
+diff --git a/analysisd/makelists.c b/analysisd/makelists.c
 index 06c90db70..dfbe6a4a3 100644
---- a/src/analysisd/makelists.c
-+++ b/src/analysisd/makelists.c
+--- a/analysisd/makelists.c
++++ b/analysisd/makelists.c
 @@ -32,6 +32,10 @@ time_t c_time;
  char __shost[512];
  OSDecoderInfo *NULL_Decoder;
@@ -128,10 +128,10 @@ index 06c90db70..dfbe6a4a3 100644
  /* print help statement */
  __attribute__((noreturn))
  static void help_makelists(void)
-diff --git a/src/analysisd/syscheck-sqlite.h b/src/analysisd/syscheck-sqlite.h
+diff --git a/analysisd/syscheck-sqlite.h b/analysisd/syscheck-sqlite.h
 deleted file mode 100644
 index 526cab26e..000000000
---- a/src/analysisd/syscheck-sqlite.h
+--- a/analysisd/syscheck-sqlite.h
 +++ /dev/null
 @@ -1,5 +0,0 @@
 -#ifdef SQLITE_ENABLED
@@ -139,10 +139,10 @@ index 526cab26e..000000000
 -
 -sqlite3 *conn;
 -#endif
-diff --git a/src/analysisd/testrule.c b/src/analysisd/testrule.c
+diff --git a/analysisd/testrule.c b/analysisd/testrule.c
 index c08fb4885..b1aa928f7 100644
---- a/src/analysisd/testrule.c
-+++ b/src/analysisd/testrule.c
+--- a/analysisd/testrule.c
++++ b/analysisd/testrule.c
 @@ -83,6 +83,7 @@ int main(int argc, char **argv)
      memset(prev_month, '\0', 4);
  
@@ -151,10 +151,10 @@ index c08fb4885..b1aa928f7 100644
      geoipdb = NULL;
  #endif
  
-diff --git a/src/client-agent/agentd.c b/src/client-agent/agentd.c
+diff --git a/client-agent/agentd.c b/client-agent/agentd.c
 index c09cf87d3..67828e79c 100644
---- a/src/client-agent/agentd.c
-+++ b/src/client-agent/agentd.c
+--- a/client-agent/agentd.c
++++ b/client-agent/agentd.c
 @@ -23,6 +23,8 @@ void AgentdStart(const char *dir, int uid, int gid, const char *user, const char
      fd_set fdset;
      struct timeval fdtimeout;
@@ -164,10 +164,10 @@ index c09cf87d3..67828e79c 100644
      available_server = 0;
  
      /* Initial random numbers must happen before chroot */
-diff --git a/src/client-agent/agentd.h b/src/client-agent/agentd.h
+diff --git a/client-agent/agentd.h b/client-agent/agentd.h
 index 0246a5457..a362ff9a3 100644
---- a/src/client-agent/agentd.h
-+++ b/src/client-agent/agentd.h
+--- a/client-agent/agentd.h
++++ b/client-agent/agentd.h
 @@ -81,9 +81,9 @@ void os_agent_cb(int fd, short ev, void *arg);
  extern time_t available_server;
  extern int run_foreground;
@@ -180,10 +180,10 @@ index 0246a5457..a362ff9a3 100644
  #endif //WIN32
  
  #endif /* __AGENTD_H */
-diff --git a/src/client-agent/event-forward.c b/src/client-agent/event-forward.c
+diff --git a/client-agent/event-forward.c b/client-agent/event-forward.c
 index 2e81f0c90..22ed0beb9 100644
---- a/src/client-agent/event-forward.c
-+++ b/src/client-agent/event-forward.c
+--- a/client-agent/event-forward.c
++++ b/client-agent/event-forward.c
 @@ -19,6 +19,9 @@
  /* Receive a message locally on the agent and forward it to the manager */
  void *EventForward(void)
@@ -194,10 +194,10 @@ index 2e81f0c90..22ed0beb9 100644
      ssize_t recv_b;
      char msg[OS_MAXSTR + 1];
  
-diff --git a/src/client-agent/main.c b/src/client-agent/main.c
+diff --git a/client-agent/main.c b/client-agent/main.c
 index 5f85cfb73..01c18970c 100644
---- a/src/client-agent/main.c
-+++ b/src/client-agent/main.c
+--- a/client-agent/main.c
++++ b/client-agent/main.c
 @@ -16,7 +16,8 @@
  #define ARGV0 "ossec-agentd"
  #endif
@@ -217,10 +217,10 @@ index 5f85cfb73..01c18970c 100644
      agt = (agent *)calloc(1, sizeof(agent));
      if (!agt) {
          ErrorExit(MEM_ERROR, ARGV0, errno, strerror(errno));
-diff --git a/src/client-agent/notify.c b/src/client-agent/notify.c
+diff --git a/client-agent/notify.c b/client-agent/notify.c
 index 1b239f26c..93fec325c 100644
---- a/src/client-agent/notify.c
-+++ b/src/client-agent/notify.c
+--- a/client-agent/notify.c
++++ b/client-agent/notify.c
 @@ -68,6 +68,8 @@ void run_notify()
      os_md5 md5sum;
      time_t curr_time;
@@ -230,10 +230,10 @@ index 1b239f26c..93fec325c 100644
      keep_alive_random[0] = '\0';
      curr_time = time(0);
  
-diff --git a/src/client-agent/receiver-win.c b/src/client-agent/receiver-win.c
+diff --git a/client-agent/receiver-win.c b/client-agent/receiver-win.c
 index 859bdf7f9..4ab62ee77 100644
---- a/src/client-agent/receiver-win.c
-+++ b/src/client-agent/receiver-win.c
+--- a/client-agent/receiver-win.c
++++ b/client-agent/receiver-win.c
 @@ -19,6 +19,7 @@
  /* Receive events from the server */
  void *receiver_thread(__attribute__((unused)) void *none)
@@ -242,10 +242,10 @@ index 859bdf7f9..4ab62ee77 100644
      int recv_b;
  
      char file[OS_SIZE_1024 + 1];
-diff --git a/src/client-agent/receiver.c b/src/client-agent/receiver.c
+diff --git a/client-agent/receiver.c b/client-agent/receiver.c
 index fde64c282..5286e60dc 100644
---- a/src/client-agent/receiver.c
-+++ b/src/client-agent/receiver.c
+--- a/client-agent/receiver.c
++++ b/client-agent/receiver.c
 @@ -29,6 +29,8 @@ void *receive_msg()
      char cleartext[OS_MAXSTR + 1];
      char *tmp_msg;
@@ -255,10 +255,10 @@ index fde64c282..5286e60dc 100644
      memset(cleartext, '\0', OS_MAXSTR + 1);
      memset(buffer, '\0', OS_MAXSTR + 1);
  
-diff --git a/src/client-agent/sendmsg.c b/src/client-agent/sendmsg.c
+diff --git a/client-agent/sendmsg.c b/client-agent/sendmsg.c
 index 454c2e714..3076dfcf9 100644
---- a/src/client-agent/sendmsg.c
-+++ b/src/client-agent/sendmsg.c
+--- a/client-agent/sendmsg.c
++++ b/client-agent/sendmsg.c
 @@ -15,6 +15,9 @@
  /* Send a message to the server */
  int send_msg(int agentid, const char *msg)
@@ -269,10 +269,10 @@ index 454c2e714..3076dfcf9 100644
      size_t msg_size;
      char crypt_msg[OS_MAXSTR + 1];
  
-diff --git a/src/client-agent/start_agent.c b/src/client-agent/start_agent.c
+diff --git a/client-agent/start_agent.c b/client-agent/start_agent.c
 index 51670cee5..f1df43715 100644
---- a/src/client-agent/start_agent.c
-+++ b/src/client-agent/start_agent.c
+--- a/client-agent/start_agent.c
++++ b/client-agent/start_agent.c
 @@ -24,6 +24,9 @@ int connect_server(int initial_id)
  #ifdef WIN32
      unsigned int attempts = 2;
@@ -301,10 +301,10 @@ index 51670cee5..f1df43715 100644
      if (ev & EV_READ) {
          if ((n = imsg_read(ibuf) == -1 && errno != EAGAIN)) {
              ErrorExit("%s: ERROR: imsg_read() failed: %s", ARGV0, strerror(errno));
-diff --git a/src/os_net/os_net.c b/src/os_net/os_net.c
+diff --git a/os_net/os_net.c b/os_net/os_net.c
 index f18e3be77..756e9fac8 100644
---- a/src/os_net/os_net.c
-+++ b/src/os_net/os_net.c
+--- a/os_net/os_net.c
++++ b/os_net/os_net.c
 @@ -14,7 +14,7 @@
  #include <errno.h>
  #include "shared.h"
@@ -358,10 +358,10 @@ index f18e3be77..756e9fac8 100644
              }
          }
  
-diff --git a/src/os_net/os_net.h b/src/os_net/os_net.h
+diff --git a/os_net/os_net.h b/os_net/os_net.h
 index 9b7250928..3aaf00429 100644
---- a/src/os_net/os_net.h
-+++ b/src/os_net/os_net.h
+--- a/os_net/os_net.h
++++ b/os_net/os_net.h
 @@ -13,7 +13,7 @@
  
  #include "headers/shared.h"
@@ -371,10 +371,10 @@ index 9b7250928..3aaf00429 100644
  #ifdef WIN32
  #ifndef AI_ADDRCONFIG
  #define AI_ADDRCONFIG   0x0400
-diff --git a/src/win32/win_agent.c b/src/win32/win_agent.c
+diff --git a/win32/win_agent.c b/win32/win_agent.c
 index 40a37e621..a2ec784f2 100644
---- a/src/win32/win_agent.c
-+++ b/src/win32/win_agent.c
+--- a/win32/win_agent.c
++++ b/win32/win_agent.c
 @@ -124,6 +124,7 @@ int local_start()
      WSADATA wsaData;
      DWORD  threadID;

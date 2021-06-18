@@ -1,0 +1,31 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="Universal Command Line Environment for AWS"
+HOMEPAGE="https://docs.aws.amazon.com/cli/ https://github.com/aws/aws-cli"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="
+	sys-libs/glibc
+	sys-apps/groff
+	sys-apps/less
+"
+RDEPEND="${DEPEND}"
+
+S="${WORKDIR}/aws"
+
+QA_PREBUILT="/opt/awscli/v2/2.2.13/dist/*"
+
+src_install() {
+	dodir /opt/awscli/v2/"${PV}"
+	cp -r "${S}"/dist "${D}"/opt/awscli/v2/"${PV}"/
+
+	dosym /opt/awscli/v2/"${PV}"/dist/aws /usr/bin/aws
+	dosym /opt/awscli/v2/"${PV}"/dist/aws_completer /usr/bin/aws_completer
+}

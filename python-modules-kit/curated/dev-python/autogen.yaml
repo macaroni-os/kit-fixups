@@ -25,6 +25,32 @@ botostuff:
     python_compat: python2+
   generator: pypi-simple-1
   packages:
+    - awscli:
+        description: Universal Command Line Environment for AWS
+        python_compat: python3+
+        license: Apache-2.0
+        pydeps:
+          py:all:
+            - botocore
+            - colorama
+            - docutils
+            - jmespath
+            - rsa
+            - s3transfer
+            - pyyaml
+          py:all:build:
+            - setuptools
+        body: |
+          python_install_all() {
+              newbashcomp bin/aws_bash_completer aws
+
+              insinto /usr/share/zsh/site-functions
+              newins bin/aws_zsh_completer.sh _aws
+
+              distutils-r1_python_install_all
+
+              rm "${ED}"/usr/bin/{aws.cmd,aws_bash_completer,aws_zsh_completer.sh} || die
+          }
     - boto3:
         pydeps:
           - botocore

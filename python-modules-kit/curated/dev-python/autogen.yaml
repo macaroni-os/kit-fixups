@@ -19,10 +19,12 @@ funtoo_stuff:
 tornado_stuff:
   defaults:
     cat: dev-python
-    python_compat: python3+ pypi
+    python_compat: python3+
   generator: pypi-simple-1
   packages:
     - service_identity:
+        python_compat: python2+
+        pypi_name: service-identity
         pydeps:
           - pyasn1
           - pyasn1-modules

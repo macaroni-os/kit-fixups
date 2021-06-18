@@ -16,7 +16,7 @@ SRC_URI="https://launchpad.net/apparmor/${MY_PV}/${PV}/+download/apparmor-${PV}.
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-EYWORDS="*"
+KEYWORDS="*"
 IUSE="doc +perl +python static-libs"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

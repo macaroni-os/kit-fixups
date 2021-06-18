@@ -16,6 +16,20 @@ funtoo_stuff:
         pydeps:
           - pyyaml
 
+tornado_stuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypi
+  generator: pypi-simple-1
+  packages:
+    - service_identity:
+        pydeps:
+          - pyasn1
+          - pyasn1-modules
+          - pyopenssl
+          - attrs
+          - six
+
 # Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
 # (drobbins, 2020-10-30)
 

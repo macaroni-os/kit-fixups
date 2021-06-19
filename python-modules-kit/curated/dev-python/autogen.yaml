@@ -648,6 +648,7 @@ simple_python_autogen_rule:
         rdepend: |
           x11-libs/cairo[X,xcb(+)]
           x11-libs/pango
+          x11-libs/libnotify
           media-sound/pulseaudio
         body: |
           python_install_all() {

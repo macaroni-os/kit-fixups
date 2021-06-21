@@ -14,7 +14,7 @@ S=${WORKDIR}/${MY_P}
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="debug lz4 lzma lzo xattr zstd"
+IUSE="debug lz4 +lzma lzo xattr zstd"
 
 RDEPEND="
 	sys-libs/zlib

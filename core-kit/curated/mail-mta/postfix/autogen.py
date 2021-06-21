@@ -21,7 +21,7 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=latest_version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url+archives[latest_version])],
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url+archives[latest_version], extra_http_headers={"Accept-Encoding" : "identity"})],
 	)
 	ebuild.push()
 

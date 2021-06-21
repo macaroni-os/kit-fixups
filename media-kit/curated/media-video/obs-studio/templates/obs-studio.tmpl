@@ -18,7 +18,7 @@ HOMEPAGE="https://obsproject.com"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+alsa browser fdk imagemagick jack luajit nvenc pipewire pulseaudio python speex +ssl truetype v4l vlc wayland"
+IUSE="+alsa browser fdk jack luajit nvenc pipewire pulseaudio python speex +ssl truetype v4l vlc wayland"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 BDEPEND="
@@ -68,7 +68,6 @@ DEPEND="
 		x11-libs/libXtst
 	)
 	fdk? ( media-libs/fdk-aac:= )
-	imagemagick? ( media-gfx/imagemagick:= )
 	jack? ( virtual/jack )
 	luajit? ( dev-lang/luajit:2 )
 	nvenc? (
@@ -119,7 +118,9 @@ src_configure() {
 		-DDISABLE_SPEEXDSP=$(usex !speex)
 		-DDISABLE_V4L2=$(usex !v4l)
 		-DDISABLE_VLC=$(usex !vlc)
-		-DLIBOBS_PREFER_IMAGEMAGICK=$(usex imagemagick)
+		# FL-8476: imagemagick support is going away upstream, so we need to
+		# force disable it in our ebuild to avoid failures.
+		-DLIBOBS_PREFER_IMAGEMAGICK=0
 		-DOBS_MULTIARCH_SUFFIX=${libdir#lib}
 		-DUNIX_STRUCTURE=1
 		-DWITH_RTMPS=$(usex ssl)

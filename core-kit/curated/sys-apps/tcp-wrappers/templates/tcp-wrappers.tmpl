@@ -24,6 +24,9 @@ S=${WORKDIR}/${MY_P}
 
 src_prepare() {
 	eapply $(sed -e 's:^:../debian/patches/:' ../debian/patches/series)
+
+	sed -i "/extern.*malloc/d" scaffold.c
+
 	eapply_user
 
 	multilib_copy_sources

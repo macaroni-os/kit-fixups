@@ -1,0 +1,30 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="A flat Material Design theme for GTK"
+HOMEPAGE="https://github.com/vinceliuice/vimix-gtk-themes"
+
+SRC_URI="{{artifacts[0].src_uri}}"
+KEYWORDS="*"
+
+LICENSE="GPL-3"
+SLOT="0"
+IUSE=""
+
+DEPEND="
+	x11-libs/gtk+:3
+	x11-themes/gtk-engines
+	x11-themes/gtk-engines-murrine"
+RDEPEND="${DEPEND}"
+
+src_unpack() {
+	default
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_install() {
+	mkdir -p "${ED}"/usr/share/themes
+	./install.sh -a -d "${ED}"/usr/share/themes || die
+}

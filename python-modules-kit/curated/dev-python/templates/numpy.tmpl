@@ -34,7 +34,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.20.1-no-hardcode-blasv2.patch
+	"${FILESDIR}"/${PN}-1.21.0-no-hardcode-blasv2.patch
 )
 
 python_prepare_all() {

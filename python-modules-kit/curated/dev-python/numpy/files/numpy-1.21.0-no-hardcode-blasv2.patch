@@ -2,7 +2,7 @@ diff --git a/numpy/distutils/system_info.py b/numpy/distutils/system_info.py
 index 13f9da0..b696ef5 100644
 --- a/numpy/distutils/system_info.py
 +++ b/numpy/distutils/system_info.py
-@@ -505,32 +505,7 @@ def get_info(name, notfound_action=0):
+@@ -505,33 +505,7 @@ def get_info(name, notfound_action=0):
        1 - display warning message
        2 - raise error
      """
@@ -28,6 +28,7 @@ index 13f9da0..b696ef5 100644
 -          'blis': blis_info,                  # use blas_opt instead
 -          'lapack_mkl': lapack_mkl_info,      # use lapack_opt instead
 -          'blas_mkl': blas_mkl_info,          # use blas_opt instead
+-          'accelerate': accelerate_info,      # use blas_opt instead
 -          'openblas64_': openblas64__info,
 -          'openblas64__lapack': openblas64__lapack_info,
 -          'openblas_ilp64': openblas_ilp64_info,

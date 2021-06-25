@@ -1,0 +1,17 @@
+diff -urN a/lib/portage/repository/config.py b/lib/portage/repository/config.py
+--- a/lib/portage/repository/config.py	2021-06-25 07:20:21.126356977 -0300
++++ b/lib/portage/repository/config.py	2021-06-25 07:30:21.134720922 -0300
+@@ -785,9 +785,10 @@
+ 						continue
+ 
+ 					if repo.name != repo_name:
+-						writemsg_level("!!! %s\n" % _("Section '%s' in repos.conf has name different "
+-							"from repository name '%s' set inside repository") %
+-							(repo_name, repo.name), level=logging.ERROR, noiselevel=-1)
++						if repo_name not in repo.aliases:
++							writemsg_level("!!! %s\n" % _("Section '%s' in repos.conf has name different "
++								"from repository name '%s' set inside repository") %
++								(repo_name, repo.name), level=logging.ERROR, noiselevel=-1)
+ 						del prepos[repo_name]
+ 						continue
+ 

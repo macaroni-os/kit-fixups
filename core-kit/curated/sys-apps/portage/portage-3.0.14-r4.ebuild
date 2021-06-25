@@ -108,6 +108,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.0.9-add-repodir-variable.patch"
 	"${FILESDIR}/${PN}-3.0.14-allow-matches-in-package-updates.patch"
 	"${FILESDIR}/${PN}-3.0.14-track-keywords.patch"
+	"${FILESDIR}/${PN}-3.0.14-aliases-name-check.patch"
 )
 
 python_prepare_all() {

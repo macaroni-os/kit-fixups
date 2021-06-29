@@ -572,6 +572,46 @@ simple_python_autogen_rule:
               -i docs/conf.py || die
             distutils-r1_python_prepare_all
           }
+    - m2crypto:
+        pypi_name: M2Crypto
+        python_compat: python2+ pypy3
+        inherit:
+          - toolchain-funcs
+        desc: A Python crypto and SSL toolkit
+        homepage: https://gitlab.com/m2crypto/m2crypto https://pypi.org/project/M2Crypto/
+        license: MIT
+        iuse: libressl
+        rdepend: |
+          libressl? ( dev-libs/libressl:0= )
+          !libressl? ( dev-libs/openssl:0= )
+          virtual/python-typing[$PYTHON_USEDEP]
+        bdepend: |
+          >=dev-lang/swig-2.0.9
+        body: |
+          swig_define() {
+            local x
+            for x; do
+              if tc-cpp-is-true "defined(${x})"; then
+                SWIG_FEATURES+=" -D${x}"
+              fi
+            done
+          }
+          python_compile() {
+            # setup.py looks at platform.machine() to determine swig options.
+            # For exotic ABIs, we need to give swig a hint.
+            local -x SWIG_FEATURES=
+
+            # https://bugs.gentoo.org/617946
+            swig_define __ILP32__
+
+            # https://bugs.gentoo.org/674112
+            swig_define __ARM_PCS_VFP
+
+            distutils-r1_python_compile --openssl="${ESYSROOT}"/usr
+          }
+          python_test() {
+            esetup.py test
+          }
     - pypeg2:
         pypi_name: pyPEG2
         du_setuptools: 'no'

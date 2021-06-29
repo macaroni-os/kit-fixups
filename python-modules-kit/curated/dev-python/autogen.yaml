@@ -13,6 +13,7 @@ funtoo_stuff:
   generator: pypi-simple-1
   packages:
     - subpop:
+        license: Apache-2.0
         pydeps:
           - pyyaml
 
@@ -25,11 +26,13 @@ tornado_stuff:
     - service_identity:
         python_compat: python2+
         pypi_name: service-identity
+        license: MIT
         pydeps:
           - pyasn1
           - pyasn1-modules
           - pyopenssl
           - attrs
+          - cryptography
           - six
 
 # Work in Progress -- we currently have botocore forked and not autogenned. Needs more testing.
@@ -42,20 +45,16 @@ botostuff:
   generator: pypi-simple-1
   packages:
     - awscli:
-        description: Universal Command Line Environment for AWS
         python_compat: python3+
         license: Apache-2.0
         pydeps:
-          py:all:
-            - botocore
-            - colorama
-            - docutils
-            - jmespath
-            - rsa
-            - s3transfer
-            - pyyaml
-          py:all:build:
-            - setuptools
+          - botocore
+          - colorama
+          - docutils
+          - jmespath
+          - rsa
+          - s3transfer
+          - pyyaml
         body: |
           python_install_all() {
               newbashcomp bin/aws_bash_completer aws
@@ -68,17 +67,20 @@ botostuff:
               rm "${ED}"/usr/bin/{aws.cmd,aws_bash_completer,aws_zsh_completer.sh} || die
           }
     - boto3:
+        license: Apache-2.0
         pydeps:
           - botocore
           - jmespath
           - s3transfer
     - botocore:
+        license: Apache-2.0
         pydeps:
           - tox
           - wheel
           - behave
           - jsonschema
     - behave:
+        license: BSD
         pydeps:
           - cucumber-tag-expressions >= 1.1.2
           - parse >= 1.18.0
@@ -88,11 +90,13 @@ botostuff:
     - cucumber-tag-expressions
     - jmespath
     - s3transfer:
+        license: Apache-2.0
         pydeps:
           py:2:
             - futures >= 2.2.0
             - futures < 4.0.0
-    - parse
+    - parse:
+        license: MIT
     - parse_type:
         pydeps:
           - parse >= 1.18.0
@@ -105,14 +109,17 @@ aiobotostuff:
   generator: pypi-simple-1
   packages:
     - aioboto3:
+        license: Apache-2.0
         pydeps:
           - aiobotocore
           # This is actually needed during regular install:
           - pytest-runner
     - aioitertools:
+        license: MIT
         pydeps:
           - typing-extensions
     - aiobotocore:
+        license: Apache-2.0
         pydeps:
           - aiohttp
           - aioitertools
@@ -134,6 +141,7 @@ stuff_orphaned_in_python2:
   generator: pypi-simple-1
   packages:
     - configparser:
+        license: MIT
         version: 4.0.2
         pydeps:
           py:all:
@@ -166,21 +174,15 @@ dev_python_compat_rule:
   packages:
     - asyncpg:
         python_compat: python3+
-        description: A database interface library designed specifically for PostgresSQL and Python/asyncio.
+        desc: A database interface library designed specifically for PostgresSQL and Python/asyncio.
         license: Apache-2.0
         homepage: |
           https://github.com/MagicStack/asyncpg
-        bdepend:
-          dev-python/setuptools[$PYTHON_USEDEP]
     - et_xmlfile:
         python_compat: python2+
-        rdepend: |
-          dev-python/lxml[$PYTHON_USEDEP]
-        depend: |
-          dev-python/setuptools[$PYTHON_USEDEP]
+        pydeps:
+          - lxml
         license: MIT
-        desc: |
-          An implementation of lxml.xmlfile for the standard library
         homepage: |
           https://pypi.org/project/et_xmlfile/
     - idna:
@@ -189,14 +191,15 @@ dev_python_compat_rule:
         license: BSD
     - importlib_resources:
         compat: '3.3.1'
-        python_compat: 'pypy3 python3_{7,8}'
+        python_compat: 'pypy3 python3+'
         blocker: '!<dev-python/importlib_resources-4'
         license: Apache-2.0
-        rdepend: |
-          $(python_gen_cond_dep 'dev-python/zipp[${PYTHON_USEDEP}]' pypy3 python3_{6,7})
-        bdepend: |
-          dev-python/toml[${PYTHON_USEDEP}]
-          >=dev-python/setuptools_scm-3.4.1[${PYTHON_USEDEP}]
+        pydeps:
+          py:3,pypy3:
+            - zipp
+          py:all:build:
+            - toml
+            - setuptools_scm >= 3.4.1
         body: |
           distutils_enable_sphinx docs dev-python/rst-linker dev-python/jaraco-packaging
     - jdcal:
@@ -204,20 +207,16 @@ dev_python_compat_rule:
         homepage: |
           https://github.com/phn/jdcal
         license: BSD
-        desc: |
-          Julian dates from proleptic Gegorian and Julian calendars
     - openpyxl:
         compat: '2.6.4'
         blocker: '!<dev-python/openpyxl-3'
-        desc: |
-          A Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files.
         homepage: |
           https://openpyxl.readthedocs.io/
           https://pypi.org/project/openpyxl/
         license: MIT
-        rdepend: |
-          dev-python/et_xmlfile[$PYTHON_USEDEP]
-          dev-python/jdcal[$PYTHON_USEDEP]
+        pydeps:
+          - et_xmlfile
+          - jdcal
         body: ""
     - markdown:
         compat: '3.1.1'
@@ -229,20 +228,16 @@ dev_python_compat_rule:
           https://pypi.org/project/Markdown/
           https://github.com/Python-Markdown/markdown
         license: BSD
-        rdepend: |
-          $(python_gen_cond_dep 'dev-python/importlib_metadata[${PYTHON_USEDEP}]' python3_{6,7} pypy3)
-        body: |
-          S="${WORKDIR}/Markdown-${PV}"
-
-          post_src_install() {
-            # We should start to do this automatically:
-            [ "$PV" == "3.1.1" ] && rm -rf ${D}/usr/bin
-          }
+        pypi_name: Markdown
+        pydeps:
+          py:3,pypy3:
+            - importlib_metadata
     - more-itertools:
         compat: '4.3.0'
         blocker: '!<dev-python/more-itertools-8'
         homepage: 'https://pypi.org/project/more-itertools/'
     - mwparserfromhell:
+        license: MIT
         compat: '0.5.4'
         blocker: '!<dev-python/mwparserfromhell-0.6'
     - pycountry:
@@ -251,23 +246,18 @@ dev_python_compat_rule:
         homepage: https://github.com/flyingcircusio/pycountry
         license: LGPL-2.1
         restrict: test
-        pydeps:
-          - setuptools
     - pyhamcrest:
+        pypi_name: PyHamcrest
         compat: '1.9.0'
         blocker: '!<dev-python/pyhamcrest-2.0.0'
         homepage: https://github.com/hamcrest/PyHamcrest
-        description: Hamcrest framework for matcher objects
         license: BSD
-        body: |
-          S="${WORKDIR}/PyHamcrest-${PV}"
     - pyrsistent:
         compat: '0.16.0'
         blocker: '!<dev-python/pyrsistent-0.16.0'
         python_compat: python3+ pypy3
         license: MIT
         homepage: https://github.com/tobgu/pyrsistent/ https://pypi.org/project/pyrsistent/
-        desc: Persistent/Functional/Immutable data structures
         rdepend_compat: |
           dev-python/six[${PYTHON_USEDEP}]
         revision: 1
@@ -294,18 +284,18 @@ dev_python_compat_rule:
         compat: '19.0.2'
         blocker: '!<=dev-python/pyzmq-19.0.2'
         python_compat: python3+ pypy{,3}
-        depend: |
-          dev-python/cython[${PYTHON_USEDEP}]
         rdepend: |
           >=net-libs/zeromq-4.2.2-r2:=[drafts]
         inherit:
           - toolchain-funcs
           - flag-o-matic
         license: LGPL-3
-        description: Lightweight and super-fast messaging library built on top of the ZeroMQ library
+        desc: Lightweight and super-fast messaging library built on top of the ZeroMQ library
         homepage: |
           http://www.zeromq.org/bindings:python https://pypi.org/project/pyzmq/
         pydeps:
+          py:all:build:
+            - cython
           py:all:
             - py
             - cffi
@@ -346,9 +336,8 @@ dev_python_compat_rule:
         du_setuptools: 'no'
         desc: Collection of extensions to Distutils
         license: MIT
-        iuse: test
         blocker: '!<dev-python/setuptools-47'
-        restrict: '!test? ( test )'
+        restrict: 'test'
         homepage: >
           https://github.com/pypa/setuptools
           https://pypi.org/project/setuptools/
@@ -356,32 +345,8 @@ dev_python_compat_rule:
         python_compat: python3+ pypy{,3}
         depend: |
           app-arch/unzip
-          test? (
-            dev-python/mock[${PYTHON_USEDEP}]
-            dev-python/pip[${PYTHON_USEDEP}]
-            >=dev-python/pytest-3.7.0[${PYTHON_USEDEP}]
-            <dev-python/pytest-4
-            dev-python/pytest-fixture-config[${PYTHON_USEDEP}]
-            dev-python/pytest-virtualenv[${PYTHON_USEDEP}]
-            dev-python/wheel[${PYTHON_USEDEP}]
-            virtual/python-futures[${PYTHON_USEDEP}]
-          )
         pdepend: ">=dev-python/certifi-2016.9.26[${PYTHON_USEDEP}]"
         body: |
-          python_prepare_all() {
-            # disable tests requiring a network connection
-            rm setuptools/tests/test_packageindex.py || die
-            # don't run integration tests
-            rm setuptools/tests/test_integration.py || die
-            distutils-r1_python_prepare_all
-          }
-
-          python_test() {
-            # test_easy_install raises a SandboxViolation due to ${HOME}/.pydistutils.cfg
-            # It tries to sandbox the test in a tempdir
-            HOME="${PWD}" pytest -vv ${PN} || die "Tests failed under ${EPYTHON}"
-          }
-
           python_install() {
             export DISTRIBUTE_DISABLE_VERSIONED_EASY_INSTALL_SCRIPT=1
             distutils-r1_python_install
@@ -397,20 +362,15 @@ dev_python_compat_rule:
         homepage: |
           http://www.python-excel.org/
         license: BSD
-        bdepend: |
-          dev-python/setuptools[$PYTHON_USEDEP]
     - xmltodict:
         desc: A python module that makes working with XML feel like you are working with JSON
         python_compat: python2+ pypy{,3}
         license: MIT
         homepage: |
           https://github.com/martinblech/xmltodict
-        bdepend:
-          dev-python/setuptools[$PYTHON_USEDEP]
     - zstandard:
         compat: '0.14.1'
         blocker: '!<dev-python/zstandard-0.15.0'
-        desc: Zstandard Bindings for Python
         homepage: https://pypi.org/project/zstandard/ https://github.com/indygreg/python-zstandard
         license: BSD
         iuse: test
@@ -428,7 +388,6 @@ dev_python_compat_rule:
     - importlib_metadata:
         compat: '2.1.1'
         blocker: '!<=dev-python/importlib_metadata-3.4.0-r1'
-        desc: Read metadata from Python packages
         homepage: https://importlib-metadata.readthedocs.io/
         license: Apache-2.0
         pydeps:
@@ -453,7 +412,6 @@ simple_python_autogen_rule:
   generator: pypi-simple-1
   packages:
     - atomicwrites:
-        desc: Atomic file writes
         homepage: https://github.com/untitaker/python-atomicwrites
         license: MIT
         python_compat: python3+ pypy3
@@ -503,28 +461,25 @@ simple_python_autogen_rule:
         pydeps:
           - markdown
     - click-log:
-        desc: Logging integration for Click
         homepage: https://github.com/click-contrib/click-log https://pypi.org/project/click-log/
-        rdepend: |
-          dev-python/click[${PYTHON_USEDEP}]
+        pydeps:
+          - click
         body: |
           DOCS=( README.rst )
     - click-threading:
-        desc: Multithreaded Click apps made easy
         homepage: https://github.com/click-contrib/click-threading https://pypi.org/project/click-threading/
         license: MIT
-        rdepend: |
-          dev-python/click[${PYTHON_USEDEP}]
+        pydeps:
+          - click
         body: |
           DOCS=( README.rst )
     - configobj:
         desc: Simple config file reader and writer
         homepage: http://www.voidspace.org.uk/python/configobj.html https://pypi.org/project/configobj/
         license: BSD
-        rdepend: |
-          dev-python/six[${PYTHON_USEDEP}]
+        pydeps:
+          - six
     - dict-toolbox:
-        desc: Dict tools for Python projects
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
         license: Apache-2.0
         pydeps:
@@ -547,7 +502,6 @@ simple_python_autogen_rule:
         license: MIT
         pydeps:
           py:all:
-            - setuptools
             - psutil
             - pypresence
         depend: |
@@ -561,22 +515,26 @@ simple_python_autogen_rule:
         homepage: http://lostpackets.de/khal/
         license: MIT
         iuse: zsh-completion
-        rdepend: |
-          dev-python/atomicwrites[${PYTHON_USEDEP}]
-          dev-python/click-log[${PYTHON_USEDEP}]
-          dev-python/click[${PYTHON_USEDEP}]
-          dev-python/configobj[${PYTHON_USEDEP}]
-          dev-python/freezegun[${PYTHON_USEDEP}]
-          dev-python/icalendar[${PYTHON_USEDEP}]
-          dev-python/python-dateutil[${PYTHON_USEDEP}]
-          dev-python/pytz[${PYTHON_USEDEP}]
-          dev-python/pyxdg[${PYTHON_USEDEP}]
-          dev-python/setproctitle[${PYTHON_USEDEP}]
-          dev-python/setuptools_scm[${PYTHON_USEDEP}]
-          dev-python/tzlocal[${PYTHON_USEDEP}]
-          dev-python/urwid[${PYTHON_USEDEP}]
-          dev-python/vdirsyncer[${PYTHON_USEDEP}]
+        rdepend:
           zsh-completion? ( app-shells/zsh )
+        pydeps:
+          py:all:build:
+            - setuptools_scm
+          py:all:
+            - atomicwrites
+            - click-log
+            - click
+            - configobj
+            - freezegun
+            - icalendar
+            - python-dateutils
+            - pytz
+            - pyxdg
+            - setproctitle
+            - setuptools_scm
+            - tzlocal
+            - urwid
+            - vidrsyncer
         body: |
           DOCS=( AUTHORS.txt CHANGELOG.rst CONTRIBUTING.rst README.rst khal.conf.sample )
           src_install() {
@@ -593,20 +551,19 @@ simple_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - hg-git:
         cat: dev-vcs
-        desc: push to and pull from a Git repository using Mercurial
         homepage: https://hg-git.github.io  https://pypi.org/project/hg-git/
         license: GPL-2
         depend: ${RDEPEND}
-        rdepend: |
-          >=dev-vcs/mercurial-4.3[${PYTHON_USEDEP}]
-          >=dev-python/dulwich-0.19.0[${PYTHON_USEDEP}]
+        pydeps:
+          - dev-vcs/mercurial >= 4.3
+          - dulwich >= 0.19.0
     - icalendar:
         desc: Package used for parsing and generating iCalendar files (RFC 2445)
         homepage: https://github.com/collective/icalendar
         license: BSD
-        rdepend: |
-          dev-python/python-dateutil[${PYTHON_USEDEP}]
-          dev-python/pytz[${PYTHON_USEDEP}]
+        pydeps:
+          - python-dateutil
+          - pytz
         body: |
           distutils_enable_sphinx docs
           python_prepare_all() {
@@ -618,18 +575,16 @@ simple_python_autogen_rule:
     - pypeg2:
         pypi_name: pyPEG2
         du_setuptools: 'no'
-        desc: An intrinsic PEG Parser-Interpreter for Python
         homepage: https://pypi.org/project/pyPEG2/ https://fdik.org/pyPEG/
         license: GPL-2
         restrict: test
-        rdepend: dev-python/lxml[${PYTHON_USEDEP}]
+        pydeps:
+          - lxml
     - pypresence:
         desc: A Discord RPC library in Python
         homepage: https://qwertyquerty.github.io/pypresence/html/index.html
         license: MIT
-        pydeps:
-          py:all:
-            - setuptools
+        du_setuptools: rdepend
         python_compat: python3+
     - qtile:
         desc: A full-featured, hackable tiling window manager written in Python
@@ -685,10 +640,10 @@ simple_python_autogen_rule:
             distutils-r1_src_prepare
           }
     - requests-toolbelt:
-        docs: A utility belt for advanced users of python-requests
         homepage: https://toolbelt.readthedocs.org/
-        rdepend: |
-          dev-python/requests[${PYTHON_USEDEP}]
+        license: Apache-2.0
+        pydeps:
+          - requests
         body: |
           DOCS=( AUTHORS.rst HISTORY.rst README.rst )
     - semantic_version:
@@ -697,15 +652,11 @@ simple_python_autogen_rule:
         license: BSD
     - speedtest-cli:
         cat: net-analyzer
-        desc: Command line interface for testing internet bandwidth using speedtest.net
         homepage: https://github.com/sivel/speedtest-cli
         license: Apache-2.0
-        pydeps:
-          py:all:
-            - setuptools
+        du_setuptools: rdepend
     - thefuck:
         cat: app-shells
-        desc: Magnificent app which corrects your previous console command
         homepage: https://github.com/nvbn/thefuck
         license: MIT
         pydeps:
@@ -722,11 +673,10 @@ simple_python_autogen_rule:
             distutils-r1_python_prepare_all
           }
     - tzlocal:
-        desc: tzinfo object for the local timezone
         homepage: https://github.com/regebro/tzlocal
         license: MIT
-        rdepend: |
-          dev-python/pytz[${PYTHON_USEDEP}]
+        pydeps:
+          - pytz
     - iniparse:
         desc: Better INI parser for Python
         homepage: https://pypi.org/project/iniparse
@@ -759,11 +709,12 @@ simple_python_autogen_rule:
             - iniparse >= 0.5
           use:yaml:
             - pyyaml
+          use:subtitles:
+            - media-video/gaupol
         rdepend: |
           !dev-python/pydiff
           app-text/iso-codes
           sys-devel/gettext
-          subtitles? ( media-video/gaupol[${PYTHON_USEDEP}] )
         body: |
           distutils_enable_sphinx docs dev-python/sphinx-bootstrap-theme
           src_prepare() {
@@ -800,20 +751,18 @@ simple_python_autogen_rule:
             distutils-r1_python_install_all
           }
     - vdirsyncer:
-        desc: Synchronize calendars and contacts
         homepage: https://github.com/pimutils/vdirsyncer
         license: BSD
-        rdepend: |
-          dev-python/click[${PYTHON_USEDEP}]
-          dev-python/click-log[${PYTHON_USEDEP}]
-          dev-python/click-threading[${PYTHON_USEDEP}]
-          dev-python/requests[${PYTHON_USEDEP}]
-          dev-python/requests-toolbelt[${PYTHON_USEDEP}]
-          dev-python/atomicwrites[${PYTHON_USEDEP}]
+        pydeps:
+          - click
+          - click-log
+          - click-threading
+          - requests
+          - requests-toolbelt
+          - atomicwrites
         body: |
           DOCS=( AUTHORS.rst CHANGELOG.rst CONTRIBUTING.rst README.rst config.example )
     - xcffib:
-        desc: A drop-in replacement for xpyb, an XCB python binding
         homepage: https://github.com/tych0/xcffib
         license: Apache-2.0
         restrict: test
@@ -832,20 +781,23 @@ salt_misc_deps_rule:
   generator: pypi-simple-1
   packages:
     - colored:
+        license: MIT
         python_compat: python2+
     - distro:
+        license: Apache-2.0
         python_compat: python2+
     - h11
     - httpcore:
-        rdepend: |
-          dev-python/h11[${PYTHON_USEDEP}]
-          dev-python/sniffio[${PYTHON_USEDEP}]
+        pydeps:
+          - h11
+          - sniffio
     - httpx:
-        rdepend: |
-          dev-python/httpcore[${PYTHON_USEDEP}]
-          dev-python/brotlipy[${PYTHON_USEDEP}]
-          dev-python/rfc3986[${PYTHON_USEDEP}]
-    - sniffio
+        pydeps:
+          - httpcore
+          - brotlipy
+          - rfc3986
+    - sniffio:
+        license: '|| ( Apache-2.0 MIT )'
 
 io_stuff_rule:
   generator: pypi-simple-1
@@ -861,8 +813,10 @@ io_stuff_rule:
           - curio >= 1.4
           - trio >= 0.16
     - async-generator:
+        license: '|| ( Apache-2.0 MIT )'
         pypi_name: async_generator
     - trio:
+        license: '|| ( Apache-2.0 MIT )'
         pydeps:
           - attrs >= 19.2.0
           - sortedcontainers
@@ -871,8 +825,10 @@ io_stuff_rule:
           - outcome
           - sniffio
     - sortedcontainers:
+        license: Apache-2.0
         python_compat: python2+
     - outcome:
+        license: '|| ( Apache-2.0 MIT )'
         pydeps:
           - attrs >= 19.2.0
     - uvloop
@@ -887,11 +843,11 @@ gis_rule:
     - pyproj:
         license: MIT
         desc: Python interface to the PROJ library
+        pydeps:
+          py:all:build:
+            - cython
         rdepend: |
           >=sci-libs/proj-6.2.0:=
-        depend: |
-          >=sci-libs/proj-6.2.0:=
-          dev-python/cython[${PYTHON_USEDEP}]
         body: |
           distutils_enable_sphinx docs dev-python/sphinx_rtd_theme
 
@@ -914,6 +870,8 @@ compat_testing_deps_rule:
         compat: '4.6.9'
         blocker: '!<dev-python/pytest-6.1.1'
         pydeps:
+          py:all:build:
+            - setuptools_scm
           py:all:
             - attrs >= 17.4.0
             - iniconfig
@@ -931,8 +889,6 @@ compat_testing_deps_rule:
             - six
           py:2,3.6,3.7,pypy3:
             - importlib_metadata
-        depend: |
-          dev-python/setuptools_scm[${PYTHON_USEDEP}]
     - mock:
         desc: 'Stand-alone version of unittest.mock included in py3.3+'
         compat: '3.0.5'
@@ -944,8 +900,6 @@ compat_testing_deps_rule:
             - funcsigs
           py:all:
             - six >= 1.9
-        depend: |
-          >=dev-python/setuptools-17.1[${PYTHON_USEDEP}]
 
 testing_deps_rule:
   defaults:
@@ -954,16 +908,18 @@ testing_deps_rule:
   generator: pypi-simple-1
   packages:
     - iniconfig:
+        license: MIT
         python_compat: python2+ pypy3
-        bdepend: |
-          dev-python/setuptools_scm[${PYTHON_USEDEP}]
+        pydeps:
+          py:all:build:
+            - setuptools_scm
     - pluggy:
+        license: MIT
         python_compat: python2+ pypy3
-        rdepend: |
-          dev-python/importlib_metadata[${PYTHON_USEDEP}]
-    # TODO: move all the pytest stuff over here.
-    # TODO: add pytest-pop, silly.
+        pydeps:
+          - importlib_metadata
     - setuptools-declarative-requirements:
+        license: Apache-2.0
         pydeps:
           - setuptools_scm
         body: |
@@ -973,6 +929,7 @@ testing_deps_rule:
             default
           }
     - pytest-salt-factories:
+        license: Apache-2.0
         du_setuptools: rdepend
         body: |
           # submitted PR https://github.com/saltstack/pytest-salt-factories/pull/33
@@ -989,14 +946,17 @@ testing_deps_rule:
           - msgpack 
           - setuptools-declarative-requirements
     - pytest-asyncio:
+        license: Apache-2.0
         pydeps:
           - pytest
     - pytest-tempdir:
+        license: Apache-2.0
         python_compat: python2+
         pydeps:
           - pytest >= 2.8.1
     # required by pytest-pop:
-    - asynctest
+    - asynctest:
+        license: Apache-2.0
 
 dev_python_simplified_rule:
   defaults:
@@ -1005,6 +965,7 @@ dev_python_simplified_rule:
   generator: pypi-compat-1
   packages:
     - async-property:
+        license: MIT
         pypi_name: async_property
         pydeps:
           py:all:
@@ -1015,6 +976,7 @@ dev_python_simplified_rule:
         compat: '5.0.2'
         blocker: "!<dev-python/setuptools_scm-6.0.0"
         python_compat: python3+
+        du_setuptools: rdepend
     - setuptools-rust:
         pydeps:
           py:all:
@@ -1029,8 +991,7 @@ dev_python_simplified_rule:
         cargo_optional: yes
         iuse: cpu_flags_x86_sse2 libressl idna
         license: "|| ( Apache-2.0 BSD )"
-        desc: |
-          Library providing cryptographic recipes and primitives
+        desc: Library providing cryptographic recipes and primitives
         depend: |
           libressl? ( dev-libs/libressl:0= )
           !libressl? ( dev-libs/openssl:0= )
@@ -1044,8 +1005,6 @@ dev_python_simplified_rule:
         pydeps:
           py:3:build:
             - setuptools-rust >= 0.12.1
-          py:all:build:
-            - setuptools
           py:all:
             - six >= 1.4.1
             - virtual/python-enum34
@@ -1069,7 +1028,7 @@ dev_python_simplified_rule:
           2.0.1: 1
         compat: 1.1.0
         blocker: '!<dev-python/itsdangerous-2.0.1'
-        description: Various helpers to pass trusted data to untrusted environments and back
+        desc: Various helpers to pass trusted data to untrusted environments and back
         license: BSD
     - jinja:
         compat: 2.11.3

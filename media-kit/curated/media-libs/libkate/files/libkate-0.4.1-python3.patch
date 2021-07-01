@@ -1,0 +1,752 @@
+diff -urN a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2011-08-21 15:28:51.000000000 -0300
++++ b/Makefile.am	2020-02-07 15:41:06.000000000 -0300
+@@ -16,8 +16,6 @@
+ noinst_DATA+=misc/pkgconfig/oggkate-uninstalled.pc
+ endif
+ 
+-LIBTOOLFLAGS=--silent
+-
+ AM_CPPFLAGS=-I $(top_srcdir)/src -I $(top_srcdir)/include
+ 
+ lib_libkate_la_SOURCES=\
+diff -urN a/configure.ac b/configure.ac
+--- a/configure.ac	2011-08-21 19:44:32.000000000 -0300
++++ b/configure.ac	2020-02-07 15:41:06.000000000 -0300
+@@ -7,7 +7,7 @@
+ 
+ AC_CANONICAL_TARGET
+ 
+-AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
++AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects -Wno-portability])
+ AC_CONFIG_HEADERS([include/config.h])
+ 
+ ifdef([AM_SILENT_RULES],[AM_SILENT_RULES])
+@@ -27,6 +27,7 @@
+ LIBKATE_SHARED_VERSION="4:0:3"
+ LIBOGGKATE_SHARED_VERSION="3:2:2"
+ 
++AM_PROG_AR
+ AC_PROG_CC_C_O
+ AC_LIBTOOL_DLOPEN
+ AC_PROG_LIBTOOL
+@@ -115,11 +116,26 @@
+     fi
+   fi
+ fi
++AM_CONDITIONAL(HAVE_OGGZ_TOOLS,test "x${OGGZ}" != "x")
+ AM_CONDITIONAL(HAVE_OGG_MERGE,test "x${OGG_MERGE}" != "x")
+ 
+ AM_PATH_PYTHON(, HAVE_PYTHON=yes, HAVE_PYTHON=no)
+ AM_CONDITIONAL(HAVE_PYTHON,test "${HAVE_PYTHON}" = "yes")
+ 
++if test "x$HAVE_PYTHON" = "xyes"
++then
++  AC_MSG_CHECKING([for wxpython])
++  "$PYTHON" -c "import wx" >/dev/null 2>&1
++  if test "$?" = "0"
++  then
++    HAVE_WXPYTHON="yes"
++  else
++    HAVE_WXPYTHON="no"
++  fi
++  AC_MSG_RESULT(${HAVE_WXPYTHON})
++fi
++AM_CONDITIONAL(HAVE_WXPYTHON,test "${HAVE_WXPYTHON}" = "yes")
++
+ AC_CHECK_PROGS(GENHASH,md5sum md5 sha1sum)
+ 
+ VERSION_MAJOR=`echo $VERSION | $SED 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+@@ -254,3 +270,11 @@
+ )
+ AC_OUTPUT
+ 
++katedj_deps=
++if test "x$HAVE_WXPYTHON" != "xyes"; then katedj_deps="${katedj_deps}, wxPython"; fi
++if test "x$OGGZ" = "x"; then katedj_deps="${katedj_deps}, oggz tools"; fi
++if test "x$katedj_deps" != "x"
++then
++  AC_MSG_WARN([KateDJ will not be installed due to dependencies not being found$katedj_deps.])
++fi
++
+diff -urN a/doc/Makefile.am b/doc/Makefile.am
+--- a/doc/Makefile.am	2011-08-21 19:47:10.000000000 -0300
++++ b/doc/Makefile.am	2020-02-07 15:41:06.000000000 -0300
+@@ -1,5 +1,3 @@
+-LIBTOOLFLAGS=--silent
+-
+ man_MANS=man/kateenc.1 man/katedec.1 man/katalyzer.1 man/KateDJ.1
+ 
+ # dependency to get doc to be built
+diff -urN a/doc/kate-format-metadata.doc b/doc/kate-format-metadata.doc
+--- a/doc/kate-format-metadata.doc	2011-08-21 19:47:10.000000000 -0300
++++ b/doc/kate-format-metadata.doc	2020-02-07 15:41:06.000000000 -0300
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2009 Vincent Penquerc'h.
++/* Copyright (C) 2009-2011 Vincent Penquerc'h.
+    This file is part of the Kate codec library.
+    Written by Vincent Penquerc'h.
+ 
+@@ -26,8 +26,8 @@
+ \li a \ref format_32v "variable length integer" representing the number of bytes in the value.
+ \li that same number of bytes, representing the value. This value may be any stream of arbitrary data, but is
+     encouraged to be UTF-8, though this is not mandatory and should not be assumed. No terminating NUL.
+-
+-Next, we have a \ref format_warp "warp".
++    Note that a terminating NUL might not make sense in the first place if the metadata contents are binary.
++\li a \ref format_warp "warp".
+ 
+ Then, the data for this metadata pair ends.
+ 
+diff -urN a/src/kate_decode.c b/src/kate_decode.c
+--- a/src/kate_decode.c	2011-08-21 15:28:51.000000000 -0300
++++ b/src/kate_decode.c	2020-02-07 15:41:06.000000000 -0300
+@@ -181,7 +181,7 @@
+     tag[len]=0;
+ 
+     len=kate_read32v(kpb);
+-    if (len<=0) goto error_bad_packet;
++    if (len<0) goto error_bad_packet;
+     value=(char*)KMG_MALLOC(len+1);
+     if (!value) goto error_out_of_memory;
+     kate_readbuf(kpb,value,len);
+@@ -1242,7 +1242,7 @@
+   text[len+2]=0;
+   text[len+3]=0;
+   /* we can't validate the text yet, as we don't know whether there's a text encoding override later,
+-     so we delay validatation till we've read the overrides */
++     so we delay validation till we've read the overrides */
+ 
+   ev->text=text;
+   ev->len=len;
+diff -urN a/src/kate_text.c b/src/kate_text.c
+--- a/src/kate_text.c	2008-12-31 19:58:12.000000000 -0200
++++ b/src/kate_text.c	2020-02-07 15:41:06.000000000 -0300
+@@ -21,7 +21,8 @@
+ {
+   /* surrogate range is invalid */
+   if (c>=0xd800 && c<=0xdfff) return 0; /* UTF-16 surrogates */
+-  if (c>=0xfffe && c<=0xffff) return 0; /* Markus Kuhn's UTF-8 test files says these are invalid */
++  if (c>=0xfdd0 && c<=0xfdef) return 0;
++  if ((c&0xfffe)==0xfffe) return 0; /* the two last code points of a plane are invalid */
+ 
+ #ifdef ENABLE_CODE_POINTS_ABOVE_0x10ffff
+   return c>=0 && c<=0x7fffffff;
+diff -urN a/tests/Makefile.am b/tests/Makefile.am
+--- a/tests/Makefile.am	2011-08-21 15:28:51.000000000 -0300
++++ b/tests/Makefile.am	2020-02-07 15:41:06.000000000 -0300
+@@ -1,12 +1,10 @@
+-LIBTOOLFLAGS=--silent
+-
+ AM_CPPFLAGS=-I $(top_srcdir)/src -I $(top_srcdir)/include
+ 
+ LIBKATE=../lib/libkate.la
+ 
+ TESTS_ENVIRONMENT=$(LIBTOOL) -dlopen $(LIBKATE) --mode=execute $(VALGRIND)
+ 
+-TESTS=check_sizes language text overflow metadata
++TESTS=check_sizes language text overflow metadata bitwise
+ 
+ noinst_PROGRAMS=$(TESTS) gen_srt gen_lrc
+ 
+@@ -29,6 +27,8 @@
+ metadata_SOURCES=metadata.c
+ metadata_LDADD=$(LIBKATE)
+ 
++bitwise_SOURCES=bitwise.c ../src/kate_bitwise.c
++
+ STREAMS=@STREAMS@
+ 
+ tmp_ogg1:="$(top_builddir)/kate-check-1.kate.ogg"
+diff -urN a/tests/bitwise.c b/tests/bitwise.c
+--- a/tests/bitwise.c	1969-12-31 21:00:00.000000000 -0300
++++ b/tests/bitwise.c	2020-02-07 15:41:06.000000000 -0300
+@@ -0,0 +1,85 @@
++/* Copyright (C) 2011 Vincent Penquerc'h.
++   This file is part of the Kate codec library.
++   Written by Vincent Penquerc'h.
++
++   Use, distribution and reproduction of this library is governed
++   by a BSD style source license included with this source in the
++   file 'COPYING'. Please read these terms before distributing. */
++
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include "kate/kate.h"
++#include "../src/kate_bitwise.h"
++
++static kate_uint32_t getrnd(kate_uint32_t *rnd)
++{
++  return *rnd=*rnd*1103515245+12345;
++}
++
++static void test_bitwise_size(size_t bits,kate_uint32_t start_rnd)
++{
++  kate_pack_buffer kpb;
++  size_t data_size=bits*4; /* good margin */
++  unsigned char *data=alloca(data_size);
++  size_t n,d;
++  kate_uint32_t rnd;
++  int read;
++
++  rnd=start_rnd;
++  d=0;
++  kate_pack_writeinit(&kpb);
++  for (n=0;n<bits;) {
++    kate_uint32_t b=1+getrnd(&rnd)%32;
++    kate_uint32_t r=getrnd(&rnd);
++    if (d>=data_size) {
++      printf("Warning: cut short\n");
++      break;
++    }
++    if (b>bits-n) b=bits-n;
++    r=r&((1<<b)-1);
++    data[d++]=r;
++    kate_pack_write(&kpb,r,b);
++    n+=b;
++  }
++
++  if (kate_pack_bits(&kpb)!=bits) {
++    fprintf(stderr,"Expected %zu bits, got %ld\n",bits,kate_pack_bits(&kpb));
++    exit(1);
++  }
++
++  /* do not reset, reuse allocated buffer as is */
++  kate_pack_readinit(&kpb,kpb.buffer,kate_pack_bytes(&kpb));
++
++  d=0;
++  rnd=start_rnd;
++  for (n=0;n<bits;) {
++    kate_uint32_t b=1+getrnd(&rnd)%32;
++    kate_uint32_t r=getrnd(&rnd);
++    if (b>bits-n) b=bits-n;
++    r=r&((1<<b)-1);
++    if (d>=data_size) break;
++    read=kate_pack_read(&kpb,b);
++    if (r!=read) {
++      fprintf(stderr,"Read %d from %u bits at bit offset %zu, expected %u\n",read,b,n,r);
++      exit(1);
++    }
++    n+=b;
++  }
++
++  kate_pack_reset(&kpb);
++}
++
++int main()
++{
++  size_t n,r;
++
++  for (n=0;n<4096;++n) {
++    for (r=0;r<16;++r) {
++      test_bitwise_size(n,r);
++    }
++  }
++  return 0;
++}
++
+diff -urN a/tests/text.c b/tests/text.c
+--- a/tests/text.c	2011-08-21 09:42:10.000000000 -0300
++++ b/tests/text.c	2020-02-07 15:41:06.000000000 -0300
+@@ -3,12 +3,6 @@
+ #include <string.h>
+ #include "kate/kate.h"
+ 
+-/** \defgroup text Text manipulation */
+-//extern int kate_text_get_character(kate_text_encoding text_encoding,const char ** const text,size_t *len0);
+-//extern int kate_text_set_character(kate_text_encoding text_encoding,int c,char ** const text,size_t *len0);
+-//extern int kate_text_remove_markup(kate_text_encoding text_encoding,char *text,size_t *len0);
+-//extern int kate_text_validate(kate_text_encoding text_encoding,const char *text,size_t len0);
+-
+ static char *dupstr(const char *s)
+ {
+   size_t len=strlen(s);
+@@ -60,15 +54,18 @@
+     free(removed); \
+   } while(0)
+ 
+-#define CHECK_VALID(text) \
++#define CHECK_VALID_LEN(text,len) \
+   do { \
+-    int ret=kate_text_validate(kate_utf8,text,strlen(text)+1); \
++    int ret=kate_text_validate(kate_utf8,text,len); \
+     if (ret<0) { \
+       fprintf(stderr,"line %u: %s: supposed to be valid, but kate_text_validate returned an error (%d)\n",__LINE__,text,ret); \
+       return 1; \
+     } \
+   } while(0)
+ 
++#define CHECK_VALID(text) \
++  CHECK_VALID_LEN(text,strlen(text)+1)
++
+ #define CHECK_INVALID(text) \
+   do { \
+     int ret=kate_text_validate(kate_utf8,text,strlen(text)+1); \
+@@ -105,7 +102,7 @@
+   CHECK_VALID("κόσμε");
+ 
+   /* 2.1  First possible sequence of a certain length */
+-  CHECK_VALID("\0");
++  CHECK_VALID_LEN("\0",2);
+   CHECK_VALID("");
+   CHECK_VALID("ࠀ");
+   CHECK_VALID("𐀀");
+@@ -124,7 +121,7 @@
+   CHECK_VALID("퟿");
+   CHECK_VALID("");
+   CHECK_VALID("�");
+-  CHECK_VALID("􏿿");
++  CHECK_INVALID("􏿿");
+   CHECK_VALID2("����");
+ 
+   /* 3.1  Unexpected continuation bytes */
+diff -urN a/tools/KateDJ/KateDJ b/tools/KateDJ/KateDJ
+--- a/tools/KateDJ/KateDJ	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/KateDJ/KateDJ	2020-02-07 15:41:06.000000000 -0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ # import what we need first, complain if we don't find it
+ import sys
+@@ -8,20 +8,20 @@
+ if len(sys.argv)>1:
+   arg=sys.argv[1]
+   if arg=='-V' or arg=='--version':
+-    print kdj_name_version+', a remuxing program for Kate streams.\n'
++    print(kdj_name_version+', a remuxing program for Kate streams.\n')
+     stop=True
+   if arg=='-h' or arg=='--help':
+-    print kdj_name_version+', a remuxing program for Kate streams.\n'
+-    print '\n'+\
++    print(kdj_name_version+', a remuxing program for Kate streams.\n')
++    print('\n'+\
+           kdj_name+' is a remuxing program that allows extracting and decoding Kate tracks\n'+\
+           'from an Ogg stream, and recreating that Ogg stream after the Kate streams\n'+\
+           'have been altered.\n'+\
+           kdj_name+' requires both the Kate tools (kateenc and katedec) and the oggz tools.\n'+\
+           '\n'+\
+-          'This is a GUI program. Click the \'Help\' button in the main window for more help.\n'
++          'This is a GUI program. Click the \'Help\' button in the main window for more help.\n')
+     stop=True
+   else:
+-    print 'Invalid option: '+arg
++    print('Invalid option: '+arg)
+     sys.exit(1)
+ 
+ if stop:
+@@ -30,7 +30,7 @@
+ try:
+   import wx
+ except:
+-  print 'Failed to find the wx Python module'
++  print('Failed to find the wx Python module')
+   sys.exit(1)
+ 
+ # import our own code
+diff -urN a/tools/KateDJ/Makefile.am b/tools/KateDJ/Makefile.am
+--- a/tools/KateDJ/Makefile.am	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/KateDJ/Makefile.am	2020-02-07 15:41:06.000000000 -0300
+@@ -6,6 +6,8 @@
+ # do anything for Python sources at build time, only at install time.
+ noinst_PYTHON=KateDJ
+ 
++if HAVE_WXPYTHON
++if HAVE_OGGZ_TOOLS
+ install-exec-local:
+ 	${mkinstalldirs} "$(DESTDIR)$(pythondir)/kdj"
+ 	for module in $(kdj_modules); do \
+@@ -18,6 +20,14 @@
+ 	done
+ 	${mkinstalldirs} "$(DESTDIR)$(bindir)"
+ 	${INSTALL_SCRIPT} "${top_srcdir}/tools/KateDJ/KateDJ" "$(DESTDIR)$(bindir)"
++else
++install-exec-local:
++	echo "Could not find oggz tools, KateDJ will not be installed"
++endif
++else
++install-exec-local:
++	echo "Could not find wxPython, KateDJ will not be installed"
++endif
+ 
+ uninstall-local:
+ 	for module in $(kdj_modules); do \
+diff -urN a/tools/KateDJ/kdj/demuxer.py b/tools/KateDJ/kdj/demuxer.py
+--- a/tools/KateDJ/kdj/demuxer.py	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/KateDJ/kdj/demuxer.py	2020-02-07 15:41:06.000000000 -0300
+@@ -3,12 +3,12 @@
+ import tempfile
+   
+ 
+-from tools import Tools
++from .tools import Tools
+ 
+ class Demuxer:
+   def __init__(self,tools,filename,type):
+     if not self.CreateDirectory():
+-      raise Exception, 'Failed to create directory'
++      raise Exception('Failed to create directory')
+     self.Demux(tools,filename,type)
+ 
+   def GetDirectory(self):
+@@ -17,7 +17,7 @@
+   def CreateDirectory(self):
+     try:
+       self.directory=tempfile.mkdtemp(dir='.',prefix='katedj-tmp-extract-')
+-    except OSError,e:
++    except OSError as e:
+       return False
+     return True
+ 
+diff -urN a/tools/KateDJ/kdj/finder.py b/tools/KateDJ/kdj/finder.py
+--- a/tools/KateDJ/kdj/finder.py	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/KateDJ/kdj/finder.py	2020-02-07 15:41:06.000000000 -0300
+@@ -15,7 +15,7 @@
+             serial=fragments[-2]
+             dict[index]={'filename':filename,'language':language,'category':category,'serial':serial}
+           else:
+-            print 'Bad filename format: '+filename
++            print('Bad filename format: '+filename)
+ 
+     return dict
+ 
+diff -urN a/tools/KateDJ/kdj/muxer.py b/tools/KateDJ/kdj/muxer.py
+--- a/tools/KateDJ/kdj/muxer.py	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/KateDJ/kdj/muxer.py	2020-02-07 15:41:06.000000000 -0300
+@@ -1,8 +1,8 @@
+ import sys
+ import os
+ 
+-from tools import Tools
+-from finder import FindKateStreams
++from .tools import Tools
++from .finder import FindKateStreams
+ 
+ class Muxer:
+   def __init__(self,tools,filename,directory,type):
+@@ -25,8 +25,8 @@
+ 
+     params=[]
+     params+=['-o',filename,os.path.join(self.directory,'misc.ogg')]
+-    for idx in kate_streams:
+-      kate_stream=kate_streams[idx]
++
++    for kate_stream in kate_streams.values():
+       self.EncodeKateStream(tools,kate_stream,type)
+       params+=[kate_stream['filename']+'.ogg']
+     tools.run_mux(params)
+diff -urN a/tools/KateDJ/kdj/tester.py b/tools/KateDJ/kdj/tester.py
+--- a/tools/KateDJ/kdj/tester.py	2011-08-21 09:42:10.000000000 -0300
++++ b/tools/KateDJ/kdj/tester.py	2020-02-07 15:41:06.000000000 -0300
+@@ -1,7 +1,7 @@
+ import sys
+ import os
+ 
+-from tools import Tools
++from .tools import Tools
+ 
+ class Tester:
+   def __init__(self,tools,contents,format):
+diff -urN a/tools/KateDJ/kdj/tools.py b/tools/KateDJ/kdj/tools.py
+--- a/tools/KateDJ/kdj/tools.py	2011-08-21 15:10:47.000000000 -0300
++++ b/tools/KateDJ/kdj/tools.py	2020-02-07 15:41:06.000000000 -0300
+@@ -21,7 +21,7 @@
+     cmdline=command+' '+options
+     try:
+       popen=subprocess.Popen(cmdline,stdin=None,stderr=subprocess.PIPE,stdout=subprocess.PIPE,universal_newlines=True,shell=True)
+-    except OSError,e:
++    except OSError as e:
+       return None
+     if not popen.stdout:
+       return None
+@@ -63,7 +63,7 @@
+     # oggz-known-codecs is ok not to be found
+ 
+     if msg!='':
+-      raise Exception,msg
++      raise Exception(msg)
+ 
+   def find_tools(self):
+     self.mux_command=self.probe_command_in(['oggz-merge','oggzmerge'],'-v','merge version',external_tools_path)
+@@ -75,41 +75,36 @@
+ 
+   def run(self,params,stdin):
+     if self.on_start!=None: self.on_start()
+-    try:
+-      try:
+-        popen=subprocess.Popen(params,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)
+-        if stdin==None:
+-          (stdoutdata,stderrdata)=popen.communicate(stdin)
+-        else:
+-          (stdoutdata,stderrdata)=popen.communicate(stdin.encode('utf8'))
+-        ret=popen.returncode
+-        # oggz tools can return 0 when they fail, so do not test ret
+-        msg=stderrdata.encode('utf8')
+-        if msg!=None and msg!='':
+-          raise Exception,msg
+-      except:
+-        raise
+-    finally:
+-      if self.on_end!=None: self.on_end()
+-  
++    popen=subprocess.Popen(params,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
++    if stdin:
++      stdin = stdin.encode("utf-8")
++    stdoutdata, stderrdata = popen.communicate(stdin)
++    ret=popen.returncode
++    # oggz tools can return 0 when they fail, so do not test ret
++    if stderrdata:
++      print(stderrdata)
++    if ret != 0:
++      raise Exception(stderrdata)
++    if self.on_end!=None: self.on_end()
++
+   def run_demux(self,params,stdin=None):
+     if self.demux_command==None:
+-      raise Exception,'No demux command found'
++      raise Exception('No demux command found')
+     self.run([self.demux_command]+params,stdin)
+ 
+   def run_mux(self,params,stdin=None):
+     if self.mux_command==None:
+-      raise Exception,'No mux command found'
++      raise Exception('No mux command found')
+     self.run([self.mux_command]+params,stdin)
+ 
+   def run_katedec(self,params,stdin=None):
+     if self.katedec_command==None:
+-      raise Exception,'katedec was not found'
++      raise Exception('katedec was not found')
+     self.run([self.katedec_command]+params,stdin)
+ 
+   def run_kateenc(self,params,stdin=None):
+     if self.kateenc_command==None:
+-      raise Exception,'kateenc was not found'
++      raise Exception('kateenc was not found')
+     self.run([self.kateenc_command]+params,stdin)
+ 
+ if __name__=='__main__':
+diff -urN a/tools/KateDJ/kdj/ui_editor.py b/tools/KateDJ/kdj/ui_editor.py
+--- a/tools/KateDJ/kdj/ui_editor.py	2011-08-21 15:10:47.000000000 -0300
++++ b/tools/KateDJ/kdj/ui_editor.py	2020-02-07 15:41:06.000000000 -0300
+@@ -3,14 +3,13 @@
+ from wx.py.editor import EditorNotebook
+ from wx.py.buffer import Buffer
+ from wx.py.editor import Editor
+-from constants import *
+-from tester import Tester
++from .constants import *
++from .tester import Tester
+ 
+ class UIEditor(wx.Dialog):
+   def __init__(self,parent,tools,filename=None,format='kate'):
+-    pre=wx.PreDialog()
+-    pre.Create(parent,wx.ID_ANY,title='Editing Kate streams',pos=(100,100),size=(600,400),style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
+-    self.PostCreate(pre)
++    wx.Dialog.__init__(self)
++    self.Create(parent,wx.ID_ANY,title='Editing Kate streams',pos=(100,100),size=(600,400),style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
+ 
+     self.tools=tools
+     self.format=format
+@@ -87,7 +86,7 @@
+     try:
+       tester=Tester(self.tools,self.current_panel.editor.getText(),self.format)
+       wx.MessageBox('No errors found','Success',parent=self,style=wx.OK)
+-    except Exception,e:
++    except Exception as e:
+       wx.MessageBox('Error:\n'+str(e),'Test failed',parent=self,style=wx.OK|wx.ICON_ERROR)
+ 
+   def OnSave(self,event):
+diff -urN a/tools/KateDJ/kdj/ui_main.py b/tools/KateDJ/kdj/ui_main.py
+--- a/tools/KateDJ/kdj/ui_main.py	2011-08-21 09:42:10.000000000 -0300
++++ b/tools/KateDJ/kdj/ui_main.py	2020-02-07 15:41:06.000000000 -0300
+@@ -1,15 +1,15 @@
+ import sys
+ import os
+ import wx
+-from ui_editor import UIEditor
+-from ui_options import UIOptions
++from .ui_editor import UIEditor
++from .ui_options import UIOptions
+ 
+-from constants import *
+-from tools import Tools
+-from demuxer import Demuxer
+-from muxer import Muxer
+-from finder import FindKateStreams
+-from options import Options
++from .constants import *
++from .tools import Tools
++from .demuxer import Demuxer
++from .muxer import Muxer
++from .finder import FindKateStreams
++from .options import Options
+ 
+ base_width=480
+ base_height=240
+@@ -29,7 +29,7 @@
+ 
+     try:
+       self.tools=Tools(wx.BeginBusyCursor,wx.EndBusyCursor)
+-    except Exception,e:
++    except Exception as e:
+       wx.MessageBox('Failed to find necessary tools:\n'+str(e),'Error',style=wx.OK|wx.CENTRE|wx.ICON_ERROR)
+       sys.exit(1)
+ 
+@@ -116,8 +116,8 @@
+         for idx2 in kate_streams:
+           dlg.addStream(kate_streams[idx2]['filename'])
+       dlg.ShowModal()
+-    except Exception,e:
+-      print 'Exception: %s' % str(e)
++    except Exception as e:
++      print('Exception: %s' % str(e))
+     dlg.Destroy()
+     wx.EndBusyCursor()
+ 
+@@ -142,7 +142,7 @@
+ 
+   def CheckAndContinue(self):
+     if self.filename!=None and self.demuxer!=None:
+-      ret=wx.MessageBox('Loaded file not remuxed - Quit anyway ?','Warning',parent=self,style=wx.YES|wx.NO_DEFAULT|wx.CENTRE|wx.ICON_QUESTION)
++      ret=wx.MessageBox('Loaded file not remuxed - Quit anyway ?','Warning',parent=self,style=wx.YES|wx.NO|wx.NO_DEFAULT|wx.CENTRE|wx.ICON_QUESTION)
+       if ret!=wx.YES:
+         return False
+     return True
+@@ -176,16 +176,16 @@
+       stream=streams[idx]
+       self.list.Append(['','',''])
+       list_idx=self.list.GetItemCount()-1
+-      self.list.SetStringItem(list_idx,0,stream['serial'])
+-      self.list.SetStringItem(list_idx,1,stream['language'])
+-      self.list.SetStringItem(list_idx,2,stream['category'])
++      self.list.SetItem(list_idx,0,stream['serial'])
++      self.list.SetItem(list_idx,1,stream['language'])
++      self.list.SetItem(list_idx,2,stream['category'])
+       self.list.SetItemData(list_idx,int(idx))
+     return self.list.GetItemCount()>0
+ 
+   def OnDemuxButton(self,event):
+     try:
+       demuxer=Demuxer(self.tools,self.filename,self.options.format)
+-    except Exception,e:
++    except Exception as e:
+       wx.MessageBox('Failed to demux file:\n'+str(e),'Error',parent=self,style=wx.OK|wx.CENTRE|wx.ICON_ERROR)
+       return
+ 
+@@ -234,7 +234,7 @@
+         self.RemoveTemporaryFiles(directory)
+       except:
+         wx.MessageBox('Failed to remove all temporary files from\n%s' % directory,'Error',parent=self,style=wx.OK|wx.CENTRE|wx.ICON_ERROR)
+-    except Exception,e:
++    except Exception as e:
+       wx.MessageBox('Failed to remux file:\n'+str(e),'Error',parent=self,style=wx.OK|wx.CENTRE|wx.ICON_ERROR)
+ 
+   def OnOptionsButton(self,event):
+diff -urN a/tools/KateDJ/kdj/ui_options.py b/tools/KateDJ/kdj/ui_options.py
+--- a/tools/KateDJ/kdj/ui_options.py	2011-08-21 09:42:10.000000000 -0300
++++ b/tools/KateDJ/kdj/ui_options.py	2020-02-07 15:41:06.000000000 -0300
+@@ -1,6 +1,6 @@
+ import sys
+ import wx
+-from constants import *
++from .constants import *
+ 
+ base_width=480
+ option_height=24
+@@ -11,9 +11,8 @@
+ 
+ class UIOptions(wx.Dialog):
+   def __init__(self,parent,options):
+-    pre=wx.PreDialog()
+-    pre.Create(parent,wx.ID_ANY,title=kdj_name+' options')
+-    self.PostCreate(pre)
++    wx.Dialog.__init__(self)
++    self.Create(parent,wx.ID_ANY,title=kdj_name+' options')
+ 
+     self.options=options
+ 
+@@ -92,7 +91,7 @@
+     label.Bind(wx.EVT_ENTER_WINDOW,lambda ev: self.SetHelpTextAndSkip(help_text,ev))
+     label.Bind(wx.EVT_LEAVE_WINDOW,lambda ev: self.SetHelpTextAndSkip('',ev))
+ 
+-    box.AddSpacer((8,0))
++    box.AddSpacer(8)
+ 
+     list=wx.Choice(self, -1, (80,-1),choices=choices)
+     list.SetStringSelection(default)
+diff -urN a/tools/Makefile.am b/tools/Makefile.am
+--- a/tools/Makefile.am	2011-08-21 09:42:10.000000000 -0300
++++ b/tools/Makefile.am	2020-02-07 15:41:06.000000000 -0300
+@@ -2,8 +2,6 @@
+ SUBDIRS=KateDJ
+ endif
+ 
+-LIBTOOLFLAGS=--silent
+-
+ AM_CPPFLAGS=-I $(top_srcdir)/src -I $(top_srcdir)/include -I $(top_srcdir)/tools
+ 
+ noinst_HEADERS=\
+diff -urN a/tools/kkate.c b/tools/kkate.c
+--- a/tools/kkate.c	2011-08-21 15:29:11.000000000 -0300
++++ b/tools/kkate.c	2020-02-07 15:41:06.000000000 -0300
+@@ -568,8 +568,8 @@
+ void write_kate_event(FILE *fout,void *data,const kate_event *ev,ogg_int64_t granpos)
+ {
+   const kate_info *ki=ev->ki;
+-  float t0=ev->start_time;
+-  float t1=ev->end_time;
++  int h0,m0,s0,ms0;
++  int h1,m1,s1,ms1;
+ 
+   (void)data;
+   fprintf(fout,"  event {\n");
+@@ -587,10 +587,10 @@
+     );
+ #endif
+   }
+-  fprintf(fout,"    %02d:%02d:%02.8g --> %02d:%02d:%02.8g\n",
+-    time_hours(t0),time_minutes(t0),time_float_seconds(t0),
+-    time_hours(t1),time_minutes(t1),time_float_seconds(t1)
+-  );
++  granule_to_hmsms(ki,ev->start,&h0,&m0,&s0,&ms0);
++  granule_to_hmsms(ki,ev->start+ev->duration,&h1,&m1,&s1,&ms1);
++  fprintf(fout,"    %02d:%02d:%02d.%03d --> %02d:%02d:%02d.%03d\n",
++    h0,m0,s0,ms0,h1,m1,s1,ms1);
+   if (ev->language) {
+     fprintf(fout,"    language \"%s\"\n",ev->language);
+   }
+diff -urN a/tools/kutil.c b/tools/kutil.c
+--- a/tools/kutil.c	2011-08-21 08:09:16.000000000 -0300
++++ b/tools/kutil.c	2020-02-07 15:41:06.000000000 -0300
+@@ -48,6 +48,17 @@
+   return time_milliseconds(t)/(kate_float)1000+time_seconds(t);
+ }
+ 
++void granule_to_hmsms(const kate_info *ki,ogg_int64_t granpos,int *h,int *m,int *s,int *ms)
++{
++  *h=(granpos*ki->gps_denominator)/ki->gps_numerator/(60*60);
++  granpos-=(*h*ki->gps_numerator+ki->gps_denominator/2)/ki->gps_denominator*60*60;
++  *m=(granpos*ki->gps_denominator)/ki->gps_numerator/60;
++  granpos-=(*m*ki->gps_numerator+ki->gps_denominator/2)/ki->gps_denominator*60;
++  *s=(granpos*ki->gps_denominator)/ki->gps_numerator;
++  granpos-=(*s*ki->gps_numerator+ki->gps_denominator/2)/ki->gps_denominator;
++  *ms=(1000*granpos*ki->gps_denominator)/ki->gps_numerator;
++}
++
+ 
+ const char *eat_arg(int argc,char **argv,int *n)
+ {
+diff -urN a/tools/kutil.h b/tools/kutil.h
+--- a/tools/kutil.h	2010-02-19 12:50:51.000000000 -0200
++++ b/tools/kutil.h	2020-02-07 15:41:06.000000000 -0300
+@@ -15,6 +15,7 @@
+ extern kate_float time_float_seconds(kate_float t);
+ extern int time_seconds(kate_float t);
+ extern int time_milliseconds(kate_float t);
++extern void granule_to_hmsms(const kate_info *ki,ogg_int64_t granpos,int *h,int *m,int *s,int *ms);
+ 
+ extern const char *eat_arg(int argc,char **argv,int *n);
+ 

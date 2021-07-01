@@ -1,31 +1,14 @@
-# Copyright 2000-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-MY_PV="${PV/_/-}"
-MY_PV="${MY_PV/-beta/-test}"
-MY_P="${PN}-${MY_PV}"
-if [[ ${PV} = *9999 ]] ; then
-	if [[ ${PV%.9999} != ${PV} ]] ; then
-		EGIT_REPO_URI="https://git.videolan.org/git/vlc/vlc-${PV%.9999}.git"
-	else
-		EGIT_REPO_URI="https://git.videolan.org/git/vlc.git"
-	fi
-	inherit git-r3
-else
-	if [[ ${MY_P} = ${P} ]] ; then
-		SRC_URI="https://download.videolan.org/pub/videolan/${PN}/${PV}/${P}.tar.xz"
-	else
-		SRC_URI="https://download.videolan.org/pub/videolan/testing/${MY_P}/${MY_P}.tar.xz"
-	fi
-	KEYWORDS="~amd64 ~arm arm64 ~ppc ~ppc64 -sparc ~x86"
-fi
 inherit autotools flag-o-matic toolchain-funcs virtualx xdg
 
 DESCRIPTION="Media player and framework with support for most multimedia files and streaming"
 HOMEPAGE="https://www.videolan.org/vlc/"
+SRC_URI="https://download.videolan.org/pub/videolan/${PN}/${PV}/${P}.tar.xz"
 
+KEYWORDS="*"
 LICENSE="LGPL-2.1 GPL-2"
 SLOT="0/5-9" # vlc - vlccore
 
@@ -47,6 +30,7 @@ REQUIRED_USE="
 	libcaca? ( X )
 	libtar? ( skins )
 	libtiger? ( kate )
+	live? ( ssl )
 	skins? ( qt5 truetype X xml )
 	ssl? ( gcrypt )
 	vaapi? ( ffmpeg X )
@@ -79,7 +63,7 @@ RDEPEND="
 	chromaprint? ( media-libs/chromaprint:= )
 	chromecast? (
 		>=dev-libs/protobuf-2.5.0:=
-		>=net-libs/libmicrodns-0.0.9:=
+		>=net-libs/libmicrodns-0.1.2:=
 	)
 	dav1d? ( media-libs/dav1d:= )
 	dbus? ( sys-apps/dbus )
@@ -228,22 +212,16 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.2.8-freerdp-2.patch # bug 590164
 	"${FILESDIR}"/${PN}-3.0.6-fdk-aac-2.0.0.patch # bug 672290
 	"${FILESDIR}"/${PN}-3.0.8-qt-5.15.patch # TODO: upstream
+	"${FILESDIR}"/${PN}-3.0.11-live555.patch
 )
 
 DOCS=( AUTHORS THANKS NEWS README doc/fortunes.txt )
-
-S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	xdg_src_prepare # bug 608256
 
 	has_version 'net-libs/libupnp:1.8' && \
 		eapply "${FILESDIR}"/${PN}-2.2.8-libupnp-slot-1.8.patch
-
-	# Bootstrap when we are on a git checkout.
-	if [[ ${PV} = *9999 ]] ; then
-		./bootstrap
-	fi
 
 	# Make it build with libtool 1.5
 	rm m4/lt* m4/libtool.m4 || die

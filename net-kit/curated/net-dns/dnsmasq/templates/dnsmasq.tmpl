@@ -1,35 +1,37 @@
-# Copyright 1999-2019 Gentoo Authors
-# Copyright 2017-2018 Sony Interactive Entertainment Inc.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit toolchain-funcs flag-o-matic user systemd
+LUA_COMPAT=( lua5-{1..4} luajit )
+
+inherit toolchain-funcs flag-o-matic lua-single systemd user
 
 DESCRIPTION="Small forwarding DNS server"
 HOMEPAGE="http://www.thekelleys.org.uk/dnsmasq/doc.html"
-SRC_URI="http://www.thekelleys.org.uk/dnsmasq/${P}.tar.xz"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="|| ( GPL-2 GPL-3 )"
 SLOT="0"
 KEYWORDS="*"
 
 IUSE="auth-dns conntrack dbus +dhcp dhcp-tools dnssec +dumpfile id idn libidn2"
-IUSE+=" +inotify ipv6 lua nls script selinux static tftp"
+IUSE+=" +inotify ipv6 lua nettlehash nls script selinux static tftp"
 
 DM_LINGUAS=(de es fi fr id it no pl pt_BR ro)
 
-BDEPEND="app-arch/xz-utils
+BDEPEND="
+	app-arch/xz-utils
 	virtual/pkgconfig
 	nls? ( sys-devel/gettext )
 "
 
-COMMON_DEPEND="dbus? ( sys-apps/dbus:= )
+COMMON_DEPEND="
+	dbus? ( sys-apps/dbus:= )
 	idn? (
 		!libidn2? ( net-dns/libidn:0= )
 		libidn2? ( >=net-dns/libidn2-2.0:= )
 	)
-	lua? ( dev-lang/lua:* )
+	lua? ( ${LUA_DEPS} )
 	conntrack? ( net-libs/libnetfilter_conntrack:= )
 	nls? ( sys-devel/gettext )
 "
@@ -43,27 +45,31 @@ DEPEND="${COMMON_DEPEND}
 
 RDEPEND="${COMMON_DEPEND}
 	dnssec? (
-		!static? (
-			>=dev-libs/nettle-3.4:=[gmp]
-		)
+		!static? ( >=dev-libs/nettle-3.4:=[gmp] )
 	)
 	selinux? ( sec-policy/selinux-dnsmasq )
 "
 
-REQUIRED_USE="dhcp-tools? ( dhcp )
-	lua? ( script )
-	libidn2? ( idn )"
+REQUIRED_USE="
+	dhcp-tools? ( dhcp )
+	dnssec? ( !nettlehash )
+	lua? (
+		script
+		${LUA_REQUIRED_USE}
+	)
+	libidn2? ( idn )
+"
 
 use_have() {
-	local useflag no_only uword
+	local no_only
 	if [[ ${1} == '-n' ]]; then
 		no_only=1
 		shift
 	fi
-	useflag="${1}"
+	local useflag="${1}"
 	shift
 
-	uword="${1:-${useflag}}"
+	local uword="${1:-${useflag}}"
 	shift
 
 	while [[ ${uword} ]]; do
@@ -79,11 +85,15 @@ use_have() {
 	done
 }
 
+pkg_setup() {
+	use lua && lua-single_pkg_setup
+}
+
 pkg_pretend() {
 	if use static; then
 		einfo "Only sys-libs/gmp and dev-libs/nettle are statically linked."
 		use dnssec || einfo "Thus, ${P}[!dnssec,static] makes no sense;" \
-			"the static USE flag is ignored."
+			"in this case the static USE flag does nothing."
 	fi
 }
 
@@ -95,27 +105,29 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	sed -i -r 's:lua5.[0-9]+:lua:' Makefile
-	sed -i "s:%%PREFIX%%:${EPREFIX}/usr:" dnsmasq.conf.example || die
+	sed -i -r 's:lua5.[0-9]+:lua:' Makefile || die
+	sed -i "s:%%PREFIX%%:${EPREFIX}/usr:" \
+		dnsmasq.conf.example || die
 }
 
 src_configure() {
 	COPTS=(
-		"$(use_have -n auth-dns auth)"
-		"$(use_have conntrack)"
-		"$(use_have dbus)"
-		"$(use libidn2 || use_have idn)"
-		"$(use_have libidn2)"
-		"$(use_have -n inotify)"
-		"$(use_have -n dhcp dhcp dhcp6)"
-		"$(use_have -n ipv6 ipv6 dhcp6)"
-		"$(use_have -n id id)"
-		"$(use_have lua luascript)"
-		"$(use_have -n script)"
-		"$(use_have -n tftp)"
-		"$(use_have dnssec)"
-		"$(use_have static dnssec_static)"
-		"$(use_have -n dumpfile)"
+		$(use_have -n auth-dns auth)
+		$(use_have conntrack)
+		$(use_have dbus)
+		$(use libidn2 || use_have idn)
+		$(use_have libidn2)
+		$(use_have -n inotify)
+		$(use_have -n dhcp dhcp dhcp6)
+		$(use_have -n ipv6 ipv6 dhcp6)
+		$(use_have -n id id)
+		$(use_have lua luascript)
+		$(use_have -n script)
+		$(use_have -n tftp)
+		$(use_have dnssec)
+		$(use_have nettlehash)
+		$(use_have static dnssec_static)
+		$(use_have -n dumpfile)
 	)
 }
 

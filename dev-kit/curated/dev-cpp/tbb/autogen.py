@@ -2,12 +2,13 @@
 
 from packaging import version
 
+revision = { "2021.3.0" : 1 } 
 patches = [
 	{
 		# This patch is not yet in upstream tbb, so we will need to continue to apply it.
 		"name"	   :  "tbb-2021.3.0-cmake-hwloc.patch",
-		"issue"    :  "FL-8615",
-		"desc"	   :  "Fixes riscv build.",
+		"issue"    :  "FL-8351",
+		"desc"	   :  "TODO",
 		"apply"    :   lambda v: True
 	},
 	{
@@ -16,7 +17,7 @@ patches = [
 		"issue"    :  "FL-8621",
 		"desc"	   :  "Fixes arm-32bit builds.",
 		"apply"    :  lambda v: v == "2021.3.0"
-	},
+	}
 ]
 
 def get_release(release_data):
@@ -45,9 +46,10 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
+		revision=revision[version] if version in revision else 0,
 		github_user=user,
 		github_repo=repo,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
-        patches=active_patches
+		patches=active_patches
 	)
 	ebuild.push()

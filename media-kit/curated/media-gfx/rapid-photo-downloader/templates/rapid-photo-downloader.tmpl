@@ -1,0 +1,28 @@
+{#- Convert 2-space indents to tabs in the ebuild: #}
+{%- macro indented(lines, initial_indent=0, allow_empty=False) %}
+{%- for line in lines.split('\n') %}
+  {%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+  {%- set newline = "\n" + "\t" * ( indent_level + initial_indent ) + line[indent_level*2:] -%}
+{{newline if ( line[indent_level*2:]|length or allow_empty ) and not line == lines else line }}
+{%- endfor %}
+{%- endmacro -%}
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+PYTHON_COMPAT=( {{python_compat}} )
+DISTUTILS_USE_SETUPTOOLS=rdepend
+
+inherit distutils-r1 xdg
+
+DESCRIPTION="Import your images efficiently and reliably"
+HOMEPAGE="http://damonlynch.net/rapid/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="*"
+
+RDEPEND="{{indented(rdepend|default(''),1)}}"
+DEPEND="{{indented(depend|default(''),1)}}"
+

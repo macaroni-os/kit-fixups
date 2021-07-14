@@ -9,7 +9,11 @@ async def generate(hub, **pkginfo):
 	app = "qbittorrent"
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/tags?search=RELEASE")
 	json_list = json.loads(json_data)
-	version = json_list[0]["name"].split("-", 1)[1]
+	for release in json_list:
+		if "beta" in release["name"]:
+			continue
+		version = release["name"].split("-", 1)[1]
+		break
 	url = f"https://github.com/{user}/{repo}/archive/release-{version}.tar.gz"
 	final_name = f"{app}-{version}.tar.gz"
 

@@ -12,17 +12,17 @@ diff --git a/dateutil/test/test_imports.py b/dateutil/test/test_imports.py
 index 2a19b62..97d07e4 100644
 --- a/dateutil/test/test_imports.py
 +++ b/dateutil/test/test_imports.py
-@@ -158,9 +158,8 @@ class ImportZoneInfoTest(unittest.TestCase):
-     def testZoneinfoStar(self):
-         from dateutil.zoneinfo import gettz
-         from dateutil.zoneinfo import gettz_db_metadata
--        from dateutil.zoneinfo import rebuild
- 
--        zi_all = (gettz, gettz_db_metadata, rebuild)
-+        zi_all = (gettz, gettz_db_metadata)
- 
-         for var in zi_all:
-             self.assertIsNot(var, None)
+@@ -168,9 +168,8 @@
+ def test_import_zone_info_star():
+     from dateutil.zoneinfo import gettz
+     from dateutil.zoneinfo import gettz_db_metadata
+-    from dateutil.zoneinfo import rebuild
+
+-    zi_all = (gettz, gettz_db_metadata, rebuild)
++    zi_all = (gettz, gettz_db_metadata)
+
+     for var in zi_all:
+         assert var is not None
 diff --git a/dateutil/zoneinfo/__init__.py b/dateutil/zoneinfo/__init__.py
 index 34f11ad..e9870ca 100644
 --- a/dateutil/zoneinfo/__init__.py

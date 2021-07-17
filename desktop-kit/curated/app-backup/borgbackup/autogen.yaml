@@ -5,6 +5,7 @@ dev_python_autogen_rule:
   generator: pypi-simple-1
   packages:
     - borgbackup:
+        iuse: libressl
         pydeps:
           py:all:
             - llfuse

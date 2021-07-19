@@ -65,6 +65,10 @@ src_install() {
 		dosym ../sbin/smtpctl /usr/bin/sendmail
 		mkdir -p "${ED}"/usr/$(get_libdir) || die
 		ln -s --relative "${ED}"/usr/sbin/smtpctl "${ED}"/usr/$(get_libdir)/sendmail || die
+
+		# FL-8648
+		fowners smtpq:smtpq /usr/sbin/smtpctl
+		fperms 2555 /usr/sbin/smtpctl
 	fi
 }
 

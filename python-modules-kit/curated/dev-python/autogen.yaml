@@ -505,6 +505,19 @@ simple_python_autogen_rule:
             sed -i -e '/pytest-/d' -e '/addopts/d' setup.cfg || die
             distutils-r1_src_prepare
           }
+    - charset_normalizer:
+        desc: The Real First Universal Charset Detector
+        homepage: https://github.com/ousret/charset_normalizer
+        license: MIT
+        body: |
+          src_unpack() {
+            default
+            mv ${WORKDIR}/charset-normalizer-* ${S} || die
+          }
+          src_prepare() {
+            sed -i -e '/addopts/d' setup.cfg || die
+            distutils-r1_src_prepare
+          }
     - cheetah3:
         pypi_name: Cheetah3
         desc: Python-powered template engine and code generator
@@ -721,6 +734,7 @@ simple_python_autogen_rule:
             - chardet
             - idna
             - urllib3
+            - charset_normalizer
           use:socks5:
             - PySocks >= 1.5.6
           use:ssl:

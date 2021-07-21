@@ -28,16 +28,22 @@ async def generate(hub, **pkginfo):
 	latest_release = get_release(releases_data)
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
-	version = latest_release["tag_name"]
+	tag_version = latest_release["tag_name"]
 	commits_data = await query_github_api(user, repo, "commits")
 	safe_commits = (commit for commit in commits_data if await is_commit_safe(user, repo, commit["sha"]))
 	target_commit = await safe_commits.__anext__()
 	commit_date = datetime.strptime(target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	commit_hash = target_commit["sha"]
-	version += "." + commit_date.strftime("%Y%m%d")
+	version = tag_version + "." + commit_date.strftime("%Y%m%d")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version.lstrip("v"),
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/archive/{commit_hash}.tar.gz")],
+		tag_version=tag_version.lstrip("v"),
+		artifacts=[
+			hub.pkgtools.ebuild.Artifact(url=f"https://github.com/{user}/{repo}/archive/{commit_hash}.tar.gz"),
+			hub.pkgtools.ebuild.Artifact(
+				url=f"https://github.com/{user}/{repo}/releases/download/{tag_version}/{repo}-{tag_version.lstrip('v')}.tar.xz"
+			),
+		],
 	)
 	ebuild.push()

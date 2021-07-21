@@ -25,7 +25,7 @@ S="${WORKDIR}/src/${EGO_PN}"
 src_unpack() {
 	mkdir -p "${S%/*}" || die
 	default
-	mv ${P} "${S}" || die
+	mv "{{name}}-{{commit_sha1}}" "${S}" || die
 }
 
 src_compile() {

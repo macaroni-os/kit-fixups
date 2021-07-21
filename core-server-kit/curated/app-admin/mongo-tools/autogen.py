@@ -42,6 +42,7 @@ async def generate(hub, **pkginfo):
 		github_user=github_user,
 		github_repo=github_repo,
 		version=ver,
+		commit_sha1=commit_sha1,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
 	)
 	ebuild.push()

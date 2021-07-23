@@ -2,11 +2,16 @@
 
 from bs4 import BeautifulSoup
 
+release_urls = {
+	"stable": "https://http.debian.net/debian/pool/main/l/linux",
+	"unstable": "https://http.debian.net/debian/pool/main/l/linux",
+	"stable-sec": "https://security.debian.org/debian-security/pool/updates/main/l/linux"
+}
 
-async def get_version_for_release(tracker_data, release_name):
-	tracker_soup = BeautifulSoup(tracker_data, "lxml")
+async def get_version_for_release(pkginfo):
+	tracker_soup = BeautifulSoup(pkginfo['tracker_data'], "lxml")
 	target_release = next(
-		x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == release_name
+		x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == pkginfo['release_name']
 	)
 	return target_release.parent.find("a").text.split("-")
 
@@ -25,12 +30,8 @@ async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
 	:return: an updated pkginfo dictionary for ``generate()``, or None.
 	:rtype: dict or None
 	"""
-	name = pkginfo.get("name")
-	if name == "debian-sources":
-		release_type = "unstable"
-	else:
-		release_type = "stable"
-	linux_version, deb_extraversion = await get_version_for_release(pkginfo["tracker_data"], release_type)
+	name = pkginfo.get('name')
+	linux_version, deb_extraversion = await get_version_for_release(pkginfo)
 	version = f"{linux_version}_p{deb_extraversion}"
 	if f"{name}-{version}" in all_versions_from_yaml:
 		# YAML specifies the literal version -- so ignore 'latest' and use that more specific YAML instead
@@ -83,6 +84,13 @@ async def preprocess_packages(hub, pkginfo_list):
 	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
 	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
 	for pkginfo in pkginfo_list:
+		if pkginfo['name'] == 'debian-sources':
+			release_name = pkginfo['release_name'] = "unstable"
+		else:
+			if 'release_name' not in pkginfo:
+				release_name = pkginfo['release_name'] = "stable"
+			else:
+				release_name = pkginfo['release_name']
 		pkginfo["tracker_data"] = tracker_data
 		if pkginfo["version"] == "latest":
 			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)
@@ -93,8 +101,8 @@ async def preprocess_packages(hub, pkginfo_list):
 
 
 async def generate(hub, **pkginfo):
-	base_url = f"http://http.debian.net/debian/pool/main/l/linux"
-
+	name = pkginfo.get('name')
+	base_url = release_urls[pkginfo['release_name']]
 	linux_version = pkginfo.get("linux_version")
 	deb_extraversion = pkginfo.get("deb_extraversion")
 	deb_pv = f"{linux_version}-{deb_extraversion}"

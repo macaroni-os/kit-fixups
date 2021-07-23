@@ -32,6 +32,7 @@ kernel_gen:
   packages:
     - debian-sources-lts:
         ummask_match: '4.19.'
+        release_name: stable-sec
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch

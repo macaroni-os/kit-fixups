@@ -3,8 +3,8 @@
 from bs4 import BeautifulSoup
 
 release_urls = {
-	"stable": "https://http.debian.net/debian/pool/main/l/linux",
-	"unstable": "https://http.debian.net/debian/pool/main/l/linux",
+	"stable": "https://deb.debian.org/debian/pool/main/l/linux",
+	"unstable": "https://deb.debian.org/debian/pool/main/l/linux",
 	"stable-sec": "https://security.debian.org/debian-security/pool/updates/main/l/linux"
 }
 

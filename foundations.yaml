@@ -3,6 +3,11 @@ metadata:
       version: 11
       required:
         - ego: '2.7.2'
+  - next:
+      version: 11
+      required:
+        - ego: '2.7.2'
+
 
 python-settings:
   - 1.4-release:
@@ -10,6 +15,12 @@ python-settings:
           primary: python3_7
           alternate: python2_7
           mask: ">=dev-lang/python-3.8"
+ - next:
+      - 3.7-release:
+          primary: python3_7
+          alternate: python2_7
+          mask: ">=dev-lang/python-3.8"
+
 
 copyright:
   default: |
@@ -91,7 +102,6 @@ source-defs:
   - perl-kit-legacy:
       - repo: perl-kit-legacy
 
-
 kit-groups:
   defaults:
     source: funtoo_release_1.4
@@ -149,6 +159,79 @@ kit-groups:
               source: perl-kit-legacy
           - ruby-kit:
               branch: 2.7-prime
+              source: funtoo_late_2020
+          - python-kit:
+              kind: independent
+              branch: 3.7-release
+    - next:
+          - core-kit:
+              branch: next
+          - core-hw-kit:
+              branch: next
+          - core-server-kit:
+              branch: next
+          - core-gl-kit:
+              branch: next
+          - security-kit:
+              source: funtoo_release_1.4_bump
+              branch: next
+          - browser-kit:
+              source: funtoo_oct_2020
+              branch: next
+          - desktop-kit:
+              branch: next
+          - media-kit:
+              branch: next
+          - editors-kit:
+              branch: next
+          - net-kit:
+              branch: next
+          - text-kit:
+              branch: next
+          - science-kit:
+              branch: next
+          - games-kit:
+              branch: next
+          - java-kit:
+              branch: next
+          - haskell-kit:
+              branch: next
+          - ml-lang-kit:
+              branch: next
+          - lisp-scheme-kit:
+              branch: next
+          - lang-kit:
+              branch: next
+          - llvm-kit:
+              source: funtoo_late_2020
+              branch: next
+          - dev-kit:
+              branch: next
+          - python-modules-kit:
+              branch: next
+          - kde-kit:
+              kind: independent
+              branch: 5.20-release
+          - gnome-kit:
+              branch: 3.36-prime
+              kind: independent
+          - gnome-kit:
+              branch: 3.34-prime
+              kind: independent
+          - xfce-kit:
+              kind: independent
+              branch: 4.14-release
+          - qt-kit:
+              kind: independent
+              branch: 5.15.2-release
+          - mate-kit:
+              kind: independent
+              branch: 1.24-prime
+          - perl-kit:
+              branch: next
+              source: perl-kit-legacy
+          - ruby-kit:
+              branch: next
               source: funtoo_late_2020
           - python-kit:
               kind: independent

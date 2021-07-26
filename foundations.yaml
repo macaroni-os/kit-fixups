@@ -3,11 +3,12 @@ metadata:
       version: 11
       required:
         - ego: '2.7.2'
+      features:
+        - independent-kits
   - next:
       version: 11
       required:
         - ego: '2.7.2'
-
 
 python-settings:
   - 1.4-release:
@@ -20,7 +21,6 @@ python-settings:
           primary: python3_7
           alternate: python2_7
           mask: ">=dev-lang/python-3.8"
-
 
 copyright:
   default: |

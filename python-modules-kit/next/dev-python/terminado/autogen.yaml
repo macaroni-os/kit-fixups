@@ -1,0 +1,13 @@
+terminado_autogen_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - terminado:
+        license: BSD-2
+        pydeps:
+          - ptyprocess
+          - www-servers/tornado
+
+ 

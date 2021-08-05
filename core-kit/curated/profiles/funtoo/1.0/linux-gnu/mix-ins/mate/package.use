@@ -18,3 +18,9 @@ media-libs/libcanberra gtk3
 mate-base/mate-settings-daemon libnotify
 mate-extra/mate-dialogs libnotify
 mate-extra/mate-screensaver libnotify
+
+# This resolves a circular dep. For everything else we want introspection enabled
+# via make.defaults USE.
+net-dns/avahi -introspection
+# disable zeroconf USE for cups, this workarounds cir.dep between avahi, cups and gtk+
+net-print/cups -zeroconf

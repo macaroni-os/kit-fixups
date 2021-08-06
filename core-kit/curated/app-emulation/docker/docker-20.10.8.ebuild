@@ -1,28 +1,20 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+EGO_PN="github.com/docker/docker"
+GIT_COMMIT=75249d88bc107a122b503f6a50e89c994331867c
 
-EGO_PN="github.com/docker/docker-ce"
-
-DOCKER_GITCOMMIT="5eb3275"
-MY_PV=${PV/_/-}
-SRC_URI="https://${EGO_PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
-[ "$DOCKER_GITCOMMIT" ] || die "DOCKER_GITCOMMIT must be added manually for each bump!"
-inherit golang-vcs-snapshot bash-completion-r1 golang-base linux-info systemd udev user
+inherit bash-completion-r1 golang-base golang-vcs-snapshot linux-info systemd udev user
 
 DESCRIPTION="The core functions you need to create Docker images and run Docker containers"
 HOMEPAGE="https://www.docker.com/"
+MY_PV=${PV/_/-}
+SRC_URI="https://github.com/moby/moby/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
+
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE="apparmor aufs btrfs +container-init device-mapper hardened overlay seccomp selinux"
-
-# https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
-BDEPEND="
-	>=dev-lang/go-1.13.12
-	dev-go/go-md2man
-	virtual/pkgconfig
-"
+KEYWORDS=""
+IUSE="apparmor aufs btrfs +cli +container-init device-mapper hardened overlay seccomp"
 
 DEPEND="
 	>=dev-db/sqlite-3.7.9:3
@@ -32,37 +24,49 @@ DEPEND="
 	seccomp? ( >=sys-libs/libseccomp-2.2.1 )
 "
 
-# https://github.com/docker/docker/blob/master/project/PACKAGERS.md#runtime-dependencies
-# https://github.com/docker/docker/blob/master/project/PACKAGERS.md#optional-dependencies
-# https://github.com/docker/docker-ce/tree/master/components/engine/hack/dockerfile/install
-# make sure containerd, docker-proxy, runc and tini pinned to exact versions from ^,
-# for appropriate brachch/version of course
+# https://github.com/moby/moby/blob/master/project/PACKAGERS.md#runtime-dependencies
+# https://github.com/moby/moby/blob/master/project/PACKAGERS.md#optional-dependencies
+# https://github.com/moby/moby/tree/master//hack/dockerfile/install
+# make sure docker-proxy is pinned to exact version from ^,
+# for appropriate branchch/version of course
 RDEPEND="
 	${DEPEND}
-	!sys-apps/systemd[-cgroup-hybrid(+)]
 	>=net-firewall/iptables-1.4
 	sys-process/procps
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	>=app-emulation/containerd-1.4[apparmor?,btrfs?,device-mapper?,seccomp?,selinux?]
-	<=app-emulation/containerd-1.5
-	~app-emulation/runc-1.0.0_rc92[apparmor?,seccomp?,selinux(-)?]
-	~app-emulation/docker-proxy-0.8.0_p20201105
-	container-init? ( >=sys-process/tini-0.18.0[static] )
+	>=app-emulation/containerd-1.4.6[apparmor?,btrfs?,device-mapper?,seccomp?]
+	~app-emulation/docker-proxy-0.8.0_p20210525
+	cli? ( app-emulation/docker-cli )
+	container-init? ( >=sys-process/tini-0.19.0[static] )
 "
 
-RESTRICT="installsources strip"
+# https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
+BDEPEND="
+	>=dev-lang/go-1.13.12
+	dev-go/go-md2man
+	virtual/pkgconfig
+"
+# tests require running dockerd as root and downloading containers
+RESTRICT="installsources strip test"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
+
+# https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
+PATCHES=(
+	"${FILESDIR}/etcd-F_OFD_GETLK-fix.patch"
+	"${FILESDIR}/ppc64-buildmode.patch"
+)
 
 # see "contrib/check-config.sh" from upstream's sources
 CONFIG_CHECK="
 	~NAMESPACES ~NET_NS ~PID_NS ~IPC_NS ~UTS_NS
 	~CGROUPS ~CGROUP_CPUACCT ~CGROUP_DEVICE ~CGROUP_FREEZER ~CGROUP_SCHED ~CPUSETS ~MEMCG
+	~CGROUP_NET_PRIO
 	~KEYS
 	~VETH ~BRIDGE ~BRIDGE_NETFILTER
-	~IP_NF_FILTER ~IP_NF_TARGET_MASQUERADE
+	~IP_NF_FILTER ~IP_NF_TARGET_MASQUERADE ~NETFILTER_XT_MARK
 	~NETFILTER_NETLINK ~NETFILTER_XT_MATCH_ADDRTYPE ~NETFILTER_XT_MATCH_CONNTRACK ~NETFILTER_XT_MATCH_IPVS
 	~IP_NF_NAT ~NF_NAT
 	~POSIX_MQUEUE
@@ -76,7 +80,7 @@ CONFIG_CHECK="
 	~CGROUP_PERF
 	~CGROUP_HUGETLB
 	~NET_CLS_CGROUP
-	~CFS_BANDWIDTH ~FAIR_GROUP_SCHED ~RT_GROUP_SCHED
+	~CFS_BANDWIDTH ~FAIR_GROUP_SCHED
 	~IP_VS ~IP_VS_PROTO_TCP ~IP_VS_PROTO_UDP ~IP_VS_NFCT ~IP_VS_RR
 
 	~VXLAN
@@ -101,27 +105,6 @@ ERROR_XFRM_ALGO="CONFIG_XFRM_ALGO: is optional for secure networks"
 ERROR_XFRM_USER="CONFIG_XFRM_USER: is optional for secure networks"
 
 pkg_setup() {
-	if kernel_is lt 3 10; then
-		ewarn ""
-		ewarn "Using Docker with kernels older than 3.10 is unstable and unsupported."
-		ewarn " - http://docs.docker.com/engine/installation/binaries/#check-kernel-dependencies"
-	fi
-
-	if kernel_is le 3 18; then
-		CONFIG_CHECK+="
-			~RESOURCE_COUNTERS
-		"
-	fi
-
-	if kernel_is le 3 13; then
-		CONFIG_CHECK+="
-			~NETPRIO_CGROUP
-		"
-	else
-		CONFIG_CHECK+="
-			~CGROUP_NET_PRIO
-		"
-	fi
 
 	if kernel_is lt 4 5; then
 		CONFIG_CHECK+="
@@ -161,7 +144,7 @@ pkg_setup() {
 			~AUFS_FS
 			~EXT4_FS_POSIX_ACL ~EXT4_FS_SECURITY
 		"
-		ERROR_AUFS_FS="CONFIG_AUFS_FS: is required to be set if and only if aufs-sources are used instead of aufs4/aufs3"
+		ERROR_AUFS_FS="CONFIG_AUFS_FS: is required to be set if and only if aufs is patched to kernel instead of using standalone"
 	fi
 
 	if use btrfs; then
@@ -182,19 +165,14 @@ pkg_setup() {
 }
 
 src_compile() {
+	export DOCKER_GITCOMMIT="${GIT_COMMIT}"
 	export GOPATH="${WORKDIR}/${P}"
+	export VERSION=${PV}
 
 	# setup CFLAGS and LDFLAGS for separate build target
 	# see https://github.com/tianon/docker-overlay/pull/10
-	export CGO_CFLAGS="-I${ROOT}/usr/include"
-	export CGO_LDFLAGS="-L${ROOT}/usr/$(get_libdir)"
-
-	# if we're building from a tarball, we need the GITCOMMIT value
-	[[ ${DOCKER_GITCOMMIT} ]] && export DOCKER_GITCOMMIT
-
-	# fake golang layout
-	ln -s docker-ce/components/engine ../docker || die
-	ln -s docker-ce/components/cli ../cli || die
+	export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
+	export CGO_LDFLAGS="-L${ESYSROOT}/usr/$(get_libdir)"
 
 	# let's set up some optional features :)
 	export DOCKER_BUILDTAGS=''
@@ -204,13 +182,11 @@ src_compile() {
 		fi
 	done
 
-	for tag in apparmor seccomp selinux; do
+	for tag in apparmor seccomp; do
 		if use $tag; then
 			DOCKER_BUILDTAGS+=" $tag"
 		fi
 	done
-
-	pushd components/engine || die
 
 	if use hardened; then
 		sed -i "s/EXTLDFLAGS_STATIC='/&-fno-PIC /" hack/make.sh || die
@@ -221,28 +197,7 @@ src_compile() {
 	fi
 
 	# build daemon
-	VERSION="$(cat ../../VERSION)" \
 	./hack/make.sh dynbinary || die 'dynbinary failed'
-
-	popd || die # components/engine
-
-	pushd components/cli || die
-
-	# build cli
-	DISABLE_WARN_OUTSIDE_CONTAINER=1 emake \
-		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')" \
-		VERSION="$(cat ../../VERSION)" \
-		GITCOMMIT="${DOCKER_GITCOMMIT}" \
-		dynbinary
-
-	# build man pages
-	go build -o gen-manpages github.com/docker/cli/man || die
-	./gen-manpages --root . --target ./man/man1 || die
-	./man/md2man-all.sh -q || die
-	rm gen-manpages || die
-	# see "components/cli/scripts/docs/generate-man.sh" (which also does "go get" for go-md2man)
-
-	popd || die # components/cli
 }
 
 src_install() {
@@ -250,9 +205,7 @@ src_install() {
 	dosym containerd-shim /usr/bin/docker-containerd-shim
 	dosym runc /usr/bin/docker-runc
 	use container-init && dosym tini /usr/bin/docker-init
-
-	pushd components/engine || die
-	newbin bundles/dynbinary-daemon/dockerd-${PV} dockerd
+	newbin bundles/dynbinary-daemon/dockerd dockerd
 
 	newinitd contrib/init/openrc/docker.initd docker
 	newconfd contrib/init/openrc/docker.confd docker
@@ -264,29 +217,9 @@ src_install() {
 	dodoc AUTHORS CONTRIBUTING.md CHANGELOG.md NOTICE README.md
 	dodoc -r docs/*
 
-	insinto /usr/share/vim/vimfiles
-	doins -r contrib/syntax/vim/ftdetect
-	doins -r contrib/syntax/vim/syntax
-
 	# note: intentionally not using "doins" so that we preserve +x bits
 	dodir /usr/share/${PN}/contrib
 	cp -R contrib/* "${ED}/usr/share/${PN}/contrib"
-	popd || die # components/engine
-
-	pushd components/cli || die
-
-	newbin build/docker-* docker
-
-	doman man/man*/*
-
-	sed -i 's@dockerd\?\.exe@@g' contrib/completion/bash/docker || die
-	dobashcomp contrib/completion/bash/*
-	bashcomp_alias docker dockerd
-	insinto /usr/share/fish/vendor_completions.d/
-	doins contrib/completion/fish/docker.fish
-	insinto /usr/share/zsh/site-functions
-	doins contrib/completion/zsh/_*
-	popd || die # components/cli
 }
 
 pkg_postinst() {
@@ -321,5 +254,26 @@ pkg_postinst() {
 		elog " ZFS storage driver is available"
 		elog " Check https://docs.docker.com/storage/storagedriver/zfs-driver for more info"
 		elog
+	fi
+
+	if use cli; then
+		ewarn "Starting with docker 20.10.2, docker has been split into"
+		ewarn "two packages upstream, so Gentoo has followed suit."
+		ewarn
+		ewarn "app-emulation/docker contains the daemon and"
+		ewarn "app-emulation/docker-cli contains the docker command."
+		ewarn
+		ewarn "docker currently installs docker-cli using the cli use flag."
+		ewarn
+		ewarn "This use flag is temporary, so you need to take the"
+		ewarn "following actions:"
+		ewarn
+		ewarn "First, disable the cli use flag for app-emulation/docker"
+		ewarn
+		ewarn "Then, if you need docker-cli and docker on the same machine,"
+		ewarn "run the following command:"
+		ewarn
+		ewarn "# emerge --noreplace docker-cli"
+		ewarn
 	fi
 }

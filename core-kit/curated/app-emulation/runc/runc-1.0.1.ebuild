@@ -1,13 +1,13 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 CONFIG_CHECK="~USER_NS"
 EGO_PN="github.com/opencontainers/${PN}"
 
 MY_PV="${PV/_/-}"
 # Change this when you update the ebuild
-RUNC_COMMIT=ff819c7
+RUNC_COMMIT=4144b63817ebcc5b358fc2c8ef95f7cddd709aa7
 SRC_URI="https://${EGO_PN}/archive/${RUNC_COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS=""
 inherit linux-info golang-build golang-vcs-snapshot
@@ -17,10 +17,10 @@ HOMEPAGE="http://runc.io"
 
 LICENSE="Apache-2.0 BSD-2 BSD MIT"
 SLOT="0"
-IUSE="+ambient apparmor hardened +kmem +seccomp"
+IUSE="hardened +kmem +seccomp"
 
 RDEPEND="
-	apparmor? ( sys-libs/libapparmor )
+	sys-libs/libapparmor
 	seccomp? ( sys-libs/libseccomp )
 	!app-emulation/docker-runc
 "
@@ -33,8 +33,6 @@ src_compile() {
 
 	# build up optional flags
 	local options=(
-		$(usex ambient 'ambient' '')
-		$(usex apparmor 'apparmor' '')
 		$(usex seccomp 'seccomp' '')
 		$(usex kmem '' 'nokmem')
 	)

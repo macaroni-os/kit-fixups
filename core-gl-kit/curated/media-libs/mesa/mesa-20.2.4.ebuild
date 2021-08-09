@@ -499,6 +499,7 @@ src_configure() {
 		-Dgallium-xvmc=$(usex xvmc auto false)
 		-Dgallium-omx=$(usex openmax bellagio disabled)
 		-Dgallium-va=$(usex vaapi auto false)
+		-Dva-libs-path="${EPREFIX}"/usr/$(get_libdir)/va/drivers
 		-Dgallium-xa=$(usex xa auto false)
 		-Dgallium-nine=$(usex d3d9 true false)
 		-Dgallium-opencl=$(usex opencl $(usex ocl-icd icd standalone) disabled)

@@ -5,7 +5,7 @@ EGO_PN="github.com/docker/libnetwork"
 
 EGIT_COMMIT=64b7a4574d1426139437d20e81c0b6d391130ec8
 SRC_URI="https://github.com/docker/libnetwork/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
-KEYWORDS=""
+KEYWORDS="*"
 inherit golang-vcs-snapshot
 
 DESCRIPTION="Docker container networking"

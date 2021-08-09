@@ -11,7 +11,7 @@ SRC_URI="https://github.com/krallin/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="+args +static"
 
 src_prepare() {

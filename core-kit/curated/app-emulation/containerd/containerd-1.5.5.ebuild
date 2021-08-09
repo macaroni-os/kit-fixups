@@ -9,7 +9,7 @@ SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
 
 DEPEND="

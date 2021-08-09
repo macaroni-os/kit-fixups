@@ -12,7 +12,7 @@ SRC_URI="https://github.com/docker/cli/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="hardened"
 
 RDEPEND="!<app-emulation/docker-20.10.1"

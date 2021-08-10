@@ -101,6 +101,7 @@ src_install() {
 
 	exeinto ${BRAVE_HOME}
 		doexe brave
+		doexe crashpad_handler
 
 	dosym ${BRAVE_HOME}/brave /usr/bin/${PN} || die
 

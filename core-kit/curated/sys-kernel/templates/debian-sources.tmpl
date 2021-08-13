@@ -17,7 +17,7 @@ MODULE_EXT=${PVR}-${PN}
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
 DEB_PV="{{linux_version}}-${DEB_EXTRAVERSION}"
-RESTRICT="binchecks strip mirror"
+RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 {%- if unmasked %}
 KEYWORDS="*"

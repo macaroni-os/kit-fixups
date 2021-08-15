@@ -1,0 +1,135 @@
+Index: openvdb-8.1.0/openvdb/openvdb/cmd/CMakeLists.txt
+===================================================================
+--- openvdb-8.1.0.orig/openvdb/openvdb/cmd/CMakeLists.txt
++++ openvdb-8.1.0/openvdb/openvdb/cmd/CMakeLists.txt
+@@ -116,27 +116,37 @@ endif()
+ #### vdb_render
+ 
+ if(OPENVDB_BUILD_VDB_RENDER)
+-  find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED COMPONENTS Half Iex IlmThread Imath)
+-  find_package(OpenEXR ${MINIMUM_OPENEXR_VERSION} REQUIRED COMPONENTS IlmImf)
++  find_package(Imath CONFIG)
++  if(TARGET Imath::Imath)
++    find_package(OpenEXR CONFIG REQUIRED)
++  else()
++    find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED COMPONENTS Half Iex IlmThread Imath)
++    find_package(OpenEXR ${MINIMUM_OPENEXR_VERSION} REQUIRED COMPONENTS IlmImf)
++  endif()
+ 
+   set(VDB_RENDER_SOURCE_FILES openvdb_render.cc)
+   add_executable(vdb_render ${VDB_RENDER_SOURCE_FILES})
+ 
+   # Set deps. Note that the order here is important. If we're building against
+   # Houdini 17.5 we must include OpenEXR and IlmBase deps first to ensure the
+   # users chosen namespaced headers are correctly prioritized. Otherwise other
+   # include paths from shared installs (including houdini) may pull in the wrong
+   # headers
+ 
+   target_link_libraries(vdb_render
+-    IlmBase::Half
+-    OpenEXR::IlmImf
+-    IlmBase::IlmThread
+-    IlmBase::Iex
+-    IlmBase::Imath
++    # For OpenEXR/Imath 3.x:
++    $<$<TARGET_EXISTS:OpenEXR::OpenEXR>:OpenEXR::OpenEXR>
++    $<$<TARGET_EXISTS:Imath::Imath>:Imath::Imath>
++    $<$<TARGET_EXISTS:Imath::Half>:Imath::Half>
++    # For OpenEXR 2.4/2.5:
++    $<$<TARGET_EXISTS:OpenEXR::IlmImf>:OpenEXR::IlmImf>
++    $<$<TARGET_EXISTS:IlmBase::Imath>:IlmBase::Imath>
++    $<$<TARGET_EXISTS:IlmBase::Half>:IlmBase::Half>
++    $<$<TARGET_EXISTS:IlmBase::IlmThread>:IlmBase::IlmThread>
++    $<$<TARGET_EXISTS:IlmBase::Iex>:IlmBase::Iex>
+     ${OPENVDB_BINARIES_DEPENDENT_LIBS}
+   )
+
+   if(WIN32)
+     # @note OPENVDB_OPENEXR_STATICLIB is old functionality and should be removed
+     get_target_property(ILMBASE_LIB_TYPE IlmBase::Half TYPE)
+Index: openvdb-8.1.0/openvdb/openvdb/Types.h
+===================================================================
+--- openvdb-8.1.0.orig/openvdb/openvdb/Types.h
++++ openvdb-8.1.0/openvdb/openvdb/Types.h
+@@ -9,7 +9,7 @@
+ #include "TypeList.h" // backwards compat
+ 
+ #ifdef OPENVDB_USE_IMATH_HALF
+-#include <OpenEXR/half.h>
++#include <Imath-3/half.h>
+ namespace openvdb {
+ OPENVDB_USE_VERSION_NAMESPACE
+ namespace OPENVDB_VERSION_NAME {
+diff -urN a/cmake/FindOpenVDB.cmake b/cmake/FindOpenVDB.cmake
+--- a/cmake/FindOpenVDB.cmake	2021-08-04 14:40:10.321036932 -0300
++++ b/cmake/FindOpenVDB.cmake	2021-08-04 14:40:53.125072815 -0300
+@@ -619,7 +619,7 @@
+ endif()
+ 
+ if(OpenVDB_USES_IMATH_HALF)
+-  find_package(IlmBase REQUIRED COMPONENTS Half)
++  find_package(Imath CONFIG)
+   if(WIN32)
+     # @note OPENVDB_OPENEXR_STATICLIB is old functionality and should be removed
+     if(OPENEXR_USE_STATIC_LIBS OR (${ILMBASE_LIB_TYPE} STREQUAL STATIC_LIBRARY))
+@@ -633,7 +633,7 @@
+ endif()
+ 
+ # Set deps. Note that the order here is important. If we're building against
+-# Houdini 17.5 we must include IlmBase deps first to ensure the users chosen
++# Houdini 17.5 we must include Imath deps first to ensure the users chosen
+ # namespaced headers are correctly prioritized. Otherwise other include paths
+ # from shared installs (including houdini) may pull in the wrong headers
+ 
+@@ -643,7 +643,7 @@
+ )
+ 
+ if(OpenVDB_USES_IMATH_HALF)
+-  list(APPEND _OPENVDB_VISIBLE_DEPENDENCIES IlmBase::Half)
++  list(APPEND _OPENVDB_VISIBLE_DEPENDENCIES Imath::Imath)
+ endif()
+ 
+ if(OpenVDB_USES_LOG4CPLUS)
+diff -urN a/openvdb/openvdb/CMakeLists.txt b/openvdb/openvdb/CMakeLists.txt
+--- a/openvdb/openvdb/CMakeLists.txt	2021-08-04 14:45:13.417287773 -0300
++++ b/openvdb/openvdb/CMakeLists.txt	2021-08-04 14:54:30.285730404 -0300
+@@ -129,11 +129,14 @@
+ endif()
+ 
+ if(USE_IMATH_HALF)
+-  find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED COMPONENTS Half)
+-  if(OPENVDB_FUTURE_DEPRECATION AND FUTURE_MINIMUM_ILMBASE_VERSION)
+-    if(${IlmBase_VERSION} VERSION_LESS FUTURE_MINIMUM_ILMBASE_VERSION)
+-      message(DEPRECATION "Support for IlmBase versions < ${FUTURE_MINIMUM_ILMBASE_VERSION} "
+-        "is deprecated and will be removed.")
++  find_package(Imath CONFIG)
++  if(NOT TARGET Imath::Imath)
++    find_package(IlmBase ${MINIMUM_ILMBASE_VERSION} REQUIRED COMPONENTS Half)
++    if(OPENVDB_FUTURE_DEPRECATION AND FUTURE_MINIMUM_ILMBASE_VERSION)
++      if(${IlmBase_VERSION} VERSION_LESS FUTURE_MINIMUM_ILMBASE_VERSION)
++        message(DEPRECATION "Support for IlmBase versions < ${FUTURE_MINIMUM_ILMBASE_VERSION} "
++          "is deprecated and will be removed.")
++      endif()
+     endif()
+   endif()
+ endif()
+@@ -191,7 +194,7 @@
+ )
+ 
+ if(USE_IMATH_HALF)
+-  list(APPEND OPENVDB_CORE_DEPENDENT_LIBS IlmBase::Half)
++  list(APPEND OPENVDB_CORE_DEPENDENT_LIBS Imath::Imath Imath::Imath)
+ endif()
+ 
+ if(WIN32)
+#diff -urN a/CMakeLists.txt b/CMakeLists.txt
+#--- a/CMakeLists.txt	2021-08-04 14:45:13.413287771 -0300
+#+++ b/CMakeLists.txt	2021-08-04 14:57:28.613867640 -0300
+#@@ -356,7 +356,6 @@
+#   set(OPENVDB_CMAKE_MODULES
+#     cmake/FindBlosc.cmake
+#     cmake/FindJemalloc.cmake
+#-    cmake/FindIlmBase.cmake
+#     cmake/FindLog4cplus.cmake
+#     cmake/FindOpenEXR.cmake
+#     cmake/FindOpenVDB.cmake

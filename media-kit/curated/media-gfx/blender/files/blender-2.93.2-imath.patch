@@ -1,0 +1,50 @@
+diff -urN a/build_files/cmake/Modules/FindOpenEXR.cmake b/build_files/cmake/Modules/FindOpenEXR.cmake
+--- a/build_files/cmake/Modules/FindOpenEXR.cmake	2021-08-05 13:47:22.804980882 -0300
++++ b/build_files/cmake/Modules/FindOpenEXR.cmake	2021-08-13 14:39:22.562802668 -0300
+@@ -34,6 +34,7 @@
+ SET(_openexr_libs_ver_init "2.0")
+ 
+ SET(_openexr_FIND_COMPONENTS
++  OpenEXR
+   Half
+   Iex
+   IlmImf
+@@ -48,7 +49,7 @@
+ 
+ FIND_PATH(OPENEXR_INCLUDE_DIR
+   NAMES
+-    OpenEXR/ImfXdr.h
++    OpenEXR-3/ImfXdr.h
+   HINTS
+     ${_openexr_SEARCH_DIRS}
+   PATH_SUFFIXES
+@@ -64,7 +65,7 @@
+         OpenEXRConfig.h
+       PATHS
+         "${OPENEXR_INCLUDE_DIR}"
+-        "${OPENEXR_INCLUDE_DIR}/OpenEXR"
++        "${OPENEXR_INCLUDE_DIR}/OpenEXR-3"
+       NO_DEFAULT_PATH
+     )
+ 
+@@ -120,7 +121,7 @@
+ IF(OPENEXR_FOUND)
+   SET(OPENEXR_LIBRARIES ${_openexr_LIBRARIES})
+   # Both include paths are needed because of dummy OSL headers mixing #include <OpenEXR/foo.h> and #include <foo.h> :(
+-  SET(OPENEXR_INCLUDE_DIRS ${OPENEXR_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR}/OpenEXR)
++  SET(OPENEXR_INCLUDE_DIRS ${OPENEXR_INCLUDE_DIR} ${OPENEXR_INCLUDE_DIR}/OpenEXR-3 ${OPENEXR_INCLUDE_DIR}/Imath-3)
+ ENDIF()
+ 
+ MARK_AS_ADVANCED(
+diff -urN a/intern/cycles/CMakeLists.txt b/intern/cycles/CMakeLists.txt
+--- a/intern/cycles/CMakeLists.txt	2021-08-05 13:47:22.872980948 -0300
++++ b/intern/cycles/CMakeLists.txt	2021-08-13 14:52:01.375297766 -0300
+@@ -322,6 +322,8 @@
+   ${OPENIMAGEIO_INCLUDE_DIRS}
+   ${OPENIMAGEIO_INCLUDE_DIRS}/OpenImageIO
+   ${OPENEXR_INCLUDE_DIR}
++  ${OPENEXR_INCLUDE_DIR}/OpenEXR-3
++  ${OPENEXR_INCLUDE_DIR}/Imath-3
+   ${OPENEXR_INCLUDE_DIRS}
+   ${PUGIXML_INCLUDE_DIR}
+   ${TBB_INCLUDE_DIRS}

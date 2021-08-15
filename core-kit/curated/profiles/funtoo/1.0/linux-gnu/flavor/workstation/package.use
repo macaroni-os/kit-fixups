@@ -9,3 +9,6 @@ media-libs/gd fontconfig
 
 # Relatively sane defaults for app-editors/emacs
 app-editors/emacs gtk harfbuzz sound toolkit-scroll-bars xft
+
+# Avoid circular dependency with media-libs/openimageio
+media-libs/opencolorio -opengl

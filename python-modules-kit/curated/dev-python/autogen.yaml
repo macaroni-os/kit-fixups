@@ -459,6 +459,29 @@ dev_python_compat_rule:
         body: |
           distutils_enable_sphinx "${PN}/docs" '>=dev-python/rst-linker-1.9'
         revision: 2
+    - breathe:
+        pydeps:
+          - docutils
+          - sphinx >= 3.0.0
+        rdepend: |
+          app-doc/doxygen
+          dev-texlive/texlive-bibtexextra
+          dev-texlive/texlive-fontsextra
+          dev-texlive/texlive-fontutils
+          dev-texlive/texlive-latex
+          dev-texlive/texlive-latexextra
+    - pybind11:
+        python_compat: python2+
+        du_setuptools: rdepend
+        rdepend: dev-cpp/eigen:3
+        restrict: test
+        body: |
+          python_install() {
+            distutils-r1_python_install
+            doheader -r "${S}"/pybind11/include/*
+            insinto /usr/share/cmake
+            doins -r "${S}"/pybind11/share/cmake/*
+          }
 
 simple_python_autogen_rule:
   defaults:

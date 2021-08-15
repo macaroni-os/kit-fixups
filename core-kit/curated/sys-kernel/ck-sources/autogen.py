@@ -9,7 +9,7 @@ async def generate(hub, **pkginfo):
 	ck_patches = None
 	json_list = await hub.pkgtools.fetch.get_page(f"https://www.kernel.org/releases.json", is_json=True)
 	version = json_list["latest_stable"]["version"]
-
+	print("latest stable", version)
 	versions = version.split(".")
 
 	major_ver = versions[0]

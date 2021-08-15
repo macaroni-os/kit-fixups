@@ -9,11 +9,16 @@ release_urls = {
 }
 
 async def get_version_for_release(pkginfo):
-	tracker_soup = BeautifulSoup(pkginfo['tracker_data'], "lxml")
-	target_release = next(
-		x for x in tracker_soup.find_all("span", class_="versions-repository") if x.text.strip()[:-1] == pkginfo['release_name']
-	)
-	return target_release.parent.find("a").text.split("-")
+	target_release = None
+	for release in pkginfo['tracker_soup'].find_all("span", class_="versions-repository"):
+		if release.text.strip()[:-1] == pkginfo['release_name']:
+			target_release = release
+			break
+	if target_release is not None:
+		version = target_release.parent.find("a").text.split("-")
+		return version
+	else:
+		raise hub.pkgtools.ebuild.BreezyError(f"{pkginfo['cat']}/{pkginfo['name']}: Could not find release {pkginfo['release_name']} in tracker soup.")
 
 
 async def finalize_latest_pkginfo(pkginfo, all_versions_from_yaml):
@@ -81,6 +86,7 @@ async def preprocess_packages(hub, pkginfo_list):
 	:param pkginfo_list: a list of pkginfo dicts
 	:type pkginfo_list: list
 	"""
+	print("Getting tracker data")
 	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
 	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
 	for pkginfo in pkginfo_list:
@@ -91,7 +97,7 @@ async def preprocess_packages(hub, pkginfo_list):
 				release_name = pkginfo['release_name'] = "stable"
 			else:
 				release_name = pkginfo['release_name']
-		pkginfo["tracker_data"] = tracker_data
+		pkginfo["tracker_soup"] = BeautifulSoup(tracker_data, "lxml")
 		if pkginfo["version"] == "latest":
 			pkginfo = await finalize_latest_pkginfo(pkginfo, all_versions_from_yaml)
 		else:

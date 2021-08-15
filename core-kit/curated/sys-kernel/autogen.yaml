@@ -32,7 +32,7 @@ kernel_gen:
   packages:
     - debian-sources-lts:
         ummask_match: '4.19.'
-        release_name: stable-sec
+        release: stable
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch
@@ -42,7 +42,7 @@ kernel_gen:
           - amdgpu-picasso.patch
           - extra_cpu_optimizations.patch
         versions:
-          latest:
+          4.19.194_p3:
             unmasked: True
     - debian-sources:
         patches:

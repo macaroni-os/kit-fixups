@@ -907,6 +907,18 @@ simple_python_autogen_rule:
             - six
         depend: |
           x11-libs/libxcb
+    - yq:
+        cat: app-misc
+        homepage: https://yq.readthedocs.io/ https://github.com/kislyuk/yq/ https://pypi.org/project/yq/
+        license: Apache-2.0
+        pydeps:
+          py:all:
+            - dev-python/argcomplete
+            - dev-python/pyyaml
+            - dev-python/setuptools
+            - dev-python/xmltodict
+        rdepend: |
+          app-misc/jq
 
 salt_misc_deps_rule:
   defaults:

@@ -51,7 +51,6 @@ DEPEND="sys-devel/flex
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.8.9.1-empty-line-sigsegv.patch" #454348
 	"${FILESDIR}/${PN}-1.8.16-link_with_pthread.patch"
 	"${FILESDIR}/${PN}-1.8.17-ensure_static_support_libraries.patch"
 	"${FILESDIR}/${PN}-1.9.1-ignore-bad-encoding.patch"
@@ -71,13 +70,8 @@ src_unpack() {
 src_prepare() {
 	cmake-utils_src_prepare
 
-	# Ensure we link to -liconv
-	if use elibc_FreeBSD && has_version dev-libs/libiconv || use elibc_uclibc; then
-		local pro
-		for pro in */*.pro.in */*/*.pro.in; do
-			echo "unix:LIBS += -liconv" >> "${pro}" || die
-		done
-	fi
+	# Statically link internal xml library
+	sed -i -e '/add_library/s/$/ STATIC/' libxml/CMakeLists.txt || die
 
 	# Call dot with -Teps instead of -Tps for EPS generation - bug #282150
 	sed -i -e '/addJob("ps"/ s/"ps"/"eps"/g' src/dot.cpp || die

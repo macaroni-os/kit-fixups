@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+# vim:se fileencoding=utf-8
+# Regenerate Twisted plugin cache; (c) 2017 Michał Górny
+# based on earlier code from twisted.eclass (c) Gentoo Foundation
+# License: GPL-2+
+
+import argparse
+import errno
+import os
+import os.path
+import sys
+
+from twisted.plugin import getPlugins, IPlugin
+
+
+def update_cache(cache_module):
+    print('Regenerating cache for {} ...'.format(cache_module))
+
+    __import__(cache_module, globals())
+
+    # remove the existing caches (if any)
+    for p in sys.modules[cache_module].__path__:
+        cache_file = os.path.join(p, 'dropin.cache')
+        try:
+            os.unlink(cache_file)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+
+    num = 0
+    for p in getPlugins(IPlugin, sys.modules[cache_module]):
+        num += 1
+    print('Cached {} plugins for {}.'.format(num, cache_module))
+
+
+def main(prog_name, *args):
+    argp = argparse.ArgumentParser(
+            prog=prog_name,
+            description='Regenerate Twisted plugin cache')
+    argp.add_argument('module', nargs='*', default=['twisted.plugins'],
+            help='plugin caches to regenerate (default: twisted.plugins)')
+    argp.add_argument('-k', '--keep-going', action='store_true',
+            help='do not stop on first error and attempt to update' +
+                ' the remaining caches')
+    args = argp.parse_args(args)
+
+    # disable the Gentoo hack to prevent out-of-sandbox writes during
+    # build
+    os.environ.pop('TWISTED_DISABLE_WRITING_OF_PLUGIN_CACHE', None)
+
+    ret = 0
+    for m in args.module:
+        try:
+            update_cache(m)
+        except Exception as e:
+            print('Cache update failed: {}'.format(e))
+            ret = 1
+            if not args.keep_going:
+                break
+
+    return ret
+
+
+if __name__ == '__main__':
+    sys.exit(main(*sys.argv))

@@ -2,7 +2,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3+ )
 inherit check-reqs cmake-utils flag-o-matic llvm llvm.org \
 	multiprocessing python-any-r1
 

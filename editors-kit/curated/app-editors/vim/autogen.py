@@ -5,7 +5,7 @@ from datetime import timedelta
 
 
 async def generate(hub, **pkginfo):
-	python_compat = "python2_7 python3_{6,7,8}"
+	python_compat = "python2+"
 	patches = [
 		"002_all_vim-7.3-apache-83565.patch",
 		"004_all_vim-7.0-grub-splash-96155.patch",

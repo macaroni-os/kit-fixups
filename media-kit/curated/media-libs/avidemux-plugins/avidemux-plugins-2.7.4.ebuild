@@ -3,7 +3,7 @@
 EAPI=7
 
 CMAKE_MAKEFILE_GENERATOR="emake"
-PYTHON_COMPAT=( python{2_7,3_6,3_7} )
+PYTHON_COMPAT=( python2+ )
 
 inherit cmake-utils python-single-r1
 

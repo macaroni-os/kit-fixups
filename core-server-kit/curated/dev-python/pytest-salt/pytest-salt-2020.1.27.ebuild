@@ -2,7 +2,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python2_7 python3_{5,6,7} )
+PYTHON_COMPAT=( python2+ )
 MY_PV="${PV/_p/.post}"
 inherit distutils-r1
 

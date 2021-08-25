@@ -7,7 +7,7 @@ from re import match
 async def generate(hub, **pkginfo):
 	GITHUB_REPO = "avahi"
 	GITHUB_USER = "lathiat"
-	python_compat = "python3_{6,7,8}"
+	python_compat = "python3+"
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/releases")
 	json_dict = json.loads(json_data)
 	for release in json_dict:

@@ -3,7 +3,7 @@
 
 EAPI="7"
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="ncurses?"
 
 inherit desktop distutils-r1 gnome2-utils xdg-utils

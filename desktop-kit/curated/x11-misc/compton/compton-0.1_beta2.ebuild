@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python3_{5,6,7} )
+PYTHON_COMPAT=( python3+ )
 inherit toolchain-funcs python-r1
 
 DESCRIPTION="A compositor for X, and a fork of xcompmgr-dana"

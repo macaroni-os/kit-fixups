@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-PYTHON_COMPAT=( python2_7 python3_{5..7} )
+PYTHON_COMPAT=( python2+ )
 
 inherit cmake-multilib eutils flag-o-matic mono-env python-r1
 

@@ -76,7 +76,6 @@ RDEPEND="
 	)
 	java? ( >=virtual/jre-1.6:* )
 	jpeg? ( virtual/jpeg:0[${MULTILIB_USEDEP}] )
-	jpeg2k? ( media-libs/jasper:=[${MULTILIB_USEDEP}] )
 	lapack? ( virtual/lapack )
 	opencl? ( virtual/opencl[${MULTILIB_USEDEP}] )
 	openexr? ( media-libs/openexr[${MULTILIB_USEDEP}] )
@@ -290,7 +289,7 @@ multilib_src_configure() {
 		-DWITH_GTK=$(usex gtk)
 		-DWITH_GTK_2_X=OFF
 		-DWITH_IPP=OFF
-		-DWITH_JASPER=$(usex jpeg2k)
+		-DWITH_JASPER=OFF
 		-DWITH_JPEG=$(usex jpeg)
 		-DWITH_WEBP=$(usex webp)
 		-DWITH_OPENEXR=$(usex openexr)

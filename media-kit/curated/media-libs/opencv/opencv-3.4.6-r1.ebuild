@@ -77,7 +77,6 @@ RDEPEND="
 	)
 	java? ( >=virtual/jre-1.6:* )
 	jpeg? ( virtual/jpeg:0 )
-	jpeg2k? ( media-libs/jasper:= )
 	lapack? ( virtual/lapack )
 	opencl? ( virtual/opencl )
 	openexr? ( media-libs/openexr )
@@ -176,7 +175,7 @@ src_configure() {
 		-DWITH_GTK=$(usex gtk)
 		-DWITH_GTK_2_X=$(usex gtk)
 		-DWITH_IPP=OFF
-		-DWITH_JASPER=$(usex jpeg2k)
+		-DWITH_JASPER=OFF
 		-DWITH_JPEG=$(usex jpeg)
 		-DWITH_WEBP=$(usex webp)
 		-DWITH_OPENEXR=$(usex openexr)

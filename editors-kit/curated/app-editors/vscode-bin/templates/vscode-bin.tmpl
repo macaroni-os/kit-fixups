@@ -11,25 +11,58 @@ MY_PN=${PN/-bin/}
 DESCRIPTION="Multiplatform Visual Studio Code from Microsoft"
 HOMEPAGE="https://code.visualstudio.com"
 SRC_URI="{{artifacts[0].src_uri}}"
-RESTRICT="mirror strip"
-LICENSE="Microsoft"
+RESTRICT="mirror strip bindist"
+LICENSE="
+	Apache-2.0
+	BSD
+	BSD-1
+	BSD-2
+	BSD-4
+	CC-BY-4.0
+	ISC
+	LGPL-2.1+
+	Microsoft
+	MIT
+	MPL-2.0
+	openssl
+	PYTHON
+	TextMate-bundle
+	Unlicense
+	UoI-NCSA
+	W3C"
 SLOT="0"
 KEYWORDS="{{ '*' if unmasked else '' }}"
 IUSE="libsecret hunspell"
-DEPEND="
-	media-libs/libpng
-	>=x11-libs/gtk+-3.0
-	x11-libs/cairo
-	x11-libs/libXtst
-"
+DEPEND=""
 RDEPEND="
-	${DEPEND}
-        >=net-print/cups-2.0.0
-        x11-libs/libnotify
-        x11-libs/libXScrnSaver
-        dev-libs/nss
-        hunspell? ( app-text/hunspell )
-        libsecret? ( app-crypt/libsecret[crypt] )
+    hunspell? ( app-text/hunspell )
+    libsecret? ( app-crypt/libsecret[crypt] )
+	app-accessibility/at-spi2-atk
+	dev-libs/nss
+	media-libs/alsa-lib
+	media-libs/libpng:0/16
+	x11-libs/cairo
+	>=x11-libs/gtk+-3.0
+	x11-libs/libnotify
+	x11-libs/libxkbcommon
+	x11-libs/libxkbfile
+	x11-libs/libXScrnSaver
+	x11-libs/libXtst
+	x11-libs/pango
+"
+
+QA_PREBUILT="
+	${MY_INSTALL_DIR}/vscode-bin
+	${MY_INSTALL_DIR}/libEGL.so
+	${MY_INSTALL_DIR}/libffmpeg.so
+	${MY_INSTALL_DIR}/libGLESv2.so
+	${MY_INSTALL_DIR}/libvulkan.so*
+	${MY_INSTALL_DIR}/chrome-sandbox
+	${MY_INSTALL_DIR}/libvk_swiftshader.so
+	${MY_INSTALL_DIR}/swiftshader/libEGL.so
+	${MY_INSTALL_DIR}/swiftshader/libGLESv2.so
+	${MY_INSTALL_DIR}/resources/app/extensions/*
+	${MY_INSTALL_DIR}/resources/app/node_modules.asar.unpacked/*
 "
 
 pkg_setup() {

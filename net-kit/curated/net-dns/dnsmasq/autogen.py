@@ -26,11 +26,12 @@ def get_latest_version(hub):
 			continue
 
 		if rtt[2].startswith("v") and not rtt[2].endswith("^{}"):
-			tags.append(rtt[2].lstrip("v"))
+			v = version.parse(rtt[2])
+			if v.is_prerelease or isinstance(v, version.LegacyVersion):
+				continue
+			tags.append(v)
 
-	tags = sorted(tags, key=lambda t: version.parse(t))
-
-	return None if not tags else tags.pop()
+	return None if not tags else sorted(tags).pop()
 
 
 async def generate(hub, **pkginfo):

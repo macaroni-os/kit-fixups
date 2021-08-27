@@ -1,0 +1,16 @@
+meson_rule:
+  defaults:
+    cat: dev-util
+    python_compat: python3+
+    restrict: test
+  generator: pypi-simple-1
+  packages:
+    - meson:
+        body: |
+          python_install_all() {
+            distutils-r1_python_install_all
+            insinto /usr/share/vim/vimfiles
+            doins -r data/syntax-highlighting/vim/{ftdetect,indent,syntax}
+            insinto /usr/share/zsh/site-functions
+            doins data/shell-completions/zsh/_meson
+          }

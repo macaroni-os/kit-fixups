@@ -1254,7 +1254,7 @@ dev_python_simplified_rule:
 python_compat_expand_rule:
   defaults:
     cat: dev-python
-    python_compat: python3+ pypy3
+    python_compat: python2+ pypy3
     restrict: test
   generator: pypi-simple-1
   packages:
@@ -1262,7 +1262,6 @@ python_compat_expand_rule:
         python_compat: python3+
         pydeps:
           - pycares >= 3
-        revision: 1
     - appdirs:
         du_setuptools: 'no'
         desc: Module for determining appropriate platform-specific dirs
@@ -1273,7 +1272,9 @@ python_compat_expand_rule:
           - soupsieve
           - html5lib
           - lxml
-    - soupsieve
+    - soupsieve:
+        python_compat: python3+
+        license: MIT
     - brotlicffi:
         rdepend: app-arch/brotli:=
         pydeps:
@@ -1284,6 +1285,7 @@ python_compat_expand_rule:
           }
     - cached-property
     - commonmark:
+        license: BSD
         body: |
           src_prepare() {
             default
@@ -1322,13 +1324,18 @@ python_compat_expand_rule:
             optfeature "Browser support" dev-python/wxpython
           }
     - future
-    - hpack
-    - hyperframe
+    - hpack:
+        python_compat: python3+ pypy3
+        license: MIT
+    - hyperframe:
+        python_compat: python3+ pypy3
+        license: MIT
     - hyperlink:
-        python_compat: python3+
         pydeps:
           - idna
     - aiohttp:
+        python_compat: python3+
+        license: Apache-2.0
         pydeps:
           py:all:build:
             - cython
@@ -1340,17 +1347,18 @@ python_compat_expand_rule:
             - yarl >= 1.0
             - typing-extensions
     - incremental:
-        python_compat: python3+
         du_setuptools: rdepend
         pydeps:
           - click
-    - jsonpointer
+    - jsonpointer:
+        license: BSD
     - m2r:
         pydeps:
           - docutils
           - mistune < 2.0
     - mistune
     - netifaces:
+        license: MIT
         body: |
           src_prepare() {
             sed '/Disable hard links/,+5d' setup.py || die
@@ -1358,10 +1366,133 @@ python_compat_expand_rule:
           }
     - olefile
     - packaging:
+        license: '|| ( Apache-2.0 BSD-2 )'
         pydeps:
           - pyparsing >= 2.1.10
-    - pbr
+    - pbr:
+        license: Apache-2.0
+    - pyasn1:
+        license: BSD-2
+    - pyasn1-modules:
+        license: BSD-2
+        pydeps:
+          - pyasn1 >= 0.4.6
+        body: |
+          python_install_all() {
+            distutils-r1_python_install_all
+            insinto /usr/share/${P}
+            doins -r tools
+          }
+    - pycryptodome:
+        license: BSD-2 Unlicense
+        pydeps:
+          py:all:build:
+            - virtual/python-cffi
+        depend: |
+          dev-libs/gmp:0=
+          >=dev-libs/libtomcrypt-1.18.2-r1:=
+        rdepend: |
+          ${DEPEND}
+          ${BDEPEND}
+          !dev-python/pycrypto
+        body: |
+          python_prepare_all() {
+            # Parallel make fixes
+            #  Multiple targets were compiling the same file, setuptools doesn't
+            #  understand this and you get race conditions where a file gets
+            #  overwritten while it's linking. This makes the files look like separate
+            #  files so this race won't happen
+            ln src/blowfish.c src/blowfish_eks.c || die
+            ln src/mont.c src/mont_math.c || die
+            sed -i -e '/EKS/,+1s/blowfish.c/blowfish_eks.c/' \
+              -e '/Math._modexp/,+2s/mont.c/mont_math.c/' setup.py || die
+            # System libtomcrypt patch
+            sed -i -e '/libtom/,+2s/py_limited_api=True/py_limited_api=True, extra_link_args=["-ltomcrypt"]/g' \
+              -e "s|, 'src/libtom/'||g" setup.py || die
+            sed -i -e 's|"libtom/tomcrypt_des.c"|<tomcrypt.h>|' src/DES.c || die
+            rm -r src/libtom || die
+            distutils-r1_python_prepare_all
+          }
+    - pykerberos:
+        python_compat: python3+
+        license: Apache-2.0
+        rdepend: app-crypt/mit-krb5
+    - pyparsing:
+        license: MIT
+        iuse: examples
+        body: |
+          python_install_all() {
+            if use examples; then
+              docompress -x /usr/share/doc/${PF}/examples
+              dodoc -r examples
+            fi
+            distutils-r1_python_install_all
+          }
+    - python-xlib:
+        license: LGPL-2+
+        iuse: doc
+        bdepend: doc? ( sys-apps/texinfo )
+        pydeps:
+          py:all:
+            - six
+          py:all:build:
+            - setuptools_scm
+        body: |
+          python_compile_all() {
+            use doc && emake -C doc/info
+          }
+          python_install_all() {
+            use doc && doinfo doc/info/*.info
+            distutils-r1_python_install_all
+          }
+    - rfc3339-validator:
+        license: MIT
+        pydeps:
+          - six
+          - strict-rfc3339
+    - rfc3986-validator:
+        python_compat: python3+
+        license: MIT
+        pydeps:
+          - rfc3987
+        body: |
+          python_prepare_all() {
+            # remove dep on pytest-runner
+            sed -i -r "s:('|\")pytest-runner('|\")(,|)::" setup.py || die
+            distutils-r1_python_prepare_all
+          }
+    - rfc3987:
+        python_compat: python3+
+        license: GPL-3
+        pydeps:
+          - regex
+    - subunit:
+        pypi_name: python-subunit
+        license: '|| ( Apache-2.0 BSD-2 )'
+    - strict-rfc3339:
+        license: GPL-3+
+    - wheel:
+        pydeps:
+          - packaging
+        body: |
+          src_prepare() {
+            sed -i -e 's:--cov=wheel::g' setup.cfg || die
+            # unbundle packaging
+            rm -r src/wheel/vendored || die
+            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
+            distutils-r1_src_prepare
+          }
+
+python_compat_expand_compat_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy3
+    restrict: test
+  generator: pypi-compat-1
+  packages:
     - pillow:
+        compat: 6.2.2
+        blocker: '!<dev-python/pillow-7.0.0'
         pypi_name: Pillow
         inherit:
           - toolchain-funcs
@@ -1420,6 +1551,8 @@ python_compat_expand_rule:
             distutils-r1_python_install_all
           }
     - pip:
+        compat: 20.3.4
+        blocker: '!<dev-python/pip-21.0'
         inherit:
           - bash-completion-r1
         du_setuptools: rdepend
@@ -1452,53 +1585,20 @@ python_compat_expand_rule:
             insinto /usr/share/zsh/site-functions
             newins "${COMPLETION}" _pip
           }
-    - priority
-    - pyasn1
-    - pyasn1-modules:
-        pydeps:
-          - pyasn1 >= 0.4.6
-        body: |
-          python_install_all() {
-            distutils-r1_python_install_all
-            insinto /usr/share/${P}
-            doins -r tools
-          }
-    - pycryptodome:
-        pydeps:
-          py:all:build:
-            - virtual/python-cffi
-        depend: |
-          dev-libs/gmp:0=
-          >=dev-libs/libtomcrypt-1.18.2-r1:=
-        rdepend: |
-          ${DEPEND}
-          ${BDEPEND}
-          !dev-python/pycrypto
-        body: |
-          python_prepare_all() {
-            # Parallel make fixes
-            #  Multiple targets were compiling the same file, setuptools doesn't
-            #  understand this and you get race conditions where a file gets
-            #  overwritten while it's linking. This makes the files look like separate
-            #  files so this race won't happen
-            ln src/blowfish.c src/blowfish_eks.c || die
-            ln src/mont.c src/mont_math.c || die
-            sed -i -e '/EKS/,+1s/blowfish.c/blowfish_eks.c/' \
-              -e '/Math._modexp/,+2s/mont.c/mont_math.c/' setup.py || die
-            # System libtomcrypt patch
-            sed -i -e '/libtom/,+2s/py_limited_api=True/py_limited_api=True, extra_link_args=["-ltomcrypt"]/g' \
-              -e "s|, 'src/libtom/'||g" setup.py || die
-            sed -i -e 's|"libtom/tomcrypt_des.c"|<tomcrypt.h>|' src/DES.c || die
-            rm -r src/libtom || die
-            distutils-r1_python_prepare_all
-          }
+    - priority:
+        compat: 1.3.0
+        blocker: '!<dev-python/priority-2.0.0'
+        license: MIT
     - pycurl:
+        compat: 7.43.0.3
+        blocker: '!<dev-python/pycurl-7.43.0.4'
         python_compat: python3+
-        iuse: curl_ssl_gnutls curl_ssl_nss +curl_ssl_openssl examples ssl
+        license: LGPL-2.1
+        iuse: curl_ssl_gnutls curl_ssl_libressl curl_ssl_nss +curl_ssl_openssl examples ssl
         rdepend: |
           >=net-misc/curl-7.25.0-r1:=[ssl=]
           ssl? (
-            net-misc/curl[curl_ssl_gnutls(-)=,curl_ssl_nss(-)=,curl_ssl_openssl(-)=,-curl_ssl_axtls(-),-curl_ssl_cyassl(-)]
+            net-misc/curl[curl_ssl_gnutls(-)=,curl_ssl_libressl(-)=,curl_ssl_nss(-)=,curl_ssl_openssl(-)=,-curl_ssl_axtls(-),-curl_ssl_cyassl(-)]
             curl_ssl_gnutls? ( >=net-libs/gnutls-2.11.0:= )
             curl_ssl_openssl? ( dev-libs/openssl:= )
           )
@@ -1513,43 +1613,17 @@ python_compat_expand_rule:
           }
           python_configure_all() {
             # Override faulty detection in setup.py, bug 510974.
-            export PYCURL_SSL_LIBRARY=${CURL_SSL}
+            export PYCURL_SSL_LIBRARY=${CURL_SSL/libressl/openssl}
           }
           python_install_all() {
             local HTML_DOCS=( doc/. )
             use examples && dodoc -r examples
             distutils-r1_python_install_all
           }
-    - pykerberos:
-        python_compat: python3+
-        rdepend: app-crypt/mit-krb5
-    - pyparsing:
-        iuse: examples
-        body: |
-          python_install_all() {
-            if use examples; then
-              docompress -x /usr/share/doc/${PF}/examples
-              dodoc -r examples
-            fi
-            distutils-r1_python_install_all
-          }
-    - python-xlib:
-        iuse: doc
-        bdepend: doc? ( sys-apps/texinfo )
-        pydeps:
-          py:all:
-            - six
-          py:all:build:
-            - setuptools_scm
-        body: |
-          python_compile_all() {
-            use doc && emake -C doc/info
-          }
-          python_install_all() {
-            use doc && doinfo doc/info/*.info
-            distutils-r1_python_install_all
-          }
     - regex:
+        compat: 2021.3.17
+        blocker: '!<dev-python/regex-2021.4.4'
+        license: Apache-2.0
         iuse: doc
         body: |
           python_install_all() {
@@ -1557,28 +1631,9 @@ python_compat_expand_rule:
             local DOCS=( README.rst docs/*.rst )
             distutils-r1_python_install_all
           }
-    - rfc3339-validator:
-        pydeps:
-          - six
-          - strict-rfc3339
-    - rfc3986-validator:
-        python_compat: python3+
-        pydeps:
-          - rfc3987
-        body: |
-          python_prepare_all() {
-            # remove dep on pytest-runner
-            sed -i -r "s:('|\")pytest-runner('|\")(,|)::" setup.py || die
-            distutils-r1_python_prepare_all
-          }
-    - rfc3987:
-        python_compat: python3+
-        pydeps:
-          - regex
-    - subunit:
-        pypi_name: python-subunit
-    - strict-rfc3339
     - twisted:
+        compat: 20.3.0
+        blocker: '!<dev-python/twisted-21.2.0'
         pypi_name: Twisted
         iuse: conch crypt http2 serial
         pydeps:
@@ -1650,30 +1705,33 @@ python_compat_expand_rule:
             fi
           }
     - webcolors:
+        compat: '1.10'
+        blocker: '!<dev-python/webcolors-1.11'
+        license: BSD
         pydeps:
           py:all:build:
             - six
-    - wheel:
-        pydeps:
-          - packaging
-        body: |
-          src_prepare() {
-            sed -i -e 's:--cov=wheel::g' setup.cfg || die
-            # unbundle packaging
-            rm -r src/wheel/vendored || die
-            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
-            distutils-r1_src_prepare
-          }
     - zipp:
+        compat: 1.2.0
+        blocker: '!<dev-python/zipp-2.0.0'
+        license: MIT
         pydeps:
-          py:all:build:
+          py:3,pypy3:build:
             - toml
             - setuptools_scm >= 3.4.2
+          py:2:
+            - more-itertools
         body: |
           python_prepare_all() {
-            # Skip a potentially flaky performance test
-            sed -i -e '/^import func_timeout\|^ *@func_timeout\.func_set_timeout/d' \
-              -e 's/test_implied_dirs_performance/_&/' test_zipp.py || die
+            if [ "$PN" == 'zipp-compat' ]; then
+              sed -i "s:use_scm_version=True:version='${PV}',name='${PN//-/.}':" setup.py || die
+              sed -r -i "s:setuptools_scm[[:space:]]*([><=]{1,2}[[:space:]]*[0-9.a-zA-Z]+|)[[:space:]]*::" \
+                setup.cfg || die
+            else
+              # Skip a potentially flaky performance test
+              sed -i -e '/^import func_timeout\|^ *@func_timeout\.func_set_timeout/d' \
+                -e 's/test_implied_dirs_performance/_&/' test_zipp.py || die
+            fi
             distutils-r1_python_prepare_all
           }
 

@@ -12,10 +12,9 @@ async def generate(hub, **pkginfo):
 		"005_all_vim_7.1-ada-default-compiler.patch",
 		"006-vim-8.0-crosscompile.patch",
 	]
-	json_data = await hub.pkgtools.fetch.get_page(
-		"https://api.github.com/repos/vim/vim/tags", refresh_interval=timedelta(days=7)
+	json_dict = await hub.pkgtools.fetch.get_page(
+		"https://api.github.com/repos/vim/vim/tags", refresh_interval=timedelta(days=7), is_json=True
 	)
-	json_dict = json.loads(json_data)
 	release = json_dict[0]
 	version = release["name"][1:]  # strip 'v'
 	url = f"https://github.com/vim/vim/archive/v{version}/v{version}.tar.gz"

@@ -2,7 +2,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3+ )
+PYTHON_COMPAT=( python3_7 )
 PYTHON_REQ_USE="xml"
 
 inherit cmake flag-o-matic xdg toolchain-funcs python-single-r1

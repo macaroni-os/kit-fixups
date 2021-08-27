@@ -3,7 +3,7 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( python2+ )
+PYTHON_COMPAT=( python2_7 python3_4 python3_5 )
 
 inherit python-r1 udev
 

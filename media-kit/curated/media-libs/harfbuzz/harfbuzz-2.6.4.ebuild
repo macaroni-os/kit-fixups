@@ -2,7 +2,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3+ )
+PYTHON_COMPAT=( python3_{7,8} )
 
 inherit flag-o-matic libtool python-any-r1 xdg-utils
 

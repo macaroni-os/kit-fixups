@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=5
-PYTHON_COMPAT=( python2+ pypy )
+PYTHON_COMPAT=( python2_7 python3_{5,6,7} pypy )
 
 inherit distutils-r1
 

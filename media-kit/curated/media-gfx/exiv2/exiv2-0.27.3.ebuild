@@ -5,7 +5,7 @@ EAPI=7
 SRC_URI="https://exiv2.org/builds/${P}-Source.tar.gz"
 KEYWORDS="*"
 
-PYTHON_COMPAT=( python2+ )
+PYTHON_COMPAT=( python2_7 python3_{5,6,7} )
 inherit cmake-multilib python-any-r1
 
 DESCRIPTION="EXIF, IPTC and XMP metadata C++ library and command line utility"

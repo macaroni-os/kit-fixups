@@ -31,6 +31,7 @@ src_install() {
 
 	insinto "${dir}"
 	doins -r *
+	fperms 755 "${dir}"/postman
 	fperms 755 "${dir}"/Postman
 
 	make_wrapper "${PN}" "${dir}/Postman"

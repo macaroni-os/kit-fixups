@@ -10,13 +10,13 @@ index c339524..2166624 100644
 +CXXFLAGS	=	-Wall -Werror -O3
 +
  INCLUDES	=	-I.
--LIBRARIES	=	-ldl -lm
+-LIBRARIES	=	-ldl -lm -lsndfile
 -CFLAGS		=	$(INCLUDES) -Wall -Werror -O2 -fPIC 		\
 -			-DDEFAULT_LADSPA_PATH=$(INSTALL_PLUGINS_DIR)
 -BINFLAGS	=	-fPIE -pie
 -CXXFLAGS	=	$(CFLAGS)
 +DYNAMIC_LD_LIBS =	-ldl
-+LIBRARIES	=	$(DYNAMIC_LD_LIBS) -lm
++LIBRARIES	=	$(DYNAMIC_LD_LIBS) -lm -lsndfile
  PLUGINS		=	../plugins/amp.so				\
  			../plugins/delay.so				\
  			../plugins/filter.so				\

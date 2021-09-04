@@ -17,7 +17,8 @@ BINDIST_PATCH_SET="openssl-1.1.1i-bindist-1.0.tar.xz"
 
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
-SRC_URI="mirror://openssl/source/${MY_P}.tar.gz
+SRC_URI="
+	https://www.openssl.org/source/${P}.tar.gz
 	bindist? (
 		mirror://gentoo/${BINDIST_PATCH_SET}
 		https://dev.gentoo.org/~whissi/dist/openssl/${BINDIST_PATCH_SET}

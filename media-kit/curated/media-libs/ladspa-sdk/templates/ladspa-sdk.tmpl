@@ -16,8 +16,8 @@ SLOT="0"
 KEYWORDS="*"
 IUSE=""
 
-RDEPEND=""
-DEPEND=">=sys-apps/sed-4"
+RDEPEND="media-libs/libsndfile"
+DEPEND="$RDEPEND >=sys-apps/sed-4"
 
 S="${WORKDIR}/${MY_P}"
 

@@ -1123,6 +1123,7 @@ dev_python_simplified_rule:
         blocker: "!<dev-python/setuptools_scm-6.0.0"
         python_compat: python3+
         du_setuptools: rdepend
+        depend: ">=dev-python/tomli-1.0"
     - setuptools-rust:
         pydeps:
           py:all:
@@ -1217,7 +1218,14 @@ dev_python_simplified_rule:
         desc: Implements a XML/HTML/XHTML Markup safe string for Python
         homepage: https://pypi.org/project/MarkupSafe
         license: BSD
-
+    - tomli:
+        bdepend: "dev-python/pyproject2setuppy[${PYTHON_USEDEP}]"
+        desc: "A lil' TOML parser"
+        homepage: "https://github.com/hukkin/tomli"
+        license: MIT
+        body: |
+          DISTUTILS_USE_SETUPTOOLS=pyproject.toml
+          DOCS=( README.md )
 
 dev_python_autogen_rule:
   defaults:

@@ -1118,6 +1118,15 @@ dev_python_simplified_rule:
             - pytest-runner
     - dbus-next:
         pypi_name: dbus_next
+    - packaging:
+        compat: '20.9'
+        blocker: "!<=dev-python/packaging-18.0"
+        python_compat: python3+
+        pydeps:
+          py:all:
+            - pyparsing >= 2.1.10
+    - pyparsing:
+        python_compat: python2+
     - setuptools_scm:
         compat: '5.0.2'
         blocker: "!<dev-python/setuptools_scm-6.0.0"
@@ -1219,9 +1228,7 @@ dev_python_simplified_rule:
         homepage: https://pypi.org/project/MarkupSafe
         license: BSD
     - tomli:
-        pydeps:
-          py:all:build:
-            - pyproject2setuppy
+        du_setuptools: autostub
         desc: "A lil' TOML parser"
         license: MIT
         body: |

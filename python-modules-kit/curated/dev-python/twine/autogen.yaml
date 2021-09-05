@@ -6,7 +6,7 @@ twine_autogen:
   packages:
     - twine:
         revision:
-          3.4.2: 1
+          3.4.2: 2
         license: Apache-2.0
         du_setuptools: 'no'
         pydeps:
@@ -22,6 +22,7 @@ twine_autogen:
             - requests-toolbelt >= 0.8.0
             - rfc3986 >= 1.4.0
             - tqdm >= 4.14
+            - packaging >= 20
         body: |
           python_prepare_all() {
             distutils-r1_python_prepare_all

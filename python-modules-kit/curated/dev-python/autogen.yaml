@@ -1219,12 +1219,12 @@ dev_python_simplified_rule:
         homepage: https://pypi.org/project/MarkupSafe
         license: BSD
     - tomli:
-        bdepend: "dev-python/pyproject2setuppy[${PYTHON_USEDEP}]"
+        pydeps:
+          py:all:build:
+            - pyproject2setuppy
         desc: "A lil' TOML parser"
-        homepage: "https://github.com/hukkin/tomli"
         license: MIT
         body: |
-          DISTUTILS_USE_SETUPTOOLS=pyproject.toml
           DOCS=( README.md )
 
 dev_python_autogen_rule:

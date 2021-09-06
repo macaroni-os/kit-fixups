@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 import re
+from packaging import version
 
 
 def get_release(release_data):
 	releases = list(filter(lambda x: x["prerelease"] is False and x["draft"] is False, release_data))
-	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
+	return None if not releases else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
 
 
 async def get_translations(hub, user, repo, version):

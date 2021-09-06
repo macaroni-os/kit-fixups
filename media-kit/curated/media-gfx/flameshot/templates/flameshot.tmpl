@@ -28,6 +28,8 @@ DEPEND="
 	dev-qt/qtnetwork:5
 	dev-qt/qtsvg:5
 	dev-qt/qtdbus:5
+	dev-qt/qtsingleapplication[qt5(+),X]
+	dev-libs/spdlog
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
@@ -37,6 +39,9 @@ BDEPEND="
 {% raw %}
 src_prepare() {
 	default
+
+	rm -r external/spdlog || die
+	rm -r external/singleapplication || die
 
 	# QA check in case linguas are added or removed
 	enum() {
@@ -57,6 +62,16 @@ src_prepare() {
 	done
 
 	cmake_src_prepare
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DUSE_EXTERNAL_SPDLOG=1
+		-DUSE_EXTERNAL_SINGLEAPPLICATION=1
+		-DENABLE_CACHE=0
+	)
+
+	cmake_src_configure
 }
 
 pkg_postinst(){

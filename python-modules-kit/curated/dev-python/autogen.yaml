@@ -1128,11 +1128,15 @@ dev_python_simplified_rule:
     - pyparsing:
         python_compat: python2+
     - setuptools_scm:
+        revision:
+          6.3.1: 1
         compat: '5.0.2'
         blocker: "!<dev-python/setuptools_scm-6.0.0"
         python_compat: python3+
         du_setuptools: rdepend
-        depend: ">=dev-python/tomli-1.0"
+        pydeps:
+          py:all:build:
+            - tomli >= 1.0
     - setuptools-rust:
         pydeps:
           py:all:

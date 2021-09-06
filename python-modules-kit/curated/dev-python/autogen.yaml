@@ -1135,8 +1135,10 @@ dev_python_simplified_rule:
         python_compat: python3+
         du_setuptools: rdepend
         pydeps:
-          py:all:build:
+          py:3:build:
             - tomli >= 1.0
+          py:2:build:
+            - toml
     - setuptools-rust:
         pydeps:
           py:all:

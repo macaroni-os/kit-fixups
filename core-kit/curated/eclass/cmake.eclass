@@ -40,7 +40,7 @@ _CMAKE_ECLASS=1
 # If about to be set - needs to be set before invoking cmake_src_configure.
 # You usually do *NOT* want nor need to set it as it pulls CMake default
 # build-type specific compiler flags overriding make.conf.
-: ${CMAKE_BUILD_TYPE:=}
+: ${CMAKE_BUILD_TYPE:=Gentoo}
 
 # @ECLASS-VARIABLE: CMAKE_IN_SOURCE_BUILD
 # @DEFAULT_UNSET

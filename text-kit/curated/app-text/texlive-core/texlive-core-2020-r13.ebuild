@@ -168,6 +168,14 @@ src_prepare() {
 
 	eapply "${WORKDIR}"/patches
 
+	# FL-8764: page#getGroup() returns a pointer instead of a const ref,
+	#          so the vars `dic1` and `dic2` need to be pointers.
+	sed -i \
+		-e 's/const Dict&/Dict*/g' \
+		-e 's/dic1\./dic1->/g' \
+		-e 's/dic2\./dic2->/g' \
+		texk/web2c/pdftexdir/pdftoepdf.cc || die
+
 	default
 
 	elibtoolize

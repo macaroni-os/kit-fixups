@@ -11,8 +11,12 @@ async def generate(hub, **pkginfo):
 	for link in soup.find_all("a"):
 		href = link.get("href")
 		if href.endswith("source.tar.xz"):
+			hsplit = href.split("-")
+			if len(hsplit) != 3:
+				# should be "mupdf" "(version) "source"
+				continue
 			best_artifact = href
-			version = best_artifact.split(".tar")[0].split("-")[1]
+			version = hsplit[1]
 	dl_url = f"https://mupdf.com/downloads/archive/"
 	dl_data = await hub.pkgtools.fetch.get_page(dl_url)
 	dl_soup = BeautifulSoup(dl_data, "html.parser")

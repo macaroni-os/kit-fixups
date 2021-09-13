@@ -3,11 +3,16 @@
 import re
 
 
+def get_postman_url(version, arch="linux64"):
+	return f"https://dl.pstmn.io/download/{version}/{arch}"
+
+
 async def generate(hub, **pkginfo):
-	src_url = "https://dl.pstmn.io/download/latest/linux64"
-	filename_pattern = re.compile("Postman-linux-x(86_)?64-(.*).tar.gz")
-	src_filename = await hub.pkgtools.fetch.get_response_filename(src_url)
-	version = filename_pattern.match(src_filename).group(2)
+	latest_url = get_postman_url("latest")
+	filename_pattern = re.compile("Postman-linux-x(?:86_)?64-(.*).tar.gz")
+	latest_filename = await hub.pkgtools.fetch.get_response_filename(latest_url)
+	version, = filename_pattern.match(latest_filename).groups()
+	src_url = get_postman_url(f"version/{version}")
 	final_name = f"{pkginfo['name']}-{version}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

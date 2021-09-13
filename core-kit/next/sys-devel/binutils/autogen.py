@@ -24,6 +24,6 @@ async def generate(hub, **pkginfo):
 		pkg_blurb += f" patchset: {artifacts['patches'].url}"
 	binutils = pkgtools.ebuild.BreezyBuild(artifacts=artifacts, bugs_url=bugs_url, pkg_blurb=pkg_blurb, unmasked=unmasked, **pkginfo)
 	binutils.push()
-	libs = pkgtools.ebuild.BreezyBuild(version=version, cat="sys-libs", name="binutils-libs", template_path=binutils.template_path, template="binutils-libs.tmpl", unmasked=unmasked)
+	libs = pkgtools.ebuild.BreezyBuild(version=version, cat="sys-libs", name="binutils-libs", template_path=binutils.template_path, template="binutils-libs.tmpl", unmasked=unmasked, version_and_rev=pkginfo["version_and_rev"])
 	libs.push()
 # vim: ts=4 sw=4 noet

@@ -22,10 +22,9 @@ KEYWORDS=""
 {% endif -%}
 
 RDEPEND="
-!<sys-libs/binutils-libs-2.36.1_p3
-!<sys-devel/binutils-2.36.1_p3
-!sys-devel/binutils:2.36
-!sys-devel/binutils:2.32
+!sys-devel/binutils-config
+!<sys-libs/binutils-libs-{{version_and_rev}}
+!<sys-devel/binutils-{{version_and_rev}}
 sys-libs/zlib"
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -38,7 +37,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/yacc
 "
-PDEPEND="=sys-libs/binutils-libs-2.36.1_p3"
+PDEPEND="=sys-libs/binutils-libs-{{version_and_rev}}"
 
 RESTRICT="!test? ( test )"
 

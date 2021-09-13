@@ -112,7 +112,7 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	>=sys-devel/bison-1.875
 	>=sys-devel/flex-2.5.4
-	>=${CATEGORY}/binutils-2.18
+	>=sys-devel/binutils-2.36.1_p3
 	elibc_glibc? ( >=sys-libs/glibc-2.8 )
 	test? ( dev-util/dejagnu sys-devel/autogen )"
 

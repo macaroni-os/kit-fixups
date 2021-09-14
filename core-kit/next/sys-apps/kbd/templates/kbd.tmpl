@@ -11,6 +11,7 @@ HOMEPAGE="http://kbd-project.org/"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="nls pam"
+KEYWORDS="*"
 
 RDEPEND="
 	app-arch/gzip

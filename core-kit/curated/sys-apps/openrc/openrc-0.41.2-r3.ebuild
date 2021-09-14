@@ -54,16 +54,13 @@ PDEPEND="netifrc? ( net-misc/netifrc )"
 
 src_prepare() {
 	default
-	if [[ ${PV} == "9999" ]] ; then
-		local ver="git-${EGIT_VERSION:0:6}"
-		sed -i "/^GITVER[[:space:]]*=/s:=.*:=${ver}:" mk/gitver.mk || die
-	fi
 	# remove lxc keyword from devfs. FL-6048
 	sed -i -e 's/-\lxc\+ //g' init.d/devfs.in || die "sed failed"
 	eapply "${FILESDIR}"/openrc-0.40.2-systemd-cgroups.patch #FL-6105
 	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
 	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
 	eapply "${FILESDIR}"/openrc-0.41.2-integer-expression-expected.patch # FL-6510
+	sed -i -e 's/^pid_t rc_logger_pid;/extern pid_t rc_logger_pid;/' -e 's/int rc_logger_tty;/extern int rc_logger_tty;/' src/rc/rc-logger.h || die
 }
 
 src_compile() {

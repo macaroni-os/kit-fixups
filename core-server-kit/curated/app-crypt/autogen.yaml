@@ -5,20 +5,55 @@ dev_python_autogen_rule:
   generator: pypi-1
   packages:
     - acme
-    - certbot
-    - certbot-apache
-    - certbot-dns-cloudflare
-    - certbot-dns-cloudxns
-    - certbot-dns-digitalocean
-    - certbot-dns-dnsimple
-    - certbot-dns-dnsmadeeasy
-    - certbot-dns-gehirn
-    - certbot-dns-google
-    - certbot-dns-linode
-    - certbot-dns-luadns
-    - certbot-dns-nsone
-    - certbot-dns-ovh
-    - certbot-dns-rfc2136
-    - certbot-dns-route53
-    - certbot-dns-sakuracloud
-    - certbot-nginx
+    - certbot:
+        pydeps:
+          - acme
+    - certbot-apache:
+        pydeps:
+          - certbot
+    - certbot-dns-cloudflare:
+        pydeps:
+          - certbot
+    - certbot-dns-cloudxns:
+        pydeps:
+          - certbot
+    - certbot-dns-digitalocean:
+        pydeps:
+          - certbot
+    - certbot-dns-dnsimple:
+        pydeps:
+          - certbot
+    - certbot-dns-dnsmadeeasy:
+        pydeps:
+          - certbot
+    - certbot-dns-gehirn:
+        pydeps:
+          - certbot
+    - certbot-dns-google:
+        pydeps:
+          - certbot
+    - certbot-dns-linode:
+        pydeps:
+          - certbot
+    - certbot-dns-luadns:
+        pydeps:
+          - certbot
+    - certbot-dns-nsone:
+        pydeps:
+          - certbot
+    - certbot-dns-ovh:
+        pydeps:
+          - certbot
+    - certbot-dns-rfc2136:
+        pydeps:
+          - certbot
+    - certbot-dns-route53:
+        pydeps:
+          - certbot
+    - certbot-dns-sakuracloud:
+        pydeps:
+          - certbot
+    - certbot-nginx:
+        pydeps:
+          - certbot
+

@@ -503,6 +503,17 @@ simple_python_autogen_rule:
           distutils_enable_tests pytest
           distutils_enable_sphinx docs \
             dev-python/sphinx_rtd_theme
+    - beautifulsoup:
+        pypi_name: beautifulsoup4
+        desc: Pythonic idioms for iterating, searching, and modifying an HTML/XML parse tree
+        homepage: https://www.crummy.com/software/BeautifulSoup/bs4/
+        license: MIT
+        python_compat: python3+ pypy3
+        pydeps:
+          py:all:
+            - soupsieve
+            - html5lib
+            - lxml
     - bpytop:
         desc: Linux/OSX/FreeBSD resource monitor
         homepage: https://github.com/aristocratos/bpytop
@@ -646,6 +657,11 @@ simple_python_autogen_rule:
         homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
         license: Apache-2.0
         python_compat: python2+ pypy{,3}
+    - soupsieve:
+        desc: A modern CSS selector implementation for BeautifulSoup
+        homepage: https://github.com/facelessuser/soupsieve/ https://pypi.org/project/soupsieve/
+        license: MIT
+        python_compat: python3+ pypy3
     - hg-git:
         cat: dev-vcs
         homepage: https://hg-git.github.io  https://pypi.org/project/hg-git/

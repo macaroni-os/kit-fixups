@@ -651,6 +651,22 @@ simple_python_autogen_rule:
           src_configure() {
             DISTUTILS_ARGS=( --with-cython )
           }
+    - fs:
+        desc: Filesystem abstraction layer
+        homepage: https://pypi.org/project/fs/ https://docs.pyfilesystem.org https://www.willmcgugan.com/tag/fs/
+        license: MIT
+        python_compat: python3+
+        pydeps:
+          py:all:
+            - appdirs
+            - pytz
+            - six
+        body: |
+          pkg_postinst() {
+            echo "S3 support dev-python/boto"
+            echo "SFTP support dev-python/paramiko"
+            echo "Browser support dev-python/wxpython"
+          }
     - khal:
         cat: app-misc
         desc: A CalDAV based calendar

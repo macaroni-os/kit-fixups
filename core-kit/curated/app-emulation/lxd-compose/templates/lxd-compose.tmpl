@@ -14,7 +14,7 @@ S="${WORKDIR}"
 
 src_compile() {
 	emake_args=(
-		LDFLAGS="",
+		LDFLAGS=""
 		GOFLAGS="-v -x -mod=vendor"
 	)
 

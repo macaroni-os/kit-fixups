@@ -32,5 +32,5 @@ src_install() {
 	doins -r *
 
 	insinto /opt/spicetify-cli/Extensions
-	doins Dribbblish/dribbblish.js
+	find . -type f -name "*.js" -exec doins {} \;
 }

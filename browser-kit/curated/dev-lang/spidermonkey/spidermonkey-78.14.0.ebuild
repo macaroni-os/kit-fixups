@@ -3,16 +3,16 @@
 EAPI="7"
 
 # Patch version
-FIREFOX_PATCHSET="firefox-78esr-patches-07.tar.xz"
-SPIDERMONKEY_PATCHSET="spidermonkey-78-patches-03.tar.xz"
+FIREFOX_PATCHSET="firefox-78esr-patches-17.tar.xz"
+SPIDERMONKEY_PATCHSET="spidermonkey-78-patches-04.tar.xz"
 
-LLVM_MAX_SLOT=11
+LLVM_MAX_SLOT=12
 
 PYTHON_COMPAT=( python3+ )
 
 WANT_AUTOCONF="2.1"
 
-inherit autotools check-reqs flag-o-matic llvm multiprocessing python-any-r1 toolchain-funcs
+inherit autotools check-reqs flag-o-matic llvm multiprocessing prefix python-any-r1 toolchain-funcs
 
 MY_PN="mozjs"
 MY_PV="${PV/_pre*}" # Handle Gentoo pre-releases
@@ -72,6 +72,13 @@ BDEPEND="${PYTHON_DEPS}
 	virtual/pkgconfig
 	|| (
 		(
+			sys-devel/llvm:12
+			clang? (
+				sys-devel/clang:12
+				lto? ( =sys-devel/lld-12* )
+			)
+		)
+		(
 			sys-devel/llvm:11
 			clang? (
 				sys-devel/clang:11
@@ -83,13 +90,6 @@ BDEPEND="${PYTHON_DEPS}
 			clang? (
 				sys-devel/clang:10
 				lto? ( =sys-devel/lld-10* )
-			)
-		)
-		(
-			sys-devel/llvm:9
-			clang? (
-				sys-devel/clang:9
-				lto? ( =sys-devel/lld-9* )
 			)
 		)
 	)
@@ -112,15 +112,20 @@ RDEPEND="${CDEPEND}"
 S="${WORKDIR}/firefox-${MY_PV}/js/src"
 
 llvm_check_deps() {
+	if ! has_version -b "sys-devel/llvm:${LLVM_SLOT}" ; then
+		einfo "sys-devel/llvm:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
+		return 1
+	fi
+
 	if use clang ; then
 		if ! has_version -b "sys-devel/clang:${LLVM_SLOT}" ; then
-			ewarn "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
+			einfo "sys-devel/clang:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 			return 1
 		fi
 
 		if use lto ; then
 			if ! has_version -b "=sys-devel/lld-${LLVM_SLOT}*" ; then
-				ewarn "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
+				einfo "=sys-devel/lld-${LLVM_SLOT}* is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 				return 1
 			fi
 		fi
@@ -162,9 +167,19 @@ pkg_setup() {
 			[[ -n ${version_lld} ]] && version_lld=$(ver_cut 1 "${version_lld}")
 			[[ -z ${version_lld} ]] && die "Failed to read ld.lld version!"
 
-			local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
-			[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
-			[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
+			# temp fix for https://bugs.gentoo.org/768543
+			# we can assume that rust 1.{49,50}.0 always uses llvm 11
+			local version_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'release:' | awk '{ print $2 }')
+			[[ -n ${version_rust} ]] && version_rust=$(ver_cut 1-2 "${version_rust}")
+			[[ -z ${version_rust} ]] && die "Failed to read version from rustc!"
+
+			if ver_test "${version_rust}" -ge "1.49" && ver_test "${version_rust}" -le "1.50" ; then
+				local version_llvm_rust="11"
+			else
+				local version_llvm_rust=$(rustc -Vv 2>/dev/null | grep -F -- 'LLVM version:' | awk '{ print $3 }')
+				[[ -n ${version_llvm_rust} ]] && version_llvm_rust=$(ver_cut 1 "${version_llvm_rust}")
+				[[ -z ${version_llvm_rust} ]] && die "Failed to read used LLVM version from rustc!"
+			fi
 
 			if ver_test "${version_lld}" -ne "${version_llvm_rust}" ; then
 				eerror "Rust is using LLVM version ${version_llvm_rust} but ld.lld version belongs to LLVM version ${version_lld}."
@@ -213,6 +228,9 @@ src_prepare() {
 		-e "s/objdump/${CHOST}-objdump/" \
 		python/mozbuild/mozbuild/configure/check_debug_ranges.py \
 		|| die "sed failed to set toolchain prefix"
+
+	# use prefix shell in wrapper linker scripts, bug #789660
+	hprefixify "${S}"/../../build/cargo-{,host-}linker
 
 	einfo "Removing pre-built binaries ..."
 	find third_party -type f \( -name '*.so' -o -name '*.o' \) -print -delete || die

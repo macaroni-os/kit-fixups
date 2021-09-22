@@ -78,7 +78,7 @@ src_install() {
 	# remove pre-zipped man pages
 	rm "${ED}"/usr/share/man/{man1,man8}/* || die
 
-	newinitd "${FILESDIR}/${PN}".init-r1 "${PN}"
+	newinitd "${FILESDIR}/${PN}".init-r2 "${PN}"
 	systemd_dounit "${FILESDIR}/${PN}".service
 	doman doc/zerotier-{cli.1,idtool.1,one.8}
 }

@@ -1,5 +1,4 @@
 #!/sbin/openrc-run
-# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 description="ZeroTier - Global Area Networking"
@@ -7,6 +6,10 @@ pidfile="/run/${SVCNAME}.pid"
 command="/usr/sbin/zerotier-one"
 command_background=true
 
+start_pre() {
+	modprobe -qf tun
+}
+
 depend() {
-    use net
+	use net
 }

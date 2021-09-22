@@ -1,6 +1,6 @@
 EAPI=7
 
-inherit eutils pax-utils xdg-utils
+inherit desktop eutils pax-utils xdg-utils
 
 PKG_FILE="${PN}_${PV}_amd64.deb"
 DESCRIPTION="Microsoft teams for Linux is your chat-centered workspace in Office 365"
@@ -82,6 +82,7 @@ src_install() {
 	fperms 4755 /opt/teams/share/teams/chrome-sandbox
 
 	dosym '/opt/teams/share/applications/teams.desktop' /usr/share/applications/teams.desktop
+	doicon ${TEAMS_HOME}/share/pixmaps/teams.png
 }
 
 pkg_postinst() {

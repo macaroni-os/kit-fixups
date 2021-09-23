@@ -1,0 +1,73 @@
+# Note that the following packages are specific to Python 2.7, so we will not be porting these
+# to autogen, even though they are on stage3's with python2.7 enabled:
+#
+# python2 things that will go away:
+# - backports
+# - configparser
+# - contextlib2
+# - functools32
+# - future
+# - pathlib2
+#
+#
+#
+# Here are some things that we should autogen that are on stage3:
+
+autogens:
+  defaults:
+    cat: dev-python
+    python_compat: python2+ pypy3 pypy
+  generator: pypi-compat-1
+  packages:
+    - commonmark:
+        pydeps:
+          py:2:
+            - future
+          py:all:build:
+            - setuptools
+        body: |
+          src_prepare() {
+            default
+            # Fix file collision with app-text/cmark, see bug #627034
+            sed -i -e "s:'cmark\( = commonmark.cmark\:main'\):'cmark.py\1:" setup.py || die
+          }
+
+          pkg_postinst() {
+                  ewarn "/usr/bin/cmark has been renamed to /usr/bin/cmark.py due file"
+                  ewarn "collision with app-text/cmark (see bug #627034)"
+          }
+    - jsonpointer:
+        pydeps:
+          py:all:build:
+            - setuptools
+    - regex:
+        compat: 2020.9.27
+        blocker: '!<dev-python/regex-2018'
+    - rfc3339-validator:
+        pydeps:
+          - strict-rfc3339
+          - six
+    - rfc3986-validator:
+        pydeps:
+          - six
+    - strict-rfc3339
+    - scandir
+    - webcolors:
+        compat: 1.9
+        blocker: '!<dev-python/webcolors-1.9'
+    - zipp:
+        compat: 1.2.0
+        blocker: '!<dev-python/zipp-0.8'
+    - wheel:
+        pydeps:
+          - packaging
+        body: |
+          src_prepare() {
+            sed -e 's:--cov=wheel::g' -i setup.cfg || die
+
+            # unbundle packaging
+            rm -r src/wheel/vendored || die
+            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
+
+            distutils-r1_src_prepare
+          }

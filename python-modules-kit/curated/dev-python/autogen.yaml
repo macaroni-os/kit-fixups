@@ -639,11 +639,8 @@ simple_python_autogen_rule:
         pydeps:
           py:all:build:
             - setuptools
-        body: |
-          # In 1.0.0, this file causes tests to be installed, which causes hard-dep on dev-python/testtools. This fixes it:
-          post_src_unpack() {
-            rm ${S}/extras/tests/__init__.py || die
-          }
+            # Due to unfortunate setup.py, there is a hard dep on testtools.
+            - testtools >= 2.5.0-r1
     - fetchcord:
         cat: net-im
         pypi_name: FetchCord

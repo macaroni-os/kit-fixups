@@ -9,7 +9,8 @@ MY_P="rust-${PV}"
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 SRC_URI="
-    {{ src_uris }}
+	{{ src_uris }}
+	rls? ( {{ stdlib_src_uri }} )
 "
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
@@ -45,7 +46,16 @@ pkg_pretend() {
 
 src_unpack() {
 	default
+
 	mv "${WORKDIR}/${MY_P}-$(rust_abi)" "${S}" || die
+
+	use rls && mv "${WORKDIR}/rust-src-${PV}/rust-src" "${S}"/src
+}
+
+src_prepare() {
+	default
+
+	use rls && echo src >> components
 }
 
 patchelf_for_bin() {
@@ -69,7 +79,7 @@ multilib_src_install() {
 	local components="rustc,cargo,${std}"
 	use doc && components="${components},rust-docs"
 	use clippy && components="${components},clippy-preview"
-	use rls && components="${components},rls-preview,${analysis}"
+	use rls && components="${components},rls-preview,${analysis},src"
 	use rustfmt && components="${components},rustfmt-preview"
 	./install.sh \
 		--components="${components}" \

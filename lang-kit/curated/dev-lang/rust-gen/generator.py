@@ -62,23 +62,25 @@ async def get_latest_version(hub, user, repo):
 	return latest_release["tag_name"]
 
 
-def get_artifact_for_chost(hub, pkginfo, chost):
+def get_rust_artifact(hub, name, pkginfo, chost=None):
 	"""
-	Get Rust artifact for given CHOST.
+	Get Rust component artifact
 
 	:param hub: metatools hub
 	:type hub: Hub
+	:param name: name of rust component
+	:type name: str
 	:param pkginfo: current package info
 	:type pkginfo: dict
 	:param chost: chost to generate artifact for
 	:type chost: str
-	:return: artifact for chost
+	:return: artifact for rust component
 	:rtype Artifact
 	"""
-	target_url = f"https://static.rust-lang.org/dist/rust-{pkginfo['version']}-{chost}.tar.xz"
-	final_name = f"{pkginfo['name']}-{pkginfo['version']}-{chost}.tar.xz"
+	target_filename = "-".join([part for part in [name, pkginfo["version"], chost] if part is not None])
+	target_url = f"https://static.rust-lang.org/dist/{target_filename}.tar.xz"
 
-	return hub.pkgtools.ebuild.Artifact(url=target_url, final_name=final_name)
+	return hub.pkgtools.ebuild.Artifact(url=target_url)
 
 
 def generate_rust_arch_data(hub, pkginfo):
@@ -104,10 +106,9 @@ def generate_rust_arch_data(hub, pkginfo):
 
 		curr_uris = []
 		for chost_data in chosts:
-			curr_artifact = get_artifact_for_chost(hub, pkginfo, chost_data["chost"])
+			curr_artifact = get_rust_artifact(hub, "rust", pkginfo, chost_data["chost"])
 
 			curr_uris.append(curr_artifact.src_uri)
-
 			artifacts.append(curr_artifact)
 
 			abi_getter_cases.append(f"{chost_data['pattern']}) echo {chost_data['chost']};;")
@@ -150,6 +151,11 @@ async def preprocess_packages(hub, pkginfo_list):
 		pkginfo["src_uris"] = arch_data["src_uri_template"]
 		pkginfo["artifacts"] = arch_data["artifacts"]
 		pkginfo["abi_getter_fn"] = arch_data["abi_getter_fn"]
+
+		stdlib_src_artifact = get_rust_artifact(hub, "rust-src", pkginfo)
+
+		pkginfo["artifacts"].append(stdlib_src_artifact)
+		pkginfo["stdlib_src_uri"] = stdlib_src_artifact.src_uri
 
 		yield pkginfo
 

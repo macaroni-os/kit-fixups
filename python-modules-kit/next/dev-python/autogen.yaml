@@ -15,7 +15,6 @@
 
 autogens:
   defaults:
-    cat: dev-python
     python_compat: python2+ pypy3 pypy
   generator: pypi-compat-1
   packages:
@@ -41,7 +40,6 @@ autogens:
           py:all:build:
             - setuptools
     - regex:
-        python_compat: python3+ pypy3 pypy
         compat: 2020.9.27
         blocker: '!<dev-python/regex-2018'
     - rfc3339-validator:
@@ -57,8 +55,6 @@ autogens:
         compat: '1.9'
         blocker: '!<dev-python/webcolors-1.9'
     - zipp:
-        # would be nice if pypi-compat-1 generator would auto-convert "python2+" to python3+ for non-compat ebuild.
-        python_compat: python3+ pypy3 pypy
         compat: 1.2.0
         blocker: '!<dev-python/zipp-0.8'
     - wheel:

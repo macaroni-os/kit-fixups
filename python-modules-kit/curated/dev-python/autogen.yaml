@@ -632,6 +632,18 @@ simple_python_autogen_rule:
             - fonttools
           py:all:
             - setuptools_scm
+    - extras:
+        revision:
+          1.0.0: 1
+        python_compat: python2+ pypy pypy3
+        pydeps:
+          py:all:build:
+            - setuptools
+        body: |
+          # In 1.0.0, this file causes tests to be installed, which causes hard-dep on dev-python/testtools. This fixes it:
+          post_src_unpack() {
+            rm ${S}/extras/tests/__init__.py || die
+          }
     - fetchcord:
         cat: net-im
         pypi_name: FetchCord
@@ -1350,6 +1362,17 @@ dev_python_simplified_rule:
         desc: Implements a XML/HTML/XHTML Markup safe string for Python
         homepage: https://pypi.org/project/MarkupSafe
         license: BSD
+    - testtools:
+        compat: 2.4.0
+        blocker: '!<dev-python/testtools-2.5.0-r1'
+        revision:
+          2.5.0: 1
+        pydeps:
+          py:all:build:
+            - setuptools
+            - pbr
+          py:all:
+            - pbr
     - tomli:
         du_setuptools: autostub
         desc: "A lil' TOML parser"
@@ -1405,8 +1428,6 @@ dev_python_autogen_rule:
     - entrypoints:
         python_compat: python2+ pypy3
         revision: 1
-    - extras:
-        python_compat: python2+ pypy{,3}
     - feedgenerator:
         python_compat: python2+ pypy{,3}
     - flake8:
@@ -1561,8 +1582,6 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - sphinxcontrib-websupport:
         python_compat: python3+ pypy3
-    - testtools:
-        python_compat: python2+ pypy3
     - urllib3:
         python_compat: python2+ pypy{,3}
     - wcwidth:

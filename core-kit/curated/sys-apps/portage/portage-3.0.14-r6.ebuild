@@ -107,7 +107,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.3.78-module-rebuild.patch"
 	"${FILESDIR}/${PN}-3.0.9-add-repodir-variable.patch"
 	"${FILESDIR}/${PN}-3.0.14-allow-matches-in-package-updates.patch"
-	"${FILESDIR}/${PN}-3.0.14-track-keywords.patch"
+	"${FILESDIR}/${PN}-3.0.14-track-and-deny-keywords-r1.patch"
 	"${FILESDIR}/${PN}-3.0.14-aliases-name-check.patch"
 )
 

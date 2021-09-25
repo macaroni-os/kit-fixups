@@ -41,7 +41,7 @@ async def generate(hub, **pkginfo):
 		] and (not build_option.choices or "false" in build_option.choices)
 	)
 
-	disable_boolean_build_options = "\n\t".join([f"\t-D{option}=false" for option in boolean_build_options])
+	disable_boolean_build_options = "\n\t\t".join([f"-D{option}=false" for option in boolean_build_options])
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

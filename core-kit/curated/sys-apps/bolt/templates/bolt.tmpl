@@ -18,7 +18,6 @@ DEPEND="
 	dev-util/glib-utils
 	virtual/libudev
 	virtual/udev
-	dev-util/umockdev
 	sys-auth/polkit[introspection]
 	systemd? ( sys-apps/systemd )
 	doc? ( app-text/asciidoc )"

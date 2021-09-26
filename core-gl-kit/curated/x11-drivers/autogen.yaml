@@ -77,6 +77,11 @@ drivers_rule:
         config_options: |
           $(use_enable glamor)
           $(use_enable udev)
+        src_prepare: |
+            # gcc-10 fix:
+            sed -i -e 's/^miPointerSpriteFuncRec/extern miPointerSpriteFuncRec/' ${S}/src/drmmode_display.h || die
+            eautoreconf || die
+            default
     - xf86-video-dummy:
         gitlab_id: 602
         iuse: dga

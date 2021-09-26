@@ -2,29 +2,37 @@
 
 # emacs support disabled due to #99533 #335900
 
-EAPI="4"
+EAPI=7
 
-inherit eutils systemd toolchain-funcs autotools multilib-minimal
+inherit autotools linux-info systemd usr-ldscript
 
 DESCRIPTION="Console-based mouse driver"
 HOMEPAGE="http://www.nico.schottelius.org/software/gpm/"
-SRC_URI="http://www.nico.schottelius.org/software/${PN}/archives/${P}.tar.lzma"
+SRC_URI="http://www.nico.schottelius.org/software/${PN}/archives/${P}.tar.lzma
+	mirror://gentoo/${P}-docs.patch.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 IUSE="selinux static-libs"
 
-RDEPEND="selinux? ( sec-policy/selinux-gpm )
-	abi_x86_32? (
-		!<=app-emulation/emul-linux-x86-baselibs-20130224-r12
-		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
-	)"
+RDEPEND="selinux? ( sec-policy/selinux-gpm )"
+
+# ncurses intentionally removed to avoid circular deps.
 DEPEND="app-arch/xz-utils
 	sys-apps/texinfo
 	virtual/yacc"
 
 src_prepare() {
+	# QA-460: fix gcc inlude path, so it able to find own headers during build, like gpm.h.
+	eapply "${FILESDIR}"/${P}-gcc-include-fix.patch
+	eapply "${FILESDIR}"/${P}-sysmacros.patch #fix build on newer glibc
+	eapply "${FILESDIR}"/${P}-glibc-2.26.patch #fix build specifically with glibc-2.26
+	eapply "${FILESDIR}"/${P}-gcc-10.patch
+	eapply "${WORKDIR}"/${P}-docs.patch
+	touch -r . doc/* || die
+	eapply_user
+
 	# fix ABI values
 	sed -i \
 		-e '/^abi_lev=/s:=.*:=1:' \
@@ -33,10 +41,9 @@ src_prepare() {
 	sed -i -e '/ACLOCAL/,$d' autogen.sh || die
 	./autogen.sh
 	eautoreconf
-	multilib_copy_sources
 }
 
-multilib_src_configure() {
+src_configure() {
 	econf \
 		--without-curses \
 		--sysconfdir=/etc/gpm \
@@ -44,24 +51,20 @@ multilib_src_configure() {
 		emacs=/bin/false
 }
 
-multilib_src_compile() {
+src_compile() {
 	# make sure nothing compiled is left
 	emake clean
-	emake EMACS=: $(multilib_is_native_abi || echo "PROG= ")
+	emake EMACS=:
 }
 
-multilib_src_install() {
+src_install() {
 	emake \
 		DESTDIR="${D}" \
 		EMACS=: ELISP="" \
-		$(multilib_is_native_abi || echo "PROG= ") \
 		install
 
 	dosym libgpm.so.1 /usr/$(get_libdir)/libgpm.so
-	multilib_is_native_abi && gen_usr_ldscript -a gpm
-}
-
-multilib_src_install_all() {
+	gen_usr_ldscript -a gpm
 	insinto /etc/gpm
 	doins conf/gpm-*.conf
 

@@ -57,5 +57,10 @@ kernel_gen:
           5.10.46_p4:
             patches:
               - nocerts.patch
+              - xfs-libcrc32c-fix.patch
+              - mcelog.patch
+              - ikconfig.patch
+              - fix-bluetooth-polling.patch
+              - extra_cpu_optimizations.patch
 
             unmasked: True

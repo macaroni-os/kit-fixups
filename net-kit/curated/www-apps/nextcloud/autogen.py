@@ -8,7 +8,7 @@ async def generate(hub, **pkginfo):
 	changelog_url = "https://nextcloud.com/changelog/"
 	changelog_data = await hub.pkgtools.fetch.get_page(changelog_url, encoding="utf-8")
 	changelog_soup = BeautifulSoup(changelog_data, "html.parser")
-	latest_tags = [x for x in changelog_soup.find_all("a", attrs={"name": True}) if x["name"].startswith("latest")]
+	latest_tags = [x for x in changelog_soup.find_all("a", attrs={"id": True}) if x["id"].startswith("latest")]
 	latest_urls = [x.find_next("a", href=True) for x in latest_tags]
 	url_pattern = re.compile(f"nextcloud-(.*)\.tar\.bz2")
 	for latest_url in latest_urls:

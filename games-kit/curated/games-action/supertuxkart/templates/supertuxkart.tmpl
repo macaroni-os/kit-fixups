@@ -54,12 +54,18 @@ S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1-irrlicht-arch-support.patch
-	"${FILESDIR}"/${PN}-1.2-irrlicht-system-libs.patch
-	"${FILESDIR}"/${PN}-1.2-new-sdl.patch
 )
 
 src_prepare() {
 	cmake-utils_src_prepare
+
+	# Use system glext for irrlicht
+	find lib/irrlicht/source/Irrlicht \
+		-type f \
+		-exec sed -i \
+			-e 's|"glext\.h"|<GL\/glext\.h>|g' \
+			-e 's|"glxext\.h"|<GL\/glxext\.h>|g' \
+			{} \;
 }
 
 src_configure() {

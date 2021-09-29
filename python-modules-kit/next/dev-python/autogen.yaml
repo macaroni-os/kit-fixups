@@ -43,12 +43,20 @@ autogens:
         compat: 2020.9.27
         blocker: '!<dev-python/regex-2018'
     - rfc3339-validator:
+        pypi_name: rfc3339_validator
         pydeps:
           - strict-rfc3339
           - six
     - rfc3986-validator:
+        pypi_name: rfc3986_validator
         pydeps:
           - six
+        body: |
+          python_prepare_all() {
+            # remove dep on pytest-runner
+            sed -i -r "s:('|\")pytest-runner('|\")(,|)::" setup.py || die
+            distutils-r1_python_prepare_all
+          }
     - strict-rfc3339
     - scandir
     - webcolors:

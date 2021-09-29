@@ -1,5 +1,3 @@
-# Copyright 1999-2018 Gentoo Authors
-# Copyright 2020 Funtoo Solutions, Inc.
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -11,7 +9,7 @@ inherit desktop gnome2-utils multilib-build pax-utils unpacker xdg-utils
 
 DESCRIPTION="Team collaboration tool"
 HOMEPAGE="http://www.slack.com/"
-SRC_URI="https://downloads.slack-edge.com/linux_releases/${MY_PN}-desktop-${PV}-amd64.deb"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="all-rights-reserved"
 SLOT="0"

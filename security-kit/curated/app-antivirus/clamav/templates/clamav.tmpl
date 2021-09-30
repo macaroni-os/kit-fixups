@@ -34,8 +34,7 @@ CDEPEND="
 	elibc_musl? ( sys-libs/fts-standalone )
 "
 
-BDEPEND=">=sys-devel/autoconf-2.69-r5
-	virtual/pkgconfig"
+BDEPEND="virtual/pkgconfig"
 
 DEPEND="${CDEPEND}
 	metadata-analysis-api? ( dev-libs/json-c:* )
@@ -166,7 +165,7 @@ src_install() {
 		einstalldocs
 
 		if ! use libclamav-only ; then
-			doman docs/man/*.[1-8]
+			doman ${BUILD_DIR}/docs/man/*.[1-8]
 		fi
 	fi
 

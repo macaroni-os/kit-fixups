@@ -82,11 +82,10 @@ tornado_stuff:
 botostuff:
   defaults:
     cat: dev-python
-    python_compat: python2+
+    python_compat: python3+
   generator: pypi-simple-1
   packages:
     - awscli:
-        python_compat: python3+
         license: Apache-2.0
         pydeps:
           - botocore
@@ -262,6 +261,27 @@ dev_python_compat_rule:
         homepage: |
           https://github.com/phn/jdcal
         license: BSD
+    - jsonschema:
+        python_compat: python3+
+        du_setuptools: autostub
+        pydeps:
+         py:all:build:
+          - attrs >= 17.4.0
+          - importlib_metadata
+          - pyrsistent
+        py:2:build:
+          - functools32
+        py:all:
+          - fqdn
+          - idna
+          - isoduration
+          - jsonpointer >= 1.13
+          - rfc3339-validator
+          - rfc3986-validator
+          - rfc3987
+          - uri_template
+          - webcolors >= 1.11
+          - strict-rfc3339
     - openpyxl:
         compat: '2.6.4'
         blocker: '!<dev-python/openpyxl-3'
@@ -1441,8 +1461,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - jeepney:
         python_compat: python3+ pypy3
-    - jsonschema:
-        python_compat: python2+ pypy3
     - matplotlib:
         python_compat: python3+ pypy3
     - pandas

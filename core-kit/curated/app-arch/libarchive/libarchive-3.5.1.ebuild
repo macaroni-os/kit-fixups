@@ -25,7 +25,7 @@ RDEPEND="
 	!libressl? ( dev-libs/openssl:0=[${MULTILIB_USEDEP}] )
 	libressl? ( dev-libs/libressl:0=[${MULTILIB_USEDEP}] )
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
-	lzma? ( app-arch/xz-utils[threads=,${MULTILIB_USEDEP}] )
+	lzma? ( app-arch/xz-utils[${MULTILIB_USEDEP}] )
 	lzo? ( >=dev-libs/lzo-2[${MULTILIB_USEDEP}] )
 	nettle? ( dev-libs/nettle:0=[${MULTILIB_USEDEP}] )
 	zlib? ( sys-libs/zlib[${MULTILIB_USEDEP}] )

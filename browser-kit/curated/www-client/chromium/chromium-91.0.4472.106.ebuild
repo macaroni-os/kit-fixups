@@ -25,7 +25,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="component-build cups cpu_flags_arm_neon +hangouts headless +js-type-check kerberos official pic +proprietary-codecs pulseaudio screencast selinux +suid +system-ffmpeg +system-icu vaapi wayland widevine"
+IUSE="component-build cups cpu_flags_arm_neon +hangouts headless +js-type-check kerberos +memsaver official pic +proprietary-codecs pulseaudio screencast selinux +suid +system-ffmpeg +system-icu vaapi wayland widevine"
 REQUIRED_USE="
 	component-build? ( !suid )
 	screencast? ( wayland )
@@ -792,6 +792,37 @@ src_configure() {
 }
 
 src_compile() {
+	if use memsaver; then
+
+		# limit number of jobs based on available memory:
+
+		mem=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
+		jobs=$((mem/1750000))
+
+		# don't use more jobs than physical cores:
+		if [ -e /sys/devices/system/cpu/possible ]; then
+			physical_cores=$(lscpu | grep 'Core(s) per socket:' | awk '{ print $NF }')
+			cpus=$(lscpu | grep '^Socket(s):' | awk '{ print $NF }')
+			# actual physical cores, without considering hyperthreading:
+			max_parallelism=$(( $physical_cores * $cpus ))
+		else
+			max_parallelism=999
+		fi
+
+		if [ ${jobs} -lt 1 ]; then
+			einfo "Using jobs setting of 1 (limited by memory)"
+			jobs=-j1
+		elif [ ${jobs} -gt ${max_parallelism} ]; then
+			einfo "Using jobs setting of ${max_parallelism} (limited by physical cores)"
+			jobs=-j${max_parallelism}
+		else
+			einfo "Using jobs setting of ${jobs} (limited by memory)"
+			jobs=-j${jobs}
+		fi
+	else
+		jobs="$MAKEOPTS"
+		einfo "Using default Portage jobs setting."
+	fi
 	# Final link uses lots of file descriptors.
 	ulimit -n 2048
 

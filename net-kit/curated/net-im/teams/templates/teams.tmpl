@@ -70,7 +70,7 @@ src_install() {
 	into "${TEAMS_HOME}"
 	dobin usr/bin/*
 
-	mv "${S}"/usr/share "${ED}"${TEAMS_HOME} || die
+	cp -a "${S}"/usr/share "${ED}"${TEAMS_HOME} || die
 
 	# Create /usr/bin/teams
 	dodir /usr/bin/
@@ -82,7 +82,7 @@ src_install() {
 	fperms 4755 /opt/teams/share/teams/chrome-sandbox
 
 	dosym '/opt/teams/share/applications/teams.desktop' /usr/share/applications/teams.desktop
-	doicon ${TEAMS_HOME}/share/pixmaps/teams.png
+	doicon ${WORKDIR}/usr/share/pixmaps/teams.png
 }
 
 pkg_postinst() {

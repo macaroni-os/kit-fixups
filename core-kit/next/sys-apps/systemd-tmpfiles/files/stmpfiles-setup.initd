@@ -3,6 +3,15 @@
 
 description="Set up tmpfiles.d entries"
 
+start_pre()
+{
+	# FL-8903:
+	# Ensure / is owned by root. On existing installs, / may be owned by 1000,
+	# which would result in an unsafe path transition. This is an artifact of
+	# an issue with Metro, which has already been resolved.
+	chown 0:0 /
+}
+
 depend()
 {
 	provide stmpfiles-setup stmpfiles.setup tmpfiles-setup tmpfiles.setup

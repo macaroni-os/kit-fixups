@@ -35,6 +35,7 @@ RDEPEND="
 	x11-libs/libXinerama
 	x11-libs/libxkbcommon[X]
 	x11-libs/libXrandr
+	net-libs/librsync
 	wayland? (
 		dev-libs/wayland
 		>=dev-libs/wayland-protocols-1.17

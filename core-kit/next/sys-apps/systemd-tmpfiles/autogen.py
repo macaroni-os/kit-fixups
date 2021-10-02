@@ -44,7 +44,7 @@ async def generate(hub, **pkginfo):
 	disable_boolean_build_options = "\n\t\t".join([f"-D{option}=false" for option in boolean_build_options])
 
 	if latest_version == "249.4":
-		latest_version += "-r1"
+		latest_version += "-r2"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

@@ -1,25 +1,20 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit elisp-common qmake-utils xdg
 
-SITEFILE="50${PN}-gentoo.el"
-
 DESCRIPTION="The Programmers Solid 3D CAD Modeller"
 HOMEPAGE="https://www.openscad.org/"
-SRC_URI="https://github.com/${PN}/${PN}/releases/download/${P}/${P}.src.tar.gz -> ${P}.tar.gz"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 x86"
+KEYWORDS="*"
 IUSE="ccache emacs"
 RESTRICT="test"
 
-PATCHES=(
-	"${FILESDIR}/${P}_fix-boost-1.72.0-build.patch"
-)
+PATCHES=( "${FILESDIR}"/${PN}-0002-Gentoo-specific-Disable-ccache-building.patch )
 
 RDEPEND="
 	dev-cpp/eigen:3
@@ -61,18 +56,20 @@ BDEPEND="
 
 src_prepare() {
 	default
-
 	# fix path prefix
 	sed -i "s/\/usr\/local/\/usr/g" ${PN}.pro || die
 
-	# disable ccache
-	if ! use ccache; then
-		eapply "${FILESDIR}/${P}-0002-Gentoo-specific-Disable-ccache-building.patch"
+	if has_version ">=media-libs/lib3mf-2"; then
+		eapply "${FILESDIR}/${PN}-fix-to-find-lib3mf-2.patch"
 	fi
 }
 
 src_configure() {
-	eqmake5 "${PN}.pro"
+	if use ccache; then
+		eqmake5 CONFIG+="ccache" "${PN}.pro"
+	else
+		eqmake5 "${PN}.pro"
+	fi
 }
 
 src_compile() {

@@ -146,7 +146,6 @@ src_install() { return 0; }
 	peeves = []
 	for template_args, cpvr, artifact in xorgproto_implementations:
 		for pv_key, new_set in (await get_meson_mappings(hub, cpvr, artifact)).items():
-			print("DOING IT", pv_key, new_set)
 			meta_mappings[pv_key] |= new_set
 			peeves.append("x11-proto/%s-%s" % pv_key)
 

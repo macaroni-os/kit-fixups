@@ -7,7 +7,7 @@ async def get_versions(hub, pkginfo):
 	release_data = []
 	try:
 		user = pkginfo["user"]
-		repo = pkginfo["name"]
+		repo = pkginfo["repo_name"] if "repo_name" in pkginfo else pkginfo["name"]
 		release_data = await hub.pkgtools.fetch.get_page(
 			f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
 		)
@@ -43,13 +43,19 @@ async def generate(hub, **pkginfo):
 	if pkginfo["releases"]:
 		target_release = next(x for x in pkginfo["releases"] if x["ver"] >= target_version and x["ver"] < max_version)
 		target_version = target_release["ver"]
-		url = next(x["browser_download_url"] for x in target_release["assets"] if x["name"].endswith(".tar.xz"))
-		final_name = f"{pkginfo['name']}-{target_version}.tar.xz"
-		src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
-		artifacts.append(src_artifact)
+		try:
+			if "assets" in target_release:
+				url = next(x["browser_download_url"] for x in target_release["assets"] if x["name"].endswith(".tar.xz"))
+				final_name = f"{pkginfo['name']}-{target_version}.tar.xz"
+				src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
+				artifacts.append(src_artifact)
+		except StopIteration:
+			pass
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=target_version,
 		artifacts=artifacts,
 	)
 	ebuild.push()
+
+# vim: ts=4 sw=4 noet

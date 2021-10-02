@@ -21,13 +21,3 @@ post_src_unpack() {
 	rm -rf "${S}"
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
-
-src_install() {
-	cargo_src_install
-
-	mv "${ED}"/usr/bin/rc "${ED}"/usr/bin/rustcat
-}
-
-pkg_postinst() {
-	elog 'Binary installed as "rustcat" instead of "rc" to avoid collisions with OpenRC.'
-}

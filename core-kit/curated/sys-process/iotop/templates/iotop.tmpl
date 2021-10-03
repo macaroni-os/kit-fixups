@@ -2,25 +2,34 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3+ )
-PYTHON_REQ_USE="ncurses(+)"
+inherit fcaps toolchain-funcs
 
-inherit distutils-r1 linux-info
-
-DESCRIPTION="Top-like UI used to show which process is using the I/O"
-HOMEPAGE="http://guichaz.free.fr/iotop/"
-SRC_URI="{{artifacts[0].src_uri}}"
+DESCRIPTION="Interactive monitor of Linux IO activity"
+HOMEPAGE="https://github.com/Tomas-M/iotop"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
 
-S="${WORKDIR}/${PN}-{{sha1[:7]}}"
-CONFIG_CHECK="~TASK_IO_ACCOUNTING ~TASK_DELAY_ACCT ~TASKSTATS ~VM_EVENT_COUNTERS"
+DEPEND="
+	sys-libs/ncurses:=
+"
+RDEPEND="${DEPEND}"
+BDEPEND="
+	virtual/pkgconfig
+"
 
-DOCS=( NEWS README THANKS )
+FILECAPS=(
+	cap_net_admin=eip usr/bin/iotop
+)
 
-pkg_setup() {
-	linux-info_pkg_setup
+src_compile() {
+	emake V=1 CC="$(tc-getCC)" PKG_CONFIG="$(tc-getPKG_CONFIG)" NO_FLTO=1
+}
+
+src_install() {
+	dobin iotop
+	dodoc README.md
+	doman iotop.8
 }

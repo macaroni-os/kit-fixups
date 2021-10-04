@@ -70,7 +70,6 @@ RDEPEND="
 	!dev-db/mysql:5.7
 	selinux? ( sec-policy/selinux-mysql )
 	!prefix? (
-		acct-group/mysql acct-user/mysql
 		dev-db/mysql-init-scripts
 	)
 "

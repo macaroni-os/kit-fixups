@@ -157,7 +157,7 @@ src_configure() {
 		-DINSTALL_MYSQLDATADIR="${EPREFIX}/var/lib/mysql"
 		-DINSTALL_SBINDIR=sbin
 		-DINSTALL_SUPPORTFILESDIR="${EPREFIX}/usr/share/mysql"
-		-DCOMPILATION_COMMENT="Gentoo Linux ${PF}"
+		-DCOMPILATION_COMMENT="Funtoo Linux ${PF}"
 		-DWITH_UNIT_TESTS=OFF
 		# Using bundled editline to get CTRL+C working
 		-DWITH_EDITLINE=bundled

@@ -18,10 +18,14 @@ async def generate(hub, **pkginfo):
 	for release in json_data:
 		if release["prerelease"] or release["draft"]:
 			continue
-		version = release["tag_name"].lstrip("v")
-		url = release["tarball_url"]
+		tag_name = release["tag_name"]
+		version = tag_name.lstrip("v")
 		break
-	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+	json_data = await query_github_api(github_user, github_repo, "tags")
+	my_tag = list(filter(lambda x: x["name"] == tag_name, json_data))[0]
+	url = my_tag["tarball_url"]
+	commit_sha = my_tag["commit"]["sha"]
+	final_name = f'{pkginfo["name"]}-{version}-{commit_sha}.tar.gz'
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 	await artifact.fetch()
 	artifact.extract()

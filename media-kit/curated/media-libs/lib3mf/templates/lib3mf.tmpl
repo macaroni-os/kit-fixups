@@ -11,7 +11,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 LICENSE="BSD"
 SLOT="0/2"
 KEYWORDS="*"
-IUSE="+system-act test"
+IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
@@ -22,7 +22,6 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="
 	virtual/pkgconfig
-	system-act? ( dev-go/act )
 	test? (
 		dev-cpp/gtest
 		dev-libs/openssl

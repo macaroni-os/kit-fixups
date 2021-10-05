@@ -27,6 +27,7 @@ async def generate(hub, **pkginfo):
 		github_user=github_user,
 		github_repo=github_repo,
 		artifacts=[artifact],
+		revision = { "1.28.10" : "1" }
 	)
 	ebuild.push()
 

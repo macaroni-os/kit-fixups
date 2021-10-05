@@ -14,7 +14,7 @@ HOMEPAGE="https://wiki.linuxfoundation.org/openprinting/cups-filters"
 
 LICENSE="MIT GPL-2"
 SLOT="0"
-IUSE="dbus +foomatic jpeg ldap pclm pdf perl png +postscript test tiff zeroconf"
+IUSE="dbus +foomatic jpeg ldap pclm perl png +postscript test tiff zeroconf"
 
 RESTRICT="!test? ( test )"
 
@@ -33,7 +33,6 @@ RDEPEND="
 	foomatic? ( !net-print/foomatic-filters )
 	jpeg? ( virtual/jpeg:0 )
 	ldap? ( net-nds/openldap )
-	pdf? ( app-text/mupdf )
 	perl? ( dev-lang/perl:= )
 	png? ( media-libs/libpng:0= )
 	postscript? ( >=app-text/ghostscript-gpl-9.09[cups] )
@@ -79,7 +78,7 @@ src_configure() {
 		$(use_enable foomatic)
 		$(use_enable ldap)
 		$(use_enable pclm)
-		$(use_enable pdf mutool)
+		--disable-mutool
 		$(use_enable postscript ghostscript)
 		$(use_enable zeroconf avahi)
 		$(use_with jpeg)

@@ -65,16 +65,4 @@ autogens:
     - zipp:
         compat: 1.2.0
         blocker: '!<dev-python/zipp-0.8'
-    - wheel:
-        pydeps:
-          - packaging
-        body: |
-          src_prepare() {
-            sed -e 's:--cov=wheel::g' -i setup.cfg || die
 
-            # unbundle packaging
-            rm -r src/wheel/vendored || die
-            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
-
-            distutils-r1_src_prepare
-          }

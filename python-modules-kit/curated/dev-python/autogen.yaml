@@ -1650,3 +1650,22 @@ dev_python_autogen_rule:
     - cycler:
         pypi_name: Cycler
     - kiwisolver
+
+stuff_from_next:
+  defaults:
+    python_compat: python2+ pypy3 pypy
+  generator: pypi-compat-1
+  packages:
+    - wheel:
+        pydeps:
+          - packaging
+        body: |
+          src_prepare() {
+            sed -e 's:--cov=wheel::g' -i setup.cfg || die
+
+            # unbundle packaging
+            rm -r src/wheel/vendored || die
+            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
+
+            distutils-r1_src_prepare
+          }

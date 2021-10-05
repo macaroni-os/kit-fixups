@@ -1,22 +1,6 @@
 #!/usr/bin/env python3
 
-from bs4 import BeautifulSoup
-from packaging import version
 import re
-
-
-async def grab_links(hub, base_url=None, match_fn=None, fixup_fn=None):
-	outs = []
-	dl_data = await hub.pkgtools.fetch.get_page(base_url, is_json=False)
-	dl_soup = BeautifulSoup(dl_data, "lxml")
-	for a in dl_soup.find_all("a", href=True):
-		match = match_fn(a["href"])
-		if match:
-			if fixup_fn:
-				outs.append(fixup_fn(match))
-			else:
-				outs.append(match)
-	return outs
 
 
 async def generate(hub, **pkginfo):
@@ -28,12 +12,12 @@ async def generate(hub, **pkginfo):
 	# Find latest version 5.x of ck-sources:
 	########################################
 
-	versions = await grab_links(hub,
+	versions = await hub.pkgtools.pages.iter_links(
 		base_url=f"http://ck.kolivas.org/patches/{major_ver}.0/",
 		match_fn=lambda x: x if x.startswith(major_ver) else None,
 		fixup_fn=lambda x: x.rstrip("/")
 	)
-	latest = max(versions, key=lambda v: version.parse(v))
+	latest = hub.pkgtools.pages.latest(versions)
 	latest_split = latest.split(".")
 	minor_ver = latest_split[1]
 	
@@ -41,7 +25,7 @@ async def generate(hub, **pkginfo):
 	# Find latest upstream patch version 5.x.y for that kernel from kernel.org:
 	###########################################################################
 
-	patch_versions = await grab_links(hub,
+	patch_versions = await hub.pkgtools.pages.iter_links(
 		base_url=f"https://mirrors.edge.kernel.org/pub/linux/kernel/v{major_ver}.x/",
 		match_fn=lambda x: re.match(f"patch-{major_ver}\.{minor_ver}\.([0-9+]).xz", x),
 		fixup_fn=lambda x: x.groups()[0]
@@ -51,7 +35,7 @@ async def generate(hub, **pkginfo):
 	# If there is an upstream patch version for that kernel, let's use it:
 	###########################################################################
 
-	patch_ver = max(patch_versions, key=lambda v: version.parse(v)) if patch_versions else None
+	patch_ver = hub.pkgtools.pages.latest(patch_versions) if patch_versions else None
 	if patch_ver is not None:
 		base_ver = f"{latest}.{patch_ver}"
 		artifacts["korg_patch"] = hub.pkgtools.ebuild.Artifact(url=f"https://mirrors.edge.kernel.org/pub/linux/kernel/v{major_ver}.x/patch-{base_ver}.xz")
@@ -62,14 +46,14 @@ async def generate(hub, **pkginfo):
 	# Now we need to find the latest _ck patch version and use it (let's map this to _p in the Funtoo version):
 	###########################################################################################################
 
-	ck_versions = await grab_links(hub,
+	ck_versions = await hub.pkgtools.pages.iter_links(
 		base_url=f"http://ck.kolivas.org/patches/5.0/{major_ver}.{minor_ver}/",
 		match_fn=lambda x: re.match(f"{major_ver}.{minor_ver}-ck([0-9]+)/", x),
 		fixup_fn=lambda x: x.groups()[0]
 	)
 	if not ck_versions:
 		raise IndexError(f"Could not find a suitable ck-sources patch version for {major_ver}.{minor_ver}.")
-	ck_ver = max(ck_versions, key=lambda v: version.parse(v))
+	ck_ver = hub.pkgtools.pages.latest(ck_versions)
 
 	#############################################################################################
 	# 5.12 with latest upstream 5.12 being 5.12.8 with ck1 released would translate to: 5.12.8_p1
@@ -78,7 +62,7 @@ async def generate(hub, **pkginfo):
 	ebuild_version = f"{base_ver}_p{ck_ver}"
 
 	artifacts.update({
-		"ck_patch" : hub.pkgtools.ebuild.Artifact(url=f"http://ck.kolivas.org/patches/{major_ver}.0/{major_ver}.{minor_ver}/{major_ver}.{minor_ver}-ck{ck_ver}/patch-{major_ver}.{minor_ver}-ck{ck_ver}.xz"),
+		"ck_patch": hub.pkgtools.ebuild.Artifact(url=f"http://ck.kolivas.org/patches/{major_ver}.0/{major_ver}.{minor_ver}/{major_ver}.{minor_ver}-ck{ck_ver}/patch-{major_ver}.{minor_ver}-ck{ck_ver}.xz"),
 		"kernel": hub.pkgtools.ebuild.Artifact(url=f"https://mirrors.edge.kernel.org/pub/linux/kernel/v{major_ver}.x/linux-{major_ver}.{minor_ver}.tar.xz"),
 	})
 

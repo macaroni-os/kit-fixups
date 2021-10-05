@@ -25,11 +25,11 @@ COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
 
 GITHUB_REPO="${PN}"
 GITHUB_USER="funtoo"
-GITHUB_TAG="29204cbbf64a14bbbd10df3ea6b8a373d5a66e13"
+GITHUB_TAG="543747b3c50e74a2013d6958db413c4d6e847db4"
 
 inherit bash-completion-r1 eutils
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz ${COMMON_URI}"
-KEYWORDS="*"
+KEYWORDS="next"
 
 DESCRIPTION="Gentoo automatic kernel building scripts"
 HOMEPAGE="http://www.gentoo.org"

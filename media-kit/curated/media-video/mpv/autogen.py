@@ -27,7 +27,7 @@ async def generate(hub, **pkginfo):
 	commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	version += "." + commit_date.strftime("%Y%m%d")
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"
-	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+	final_name = f'{pkginfo["name"]}-{version}-{commit_hash}.tar.gz'
 	waf_url = f"https://waf.io/waf-{waf_version}"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

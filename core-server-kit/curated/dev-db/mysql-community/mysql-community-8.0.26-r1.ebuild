@@ -32,7 +32,7 @@ REQUIRED_USE="?? ( tcmalloc jemalloc )
 	router? ( server )
 	tcmalloc? ( server )"
 
-KEYWORDS="next"
+KEYWORDS="*"
 
 COMMON_DEPEND="
 	>=app-arch/lz4-0_p131:=

@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 	user = "morpheusthewhite"
 	repo = pkginfo["name"]
 	commit_data = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{user}/{repo}/commits/master", is_json=True, refresh_interval=timedelta(days=15)
+		f"https://api.github.com/repos/{user}/{repo}/commits/master", is_json=True, refresh_interval=timedelta(days=1)
 	)
 	commit_hash = commit_data["sha"]
 	commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")

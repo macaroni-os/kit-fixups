@@ -53,7 +53,7 @@ src_prepare() {
 	rmdir usr/share/doc/zoom usr/share/doc
 
 	sed -i \
-		-e 's:Icon=Zoom.png:Icon=Zoom:' "${WORKDIR}/usr/share/applications/Zoom.desktop" \
+		-e 's:Icon=Zoom.png:Icon=Zoom:' \
 		-e 's:Application;::' \
 		-e 's:/usr/bin/zoom:&-bin:'
 		"${WORKDIR}/usr/share/applications/Zoom.desktop"

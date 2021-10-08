@@ -1,3 +1,11 @@
+deps_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - josepy
+
 dev_python_autogen_rule:
   defaults:
     cat: app-crypt
@@ -8,6 +16,7 @@ dev_python_autogen_rule:
     - certbot:
         pydeps:
           - acme
+          - josepy
     - certbot-apache:
         pydeps:
           - certbot

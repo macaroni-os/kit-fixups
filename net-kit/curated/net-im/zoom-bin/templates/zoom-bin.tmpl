@@ -55,7 +55,7 @@ src_prepare() {
 	sed -i \
 		-e 's:Icon=Zoom.png:Icon=Zoom:' \
 		-e 's:Application;::' \
-		-e 's:/usr/bin/zoom:&-bin:'
+		-e 's:/usr/bin/zoom:&-bin:' \
 		"${WORKDIR}/usr/share/applications/Zoom.desktop"
 
 	chrpath -r '' opt/zoom/platforminputcontexts/libfcitxplatforminputcontextplugin.so

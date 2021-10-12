@@ -11,7 +11,7 @@ ABI_VER="$(ver_cut 1-2)"
 SLOT="stable/${ABI_VER}"
 MY_P="rustc-${PV}"
 SRC="${MY_P}-src.tar.xz"
-KEYWORDS="-* riscv64"
+KEYWORDS="*"
 
 RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
 
@@ -31,7 +31,7 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="clippy cpu_flags_x86_sse2 debug doc miri nightly parallel-compiler rls rustfmt system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="clippy cpu_flags_x86_sse2 debug doc miri nightly parallel-compiler rls rustfmt +system-bootstrap system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling more than one slot
@@ -136,7 +136,6 @@ QA_SONAME="
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
 )
 

@@ -39,7 +39,7 @@ IUSE="clippy cpu_flags_x86_sse2 debug doc miri nightly parallel-compiler rls rus
 
 # How to use it:
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
-LLVM_VALID_SLOTS=( 11 10 )
+LLVM_VALID_SLOTS=( 12 11 10 )
 LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
 
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
@@ -136,8 +136,11 @@ QA_SONAME="
 RESTRICT="test"
 
 PATCHES=(
-	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
-	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
+        "${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
+        "${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
+        "${FILESDIR}"/1.53.0-rustversion-1.0.5.patch # https://github.com/rust-lang/rust/pull/86425
+        "${FILESDIR}"/1.53.0-miri-vergen.patch # https://github.com/rust-lang/rust/issues/84182
+
 )
 
 S="${WORKDIR}/${MY_P}-src"
@@ -354,6 +357,7 @@ src_configure() {
 		jemalloc = false
 		[dist]
 		src-tarball = false
+		compression-formats = ["gz"]
 	_EOF_
 
 	for v in $(multilib_get_enabled_abi_pairs); do

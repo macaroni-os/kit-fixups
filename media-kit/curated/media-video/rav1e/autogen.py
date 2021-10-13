@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 
-from packaging import version
+import re
 
-
-def get_release(releases_data):
-	releases = list(filter(lambda x: x['prerelease'] is False and "beta" not in x['tag_name'], releases_data))
-	return None if not releases else sorted(releases, key=lambda x: version.parse(x['tag_name'])).pop()
 
 async def generate(hub, **pkginfo):
 	github_user = "xiph"
@@ -13,11 +9,18 @@ async def generate(hub, **pkginfo):
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)
-
-	latest_release = get_release(json_list)
-	if latest_release is None:
-		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {github_repo}")
+	for release in json_list:
+		if release['prerelease']:
+			continue
+		if release['draft']:
+			continue
+		latest_release = release
+		break
 	version = latest_release['tag_name'].lstrip("v")
+	beta_match = re.match("(.*)-beta\\.([0-9])+", version)
+	if beta_match is not None:
+		gp = beta_match.groups()
+		version = gp[0] + "_beta" + gp[1]
 	url = latest_release['tarball_url']
 	final_name = f"{github_repo}-{version}.tar.gz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
@@ -34,3 +37,5 @@ async def generate(hub, **pkginfo):
 		],
 	)
 	ebuild.push()
+
+# vim: ts=4 sw=4 noet

@@ -238,8 +238,7 @@ src_prepare() {
 		-i Makefile.am -i bin/Makefile.am || die "Failed to disable vlc-cache-gen"
 	
 	# bug 758062
-	sed -i 's/SRTO_TSBPDDELAY/SRTO_LATENCY/' modules/access/srt.c || die
-	sed -i 's/SRTO_TSBPDDELAY/SRTO_LATENCY/' modules/access_output/srt.c || die
+	sed -i 's/SRTO_TSBPDDELAY/SRTO_LATENCY/' modules/access/srt.c modules/access_output/srt.c || die
 	sed -i 's+1.2.2 srt < 1.3.0], [SRT input/output plugin], [auto], [], [], [-DENABLE_SRT])+1.2.2], [SRT input/output plugin], [auto], [], [], [-DENABLE_SRT])+' configure.ac || die
 
 	eautoreconf

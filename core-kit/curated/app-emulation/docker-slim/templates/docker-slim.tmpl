@@ -1,0 +1,46 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+EGO_SUM=(
+{{gosum}})
+
+go-module_set_globals
+
+SRC_URI="{{artifacts[0].src_uri}}
+	${EGO_SUM_SRC_URI}"
+
+DESCRIPTION="Make your containers better, smaller, more secure and do less to get there"
+HOMEPAGE="https://dockersl.im/ https://github.com/docker-slim/docker-slim"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+post_src_unpack() {
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+}
+
+src_compile() {
+	BUILD_TIME="$(date -u '+%Y-%m-%d_%I:%M:%S%p')"
+
+	LD_FLAGS="-s -w \
+		-X github.com/docker-slim/docker-slim/pkg/version.appVersionTag=${PV} \
+		-X github.com/docker-slim/docker-slim/pkg/version.appVersionRev=current \
+		-X github.com/docker-slim/docker-slim/pkg/version.appVersionTime=${BUILD_TIME}"
+
+	for cmd_name in docker-slim{,-sensor}; do
+		CGO_ENABLED=0 go build -ldflags="${LD_FLAGS}" -mod=vendor ./cmd/${cmd_name} || die "compile failed"
+	done
+}
+
+src_install() {
+	for cmd_name in docker-slim{,-sensor}; do
+		dobin ${cmd_name}
+	done
+
+	dodoc README.md
+}

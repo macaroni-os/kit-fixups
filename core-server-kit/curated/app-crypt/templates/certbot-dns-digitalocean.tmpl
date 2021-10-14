@@ -19,7 +19,7 @@ IUSE=""
 CDEPEND=">=dev-python/setuptools-1.0[${PYTHON_USEDEP}]"
 RDEPEND="${CDEPEND}
 	>=app-crypt/certbot-1.1.0[${PYTHON_USEDEP}]
-	>=app-crypt/acme-0.29.0[${PYTHON_USEDEP}]
+	>=dev-python/acme-0.29.0[${PYTHON_USEDEP}]
 	>=dev-python/python-digitialocean-1.11[${PYTHON_USEDEP}]
 	dev-python/six[${PYTHON_USEDEP}]
 	dev-python/mock[${PYTHON_USEDEP}]

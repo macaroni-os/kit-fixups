@@ -17,7 +17,7 @@ SLOT="0"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=app-crypt/acme-0.29.0[${PYTHON_USEDEP}]
+RDEPEND=">=dev-python/acme-0.29.0[${PYTHON_USEDEP}]
 	>=app-crypt/certbot-1.1.0[${PYTHON_USEDEP}]
 	dev-python/mock[${PYTHON_USEDEP}]
 	dev-python/python-augeas[${PYTHON_USEDEP}]

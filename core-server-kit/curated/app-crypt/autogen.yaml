@@ -21,6 +21,8 @@ simp_rule:
           py:all:build:
             - setuptools
           py:all:
+            # add blocker for bad autogen
+            - not! app-crypt/acme
             - setuptools
             - cryptography >= 2.1.4
             - josepy >= 1.9.0

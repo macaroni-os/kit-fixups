@@ -57,13 +57,13 @@ src_configure() {
 		$(use_enable openvz)
 		$(use_enable unicode)
 		$(use_enable vserver)
-		$(use_with lm-sensors sensors)
+		$(use_enable lm-sensors sensors)
 	)
 
 	if ! use hwloc && use kernel_linux ; then
-		myeconfargs+=( --enable-linux-affinity )
+		myeconfargs+=( --enable-affinity )
 	else
-		myeconfargs+=( --disable-linux-affinity )
+		myeconfargs+=( --disable-affinity )
 	fi
 
 	econf ${myeconfargs[@]}

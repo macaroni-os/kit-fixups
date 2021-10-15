@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
-from distutils.version import LooseVersion
+import re
 
-
-def get_release(releases_data):
+def get_release(releases_data, target_asset):
+	"""
+	FL-8961 documents an issue where VSCodium had a release that did not include the x64 linux asset we use.
+	To address this, this code was 'robustified' and will look in the assets in a release and only select it
+	if it offers the asset we need.
+	"""
 	bad_versions = ["1.55.1"]
-	releases = list(
-		filter(
-			lambda x: x["prerelease"] is False and x["draft"] is False and x["tag_name"] not in bad_versions, releases_data
-		)
-	)
-	return None if not releases else sorted(releases, key=lambda x: LooseVersion(x["tag_name"])).pop()
-
+	for release in releases_data:
+		if release["prerelease"] or release["draft"]:
+			continue
+		if release["tag_name"] in bad_versions:
+			continue
+		matching_asset = None
+		version = None
+		for asset in release["assets"]:
+			found = re.match(target_asset, asset["name"])
+			if found:
+				return found.groups()[0], asset["url"], asset["name"]
+	return None
 
 async def generate(hub, **pkginfo):
 	user = "VSCodium"
@@ -20,17 +29,18 @@ async def generate(hub, **pkginfo):
 	releases_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
 	)
-	latest_release = get_release(releases_data)
-	if latest_release is None:
+	target_asset = f"{user}-linux-x64-([0-9.]+).tar.gz"
+	result = get_release(releases_data, target_asset)
+	if result is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
-	version = latest_release["tag_name"]
+	version, asset_url, asset_name = result
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
-				url=f"https://github.com/{user}/{repo}/releases/download/{version}/{user}-linux-x64-{version}.tar.gz",
-				final_name=f"{name}-{version}.tar.gz",
+				url=asset_url,
+				final_name=asset_name
 			)
 		],
 	)

@@ -32,6 +32,8 @@ src_install() {
 	dodir /opt/blender
 	cp -pPR ${S}/* ${D}/opt/blender || die "Failed to copy files"
 
+	fperms +x /opt/blender/blender
+
 	domenu ${S}/blender-bin.desktop
 	newicon -s scalable ${S}/blender.svg blender-bin.svg
 	dosym ../blender/blender /opt/bin/${PN}

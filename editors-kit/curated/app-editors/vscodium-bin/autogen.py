@@ -34,12 +34,14 @@ async def generate(hub, **pkginfo):
 	if result is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
 	version, asset_url, asset_name = result
+	ass_data = await hub.pkgtools.fetch.get_page(asset_url, is_json=True)
+	artifact_url = ass_data["browser_download_url"]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
-				url=asset_url,
+				url=artifact_url,
 				final_name=asset_name
 			)
 		],

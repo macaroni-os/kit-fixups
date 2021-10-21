@@ -41,6 +41,10 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]"
 
+PATCHES=(
+	"$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
+)
+
 S="${WORKDIR}/${P^}"
 
 # FL-8369: relax various deps

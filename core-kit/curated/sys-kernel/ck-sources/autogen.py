@@ -18,6 +18,9 @@ async def generate(hub, **pkginfo):
 		fixup_fn=lambda x: x.rstrip("/")
 	)
 	latest = hub.pkgtools.pages.latest(versions)
+	if latest is None:
+		print("Could not find a suitable ck-sources version.")
+		return
 	latest_split = latest.split(".")
 	minor_ver = latest_split[1]
 	

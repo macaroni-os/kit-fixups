@@ -31,7 +31,7 @@ kernel_gen:
   generator: debian-sources
   packages:
     - debian-sources-lts:
-        ummask_match: '4.19.'
+        ummask_match: '^4\.19\.'
         release: stable
         patches:
           - xfs-libcrc32c-fix.patch
@@ -42,6 +42,8 @@ kernel_gen:
           - amdgpu-picasso.patch
           - extra_cpu_optimizations.patch
         versions:
+          latest:
+            umasked: False
           4.19.194_p3:
             unmasked: True
     - debian-sources:
@@ -62,5 +64,4 @@ kernel_gen:
               - ikconfig.patch
               - fix-bluetooth-polling.patch
               - extra_cpu_optimizations.patch
-
             unmasked: True

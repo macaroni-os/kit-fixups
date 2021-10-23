@@ -1298,6 +1298,8 @@ dev_python_simplified_rule:
           py:all:
             - pyparsing >= 2.1.10
     - pyparsing:
+        compat: '2.4.7'
+        blocker: "!<dev-python/pyparsing-3.0.0"
         python_compat: python2+
     - setuptools_scm:
         revision:

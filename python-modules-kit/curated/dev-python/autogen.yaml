@@ -663,7 +663,7 @@ simple_python_autogen_rule:
           - msgpack
         body: |
           src_prepare() {
-            touch ${S}/requirements.txt
+            touch ${S}/requirements/base.txt
             default
           }
     - colorama:

@@ -14,6 +14,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="amd64"
 IUSE="libsecret hunspell"
+S="$WORKDIR"
 
 DEPEND="
 	media-libs/libpng
@@ -31,17 +32,6 @@ RDEPEND="
 	hunspell? ( app-text/hunspell )
 	libsecret? ( app-crypt/libsecret[crypt] )
 "
-
-src_unpack() {
-	# vscodium tarball differs from vscode-bin
-	# vscodium does not use a containing folder
-	# manual intervention required
-	install -d "${WORKDIR}/${P}"
-	S="${WORKDIR}/${P}"
-	cd "${S}" || die "cd into target directory ${S} failed"
-	unpack "${P}.tar.gz"
-}
-
 src_install() {
 	pax-mark m "${MY_INSTALL_DIR}/${MY_EXEC}"
 	insinto "${MY_INSTALL_DIR}"

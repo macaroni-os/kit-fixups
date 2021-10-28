@@ -13,15 +13,18 @@ HOMEPAGE="https://www.openexr.com/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="BSD"
-SLOT="{{libtool_rev}}/{{libtool_cur}}" # based on SONAME
+SLOT="{{slot}}/{{version}}"
 KEYWORDS="*"
 IUSE="cpu_flags_x86_avx doc examples large-stack static-libs utils test threads"
 RESTRICT="!test? ( test )"
 
+# FL-9012: blocker below to address an earlier version of openexr having a incorrect SLOT of 2.
 RDEPEND="
 	>=dev-libs/imath-3.1.0:=
 	sys-libs/zlib
+	!media-libs/openexr:2
 "
+
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 

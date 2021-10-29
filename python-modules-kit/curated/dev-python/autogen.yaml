@@ -367,6 +367,10 @@ dev_python_compat_rule:
           https://github.com/yaml/pyyaml
         license: MIT
         iuse: examples +libyaml
+        depend: |
+          libyaml? ( dev-libs/pyyaml )
+        rdepend: |
+          libyaml? ( dev-libs/pyyaml )
         pydeps:
           use:libyaml:
             - cython

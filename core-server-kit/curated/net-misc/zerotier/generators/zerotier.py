@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import json
-
+import re
 
 async def generate(hub, **pkginfo):
 	github_user = "zerotier"
@@ -13,7 +12,10 @@ async def generate(hub, **pkginfo):
 		if release["draft"] is True or release["prerelease"] is True:
 			continue
 		tag_name = release["tag_name"]
-		version = release["name"].split()[1]
+		ver_find = re.match("([0-9.]+)", tag_name)
+		if not ver_find:
+			continue
+		version = ver_find.groups()[0]
 		break
 	tag_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True

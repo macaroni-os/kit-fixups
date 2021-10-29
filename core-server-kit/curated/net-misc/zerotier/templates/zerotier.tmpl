@@ -24,7 +24,6 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.4.6-respect-ldflags.patch"
 	"${FILESDIR}/${PN}-1.4.6-add-armv7a-support.patch"
 )
 
@@ -35,6 +34,11 @@ LLVM_MAX_SLOT=11
 src_unpack() {
 	unpack ${A}
 	mv ${WORKDIR}/zerotier-* ${S} || die
+}
+
+src_prepare() {
+	default
+	sed -i -e 's/LDFLAGS=/LDFLAGS?=/g' ${S}/make-linux.mk || die
 }
 
 llvm_check_deps() {

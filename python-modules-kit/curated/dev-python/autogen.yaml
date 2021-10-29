@@ -1301,11 +1301,14 @@ dev_python_simplified_rule:
         python_compat: python3+
         pydeps:
           py:all:
-            - pyparsing >= 2.1.10
+            - pyparsing < 3
     - pyparsing:
-        compat: '2.4.7'
-        blocker: "!<dev-python/pyparsing-3.0.0"
+        version: '2.4.7'
         python_compat: python2+
+# See FL-9027:
+#        compat: '2.4.7'
+#        blocker: "!<dev-python/pyparsing-3.0.0"
+#        python_compat: python2+
     - setuptools_scm:
         revision:
           6.3.1: 2

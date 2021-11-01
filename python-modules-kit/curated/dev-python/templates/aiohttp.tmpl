@@ -54,6 +54,7 @@ S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
 DOCS=( CHANGES.rst CONTRIBUTORS.txt README.rst )
 
 src_prepare() {
+	default
 	# Prevent installing examples
 	rm ${S}/examples/__init__.py
 }

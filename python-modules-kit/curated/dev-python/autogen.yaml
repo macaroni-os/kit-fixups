@@ -1437,6 +1437,39 @@ dev_python_simplified_rule:
         body: |
           DOCS=( README.md )
 
+aiohttp_new_stuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy3
+  generator: pypi-simple-1
+  packages:
+    - aiodns:
+        pydeps:
+          py:all:
+            - pycares >= 3
+          py:all:build:
+            - setuptools
+    - aiosignal
+    - aiohttp:
+        pydeps:
+          py:all:
+            - async_timeout > 3
+            - attrs > 17.3.0
+            - chardet
+            - multidict > 4.5.0
+            - yarl > 1
+            - idna-ssl
+            - typing-extensions
+            - aiosignal
+            - aiodns
+          py:all:build:
+            - setuptools
+            - cython
+        body: |
+          src_prepare() {
+            rm ${S}/examples/__init__.py
+          }
+
 dev_python_autogen_rule:
   defaults:
     cat: dev-python
@@ -1445,7 +1478,6 @@ dev_python_autogen_rule:
   packages:
     - alabaster:
         python_compat: python2+ pypy{,3}
-    - aiohttp
     - aiohttp-socks:
         python_compat: python3+ pypy3
     - async_timeout:

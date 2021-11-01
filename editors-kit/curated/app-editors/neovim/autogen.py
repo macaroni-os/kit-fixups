@@ -32,7 +32,7 @@ def generate_ebuild(hub, repo_name, release_data, commit_data, is_stable, **pkgi
 	else:
 		src_name = curr_release["tag_name"]
 		version = re.sub("[^0-9.]", "", curr_release["name"])
-
+	print(src_name, version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
@@ -56,3 +56,5 @@ async def generate(hub, **pkginfo):
 
 	generate_ebuild(hub, name, release_data, commit_data, True, **pkginfo)
 	generate_ebuild(hub, name, release_data, commit_data, False, **pkginfo)
+
+# vim: ts=4 sw=4 noet tw=120

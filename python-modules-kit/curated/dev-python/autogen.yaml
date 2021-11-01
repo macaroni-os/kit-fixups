@@ -1467,6 +1467,7 @@ aiohttp_new_stuff:
             - cython
         body: |
           src_prepare() {
+            default
             rm ${S}/examples/__init__.py
           }
 

@@ -13,7 +13,8 @@ SLOT="0"
 KEYWORDS="*"
 
 BDEPEND="${RUBY_DEPS}"
-DEPEND="dev-util/opencl-headers"
+DEPEND="dev-util/opencl-headers
+	app-text/asciidoc"
 RDEPEND="${DEPEND}
 	!<app-eselect/eselect-opencl-1.2.0
 	!dev-libs/opencl-icd-loader"

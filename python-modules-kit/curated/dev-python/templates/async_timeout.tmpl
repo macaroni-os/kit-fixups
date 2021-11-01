@@ -22,8 +22,6 @@ DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]
 
 python_prepare_all() {
 	sed -i "s:, 'pytest-runner'::" -i setup.py || die
-	# tests fail due to missing fixture when trying to load this file
-	rm tests/conftest.py || die
 	distutils-r1_python_prepare_all
 }
 

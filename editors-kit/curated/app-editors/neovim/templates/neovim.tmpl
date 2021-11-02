@@ -19,9 +19,10 @@ BDEPEND="
 	virtual/libintl
 	virtual/pkgconfig
 "
+
 DEPEND="
+	<dev-libs/libvterm-0.2
 	dev-libs/libuv:0=
-	dev-libs/libvterm:0=
 	dev-libs/msgpack:0=
 	dev-lua/lpeg[luajit=]
 	dev-lua/luv[luajit=]
@@ -38,6 +39,7 @@ DEPEND="
 		>=dev-libs/unibilium-2.0.0:0=
 	)
 "
+
 RDEPEND="
 	${DEPEND}
 	app-eselect/eselect-vi

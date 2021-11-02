@@ -22,15 +22,16 @@ def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
 		########################################################################################################
 		# GitHub does not list this URL in the release's assets list, but it is always available if there is an
 		# associated tag for the release. Rather than use the tag name (which would give us a non-distinct file
-		# name), we use the sha1 to grab a specific URL and get a specific final name on disk for the artifact.
+		# name), we use the sha1 to grab a specific URL and use a specific final name on disk for the artifact.
 		########################################################################################################
 
 		url = f"https://github.com/neovim/neovim/archive/{sha}.tar.gz"
+		final_name = f"neovim-{version}-{sha}.tar.gz"
 		eb = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			version=version,
 			stable=not nightly,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+			artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
 		)
 		eb.push()
 

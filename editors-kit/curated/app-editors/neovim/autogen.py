@@ -1,60 +1,45 @@
 #!/usr/bin/env python3
 
 import re
-from datetime import datetime
 
 
-def get_release(release_data, is_stable=True):
-	releases = list(filter(lambda x: x["prerelease"] != is_stable, release_data))
-	return None if not releases else sorted(releases, key=lambda x: x["tag_name"]).pop()
-
-
-def generate_ebuild(hub, repo_name, release_data, commit_data, is_stable, **pkginfo):
-	# FL-7934: Since neovim deletes the nightly release from time to time,
-	# it can cause the autogen script to fail. To avoid failures and to avoid
-	# forcing nightly users to downgrade to stable, a snapshot ebuild should be
-	# generated instead, that simply pulls in a specific commit and builds it.
-	curr_release = get_release(release_data, is_stable)
-	is_snapshot = False
-	if curr_release is None:
-		if is_stable:
-			raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable stable release of {repo_name}")
+def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
+	desired_tag = "nightly" if nightly else "stable"
+	for release in release_data:
+		if release['tag_name'] != desired_tag:
+			continue
+		if nightly:
+			# set version to YYYYMMDD:
+			version = release["published_at"].split("T")[0].replace("-","")
 		else:
-			print(f"Nightly release of {repo_name} not found, generating a snapshot ebuild instead.")
-			is_snapshot = True
+			# grab version from GitHub "name" field via regex:
+			ver_match = re.search("([0-9.]+)", release["name"])
+			if not ver_match:
+				raise KeyError(f"Could not find suitable neovim stable version in name \"{release['name']}\"")
+			version = ver_match.groups()[0]
+		sha = next(filter(lambda tag_ent: tag_ent["name"] == desired_tag, tag_data))['commit']['sha']
 
-	version = ""
-	src_name = ""
-	if is_snapshot:
-		src_name = commit_data["sha"]
-		commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
-		version = commit_date.strftime("%Y%m%d")
-	else:
-		src_name = curr_release["tag_name"]
-		version = re.sub("[^0-9.]", "", curr_release["name"])
-	print(src_name, version)
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=version,
-		stable=is_stable,
-		artifacts=[
-			hub.pkgtools.ebuild.Artifact(
-				url=f"https://github.com/{repo_name}/{repo_name}/archive/{src_name}.tar.gz",
-				final_name=f"{repo_name}-{version}.tar.gz",
-			)
-		],
-	)
-	ebuild.push()
+		########################################################################################################
+		# GitHub does not list this URL in the release's assets list, but it is always available if there is an
+		# associated tag for the release. Rather than use the tag name (which would give us a non-distinct file
+		# name), we use the sha1 to grab a specific URL and get a specific final name on disk for the artifact.
+		########################################################################################################
+
+		url = f"https://github.com/neovim/neovim/archive/{sha}.tar.gz"
+		eb = hub.pkgtools.ebuild.BreezyBuild(
+			**pkginfo,
+			version=version,
+			stable=not nightly,
+			artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		)
+		eb.push()
 
 
 async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
 	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/releases", is_json=True)
-	commit_data = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{name}/{name}/commits/master", is_json=True
-	)
-
-	generate_ebuild(hub, name, release_data, commit_data, True, **pkginfo)
-	generate_ebuild(hub, name, release_data, commit_data, False, **pkginfo)
+	tag_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/tags", is_json=True)
+	gen_ebuild(release_data, tag_data, pkginfo, nightly=False)
+	gen_ebuild(release_data, tag_data, pkginfo, nightly=True)
 
 # vim: ts=4 sw=4 noet tw=120

@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/tags?search=RELEASE")
 	json_list = json.loads(json_data)
 	for release in json_list:
-		if "beta" in release["name"]:
+		if "beta" in release["name"] or "rc" in release["name"]:
 			continue
 		version = release["name"].split("-", 1)[1]
 		break

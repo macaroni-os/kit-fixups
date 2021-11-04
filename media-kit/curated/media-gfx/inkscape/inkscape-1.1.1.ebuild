@@ -2,15 +2,14 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_7 )
+PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="xml"
 
 inherit cmake flag-o-matic xdg toolchain-funcs python-single-r1
 
 DESCRIPTION="SVG based generic vector-drawing program"
 HOMEPAGE="https://inkscape.org/"
-SRC_URI="https://inkscape.org/gallery/item/21571/${P}.tar.xz"
-
+SRC_URI="https://media.inkscape.org/dl/resources/file/inkscape-1.1.1.tar.xz"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
@@ -18,10 +17,6 @@ IUSE="cdr dbus dia exif graphicsmagick imagemagick inkjar jemalloc jpeg lcms
 openmp postscript spell static-libs svg2 visio wpg"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-
-PATCHES=(
-	"${FILESDIR}/missing_atomic_include.patch"
-)
 
 BDEPEND="
 	dev-util/glib-utils
@@ -95,9 +90,15 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-libs/boost-1.65
 "
 
+PATCHES=(
+	"${FILESDIR}"/${P}-poppler-fix.patch
+)
+
 RESTRICT="test"
 
-S="${WORKDIR}"/${P}_2020-09-07_3bc2e813f5
+post_src_unpack() {
+	mv "${WORKDIR}"/"${P}"* "${S}"
+}
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != binary ]] && use openmp; then

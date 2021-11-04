@@ -35,8 +35,14 @@ post_src_unpack() {
 
 src_install() {
 	mkdir install-unhinted install-hinted || die
-	mv unhinted/ttf/Noto*/*.tt[fc] install-unhinted/. ||  die
-	mv hinted/ttf/Noto*/*.tt[fc] install-hinted/. || die
+
+	# FL-9036: Noto sometimes has colliding TTF file names
+	# Passing `--backup=numbered` will force mv to succeed anyway, creating
+	# "backup files" when it hits a collision, which we can later clean up.
+	mv --backup=numbered unhinted/ttf/*/* install-unhinted/. ||  die
+	mv --backup=numbered hinted/ttf/*/* install-hinted/. || die
+
+	rm -rf install-unhinted/*~ install-hinted/*~
 
 	FONT_S="${S}/install-unhinted/" font_src_install
 	FONT_S="${S}/install-hinted/" font_src_install

@@ -1449,7 +1449,9 @@ aiohttp_new_stuff:
             - pycares >= 3
           py:all:build:
             - setuptools
-    - aiosignal
+    - aiosignal:
+        pydeps:
+          - frozenlist
     - aiohttp:
         pydeps:
           py:all:
@@ -1470,6 +1472,23 @@ aiohttp_new_stuff:
             default
             rm ${S}/examples/__init__.py
           }
+    - frozenlist
+
+better_autogens_without_templates:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - py:
+        python_compat: python2+ pypy{,3}
+        revision:
+          1.11.0: 1
+        pydeps:
+          py:all:build:
+            - setuptools
+            - setuptools_scm
+
 
 dev_python_autogen_rule:
   defaults:
@@ -1573,8 +1592,6 @@ dev_python_autogen_rule:
         python_compat: python2_7
     - multidict
     - numpy
-    - py:
-        python_compat: python2+ pypy{,3}
     - pymongo:
         python_compat: python2+
     - flake8-polyfill:

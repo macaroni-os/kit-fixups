@@ -8,10 +8,9 @@ def get_postman_url(version, arch="linux64"):
 
 
 async def generate(hub, **pkginfo):
-	latest_url = get_postman_url("latest")
-	filename_pattern = re.compile("Postman-linux-x(?:86_)?64-(.*).tar.gz")
-	latest_filename = await hub.pkgtools.fetch.get_response_filename(latest_url)
-	version, = filename_pattern.match(latest_filename).groups()
+	release_notes_url="https://dl.pstmn.io/api/version/notes?channel=stable"
+	release_notes = await hub.pkgtools.fetch.get_page(release_notes_url, is_json=True)
+	version = release_notes["notes"][0]["version"]
 	src_url = get_postman_url(f"version/{version}")
 	final_name = f"{pkginfo['name']}-{version}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

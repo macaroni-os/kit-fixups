@@ -384,7 +384,8 @@ gnome3_update_immodules_cache_gtk3() {
 	GTK_IM_MODULE_FILE="${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
 	output="$(${updater} --update-cache 2>&1)"
 	if [ $? -ne 0 ]; then
-	    die "immodules cache update failed: $output"
+		ewarn "There were some problems updating the immodules cache: $output"
+		ewarn "These problems may be transient and due to temporary missing symbols."
 	else
 		einfo "Immodules cache update success."
 	fi

@@ -75,7 +75,7 @@ RDEPEND="${PYTHON_DEPS}
 	opencl? ( virtual/opencl )
 	oidn? ( >=media-libs/oidn-1.3.0 )
 	openimageio? ( >=media-libs/openimageio-2.2.13.1:= )
-	openexr? ( media-libs/openexr:= )
+	openexr? ( >=media-libs/openexr-3:= )
 	opensubdiv? ( >=media-libs/opensubdiv-3.4.0[cuda=,opencl=] )
 	openvdb? (
 		>=media-gfx/openvdb-7.1.0
@@ -141,9 +141,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	if has_version media-libs/openexr:3 ; then
-		eapply "${FILESDIR}/${PN}-2.93.2-imath.patch" || die
-	fi
 	cmake_src_prepare
 
 	blender_get_version

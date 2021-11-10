@@ -5,17 +5,15 @@ EAPI=7
 inherit cmake flag-o-matic toolchain-funcs
 
 MY_PN=OpenEXR
-MY_PV=$(ver_cut 1)
-MY_P=${MY_PN}-${MY_PV}
 
 DESCRIPTION="ILM's OpenEXR high dynamic-range image file format libraries"
 HOMEPAGE="https://www.openexr.com/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="BSD"
-SLOT="{{slot}}/{{version}}"
+SLOT="0/${PV}"
 KEYWORDS="*"
-IUSE="cpu_flags_x86_avx doc examples large-stack static-libs utils test threads"
+IUSE="cpu_flags_x86_avx examples large-stack static-libs utils test threads"
 RESTRICT="!test? ( test )"
 
 # FL-9012: blocker below to address an earlier version of openexr having a incorrect SLOT of 2.
@@ -29,8 +27,8 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
-	"${FILESDIR}"/openexr-3.1.1-0001-changes-needed-for-proper-slotting.patch
-	"${FILESDIR}"/openexr-3.1.1-0002-add-version-to-binaries-for-slotting.patch
+	#"${FILESDIR}"/openexr-3.1.1-0001-changes-needed-for-proper-slotting.patch
+	#"${FILESDIR}"/openexr-3.1.1-0002-add-version-to-binaries-for-slotting.patch
 	"${FILESDIR}"/openexr-3.1.1-0003-disable-failing-test.patch
 )
 
@@ -47,7 +45,6 @@ src_prepare() {
 
 	cmake_src_prepare
 
-	mv "${S}"/cmake/${MY_PN}.pc.in "${S}"/cmake/${MY_P}.pc.in || die
 }
 
 src_configure() {
@@ -60,7 +57,6 @@ src_configure() {
 		-DOPENEXR_INSTALL_EXAMPLES=$(usex examples)
 		-DOPENEXR_INSTALL_PKG_CONFIG=ON
 		-DOPENEXR_INSTALL_TOOLS=$(usex utils)
-		-DOPENEXR_OUTPUT_SUBDIR="${MY_P}"
 		-DOPENEXR_USE_CLANG_TIDY=OFF		# don't look for clang-tidy
 	)
 
@@ -70,13 +66,7 @@ src_configure() {
 }
 
 src_install() {
-	if use doc; then
-		DOCS+=( docs/*.pdf )
-	fi
 	use examples && docompress -x /usr/share/doc/${PF}/examples
 	cmake_src_install
 
-	newenvd - 99${PN}3 <<-EOF
-		LDPATH=/usr/$(get_libdir)/${MY_P}
-	EOF
 }

@@ -46,7 +46,7 @@ RDEPEND="
 	media-libs/libpng:0=
 	>=media-libs/libwebp-0.2.1:=
 	media-libs/opencolorio:=
-	>=media-libs/openexr-2.2.0-r2:=
+	>=media-libs/openexr-3:=
 	media-libs/tiff:0=
 	sys-libs/zlib:=
 	virtual/jpeg:0

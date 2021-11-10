@@ -25,7 +25,7 @@ IUSE="doc partio qt5 ${CPU_FEATURES[@]%:*}"
 RDEPEND="
 	dev-libs/boost:=
 	dev-libs/pugixml
-	media-libs/openexr:=
+	>=media-libs/openexr-3:=
 	media-libs/openimageio:=
 	<=sys-devel/clang-13:=
 	sys-libs/zlib:=

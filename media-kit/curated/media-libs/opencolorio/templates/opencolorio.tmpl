@@ -36,6 +36,7 @@ RDEPEND="
 		media-libs/freeglut
 		virtual/opengl
 	)
+	>=dev-libs/imath-3:=
 	python? ( ${PYTHON_DEPS} )
 "
 DEPEND="${RDEPEND}"
@@ -66,9 +67,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	if has_version dev-libs/imath:3 ; then
-		eapply "${FILESDIR}"/opencolorio-2.0.1-imath.patch
-	fi
+	eapply "${FILESDIR}"/opencolorio-2.0.2-imath.patch
 	cmake_src_prepare
 
 	sed -i -e "s|LIBRARY DESTINATION lib|LIBRARY DESTINATION $(get_libdir)|g" {,src/bindings/python/,src/OpenColorIO/,src/libutils/oiiohelpers/,src/libutils/oglapphelpers/}CMakeLists.txt || die
@@ -94,6 +93,7 @@ src_configure() {
 		-DOCIO_BUILD_GPU_TESTS=OFF
 		-DOCIO_BUILD_FROZEN_DOCS=$(usex doc)
 		-DOCIO_INSTALL_EXT_PACKAGES=NONE
+		-DOCIO_USE_OPENEXR_HALF=OFF
 	)
 
 	# We need this to work around asserts that can trigger even in proper use cases.

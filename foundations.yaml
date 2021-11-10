@@ -62,12 +62,29 @@ overlays:
       url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
       src_sha1: 2e49e96c41bf524a74ee347c49438612d7d8d392 
       date: '31 Dec 2020'
+  - gentoo-staging-nov-2021:
+      url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+      src_sha1: a15a64f48741a493e49dfee7d4280a3dc10cd21d
+      date: '9 Nov 2021'
   - perl-kit-legacy:
       url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-legacy.git
       src_sha1: 482287e2e6ed7d56e675092ad9658bebc4be6618
       date: '30 Nov 2020 - 5.28-release'
 
 source-defs:
+  - funtoo_next:
+      - repo: flora
+      - repo: fusion809
+      - repo: faustoo
+      - repo: fusion809
+      - repo: deadbeef
+      - repo: gentoo-staging-nov-2021
+      - repo: gentoo-staging
+        src_sha1: 9292583023a6610905c79a4707db3ac6c63b3a31
+        date: '21 Jun 2019'
+      - repo: gentoo-staging-Sep-2020
+      - repo: gentoo-staging-late-2020
+      - repo: pf4public
   - funtoo_late_2020:
       - repo: flora
       - repo: fusion809
@@ -168,49 +185,67 @@ kit-groups:
               branch: 3.7-release
     - next:
           - core-kit:
+              source: funtoo_next
               branch: next
           - llvm-kit:
               source: funtoo_late_2020
               branch: next
           - core-hw-kit:
+              source: funtoo_next
               branch: next
           - core-server-kit:
+              source: funtoo_next
               branch: next
           - core-gl-kit:
+              source: funtoo_next
               branch: next
           - security-kit:
-              source: funtoo_release_1.4_bump
+              source: funtoo_next
               branch: next
           - browser-kit:
               source: funtoo_oct_2020
               branch: next
           - desktop-kit:
+              source: funtoo_next
               branch: next
           - media-kit:
+              source: funtoo_next
               branch: next
           - editors-kit:
+              source: funtoo_next
               branch: next
           - net-kit:
+              source: funtoo_next
               branch: next
           - text-kit:
+              source: funtoo_next
               branch: next
           - science-kit:
+              source: funtoo_next
               branch: next
           - games-kit:
+              source: funtoo_next
               branch: next
           - java-kit:
+              source: funtoo_next
               branch: next
           - haskell-kit:
+              source: funtoo_next
               branch: next
           - ml-lang-kit:
+              source: funtoo_next
               branch: next
           - lisp-scheme-kit:
+              source: funtoo_next
               branch: next
           - lang-kit:
+              source: funtoo_next
               branch: next
           - dev-kit:
+              source: funtoo_next
               branch: next
           - python-modules-kit:
+              source: funtoo_next
               branch: next
           - kde-kit:
               kind: independent

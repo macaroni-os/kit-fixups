@@ -10,7 +10,7 @@ HOMEPAGE="http://www.funtoo.org/Package:Ego"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="zsh-completion"
 GITHUB_REPO="$PN"
 GITHUB_USER="funtoo"

@@ -56,6 +56,10 @@ src_unpack() {
 	mv ${WORKDIR}/nextcloud-* ${S} || die
 }
 
+PATCHES=( "${FILESDIR}"/only_rsvg-convert.patch )
+
+#S="${WORKDIR}/desktop-${PV/_/-}"
+
 src_prepare() {
 	# Keep tests in ${T}
 	sed -i -e "s#\"/tmp#\"${T}#g" test/test*.cpp || die

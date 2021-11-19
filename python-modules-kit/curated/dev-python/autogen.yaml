@@ -6,6 +6,20 @@
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
 
+tensorflow:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - grpcio-tools:
+        depend: |
+          =dev-libs/protobuf-3*
+    - grpcio:
+        pydeps:
+          - six >= 1.5.2
+          - grpcio-tools >= 1.42.0
+
 funtoo_stuff:
   defaults:
     cat: dev-python

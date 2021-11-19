@@ -18,9 +18,10 @@ REQUIRED_USE="libclamav-only? ( !clamonacc !clamdtop !clamsubmit !milter !metada
 RESTRICT="!test? ( test )"
 
 CDEPEND="
+	dev-libs/json-c:=
 	bzip2? ( app-arch/bzip2 )
 	clamdtop? ( sys-libs/ncurses:0 )
-	clamsubmit? ( net-misc/curl dev-libs/json-c:= )
+	clamsubmit? ( net-misc/curl )
 	iconv? ( virtual/libiconv )
 	milter? ( || ( mail-filter/libmilter mail-mta/sendmail ) )
 	>=sys-libs/zlib-1.2.2:=
@@ -37,7 +38,6 @@ CDEPEND="
 BDEPEND="virtual/pkgconfig"
 
 DEPEND="${CDEPEND}
-	metadata-analysis-api? ( dev-libs/json-c:* )
 	test? ( dev-libs/check )"
 
 RDEPEND="${CDEPEND}

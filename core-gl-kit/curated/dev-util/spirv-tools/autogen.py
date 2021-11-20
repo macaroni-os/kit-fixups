@@ -3,7 +3,7 @@
 import glob
 import os
 from datetime import datetime
-
+import re
 
 async def query_github_api(user, repo, query):
 	return await hub.pkgtools.fetch.get_page(
@@ -13,10 +13,9 @@ async def query_github_api(user, repo, query):
 
 def get_version(json):
 	for tag in json:
-		v = tag["name"].lstrip("v")
-		if "-rc" in v or "vulkan" in v:
+		version = tag["name"].lstrip("v")
+		if not re.match("[0-9.]+", version):
 			continue
-		version = v
 		url = tag["tarball_url"]
 		break
 	return version, url

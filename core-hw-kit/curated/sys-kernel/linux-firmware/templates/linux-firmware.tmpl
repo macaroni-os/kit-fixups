@@ -70,8 +70,6 @@ RDEPEND="!savedconfig? (
 src_prepare() {
 	# source and documentation files, not to be installed
 	local source_files=(
-		README
-		WHENCE
 		"LICEN[CS]E*"
 		"GPL*"
 		configure
@@ -208,6 +206,13 @@ src_prepare() {
 		lgs8g75.fw
 	)
 
+	# whitelist of misc files
+	local misc_files=(
+		copy-firmware.sh
+		WHENCE
+		README
+	)
+
 	default
 
 	# remove sources and documentation (wildcards are expanded)
@@ -225,7 +230,7 @@ src_prepare() {
 		# based on upstream acceptance policy
 		local IFS=$'\n'
 		find ! -type d -printf "%P\n" \
-			| grep -Fvx -e "${free_software[*]}" -e "${unknown_license[*]}" \
+			| grep -Fvx -e "${misc_files[*]}" -e "${free_software[*]}" -e "${unknown_license[*]}" \
 			| xargs -d '\n' rm || die
 		IFS=$' \t\n'
 	fi
@@ -276,22 +281,58 @@ src_prepare() {
 }
 
 src_install() {
-	save_config ${PN}.conf
-	rm ${PN}.conf || die
+	./copy-firmware.sh -v "${ED}/lib/firmware" || die
 
-	if use initramfs ; then
-		mkdir "${ED}/boot" || die
-		mv "${S}"/amd-uc.img "${ED}/boot" || die
+	pushd "${ED}/lib/firmware" &>/dev/null || die
+
+	# especially use !redistributable will cause some broken symlinks
+	einfo "Removing broken symlinks ..."
+	find * -xtype l -print -delete || die
+
+	if use savedconfig; then
+		if [[ -s "${S}/${PN}.conf" ]]; then
+			local files_to_keep="${T}/files_to_keep.lst"
+			grep -v '^#' "${S}/${PN}.conf" 2>/dev/null > "${files_to_keep}" || die
+			[[ -s "${files_to_keep}" ]] || die "grep failed, empty config file?"
+
+			einfo "Applying USE=savedconfig; Removing all files not listed in config ..."
+			find ! -type d -printf "%P\n" \
+				| grep -Fvx -f "${files_to_keep}" \
+				| xargs -d '\n' --no-run-if-empty rm -v
+
+			if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+				die "Find failed to print installed files"
+			elif [[ ${PIPESTATUS[1]} -eq 2 ]]; then
+				# grep returns exit status 1 if no lines were selected
+				# which is the case when we want to keep all files
+				die "Grep failed to select files to keep"
+			elif [[ ${PIPESTATUS[2]} -ne 0 ]]; then
+				die "Failed to remove files not listed in config"
+			fi
+		fi
 	fi
 
+	# remove empty directories, bug #396073
+	find -type d -empty -delete || die
+
+	# sanity check
 	if ! ( shopt -s failglob; : * ) 2>/dev/null; then
 		eerror "No files to install. Check your USE flag settings"
 		eerror "and the list of files in your saved configuration."
 		die "Refusing to install an empty package"
 	fi
 
-	insinto /lib/firmware/
-	doins -r *
+	# create config file
+	echo "# Remove files that shall not be installed from this list." > "${S}"/${PN}.conf || die
+	find * ! -type d >> "${S}"/${PN}.conf || die
+	save_config "${S}"/${PN}.conf
+
+	popd &>/dev/null || die
+
+	if use initramfs ; then
+		insinto /boot
+		doins "${S}"/amd-uc.img
+	fi
 }
 
 pkg_preinst() {

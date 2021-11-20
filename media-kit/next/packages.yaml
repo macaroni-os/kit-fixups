@@ -1,4 +1,156 @@
 packages:
+
+################################################################
+# excluded -- things we're not supporting in next-release (yet?)
+################################################################
+
+#    - media-gfx/graphviz
+
+#######################################################################################
+#  deprecated -- stuff to phase out of existing deps due to being old or mostly useless
+#######################################################################################
+
+#    - media-libs/devil
+#    - media-libs/libfpx
+#    - media-libs/liblqr
+#    - media-libs/libquvi
+#    - media-libs/libquvi-scripts
+#    - media-libs/gavl
+#    - media-libs/jasper
+
+- gentoo-staging:
+    miscategorized:
+
+      #################################
+      # These should move to other kits
+      #################################
+
+      ############################
+      # should move to core-gl-kit
+      ############################
+
+      - media-libs/freeglut
+      - media-libs/glew
+      - media-libs/glm
+
+      ##########################
+      # should move to gnome-kit
+      ##########################
+
+      - media-libs/gupnp-dlna
+      - media-libs/libcanberra
+
+      #########################################################################################
+      # should move alongside libreoffice, or we can add an 'office-media' formats to this file
+      #########################################################################################
+
+      - media-libs/libpagemaker
+      - media-libs/libvisio
+      - media-libs/libzmf
+
+      #####################
+      # dev-kit? rdf parser
+      #####################
+
+      - media-libs/raptor
+    external_and_interactive:
+      toolkits:
+        - media-libs/libsdl
+      video:
+        - media-libs/libv4l
+        - media-libs/nv-codec-headers
+      disc:
+        - media-libs/libdvdcss
+        - media-libs/libdvdnav
+        - media-libs/libdvdread
+        - media-libs/libdc1394
+        - media-libs/libcddb
+        - media-libs/libcdr
+        - media-libs/libdiscid
+        - media-libs/libbluray
+      metadata:
+        - media-libs/exempi
+        - media-gfx/exiv2
+        - media-libs/libzen
+        - media-libs/libmediainfo
+    audio:
+      general:
+        - media-libs/taglib
+        - media-libs/webrtc-audio-processing
+        - media-libs/libmtp
+        - virtual/jack
+        - media-libs/libsamplerate
+        - media-libs/libsndfile
+        - media-sound/jack
+        - media-sound/id3
+        - media-sound/twolame
+        - media-sound/cdparanoia
+        - media-sound/lame
+        - media-sound/mpg123
+        - media-sound/jack-audio-connection-kit
+        - media-sound/wavpack
+      formats:
+        - media-libs/speex
+        - media-libs/speexdsp
+        - media-libs/sbc
+        - media-libs/opus
+        - media-libs/faad2
+        - media-libs/libvorbis
+        - media-libs/libogg
+        - media-libs/flac
+        - media-libs/audiofile
+        - media-libs/libmad
+        - media-libs/libmpeg2
+    graphics:
+      apps:
+        - media-gfx/imagemagick
+        - virtual/imagemagick-tools
+      color_management:
+        - media-libs/lcms
+      toolkits:
+        - media-libs/potrace
+        - media-gfx/scour
+        - media-libs/gd
+      photo:
+        - media-libs/exiftool
+        - media-libs/libraw
+      formats:
+        - media-libs/libnsgif
+        - media-libs/giflib
+        - media-libs/libpng
+        - virtual/jpeg
+        - virtual/jpeg-compat
+        - media-libs/libjpeg-turbo
+        - media-libs/tiff
+        - media-libs/jbigkit
+        - media-libs/openjpeg
+        - media-libs/libwebp
+        - media-libs/libwmf
+    video:
+      apps:
+        - virtual/ffmpeg
+      formats:
+        - media-libs/xvid
+        - media-libs/a52dec
+        - media-libs/libheif
+        - media-libs/dav1d
+        - media-libs/libaom
+        - media-video/rav1e
+        - media-libs/x265
+        - media-libs/openh264
+        - media-libs/libtheora
+        - media-libs/libdca
+    typography:
+      toolkits:
+        - media-gfx/graphite2
+        - media-libs/libuninameslist
+        - media-libs/libass
+        - media-libs/woff2
+      fonts:
+        - media-fonts/corefonts
+        - media-fonts/urw-fonts
+        - media-fonts/symbola
+        - media-fonts/unifont
 - gentoo-staging-nov-2021:
     gstreamer_and_friends:
       - media-libs/gstreamer
@@ -78,99 +230,4 @@ packages:
       - media-plugins/gst-plugins-v4l2
       - media-plugins/gst-plugins-x264
 - flora:
-  - media-libs/portmidi
-  - media-libs/libpng-compat
-  - media-video/mediaelch
-  - media-video/lives
-  - media-video/aegisub
-  - media-video/flowblade
-  - media-gfx/CAMotics
-  - media-gfx/fbcondecor-funtoo-logo
-  - media-gfx/slic3r
-  - media-gfx/posterazor
   - media-sound/squeezelite
-  - media-sound/strawberry
-  - media-sound/yarock
-  - media-sound/musescore
-  - media-sound/flacon
-- gentoo-staging:
-  - media-libs/a52dec
-  - media-libs/audiofile
-  - media-libs/exempi
-  - media-libs/exiftool
-  - media-libs/faad2
-  - media-libs/flac
-  - media-libs/freeglut
-  - media-libs/gavl
-  - media-libs/gd
-  - media-libs/giflib
-  - media-libs/glew
-  - media-libs/glm
-  - media-libs/gupnp-dlna
-  - media-libs/jasper
-  - media-libs/lcms
-  - media-libs/libass
-  - media-libs/libbluray
-  - media-libs/libcanberra
-  - media-libs/libcddb
-  - media-libs/libcdr
-  - media-libs/libdc1394
-  - media-libs/libdca
-  - media-libs/libdiscid
-  - media-libs/libdvdcss
-  - media-libs/libdvdnav
-  - media-libs/libdvdread
-  - media-libs/libjpeg-turbo
-  - media-libs/libmad
-  - media-libs/libmediainfo
-  - media-libs/libmpeg2
-  - media-libs/libmtp
-  - media-libs/libnsgif
-  - media-libs/libogg
-  - media-libs/libpagemaker
-  - media-libs/libpng
-  - media-libs/libquvi
-  - media-libs/libquvi-scripts
-  - media-libs/libraw
-  - media-libs/libsamplerate
-  - media-libs/libsdl
-  - media-libs/libsndfile
-  - media-libs/libtheora
-  - media-libs/libuninameslist
-  - media-libs/libv4l
-  - media-libs/libvisio
-  - media-libs/libvorbis
-  - media-libs/libzen
-  - media-libs/libzmf
-  - media-libs/nv-codec-headers
-  - media-libs/openexr
-  - media-libs/openh264
-  - media-libs/openjpeg
-  - media-libs/opus
-  - media-libs/raptor
-  - media-libs/sbc
-  - media-libs/speex
-  - media-libs/speexdsp
-  - media-libs/taglib
-  - media-libs/webrtc-audio-processing
-  - media-libs/woff2
-  - media-libs/xvid
-  - virtual/jack
-  - virtual/ffmpeg
-  - virtual/imagemagick-tools
-  - virtual/jpeg
-  - virtual/jpeg-compat
-  - media-sound/jack
-  - media-sound/id3
-  - media-sound/twolame
-  - media-sound/cdparanoia
-  - media-sound/lame
-  - media-sound/mpg123
-  - media-sound/jack-audio-connection-kit
-  - media-sound/wavpack
-  - media-fonts/symbola
-  - media-fonts/unifont
-  - media-gfx/potrace
-  - media-gfx/exiv2
-  - media-gfx/graphite2
-  - media-gfx/scour

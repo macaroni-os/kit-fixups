@@ -1,0 +1,10 @@
+media_catpkg:
+  generator: github
+  defaults:
+    cat: media-libs
+  packages:
+    - libheif:
+        github:
+          user: strukturag
+          query: releases
+        tarball: libheif-{version}.tar.gz

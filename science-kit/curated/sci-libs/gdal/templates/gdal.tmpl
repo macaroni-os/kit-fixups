@@ -257,7 +257,7 @@ src_compile() {
 }
 
 src_install() {
-	local DOCS=( NEWS )
+	local DOCS=( NEWS.md )
 	use doc && local HTML_DOCS=( html/. )
 
 	default

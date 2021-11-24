@@ -3,6 +3,9 @@ media_catpkg:
   defaults:
     cat: media-libs
   packages:
+    - libjpeg-turbo:
+        github:
+          query: releases
     - libheif:
         github:
           user: strukturag

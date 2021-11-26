@@ -254,6 +254,25 @@ dev_python_compat_rule:
         license: MIT
         homepage: |
           https://pypi.org/project/et_xmlfile/
+    - flake8:
+        compat: '3.9.2'
+        blocker: '!<dev-python/flake8-4'
+        desc: "A wrapper around PyFlakes, pep8 & mccabe"
+        license: MIT
+        homepage: |
+          https://gitlab.com/pycqa/flake8 https://pypi.org/project/flake8/
+        pydeps:
+          py:all:
+            - pyflakes
+            - pycodestyle
+          py:all:post:
+            - mccabe
+        body: |
+          src_prepare() {
+            # remove version-limited dep
+            sed -i -e '/importlib-metadata/d' setup.cfg || die
+            distutils-r1_src_prepare
+          }
     - idna:
         compat: '2.9'
         blocker: '!<dev-python/idna-3'
@@ -789,6 +808,19 @@ simple_python_autogen_rule:
               doins misc/__khal
             fi
           }
+    - mccabe:
+        python_compat: python2+
+        desc: "flake8 plugin: McCabe complexity checker"
+        homepage: https://github.com/PyCQA/mccabe
+        license: MIT
+        pydeps:
+          py:all:runtime:
+            - flake8
+        body: |
+          python_prepare_all() {
+            sed -i -e '/pytest-runner/d' setup.py || die
+            distutils-r1_python_prepare_all
+          }
     - nototools:
         pypi_name: notofonttools
         desc: Noto fonts support tools and scripts plus web site generation
@@ -803,6 +835,18 @@ simple_python_autogen_rule:
             - pyclipper
         rdepend: |
           media-gfx/scour
+    - pycodestyle:
+        python_compat: python2+
+        desc: Python style guide checker (fka pep8)
+        homepage: https://pypi.org/project/pycodestyle/
+        license: MIT
+    - pyflakes:
+        python_compat: python2+
+        desc: Passive checker for Python programs
+        homepage: |
+          https://github.com/PyCQA/pyflakes
+          https://pypi.org/project/pyflakes/
+        license: MIT
     - rfc3986:
         desc: A Python implementation of RFC 3986 including validation and authority parsing
         homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
@@ -1554,8 +1598,6 @@ dev_python_autogen_rule:
         revision:
           0.3: 1
     - feedgenerator:
-        python_compat: python2+ pypy{,3}
-    - flake8:
         python_compat: python2+ pypy{,3}
     - flask:
         python_comapt: python2+ pypy3

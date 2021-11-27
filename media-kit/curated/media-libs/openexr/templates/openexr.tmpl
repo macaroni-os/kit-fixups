@@ -20,15 +20,14 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=dev-libs/imath-3.1.0:=
 	sys-libs/zlib
-	!media-libs/openexr:2
+	!!media-libs/openexr:2
+    !!media-libs/ilmbase
 "
 
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
-	#"${FILESDIR}"/openexr-3.1.1-0001-changes-needed-for-proper-slotting.patch
-	#"${FILESDIR}"/openexr-3.1.1-0002-add-version-to-binaries-for-slotting.patch
 	"${FILESDIR}"/openexr-3.1.1-0003-disable-failing-test.patch
 )
 

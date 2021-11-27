@@ -136,8 +136,8 @@ async def preprocess_packages(hub, pkginfo_list):
 				yield pkginfo
 		else:
 			pkginfo = finalize_specific_pkginfo(pkginfo)
-		if pkginfo is not None:
-			yield pkginfo
+			if pkginfo is not None:
+				yield pkginfo
 
 
 async def generate(hub, **pkginfo):

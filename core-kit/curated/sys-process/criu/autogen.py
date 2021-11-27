@@ -9,9 +9,10 @@ async def generate(hub, **pkginfo):
 		version = tag_name.lstrip('v')
 		commit_sha = tag['commit']['sha']
 		# This is a github trick. If you know the tag, you can grab a tarball via sha1, which is safest:
-		url = f'https://github.com/{github_user}/{github_repo}/archive/{tag_name}/{commit_sha}.tar.gz'
+		# https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#download-a-repository-archive-tar
+		final_name = f'{github_repo}-{version}-{commit_sha[:7]}.tar.gz'
+		url = f'https://api.github.com/repos/{github_user}/{github_repo}/tarball/{commit_sha}'
 		break
-	final_name = f'{github_repo}-{version}-{commit_sha[:7]}.tar.gz'
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 	
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

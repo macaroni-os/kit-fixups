@@ -30,7 +30,9 @@ FONT_CONF=(
 )
 
 post_src_unpack() {
-	mv ${WORKDIR}/{{ github_repo }}-* ${S} || die
+	if [ ! -d "${S}" ]; then
+		mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+	fi
 }
 
 src_install() {

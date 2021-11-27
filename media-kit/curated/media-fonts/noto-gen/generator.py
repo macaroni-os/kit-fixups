@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 	commit_date = datetime.strptime(target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	commit_hash = target_commit["sha"]
 	version = f"{commit_date.strftime('%Y%m%d')}"
-	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_hash}.tar.gz"
+	url = f"https://github.com/{github_user}/{github_repo}/tarball/{commit_hash}"
 	final_name = f"{github_repo}-{version}-{commit_hash}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

@@ -32,7 +32,7 @@ async def release_gen(hub, github_user, github_repo, release_data, tarball=None)
 			# name), we use the sha1 to grab a specific URL and use a specific final name on disk for the artifact.
 			########################################################################################################
 
-			url = f"https://github.com/{github_user}/{github_repo}/archive/{sha}.tar.gz"
+			url = f"https://github.com/{github_user}/{github_repo}/tarball/{sha}"
 			return {
 				"version" : version,
 				"artifacts" : [hub.pkgtools.ebuild.Artifact(url=url, final_name=f'{github_repo}-{version}-{sha[:7]}.tar.gz')],

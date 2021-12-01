@@ -12,10 +12,9 @@ def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
 			# set version to YYYYMMDD:
 			version = release["published_at"].split("T")[0].replace("-","")
 		else:
-			# grab version from GitHub "name" field via regex:
-			ver_match = re.search("([0-9.]+)", release["name"])
+			ver_match = re.search("NVIM v([0-9.]+)", release["body"])
 			if not ver_match:
-				raise KeyError(f"Could not find suitable neovim stable version in name \"{release['name']}\"")
+				raise KeyError(f"Could not find suitable neovim stable version in body \"{release['body']}\"")
 			version = ver_match.groups()[0]
 		sha = next(filter(lambda tag_ent: tag_ent["name"] == desired_tag, tag_data))['commit']['sha']
 

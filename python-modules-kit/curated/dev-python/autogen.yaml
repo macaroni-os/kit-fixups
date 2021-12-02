@@ -1360,6 +1360,16 @@ dev_python_simplified_rule:
         pydeps:
           py:all:
             - pyparsing < 3
+    - pymongo:
+        revision:
+          4.0: 1
+        python_compat: python2+
+        compat: '3.12.1'
+        blocker: "!<dev-python/pymongo-4.0" #block all older versions
+        iuse: kerberos
+        pydeps:
+          use:kerberos:
+            - pykerberos
     - pyparsing:
         version: '2.4.7'
         python_compat: python2+
@@ -1650,8 +1660,6 @@ dev_python_autogen_rule:
         python_compat: python2_7
     - multidict
     - numpy
-    - pymongo:
-        python_compat: python2+
     - flake8-polyfill:
         python_compat: python2+
     - pyjwt:

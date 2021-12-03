@@ -53,8 +53,6 @@ DEPEND="${COMMON_DEPEND}
 
 RDEPEND="${COMMON_DEPEND}"
 
-PATCHES=( "${FILESDIR}"/only_rsvg-convert.patch )
-
 post_src_unpack() {
 	mv ${WORKDIR}/nextcloud* ${S} || die
 }
@@ -62,7 +60,8 @@ post_src_unpack() {
 src_prepare() {
 	# Keep tests in ${T}
 	sed -i -e "s#\"/tmp#\"${T}#g" test/test*.cpp || die
-
+	# FL-9136: only use rsvg-convert, not inkscape:
+	sed -i -e 's/NAMES.*rsvg-convert/NAMES rsvg-convert/g' src/gui/CMakeLists.txt || die
 	cmake_src_prepare
 }
 

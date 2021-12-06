@@ -1,13 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-inherit cmake
+inherit meson 
 
 DESCRIPTION="WPE backend designed for Linux desktop systems"
 HOMEPAGE="https://wpewebkit.org/"
-SRC_URI="https://wpewebkit.org/releases/${P}.tar.xz"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="BSD-2"
 SLOT="1.0"
@@ -19,21 +18,23 @@ RDEPEND="
 	media-libs/mesa[egl]
 	dev-libs/glib:2
 	>=dev-libs/wayland-1.10
-	gui-libs/libwpe:1.0
+	>=gui-libs/libwpe-1.6:1.0
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
+    dev-util/wayland-scanner
 	virtual/pkgconfig
 "
 
-PATCHES=(
-	"${FILESDIR}"/${PV}-eglmesaext-include.patch
-)
+
+post_src_unpack() {
+	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die
+}
 
 src_configure() {
-	local mycmakeargs=(
-		-DBUILD_DOCS=OFF # hotdoc not packaged
+	local emesonargs=(
+		-Dbuild_docs=false # hotdoc not packaged
 	)
 
-	cmake_src_configure
+	meson_src_configure
 }

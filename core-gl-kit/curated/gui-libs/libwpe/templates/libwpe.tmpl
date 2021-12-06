@@ -1,13 +1,12 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit cmake
 
-DESCRIPTION="WPE backend designed for Linux desktop systems"
+DESCRIPTION="Platform-agnostic interfaces for WPE WebKit"
 HOMEPAGE="https://wpewebkit.org/"
-SRC_URI="https://wpewebkit.org/releases/${P}.tar.xz"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="BSD-2"
 SLOT="1.0"
@@ -17,18 +16,16 @@ KEYWORDS="*"
 
 RDEPEND="
 	media-libs/mesa[egl]
-	dev-libs/glib:2
-	>=dev-libs/wayland-1.10
-	gui-libs/libwpe:1.0
+	x11-libs/libxkbcommon
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
 	virtual/pkgconfig
 "
 
-PATCHES=(
-	"${FILESDIR}"/1.4.0-eglmesaext-include.patch
-)
+post_src_unpack() {
+	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die
+}
 
 src_configure() {
 	local mycmakeargs=(

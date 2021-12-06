@@ -73,11 +73,18 @@ packages:
         - media-libs/libcdr
         - media-libs/libdiscid
         - media-libs/libbluray
+      hardware:
+        - media-libs/libffado
+        - media-libs/libiec61883
+        # should be in this kit?:
+        # - sys-libs/libavc1394
+        # - sys-libs/libraw1394
       metadata:
         - media-libs/exempi
         - media-gfx/exiv2
         - media-libs/libzen
         - media-libs/libmediainfo
+        - media-libs/id3lib
     audio:
       general:
         - media-sound/gsm

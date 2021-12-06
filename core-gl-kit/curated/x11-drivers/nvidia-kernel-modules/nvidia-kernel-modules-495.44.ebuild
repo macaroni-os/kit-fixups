@@ -10,7 +10,7 @@ SRC_URI=""
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
-KEYWORDS="-* amd64 arm64 next"
+KEYWORDS="-* amd64 arm64"
 RESTRICT="bindist"
 
 IUSE="+kms +uvm videogroup"

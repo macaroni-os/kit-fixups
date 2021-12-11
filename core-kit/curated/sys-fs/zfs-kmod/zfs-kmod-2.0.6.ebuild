@@ -11,7 +11,7 @@ MY_PV="${PV/_rc/-rc}"
 SRC_URI="https://github.com/openzfs/zfs/releases/download/zfs-${MY_PV}/zfs-${MY_PV}.tar.gz"
 KEYWORDS="*"
 S="${WORKDIR}/zfs-${PV%_rc?}"
-ZFS_KERNEL_COMPAT="5.14"
+ZFS_KERNEL_COMPAT="5.15"
 
 LICENSE="CDDL MIT debug? ( GPL-2+ )"
 SLOT="0"

@@ -29,8 +29,6 @@ RDEPEND="${COMMON}
 
 CONFIG_CHECK="~SQUASHFS"
 
-S="${WORKDIR}/${PN}"
-
 src_configure() {
 	local myconfargs=(
 		-c "$(tc-getBUILD_CC)" \

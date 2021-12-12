@@ -10,9 +10,12 @@ async def generate(hub, **pkginfo):
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)
 	for release in json_list:
-		if release["prerelease"] or release["draft"]:
-			continue
+		if not release["tag_name"][1:].startswith("3.4.0-rc"):
+			# see FL-9165, special exception to get 3.4.0 release candidates to build.
+			if release["prerelease"] or release["draft"]:
+				continue
 		version = release["tag_name"][1:]
+		version = version.replace("-rc","_rc")
 		url = release["tarball_url"]
 		break
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

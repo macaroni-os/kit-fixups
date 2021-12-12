@@ -24,6 +24,7 @@ IUSE="+blksha1 +curl cgi doc emacs gnome-keyring +gpg highlight +iconv libressl 
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
+	app-arch/zstd
 	gnome-keyring? ( app-crypt/libsecret )
 	!libressl? ( dev-libs/openssl:0= )
 	libressl? ( dev-libs/libressl:= )

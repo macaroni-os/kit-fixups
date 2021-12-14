@@ -5,6 +5,7 @@
 # standard pypi, plus some deviations.
 
 import json
+import os
 from collections import OrderedDict
 
 GLOBAL_DEFAULTS = {"cat": "dev-python", "refresh_interval": None, "python_compat": "python3+"}

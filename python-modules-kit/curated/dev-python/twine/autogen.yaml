@@ -4,6 +4,11 @@ twine_autogen:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - pkginfo:
+        python_compat: python2+
+        pydeps:
+          py:all:
+            - setuptools
     - twine:
         revision:
           3.4.2: 2
@@ -16,7 +21,7 @@ twine_autogen:
             - colorama
             - importlib_metadata >= 3.6
             - keyring >= 15.1
-            - pkginfo >= 1.4.2
+            - pkginfo >= 1.8.1
             - readme_renderer >= 21.0
             - requests >= 2.20.0
             - requests-toolbelt >= 0.8.0

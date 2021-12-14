@@ -1,0 +1,60 @@
+{#- Convert 2-space indents to tabs in the ebuild: #}
+{%- macro indented(lines, initial_indent=0, allow_empty=False) %}
+{%- for line in lines.split('\n') %}
+  {%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+  {%- set newline = "\n" + "\t" * ( indent_level + initial_indent ) + line[indent_level*2:] -%}
+{{newline if ( line[indent_level*2:]|length or allow_empty ) and not line == lines else line }}
+{%- endfor %}
+{%- endmacro -%}
+
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI={{eapi|default('7')}}
+
+PYTHON_COMPAT=( {{python_compat}} )
+{%- if du_setuptools is defined %}
+DISTUTILS_USE_SETUPTOOLS="{{du_setuptools|default('bdepend')}}"
+{%- endif %}
+{%- if 'cargo' is in inherit and cargo_optional is defined %}
+CARGO_OPTIONAL="yes"
+{%- endif %}
+
+{%- if 'cargo' is in inherit and not compat_ebuild %}
+CRATES="
+{{crates}}"
+
+inherit {{inherit|sort|join(' ')}}
+{%- else %}
+inherit {{inherit|reject('equalto','cargo')|sort|join(' ')}}
+{%- endif %}
+
+DESCRIPTION="{{desc|default('')}}"
+HOMEPAGE="{{homepage|default('')}}"
+SRC_URI="{{artifacts[0].src_uri}}
+{%- if 'cargo' is in inherit and not compat_ebuild %}
+{{indented('$(cargo_crate_uris ${CRATES})',2)}}
+{%- endif %}
+"
+
+DEPEND="{{indented(depend|default(''),1)}}"
+RDEPEND="{{indented(rdepend|default(''),1)}}"
+{%- if pdepend is defined %}
+PDEPEND="{{indented(pdepend|default(''),1)}}"
+{%- endif %}
+{%- if bdepend is defined %}
+BDEPEND="{{indented(bdepend|default(''),1)}}"
+{%- endif %}
+
+IUSE="{{iuse|default('')}}"
+{%- if restrict is defined %}
+RESTRICT="{{restrict|default('')}}"
+{%- endif %}
+SLOT="{{slot|default('0')}}"
+LICENSE="{{license|default('')}}"
+KEYWORDS="{{keywords|default('*')}}"
+
+S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
+
+{%- if body is defined %}
+{{indented(body,allow_empty=True)}}
+{%- endif %}

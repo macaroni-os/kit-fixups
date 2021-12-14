@@ -71,7 +71,7 @@ COMMON_DEPEND="
 			dev-python/markupsafe[${PYTHON_MULTI_USEDEP}]
 			dev-python/owslib[${PYTHON_MULTI_USEDEP}]
 			dev-python/pygments[${PYTHON_MULTI_USEDEP}]
-			dev-python/PyQt5[designer,gui,network,printsupport,sql,svg,${PYTHON_MULTI_USEDEP}]
+			dev-python/PyQt5[designer,gui,network,positioning,printsupport,sql,svg,${PYTHON_MULTI_USEDEP}]
 			dev-python/python-dateutil[${PYTHON_MULTI_USEDEP}]
 			dev-python/pytz[${PYTHON_MULTI_USEDEP}]
 			dev-python/pyyaml[${PYTHON_MULTI_USEDEP}]

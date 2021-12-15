@@ -12,11 +12,11 @@ async def generate(hub, **pkginfo):
 	)
 
 	for rel in json_list:
-		if rel["draft"] or rel["prerelease"]:
-			continue
 		tag = rel["tag_name"]
+		# NOTE: Some tags have had 'v' prepended, some have none.
 		version = tag.lstrip("v")
-		url = f"https://github.com/{github_user}/{github_repo}/releases/download/{version}/{github_user}-{tag}.tar.gz"
+		url = f"https://github.com/{github_user}/{github_repo}/releases/download/{version}/{github_user}-v{version}.tar.gz"
+		break
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

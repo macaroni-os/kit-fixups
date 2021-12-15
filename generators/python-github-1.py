@@ -41,7 +41,7 @@ async def generate(hub, **pkginfo):
 		pkginfo['artifacts'] += cargo_artifacts["crates_artifacts"]
 
 	pkginfo["template_path"] = os.path.normpath(os.path.join(os.path.dirname(__file__), "templates"))
-	pkginfo["template"] = "pypi-github-1.tmpl"
+	pkginfo["template"] = "python-github-1.tmpl"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild.push()
 

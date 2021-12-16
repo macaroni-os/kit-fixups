@@ -20,6 +20,7 @@ IUSE="debug debug-frame doc libatomic lzma static-libs zlib"
 RDEPEND="
 	lzma? ( app-arch/xz-utils[static-libs?] )
 	zlib? ( sys-libs/zlib[static-libs?] )
+	!sys-libs/libunwind:7
 "
 DEPEND="${RDEPEND}
 	libatomic? ( dev-libs/libatomic_ops )"

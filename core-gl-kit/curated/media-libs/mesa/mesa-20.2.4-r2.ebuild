@@ -30,7 +30,7 @@ done
 ALL_SWR_ARCHES="avx avx2 knl skx"
 IUSE_SWR_CPUFLAGS="cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512er cpu_flags_x86_avx512bw"
 
-ALL_GALLIUM_DRIVERS="iris pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d vivante imx tegra i915 osmesa vmware virgl swr swrast"
+ALL_GALLIUM_DRIVERS="iris pl111 radeonsi r300 r600 nouveau freedreno vc4 v3d vivante imx tegra i915 osmesa vmware virgl swr swrast panfrost"
 for card in ${ALL_GALLIUM_DRIVERS}; do
 	ALL_GALLIUM_CARDS+=" video_cards_gallium-${card}"
 done
@@ -345,6 +345,13 @@ src_configure() {
 	# SVGA drivers (needed for vmware)
 	if use video_cards_gallium-vmware ; then
 		gallium_enable svga
+	fi
+
+	# Panfrost drivers
+	if use video_cards_gallium-panfrost ; then
+		gallium_enable video_cards_gallium-panfrost panfrost
+		gallium_enable kmsro
+		enable_dri3="true"
 	fi
 
 

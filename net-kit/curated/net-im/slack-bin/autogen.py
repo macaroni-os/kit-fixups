@@ -30,6 +30,7 @@ async def generate(hub, **pkginfo):
 		# 	myf.write(html)
 		raise hub.pkgtools.ebuild.BreezyError(f"Found unexpected something in slack-bin html.")
 	url = url.format(version=version)
+	pkginfo["revision"] = { "4.23.0": "1" }
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)

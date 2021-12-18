@@ -76,6 +76,7 @@ src_install() {
 	insinto /opt/slack
 	doins -r usr/lib/slack/.
 	fperms +x /opt/slack/slack
+	fperms +x /opt/slack/chrome_crashpad_handler
 	fperms 4711 /opt/slack/chrome-sandbox
 	dosym ../../opt/slack/slack usr/bin/slack
 

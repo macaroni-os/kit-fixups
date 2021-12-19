@@ -611,11 +611,7 @@ simple_python_autogen_rule:
     - atomicwrites:
         homepage: https://github.com/untitaker/python-atomicwrites
         license: MIT
-        python_compat: python3+ pypy3
-        body: |
-          distutils_enable_tests pytest
-          distutils_enable_sphinx docs \
-            dev-python/sphinx_rtd_theme
+        python_compat: python2+ pypy3
     - beautifulsoup:
         pypi_name: beautifulsoup4
         desc: Pythonic idioms for iterating, searching, and modifying an HTML/XML parse tree

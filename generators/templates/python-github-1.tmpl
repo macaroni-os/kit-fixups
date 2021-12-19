@@ -52,7 +52,11 @@ SLOT="{{slot|default('0')}}"
 LICENSE="{{license|default('')}}"
 KEYWORDS="{{keywords|default('*')}}"
 
-S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "$S" || die
+	fi
+}
 
 {%- if body is defined %}
 {{indented(body,allow_empty=True)}}

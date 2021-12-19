@@ -129,10 +129,9 @@ botostuff:
     - botocore:
         license: Apache-2.0
         pydeps:
-          - tox
-          - wheel
-          - behave
-          - jsonschema
+          - jmespath
+          - python-dateutil
+          - urllib3
     - behave:
         license: BSD
         pydeps:
@@ -151,10 +150,28 @@ botostuff:
             - futures < 4.0.0
     - parse:
         license: MIT
+
+github_stuff:
+  generator: python-github-1
+  defaults:
+    python_compat: python3+
+  packages:
     - parse_type:
+        github:
+          query: tags
+          user: jenisys
+        license: BSD
+        desc: Extension to the parse module
+        homepage: https://pypi.org/project/parse-type/
         pydeps:
           - parse >= 1.18.0
           - six >= 1.11
+        body: |
+          src_prepare() {
+            default
+            # hack to disable 2to3 which we don't need anyway and setuptools 58+ dies on
+            sed -i -e 's/use_2to3/foo_2to3/g' setup.py || die
+          }
 
 aiobotostuff:
   defaults:

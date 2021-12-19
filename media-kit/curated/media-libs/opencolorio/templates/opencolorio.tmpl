@@ -23,10 +23,7 @@ REQUIRED_USE="
 RDEPEND="
 	dev-cpp/pystring
 	dev-python/pybind11
-	|| (
-		dev-libs/imath
-		media-libs/ilmbase
-	)
+    dev-libs/imath
 	dev-cpp/yaml-cpp:=
 	dev-libs/tinyxml
 	opengl? (
@@ -67,7 +64,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${FILESDIR}"/opencolorio-2.0.2-imath.patch
 	cmake_src_prepare
 
 	sed -i -e "s|LIBRARY DESTINATION lib|LIBRARY DESTINATION $(get_libdir)|g" {,src/bindings/python/,src/OpenColorIO/,src/libutils/oiiohelpers/,src/libutils/oglapphelpers/}CMakeLists.txt || die

@@ -87,7 +87,7 @@ _python_impl_supported() {
 	# keep in sync with _PYTHON_ALL_IMPLS!
 	# (not using that list because inline patterns shall be faster)
 	case "${impl}" in
-		python2_7|python3_[56789]|jython2_7|python2+|python3+|python3_[789]+)
+		python2_7|python3_[56789]||python3_10|jython2_7|python2+|python3+|python3_[789]+|python3_10+)
 			return 0
 			;;
 		pypy1_[89]|pypy2_0|python2_[56]|python3_[1234])
@@ -180,7 +180,9 @@ _python_set_impls() {
 				supp['python3_9']=1
 				supp['python3_10']=1
 				;;
-
+			python3_10+)
+				supp['python3_10']=1
+				;;
 			# Below, new special setting that will enable python2 and
 			# up compatibility:
 

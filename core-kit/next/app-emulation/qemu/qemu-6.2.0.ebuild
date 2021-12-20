@@ -563,8 +563,10 @@ qemu_src_configure() {
 			$(usev alsa)
 			$(usev oss)
 		)
+		# Use of var, and then expanded to remove last comma.
+		local audio=$(printf "%s," "${audio_opts[@]}")
 		conf_opts+=(
-			--audio-drv-list=$(printf "%s," "${audio_opts[@]}")
+			--audio-drv-list=${audio%,}
 		)
 	fi
 

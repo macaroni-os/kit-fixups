@@ -501,7 +501,6 @@ qemu_src_configure() {
 		$(conf_notuser infiniband rdma)
 		$(conf_notuser iscsi libiscsi)
 		$(conf_notuser io-uring linux-io-uring)
-		$(conf_notuser jemalloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser lzo)
@@ -539,11 +538,18 @@ qemu_src_configure() {
 		--disable-xkbcommon
 		$(conf_notuser zstd)
 	)
-
 	if [[ ${buildtype} == "user" ]] ; then
-		conf_opts+=( --disable-libxml2 )
+		conf_opts+=(
+			--disable-libxml2
+			--enable-malloc=system
+		)
 	else
 		conf_opts+=( --enable-libxml2 )
+		if use jemalloc; then
+			conf_opts+=( --enable-malloc=jemalloc )
+		else
+			conf_opts+=( --enable-malloc=system )
+		fi
 	fi
 
 	if [[ ! ${buildtype} == "user" ]] ; then
@@ -567,7 +573,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--enable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--disable-tools
 		)
 		local static_flag="static-user"
@@ -584,7 +590,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--disable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--enable-tools
 		)
 		local static_flag="static"
@@ -595,7 +601,7 @@ qemu_src_configure() {
 	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
 	# Add support for SystemTAP
-	use systemtap && conf_opts+=( --enable-trace-backend=dtrace )
+	use systemtap && conf_opts+=( --enable-trace-backends=dtrace )
 
 	# We always want to attempt to build with PIE support as it results
 	# in a more secure binary. But it doesn't work with static or if

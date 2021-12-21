@@ -9,6 +9,7 @@
 
 from bs4 import BeautifulSoup
 
+
 async def get_version_from_website(hub, **pkginfo):
 	html = await hub.pkgtools.fetch.get_page("https://www.mongodb.com/download-center/database-tools/releases/archive")
 	for a in BeautifulSoup(html, features="html.parser").find_all('a', href=True):
@@ -19,8 +20,8 @@ async def get_version_from_website(hub, **pkginfo):
 
 async def generate(hub, **pkginfo):
 	github_user = "mongodb"
-	github_repo = "mongo-tools"
-	
+	github_repo = pkginfo.get("name")
+
 	# STEP 1: Get released version string from official Web site, because we don't want in-progress not-yet-released tags (a prior issue):
 	ver = await get_version_from_website(hub, **pkginfo)
 	
@@ -37,13 +38,22 @@ async def generate(hub, **pkginfo):
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_sha1}.tar.gz"
 	final_name = f'{pkginfo["name"]}-{ver}-{commit_sha1[:8]}.tar.gz'
 
+	source_artifact = hub.pkgtools.ebuild.Artifact(
+		url=url, final_name=final_name
+	)
+
+	golang_deps = await hub.pkgtools.golang.generate_gosum_from_artifact(
+		source_artifact
+	)
+
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		github_user=github_user,
 		github_repo=github_repo,
 		version=ver,
 		commit_sha1=commit_sha1,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
+		gosum=golang_deps["gosum"],
+		artifacts=[source_artifact, *golang_deps["gosum_artifacts"]],
 	)
 	ebuild.push()
 

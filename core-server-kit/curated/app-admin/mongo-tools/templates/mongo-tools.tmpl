@@ -2,30 +2,32 @@
 
 EAPI=7
 
+inherit go-module
+
 DESCRIPTION="A high-performance, open source, schema-free document-oriented database"
 HOMEPAGE="https://www.mongodb.com"
-SRC_URI="{{artifacts[0].src_uri}}"
+
+EGO_SUM=(
+{{ gosum }})
+
+go-module_set_globals
+
+SRC_URI="{{ artifacts[0].src_uri }}
+	${EGO_SUM_SRC_URI}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
 IUSE="sasl ssl"
 
-DEPEND="dev-lang/go:=
+RDEPEND="
 	net-libs/libpcap
 	sasl? ( dev-libs/cyrus-sasl )
-	ssl? ( dev-libs/openssl:0= )"
+	ssl? ( dev-libs/openssl:0= )
+"
 
-# Do not complain about CFLAGS etc since go projects do not use them.
-QA_FLAGS_IGNORED='.*'
-
-EGO_PN="github.com/mongodb/mongo-tools"
-S="${WORKDIR}/src/${EGO_PN}"
-
-src_unpack() {
-	mkdir -p "${S%/*}" || die
-	default
-	mv "{{name}}-{{commit_sha1}}" "${S}" || die
+post_src_unpack() {
+	mv "${WORKDIR}"/{{ github_repo }}-* "${S}" || die
 }
 
 src_compile() {
@@ -39,19 +41,15 @@ src_compile() {
 		myconf+=(ssl)
 	fi
 
-	# build pie to avoid text relocations wrt #582854
-	local buildmode="pie"
+	for bin_path in */main; do
+		bin_name=$(dirname ${bin_path})
 
-	# skip on ppc64 wrt #610984
-	if use ppc64; then
-		buildmode="default"
-	fi
-
-	mkdir -p bin || die
-	for i in bsondump mongostat mongofiles mongoexport mongoimport mongorestore mongodump mongotop; do
-		echo "Building $i"
-		GO111MODULE='off' GOROOT="$(go env GOROOT)" GOPATH="${WORKDIR}" go build -buildmode="${buildmode}" -o "bin/$i" \
-			-ldflags "-X ${EGO_PN}/common/options.VersionStr=${PV}" --tags "${myconf[*]}" "$i/main/$i.go" || die
+		go build -mod=mod \
+			-o bin/"${bin_name}" \
+			-ldflags "-X main.VersionStr=${PV} -X main.GitCommit={{ commit_sha1 }}" \
+			-buildmode=pie \
+			--tags "${myconf[*]}" \
+			./"${bin_path}" || die "compile failed"
 	done
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json
+import re
 
 
 async def generate(hub, **pkginfo):
@@ -12,9 +12,10 @@ async def generate(hub, **pkginfo):
 	)
 
 	for tag in json_list:
-		if not "sdk-" in tag["name"]:
+		tag_match = re.match("v([0-9.]+)", tag["name"])
+		if not tag_match:
 			continue
-		version = tag["name"].lstrip("sdk-")
+		version = tag_match.groups()[0]
 		url = tag["tarball_url"]
 		break
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'

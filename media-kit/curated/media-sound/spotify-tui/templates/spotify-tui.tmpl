@@ -1,0 +1,40 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{ crates }}"
+
+inherit cargo
+
+DESCRIPTION="A Spotify terminal client"
+
+HOMEPAGE="https://github.com/Rigellute/spotify-tui"
+
+SRC_URI="{{ artifacts[0].src_uri }}
+	$(cargo_crate_uris ${CRATES})"
+
+RESTRICT="mirror"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="*"
+
+RDEPEND="dev-libs/openssl"
+DEPEND="${RDEPEND}"
+
+post_src_unpack() {
+	rm -rf "${S}"
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+}
+
+src_install() {
+	cargo_src_install
+
+	dodoc "${S}/README.md"
+}
+
+pkg_postinst() {
+	elog "The spotify-tui executable is called spt."
+	elog "See the README at /usr/share/doc/${PF} for information about configurating and running spotify-tui."
+}

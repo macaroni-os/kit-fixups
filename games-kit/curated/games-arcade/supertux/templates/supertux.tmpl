@@ -34,9 +34,7 @@ BDEPEND="
 "
 
 post_src_unpack() {
-	if [ ! -d "${S}" ]; then
-		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "${S}" || die
-	fi
+	mv "${WORKDIR}"/{{github_user}}* "${S}" || die
 }
 
 src_prepare() {

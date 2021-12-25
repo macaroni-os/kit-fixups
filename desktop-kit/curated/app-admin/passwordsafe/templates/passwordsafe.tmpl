@@ -86,7 +86,7 @@ src_install() {
 
 	newman docs/pwsafe.1 ${PN}.1
 
-	dodoc README.md README.LINUX.* docs/{ReleaseNotes.txt,ChangeLog.txt}
+	dodoc README.md README.LINUX.* docs/{ReleaseNotes.md,ChangeLog.txt}
 
 	insinto /usr/share/${PN}
 	doins -r xml

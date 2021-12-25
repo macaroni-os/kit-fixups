@@ -861,6 +861,17 @@ simple_python_autogen_rule:
             - pyclipper
         rdepend: |
           media-gfx/scour
+    - nyx:
+        cat: net-misc
+        python_compat: python3+
+        desc: Utility to monitor real time Tor status information
+        homepage: https://nyx.torproject.org
+        license: GPL-3
+        pydeps:
+          py:all:
+            - net-libs/stem
+        rdepend: |
+          net-vpn/tor
     - pycodestyle:
         python_compat: python2+
         desc: Python style guide checker (fka pep8)

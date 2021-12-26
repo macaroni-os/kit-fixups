@@ -345,10 +345,7 @@ src_configure() {
 		dist-src = false
 		remap-debuginfo = true
 		lld = $(usex system-llvm false $(toml_usex wasm))
-		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
-		# https://github.com/rust-lang/rust/issues/74976
-		# https://github.com/rust-lang/rust/issues/76526
-		deny-warnings = $(usex wasm $(usex doc false true) true)
+		deny-warnings = false
 		backtrace-on-ice = true
 		jemalloc = false
 		[dist]

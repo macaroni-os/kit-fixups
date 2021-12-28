@@ -11,11 +11,9 @@ SRC_URI="{{artifacts[0].src_uri}}"
 LICENSE="GPL-3 CC-BY-3.0"
 SLOT="0"
 KEYWORDS="{{keywords}}"
-LANGS=" af de eo es fr he hu it nl pt_BR ru sl uk"
 # TODO add lua once dev-lang/lua-5.2 is unmasked
 IUSE="colord cups cpu_flags_x86_sse3 doc flickr geolocation gnome-keyring gphoto2 graphicsmagick jpeg2k kwallet
-nls opencl openmp openexr pax_kernel webp
-${LANGS// / l10n_}"
+nls opencl openmp openexr pax_kernel webp"
 
 BDEPEND="
 	dev-util/intltool
@@ -106,14 +104,6 @@ src_configure() {
 
 src_install() {
 	cmake_src_install
-
-	if use nls ; then
-		for lang in ${LANGS} ; do
-			if ! use l10n_${lang}; then
-				rm -r "${ED}"/usr/share/locale/${lang/-/_} || die
-			fi
-		done
-	fi
 
 	if use pax_kernel && use opencl ; then
 		pax-mark Cm "${ED}"/usr/bin/${PN} || die

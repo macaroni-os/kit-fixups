@@ -18,7 +18,7 @@ IUSE="wayland X"
 BDEPEND=">=dev-util/cmake-3.10.2"
 DEPEND="${PYTHON_DEPS}
 	>=dev-util/glslang-10.11.0.0_pre20200924:=
-	>=dev-util/spirv-tools-2020.5_pre20201107:=
+	>=dev-util/spirv-tools-2020.5_pre20201107:=[static]
 	>=dev-util/vulkan-headers-$(ver_cut 1-3)
 	dev-cpp/robin-hood-hashing
 	wayland? ( dev-libs/wayland:= )

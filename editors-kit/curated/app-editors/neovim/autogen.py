@@ -16,8 +16,10 @@ def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
 			if not ver_match:
 				raise KeyError(f"Could not find suitable neovim stable version in body \"{release['body']}\"")
 			version = ver_match.groups()[0]
-		sha = next(filter(lambda tag_ent: tag_ent["name"] == desired_tag, tag_data))['commit']['sha']
-
+		try:
+			sha = next(filter(lambda tag_ent: tag_ent["name"] == desired_tag, tag_data))['commit']['sha']
+		except StopIteration:
+			return False
 		########################################################################################################
 		# GitHub does not list this URL in the release's assets list, but it is always available if there is an
 		# associated tag for the release. Rather than use the tag name (which would give us a non-distinct file
@@ -33,13 +35,16 @@ def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
 			artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
 		)
 		eb.push()
+		return True
 
 
 async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
 	release_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/releases", is_json=True)
 	tag_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{name}/{name}/tags", is_json=True)
-	gen_ebuild(release_data, tag_data, pkginfo, nightly=False)
+	result = gen_ebuild(release_data, tag_data, pkginfo, nightly=False)
+	if not result:
+		raise hub.pkgtools.ebuild.BreezyError("Unable to generate official neovim release.")
 	gen_ebuild(release_data, tag_data, pkginfo, nightly=True)
 
 # vim: ts=4 sw=4 noet tw=120

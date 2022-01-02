@@ -206,6 +206,7 @@ src_compile() {
 	DEFAULT_KERNEL_SOURCE="${S}" CMD_KERNEL_DIR="${S}" genkernel ${GKARGS} \
 		--no-save-config \
 		--no-oldconfig \
+		--no-menuconfig \
 		--kernel-config=${T}/config \
 		--kernname="${PN}" \
 		--build-src="${S}" \

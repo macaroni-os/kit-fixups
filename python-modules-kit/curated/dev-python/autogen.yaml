@@ -1695,7 +1695,9 @@ dev_python_autogen_rule:
         pypi_name: msgpack
         python_compat: python2_7
     - multidict
-    - numpy
+    - numpy:
+        # FL-9243: numpy >=1.22.0 only supports Python >=3.8
+        version: 1.21.5
     - flake8-polyfill:
         python_compat: python2+
     - pyjwt:

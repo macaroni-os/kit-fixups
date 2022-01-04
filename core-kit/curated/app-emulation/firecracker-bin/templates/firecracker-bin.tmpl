@@ -80,8 +80,8 @@ src_install() {
 		my_arch=aarch64
 	fi
 
-	newbin "${WORKDIR}/release-v${PV}/firecracker-v${PV}-${my_arch}" firecracker
-	newbin "${WORKDIR}/release-v${PV}/jailer-v${PV}-${my_arch}" jailer
+	newbin "${WORKDIR}/release-v${PV}-${my_arch}/firecracker-v${PV}-${my_arch}" firecracker
+	newbin "${WORKDIR}/release-v${PV}-${my_arch}/jailer-v${PV}-${my_arch}" jailer
 }
 
 

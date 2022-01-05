@@ -44,6 +44,8 @@ python_prepare_all() {
 # service unit. Sorry, Poettering, not today.
 	sed -i -e "/service-unit/,+2d" "${S}"/setup.py
 
+	nonfatal eapply "${FILESDIR}/${PN}-fix-2to3.patch"
+
 	distutils-r1_python_prepare_all
 }
 

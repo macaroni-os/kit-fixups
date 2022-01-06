@@ -1,12 +1,7 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# TODO
-# 1. Track upstream bug --disable-docs does not work.
-#    https://sourceforge.net/p/gphoto/bugs/643/
-
 EAPI=6
-inherit autotools eutils multilib multilib-minimal udev user
+inherit autotools eutils udev user
 
 DESCRIPTION="Library that implements support for numerous digital cameras"
 HOMEPAGE="http://www.gphoto.org/"
@@ -18,7 +13,7 @@ LICENSE="GPL-2"
 SLOT="0/6" # libgphoto2.so soname version
 
 KEYWORDS="*"
-IUSE="doc examples exif gd jpeg nls serial"
+IUSE="examples exif gd jpeg nls serial"
 
 # By default, drivers for all supported cameras will be compiled.
 # If you want to only compile for specific camera(s), set CAMERAS
@@ -50,29 +45,22 @@ done
 
 # libgphoto2 actually links to libltdl
 RDEPEND="
-	>=dev-libs/libxml2-2.9.1-r4:2[${MULTILIB_USEDEP}]
-	dev-libs/libltdl:0[${MULTILIB_USEDEP}]
-	>=virtual/libusb-1-r1:1[${MULTILIB_USEDEP}]
-	cameras_ax203? ( >=media-libs/gd-2.0.35-r4:=[${MULTILIB_USEDEP}] )
-	cameras_st2205? ( >=media-libs/gd-2.0.35-r4:=[${MULTILIB_USEDEP}] )
-	exif? ( >=media-libs/libexif-0.6.21-r1:=[${MULTILIB_USEDEP}] )
-	gd? ( >=media-libs/gd-2.0.35-r4:=[jpeg=,${MULTILIB_USEDEP}] )
-	jpeg? ( >=virtual/jpeg-0-r2:0[${MULTILIB_USEDEP}] )
-	serial? ( >=dev-libs/lockdev-1.0.3.1.2-r2[${MULTILIB_USEDEP}] )
+	>=dev-libs/libxml2-2.9.1-r4:2
+	dev-libs/libltdl:0
+	>=virtual/libusb-1-r1:1
+	cameras_ax203? ( >=media-libs/gd-2.0.35-r4:= )
+	cameras_st2205? ( >=media-libs/gd-2.0.35-r4:= )
+	exif? ( >=media-libs/libexif-0.6.21-r1:= )
+	gd? ( >=media-libs/gd-2.0.35-r4:=[jpeg] )
+	jpeg? ( >=virtual/jpeg-0-r2:0 )
+	serial? ( >=dev-libs/lockdev-1.0.3.1.2-r2 )
 	!<sys-fs/udev-201
 "
 DEPEND="${RDEPEND}
-	dev-util/gtk-doc-am
 	sys-devel/flex
 	>=sys-devel/gettext-0.14.1
-	>=virtual/pkgconfig-0-r1[${MULTILIB_USEDEP}]
-	doc? ( app-doc/doxygen )
+	>=virtual/pkgconfig-0-r1
 "
-
-MULTILIB_CHOST_TOOLS=(
-	/usr/bin/gphoto2-port-config
-	/usr/bin/gphoto2-config
-)
 
 pkg_pretend() {
 	if ! echo "${USE}" | grep "cameras_" > /dev/null 2>&1; then
@@ -87,42 +75,12 @@ pkg_setup() {
 src_prepare() {
 	eautoreconf
 	default
-
+	# Funtoo sez: Forcefully disable docs due to multiple build bugs here:
+	rm -rf ${S}/docs || die
 	# Handle examples ourselves
 	sed 's/^\(SUBDIRS =.*\)examples\(.*\)$/\1\2/' -i Makefile.am Makefile.in \
 		|| die "examples sed failed"
-
 	sed -e 's/sleep 2//' -i configure || die
-}
-
-multilib_src_configure() {
-	local myconf
-	use doc || myconf=( ac_cv_path_DOXYGEN=false )
-
-	# Upstream doesn't default to --enable-option-checking due having another
-	# configure in libgphoto2_port/ that also needs to be checked on every bump
-	#
-	# Serial port uses either lockdev or ttylock, but we don't have ttylock
-	# --with-doc-dir needed to prevent duplicate docs installation, bug #586842
-	ECONF_SOURCE=${S} \
-	econf \
-		--with-doc-dir="${EPREFIX}"/usr/share/doc/${PF} \
-		--disable-docs \
-		--disable-gp2ddb \
-		$(use_enable nls) \
-		$(use_with exif libexif auto) \
-		$(use_with gd) \
-		$(use_with jpeg) \
-		$(use_enable serial) \
-		$(use_enable serial lockdev) \
-		--with-libusb=no \
-		--with-libusb-1.0=auto \
-		--disable-ttylock \
-		--with-camlibs=${cameras} \
-		--with-hotplug-doc-dir="${EPREFIX}"/usr/share/doc/${PF}/hotplug \
-		--with-rpmbuild=$(type -P true) \
-		udevscriptdir="$(get_udevdir)" \
-		"${myconf[@]}"
 }
 
 src_configure() {
@@ -145,19 +103,36 @@ src_configure() {
 		cameras="all"
 		einfo "Enabled camera drivers: all"
 	fi
-
-	multilib-minimal_src_configure
+	local myconf
+	use jpeg || myconf+=( --without-jpeg )
+	# Upstream doesn't default to --enable-option-checking due having another
+	# configure in libgphoto2_port/ that also needs to be checked on every bump
+	#
+	# Serial port uses either lockdev or ttylock, but we don't have ttylock
+	# --with-doc-dir needed to prevent duplicate docs installation, bug #586842
+	ECONF_SOURCE=${S} \
+	econf \
+		--with-doc-dir="${EPREFIX}"/usr/share/doc/${PF} \
+		--disable-docs \
+		--disable-internal-docs \
+		--disable-gp2ddb \
+		$(use_enable nls) \
+		$(use_with exif libexif auto) \
+		$(use_with gd) \
+		$(use_enable serial) \
+		$(use_enable serial lockdev) \
+		--with-libusb=no \
+		--with-libusb-1.0=auto \
+		--disable-ttylock \
+		--with-camlibs=${cameras} \
+		--with-hotplug-doc-dir="${EPREFIX}"/usr/share/doc/${PF}/hotplug \
+		--with-rpmbuild=$(type -P true) \
+		udevscriptdir="$(get_udevdir)" \
+		"${myconf[@]}"
 }
 
-multilib_src_compile() {
+src_install() {
 	default
-
-	if multilib_is_native_abi && use doc; then
-		doxygen doc/Doxyfile || die "Documentation generation failed"
-	fi
-}
-
-multilib_src_install_all() {
 	prune_libtool_files --modules
 
 	einstalldocs
@@ -167,12 +142,6 @@ multilib_src_install_all() {
 		insinto /usr/share/doc/${PF}/examples
 		doins examples/README examples/*.c examples/*.h
 	fi
-
-	# FIXME: fixup autoconf bug #????
-	if ! use doc && [ -d "${ED}/usr/share/doc/${PF}/apidocs.html" ]; then
-		rm -fr "${ED}/usr/share/doc/${PF}/apidocs.html"
-	fi
-	# end fixup
 
 	local udev_rules cam_list
 	udev_rules="$(get_udevdir)/rules.d/70-libgphoto2.rules"

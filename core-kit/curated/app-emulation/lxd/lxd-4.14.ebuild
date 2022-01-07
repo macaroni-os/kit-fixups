@@ -19,7 +19,6 @@ DEPEND="app-arch/xz-utils
 		>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
 		>=app-emulation/lxc-4.0.6[apparmor?]
 	)
-	>=sys-kernel/linux-headers-4.15
 	dev-lang/tcl
 	dev-libs/libuv
 	dev-libs/lzo
@@ -30,9 +29,12 @@ RDEPEND="${DEPEND}
 	sys-apps/iproute2[ipv6?]
 	sys-fs/fuse:*
 	sys-fs/lxcfs
+	dev-util/xdelta:3
 	sys-fs/squashfs-tools[lzma]
+	net-misc/rsync[xattr]
 	virtual/acl"
 BDEPEND=">=dev-lang/go-1.13
+	>=sys-kernel/linux-headers-4.15
 	nls? ( sys-devel/gettext )"
 
 CONFIG_CHECK="

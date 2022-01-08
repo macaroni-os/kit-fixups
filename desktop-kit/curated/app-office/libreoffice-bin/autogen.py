@@ -23,7 +23,7 @@ def get_lang_artifacts(hub, lang_url, lang_soup, lang_type):
 	return artifacts
 
 
-def gen_src_uri(pkginfo, my_artifacts_dict):
+def gen_src_uri(pkginfo, my_artifacts_dict, cond_iuse=None):
 	"""
 	Given a dictionary mapping language IDs to helppack or langpack artifacts, update 'iuse' in
 	pkginfo and also update 'src_uri' to contain a fully-formatted SRC_URI string to directly
@@ -43,7 +43,10 @@ def gen_src_uri(pkginfo, my_artifacts_dict):
 		lang_first_part = lang.split(':')[0]
 		iuse_lang = f'l10n_{lang_first_part}'
 		pkginfo['iuse'].add(iuse_lang)
-		src_uri += f'{iuse_lang}? ( offlinehelp? ( {artifact.src_uri} ) )\n'
+		if cond_iuse:
+			src_uri += f'{iuse_lang}? ( {cond_iuse}? ( {artifact.src_uri} ) )\n'
+		else:
+			src_uri += f'{iuse_lang}? ( {artifact.src_uri} )\n'
 	if "src_uri" not in pkginfo:
 		pkginfo["src_uri"] = src_uri
 	else:
@@ -56,11 +59,14 @@ def gen_lang_keys(artifacts_dict, main_version):
 	added a feature to optionally store the version of the langpack/helppack at the end of the string
 	like "foo/7.5.2" if the langpack version differs from that in the ebuild. We will then have the
 	bash code in the template grab this version if it exists. We need this for RPM extraction.
+
+	The version hack described above can be disabled by setting main_version to None. Then we will
+	not encode any extra version information for the packs.
 	"""
 	out = []
 	for key in sorted(list(artifacts_dict.keys())):
 		artifact = artifacts_dict[key]
-		if artifact.version != main_version:
+		if main_version is not None and artifact.version != main_version:
 			out.append(f'{key}/{artifact.version}')
 		else:
 			out.append(key)
@@ -81,43 +87,28 @@ async def add_l10n_ebuild(hub, ebuild_bin, version, **pkginfo):
 	artifacts += helppack_artifacts.values()
 
 	gen_src_uri(pkginfo, langpack_artifacts)
-	gen_src_uri(pkginfo, helppack_artifacts)
+	gen_src_uri(pkginfo, helppack_artifacts, cond_iuse="offlinehelp")
 
 	# convert iuse from a set to a sorted list for jinja:
 	pkginfo['iuse'] = ' '.join(sorted(list(pkginfo['iuse'])))
+	
+	# I added this for libreoffice-7.2.5.2. The lang/help packs have version 7.2.5. So I assumed the RPM-extracted
+	# directory would also have the wrong version. But it has the right version. However, we may need this in the
+	# future. To enable it, just set version_hack = version, which will cause the langpack version to be encoded
+	# in the ebuild if it differs from ${PV}.
+
+	version_hack = None
 
 	pkginfo.update(
 		template_path=ebuild_bin.template_path,
 		name="libreoffice-l10n",
 		version=version,
-		languages=gen_lang_keys(langpack_artifacts, version),
-		languages_help=gen_lang_keys(helppack_artifacts, version),
+		languages=gen_lang_keys(langpack_artifacts, version_hack),
+		languages_help=gen_lang_keys(helppack_artifacts, version_hack),
 		artifacts=artifacts
 	)
 	ebuild_l10n = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild_l10n.push()
-
-"""
-	for lang in ${LANGUAGES}; do
-		# break away if not enabled
-		use l10n_${lang%:*} || continue
-
-		dir=${lang#*:}
-
-		# for english we provide just helppack, as translation is always there
-		if [[ ${lang%:*} != en ]]; then
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_langpack_${dir}/RPMS/"
-			[[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
-			rpm_unpack ./${rpmdir}/*.rpm
-		fi
-		if [[ "${LANGUAGES_HELP}" =~ " ${lang} " ]] && use offlinehelp; then
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_helppack_${dir}/RPMS/"
-			[[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
-			rpm_unpack ./${rpmdir}/*.rpm
-		fi
-	done
-	"""
-
 
 async def generate(hub, **pkginfo):
 	html_url = f"https://www.libreoffice.org/download/download/"

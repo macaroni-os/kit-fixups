@@ -33,12 +33,12 @@ src_prepare() {
 
 	for lang in ${LANGUAGES}; do
 
-        # Sometimes the packs can have differing versions from the main ebuild. In this case,
-        # we encode the version in a trailing "/{version}". If this is missing, just use ${PV}.
+		# Sometimes the packs can have differing versions from the main ebuild. In this case,
+		# we encode the version in a trailing "/{version}". If this is missing, just use ${PV}.
 
-	    version=${lang##*/}
-        [ -z "${version}" ] && version="${PV}"
-	    lang=${lang%/*}
+		version=${lang##*/}
+		[ "${version}" == "${lang}" ] && version="${PV}"
+		lang=${lang%/*}
 
 		# break away if not enabled
 		use l10n_${lang%:*} || continue

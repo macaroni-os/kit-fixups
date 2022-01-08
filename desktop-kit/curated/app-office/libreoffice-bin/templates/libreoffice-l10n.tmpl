@@ -11,23 +11,11 @@ BASE_SRC_URI="https://downloadarchive.documentfoundation.org/${PN/-l10n/}/old/${
 LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
 KEYWORDS="*"
-IUSE="offlinehelp"
+IUSE="offlinehelp {{iuse}}"
 
 LANGUAGES_HELP="{{languages_help}}"
 LANGUAGES="{{languages}}"
-
-for lang in ${LANGUAGES_HELP}; do
-	helppack="offlinehelp? ( ${BASE_SRC_URI}/x86_64/LibreOffice_${PV}_Linux_x86-64_rpm_helppack_${lang#*:}.tar.gz )"
-	SRC_URI+=" l10n_${lang%:*}? ( ${helppack} )"
-done
-for lang in ${LANGUAGES}; do
-	if [[ ${lang%:*} != en ]]; then
-		langpack="${BASE_SRC_URI}/x86_64/LibreOffice_${PV}_Linux_x86-64_rpm_langpack_${lang#*:}.tar.gz"
-		SRC_URI+=" l10n_${lang%:*}? ( ${langpack} )"
-	fi
-	IUSE+=" l10n_${lang%:*}"
-done
-unset lang helppack langpack
+SRC_URI="{{src_uri}}"
 
 RDEPEND+="app-text/hunspell"
 
@@ -38,12 +26,20 @@ S="${WORKDIR}"
 src_prepare() {
 	default
 
-	local lang dir rpmdir
+	local lang dir rpmdir version
 
 	# First remove dictionaries, we want to use system ones.
 	find "${S}" -name *dict*.rpm -delete || die "Failed to remove dictionaries"
 
 	for lang in ${LANGUAGES}; do
+
+        # Sometimes the packs can have differing versions from the main ebuild. In this case,
+        # we encode the version in a trailing "/{version}". If this is missing, just use ${PV}.
+
+	    version=${lang##*/}
+        [ -z "${version}" ] && version="${PV}"
+	    lang=${lang%/*}
+
 		# break away if not enabled
 		use l10n_${lang%:*} || continue
 
@@ -51,12 +47,12 @@ src_prepare() {
 
 		# for english we provide just helppack, as translation is always there
 		if [[ ${lang%:*} != en ]]; then
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_langpack_${dir}/RPMS/"
+			rpmdir="LibreOffice_${version}_Linux_x86-64_rpm_langpack_${dir}/RPMS/"
 			[[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
 			rpm_unpack ./${rpmdir}/*.rpm
 		fi
 		if [[ "${LANGUAGES_HELP}" =~ " ${lang} " ]] && use offlinehelp; then
-			rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm_helppack_${dir}/RPMS/"
+			rpmdir="LibreOffice_${version}_Linux_x86-64_rpm_helppack_${dir}/RPMS/"
 			[[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
 			rpm_unpack ./${rpmdir}/*.rpm
 		fi

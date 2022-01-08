@@ -116,6 +116,7 @@ src_compile() {
 	export GOROOT_FINAL="${EPREFIX}"/usr/lib/go
 	export GOROOT="${PWD}"
 	export GOBIN="${GOROOT}/bin"
+	export GOCACHE="${T}/go-build"
 
 	# Go's build script does not use BUILD/HOST/TARGET consistently. :(
 	export GOHOSTARCH=$(go_arch ${CBUILD})

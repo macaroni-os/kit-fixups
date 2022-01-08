@@ -47,7 +47,10 @@ DEPEND="
 	jpeg? ( virtual/jpeg:0 )
 	openexr? (
 		media-libs/openexr:=
-		media-libs/ilmbase:=
+		|| (
+			media-libs/imath:=
+			media-libs/ilmbase:=
+		)
 	)
 	png? ( media-libs/libpng:0= )
 	python? (

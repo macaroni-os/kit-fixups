@@ -11,16 +11,13 @@ LICENSE="BSD"
 
 SLOT="0"
 KEYWORDS="*"
-# either pyilmbase or imath need to be keyworded for arm{,64} to re-add
+# imath needs to be keyworded for arm{,64} to re-add
 # python / pyalembic support
 IUSE="examples hdf5 test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	|| (
-		>=dev-libs/imath-3.0.1
-		>=media-libs/ilmbase-2.5.5
-	)
+    >=dev-libs/imath-3.0.1
 	hdf5? (
 		>=sci-libs/hdf5-1.10.2:=[zlib(+)]
 		>=sys-libs/zlib-1.2.11-r1

@@ -19,6 +19,7 @@ RDEPEND="
 	dev-libs/boost:=[nls]
 	media-libs/freetype
 	media-libs/glew:=
+	media-libs/glm
 	media-libs/libpng:0=
 	media-libs/libsdl2[joystick,video]
 	media-libs/sdl2-ttf

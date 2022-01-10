@@ -50,7 +50,7 @@ DEPEND="
 	openexr? (
 		media-libs/openexr:=
 		|| (
-			media-libs/imath:=
+			dev-libs/imath:=
 			media-libs/ilmbase:=
 		)
 	)

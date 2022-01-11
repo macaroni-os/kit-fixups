@@ -25,7 +25,7 @@ SRC_URI="
 LICENSE="GPL-2-with-classpath-exception"
 KEYWORDS="amd64 ~arm arm64 ppc64"
 
-IUSE="alsa cups headless-awt selinux source"
+IUSE="alsa cups headless-awt selinux source cacerts"
 
 RDEPEND="
 	app-eselect/eselect-java
@@ -74,9 +74,10 @@ src_install() {
 		rm -v lib/src.zip || die
 	fi
 
-	rm -v lib/security/cacerts || die
-	dosym ../../../../etc/ssl/certs/java/cacerts \
-		"${dest}"/lib/security/cacerts
+    if use cacerts ; then
+	    rm -v lib/security/cacerts || die
+	    dosym ../../../../etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
+	fi
 		
 	dodir "${dest}"
 	cp -pPR * "${ddest}" || die

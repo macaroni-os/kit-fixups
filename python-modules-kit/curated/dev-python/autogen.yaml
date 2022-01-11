@@ -884,11 +884,6 @@ simple_python_autogen_rule:
           https://github.com/PyCQA/pyflakes
           https://pypi.org/project/pyflakes/
         license: MIT
-    - rfc3986:
-        desc: A Python implementation of RFC 3986 including validation and authority parsing
-        homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
-        license: Apache-2.0
-        python_compat: python2+ pypy{,3}
     - soupsieve:
         desc: A modern CSS selector implementation for BeautifulSoup
         homepage: https://github.com/facelessuser/soupsieve/ https://pypi.org/project/soupsieve/
@@ -1413,6 +1408,15 @@ dev_python_simplified_rule:
 #        compat: '2.4.7'
 #        blocker: "!<dev-python/pyparsing-3.0.0"
 #        python_compat: python2+
+    - rfc3986:
+        compat: '1.5.0'
+        revision:
+          2.0.0: 1
+        blocker: "!<dev-python/rfc3986-2"
+        desc: A Python implementation of RFC 3986 including validation and authority parsing
+        homepage: http://rfc3986.readthedocs.io/ https://pypi.org/project/rfc3986/
+        license: Apache-2.0
+        python_compat: python2+ pypy{,3}
     - setuptools_scm:
         revision:
           6.3.1: 2

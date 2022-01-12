@@ -43,15 +43,8 @@ BDEPEND="virtual/pkgconfig
 	nls? ( sys-devel/gettext )"
 DEPEND="${RDEPEND}"
 
-fix_src_dirs() {
-	pushd "${WORKDIR}"
-	mv {{github_user}}-{{github_repo}}-* {{name}}-{{version}}
-	popd
-}
-
 src_unpack() {
 	default
-	fix_src_dirs
 }
 
 src_configure() {

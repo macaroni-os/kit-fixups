@@ -17,6 +17,7 @@ SLOT="0"
 KEYWORDS="-* ~amd64 ~x86"
 
 RDEPEND="
+	dev-libs/nss
 	dev-qt/qtcore:5
 	dev-qt/qtdbus:5
 	dev-qt/qtdeclarative:5
@@ -28,6 +29,7 @@ RDEPEND="
 	dev-qt/qtx11extras:5
 	sys-apps/dbus
 	!sys-auth/consolekit
+	x11-libs/libXScrnSaver
 "
 
 # For consolekit incompatibility see https://forums.gentoo.org/viewtopic-p-8332956.html#8332956

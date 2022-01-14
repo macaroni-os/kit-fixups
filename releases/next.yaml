@@ -1,0 +1,188 @@
+release:
+  name: next
+  metadata:
+    version: 11
+    required:
+      - ego: '2.7.2'
+  copyright: |
+    | Copyright 2008-{{cur_year}} Funtoo Solutions, Inc.
+    | Copyright 1999-{{cur_year}} Gentoo Foundation, Gentoo Authors, and
+    | many independent contributors/authors as documented in the source code commit history.
+    | Copyright 2017-{{cur_year}} Sony Interactive Entertainment, Inc.
+  repositories:
+    - deadbeef:
+        copyright: |
+          | Copyright 2014-{{cur_year}} Roman Kuzmitskii (https://github.com/damex) and GitHub repository contributors.
+        url: https://github.com/damex/deadbeef-overlay.git
+    - faustoo:
+        copyright: |
+          | Copyright 2013-{{cur_year}} Federico Moro (https://github.com/fmoro) and GitHub repository contributors.
+        url: https://github.com/fmoro/faustoo.git
+    - pf4public:
+        copyright: |
+          | Copyright 2019-{{cur_year}} PF4Public (https://github.com/PF4Public) and GitHub repository contributors.
+        url: https://github.com/PF4Public/gentoo-overlay.git
+    - flora:
+        url: https://code.funtoo.org/bitbucket/scm/co/flora.git
+    - fusion809:
+        copyright: |
+          | Copyright 2017-{{cur_year}} Brenton Horne (https://github.com/fusion809) and GitHub repository contributors.
+        url: https://github.com/fusion809/fusion809-overlay.git
+    - gentoo-staging:
+        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+    - gentoo-staging-Sep-2020:
+        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        src_sha1: a6ffd56a61af60a69aee87a7b59d7382ec71df21
+        notes: '17 Sep 2020'
+    - gentoo-staging-late-2020:
+        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        src_sha1: 2e49e96c41bf524a74ee347c49438612d7d8d392
+        notes: '31 Dec 2020'
+    - gentoo-staging-nov-2021:
+        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        src_sha1: a15a64f48741a493e49dfee7d4280a3dc10cd21d
+        notes: '9 Nov 2021'
+    - perl-kit-legacy:
+        url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-legacy.git
+        src_sha1: 482287e2e6ed7d56e675092ad9658bebc4be6618
+        notes: '30 Nov 2020 - 5.28-release'
+
+  source-collections:
+    funtoo_next:
+      - flora
+      - faustoo
+      - fusion809
+      - deadbeef
+      - gentoo-staging-nov-2021
+      - gentoo-staging:
+          src_sha1: 9292583023a6610905c79a4707db3ac6c63b3a31
+          notes: '21 Jun 2019'
+      - gentoo-staging-Sep-2020
+      - gentoo-staging-late-2020
+      - pf4public
+    funtoo_late_2020:
+      - flora
+      - fusion809
+      - gentoo-staging:
+          src_sha1: f20c47b24bccab1e9807d9215c72bacb2e5ae34e
+          notes: '24 Dec 2020'
+    funtoo_oct_2020:
+      - flora
+      - fusion809
+      - gentoo-staging:
+          src_sha1: 9ea736991281cf349dc1a7c64f164c62c119407d
+          notes: '11 Oct 2020'
+    funtoo_release_1.4_bump:
+      - flora
+      - faustoo
+      - fusion809
+      - deadbeef
+      - gentoo-staging:
+          src_sha1: a40e31d83f4be169ca3d3dc362e2a0d880a30c40
+          notes: '21 Dec 2019'
+    perl-kit-legacy:
+      - perl-kit-legacy
+
+  # Have all of our remote configurations defined in one place for ease of maintenance
+  remotes:
+    dev:
+      kits:
+        url: https://code.funtoo.org/bitbucket/scm/auto/{kit_name}
+      meta-repo:
+        url: https://code.funtoo.org/bitbucket/scm/core/meta-repo
+    prod:
+      kits:
+        url: ssh://git@code.funtoo.org:7999/auto/{kit_name}
+        mirrors:
+          - https://github.com/funtoo/{kit_name}
+      meta-repo:
+        url: ssh://git@code.funtoo.org:7999/core/meta-repo.git
+        mirrors:
+          - ssh://git@github.com/funtoo/meta-repo
+
+  kit-definitions:
+    defaults:
+      masters:
+        - core-kit
+        - llvm-kit
+      source: funtoo_next
+      stability: prime
+      branch: next
+      eclasses:
+        include:
+          local:
+            - '*'
+      priority: 500
+    kits:
+      - core-kit:
+          masters: []
+          aliases:
+            - gentoo
+          priority: 1000
+          eclasses:
+            # NOTE: we also have eclass information in packages.yaml for each kit. So we could move it all here
+            # or have some graceful merging of the information. Seems best to move it here:
+            include:
+              gentoo-staging:
+                deadbeef:
+                  - deadbeef-plugins
+                faustoo:
+                  - waf
+                  - googlecode
+                gentoo-staging-late-2020:
+                  - cmake
+                  - cmake-utils
+                  - cmake-multilib
+            mask:
+              - llvm
+              - llvm.org
+      - llvm-kit:
+          masters:
+            - core-kit
+          priority: 900
+          source: funtoo_late_2020
+      - core-hw-kit
+      - core-server-kit
+      - core-gl-kit
+      - security-kit:
+          source: funtoo_release_1.4_bump
+      - browser-kit:
+          source: funtoo_oct_2020
+      - desktop-kit
+      - media-kit
+      - editors-kit
+      - net-kit
+      - text-kit
+      - science-kit
+      - games-kit
+      - java-kit
+      - haskell-kit
+      - ml-lang-kit
+      - lisp-scheme-kit
+      - lang-kit
+      - dev-kit
+      - python-modules-kit
+      - kde-kit:
+          branch: 5.22-rel-next
+      - gnome-kit:
+          branch: 3.36-rel-next
+      - xfce-kit:
+          branch: 4.14-rel-next
+      - xfce-kit:
+          branch: 4.16-rel-next
+      - qt-kit:
+          branch: 5.15.2-rel-next
+      - mate-kit:
+          branch: 1.24-rel-next
+      - perl-kit:
+          branch: next
+          source: perl-kit-legacy
+      - ruby-kit:
+          branch: next
+          source: funtoo_late_2020
+      - python-kit:
+          branch: 3.7-rel-next
+          settings:
+            primary: python3_7
+            alternate: python2_7
+            mask: ">=dev-lang/python-3.8"

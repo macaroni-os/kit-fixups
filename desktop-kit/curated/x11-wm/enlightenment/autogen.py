@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 #
 # The data in the BeautifulSoup derived dictionary can be then used for ebuild package info like version and url
 async def get_enlight_releases(hub, **pkginfo):
-	html = await hub.pkgtools.fetch.get_page("https://www.enlightenment.org/download")	
+	html = await hub.pkgtools.fetch.get_page("https://www.enlightenment.org/download")
 	soup = BeautifulSoup(html, features="html.parser").find_all("td")
 	release_names = []
 	release_versions = []
@@ -48,8 +48,7 @@ async def generate(hub, **pkginfo):
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {upstream_release_name}")
 	version = enlight_releases[upstream_release_name]['version']
 	url = enlight_releases[upstream_release_name]['tarball_url']
-	final_name = f"{pkginfo['name']}-{version}.tar.xz"
-	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
+	src_artifact = hub.pkgtools.ebuild.Artifact(url=url)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

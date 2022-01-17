@@ -21,7 +21,7 @@ RESTRICT="!test? ( test )"
 # use system libopts
 RDEPEND=">=dev-libs/libtasn1-4.9:=
 	dev-libs/libunistring:=
-	>=dev-libs/nettle-3.4.1:=[gmp]
+	>=dev-libs/nettle-3.6:=[gmp]
 	>=dev-libs/gmp-5.1.3-r1:=
 	tools? ( sys-devel/autogen:= )
 	dane? ( >=net-dns/unbound-1.4.20:= )

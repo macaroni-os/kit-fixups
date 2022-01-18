@@ -119,7 +119,13 @@ async def generate(hub, **pkginfo):
 		if href.endswith(".xz?idx=1"):
 			version = href.split(".tar")[0].split("-")[1]
 	dl_url = f"https://downloadarchive.documentfoundation.org/libreoffice/old/{version}/rpm/x86_64/"
-	url = dl_url + f"LibreOffice_{version}_Linux_x86-64_rpm.tar.gz"
+	main_tarball_version = await hub.pkgtools.pages.iter_links(
+		base_url=dl_url,
+		match_fn=lambda x: re.match(f"LibreOffice_([0-9.]+)_Linux_x86-64_rpm.tar.gz", x),
+		fixup_fn=lambda x: x.groups()[0],
+		first_match=True
+	)
+	url = dl_url + f"LibreOffice_{main_tarball_version}_Linux_x86-64_rpm.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
 	ebuild_bin = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts)
 	ebuild_bin.push()

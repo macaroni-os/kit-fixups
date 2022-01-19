@@ -53,7 +53,6 @@ src_prepare() {
 	default
 
 	if ! use test ; then
-		eapply "${FILESDIR}"/${PN}-1.28.2-make-missing-testfont-non-fatal.patch
 		need_eautoreconf=yes
 	fi
 

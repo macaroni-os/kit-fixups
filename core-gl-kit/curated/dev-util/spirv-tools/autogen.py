@@ -36,6 +36,7 @@ async def generate(hub, **pkginfo):
 		github_repo=github_repo,
 		version=version,
 		artifacts=[tools_artifact],
+		revision={ "2021.4" : "1" }
 	)
 	tools_ebuild.push()
 

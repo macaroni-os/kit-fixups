@@ -34,7 +34,8 @@ async def generate(hub, **pkginfo):
 		'version' : ver,
 		'cat' : 'media-libs',
 		'name' : 'vulkan-layers',
-		'template_path' : loader.template_path
+		'template_path' : loader.template_path,
+		'revision' : { '1.2.203' : '1' }
 	}
 	layers_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **layers_pkginfo, select=f"v{ver}"))
 	hub.pkgtools.ebuild.BreezyBuild(**layers_pkginfo).push()

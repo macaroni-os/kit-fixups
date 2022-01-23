@@ -14,7 +14,6 @@ HOMEPAGE="https://github.com/KhronosGroup/SPIRV-Tools"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+static"
 # Tests fail upon finding symbols that do not match a regular expression
 # in the generated library. Easily hit with non-standard compiler flags
 RESTRICT="test"
@@ -34,7 +33,7 @@ src_configure() {
 	local mycmakeargs=(
 		"-DSPIRV-Headers_SOURCE_DIR=/usr/"
 		"-DSPIRV_WERROR=OFF"
-		"-DSPIRV_TOOLS_BUILD_STATIC=$(usex static)"
+		"-DSPIRV_TOOLS_BUILD_STATIC=OFF"
 		"-DBUILD_SHARED_LIBS=ON"
 	)
 

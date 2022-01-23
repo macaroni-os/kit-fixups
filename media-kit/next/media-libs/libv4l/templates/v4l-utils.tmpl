@@ -63,8 +63,6 @@ src_prepare() {
 }
 
 src_configure() {
-	append-cxxflags -std=c++14
-
 	if use qt5; then
 		local qt5_paths=( \
 			MOC="$($(tc-getPKG_CONFIG) --variable=host_bins Qt5Core)/moc" \

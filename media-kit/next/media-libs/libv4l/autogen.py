@@ -27,7 +27,7 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	sorted (from least to greatest) by version using version.parse. For example::
 
 	  [ ( "gzip-1.0.tar.gz", "1.0" ), ( "gzip-2.0.tar.gz" , "2.0" ) ]
-	
+
 	Note that any bogus files or URLS -- those not starting with ``name`` or ending with ``extension`` -- thus pointing
 	to things we don't care about -- will be removed from the output.
 	"""
@@ -48,7 +48,7 @@ async def generate(hub, **pkginfo):
 	for link in soup.find_all("a"):
 		hrefs.append(link.get("href"))
 	href_tuples = filter_and_sort_hrefs(hrefs, app, extension)
-	
+
 	if not len(href_tuples):
 		raise hub.pkgtools.ebuild.BreezyError(f"No valid tarballs found for {app}.")
 	href, version = href_tuples[-1]
@@ -56,7 +56,7 @@ async def generate(hub, **pkginfo):
 	generate = []
 	generate.append({ "cat" : "media-libs", "name": "libv4l", "version" : version})
 	generate.append({ "cat" : "media-tv", "name": "v4l-utils", "version" : version})
-				
+
 	for gen in generate:
 		pkginfo.update(gen)
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(

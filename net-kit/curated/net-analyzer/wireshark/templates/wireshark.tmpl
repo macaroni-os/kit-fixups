@@ -5,7 +5,7 @@ EAPI=7
 LUA_COMPAT=( lua5-{1..2} )
 PYTHON_COMPAT=( python3+ )
 
-inherit fcaps flag-o-matic lua-single python-any-r1 qmake-utils xdg-utils cmake
+inherit fcaps flag-o-matic lua-single python-any-r1 qmake-utils xdg-utils cmake user
 
 DESCRIPTION="A network protocol analyzer formerly known as ethereal"
 HOMEPAGE="https://www.wireshark.org/"
@@ -96,6 +96,7 @@ RESTRICT="test"
 
 pkg_setup() {
 	use lua && lua-single_pkg_setup
+	enewgroup pcap
 }
 
 post_src_unpack() {
@@ -113,7 +114,6 @@ src_prepare() {
 		-e '/pkg_search_module.*LUA/s/(LUA.*)/(LUA lua)/' \
 		${S}/cmake/modules/FindLUA.cmake || die "sed 2"
 	cmake_src_prepare
-	enewgroup pcap
 }
 
 src_configure() {

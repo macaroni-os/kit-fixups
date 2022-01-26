@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
 		tag = rel["tag_name"]
 		# NOTE: Some tags have had 'v' prepended, some have none.
 		version = tag.lstrip("v")
-		url = f"https://github.com/{github_user}/{github_repo}/releases/download/{version}/{github_user}-v{version}.tar.gz"
+		url = f"https://github.com/{github_user}/{github_repo}/releases/download/{tag}/{github_user}-v{version}.tar.gz"
 		break
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

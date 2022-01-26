@@ -25,22 +25,6 @@ async def generate(hub, **pkginfo):
 	ver = loader_pkginfo['version']
 
 	##################################################################################################
-	# vulkan-layers: track loader version.
-	##################################################################################################
-
-	layers_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo' : 'Vulkan-ValidationLayers',
-		'version' : ver,
-		'cat' : 'media-libs',
-		'name' : 'vulkan-layers',
-		'template_path' : loader.template_path,
-		'revision' : { '1.2.203' : '1' }
-	}
-	layers_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **layers_pkginfo, select=f"v{ver}"))
-	hub.pkgtools.ebuild.BreezyBuild(**layers_pkginfo).push()
-
-	##################################################################################################
 	# vulkan-headers: track loader version.
 	##################################################################################################
 
@@ -54,6 +38,23 @@ async def generate(hub, **pkginfo):
 	}
 	headers_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **headers_pkginfo, select=f"v{ver}"))
 	hub.pkgtools.ebuild.BreezyBuild(**headers_pkginfo).push()
+
+	##################################################################################################
+	# vulkan-layers: this has semi-independent versioning (can trail headers + loader a bit)
+	##################################################################################################
+
+	layers_pkginfo = {
+		**khronos_pkginfo,
+		'github_repo' : 'Vulkan-ValidationLayers',
+		'version' : ver,
+		'cat' : 'media-libs',
+		'name' : 'vulkan-layers',
+		'template_path' : loader.template_path,
+		'revision' : { '1.2.203' : '1' }
+	}
+	tag_info = await hub.pkgtools.github.tag_gen(hub, **layers_pkginfo)
+	layers_pkginfo.update(tag_info)
+	hub.pkgtools.ebuild.BreezyBuild(**layers_pkginfo).push()
 
 	##################################################################################################
 	# vulkan-tools: This has independent versioning.

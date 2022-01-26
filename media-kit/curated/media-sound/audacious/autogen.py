@@ -29,7 +29,7 @@ async def generate(hub, **pkginfo):
 		version=version,
 		github_user=github_user,
 		github_repo=github_repo,
-		artifacts=[artifact],
+		artifacts=[artifact, hub.pkgtools.ebuild.Artifact(url="https://fastpull-us.funtoo.org/distfiles/gentoo_ice-xmms-0.2.tar.bz2")],
 	)
 	ebuild.push()
 

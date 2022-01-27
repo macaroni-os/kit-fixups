@@ -1,0 +1,80 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI="7"
+
+PYTHON_COMPAT=( python3+ )
+
+inherit linux-info python-r1 systemd toolchain-funcs
+
+DESCRIPTION="Performance analysis and visualization of the system boot process"
+HOMEPAGE="https://github.com/xrmx/bootchart"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+SLOT="0"
+LICENSE="GPL-2"
+KEYWORDS="*"
+IUSE="svg test X"
+
+REQUIRED_USE="
+	X? ( ${PYTHON_REQUIRED_USE} )
+	test? ( X )"
+
+RDEPEND="
+	!app-benchmarks/bootchart
+	X? (
+		dev-python/pycairo[svg(+)?,${PYTHON_USEDEP}]
+		dev-python/pygtk
+		${PYTHON_DEPS}
+		)
+	sys-apps/lsb-release"
+DEPEND="${PYTHON_DEPS}"
+
+S="${WORKDIR}"/{{github_user}}-{{github_repo}}-{{version_commit}}
+
+CONFIG_CHECK="~PROC_EVENTS ~TASKSTATS ~TASK_DELAY_ACCT ~TMPFS"
+
+src_prepare() {
+	default
+	tc-export CC
+	sed \
+		-e "/^install/s:py-install-compile::g" \
+		-e "/^SYSTEMD_UNIT_DIR/s:=.*:= $(systemd_get_systemunitdir):g" \
+		-i Makefile || die
+	sed \
+		-e '/^EXIT_PROC/s:^.*$:EXIT_PROC="agetty mgetty mingetty:g' \
+		-i bootchartd.conf bootchartd.in || die
+}
+
+src_test() {
+	python_foreach_impl emake test
+}
+
+src_install() {
+	export DOCDIR=/usr/share/doc/${PF}
+	default
+
+	# Note: LIBDIR is hardcoded as /lib in collector/common.h, so we shouldn't
+	# just change it. Since no libraries are installed, /lib is fine.
+	keepdir /lib/bootchart/tmpfs
+
+	installation() {
+		python_domodule pybootchartgui
+
+		python_newscript pybootchartgui.py pybootchartgui
+	}
+	use X && python_foreach_impl installation
+
+	newinitd "${FILESDIR}"/${PN}.init ${PN}
+}
+
+pkg_postinst() {
+	elog "If you are using an initrd during boot"
+	elog "Add the init script to your default runlevel"
+	elog "rc-update add bootchart2 default"
+	elog "To enabled bootchart2 kernel boot, add these options to"
+	elog "your kernel section params line in /etc/boot.conf:"
+	elog 'sys-kernel/genkernel users:'
+	elog 'initcall_debug printk.time=y real_init=/sbin/bootchartd'
+	elog "Non-genkernel users:"
+	elog 'initcall_debug printk.time=y init=/sbin/bootchartd'
+}

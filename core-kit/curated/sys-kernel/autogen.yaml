@@ -61,10 +61,7 @@ kernel_gen:
         versions:
           latest:
             unmasked: False
+          5.15.15_p1:
+            unmasked: True
           5.15.5_p2:
-            patches:
-              - xfs-libcrc32c-fix.patch
-              - mcelog.patch
-              - ikconfig.patch
-              - extra_cpu_optimizations.patch
             unmasked: True

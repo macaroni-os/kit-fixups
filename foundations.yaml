@@ -84,7 +84,6 @@ overlays:
       url: https://code.funtoo.org/bitbucket/scm/core/mate-kit-sources.git
 
 
-
 source-defs:
   - funtoo_next:
       - repo: flora
@@ -133,6 +132,18 @@ source-defs:
         date: '21 Dec 2019'
   - perl-kit-sources:
       - repo: perl-kit-sources
+  - python-kit-sources:
+      - repo: python-kit-sources
+  - kde-kit-sources:
+      - repo: kde-kit-sources
+  - gnome-kit-sources:
+      - repo: gnome-kit-sources
+  - xfce-kit-sources:
+      - repo: xfce-kit-sources
+  - qt-kit-sources:
+      - repo: qt-kit-sources
+  - mate-kit-sources:
+      - repo: mate-kit-sources
 
 kit-groups:
   defaults:
@@ -169,27 +180,34 @@ kit-groups:
           - python-modules-kit
           - nokit
           - kde-kit:
+              kind: sourced
               source: kde-kit-sources
               branch: 5.22-release
           - gnome-kit:
+              kind: sourced
               source: gnome-kit-sources
               branch: 3.36-prime
           - xfce-kit:
+              kind: sourced
               source: xfce-kit-sources
               branch: 4.16-release
           - qt-kit:
+              kind: sourced
               source: qt-kit-sources
               branch: 5.15.2-release
           - mate-kit:
+              kind: sourced
               source: mate-kit-sources
               branch: 1.24-prime
           - perl-kit:
+              kind: sourced
               source: perl-kit-sources
               branch: 5.32-release
           - ruby-kit:
               branch: 2.7-prime
               source: funtoo_late_2020
           - python-kit:
+              kind: sourced
               source: python-kit-sources
               branch: 3.7-release
     - next:
@@ -257,26 +275,33 @@ kit-groups:
               source: funtoo_next
               branch: next
           - kde-kit:
+              kind: sourced
               source: kde-kit-sources
               branch: 5.22-release
           - gnome-kit:
+              kind: sourced
               source: gnome-kit-sources
               branch: 3.36-prime
           - xfce-kit:
+              kind: sourced
               source: xfce-kit-sources
               branch: 4.16-release
           - qt-kit:
+              kind: sourced
               source: qt-kit-sources
               branch: 5.15.2-release
           - mate-kit:
+              kind: sourced
               source: mate-kit-sources
               branch: 1.24-prime
           - perl-kit:
+              kind: sourced
               branch: next
               source: perl-kit-sources
           - ruby-kit:
               branch: next
               source: funtoo_late_2020
           - python-kit:
+              kind: sourced
               source: python-kit-sources
               branch: 3.7-release

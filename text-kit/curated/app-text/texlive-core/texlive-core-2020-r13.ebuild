@@ -185,6 +185,11 @@ src_configure() {
 	# It fails on alpha without this
 	use alpha && append-ldflags "-Wl,--no-relax"
 
+	# See https://bugs.funtoo.org/browse/FL-9297
+	if tc-is-gcc && [[ $(gcc-major-version) -eq 9 ]]; then
+		append-cxxflags "--std=c++17"
+	fi
+
 	# Too many regexps use A-Z a-z constructs, what causes problems with locales
 	# that don't have the same alphabetical order than ascii. Bug #242430
 	# So we set LC_ALL to C in order to avoid problems.

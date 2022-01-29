@@ -33,7 +33,7 @@ post_src_prepare() {
 	# https://github.com/KhronosGroup/Vulkan-ValidationLayers/commit/2c2b81c05189790acfea79873f1ea689827ad998#diff-ff032a8648100262964374becd9dd6fa56d9d1c02c6596a83128241ff668038bR307
 
 	sed -i \
-		-e '/target_link_libraries.*VkLayer_khronos_validation PRIVATE SPIRV-Headers/s/SPIRV-Tools-static/SPIRV-Tools/' \
+		-e '/target_link_libraries.*VkLayer_khronos_validation PRIVATE.*SPIRV-Tools-static/s/SPIRV-Tools-static/SPIRV-Tools/' \
 	"${S}"/layers/CMakeLists.txt || ewarn "The fix for FL-9238 can likely be removed from the vulkan-layers autogen now."
 	return 0
 }

@@ -42,10 +42,22 @@ release:
         url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
         src_sha1: a15a64f48741a493e49dfee7d4280a3dc10cd21d
         notes: '9 Nov 2021'
-    - perl-kit-legacy:
-        url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-legacy.git
+    - perl-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-sources.git
         src_sha1: 482287e2e6ed7d56e675092ad9658bebc4be6618
-        notes: '30 Nov 2020 - 5.28-release'
+        date: '30 Nov 2020 - 5.28-release'
+    - python-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/python-kit-sources.git
+    - kde-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/kde-kit-sources.git
+    - gnome-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/gnome-kit-sources.git
+    - xfce-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/xfce-kit-sources.git
+    - qt-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/qt-kit-sources.git
+    - mate-kit-sources:
+        url: https://code.funtoo.org/bitbucket/scm/core/mate-kit-sources.git
 
   source-collections:
     funtoo_next:
@@ -80,8 +92,26 @@ release:
       - gentoo-staging:
           src_sha1: a40e31d83f4be169ca3d3dc362e2a0d880a30c40
           notes: '21 Dec 2019'
-    perl-kit-legacy:
-      - perl-kit-legacy
+    perl-kit-sources:
+      - repo: perl-kit-sources
+    python-kit-sources:
+      - repo: python-kit-sources
+        branch: 3.7-release
+    kde-kit-sources:
+      - repo: kde-kit-sources
+        branch: 5.22-release
+    gnome-kit-sources:
+      - repo: gnome-kit-sources
+        branch: 3.36-prime
+    xfce-kit-sources:
+      - repo: xfce-kit-sources
+        branch: 4.16-release
+    qt-kit-sources:
+      - repo: qt-kit-sources
+        branch: 5.15.2-release
+    mate-kit-sources:
+      - repo: mate-kit-sources
+        branch: 1.24-prime
 
   # Have all of our remote configurations defined in one place for ease of maintenance
   remotes:
@@ -160,28 +190,36 @@ release:
       - dev-kit
       - python-modules-kit
       - kde-kit:
-          branch: 5.22-rel-next
+          kind: sourced
+          source: kde-kit-sources
+          branch: next-5.22-release
       - gnome-kit:
-          branch: 3.36-rel-next
+          kind: sourced
+          source: gnome-kit-sources
+          branch: next-3.36-prime
       - xfce-kit:
-          branch: 4.14-rel-next
-      - xfce-kit:
-          branch: 4.16-rel-next
+          kind: sourced
+          source: xfce-kit-sources
+          branch: next-4.16-release
       - qt-kit:
-          branch: 5.15.2-rel-next
+          kind: sourced
+          source: qt-kit-sources
+          branch: next-5.15.2-release
       - mate-kit:
-          branch: 1.24-rel-next
-          source:
-            - repo: mate-kit-sources
-              branch: 1.24-prime
+          kind: sourced
+          source: mate-kit-sources
+          branch: next-1.24-prime
       - perl-kit:
+          kind: sourced
           branch: next
-          source: perl-kit-legacy
+          source: perl-kit-sources
       - ruby-kit:
           branch: next
           source: funtoo_late_2020
       - python-kit:
-          branch: 3.7-rel-next
+          kind: sourced
+          source: python-kit-sources
+          branch: next-3.7-release
           settings:
             primary: python3_7
             alternate: python2_7

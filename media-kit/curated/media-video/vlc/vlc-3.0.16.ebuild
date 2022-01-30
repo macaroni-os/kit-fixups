@@ -415,6 +415,10 @@ src_configure() {
 	# FIXME: Needs libresid-builder from libsidplay:2 which is in another directory...
 	append-ldflags "-L/usr/$(get_libdir)/sidplay/builders/"
 
+	if use riscv; then
+		append-libs -latomic
+	fi
+
 	if use truetype || use bidi; then
 		myeconfargs+=( --enable-freetype )
 	else

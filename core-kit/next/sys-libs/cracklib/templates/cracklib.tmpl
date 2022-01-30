@@ -93,13 +93,11 @@ src_install() {
 	insinto /usr/share/dict
 	doins dicts/cracklib-small
 	insinto /usr/share/dict
-	cat ${WORKDIR}/cracklib-words-${PV} cracklib-words
+	newins ${WORKDIR}/cracklib-words-${PV} cracklib-words
 }
 
 pkg_postinst() {
-	if [[ -z "${ROOT}" ]]; then
-		ebegin "Regenerating cracklib dictionary"
-		create-cracklib-dict "${EPREFIX}"/usr/share/dict/* >/dev/null
-		eend $?
-	fi
+	ebegin "Regenerating cracklib dictionary"
+	${EROOT}/usr/sbin/cracklib-format ${EROOT}/usr/share/dict/* | ${EROOT}/usr/sbin/cracklib-packer ${ROOT}/usr/lib/cracklib_dict
+	eend $?
 }

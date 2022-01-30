@@ -98,6 +98,6 @@ src_install() {
 
 pkg_postinst() {
 	ebegin "Regenerating cracklib dictionary"
-	${EROOT}/usr/sbin/cracklib-format ${EROOT}/usr/share/dict/* | ${EROOT}/usr/sbin/cracklib-packer ${ROOT}/usr/lib
+	${EROOT}/usr/sbin/cracklib-format ${EROOT}/usr/share/dict/* | ${EROOT}/usr/sbin/cracklib-packer ${ROOT}/usr/lib/cracklib_dict
 	eend $?
 }

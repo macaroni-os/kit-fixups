@@ -20,7 +20,7 @@ async def generate(hub, **pkginfo):
 		github_user=user,
 		github_repo=repo,
 		artifacts=[src_artifact, words_artifact],
-		revision={ "2.9.7" : "1" }
+		revision={ "2.9.7" : "2" }
 	)
 	ebuild.push()
 

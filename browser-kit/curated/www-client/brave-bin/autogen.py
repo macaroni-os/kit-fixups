@@ -2,6 +2,7 @@
 
 import json
 from datetime import timedelta
+from packaging import version
 
 
 def find_release(json_dict, channel="Release"):
@@ -15,7 +16,7 @@ def find_release(json_dict, channel="Release"):
 	releases = list(releases)
 	if not len(releases):
 		return None
-	return sorted(releases, key=lambda x: x["tag_name"])[-1]
+	return sorted(releases, key=lambda x: version.parse(x["tag_name"]))[-1]
 
 
 async def generate(hub, **pkginfo):

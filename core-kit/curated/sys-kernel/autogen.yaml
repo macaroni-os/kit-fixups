@@ -53,6 +53,7 @@ kernel_gen:
               - amdgpu-picasso.patch
               - extra_cpu_optimizations.patch
     - debian-sources:
+        unmask_match: '^5\.15\.'
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch

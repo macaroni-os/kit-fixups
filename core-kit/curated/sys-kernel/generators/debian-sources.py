@@ -50,17 +50,15 @@ def gen_latest(pkginfo, all_versions_from_yaml, tracker_soup):
 		linux_version, deb_extraversion = result
 		version = f"{linux_version}_p{deb_extraversion}"
 
-		if 'unmasked' in pkginfo and not pkginfo['unmasked']:
+		# maybe we let you see the light of day:
+		unmasked = True
+		if unmask_match:
+			matched = re.match(unmask_match, version)
+			if not matched:
+				unmasked = False
+		elif 'unmasked' in pkginfo and not pkginfo['unmasked']:
 			# go directly to jail:
 			unmasked = False
-		else:
-			# maybe we let you see the light of day:
-			unmasked = True
-			if unmask_match:
-				matched = re.match(unmask_match, version)
-				if not matched:
-					unmasked = False
-
 		if unmasked:
 			unmask_found = True
 

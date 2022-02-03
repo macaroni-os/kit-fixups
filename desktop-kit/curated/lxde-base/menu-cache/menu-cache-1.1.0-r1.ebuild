@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="7"
 
 inherit eutils multilib
 
@@ -11,7 +11,7 @@ HOMEPAGE="http://lxde.sourceforge.net/"
 SRC_URI="mirror://sourceforge/lxde/${P}.tar.xz
 	mirror://sourceforge/pcmanfm/${LIBFM}.tar.xz"
 
-LICENSE="GPL-2"
+LICENSE="LGPL-2.1"
 # Subslot based on soname of libmenu-cache.so.
 SLOT="0/3"
 KEYWORDS="*"
@@ -22,6 +22,11 @@ DEPEND="${RDEPEND}
 	sys-devel/gettext
 	virtual/pkgconfig"
 PDEPEND="x11-libs/libfm"
+
+PATCHES=(
+    "${FILESDIR}"/${P}-memleak.patch
+    "${FILESDIR}"/${P}-fno-common.diff
+)
 
 src_configure() {
 	pushd "${WORKDIR}/${LIBFM}" > /dev/null || die

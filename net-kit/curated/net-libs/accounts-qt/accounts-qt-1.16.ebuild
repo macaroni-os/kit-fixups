@@ -2,15 +2,16 @@
 
 EAPI=6
 
-inherit qmake-utils vcs-snapshot
+inherit qmake-utils
 
 DESCRIPTION="Qt5 bindings for libaccounts-glib"
 HOMEPAGE="https://01.org/gsso/"
-SRC_URI="https://gitlab.com/accounts-sso/libaccounts-qt/repository/VERSION_1.15/archive.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://gitlab.com/accounts-sso/lib${PN}/-/archive/VERSION_${PV}/lib${PN}-VERSION_${PV}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/lib${PN}-VERSION_${PV}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 x86"
+KEYWORDS="*"
 IUSE="doc test"
 
 # dbus problems

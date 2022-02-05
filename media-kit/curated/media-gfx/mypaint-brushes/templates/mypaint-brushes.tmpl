@@ -1,0 +1,26 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools
+
+DESCRIPTION="Default MyPaint brushes"
+HOMEPAGE="https://github.com/mypaint/mypaint-brushes"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="CC0-1.0"
+
+SLOT="{{slot}}" # due to pkgconfig name "mypaint-brushes-2.0"
+KEYWORDS="*"
+
+# Chosen to exclude README symlink
+DOCS=( AUTHORS NEWS README.md )
+
+post_src_unpack() {
+	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die
+}
+
+src_prepare() {
+	default
+	eautoreconf
+}

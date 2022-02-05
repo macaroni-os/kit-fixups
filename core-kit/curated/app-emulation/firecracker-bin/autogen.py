@@ -29,7 +29,7 @@ def get_artifact(hub, release, funtoo_arch):
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find firecracker arch for {funtoo_arch}")
 	dl_asset = list(
 		filter(
-			lambda x: firecracker_arch in x["name"],
+			lambda x: firecracker_arch in x["name"] and x["name"].endswith(".tgz"),
 			release["assets"],
 		)
 	).pop()

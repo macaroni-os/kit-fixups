@@ -22,7 +22,7 @@ def find_release(json_dict, channel="Release"):
 async def generate(hub, **pkginfo):
 
 	json_dict = await hub.pkgtools.fetch.get_page(
-		"https://api.github.com/repos/brave/brave-browser/releases", is_json=True, refresh_interval=timedelta(days=5)
+		"https://api.github.com/repos/brave/brave-browser/releases?per_page=100", is_json=True, refresh_interval=timedelta(days=5)
 	)
 
 	# Try to use the latest release version, but fall back to latest nightly if none found:

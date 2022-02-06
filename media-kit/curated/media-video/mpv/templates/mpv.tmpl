@@ -19,7 +19,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="+alsa aqua archive bluray cdda +cli coreaudio cplugins cuda debug doc drm dvb
 	dvd +egl gamepad gbm +iconv jack javascript jpeg lcms libass libcaca libmpv +lua
-	luajit openal +opengl pulseaudio raspberry-pi rubberband sdl
+	luajit openal +opengl pipewire pulseaudio raspberry-pi rubberband sdl
 	selinux test tools +uchardet vaapi vdpau vulkan wayland +X +xv zlib zimg"
 
 REQUIRED_USE="
@@ -80,6 +80,7 @@ COMMON_DEPEND="
 		luajit? ( dev-lang/luajit:2 )
 	)
 	openal? ( >=media-libs/openal-1.13 )
+	pipewire? ( >=media-sound/pipewire-0.3.6 )
 	pulseaudio? ( media-sound/pulseaudio )
 	raspberry-pi? ( >=media-libs/raspberrypi-userland-0_pre20160305-r1 )
 	rubberband? ( >=media-libs/rubberband-1.8.0 )
@@ -182,6 +183,7 @@ src_configure() {
 		$(use_enable sdl sdl2) # Listed under audio, but also includes video.
 		#--disable-rsound # Only available in overlays.
 		#--disable-sndio # Only available in overlays.
+		$(use_enable pipewire pipewire)
 		$(use_enable pulseaudio pulse)
 		$(use_enable jack)
 		$(use_enable openal)

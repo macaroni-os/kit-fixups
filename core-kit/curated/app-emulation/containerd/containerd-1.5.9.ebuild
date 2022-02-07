@@ -1,17 +1,12 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-
-# update on bump, look for https://github.com/docker\
-# docker-ce/blob/<docker ver OR branch>/components/engine/hack/dockerfile/install/containerd.installer
-CONTAINERD_COMMIT="ea765ab"
-EGO_PN="github.com/containerd/${PN}"
-
-inherit golang-vcs-snapshot toolchain-funcs
+GIT_REVISION=1407cab509ff0d96baa4f0eb6ff9980270e6e620
+inherit go-module systemd
 
 DESCRIPTION="A daemon to control runC"
 HOMEPAGE="https://containerd.io/"
-SRC_URI="https://github.com/containerd/${PN}/archive/${CONTAINERD_COMMIT}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/containerd/containerd/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -23,29 +18,29 @@ DEPEND="
 	seccomp? ( sys-libs/libseccomp )
 "
 
+# recommended version of runc is found in script/setup/runc-version
 RDEPEND="
 	${DEPEND}
-	~app-emulation/runc-1.0.0_rc10
+	~app-emulation/runc-1.0.3
 "
 
 BDEPEND="
 	dev-go/go-md2man
 	virtual/pkgconfig
-	test? ( "${RDEPEND}" )
 "
 
 # tests require root or docker
 # upstream does not recommend stripping binary
 RESTRICT+=" strip test"
 
-S="${WORKDIR}/${P}/src/${EGO_PN}"
-
 src_prepare() {
 	default
-	sed -i -e "s/git describe --match.*$/echo ${PV})/"\
-		-e "s/git rev-parse HEAD.*$/echo ${CONTAINERD_COMMIT})/"\
+	sed -i \
 		-e "s/-s -w//" \
 		Makefile || die
+	sed -i \
+		-e "s:/usr/local:/usr:" \
+		containerd.service || die
 }
 
 src_compile() {
@@ -60,24 +55,29 @@ src_compile() {
 
 	myemakeargs=(
 		BUILDTAGS="${options[*]}"
-		DESTDIR="${ED}"
-		LDFLAGS=$(usex hardened '-extldflags -fno-PIC' '')
+		LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')"
+		REVISION="${GIT_REVISION}"
+		VERSION=v${PV}
 	)
 
-	export GOPATH="${WORKDIR}/${P}" # ${PWD}/vendor
-	export GOFLAGS="-v -x -mod=vendor"
-	emake "${myemakeargs[@]}" all man
+	# race condition in man target https://bugs.gentoo.org/765100
+	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
+	emake "${myemakeargs[@]}" man -j1 #nowarn
+	emake "${myemakeargs[@]}" all
+
 }
 
 src_install() {
 	dobin bin/*
 	doman man/*
 	newinitd "${FILESDIR}"/${PN}.initd "${PN}"
+	systemd_dounit containerd.service
 	keepdir /var/lib/containerd
 
 	# we already installed manpages, remove markdown source
 	# before installing docs directory
-	rm -rf docs/man || die
-	local DOCS=( README.md PLUGINS.md docs/. )
+	rm -r docs/man || die
+
+	local DOCS=( ADOPTERS.md README.md RELEASES.md ROADMAP.md SCOPE.md docs/. )
 	einstalldocs
 }

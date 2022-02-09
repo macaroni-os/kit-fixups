@@ -1,0 +1,11 @@
+awscli_parts:
+  defaults:
+    cat: dev-util
+  packages:
+    - aws-c-foo:
+        depend: |
+          sys-apps/foo
+          sys-foo/bar
+    - aws-c-bar:
+        depend: |
+          app-shell/bash

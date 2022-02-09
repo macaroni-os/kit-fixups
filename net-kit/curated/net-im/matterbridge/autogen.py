@@ -20,13 +20,11 @@ async def generate(hub, **pkginfo):
 	url = latest_release["tarball_url"]
 	final_name = f"{repo}-{version}.tar.gz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
-	artifacts = await hub.pkgtools.golang.generate_gosum_from_artifact(src_artifact)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
 		github_user=user,
 		github_repo=repo,
-		gosum=artifacts["gosum"],
-		artifacts=[src_artifact, *artifacts["gosum_artifacts"]],
+		artifacts=[src_artifact],
 	)
 	ebuild.push()

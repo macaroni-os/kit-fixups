@@ -4,15 +4,11 @@ EAPI=7
 
 inherit go-module
 
-EGO_SUM=(
-{{gosum}})
-
 go-module_set_globals
 
 DESCRIPTION="Bridges between a growing number of protocols"
 HOMEPAGE="https://github.com/42wim/matterbridge"
-SRC_URI="{{artifacts[0].src_uri}}
-	${EGO_SUM_SRC_URI}"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -23,7 +19,7 @@ post_src_unpack() {
 }
 
 src_compile() {
-	go build -mod=mod . || die "compile failed"
+	go build -mod=vendor . || die "compile failed"
 }
 
 src_install() {

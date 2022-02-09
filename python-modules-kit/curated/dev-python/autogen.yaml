@@ -118,9 +118,12 @@ botostuff:
     - botocore:
         license: Apache-2.0
         pydeps:
-          - jmespath
-          - python-dateutil
-          - urllib3
+          py:all:
+            - jmespath
+            - python-dateutil
+            - urllib3
+          py:all:build:
+            - tomli
     - behave:
         license: BSD
         pydeps:
@@ -1530,6 +1533,7 @@ dev_python_simplified_rule:
           py:all:
             - pbr
     - tomli:
+        version: 2.0.0
         du_setuptools: autostub
         desc: "A lil' TOML parser"
         license: MIT

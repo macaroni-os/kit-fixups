@@ -80,7 +80,11 @@ src_install() {
 
 	fperms +x "${MY_INSTALL_DIR}/${MY_EXEC}"
 	fperms 4755 "${MY_INSTALL_DIR}/chrome-sandbox"
+
+	{%- if channel == 'code-insiders' %}
 	fperms 0755 "${MY_INSTALL_DIR}"/chrome_crashpad_handler
+	{%- endif %}
+
 	{% for sh_path in fperms_paths|sort -%}
 	fperms +x "${MY_INSTALL_DIR}/{{ sh_path }}"
 	{% endfor -%}

@@ -66,7 +66,6 @@ COMMON_DEPEND="
 	dev-libs/icu:=
 	dev-libs/libassuan
 	dev-libs/libgpg-error
-	>=dev-libs/liborcus-0.14.0
 	dev-libs/librevenge
 	dev-libs/libxml2
 	dev-libs/libxslt

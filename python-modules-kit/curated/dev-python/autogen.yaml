@@ -1592,6 +1592,64 @@ better_autogens_without_templates:
             - setuptools
             - setuptools_scm
 
+sphinx_and_friends:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy
+  generator: pypi-simple-1
+  packages:
+    - sphinx:
+        iuse: latex doc
+        rdepend: |
+          latex? (
+            dev-texlive/texlive-latexextra
+            dev-texlive/texlive-luatex
+            app-text/dvipng
+          )
+        pydeps:
+          py:all:build:
+            - setuptools
+          py:all:
+            - alabaster < 0.8
+            - Babel
+            - docutils
+            - imagesize
+            - jinja
+            - pygments
+            - requests
+            - snowballstemmer
+            - sphinxcontrib-applehelp
+            - sphinxcontrib-devhelp
+            - sphinxcontrib-jsmath
+            - sphinxcontrib-htmlhelp
+            - sphinxcontrib-serializinghtml
+            - sphinxcontrib-qthelp
+            - sphinx_rtd_theme
+            - packaging
+            - importlib_metadata >= 4.4
+        body: |
+          S="${WORKDIR}/${P^}"
+
+          PATCHES=(
+            "$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
+          )
+
+          # FL-8369: relax various deps
+          src_prepare() {
+            for dep in {docutils,MarkupSafe,Jinja2}; do
+              sed -i -e '/^${dep}/c ${dep}' Sphinx.egg-info/requires.txt || die
+              sed -i -e "s/'${dep}.*$/'${dep}',/" setup.py || die
+            done
+            distutils-r1_src_prepare
+          }
+
+          python_compile_all() {
+            if use doc; then
+              esetup.py build_sphinx
+              HTML_DOCS=( "${BUILD_DIR}"/sphinx/html/. )
+            fi
+          }
+
 
 dev_python_autogen_rule:
   defaults:
@@ -1738,10 +1796,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - snowballstemmer:
         python_compat: python2+ pypy{,3}
-    - sphinx:
-        python_compat: python3+ pypy3
-        revision:
-          4.2.0: 1
     - sphinx_rtd_theme:
         python_compat: python3+ pypy3
     - sphinxcontrib-applehelp:

@@ -256,6 +256,24 @@ dev_python_compat_rule:
         license: Apache-2.0
         homepage: |
           https://github.com/MagicStack/asyncpg
+    - entrypoints:
+        version: '0.3'
+        python_compat: python2+
+    - pyjwt:
+        python_compat: python3+
+        compat: '1.7.1'
+        pydeps:
+          py:all:build:
+            - setuptools
+        blocker: '!<dev-python/pyjwt-2.3.0-r1'
+        revision:
+          2.3.0: 1
+        body: |
+          pkg_postinst() {
+            elog "Available optional features:"
+            optfeature "cryptography" ">=dev-python/cryptography-1.4.0"
+            optfeature "flake8" "dev-python/flake8 dev-python/flake8-import-order dev-python/pep8-naming"
+          }
     - et_xmlfile:
         python_compat: python2+
         pydeps:
@@ -1695,10 +1713,6 @@ dev_python_autogen_rule:
     - dns-lexicon
     - dnspython:
         python_compat: python2+ pypy3
-    - entrypoints:
-        python_compat: python2+ pypy3
-        revision:
-          0.3: 1
     - feedgenerator:
         python_compat: python2+ pypy{,3}
     - flask:

@@ -50,6 +50,7 @@ async def generate(hub, **pkginfo):
                 artifacts=[artifact],
                 github_user=github_user,
                 github_repo=github_repo,
-                slot=major
+                slot=major,
+                revision={ "1.3.1" : "1" }
                 )
         ebuild.push()

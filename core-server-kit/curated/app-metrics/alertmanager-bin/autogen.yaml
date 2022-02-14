@@ -1,0 +1,9 @@
+alertmanager-bin:
+  generator: github-1
+  packages:
+    - alertmanager-bin:
+        tarball: alertmanager-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: alertmanager
+          query: releases

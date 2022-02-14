@@ -1,0 +1,66 @@
+awscli_parts:
+  defaults:
+    cat: dev-libs
+    template: aws-c.tmpl
+    github:
+      user: awslabs
+  packages:
+    - aws-c-common
+    - aws-c-compression
+    - aws-c-sdkutils
+    - aws-checksums
+    - aws-c-cal:
+        depend:
+          - aws-lc
+    - aws-c-http:
+        depend:
+          - aws-c-io
+    - aws-c-event-stream:
+        depend:
+          - s2n-tls
+          - aws-lc
+          - aws-c-common
+          - aws-checksums
+          - aws-c-cal
+          - aws-c-io
+    - aws-c-io:
+        depend:
+          - aws-c-cal
+          - aws-lc
+          - s2n-tls
+    - aws-c-auth:
+        depend:
+          - aws-lc
+          - s2n-tls
+          - aws-c-io
+          - aws-c-compression
+          - aws-c-http
+          - aws-c-sdkutils
+    - aws-c-mqtt:
+        depend:
+          - aws-lc
+          - s2n-tls
+          - aws-c-common
+          - aws-c-cal
+          - aws-c-io
+          - aws-c-compression
+          - aws-c-http
+    - aws-c-s3:
+        depend:
+          - aws-lc
+          - s2n-tls
+          - aws-c-common
+          - aws-c-cal
+          - aws-c-io
+          - aws-c-compression
+          - aws-c-http
+          - aws-c-sdkutils
+          - aws-c-auth
+#    - aws-lc:
+#        template: aws-lc.tmpl
+#    - s2n-tls:
+#        depend:
+#         - aws-lc
+#        template: s2n-tls.tmpl
+#        github:
+#          user: aws

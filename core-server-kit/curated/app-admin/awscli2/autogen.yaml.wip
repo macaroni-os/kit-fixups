@@ -1,11 +1,33 @@
-awscli_parts:
-  defaults:
-    cat: dev-util
+aws-crt-parts:
   packages:
-    - aws-c-foo:
-        depend: |
-          sys-apps/foo
-          sys-foo/bar
-    - aws-c-bar:
-        depend: |
-          app-shell/bash
+    - aws-crt-python:
+        cat: dev-python
+        template: aws-crt-python.tmpl
+        github_user: awslabs
+        aws-c:
+          - aws-c-auth
+          - aws-c-cal
+          - aws-c-common
+          - aws-c-compression
+          - aws-c-event-stream
+          - aws-c-http
+          - aws-c-io
+          - aws-c-mqtt
+          - aws-c-s3
+          - aws-c-sdkutils
+          - aws-checksums
+          - aws-lc
+          - s2n-tls:
+              github_user: aws
+    - awscli:
+        cat: app-admin
+        template: awscli.tmpl
+        github_user: aws
+        github_repo: aws-cli
+        depend:
+          - python-dateutil
+          - jmespath
+          - prompt_toolkit
+          - colorama
+          - ruamel-yaml
+          - aws-crt-python

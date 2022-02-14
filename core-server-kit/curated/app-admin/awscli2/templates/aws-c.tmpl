@@ -1,0 +1,38 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="{{ description }}"
+HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="{% for dep in depend %}
+	dev-libs/{{ dep }}{% endfor %}
+"
+
+RDEPEND="${DEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mv "${WORKDIR}"/{{ github_user }}-{{ github_repo }}-* "${S}" || die
+	fi
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DCMAKE_MODULE_PATH=/usr/$(get_libdir)/cmake
+	)
+	cmake_src_configure
+}
+
+src_compile() {
+	export LIBRARY_PATH=/opt/lib64 LD_LIBRARY_PATH=/opt/lib64
+	cmake_src_compile
+}

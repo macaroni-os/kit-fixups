@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+from collections import OrderedDict
 
 architecture_names = dict(
     x86_64='amd64',
@@ -11,7 +12,7 @@ architecture_names = dict(
 )
 
 async def generate_version(hub, spec, **pkginfo):
-    artifacts = []
+    artifacts = OrderedDict()
     for k, v in spec.items():
         (arch, os, *_) = k.split('-') + [None]
 
@@ -20,7 +21,7 @@ async def generate_version(hub, spec, **pkginfo):
             continue
 
         if os == 'linux':
-            artifacts.append(hub.pkgtools.ebuild.Artifact(url=v['tarball'], key=arch))
+            artifacts[arch] = hub.pkgtools.ebuild.Artifact(url=v['tarball'])
 
     # Development versions must be normalized
     #  0.10.0-dev.661+c10fdde5a -> 0.10.0.661

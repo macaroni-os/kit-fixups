@@ -3,10 +3,10 @@
 EAPI=6
 
 DESCRIPTION="General-purpose programming language for robust, optimal, and reusable software"
-SRC_URI="${SRC_URI}
-    {%- for artifact in artifacts %}
-    {{ artifact.key }}? ( {{ artifact.src_uri }} )
-    {%- endfor %}"
+SRC_URI="
+	{%- for arch, artifact in artifacts.items() %}
+	{{ arch }}? ( {{ artifact.src_uri }} )
+	{%- endfor %}"
 HOMEPAGE="https://ziglang.org/"
 
 {%- if not dev %}
@@ -21,7 +21,7 @@ DEPEND="app-arch/tar"
 src_unpack() {
 	unpack ${A}
 
-	mv "${WORKDIR}/"* "${WORKDIR}/${PN}-${PV}"
+	mv "${WORKDIR}/"* "${S}"
 }
 
 src_install() {

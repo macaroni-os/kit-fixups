@@ -26,7 +26,7 @@ async def generate(hub, **pkginfo):
 				ghuser = github_user
 				ghrepo = repo
 
-			newpkginfo = await hub.pkgtools.github.release_gen(hub, ghuser, ghrepo, include="prerelease")
+			newpkginfo = await hub.pkgtools.github.release_gen(hub, ghuser, ghrepo, include={"prerelease"})
 			artifacts.append(newpkginfo['artifacts'][0])
 			deplist.append(ghrepo.replace('-tls', ''))
 

@@ -1,0 +1,9 @@
+redis_exporter-bin:
+  generator: github-1
+  packages:
+    - redis_exporter-bin:
+        tarball: redis_exporter-v{version}.linux-amd64.tar.gz
+        github:
+          user: oliver006
+          repo: redis_exporter
+          query: releases

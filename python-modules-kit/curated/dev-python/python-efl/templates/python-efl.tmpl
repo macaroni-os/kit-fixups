@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="doc"
 
-RDEPEND="=dev-libs/efl-$(ver_cut 1-2)*
+RDEPEND="dev-libs/efl
 	dev-python/dbus-python[${PYTHON_USEDEP}]"
 DEPEND="${RDEPEND}
 	dev-python/cython[${PYTHON_USEDEP}]"

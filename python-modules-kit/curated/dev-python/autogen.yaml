@@ -260,6 +260,8 @@ dev_python_compat_rule:
         version: '0.3'
         python_compat: python2+
     - pyjwt:
+        inherit:
+          - eutils
         pypi_name: PyJWT
         python_compat: python3+
         compat: '1.7.1'

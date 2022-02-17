@@ -2,8 +2,6 @@ kitty-gen_rule:
   defaults:
     cat: x11-terms
   packages:
-    - kitty:
-        patches: []
-    - kitty-terminfo:
-        patches:
-          - kitty-terminfo-setup-0.24.2.20220215.patch
+    - kitty
+    - kitty-terminfo
+    - kitty-shell-integration

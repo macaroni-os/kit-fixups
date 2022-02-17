@@ -35,6 +35,7 @@ async def generate(hub, **pkginfo):
 	commit_date = datetime.strptime(target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	commit_hash = target_commit["sha"]
 	version = tag_version + "." + commit_date.strftime("%Y%m%d")
+	pkginfo["patches"] = pkginfo.get("patches", [])
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version.lstrip("v"),

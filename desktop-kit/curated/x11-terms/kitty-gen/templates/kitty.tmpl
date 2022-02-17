@@ -20,6 +20,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
+	x11-terms/kitty-shell-integration
 	x11-terms/kitty-terminfo
 	media-libs/fontconfig
 	media-libs/freetype:2
@@ -97,6 +98,7 @@ src_compile() {
 	"${EPYTHON}" setup.py \
 		--verbose $(usex debug --debug "") \
 		--libdir-name $(get_libdir) \
+		--shell-integration="enabled no-rc" \
 		--update-check-interval=0 \
 		linux-package || die "Failed to compile kitty."
 }

@@ -22,14 +22,8 @@ async def generate(hub, **pkginfo):
 		(filename, version.parse(ver)) for (filename, ver) in valid_matches if ver
 	)
 
-	# FIXME: ncdu v2.x.x uses Zig, we don't have it in our tree yet
-	max_version = version.parse("2.0.0")
-	c_versions = (
-		(filename, ver) for (filename, ver) in parsed_versions if ver < max_version
-	)
-
 	target_filename, target_version = max(
-		c_versions,
+		parsed_versions,
 		key=lambda match: match[1],
 	)
 	src_url = f"{download_url}/{target_filename}"

@@ -2,6 +2,7 @@ alertmanager-bin:
   generator: github-1
   packages:
     - alertmanager-bin:
+        select: 'v\d+\.\d+\.\d+$'
         tarball: alertmanager-{version}.linux-amd64.tar.gz
         github:
           user: prometheus

@@ -2,6 +2,7 @@ prometheus-bin:
   generator: github-1
   packages:
     - prometheus-bin:
+        select: 'v\d+\.\d+\.\d+$'
         tarball: prometheus-{version}.linux-amd64.tar.gz
         github:
           user: prometheus

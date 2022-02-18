@@ -2,6 +2,7 @@ node_exporter-bin:
   generator: github-1
   packages:
     - node_exporter-bin:
+        select: 'v\d+\.\d+\.\d+$'
         tarball: node_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus

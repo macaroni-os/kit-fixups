@@ -17,7 +17,7 @@ async def generate(hub, **pkginfo):
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
 	else:
-		github_result = await hub.pkgtools.github.release_gen(hub, github_user, github_repo, tarball=pkginfo.get('tarball', None))
+		github_result = await hub.pkgtools.github.release_gen(hub, github_user, github_repo, tarball=pkginfo.get('tarball', None), select=pkginfo.get('select', None))
 	if github_result is None:
 		raise KeyError(f"Unable to find suitable GitHub release/tag for {pkginfo['cat']}/{pkginfo['name']}.")
 

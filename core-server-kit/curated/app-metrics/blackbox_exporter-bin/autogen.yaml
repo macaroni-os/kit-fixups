@@ -2,6 +2,7 @@ blackbox_exporter-bin:
   generator: github-1
   packages:
     - blackbox_exporter-bin:
+        select: 'v\d+\.\d+\.\d+$'
         tarball: blackbox_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus

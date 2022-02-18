@@ -1,0 +1,10 @@
+consul_exporter-bin:
+  generator: github-1
+  packages:
+    - consul_exporter-bin:
+        select: 'v\d+\.\d+\.\d+$'
+        tarball: consul_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: consul_exporter
+          query: releases

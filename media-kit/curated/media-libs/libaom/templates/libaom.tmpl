@@ -28,8 +28,6 @@ BDEPEND="
 # the PATENTS file is required to be distributed with this package bug #682214
 DOCS=( PATENTS )
 
-S="${WORKDIR}"
-
 src_configure() {
 	local mycmakeargs=(
 		-DENABLE_DOCS=$(usex doc ON OFF)

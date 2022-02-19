@@ -7,15 +7,15 @@ inherit autotools flag-o-matic linux-mod toolchain-funcs
 DESCRIPTION="Linux ZFS kernel module for sys-fs/zfs"
 HOMEPAGE="https://github.com/openzfs/zfs"
 
-SRC_URI="https://github.com/openzfs/zfs/releases/download/zfs-${PV}/zfs-${PV}.tar.gz"
+MY_PV="${PV/_rc/-rc}"
+SRC_URI="{{artifacts[0].src_uri}}"
 KEYWORDS="*"
-S="${WORKDIR}/zfs-${PV}"
-ZFS_KERNEL_COMPAT="5.9"
+ZFS_KERNEL_COMPAT="{{kernel_compat}}"
 
-LICENSE="CDDL debug? ( GPL-2+ )"
+LICENSE="CDDL MIT debug? ( GPL-2+ )"
 SLOT="0"
 IUSE="custom-cflags debug +rootfs"
-
+S="${WORKDIR}/zfs-${PV}"
 DEPEND=""
 
 RDEPEND="${DEPEND}
@@ -30,9 +30,6 @@ BDEPEND="
 RESTRICT="debug? ( strip ) test"
 
 DOCS=( AUTHORS COPYRIGHT META README.md )
-
-# https://github.com/openzfs/zfs/pull/11371
-PATCHES=( "${FILESDIR}/${PV}-copy-builtin.patch" )
 
 pkg_setup() {
 	linux-info_pkg_setup
@@ -58,10 +55,6 @@ pkg_setup() {
 			DEVTMPFS
 	"
 
-	if use arm64; then
-		kernel_is -ge 5 && CONFIG_CHECK="${CONFIG_CHECK} !PREEMPT"
-	fi
-
 	kernel_is -lt 5 && CONFIG_CHECK="${CONFIG_CHECK} IOSCHED_NOOP"
 
 	local kv_major_max kv_minor_max zcompat
@@ -73,15 +66,14 @@ pkg_setup() {
 		"Linux ${kv_major_max}.${kv_minor_max} is the latest supported version"
 
 	check_extra_config
-	# 0.8.x requires at least 2.6.32
-	kernel_is ge 2 6 32 || die "Linux 2.6.32 or newer required"
+	kernel_is -ge 3 10 || die "Linux 3.10 or newer required"
 }
 
 src_prepare() {
 	default
 
 	# Set module revision number
-	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Gentoo release"
+	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Funtoo release"
 }
 
 src_configure() {
@@ -104,7 +96,7 @@ src_configure() {
 		$(use_enable debug)
 	)
 
-	CONFIG_SHELL="${EPREFIX}/bin/bash" econf "${myconf[@]}"
+	econf "${myconf[@]}"
 }
 
 src_compile() {

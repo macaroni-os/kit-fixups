@@ -66,7 +66,7 @@ src_prepare() {
 
 	sed -i \
 		-e "/^EXE_/s|darkplaces|${PN}|" \
-		-e "s|-O3|${CFLAGS}|" \
+		-e "s|^CFLAGS_COMMON=|&${CFLAGS} |" \
 		-e "/-lm/s|$| ${LDFLAGS}|" \
 		-e '/^STRIP/s|strip|true|' \
 		source/darkplaces/makefile.inc || die

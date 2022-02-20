@@ -175,7 +175,7 @@ src_install() {
 	# don't create /var/run
 	rmdir "${ED}"/var/run
 
-	dodoc CHANGES README
+	dodoc CHANGES README.md
 
 	if use doc; then
 		docinto misc

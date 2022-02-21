@@ -9,13 +9,13 @@ async def generate(hub, **pkginfo):
   latest = json_list[0]
   version = latest["name"][1:]
 
-  url = f"https://gitlab-runner-downloads.s3.amazonaws.com/v{version}/binaries/gitlab-runner-linux-amd64"
+  url = f"https://sgitlab-runner-downloads.s3.amazonaws.com/v{version}/binaries/gitlab-runner-linux-amd64"
   final_name = f'{pkginfo["name"]}-{version}.tar.gz'
-  ebuild = hub.pkgtools.ebuild.BreezyBuild(
+  ebuild = hub.BreezyBuild(
       **pkginfo,
       github_user=github_user,
       github_repo=github_repo,
       version=version,
-      artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
+      artifacts=[hub.Artifact(url=url, final_name=final_name)],
   )
   ebuild.push()

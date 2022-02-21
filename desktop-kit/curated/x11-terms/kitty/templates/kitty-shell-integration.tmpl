@@ -18,12 +18,6 @@ PATCHES=(
 	{%- endfor %}
 )
 
-src_unpack() {
-	unpack ${A}
-	rm -rf ${S}
-	mv ${WORKDIR}/kitty-* ${S} || die
-}
-
 src_compile() { :; }
 
 src_install() {

@@ -1,0 +1,12 @@
+kitty_rule:
+  generator: github-1
+  defaults:
+    tarball: kitty-{version}.tar.xz
+    github:
+      user: kovidgoyal
+      repo: kitty
+      query: releases
+  packages:
+    - kitty
+    - kitty-terminfo
+    - kitty-shell-integration

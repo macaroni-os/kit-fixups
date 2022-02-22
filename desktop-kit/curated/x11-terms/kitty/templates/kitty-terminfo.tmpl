@@ -22,12 +22,6 @@ PATCHES=(
 
 RESTRICT="test" # intended to be ran on the full kitty package
 
-src_unpack() {
-	unpack ${A}
-	rm -rf ${S}
-	mv ${WORKDIR}/kitty-* ${S} || die
-}
-
 src_compile() { :; }
 
 src_install() {

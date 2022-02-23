@@ -60,6 +60,9 @@ src_prepare() {
 	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
 	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
 	eapply "${FILESDIR}"/openrc-0.41.2-integer-expression-expected.patch # FL-6510
+	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix1.patch # FL-9280
+	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix2.patch # FL-9280
+	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix3.patch # FL-9280
 	sed -i -e 's/^pid_t rc_logger_pid;/extern pid_t rc_logger_pid;/' -e 's/int rc_logger_tty;/extern int rc_logger_tty;/' src/rc/rc-logger.h || die
 }
 

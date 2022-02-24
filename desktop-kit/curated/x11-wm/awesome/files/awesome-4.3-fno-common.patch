@@ -1,0 +1,191 @@
+diff -urN awesome-4.3.orig/common/lualib.c awesome-4.3/common/lualib.c
+--- awesome-4.3.orig/common/lualib.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/common/lualib.c	2022-02-03 14:51:21.614978021 -0800
+@@ -20,6 +20,8 @@
+ #include "common/lualib.h"
+ #include "luaa.h"
+ 
++lua_CFunction lualib_dofunction_on_error;
++
+ void luaA_checkfunction(lua_State *L, int idx)
+ {
+     if(!lua_isfunction(L, idx))
+diff -urN awesome-4.3.orig/common/lualib.h awesome-4.3/common/lualib.h
+--- awesome-4.3.orig/common/lualib.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/common/lualib.h	2022-02-03 14:51:21.614978021 -0800
+@@ -28,7 +28,7 @@
+ #include "common/util.h"
+ 
+ /** Lua function to call on dofunction() error */
+-lua_CFunction lualib_dofunction_on_error;
++extern lua_CFunction lualib_dofunction_on_error;
+ 
+ void luaA_checkfunction(lua_State *, int);
+ void luaA_checktable(lua_State *, int);
+diff -urN awesome-4.3.orig/luaa.c awesome-4.3/luaa.c
+--- awesome-4.3.orig/luaa.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/luaa.c	2022-02-03 14:51:21.614978021 -0800
+@@ -77,6 +77,8 @@
+ extern const struct luaL_Reg awesome_mouse_methods[];
+ extern const struct luaL_Reg awesome_mouse_meta[];
+ 
++signal_array_t global_signals;
++
+ /** A call into the Lua code aborted with an error.
+  *
+  * This signal is used in the example configuration, @{05-awesomerc.md},
+diff -urN awesome-4.3.orig/luaa.h awesome-4.3/luaa.h
+--- awesome-4.3.orig/luaa.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/luaa.h	2022-02-03 14:51:21.614978021 -0800
+@@ -311,7 +311,7 @@
+ bool luaA_parserc(xdgHandle *, const char *);
+ 
+ /** Global signals */
+-signal_array_t global_signals;
++extern signal_array_t global_signals;
+ 
+ int luaA_class_index_miss_property(lua_State *, lua_object_t *);
+ int luaA_class_newindex_miss_property(lua_State *, lua_object_t *);
+diff -urN awesome-4.3.orig/objects/button.c awesome-4.3/objects/button.c
+--- awesome-4.3.orig/objects/button.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/button.c	2022-02-03 14:51:21.614978021 -0800
+@@ -35,6 +35,8 @@
+ 
+ #include "button.h"
+ 
++lua_class_t button_class;
++
+ /** Button object.
+  *
+  * @tfield int button The mouse button number, or 0 for any button.
+diff -urN awesome-4.3.orig/objects/button.h awesome-4.3/objects/button.h
+--- awesome-4.3.orig/objects/button.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/button.h	2022-02-03 14:51:21.614978021 -0800
+@@ -39,7 +39,7 @@
+     xcb_button_t button;
+ } button_t;
+ 
+-lua_class_t button_class;
++extern lua_class_t button_class;
+ LUA_OBJECT_FUNCS(button_class, button_t, button)
+ ARRAY_FUNCS(button_t *, button, DO_NOTHING)
+ 
+diff -urN awesome-4.3.orig/objects/client.c awesome-4.3/objects/client.c
+--- awesome-4.3.orig/objects/client.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/client.c	2022-02-03 14:51:21.614978021 -0800
+@@ -106,6 +106,8 @@
+ #include <xcb/shape.h>
+ #include <cairo-xcb.h>
+ 
++lua_class_t client_class;
++
+ /** Client class.
+  *
+  * This table allow to add more dynamic properties to the clients. For example,
+diff -urN awesome-4.3.orig/objects/client.h awesome-4.3/objects/client.h
+--- awesome-4.3.orig/objects/client.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/client.h	2022-02-03 14:51:21.618978003 -0800
+@@ -192,7 +192,7 @@
+ ARRAY_FUNCS(client_t *, client, DO_NOTHING)
+ 
+ /** Client class */
+-lua_class_t client_class;
++extern lua_class_t client_class;
+ 
+ LUA_OBJECT_FUNCS(client_class, client_t, client)
+ 
+diff -urN awesome-4.3.orig/objects/drawin.c awesome-4.3/objects/drawin.c
+--- awesome-4.3.orig/objects/drawin.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/drawin.c	2022-02-03 14:51:21.618978003 -0800
+@@ -46,6 +46,8 @@
+ #include <cairo-xcb.h>
+ #include <xcb/shape.h>
+ 
++lua_class_t drawin_class;
++
+ /** Drawin object.
+  *
+  * @field border_width Border width.
+diff -urN awesome-4.3.orig/objects/drawin.h awesome-4.3/objects/drawin.h
+--- awesome-4.3.orig/objects/drawin.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/drawin.h	2022-02-03 14:51:21.618978003 -0800
+@@ -52,7 +52,7 @@
+ 
+ void drawin_class_setup(lua_State *);
+ 
+-lua_class_t drawin_class;
++extern lua_class_t drawin_class;
+ 
+ #endif
+ // vim: filetype=c:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:textwidth=80
+diff -urN awesome-4.3.orig/objects/key.c awesome-4.3/objects/key.c
+--- awesome-4.3.orig/objects/key.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/key.c	2022-02-03 14:51:21.618978003 -0800
+@@ -43,6 +43,8 @@
+ #include <xkbcommon/xkbcommon.h>
+ #include <glib.h>
+ 
++lua_class_t key_class;
++
+ /** Key object.
+  *
+  * @tfield string key The key to trigger an event.
+diff -urN awesome-4.3.orig/objects/key.h awesome-4.3/objects/key.h
+--- awesome-4.3.orig/objects/key.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/key.h	2022-02-03 14:51:21.618978003 -0800
+@@ -36,7 +36,7 @@
+     xcb_keycode_t keycode;
+ } keyb_t;
+ 
+-lua_class_t key_class;
++extern lua_class_t key_class;
+ LUA_OBJECT_FUNCS(key_class, keyb_t, key)
+ DO_ARRAY(keyb_t *, key, DO_NOTHING)
+ 
+diff -urN awesome-4.3.orig/objects/tag.c awesome-4.3/objects/tag.c
+--- awesome-4.3.orig/objects/tag.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/tag.c	2022-02-03 14:52:11.458758774 -0800
+@@ -190,6 +190,8 @@
+ #include "ewmh.h"
+ #include "luaa.h"
+ 
++lua_class_t tag_class;
++
+ /**
+  * @signal request::select
+  */
+diff -urN awesome-4.3.orig/objects/tag.h awesome-4.3/objects/tag.h
+--- awesome-4.3.orig/objects/tag.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/tag.h	2022-02-03 14:51:21.618978003 -0800
+@@ -46,7 +46,7 @@
+     client_array_t clients;
+ };
+ 
+-lua_class_t tag_class;
++extern lua_class_t tag_class;
+ LUA_OBJECT_FUNCS(tag_class, tag_t, tag)
+ 
+ void tag_class_setup(lua_State *);
+diff -urN awesome-4.3.orig/objects/window.c awesome-4.3/objects/window.c
+--- awesome-4.3.orig/objects/window.c	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/window.c	2022-02-03 14:51:21.618978003 -0800
+@@ -59,6 +59,7 @@
+ #include "property.h"
+ #include "xwindow.h"
+ 
++lua_class_t window_class;
+ LUA_CLASS_FUNCS(window, window_class)
+ 
+ static xcb_window_t
+diff -urN awesome-4.3.orig/objects/window.h awesome-4.3/objects/window.h
+--- awesome-4.3.orig/objects/window.h	2019-01-27 22:53:24.000000000 -0800
++++ awesome-4.3/objects/window.h	2022-02-03 14:51:21.618978003 -0800
+@@ -80,7 +80,7 @@
+     WINDOW_OBJECT_HEADER
+ } window_t;
+ 
+-lua_class_t window_class;
++extern lua_class_t window_class;
+ 
+ void window_class_setup(lua_State *);
+ 

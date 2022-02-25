@@ -38,3 +38,13 @@ powerbus_rule:
             insinto /etc/xdg/autostart
             doins ${FILESDIR}/funtoo-idled.desktop
           }
+github_rule:
+  generator: github-1
+  defaults:
+    cat: app-arch
+  packages:
+    - libarchive:
+        github:
+          user: libarchive
+          repo: libarchive
+          query: releases

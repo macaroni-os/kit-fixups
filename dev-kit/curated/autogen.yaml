@@ -5,3 +5,13 @@ dev_python_autogen_rule:
   generator: pypi-1
   packages:
     - mercurial
+
+libsass_rule:
+  generator: github-1
+  packages:
+    - libsass:
+        cat: dev-libs
+        github:
+          user: sass
+          repo: libsass
+          query: releases

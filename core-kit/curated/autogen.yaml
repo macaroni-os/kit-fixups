@@ -48,3 +48,11 @@ github_rule:
           user: libarchive
           repo: libarchive
           query: releases
+
+debian_rule:
+  generator: debian
+  packages:
+    - unzip:
+        cat: app-arch
+        repo: "http://ftp.debian.org/debian/pool/main"
+        compression: 'xz'

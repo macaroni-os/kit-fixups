@@ -9,7 +9,7 @@ inherit cmake flag-o-matic xdg toolchain-funcs python-single-r1
 
 DESCRIPTION="SVG based generic vector-drawing program"
 HOMEPAGE="https://inkscape.org/"
-SRC_URI="https://media.inkscape.org/dl/resources/file/inkscape-1.1.1.tar.xz"
+SRC_URI="https://media.inkscape.org/dl/resources/file/inkscape-${PV}.tar.xz"
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
@@ -90,9 +90,9 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-libs/boost-1.65
 "
 
-PATCHES=(
-	"${FILESDIR}"/${P}-poppler-fix.patch
-)
+#PATCHES=(
+#	"${FILESDIR}"/${P}-poppler-fix.patch
+#)
 
 RESTRICT="test"
 

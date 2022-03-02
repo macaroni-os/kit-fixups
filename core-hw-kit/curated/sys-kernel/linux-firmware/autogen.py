@@ -21,7 +21,7 @@ async def generate(hub, **pkginfo):
 		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url + f"{best_archive}")], 
 		revision={
 			"20211027": "2",
-			"20200209": "1"
+			"20220209": "1"
 		}
 	)
 	ebuild.push()

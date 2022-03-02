@@ -15,6 +15,7 @@ RESTRICT="strip test"
 QA_PREBUILT="*"
 
 BDEPEND="initramfs? ( app-arch/cpio )"
+RDEPEND="initramfs? ( !<=app-admin/ego-2.8.5 )"
 
 src_prepare() {
 	default
@@ -54,7 +55,7 @@ src_install() {
 	./copy-firmware.sh -v "${ED}/lib/firmware" || die
 
 	if use initramfs ; then
-		insinto /boot
+		insinto /lib/firmware/amd-ucode
 		doins "${S}"/amd-uc.img
 	fi
 }

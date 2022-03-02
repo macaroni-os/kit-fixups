@@ -11,7 +11,7 @@ GITHUB_REPO = "poppler"
 # mimic the Portage package name variable for clarity in the tarball renaming
 PN = GITHUB_REPO
 
-
+TARGET_VERSION = "22.02.0"
 async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/tags")
 	tags = json.loads(json_data)
@@ -20,6 +20,8 @@ async def generate(hub, **pkginfo):
 		if not re.match("poppler-[0-9.]+", tag["name"]):
 			continue
 		version = tag["name"].lstrip("poppler-")
+		if TARGET_VERSION is not None and version != TARGET_VERSION:
+			continue
 		tarball_url = tag["tarball_url"]
 		artifact = hub.pkgtools.ebuild.Artifact(tarball_url)
 		break

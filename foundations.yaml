@@ -74,7 +74,9 @@ overlays:
       url: https://code.funtoo.org/bitbucket/scm/core/python-kit-sources.git
   - kde-kit-sources:
       url: https://code.funtoo.org/bitbucket/scm/core/kde-kit-sources.git
-  - gnome-kit-sources:
+  - kde-kit-sources-next:
+      url: https://code.funtoo.org/bitbucket/scm/core/kde-kit-sources.git
+   - gnome-kit-sources:
       url: https://code.funtoo.org/bitbucket/scm/core/gnome-kit-sources.git
   - xfce-kit-sources:
       url: https://code.funtoo.org/bitbucket/scm/core/xfce-kit-sources.git
@@ -136,7 +138,7 @@ source-defs:
       - repo: python-kit-sources
         branch: 3.7-release
   - kde-kit-sources-next:
-      - repo: kde-kit-sources
+      - repo: kde-kit-sources-next
         branch: 5.23-testing
   - kde-kit-sources:
       - repo: kde-kit-sources

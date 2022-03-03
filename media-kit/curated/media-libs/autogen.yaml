@@ -1,5 +1,5 @@
 media_catpkg:
-  generator: github
+  generator: github-1
   defaults:
     cat: media-libs
   packages:
@@ -11,3 +11,6 @@ media_catpkg:
           user: strukturag
           query: releases
         tarball: libheif-{version}.tar.gz
+    - exiftool:
+        github:
+          query: tags

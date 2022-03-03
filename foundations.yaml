@@ -135,9 +135,12 @@ source-defs:
   - python-kit-sources:
       - repo: python-kit-sources
         branch: 3.7-release
-  - kde-kit-sources:
+  - kde-kit-sources-next:
       - repo: kde-kit-sources
         branch: 5.23-testing
+  - kde-kit-sources:
+      - repo: kde-kit-sources
+        branch: 5.22-release
   - gnome-kit-sources:
       - repo: gnome-kit-sources
         branch: 3.36-prime
@@ -282,7 +285,7 @@ kit-groups:
               branch: next
           - kde-kit:
               kind: sourced
-              source: kde-kit-sources
+              source: kde-kit-sources-next
               branch: 5.23-testing
           - gnome-kit:
               kind: sourced

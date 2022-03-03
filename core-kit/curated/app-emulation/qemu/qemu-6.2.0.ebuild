@@ -5,22 +5,21 @@ EAPI="7"
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="ncurses,readline"
 
-FIRMWARE_ABI_VERSION="4.0.0-r50"
+FIRMWARE_ABI_VERSION="6.1.0"
 
-inherit eutils linux-info toolchain-funcs multilib python-r1 \
-	user udev fcaps readme.gentoo-r1 pax-utils l10n xdg-utils
+inherit linux-info toolchain-funcs python-r1 udev fcaps readme.gentoo-r1 pax-utils user xdg-utils
 
+SRC_URI="https://download.qemu.org/${P}.tar.xz"
+KEYWORDS="*"
 
 DESCRIPTION="QEMU + Kernel-based Virtual Machine userland tools"
-HOMEPAGE="http://www.qemu.org http://www.linux-kvm.org"
-SRC_URI="https://download.qemu.org/${P}.tar.xz"
+HOMEPAGE="https://www.qemu.org https://www.linux-kvm.org"
 
 LICENSE="GPL-2 LGPL-2 BSD-2"
 SLOT="0"
-KEYWORDS="*"
 
-IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug doc
-	+fdt glusterfs gnutls gtk infiniband iscsi io-uring
+IUSE="accessibility +aio alsa bpf bzip2 capstone +caps +curl debug +doc
+	+fdt fuse glusterfs gnutls gtk infiniband iscsi io-uring
 	jack jemalloc +jpeg kernel_linux
 	kernel_FreeBSD lzo multipath
 	ncurses nfs nls numa opengl +oss +pin-upstream-blobs
@@ -30,14 +29,52 @@ IUSE="accessibility +aio alsa bzip2 capstone +caps +curl debug doc
 	usbredir vde +vhost-net vhost-user-fs virgl virtfs +vnc vte xattr xen
 	xfs zstd"
 
-COMMON_TARGETS="aarch64 alpha arm cris hppa i386 m68k microblaze microblazeel
-	mips mips64 mips64el mipsel nios2 or1k ppc ppc64 riscv32 riscv64 s390x
-	sh4 sh4eb sparc sparc64 x86_64 xtensa xtensaeb"
-IUSE_SOFTMMU_TARGETS="${COMMON_TARGETS}
-	avr lm32 moxie rx tricore unicore32"
-IUSE_USER_TARGETS="${COMMON_TARGETS}
-	aarch64_be armeb mipsn32 mipsn32el ppc64abi32 ppc64le sparc32plus
-	tilegx"
+COMMON_TARGETS="
+	aarch64
+	alpha
+	arm
+	cris
+	hppa
+	i386
+	m68k
+	microblaze
+	microblazeel
+	mips
+	mips64
+	mips64el
+	mipsel
+	nios2
+	or1k
+	ppc
+	ppc64
+	riscv32
+	riscv64
+	s390x
+	sh4
+	sh4eb
+	sparc
+	sparc64
+	x86_64
+	xtensa
+	xtensaeb
+"
+IUSE_SOFTMMU_TARGETS="
+	${COMMON_TARGETS}
+	avr
+	rx
+	tricore
+"
+IUSE_USER_TARGETS="
+	${COMMON_TARGETS}
+	aarch64_be
+	armeb
+	hexagon
+	mipsn32
+	mipsn32el
+	ppc64abi32
+	ppc64le
+	sparc32plus
+"
 
 use_softmmu_targets=$(printf ' qemu_softmmu_targets_%s' ${IUSE_SOFTMMU_TARGETS})
 use_user_targets=$(printf ' qemu_user_targets_%s' ${IUSE_USER_TARGETS})
@@ -54,9 +91,11 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	qemu_softmmu_targets_ppc? ( fdt )
 	qemu_softmmu_targets_riscv32? ( fdt )
 	qemu_softmmu_targets_riscv64? ( fdt )
-	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy )
+	sdl-image? ( sdl )
+	static? ( static-user !alsa !gtk !jack !opengl !pulseaudio !plugins !rbd !snappy !udev )
 	static-user? ( !plugins )
 	vhost-user-fs? ( caps seccomp )
+	virgl? ( opengl )
 	virtfs? ( caps xattr )
 	vte? ( gtk )
 	multipath? ( udev )
@@ -89,11 +128,12 @@ SOFTMMU_TOOLS_DEPEND="
 	)
 	aio? ( dev-libs/libaio[static-libs(+)] )
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
+	bpf? ( dev-libs/libbpf:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
 	capstone? ( dev-libs/capstone:= )
 	caps? ( sys-libs/libcap-ng[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
-	fdt? ( >=sys-apps/dtc-1.5.0[static-libs(+)] )
+	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
 		dev-libs/nettle:=[static-libs(+)]
@@ -116,8 +156,8 @@ SOFTMMU_TOOLS_DEPEND="
 	lzo? ( dev-libs/lzo:2[static-libs(+)] )
 	multipath? ( sys-fs/multipath-tools )
 	ncurses? (
-		sys-libs/ncurses:0=[unicode]
-		sys-libs/ncurses:0=[static-libs(+)]
+		sys-libs/ncurses:=[unicode(+)]
+		sys-libs/ncurses:=[static-libs(+)]
 	)
 	nfs? ( >=net-fs/libnfs-1.9.3:=[static-libs(+)] )
 	numa? ( sys-process/numactl[static-libs(+)] )
@@ -125,7 +165,7 @@ SOFTMMU_TOOLS_DEPEND="
 		virtual/opengl
 		media-libs/libepoxy[static-libs(+)]
 		media-libs/mesa[static-libs(+)]
-		media-libs/mesa[egl,gbm]
+		media-libs/mesa[egl(+),gbm(+)]
 	)
 	png? ( media-libs/libpng:0=[static-libs(+)] )
 	pulseaudio? ( media-sound/pulseaudio )
@@ -145,7 +185,7 @@ SOFTMMU_TOOLS_DEPEND="
 		>=app-emulation/spice-0.12.0[static-libs(+)]
 	)
 	ssh? ( >=net-libs/libssh-0.8.6[static-libs(+)] )
-	udev? ( virtual/libudev[static-libs(+)] )
+	udev? ( virtual/libudev:= )
 	usb? ( >=virtual/libusb-1-r2[static-libs(+)] )
 	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
@@ -156,25 +196,28 @@ SOFTMMU_TOOLS_DEPEND="
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
+EDK2_OVMF_VERSION="202105"
+SEABIOS_VERSION="1.14.0"
+
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/edk2-ovmf-201905[binary]
-		~sys-firmware/ipxe-1.0.0_p20190728[binary,qemu]
-		~sys-firmware/seabios-1.12.0[binary,seavgabios]
-		~sys-firmware/sgabios-0.1_pre8[binary]
+		~sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}[binary]
+		~sys-firmware/ipxe-1.21.1[binary,qemu]
+		~sys-firmware/seabios-${SEABIOS_VERSION}[binary,seavgabios]
+		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
-		sys-firmware/edk2-ovmf
+		>=sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}
 		sys-firmware/ipxe[qemu]
-		>=sys-firmware/seabios-1.10.2[seavgabios]
+		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 		sys-firmware/sgabios
 	)"
 PPC_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/seabios-1.12.0[binary,seavgabios]
+		~sys-firmware/seabios-${SEABIOS_VERSION}[binary,seavgabios]
 	)
 	!pin-upstream-blobs? (
-		>=sys-firmware/seabios-1.10.2[seavgabios]
+		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 	)
 "
 
@@ -183,7 +226,8 @@ BDEPEND="
 	dev-lang/perl
 	sys-apps/texinfo
 	virtual/pkgconfig
-	doc? ( dev-python/sphinx )
+	dev-python/sphinx[${PYTHON_USEDEP}]
+	dev-python/sphinx_rtd_theme[${PYTHON_USEDEP}]
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
 		dev-libs/glib[utils]
@@ -212,11 +256,9 @@ RDEPEND="${CDEPEND}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.1-capstone_include_path.patch
-	"${FILESDIR}"/${PN}-5.2.0-cleaner-werror.patch
 	"${FILESDIR}"/${PN}-5.2.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-5.2.0-strings.patch
-	"${FILESDIR}"/${PN}-5.2.0-fix-firmware-path.patch
-	"${FILESDIR}"/${PN}-5.2.0-no-pie-ld.patch
+	"${FILESDIR}"/${PN}-6.0.0-make.patch
+	"${FILESDIR}"/${PN}-6.1.0-strings.patch
 )
 
 QA_PREBUILT="
@@ -264,12 +306,12 @@ kernel module is loaded is to load it on boot.
 Please review /etc/conf.d/modules for how to load these.
 
 Make sure your user is in the 'kvm' group. Just run
-	# gpasswd -a <USER> kvm
+	$ gpasswd -a <USER> kvm
 then have <USER> re-login.
 
 For brand new installs, the default permissions on /dev/kvm might not let
 you access it.  You can tell udev to reset ownership/perms:
-	# udevadm trigger -c add /dev/kvm
+	$ udevadm trigger -c add /dev/kvm
 
 If you want to register binfmt handlers for qemu user targets:
 For openrc:
@@ -333,7 +375,7 @@ check_targets() {
 	local var=$1 mak=$2
 	local detected sorted
 
-	pushd "${S}"/default-configs/targets/ >/dev/null || die
+	pushd "${S}"/configs/targets/ >/dev/null || die
 
 	# Force C locale until glibc is updated. #564936
 	detected=$(echo $(printf '%s\n' *-${mak}.mak | sed "s:-${mak}.mak::" | LC_COLLATE=C sort -u))
@@ -360,9 +402,6 @@ src_prepare() {
 
 	# Verbose builds
 	MAKEOPTS+=" V=1"
-
-	# Remove bundled copy of libfdt
-	rm -r dtc || die
 }
 
 ##
@@ -446,11 +485,13 @@ qemu_src_configure() {
 	conf_opts+=(
 		$(conf_notuser accessibility brlapi)
 		$(conf_notuser aio linux-aio)
+		$(conf_softmmu bpf)
 		$(conf_notuser bzip2)
 		$(conf_notuser capstone)
 		$(conf_notuser caps cap-ng)
 		$(conf_notuser curl)
 		$(conf_notuser fdt)
+		$(conf_notuser fuse)
 		$(conf_notuser glusterfs)
 		$(conf_notuser gnutls)
 		$(conf_notuser gnutls nettle)
@@ -458,7 +499,6 @@ qemu_src_configure() {
 		$(conf_notuser infiniband rdma)
 		$(conf_notuser iscsi libiscsi)
 		$(conf_notuser io-uring linux-io-uring)
-		$(conf_notuser jemalloc jemalloc)
 		$(conf_notuser jpeg vnc-jpeg)
 		$(conf_notuser kernel_linux kvm)
 		$(conf_notuser lzo)
@@ -486,7 +526,7 @@ qemu_src_configure() {
 		$(conf_notuser vhost-user-fs)
 		$(conf_tools vhost-user-fs virtiofsd)
 		$(conf_notuser virgl virglrenderer)
-		$(conf_notuser virtfs)
+		$(conf_softmmu virtfs)
 		$(conf_notuser vnc)
 		$(conf_notuser vte)
 		$(conf_notuser xen)
@@ -496,11 +536,18 @@ qemu_src_configure() {
 		--disable-xkbcommon
 		$(conf_notuser zstd)
 	)
-
 	if [[ ${buildtype} == "user" ]] ; then
-		conf_opts+=( --disable-libxml2 )
+		conf_opts+=(
+			--disable-libxml2
+			--enable-malloc=system
+		)
 	else
 		conf_opts+=( --enable-libxml2 )
+		if use jemalloc; then
+			conf_opts+=( --enable-malloc=jemalloc )
+		else
+			conf_opts+=( --enable-malloc=system )
+		fi
 	fi
 
 	if [[ ! ${buildtype} == "user" ]] ; then
@@ -514,8 +561,10 @@ qemu_src_configure() {
 			$(usev alsa)
 			$(usev oss)
 		)
+		# Use of var, and then expanded to remove last comma.
+		local audio=$(printf "%s," "${audio_opts[@]}")
 		conf_opts+=(
-			--audio-drv-list=$(printf "%s," "${audio_opts[@]}")
+			--audio-drv-list=${audio%,}
 		)
 	fi
 
@@ -524,7 +573,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--enable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--disable-tools
 		)
 		local static_flag="static-user"
@@ -541,7 +590,7 @@ qemu_src_configure() {
 		conf_opts+=(
 			--disable-linux-user
 			--disable-system
-			--disable-blobs
+			--disable-install-blobs
 			--enable-tools
 		)
 		local static_flag="static"
@@ -552,7 +601,7 @@ qemu_src_configure() {
 	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
 	# Add support for SystemTAP
-	use systemtap && conf_opts+=( --enable-trace-backend=dtrace )
+	use systemtap && conf_opts+=( --enable-trace-backends=dtrace )
 
 	# We always want to attempt to build with PIE support as it results
 	# in a more secure binary. But it doesn't work with static or if
@@ -562,6 +611,9 @@ qemu_src_configure() {
 	else
 		tc-enables-pie && conf_opts+=( --enable-pie )
 	fi
+
+	# Meson will not use a cross-file unless cross_prefix is set.
+	tc-is-cross-compiler && conf_opts+=( --cross-prefix="${CHOST}-" )
 
 	# Plumb through equivalent of EXTRA_ECONF to allow experiments
 	# like bug #747928.
@@ -791,7 +843,7 @@ src_install() {
 firmware_abi_change() {
 	local pv
 	for pv in ${REPLACING_VERSIONS}; do
-		if ver_test $pv -lt ${FIRMWARE_ABI_VERSION}; then
+		if ver_test ${pv} -lt ${FIRMWARE_ABI_VERSION}; then
 			return 0
 		fi
 	done

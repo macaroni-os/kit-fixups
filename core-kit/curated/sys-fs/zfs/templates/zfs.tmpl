@@ -46,7 +46,6 @@ BDEPEND="virtual/awk
 RDEPEND="${DEPEND}
 	!kernel-builtin? ( ~sys-fs/zfs-kmod-${PV} )
 	!prefix? ( virtual/udev )
-	sys-fs/udev-init-scripts
 	rootfs? (
 		app-arch/cpio
 		app-misc/pax-utils

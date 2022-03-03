@@ -28,8 +28,7 @@ COMMON_DEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-proc
 		sys-apps/policycoreutils
 		>=sys-libs/libselinux-2.6
 	)
-	!<sys-apps/baselayout-2.1-r1
-	!<sys-fs/udev-init-scripts-27"
+	!<sys-apps/baselayout-2.1-r1"
 DEPEND="${COMMON_DEPEND}
 	virtual/os-headers
 	ncurses? ( virtual/pkgconfig )"
@@ -185,15 +184,6 @@ pkg_preinst() {
 
 	# set default interactive shell to sulogin if it exists
 	set_config /etc/rc.conf rc_shell /sbin/sulogin "#" test -e /sbin/sulogin
-}
-
-# >=OpenRC-0.11.3 requires udev-mount to be in the sysinit runlevel with udev.
-migrate_udev_mount_script() {
-	if [ -e "${EROOT}"etc/runlevels/sysinit/udev -a \
-		! -e "${EROOT}"etc/runlevels/sysinit/udev-mount ]; then
-		add_boot_init udev-mount sysinit
-	fi
-	return 0
 }
 
 pkg_postinst() {

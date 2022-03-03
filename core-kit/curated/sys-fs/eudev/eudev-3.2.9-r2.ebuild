@@ -14,7 +14,7 @@ HOMEPAGE="https://github.com/gentoo/eudev"
 
 LICENSE="LGPL-2.1 MIT GPL-2"
 SLOT="0"
-IUSE="+hwdb +kmod introspection rule-generator selinux static-libs test user"
+IUSE="+hwdb +kmod introspection +rule-generator selinux static-libs test user"
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND=">=sys-apps/util-linux-2.20
@@ -39,8 +39,7 @@ RDEPEND="${COMMON_DEPEND}
 	!sys-fs/udev
 	!sys-apps/systemd"
 
-PDEPEND=">=sys-fs/udev-init-scripts-26
-	hwdb? ( >=sys-apps/hwids-20140304[udev] )"
+PDEPEND="hwdb? ( >=sys-apps/hwids-20140304[udev] )"
 
 pkg_pretend() {
 	ewarn
@@ -131,6 +130,19 @@ src_install() {
 	default
 }
 
+add_initd_to_runlevel() {
+    if [[ ! -x "${EROOT}"/etc/init.d/${1} ]]; then
+        die "${EROOT}/etc/init.d/${1} not found."
+    fi
+    if [[ ! -d "${EROOT}"/etc/runlevels/${2} ]]; then
+        die "Runlevel ${2} not found."
+    fi
+	if [[ ! -L "${EROOT}/etc/runlevels/${2}/${1}" ]]; then
+		ln -snf /etc/init.d/${1} "${EROOT}"/etc/runlevels/${2}/${1} || die "Couldn't add ${1} to runlevel ${2}"
+		ewarn "Adding ${1} to the ${2} runlevel"
+	fi
+}
+
 pkg_postinst() {
 	enewgroup input
 	enewgroup kvm 78
@@ -174,16 +186,11 @@ pkg_postinst() {
 		ewarn "\t/etc/init.d/udev --nodeps restart"
 	fi
 
-	if use rule-generator && \
-	[[ -x $(type -P rc-update) ]] && rc-update show | grep udev-postmount | grep -qsv 'boot\|default\|sysinit'; then
-		ewarn
-		ewarn "Please add the udev-postmount init script to your default runlevel"
-		ewarn "to ensure the legacy rule-generator functionality works as reliably"
-		ewarn "as possible."
-		ewarn "\trc-update add udev-postmount default"
-	fi
+    for f in udev udev-trigger; do
+		add_initd_to_runlevel $f sysinit
+	done
 
-	elog
-	elog "For more information on eudev on Gentoo, writing udev rules, and"
-	elog "fixing known issues visit: https://wiki.gentoo.org/wiki/Eudev"
+	if use rule-generator; then
+	    add_initd_to_runlevel udev-postmount default
+	fi
 }

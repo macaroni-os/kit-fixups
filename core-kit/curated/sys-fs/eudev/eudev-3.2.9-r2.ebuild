@@ -41,19 +41,6 @@ RDEPEND="${COMMON_DEPEND}
 
 PDEPEND="hwdb? ( >=sys-apps/hwids-20140304[udev] )"
 
-pkg_pretend() {
-	ewarn
-	ewarn "As of 2013-01-29, ${P} provides the new interface renaming functionality,"
-	ewarn "as described in the URL below:"
-	ewarn "https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames"
-	ewarn
-	ewarn "This functionality is enabled BY DEFAULT because eudev has no means of synchronizing"
-	ewarn "between the default or user-modified choice of sys-fs/udev.  If you wish to disable"
-	ewarn "this new iface naming, please be sure that /etc/udev/rules.d/80-net-name-slot.rules"
-	ewarn "exists: touch /etc/udev/rules.d/80-net-name-slot.rules"
-	ewarn
-}
-
 pkg_setup() {
 	CONFIG_CHECK="~BLK_DEV_BSG ~DEVTMPFS ~!IDE ~INOTIFY_USER ~!SYSFS_DEPRECATED ~!SYSFS_DEPRECATED_V2 ~SIGNALFD ~EPOLL ~FHANDLE ~NET ~UNIX"
 	linux-info_pkg_setup
@@ -73,6 +60,9 @@ src_prepare() {
 	# change rules back to group uucp instead of dialout for now
 	sed -e 's/GROUP="dialout"/GROUP="uucp"/' -i rules/*.rules \
 	|| die "failed to change group dialout to uucp"
+
+    # FL-9484: enable net-generator for VMware virtual interfaces:
+    sed -i -e '/^# ignore VMWare/,+1d' rule_generator/75-persistent-net-generator.rules || die "fail"
 
 	eapply_user
 	eautoreconf

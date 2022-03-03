@@ -6,7 +6,9 @@ DESCRIPTION="Virtual for Zig language compiler"
 
 LICENSE=""
 SLOT="0"
+{%- if not dev %}
 KEYWORDS="*"
+{% endif %}
 
 BDEPEND=""
 RDEPEND="|| ( ~dev-lang/zig-bin-{{ version }} ~dev-lang/zig-{{ version }} )"

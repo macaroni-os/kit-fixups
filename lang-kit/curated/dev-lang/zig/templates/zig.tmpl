@@ -8,7 +8,9 @@ inherit cmake llvm
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://ziglang.org/"
 SRC_URI="{{ artifacts[0].src_uri }}"
+{%- if not dev %}
 KEYWORDS="*"
+{%- endif %}
 
 LICENSE="MIT"
 SLOT="0"

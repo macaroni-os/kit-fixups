@@ -37,7 +37,8 @@ RDEPEND="${COMMON_DEPEND}
 	!<sys-fs/lvm2-2.02.103
 	!<sec-policy/selinux-base-2.20120725-r10
 	!sys-fs/udev
-	!sys-apps/systemd"
+	!sys-apps/systemd
+	!sys-fs/udev-init-scripts"
 
 PDEPEND="hwdb? ( >=sys-apps/hwids-20140304[udev] )"
 
@@ -61,8 +62,8 @@ src_prepare() {
 	sed -e 's/GROUP="dialout"/GROUP="uucp"/' -i rules/*.rules \
 	|| die "failed to change group dialout to uucp"
 
-    # FL-9484: enable net-generator for VMware virtual interfaces:
-    sed -i -e '/^# ignore VMWare/,+1d' rule_generator/75-persistent-net-generator.rules || die "fail"
+	# FL-9484: enable net-generator for VMware virtual interfaces:
+	sed -i -e '/^# ignore VMWare/,+1d' rule_generator/75-persistent-net-generator.rules || die "fail"
 
 	eapply_user
 	eautoreconf
@@ -115,18 +116,21 @@ src_test() {
 src_install() {
 	find "${D}" -name '*.la' -delete || die
 	insinto /lib/udev/rules.d
+	for x in udev udev-trigger udev-settle; do
+		doinitd "${FILESDIR}"/$x
+	done
 	doins "${FILESDIR}"/40-gentoo.rules
 	use rule-generator && doinitd "${FILESDIR}"/udev-postmount
 	default
 }
 
 add_initd_to_runlevel() {
-    if [[ ! -x "${EROOT}"/etc/init.d/${1} ]]; then
-        die "${EROOT}/etc/init.d/${1} not found."
-    fi
-    if [[ ! -d "${EROOT}"/etc/runlevels/${2} ]]; then
-        die "Runlevel ${2} not found."
-    fi
+	if [[ ! -x "${EROOT}"/etc/init.d/${1} ]]; then
+		die "${EROOT}/etc/init.d/${1} not found."
+	fi
+	if [[ ! -d "${EROOT}"/etc/runlevels/${2} ]]; then
+		die "Runlevel ${2} not found."
+	fi
 	if [[ ! -L "${EROOT}/etc/runlevels/${2}/${1}" ]]; then
 		ln -snf /etc/init.d/${1} "${EROOT}"/etc/runlevels/${2}/${1} || die "Couldn't add ${1} to runlevel ${2}"
 		ewarn "Adding ${1} to the ${2} runlevel"
@@ -176,11 +180,11 @@ pkg_postinst() {
 		ewarn "\t/etc/init.d/udev --nodeps restart"
 	fi
 
-    for f in udev udev-trigger; do
+	for f in udev udev-trigger; do
 		add_initd_to_runlevel $f sysinit
 	done
 
 	if use rule-generator; then
-	    add_initd_to_runlevel udev-postmount default
+		add_initd_to_runlevel udev-postmount default
 	fi
 }

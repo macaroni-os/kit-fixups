@@ -204,7 +204,7 @@ src_install() {
 		install
 
 	rm -f "${ED}"/usr/share/doc/${PF}/html/{ChangeLog,LICENSE,NEWS.txt}
-	dodoc {AUTHORS,README}.txt ChangeLog
+	dodoc {AUTHORS,README}.txt ChangeLog*
 
 	if use perl; then
 		find "${ED}" -type f -name perllocal.pod -exec rm -f {} +

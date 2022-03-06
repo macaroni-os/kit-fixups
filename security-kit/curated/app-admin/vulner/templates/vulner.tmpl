@@ -1,0 +1,34 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+CRATES="
+{{crates}}"
+
+inherit cargo
+
+DESCRIPTION="Discover CVEs for packages installed by the portage"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{artifacts[0].src_uri}}
+	$(cargo_crate_uris ${CRATES})"
+
+LICENSE="MPL-2.0"
+SLOT="0"
+KEYWORDS="*"
+
+DEPEND=""
+RDEPEND=">=dev-lang/python-3.7"
+BDEPEND=">=virtual/rust-1.59.0"
+
+QA_FLAGS_IGNORED="/usr/bin/{{github_repo}}"
+
+src_unpack() {
+	cargo_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_install() {
+	cargo_src_install '--path' './crates/cli'
+	einstalldocs
+}

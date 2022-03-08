@@ -9,7 +9,8 @@ inherit cmake flag-o-matic linux-info multiprocessing prefix toolchain-funcs use
 MY_PV="${PV//_pre*}"
 MY_P="${PN}-${MY_PV}"
 
-SRC_URI="https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-${MY_PV}.tar.gz
+SRC_URI="
+https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-boost-${MY_PV}.tar.gz
 	https://cdn.mysql.com/archives/mysql-8.0/mysql-boost-${MY_PV}.tar.gz
 	http://downloads.mysql.com/archives/MySQL-8.0/mysql-boost-${MY_PV}.tar.gz"
 
@@ -28,7 +29,7 @@ REQUIRED_USE="?? ( tcmalloc jemalloc )
 	router? ( server )
 	tcmalloc? ( server )"
 
-# NOTE: KEEP THIS MASKED! THIS IS A "WIP" EBUILD THAT WILL INSTALL ALL CLIENT LIBS!
+#WIP ebuild. See FL-8913
 KEYWORDS=""
 
 COMMON_DEPEND="
@@ -110,13 +111,6 @@ src_prepare() {
 		echo > "${S}/support-files/SELinux/CMakeLists.txt" || die
 	fi
 
-	# Remove man pages for client-lib tools we don't install
-	rm \
-		man/my_print_defaults.1 \
-		man/perror.1 \
-		man/zlib_decompress.1 \
-		|| die
-
 	cmake_src_prepare
 }
 
@@ -182,7 +176,6 @@ src_configure() {
 	fi
 
 	mycmakeargs+=( -DINSTALL_MYSQLTESTDIR='' )
-	mycmakeargs+=( -DWITHOUT_CLIENTLIBS=YES )
 
 	mycmakeargs+=(
 		-DWITH_ICU=system
@@ -328,6 +321,27 @@ src_install() {
 
 	# Kill old libmysqclient_r symlinks if they exist. Time to fix what depends on them.
 	find "${D}" -name 'libmysqlclient_r.*' -type l -delete || die
+
+	local clientlibs_files=(
+		${ED}/usr/bin/perror
+		${ED}/usr/bin/zlib_decompress
+		${ED}/usr/bin/my_print_defaults
+		${ED}/usr/bin/mysql_config
+		${ED}/usr/lib64/libmysqlclient.*
+		${ED}/usr/lib64/pkgconfig
+		${ED}/usr/share/aclocal
+		${ED}/usr/include/mysql
+		${ED}/usr/share/man/man1/my_print_defaults.1*
+		${ED}/usr/share/man/man1/perror.1*
+		${ED}/usr/share/man/man1/zlib_decompress.1*
+	)
+
+	# Remove files associated with client libs:
+
+	for x in ${clientlibs_files[@]}; do
+		einfo "Removing $x"
+		rm -rf $x || die
+	done
 }
 
 pkg_postinst() {

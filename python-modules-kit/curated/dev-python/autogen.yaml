@@ -1254,6 +1254,15 @@ io_stuff_rule:
           - typing-extensions
           - curio >= 1.4
           - trio >= 0.16
+        revision:
+          3.5.0: 1
+        body: |
+          src_prepare() {
+            default
+            # See FL-9522
+            cd ${S}/src/anyio/_core || die
+            ( cat ${FILESDIR}/get_asynclib_thread_fix.patch | patch -p0 ) || die
+          }
     - async-generator:
         license: '|| ( Apache-2.0 MIT )'
         pypi_name: async_generator

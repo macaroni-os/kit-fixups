@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 
-import re
 import logging
-
+import re
 
 async def generate(hub, **pkginfo):
 	slots = [
 		("7.3", "latest", ["php-freetype-2.9.1.patch"], None),
 		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch"], None),
-		("8.0", "latest", ["php-iodbc-header-location.patch"], None),
+		("8.0", "8.0.16", ["php-iodbc-header-location.patch"], None),
 	]
-	php_url = "https://www.php.net/downloads.php"
-	php_data = await hub.pkgtools.fetch.get_page(php_url)
+	php_url = "https://www.php.net/releases/?json&version={slot}"
 	for slot, v_spec, patch_list, dists_url in slots:
+		php_data = await hub.pkgtools.fetch.get_page(php_url.format(slot=slot), is_json=True)
 		patches = "(\n"
 		for patch in patch_list:
 			patches += '\t"${FILESDIR}/' + patch + '"\n'
 		patches += ")"
 		if v_spec == "latest":
-			v_find = re.findall(f"php-({slot}\\.\\d+).tar", php_data)
-			if len(v_find):
-				version = v_find[0]
-			else:
-				logging.warning(f"Couldn't find a version for PHP {slot}, so skipping autogen for this slot.")
-				continue
+			upstream_spec = php_data["source"][0]
+			version = re.search("([0-9.]+)", upstream_spec["filename"]).groups()[0].rstrip(".")
 		else:
 			version = v_spec
 		if dists_url is None:

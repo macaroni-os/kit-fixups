@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import json
-
+import re
 
 async def generate(hub, **pkginfo):
 	github_user = "dcnieho"
@@ -10,12 +9,10 @@ async def generate(hub, **pkginfo):
 		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
 	for tag in tag_data:
-		if not tag["name"].startswith("FG_"):
+		match = re.match("v([0-9.]+)", tag["name"])
+		if not match:
 			continue
-		if "RC" in tag["name"]:
-			continue
-		tag_name = tag["name"]
-		version = tag["name"][3:].replace("_", ".")
+		version = match.groups()[0]
 		tarball_url = tag["tarball_url"]
 		commit_sha = tag["commit"]["sha"]
 		break

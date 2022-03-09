@@ -18,12 +18,12 @@ IUSE=""
 DEPEND=""
 RDEPEND="${DEPEND}"
 
-ALERTMANAGER_USER="${MY_PN}"
-ALERTMANAGER_HOME="/var/lib/${MY_PN}"
+PROMETHEUS_USER="${MY_PN}"
+PROMETHEUS_HOME="/var/lib/${MY_PN}"
 
 pkg_setup() {
-	enewgroup ${ALERTMANAGER_USER}
-	enewuser ${ALERTMANAGER_USER} -1 -1 "${ALERTMANAGER_HOME}" ${ALERTMANAGER_USER}
+	enewgroup ${PROMETHEUS_USER}
+	enewuser ${PROMETHEUS_USER} -1 -1 "${PROMETHEUS_HOME}" ${PROMETHEUS_USER}
 }
 
 post_src_unpack() {
@@ -33,12 +33,12 @@ post_src_unpack() {
 }
 
 src_install() {
-	dobin ${MY_PN} amtool
+	dobin ${MY_PN} promtool
 	insinto /etc/"${MY_PN}"
 	doins ${MY_PN}.yml
-	newconfd "${FILESDIR}"/"${MY_PN}".confd ${MY_PN}
-	newinitd "${FILESDIR}"/"${MY_PN}".initd ${MY_PN}
+	newconfd {{ gen_path }}/files/${MY_PN}/${MY_PN}.confd ${MY_PN}
+	newinitd {{ gen_path }}/files/${MY_PN}/${MY_PN}.initd ${MY_PN}
 	keepdir /var/{lib,log}/"${MY_PN}"
-	fowners ${ALERTMANAGER_USER}:${ALERTMANAGER_USER} /var/{lib,log}/"${MY_PN}"
+	fowners ${PROMETHEUS_USER}:${PROMETHEUS_USER} /var/{lib,log}/"${MY_PN}"
 	fperms 0750 /var/{lib,log}/"${MY_PN}"
 }

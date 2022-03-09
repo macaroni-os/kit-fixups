@@ -4,13 +4,14 @@ EAPI=7
 inherit user
 
 MY_PN=${PN/-bin/}
+MY_PN_BASE=${MY_PN/_exporter/}
 MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
 SRC_URI="{{ artifacts[0].src_uri }}"
 
-KEYWORDS="~amd64"
+KEYWORDS="-* amd64"
 LICENSE="Apache-2.0"
 SLOT="0"
 IUSE=""
@@ -18,12 +19,12 @@ IUSE=""
 DEPEND=""
 RDEPEND="${DEPEND}"
 
-PROMETHEUS_USER="${MY_PN}"
-PROMETHEUS_HOME="/var/lib/${MY_PN}"
+EXPORTER_USER="${MY_PN}"
+EXPORTER_HOME="/var/lib/${MY_PN}"
 
 pkg_setup() {
-	enewgroup ${PROMETHEUS_USER}
-	enewuser ${PROMETHEUS_USER} -1 -1 "${PROMETHEUS_HOME}" ${PROMETHEUS_USER}
+	enewgroup ${EXPORTER_USER}
+	enewuser ${EXPORTER_USER} -1 -1 "${EXPORTER_HOME}" ${EXPORTER_USER}
 }
 
 post_src_unpack() {
@@ -33,12 +34,14 @@ post_src_unpack() {
 }
 
 src_install() {
-	dobin ${MY_PN} promtool
-	insinto /etc/"${MY_PN}"
-	doins ${MY_PN}.yml
-	newconfd "${FILESDIR}"/"${MY_PN}".confd ${MY_PN}
-	newinitd "${FILESDIR}"/"${MY_PN}".initd ${MY_PN}
+	dobin ${MY_PN}
+	if [ "${MY_PN}" == "blackbox_exporter" ] ; then
+		insinto /etc/"${MY_PN}"
+		doins ${MY_PN_BASE}.yml
+	fi
+	newconfd {{ gen_path }}/files/${MY_PN}/${MY_PN}.confd ${MY_PN}
+	newinitd {{ gen_path }}/files/exporter.initd ${MY_PN}
 	keepdir /var/{lib,log}/"${MY_PN}"
-	fowners ${PROMETHEUS_USER}:${PROMETHEUS_USER} /var/{lib,log}/"${MY_PN}"
+	fowners ${EXPORTER_USER}:${EXPORTER_USER} /var/{lib,log}/"${MY_PN}"
 	fperms 0750 /var/{lib,log}/"${MY_PN}"
 }

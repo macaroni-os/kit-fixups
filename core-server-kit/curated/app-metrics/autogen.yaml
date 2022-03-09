@@ -1,0 +1,64 @@
+prometheus:
+  generator: github-1
+  packages:
+    - prometheus-bin:
+        tarball: prometheus-{version}.linux-amd64.tar.gz
+        template: prometheus-bin.tmpl
+        select: 'v\d+\.\d+\.\d+$'
+        github:
+          user: prometheus
+          repo: prometheus
+          query: releases
+alertmanager:
+  generator: github-1
+  packages:
+    - alertmanager-bin:
+        tarball: alertmanager-{version}.linux-amd64.tar.gz
+        template: alertmanager-bin.tmpl
+        select: 'v\d+\.\d+\.\d+$'
+        github:
+          user: prometheus
+          repo: alertmanager
+          query: releases
+prometheus-exporters:
+  generator: github-1
+  defaults:
+    select: 'v\d+\.\d+\.\d+$'
+    template: exporter.tmpl
+  packages:
+    - blackbox_exporter-bin:
+        tarball: blackbox_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: blackbox_exporter
+          query: releases
+    - consul_exporter-bin:
+        tarball: consul_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: consul_exporter
+          query: releases
+    - memcached_exporter-bin:
+        tarball: memcached_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: memcached_exporter
+          query: releases
+    - mysqld_exporter-bin:
+        tarball: mysqld_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: mysqld_exporter
+          query: releases
+    - node_exporter-bin:
+        tarball: node_exporter-{version}.linux-amd64.tar.gz
+        github:
+          user: prometheus
+          repo: node_exporter
+          query: releases
+    - redis_exporter-bin:
+        tarball: redis_exporter-v{version}.linux-amd64.tar.gz
+        github:
+          user: oliver006
+          repo: redis_exporter
+          query: releases

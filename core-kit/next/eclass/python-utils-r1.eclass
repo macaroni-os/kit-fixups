@@ -30,6 +30,8 @@ fi
 if [[ ! ${_PYTHON_UTILS_R1} ]]; then
 
 [[ ${EAPI:-0} == [012345] ]] && inherit eutils multilib
+[[ ${EAPI} == [567] ]] && inherit eapi8-dosym
+[[ ${EAPI} == [67] ]] && inherit multiprocessing
 inherit toolchain-funcs
 
 # @ECLASS-VARIABLE: _PYTHON_ALL_IMPLS
@@ -157,15 +159,10 @@ _python_set_impls() {
 		# trigger validity checks
 		_python_impl_supported "${i}" || continue
 		case $i in
-			# Below, bump any older python3_5 or 3_6 deps to python3_7.
-
-			python3_5|python3_6|python3_7)
-				supp['python3_7']=1
-				;;
-
+			# Below, bump any older python3_5 or 3_6 deps to python3+.
 			# When adding new '+' entries, also update line 83 ^^
 
-			python3+|python3_7+)
+			python3_5|python3_6|python3_7|python3+|python3_7+)
 				supp['python3_7']=1
 				supp['python3_8']=1
 				supp['python3_9']=1
@@ -183,6 +180,7 @@ _python_set_impls() {
 			python3_10+)
 				supp['python3_10']=1
 				;;
+
 			# Below, new special setting that will enable python2 and
 			# up compatibility:
 
@@ -191,6 +189,7 @@ _python_set_impls() {
 				supp['python3_7']=1
 				supp['python3_8']=1
 				supp['python3_9']=1
+				supp['python3_10']=1
 				;;
 			*)
 				# Anything else valid in the list is also supported as-is

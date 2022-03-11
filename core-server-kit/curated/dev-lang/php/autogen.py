@@ -5,9 +5,9 @@ import re
 
 async def generate(hub, **pkginfo):
 	slots = [
-		("7.3", "latest", ["php-freetype-2.9.1.patch"], None),
-		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch"], None),
-		("8.0", "8.0.16", ["php-iodbc-header-location.patch"], None),
+		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch", "bug81656-gcc-11.patch"], None),
+		("8.0", "latest", ["php-iodbc-header-location.patch", "php80-firebird-warnings.patch"], None),
+		("8.1", "latest" , ["php-iodbc-header-location.patch"], None),
 	]
 	php_url = "https://www.php.net/releases/?json&version={slot}"
 	for slot, v_spec, patch_list, dists_url in slots:

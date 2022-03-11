@@ -27,6 +27,7 @@ RDEPEND="
 "
 PATCHES=(
 	"${FILESDIR}"/${PN}-11.7.3-flags.patch
+	"${FILESDIR}"/${PN}-12.4.0-cron.patch
 )
 
 src_prepare() {

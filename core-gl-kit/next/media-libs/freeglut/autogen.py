@@ -3,8 +3,8 @@
 import re
 
 async def generate(hub, **pkginfo):
-	github_user = "dcnieho"
-	github_repo = "FreeGLUT"
+	github_user = "FreeGLUTProject"
+	github_repo = "freeglut"
 	tag_data = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
@@ -22,6 +22,9 @@ async def generate(hub, **pkginfo):
 		github_user=github_user,
 		github_repo=github_repo,
 		commit_sha=commit_sha,
+		revision={
+			"3.2.2" : "1"
+		},
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
 				url=tarball_url,

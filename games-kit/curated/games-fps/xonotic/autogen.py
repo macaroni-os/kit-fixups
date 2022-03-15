@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	src_pattern = re.compile("^\\.\\/(Xonotic-(\\d+)\.zip)$")
 
 	autobuild_soup = BeautifulSoup(
-		await hub.pkgtools.http.get_page(autobuild_url), "lxml"
+		await hub.pkgtools.http.get_page(autobuild_url, refresh_interval=timedelta(days=7), "lxml"
 	)
 
 	link_matches = (

@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	src_pattern = re.compile(f"^({pkginfo.get('name')}-([\\d.]+)\\.tar\\.gz)$")
 
 	download_soup = BeautifulSoup(
-		await hub.pkgtools.http.get_page(download_url), "lxml"
+		await hub.pkgtools.fetch.get_page(download_url), "lxml"
 	)
 
 	link_matches = (

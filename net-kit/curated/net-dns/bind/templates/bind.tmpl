@@ -1,19 +1,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
-# Re dlz/mysql and threads, needs to be verified..
-# MySQL uses thread local storage in its C api. Thus MySQL
-# requires that each thread of an application execute a MySQL
-# thread initialization to setup the thread local storage.
-# This is impossible to do safely while staying within the DLZ
-# driver API. This is a limitation caused by MySQL, and not the DLZ API.
-# Because of this BIND MUST only run with a single thread when
-# using the MySQL driver.
-
 EAPI=7
 
 PYTHON_COMPAT=( {{python_compat}} )
 
-inherit python-r1 autotools toolchain-funcs flag-o-matic db-use user tmpfiles
+inherit python-any-r1 autotools toolchain-funcs flag-o-matic tmpfiles user
 
 MY_PV="${PV/_p/-P}"
 MY_PV="${MY_PV/_rc/rc}"
@@ -24,46 +15,36 @@ RRL_PV="${MY_PV}"
 DESCRIPTION="Berkeley Internet Name Domain - Name Server"
 HOMEPAGE="https://www.isc.org/software/bind"
 SRC_URI="{{artifacts[0].src_uri}}
-	doc? ( mirror://gentoo/dyndns-samples.tbz2 )"
+	doc? ( {{artifacts[1].src_uri}} )"
 
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+berkdb +caps +dlz dnstap doc dnsrps fixed-rrset geoip gssapi json ldap libressl lmdb mysql odbc postgres python selinux static-libs urandom xml +zlib"
-# no PKCS11 currently as it requires OpenSSL to be patched, also see bug 409687
-
-# Upstream dropped the old geoip library, but the BIND configuration for using
-# GeoIP remained the same.
-REQUIRED_USE="
-	postgres? ( dlz )
-	berkdb? ( dlz )
-	mysql? ( dlz )
-	odbc? ( dlz )
-	ldap? ( dlz )
-	dnsrps? ( dlz )
-	python? ( ${PYTHON_REQUIRED_USE} )"
+IUSE="+caps dnstap dnsrps doc doh fixed-rrset geoip gssapi idn lmdb selinux test urandom xml"
 
 DEPEND="
-	berkdb? ( sys-libs/db:= )
-	!libressl? ( dev-libs/openssl:=[-bindist] )
-	libressl? ( dev-libs/libressl:= )
-	mysql? ( dev-db/mysql-connector-c:0= )
-	odbc? ( >=dev-db/unixODBC-2.2.6 )
-	ldap? ( net-nds/openldap )
-	postgres? ( dev-db/postgresql:= )
+	dev-libs/jemalloc
+	dev-libs/json-c:=
+	dev-libs/libuv:=
+	dev-libs/openssl:=[-bindist(-)]
+	sys-libs/zlib
 	caps? ( >=sys-libs/libcap-2.1.0 )
-	xml? ( dev-libs/libxml2 )
+	doh? ( net-libs/nghttp2 )
 	geoip? ( dev-libs/libmaxminddb )
 	gssapi? ( virtual/krb5 )
-	json? ( dev-libs/json-c:= )
+	idn? ( net-dns/libidn2 )
 	lmdb? ( dev-db/lmdb )
-	zlib? ( sys-libs/zlib )
 	dnstap? ( dev-libs/fstrm dev-libs/protobuf-c )
-	python? (
+	xml? ( dev-libs/libxml2 )
+"
+BDEPEND="
+	test? (
 		${PYTHON_DEPS}
-		dev-python/ply[${PYTHON_USEDEP}]
+		dev-python/dnspython
+		dev-python/pytest
+		dev-perl/Net-DNS-SEC
+		dev-util/cmocka
 	)
-	dev-libs/libuv:=
 "
 
 RDEPEND="${DEPEND}
@@ -71,10 +52,6 @@ RDEPEND="${DEPEND}
 	sys-process/psmisc"
 
 S="${WORKDIR}/${MY_P}"
-
-# bug 479092, requires networking
-# bug 710840, cmocka fails LDFLAGS='-Wl,-O1'
-RESTRICT="test"
 
 pkg_setup() {
 	ebegin "Creating named group and user"
@@ -90,60 +67,41 @@ src_prepare() {
 	sed -i -r -e "s:(nsupdate|dig|delv) ::g" bin/Makefile.in || die
 
 	# Disable tests for now, bug 406399
-	sed -i '/^SUBDIRS/s:tests::' bin/Makefile.in lib/Makefile.in || die
+	#sed -i '/^SUBDIRS/s:tests::' bin/Makefile.in lib/Makefile.in || die
 
 	# bug #220361
 	rm aclocal.m4 || die
 	rm -rf libtool.m4/ || die
 	eautoreconf
 
-	use python && python_copy_sources
 }
 
 src_configure() {
-	bind_configure --without-python
-	use python && python_foreach_impl python_configure
-}
-
-bind_configure() {
 	local myeconfargs=(
 		AR="$(type -P $(tc-getAR))"
 		--prefix="${EPREFIX}"/usr
-		--sysconfdir=/etc/bind
-		--localstatedir=/var
-		--with-libtool
+		--sysconfdir="${EPREFIX}"/etc/bind
+		--localstatedir="${EPREFIX}"/var
 		--enable-full-report
 		--without-readline
-		--with-openssl="${EPREFIX}"/usr
-		--without-cmocka
+		--with-openssl="${ESYSROOT}"/usr
+		--with-jemalloc
+		--with-json-c
+		--with-zlib
 		$(use_enable caps linux-caps)
-		$(use_enable dnsrps)
 		$(use_enable dnstap)
+		$(use_enable dnsrps)
+		$(use_enable dnsrps dnsrps-dl)
+		$(use_enable doh)
 		$(use_enable fixed-rrset)
-		# $(use_enable static-libs static)
-		$(use_with berkdb dlz-bdb)
-		$(use_with dlz dlopen)
-		$(use_with dlz dlz-filesystem)
-		$(use_with dlz dlz-stub)
-		$(use_with gssapi)
+		$(use_enable geoip )
+		$(use_with doh libnghttp2)
 		$(use_with geoip maxminddb)
-		$(use_enable geoip)
-		$(use_with json json-c)
-		$(use_with ldap dlz-ldap)
-		$(use_with mysql dlz-mysql)
-		$(use_with odbc dlz-odbc)
-		$(use_with postgres dlz-postgres)
+		$(use_with gssapi)
 		$(use_with lmdb)
 		$(use_with xml libxml2)
-		$(use_with zlib)
 		"${@}"
 	)
-
-	# bug #158664
-#	gcc-specs-ssp && replace-flags -O[23s] -O
-
-	# To include db.h from proper path
-	use berkdb && append-flags "-I$(db_includedir)"
 
 	export BUILD_CC=$(tc-getBUILD_CC)
 	econf "${myeconfargs[@]}"
@@ -152,28 +110,8 @@ bind_configure() {
 	echo '#undef SO_BSDCOMPAT' >> config.h
 }
 
-python_configure() {
-	pushd "${BUILD_DIR}" >/dev/null || die
-	bind_configure --with-python
-	popd >/dev/null || die
-}
-
-src_compile() {
-	default
-	use python && python_foreach_impl python_compile
-}
-
-python_compile() {
-	pushd "${BUILD_DIR}"/bin/python >/dev/null || die
-	emake
-	popd >/dev/null || die
-}
-
 src_install() {
 	default
-
-	# don't create /var/run
-	rmdir "${ED}"/var/run
 
 	dodoc CHANGES README.md
 
@@ -186,7 +124,7 @@ src_install() {
 		dodoc -r doc/arm/
 
 		docinto contrib
-		dodoc contrib/scripts/{nanny.pl,named-bootconf.sh}
+		dodoc contrib/scripts/nanny.pl
 
 		# some handy-dandy dynamic dns examples
 		pushd "${ED}"/usr/share/doc/${PF} 1>/dev/null || die
@@ -204,7 +142,7 @@ src_install() {
 	insinto /var/bind/pri
 	newins "${FILESDIR}"/localhost.zone-r3 localhost.zone
 
-	newinitd "${FILESDIR}"/named.init-r13 named
+	newinitd "${FILESDIR}"/named.init-r14 named
 	newconfd "${FILESDIR}"/named.confd-r7 named
 
 	newenvd "${FILESDIR}"/10bind.env 10bind
@@ -212,23 +150,17 @@ src_install() {
 	# Let's get rid of those tools and their manpages since they're provided by bind-tools
 	rm -f "${ED}"/usr/share/man/man1/{dig,host,nslookup,delv,nsupdate}.1* || die
 	rm -f "${ED}"/usr/share/man/man8/nsupdate.8* || die
-	rm -f "${ED}"/usr/bin/{dig,host,nslookup,nsupdate} || die
+	rm -f "${ED}"/usr/bin/{dig,delv,host,nslookup,nsupdate} || die
 	rm -f "${ED}"/usr/sbin/{dig,host,nslookup,nsupdate} || die
 	for tool in dsfromkey importkey keyfromlabel keygen \
 	revoke settime signzone verify; do
 		rm -f "${ED}"/usr/{,s}bin/dnssec-"${tool}" || die
-		rm -f "${ED}"/usr/share/man/man8/dnssec-"${tool}".8* || die
+		rm -f "${ED}"/usr/share/man/man1/dnssec-"${tool}".1* || die
 	done
 
-	# bug 405251, library archives aren't properly handled by --enable/disable-static
-	if ! use static-libs; then
-		find "${ED}" -type f -name '*.a' -delete || die
-	fi
-
 	# bug 405251
+	find "${ED}" -type f -name '*.a' -delete || die
 	find "${ED}" -type f -name '*.la' -delete || die
-
-	use python && python_foreach_impl python_install
 
 	# bug 450406
 	dosym named.cache /var/bind/root.cache
@@ -249,22 +181,13 @@ src_install() {
 	doexe "${FILESDIR}/generate-rndc-key.sh"
 }
 
-python_install() {
-	pushd "${BUILD_DIR}"/bin/python >/dev/null || die
-	emake DESTDIR="${D}" install
-	python_scriptinto /usr/sbin
-	python_doscript dnssec-{checkds,coverage}
-	python_optimize
-	popd >/dev/null || die
-}
-
 pkg_postinst() {
-	tmpfiles_process "${FILESDIR}"/named.conf
+	tmpfiles_process named.conf
 
-	if [ ! -f '/etc/bind/rndc.key' -a ! -f '/etc/bind/rndc.conf' ]; then
-		if use urandom; then
+	if [[ ! -f '/etc/bind/rndc.key' && ! -f '/etc/bind/rndc.conf' ]]; then
+		if use urandom ; then
 			einfo "Using /dev/urandom for generating rndc.key"
-			/usr/sbin/rndc-confgen -r /dev/urandom -a
+			usr/sbin/rndc-confgen -r /dev/urandom -a
 			echo
 		else
 			einfo "Using /dev/random for generating rndc.key"
@@ -278,12 +201,6 @@ pkg_postinst() {
 	einfo
 	einfo "You can edit /etc/conf.d/named to customize named settings"
 	einfo
-	use mysql || use postgres || use ldap && {
-		elog "If your named depends on MySQL/PostgreSQL or LDAP,"
-		elog "uncomment the specified rc_named_* lines in your"
-		elog "/etc/conf.d/named config to ensure they'll start before bind"
-		einfo
-	}
 	einfo "If you'd like to run bind in a chroot AND this is a new"
 	einfo "install OR your bind doesn't already run in a chroot:"
 	einfo "1) Uncomment and set the CHROOT variable in /etc/conf.d/named."
@@ -357,7 +274,9 @@ pkg_config() {
 	fi
 
 	if [ "${CHROOT_GEOIP:-0}" -eq 1 ]; then
-		mkdir -m 0755 -p ${CHROOT}/usr/share/GeoIP || die
+		if use geoip; then
+			mkdir -m 0755 -p ${CHROOT}/usr/share/GeoIP || die
+		fi
 	fi
 
 	elog "You may need to add the following line to your syslog-ng.conf:"

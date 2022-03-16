@@ -1,0 +1,9 @@
+cloud-init-rules:
+  generator: github-1
+  defaults:
+    github:
+      user: canonical
+      repo: cloud-init
+      query: tags
+  packages:
+    - cloud-init

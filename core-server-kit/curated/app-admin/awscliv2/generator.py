@@ -11,13 +11,12 @@ async def generate(hub, **pkginfo):
 		is_json=True,
 	)
 
-	newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
+	newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
 	artifacts = [newpkginfo['artifacts'][0]]
 	version = newpkginfo['version']
 
-	bundle_version = []
-
 	deplist = []
+
 	for repo in pkginfo.get("aws-c"):
 		if type(repo) is dict:
 			pkg = list(repo.items())[0]
@@ -27,12 +26,9 @@ async def generate(hub, **pkginfo):
 			ghuser = github_user
 			ghrepo = repo
 
-		newpkginfo = await hub.pkgtools.github.release_gen(hub, ghuser, ghrepo, include={"prerelease"})
+		newpkginfo = await hub.pkgtools.github.tag_gen(hub, ghuser, ghrepo)
 		artifacts.append(newpkginfo['artifacts'][0])
 		deplist.append(ghrepo.replace('-tls', ''))
-		bundle_version.append(newpkginfo['version'])
-
-	print(''.join(bundle_version))
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

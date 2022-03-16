@@ -11,47 +11,37 @@ async def generate(hub, **pkginfo):
 		is_json=True,
 	)
 
-	if github_repo == "aws-crt-python":
-		newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
-		artifacts = [newpkginfo['artifacts'][0]]
-		version = newpkginfo['version']
+	newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
+	artifacts = [newpkginfo['artifacts'][0]]
+	version = newpkginfo['version']
 
-		deplist = []
-		for repo in pkginfo.get("aws-c"):
-			if type(repo) is dict:
-				pkg = list(repo.items())[0]
-				ghrepo, ghuser = pkg
-				ghuser = ghuser["github_user"]
-			else:
-				ghuser = github_user
-				ghrepo = repo
+	bundle_version = []
 
-			newpkginfo = await hub.pkgtools.github.release_gen(hub, ghuser, ghrepo, include={"prerelease"})
-			artifacts.append(newpkginfo['artifacts'][0])
-			deplist.append(ghrepo.replace('-tls', ''))
+	deplist = []
+	for repo in pkginfo.get("aws-c"):
+		if type(repo) is dict:
+			pkg = list(repo.items())[0]
+			ghrepo, ghuser = pkg
+			ghuser = ghuser["github_user"]
+		else:
+			ghuser = github_user
+			ghrepo = repo
 
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(
-			**pkginfo,
-			description=pkgmetadata["description"],
-			artifacts=artifacts,
-			version=version,
-			deplist=deplist,
-			github_repo=github_repo
-		)
-	else: # github_repo == "aws-cli"
-		newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
-		pkginfo.update(newpkginfo)
+		newpkginfo = await hub.pkgtools.github.release_gen(hub, ghuser, ghrepo, include={"prerelease"})
+		artifacts.append(newpkginfo['artifacts'][0])
+		deplist.append(ghrepo.replace('-tls', ''))
+		bundle_version.append(newpkginfo['version'])
 
-		pkgmetadata = await hub.pkgtools.fetch.get_page(
-			f"https://api.github.com/repos/{github_user}/{github_repo}",
-			is_json=True,
-		)
+	print(''.join(bundle_version))
 
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(
-			**pkginfo,
-			description=pkgmetadata["description"],
-		)
-
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+		**pkginfo,
+		description=pkgmetadata["description"],
+		artifacts=artifacts,
+		version=version,
+		deplist=deplist,
+		github_repo=github_repo
+	)
 	ebuild.push()
 
 # vim: ts=4 sw=4 noet

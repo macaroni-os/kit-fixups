@@ -21,6 +21,13 @@ tensorflow:
           - grpcio-tools >= 1.42.0
     - pbr:
         python_compat: python2+
+    - pyfuse3:
+        pydeps:
+          - trio
+        rdepend:
+          sys-fs/fuse:3
+        body: |
+          distutils_enable_tests pytest
 
 tenacity:
   defaults: 

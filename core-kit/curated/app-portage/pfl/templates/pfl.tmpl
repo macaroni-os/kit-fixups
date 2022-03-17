@@ -21,6 +21,7 @@ DEPEND=""
 RDEPEND="
 	${DEPEND}
 	dev-python/requests[${PYTHON_USEDEP}]
+	dev-python/termcolor[${PYTHON_USEDEP}]
 	net-misc/curl
 	sys-apps/portage[${PYTHON_USEDEP}]
 	network-cron? ( sys-apps/util-linux[caps] )

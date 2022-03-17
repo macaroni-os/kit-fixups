@@ -22,7 +22,7 @@ async def generate(hub, **pkginfo):
 	]
 
 	bind = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, python_compat=python_compat, version=version, artifacts=artifacts,
+		**pkginfo, python_compat=python_compat, version=version, revision={ "9.18.1" : "1" }, artifacts=artifacts,
 	)
 	bind.push()
 	bind_tools = hub.pkgtools.ebuild.BreezyBuild(
@@ -30,6 +30,7 @@ async def generate(hub, **pkginfo):
 		cat=pkginfo["cat"],
 		name="bind-tools",
 		version=version,
+		revision={ "9.18.1" : "1" },
 		artifacts=artifacts,
 	)
 	bind_tools.push()

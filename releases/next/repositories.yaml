@@ -84,20 +84,11 @@ release:
   # Have all of our remote configurations defined in one place for ease of maintenance
   remotes:
     dev:
-      ki ts:
-        url: https://code.funtoo.org/bitbucket/scm/auto/{kit_name}
-      meta-repo:
-        url: https://code.funtoo.org/bitbucket/scm/core/meta-repo
+      url: https://code.funtoo.org/bitbucket/scm/auto/{repo}
     prod:
-      kits:
-        url: ssh://git@code.funtoo.org:7999/auto/{kit_name}
-        mirrors:
-          - https://github.com/funtoo/{kit_name}
-      meta-repo:
-        url: ssh://git@code.funtoo.org:7999/core/meta-repo.git
-        mirrors:
-          - ssh://git@github.com/funtoo/meta-repo
-
+      url: ssh://git@code.funtoo.org:7999/auto/{repo}
+      mirrors:
+        - ssh://git@github.com/funtoo/{repo}
   kit-definitions:
     defaults:
       masters:

@@ -11,9 +11,11 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
-	dev-lang/perl
+	>=dev-lang/perl-5.14.0
+	dev-perl/Gtk3
 	dev-perl/Data-Dump
 	>=dev-perl/Linux-DesktopFiles-0.90.0
+	dev-perl/File-DesktopEntry
 	x11-wm/openbox
 "
 

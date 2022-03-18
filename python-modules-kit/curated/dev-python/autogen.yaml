@@ -763,7 +763,9 @@ simple_python_autogen_rule:
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
         license: Apache-2.0
         pydeps:
+          - aiofiles
           - msgpack
+          - pyyaml
         body: |
           src_prepare() {
             install -d ${S}/requirements

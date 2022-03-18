@@ -100,35 +100,11 @@ src_configure() {
 }
 
 src_install() {
-	local man_dir="${S}/doc/man"
-	local html_dir="${man_dir}/_build/html"
+	default
 
-	dodoc README.md CHANGES
-
-	cd "${S}"/bin/delv || die
-	dobin delv
-	doman ${man_dir}/delv.1
-
-	cd "${S}"/bin/dig || die
-	dobin dig host nslookup
-	doman ${man_dir}/{dig,host,nslookup}.1
-
-	cd "${S}"/bin/nsupdate || die
-	dobin nsupdate
-	doman ${man_dir}/nsupdate.1
-	if use doc; then
-		docinto html
-		dodoc ${html_dir}/nsupdate.html
-	fi
-
-	cd "${S}"/bin/dnssec || die
-	for tool in dsfromkey importkey keyfromlabel keygen \
-		revoke settime signzone verify; do
-		dobin dnssec-"${tool}"
-		doman ${man_dir}/dnssec-"${tool}".1
-		if use doc; then
-			docinto html
-			dodoc ${html_dir}/dnssec-"${tool}".html
-		fi
-	done
+	rm -r "${D}"/usr/bin/{arpaname,named*,nsec3hash} || die
+	rm -r "${D}"/usr/{include,sbin} || die
+	rm -r "${D}"/usr/share/man/man*/{arpaname,named,nsec3hash}* || die
+	rm -r "${D}"/usr/share/man/man{5,8} || die
+	rm -r "${D}"/etc || die
 }

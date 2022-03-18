@@ -48,6 +48,7 @@ BDEPEND="
 "
 
 RDEPEND="${DEPEND}
+	=net-dns/bind-tools-${PV}*
 	selinux? ( sec-policy/selinux-bind )
 	sys-process/psmisc"
 
@@ -148,11 +149,12 @@ src_install() {
 	newenvd "${FILESDIR}"/10bind.env 10bind
 
 	# Let's get rid of those tools and their manpages since they're provided by bind-tools
-	rm -f "${ED}"/usr/share/man/man1/{dig,host,nslookup,delv,nsupdate}.1* || die
+	rm -f "${ED}"/usr/share/man/man1/{dig,host,mdig,nslookup,delv,nsupdate}.1* || die
 	rm -f "${ED}"/usr/share/man/man8/nsupdate.8* || die
-	rm -f "${ED}"/usr/bin/{dig,delv,host,nslookup,nsupdate} || die
-	rm -f "${ED}"/usr/sbin/{dig,host,nslookup,nsupdate} || die
-	for tool in dsfromkey importkey keyfromlabel keygen \
+	rm -f "${ED}"/usr/bin/{dig,delv,host,mdig,nslookup,nsupdate} || die
+	rm -f "${ED}"/usr/sbin/{dig,delv,host,mdig,nslookup,nsupdate} || die
+	rm -r "${ED}"/usr/lib* || die
+	for tool in cds dsfromkey importkey keyfromlabel keygen \
 	revoke settime signzone verify; do
 		rm -f "${ED}"/usr/{,s}bin/dnssec-"${tool}" || die
 		rm -f "${ED}"/usr/share/man/man1/dnssec-"${tool}".1* || die

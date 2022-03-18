@@ -175,7 +175,7 @@ start() {
 
 	start-stop-daemon --start --pidfile ${PIDFILE} \
 		--nicelevel ${NAMED_NICELEVEL:-0} \
-		--exec /usr/bin/named \
+		--exec /usr/sbin/named \
 		-- -u named ${CPU} ${OPTIONS} ${CHROOT:+-t} ${CHROOT}
 	eend $?
 }
@@ -202,7 +202,7 @@ stop() {
 	# -R 10, bug 335398
 	_get_pidfile
 	start-stop-daemon --stop --retry 10 --pidfile $PIDFILE \
-		--exec /usr/bin/named
+		--exec /usr/sbin/named
 
 	if [ -n "${CHROOT}" ] && [ "${CHROOT_NOMOUNT:-0}" -eq 0 ]; then
 		ebegin "Umounting chroot dirs"

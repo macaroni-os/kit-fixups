@@ -1,10 +1,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="5"
+EAPI="7"
 
-inherit eutils gnome2-utils fdo-mime
+inherit eutils gnome2-utils fdo-mime desktop
 
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="-*{% for arch in artifacts %} ~{{ arch }}{% endfor %}"
 SLOT="0"
 LICENSE="GPL-2 LGPL-2.1"
 IUSE=""
@@ -15,9 +15,9 @@ ARD_PF="${ARD_PN}-${PVR}"
 
 DESCRIPTION="AVR development board IDE and built-in libraries"
 HOMEPAGE="http://arduino.cc/en/Main/Software"
-SRC_URI="{% for arch, artifact in sources %}
-	{{arch}}? ( {{artifact.src_uri}} )
-{% endfor %}"
+SRC_URI="{% for arch in artifacts %}
+	{{ arch }}? ( {{ artifacts[arch].src_uri }} ){% endfor %}
+"
 
 RESTRICT="strip mirror test"
 
@@ -46,7 +46,6 @@ src_install() {
 	domenu "${FILESDIR}"/${ARD_PN}.desktop
 	doman  "${FILESDIR}"/${ARD_PN}.1
 
-	#doicon "${FILESDIR}"/${ARD_PN}.png
 	cd "${S}"/lib/icons &>/dev/null || die
 	for size in * ; do
         if [ -f "${size}/apps/${ARD_PN}.png" ] ; then
@@ -78,9 +77,9 @@ pkg_preinst() {
 pkg_postinst() {
 	# Update mimedb for the new .desktop file
 	fdo-mime_desktop_database_update
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }
 
 pkg_postrm() {
-	gnome2_icon_cache_update
+	xdg_icon_cache_update
 }

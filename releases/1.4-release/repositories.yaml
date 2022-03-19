@@ -81,7 +81,6 @@ release:
           src_sha1: a40e31d83f4be169ca3d3dc362e2a0d880a30c40
           notes: '21 Dec 2019'
 
-  # Have all of our remote configurations defined in one place for ease of maintenance
   remotes:
     dev:
       url: https://code.funtoo.org/bitbucket/scm/auto/{repo}
@@ -127,7 +126,7 @@ release:
           source: funtoo_late_2020
       - core-hw-kit
       - core-server-kit
-      - core-gl-kit
+      - core-gl-kit:
           branch: 2.0-release
       - security-kit:
           source: funtoo_release_1.4_bump

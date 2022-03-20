@@ -166,6 +166,7 @@ src_prepare() {
 		-e "s,/usr/include /usr/local/include.*echo \$KPATHSEA_INCLUDES.*,${EPREFIX}/usr/include\"," \
 		texk/web2c/configure || die
 
+	rm -f "${WORKDIR}"/patches/texlive-core-2020-poppler087.patch
 	eapply "${WORKDIR}"/patches
 
 	# FL-8764: page#getGroup() returns a pointer instead of a const ref,
@@ -207,8 +208,6 @@ src_configure() {
 		--with-system-freetype2 \
 		--with-system-zlib \
 		--with-system-libpng \
-		--with-system-xpdf \
-		--with-system-poppler \
 		--with-system-teckit \
 		--with-teckit-includes="${EPREFIX}"/usr/include/teckit \
 		--with-system-kpathsea \
@@ -246,7 +245,6 @@ src_configure() {
 		--disable-dvipng \
 		--disable-dvipsk \
 		--disable-lcdf-typetools \
-		--disable-pdfopen \
 		--disable-ps2eps \
 		--disable-ps2pk \
 		--disable-ttf2pk2 \

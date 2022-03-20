@@ -90,9 +90,9 @@ DEPEND="${COMMON_DEPEND}
 	>=dev-libs/boost-1.65
 "
 
-#PATCHES=(
-#	"${FILESDIR}"/${P}-poppler-fix.patch
-#)
+PATCHES=(
+	"${FILESDIR}"/${P}-poppler-fix.patch
+)
 
 RESTRICT="test"
 

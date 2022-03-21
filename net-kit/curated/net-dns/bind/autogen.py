@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 			continue
 		version = href.rstrip("/")
 	url = src_url + f"{version}/bind-{version}.tar.xz"
-	revision = { "9.18.1" : "2" }
+	revision = { "9.18.1" : "3" }
 	artifacts = [
 		hub.pkgtools.ebuild.Artifact(url=url),
 		hub.pkgtools.ebuild.Artifact(url="https://fastpull-us.funtoo.org/distfiles/dyndns-samples.tbz2")

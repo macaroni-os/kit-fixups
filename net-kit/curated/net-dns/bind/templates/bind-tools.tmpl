@@ -32,7 +32,9 @@ COMMON_DEPEND="
 	)
 "
 DEPEND="${COMMON_DEPEND}"
-RDEPEND="${COMMON_DEPEND}"
+RDEPEND="${COMMON_DEPEND}
+	!<net-dns/bind-9.18.0
+"
 
 # sphinx required for man-page and html creation
 BDEPEND="

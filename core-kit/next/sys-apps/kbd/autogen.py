@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=f"kbd-{version}.tar.gz")
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=version,
+		version=version.replace('-', '_'),
 		github_user=user,
 		github_repo=repo,
 		artifacts=[src_artifact],

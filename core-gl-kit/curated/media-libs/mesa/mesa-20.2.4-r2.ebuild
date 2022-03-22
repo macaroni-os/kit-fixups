@@ -126,7 +126,6 @@ RDEPEND="
 	>=app-eselect/eselect-opengl-1.3.0
 	>=dev-libs/expat-2.1.0-r3:=
 	>=sys-libs/zlib-1.2.8
-
 	X? (
 		>=x11-libs/libX11-1.6.2:=
 		>=x11-libs/libXext-1.3.2:=
@@ -192,7 +191,6 @@ RDEPEND="
 	video_cards_gallium-i915? ( x11-libs/libdrm[video_cards_intel] )
 	video_cards_i915? ( x11-libs/libdrm[video_cards_intel] )
 "
-RDEPEND="${RDEPEND}"
 
 # Please keep the LLVM dependency block separate. Since LLVM is slotted,
 # we need to *really* make sure we're not pulling one than more slot
@@ -210,7 +208,6 @@ RDEPEND="
 
 DEPEND="${RDEPEND}
 	>=dev-util/meson-0.48.1
-	${PYTHON_DEPS}
 	opencl? (
 		>=sys-devel/gcc-4.6
 	)
@@ -219,6 +216,7 @@ DEPEND="${RDEPEND}
 	valgrind? ( dev-util/valgrind )
 	sys-devel/bison
 	sys-devel/flex
+	$(python_gen_any_dep "dev-python/importlib_metadata[\${PYTHON_USEDEP}]")
 	$(python_gen_any_dep ">=dev-python/mako-1.0.7[\${PYTHON_USEDEP}]")
 "
 

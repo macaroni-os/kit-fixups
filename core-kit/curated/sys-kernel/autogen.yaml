@@ -27,12 +27,11 @@ kernel_gen:
   defaults:
     cat: sys-kernel
     template: debian-sources.tmpl
-    unmasked: False
+    unmasked: True
   generator: debian-sources
   packages:
     - debian-sources-lts:
-        ummask_match: '^4\.19\.'
-        release: stable
+        ummask_match: '^5\.10\.'
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch
@@ -41,19 +40,9 @@ kernel_gen:
           - extra_cpu_optimizations.patch
         versions:
           latest:
-            umasked: False
-          4.19.194_p3:
-            unmasked: True
-            patches:
-              - xfs-libcrc32c-fix.patch
-              - mcelog.patch
-              - nocerts.patch
-              - ikconfig.patch
-              - fix-bluetooth-polling.patch
-              - amdgpu-picasso.patch
-              - extra_cpu_optimizations.patch
+            umasked: True
     - debian-sources:
-        unmask_match: '^5\.15\.'
+        unmask_match: '^5\.16\.'
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch
@@ -61,6 +50,6 @@ kernel_gen:
           - extra_cpu_optimizations.patch
         versions:
           latest:
-            unmasked: False
+            unmasked: True
           5.16.7_p2:
             unmasked: True

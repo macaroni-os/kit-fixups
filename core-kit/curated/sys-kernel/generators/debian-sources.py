@@ -11,7 +11,7 @@ release_urls = {
 
 stability = {
 	"debian-sources": "unstable",
-	"debian-sources-lts": "stable"
+	"debian-sources-lts": "stable-sec"
 }
 
 

@@ -19,6 +19,15 @@ tensorflow:
         pydeps:
           - six >= 1.5.2
           - grpcio-tools >= 1.42.0
+    - pbr:
+        python_compat: python2+
+    - pyfuse3:
+        pydeps:
+          - trio
+        rdepend:
+          sys-fs/fuse:3
+        body: |
+          distutils_enable_tests pytest
 
 tenacity:
   defaults: 
@@ -754,7 +763,9 @@ simple_python_autogen_rule:
         homepage: https://gitlab.com/saltstack/open/dict-toolbox https://pypi.org/project/dict-toolbox/
         license: Apache-2.0
         pydeps:
+          - aiofiles
           - msgpack
+          - pyyaml
         body: |
           src_prepare() {
             install -d ${S}/requirements

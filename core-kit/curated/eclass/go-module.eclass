@@ -53,6 +53,8 @@ esac
 
 if [[ -z ${_GO_MODULE} ]]; then
 
+inherit xdg-utils
+
 _GO_MODULE=1
 
 BDEPEND=">=dev-lang/go-1.12"
@@ -85,7 +87,7 @@ QA_FLAGS_IGNORED='.*'
 # Go packages should not be stripped with strip(1).
 RESTRICT+=" strip"
 
-EXPORT_FUNCTIONS src_unpack pkg_postinst
+EXPORT_FUNCTIONS src_unpack src_prepare pkg_postinst
 
 # @ECLASS-VARIABLE: EGO_SUM
 # @DESCRIPTION:
@@ -276,6 +278,13 @@ go-module_src_unpack() {
 		default
 	fi
 }
+
+go-module_src_prepare() {
+	# See Funtoo Linux bug FL-6885,FL-9561 for why this is needed:
+	xdg_environment_reset
+	default
+}
+
 
 # @FUNCTION: _go-module_src_unpack_gosum
 # @DESCRIPTION:

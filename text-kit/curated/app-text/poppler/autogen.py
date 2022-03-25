@@ -11,7 +11,8 @@ GITHUB_REPO = "poppler"
 # mimic the Portage package name variable for clarity in the tarball renaming
 PN = GITHUB_REPO
 
-TARGET_VERSION = "22.02.0"
+#TARGET_VERSION = "22.02.0"
+TARGET_VERSION = None
 async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{GITHUB_USER}/{GITHUB_REPO}/tags")
 	tags = json.loads(json_data)

@@ -1,4 +1,4 @@
-aws-crt-parts:
+aws-crt-rules:
   packages:
     - aws-crt-python:
         cat: dev-python
@@ -19,15 +19,23 @@ aws-crt-parts:
           - aws-lc
           - s2n-tls:
               github_user: aws
+
+awscli-rules:
+  generator: github-1
+  defaults:
+    github:
+      user: aws
+      repo: aws-cli
+      query: tags
+  packages:
     - awscliv2:
         cat: app-admin
         template: awscli.tmpl
-        github_user: aws
-        github_repo: aws-cli
         depend:
-          - python-dateutil
+          - aws-crt-python
+          - colorama
+          - distro
           - jmespath
           - prompt_toolkit
-          - colorama
+          - python-dateutil
           - ruamel-yaml
-          - aws-crt-python

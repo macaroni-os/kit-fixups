@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 
@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	src_pattern = re.compile("^\\.\\/(Xonotic-(\\d+)\.zip)$")
 
 	autobuild_soup = BeautifulSoup(
-		await hub.pkgtools.http.get_page(autobuild_url), "lxml"
+		await hub.pkgtools.fetch.get_page(autobuild_url, refresh_interval=timedelta(days=7)), "lxml"
 	)
 
 	link_matches = (

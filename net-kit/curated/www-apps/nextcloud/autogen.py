@@ -2,21 +2,25 @@
 
 import re
 from bs4 import BeautifulSoup
+from packaging.version import Version
 
 
 async def generate(hub, **pkginfo):
-	changelog_url = "https://nextcloud.com/changelog/"
-	changelog_data = await hub.pkgtools.fetch.get_page(changelog_url)
-	changelog_soup = BeautifulSoup(changelog_data, "html.parser")
-	latest_tags = [x for x in changelog_soup.find_all("a", attrs={"id": True}) if x["id"].startswith("latest")]
-	latest_urls = [x.find_next("a", href=True) for x in latest_tags]
-	url_pattern = re.compile(f"nextcloud-(.*)\.tar\.bz2")
-	for latest_url in latest_urls:
-		source_url = latest_url["href"]
-		source_version, = url_pattern.search(source_url).groups()
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(
-			**pkginfo,
-			version=source_version,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=source_url)]
-		)
-		ebuild.push()
+    download_url = "https://download.nextcloud.com/server/releases/"
+    regex = r'(\d+(?:\.\d+)+)'
+    html = await hub.pkgtools.fetch.get_page(download_url)
+    soup = BeautifulSoup(html, "html.parser").find_all("a")
+
+    downloads = [a.get('href') for a in soup if a.get('href').endswith('.tar.bz2') and not a.get('href').startswith('latest')]
+    tarballs = [(Version(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
+    major_versions = set([a[0].major for a in tarballs])
+
+    for major_version in major_versions:
+        latest = max([a for a in tarballs if a[0].major == major_version])
+
+        ebuild = hub.pkgtools.ebuild.BreezyBuild(
+            **pkginfo,
+            version=latest[0],
+            artifacts=[hub.pkgtools.ebuild.Artifact(url=download_url + latest[1])]
+        )
+        ebuild.push()

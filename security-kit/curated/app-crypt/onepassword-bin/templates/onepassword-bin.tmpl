@@ -93,6 +93,11 @@ post_src_unpack() {
 
 src_prepare() {
 	default
+	export POLICY_OWNERS
+	POLICY_OWNERS="$(cut -d: -f1,3 /etc/passwd | grep -E ':[0-9]{4}$' | cut -d: -f1 | head -n 10 | sed 's/^/unix-user:/' | tr '\n' ' ')"
+  eval "cat <<EOF
+$(cat com.1password.1Password.policy.tpl)
+EOF" > com.1password.1Password.policy
 }
 
 src_install() {

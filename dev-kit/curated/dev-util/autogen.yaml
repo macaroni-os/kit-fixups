@@ -1,0 +1,9 @@
+lttng_rules:
+  generator: lttng
+  packages:
+    - lttng-ust
+    - lttng-tools
+    - lttng-modules
+    - userspace-rcu:
+        cat: dev-libs
+        directory: urcu

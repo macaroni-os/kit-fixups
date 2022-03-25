@@ -16,7 +16,7 @@ KEYWORDS="*"
 IUSE="doc +pch rar static"
 
 RDEPEND=""
-DEPEND="${RDEPEND}"
+DEPEND="dev-lang/yasm"
 
 DOCS=( ChangeLog README TODO )
 

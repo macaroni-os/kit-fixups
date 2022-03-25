@@ -16,11 +16,25 @@ async def generate(hub, **pkginfo):
 			continue
 		version = href.rstrip("/")
 	url = src_url + f"{version}/bind-{version}.tar.xz"
+	revision = { "9.18.1" : "3" }
+	artifacts = [
+		hub.pkgtools.ebuild.Artifact(url=url),
+		hub.pkgtools.ebuild.Artifact(url="https://fastpull-us.funtoo.org/distfiles/dyndns-samples.tbz2")
+	]
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, python_compat=python_compat, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+	bind = hub.pkgtools.ebuild.BreezyBuild(
+		**pkginfo, python_compat=python_compat, version=version, revision=revision, artifacts=artifacts,
 	)
-	ebuild.push()
+	bind.push()
+	bind_tools = hub.pkgtools.ebuild.BreezyBuild(
+		template_path=bind.template_path,
+		cat=pkginfo["cat"],
+		name="bind-tools",
+		version=version,
+		revision=revision,
+		artifacts=artifacts,
+	)
+	bind_tools.push()
 
 
 # vim: ts=4 sw=4 noet

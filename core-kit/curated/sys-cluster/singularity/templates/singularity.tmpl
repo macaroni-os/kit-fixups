@@ -45,6 +45,12 @@ src_configure() {
 	./mconfig -v ${myconfargs[@]} || die "Error invoking mconfig"
 }
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv ${WORKDIR}/{{github_user}}-{{github_repo}}* "${S}" || die
+	fi
+}
+
 src_compile() {
 	emake -C builddir
 }

@@ -1,0 +1,28 @@
+diff -urN gentoo-bashcomp-20190211.orig/helpers/gentoo-common.sh gentoo-bashcomp-20190211/helpers/gentoo-common.sh
+--- gentoo-bashcomp-20190211.orig/helpers/gentoo-common.sh	2019-02-10 15:04:09.000000000 -0800
++++ gentoo-bashcomp-20190211/helpers/gentoo-common.sh	2022-03-25 14:33:02.094355972 -0700
+@@ -24,7 +24,7 @@
+ _portdir() {
+     local mainreponame mainrepopath overlayname overlaypath
+ 
+-    if [[ -e @GENTOO_PORTAGE_EPREFIX@/usr/share/portage/config/repos.conf ]]; then
++    if [[ -e @GENTOO_PORTAGE_EPREFIX@/etc/portage/repos.conf ]]; then
+         if [[ ${1} == -o ]]; then
+             for overlayname in $(_parsereposconf -l); do
+                 overlaypath+=($(_parsereposconf ${overlayname} location))
+@@ -63,13 +63,11 @@
+ _parsereposconf() {
+     local f insection line section v value var
+ 
+-    for f in @GENTOO_PORTAGE_EPREFIX@/usr/share/portage/config/repos.conf \
+-        @GENTOO_PORTAGE_EPREFIX@/etc/portage/repos.conf \
+-        @GENTOO_PORTAGE_EPREFIX@/etc/portage/repos.conf/*; do
++    for f in @GENTOO_PORTAGE_EPREFIX@/etc/portage/repos.conf/*; do
+ 
+         [[ -f ${f} ]] || continue
+         insection=0
+-            
++
+         while read -r line; do
+             # skip comments and blank lines
+             [[ -z ${line} || ${line} == '#'* ]] && continue

@@ -26,8 +26,7 @@ REQUIRED_USE="?? ( tcmalloc jemalloc )
 	router? ( server )
 	tcmalloc? ( server )"
 
-#WIP ebuild. See FL-8913
-KEYWORDS=""
+KEYWORDS="*"
 
 COMMON_DEPEND="
 	>=app-arch/lz4-0_p131:=

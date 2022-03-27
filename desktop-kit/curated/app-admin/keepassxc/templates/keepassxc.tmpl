@@ -18,6 +18,7 @@ RDEPEND="
 	app-crypt/argon2:=
 	dev-libs/libgcrypt:=
 	>=dev-libs/libsodium-1.0.12:=
+	>=dev-libs/botan-2.19.1:=
 	dev-qt/qtconcurrent:5
 	dev-qt/qtcore:5
 	dev-qt/qtdbus:5
@@ -25,6 +26,7 @@ RDEPEND="
 	dev-qt/qtnetwork:5
 	dev-qt/qtsvg:5
 	dev-qt/qtwidgets:5
+	dev-qt/qtx11extras:5
 	media-gfx/qrencode:=
 	sys-libs/readline:0=
 	sys-libs/zlib:=

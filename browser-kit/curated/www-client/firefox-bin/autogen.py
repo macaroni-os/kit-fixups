@@ -1,112 +1,111 @@
 #!/usr/bin/env python3
 
-import json
-import re
+from bs4 import BeautifulSoup
+
+base_url = "https://archive.mozilla.org"
+
+async def get_lang_artifacts(hub, version, url_path, channel):
+	uri_path = url_path
+
+	if "nightly" not in channel:
+		uri_path = f"{url_path}/{version}"
+
+	lang_url = f"{base_url}/pub/{uri_path}/linux-x86_64/xpi/"
+	lang_page = await hub.pkgtools.fetch.get_page(lang_url)
+	soup = BeautifulSoup(lang_page, "html.parser").find_all("a")
+
+	# The xpi files are named differently for the nightlies (e.g. firefox-100.0a1.ach.langpack.xpi)
+	# so the filename needs to be split differently to figure out the lang
+	index = { 'default': 0, 'nightly': -3 }
+	# Create an array of tuples for each lang: ('arch', href)
+	langs = [(xpi.contents[0].split('.')[index.get(channel) or index['default']], xpi.get('href')) for xpi in soup if xpi.get('href').endswith('.xpi')]
+
+	# Create an array of tuples each containing a lang's artifact: ('lang': artifact)
+	artifacts = [(
+			lang[0],
+			hub.pkgtools.ebuild.Artifact(url=f"{base_url}{lang[1]}", final_name=f"firefox-{version}-{lang[0]}.xpi")
+		) for lang in langs
+	]
+	return artifacts
 
 
-async def get_lang_artifacts(hub, version, url_path):
-	lang_page = await hub.pkgtools.fetch.get_page(
-		f"https://archive.mozilla.org/pub/{url_path}/{version}/linux-x86_64/xpi/"
-	)
-	lang_codes = []
-	artifacts = []
-	for lang_path in re.findall(f'/pub/{url_path}/{version}/linux-x86_64/xpi/[^"]*\.xpi', lang_page):
-		lang_code = lang_path.split("/")[-1].split(".")[0]
-		lang_codes.append(lang_code)
-		artifacts.append(
-			hub.pkgtools.ebuild.Artifact(
-				url="https://archive.mozilla.org" + lang_path, final_name=f"firefox-{version}-{lang_code}.xpi"
-			)
-		)
-	return dict(artifacts=artifacts, lang_codes=lang_codes)
+def get_moz_url(version, url_path, arch, channel):
+	# The tarballs for nightlies are named differently
+	if "nightly" in channel:
+		return f"{base_url}/pub/{url_path}/firefox-{version}.en-US.linux-{arch}.tar.bz2"
+
+	return f"{base_url}/pub/{url_path}/{version}/linux-{arch}/en-US/firefox-{version}.tar.bz2"
 
 
-def get_artifact(hub, name, version, url_path, arch):
-	if arch == "amd64":
-		moz_arch = "x86_64"
-	elif arch == "x86":
-		moz_arch = "i686"
-	# Construct the upstream url and transform the upstream version to a portage friendly version if necessary
-	if name == "firefox-bin":
-		url = f"https://archive.mozilla.org/pub/{url_path}/{version}/linux-{moz_arch}/en-US/firefox-{version}.tar.bz2"
-		final_name = f"{name}_{moz_arch}-{version}.tar.bz2"
-	elif name.split('-')[1] == "beta":
-		url = f"https://archive.mozilla.org/pub/{url_path}/{version}/linux-{moz_arch}/en-US/firefox-{version}.tar.bz2"
-		final_name = f"{name}_{moz_arch}-{version.replace('b','_beta')}.tar.bz2"
-	elif name.split('-')[1] == "dev":
-		url = f"https://archive.mozilla.org/pub/{url_path}/{version}/linux-{moz_arch}/en-US/firefox-{version}.tar.bz2"
-		final_name = f"{name}_{moz_arch}-{version.replace('b','_beta')}.tar.bz2"
-	elif name.split('-')[1] == "nightly":
-		url = f"https://archive.mozilla.org/pub/{url_path}/firefox-{version}.en-US.linux-{moz_arch}.tar.bz2"
-		final_name = f"{name}_{moz_arch}-{version.replace('a','_alpha')}.tar.bz2"
-	else:
-		raise hub.pkgtools.ebuild.BreezyError(f"Can't match a Firefox release channel name when getting artifacts. Package name used for matching criteria: {name}")
-	return hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
+def get_artifacts(hub, name, version, url_path, channel):
+	# Lookup mozilla arch strings using the Funtoo arch strings
+	moz = {
+		"amd64": "x86_64",
+		"x86": "i686",
+	}
+
+	# Construct the upstream url and transform the upstream version to a portage friendly version
+	return [(
+		arch,
+		hub.pkgtools.ebuild.Artifact(
+			url=get_moz_url(version, url_path, moz[arch], channel),
+			final_name=f"{name}_{moz[arch]}-{version.replace('a','_alpha').replace('b','_beta')}.tar.bz2")
+	) for arch in moz]
 
 
 async def generate(hub, **pkginfo):
-	json_data = await hub.pkgtools.fetch.get_page("https://product-details.mozilla.org/1.0/firefox_versions.json")
-	json_dict = json.loads(json_data)
-	# Stable Latest Firefox Release Channel
-	version = json_dict["LATEST_FIREFOX_VERSION"]
-	url_path_dir_stable = "firefox/releases"
-	lang_data = await get_lang_artifacts(hub, version, url_path_dir_stable)
-	# Beta Firefox Release Channel
-	version_beta = json_dict["LATEST_FIREFOX_RELEASED_DEVEL_VERSION"]
-	version_beta_final = version_beta.replace('b','_beta')
-	url_path_dir_beta = "firefox/releases"
-	lang_data_beta = await get_lang_artifacts(hub, version_beta, url_path_dir_beta)
-	# Developer's Edition Aurora Firefox Release Channel
-	version_dev = json_dict["FIREFOX_DEVEDITION"]
-	version_dev_final = version_dev.replace('b','_beta')
-	url_path_dir_dev = "devedition/releases"
-	lang_data_dev = await get_lang_artifacts(hub, version_dev, url_path_dir_dev)
-	# Nightly Firefox Release Channel
-	version_nightly = json_dict["FIREFOX_NIGHTLY"]
-	version_nightly_final = version_nightly.replace('a','_alpha')
-	url_path_dir_nightly = "firefox/nightly/latest-mozilla-central"
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		install_dir="/opt/firefox",
-		url_path_dir=url_path_dir_stable,
-		version=version,
-		lang_codes=" ".join(sorted(lang_data["lang_codes"])),
-		artifacts=[get_artifact(hub, pkginfo['name'], version, url_path_dir_stable, "amd64"), get_artifact(hub, pkginfo['name'], version, url_path_dir_stable, "x86"), *lang_data["artifacts"]],
-	)
-	ebuild.push()
-	ebuild_beta= hub.pkgtools.ebuild.BreezyBuild(
-		template_path=ebuild.template_path,
-		template=ebuild.template,
-		cat=pkginfo["cat"],
-		name="firefox-beta-bin",
-		install_dir="/opt/firefox-beta",
-		url_path_dir=url_path_dir_beta,
-		version=version_beta_final,
-		artifacts=[get_artifact(hub, "firefox-beta-bin", version_beta, url_path_dir_beta, "amd64"), get_artifact(hub, "firefox-beta-bin", version_beta, url_path_dir_beta, "x86"), *lang_data_beta["artifacts"]],
-	)
-	ebuild_beta.push()
-	ebuild_dev = hub.pkgtools.ebuild.BreezyBuild(
-		template_path=ebuild.template_path,
-		template=ebuild.template,
-		cat=pkginfo["cat"],
-		name="firefox-dev-bin",
-		install_dir="/opt/firefox-dev",
-		url_path_dir=url_path_dir_dev,
-		version=version_dev_final,
-		artifacts=[get_artifact(hub, "firefox-dev-bin", version_dev, url_path_dir_dev, "amd64"), get_artifact(hub, "firefox-dev-bin", version_dev, url_path_dir_dev, "x86"), *lang_data_dev["artifacts"]],
-	)
-	ebuild_dev.push()
-	ebuild_nightly = hub.pkgtools.ebuild.BreezyBuild(
-		template_path=ebuild.template_path,
-		template=ebuild.template,
-		cat=pkginfo["cat"],
-		name="firefox-nightly-bin",
-		install_dir="/opt/firefox-nightly",
-		url_path_dir=url_path_dir_nightly,
-		version=version_nightly_final,
-		artifacts=[get_artifact(hub, "firefox-nightly-bin", version_nightly, url_path_dir_nightly, "amd64"), get_artifact(hub, "firefox-nightly-bin", version_nightly, url_path_dir_nightly, "x86")],
-	)
-	ebuild_nightly.push()
+	info_url = "https://product-details.mozilla.org/1.0/firefox_versions.json"
+	json_data = await hub.pkgtools.fetch.get_page(info_url, is_json=True)
+
+	pkgname = "firefox"
+
+	# metadata about each of the different release channels
+	firefoxes = {
+		'stable': {
+			'version': "LATEST_FIREFOX_VERSION",
+			'url_path': "firefox/releases",
+		},
+		'beta': {
+			'version': "LATEST_FIREFOX_RELEASED_DEVEL_VERSION",
+			'url_path': "firefox/releases",
+		},
+		'dev': {
+			'version': "FIREFOX_DEVEDITION",
+			'url_path': "devedition/releases",
+		},
+		'nightly': {
+			'version': "FIREFOX_NIGHTLY",
+			'url_path': "firefox/nightly/latest-mozilla-central",
+			'l10n_path': "firefox/nightly/latest-mozilla-central-l10n",
+		},
+	}
+
+	# Loop through each release channel and push out an ebuild
+	for release in firefoxes:
+		firefox = firefoxes[release]
+		version = json_data[firefox['version']]
+		url_path = firefox['url_path']
+		lang_path = firefox.get('l10n_path') or url_path
+
+		suffix = ''
+		if "stable" not in release: suffix = f"-{release}"
+		pkginfo["name"] = f"{pkgname}{suffix}-bin"
+
+		lang_artifacts = await get_lang_artifacts(hub, version, lang_path, release)
+		arch_artifacts = get_artifacts(hub, pkginfo['name'], version, url_path, release)
+
+		ebuild = hub.pkgtools.ebuild.BreezyBuild(
+			**pkginfo,
+			base_url=f"{base_url}/pub/mozilla",
+			url_path_dir=url_path,
+			version=version.replace('a','_alpha').replace('b','_beta'),
+			channel=release,
+			lang_codes=dict(lang_artifacts).keys(),
+			arches=dict(arch_artifacts).keys(),
+			template="firefox-bin.tmpl",
+			artifacts=dict(arch_artifacts + lang_artifacts)
+		)
+		ebuild.push()
 
 
 # vim: ts=4 sw=4 noet

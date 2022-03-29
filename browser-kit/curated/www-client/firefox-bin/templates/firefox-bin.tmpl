@@ -1,53 +1,32 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-MOZ_ESR=0
+EAPI=7
 
-MOZ_LANGS=( {{lang_codes}} )
+MOZ_LANGS=({% for lang_code in lang_codes %} {{ lang_code }}{% endfor %} )
 
 # Convert the ebuild version to the upstream mozilla version, used by mozlinguas
 MOZ_PV="${PV/_beta/b}" # Handle beta for SRC_URI
 MOZ_PV="${MOZ_PV/_rc/rc}" # Handle rc for SRC_URI
-# Conditionally detect Firefox package name to support Firefox Release Channels
-# https://bugs.funtoo.org/browse/FL-9572
-if [[ ${PN} == "firefox-beta-bin" ]]; then
-	MOZ_PN="${PN/-beta-bin}"
-elif [[ ${PN} == "firefox-dev-bin" ]]; then
-	MOZ_PN="${PN/-dev-bin}"
-elif [[ ${PN} == "firefox-nightly-bin" ]]; then
-	MOZ_PN="${PN/-nightly-bin}"
-else
-	MOZ_PN="${PN/-bin}"
-fi
-
-if [[ ${MOZ_ESR} == 1 ]]; then
-	# ESR releases have slightly version numbers
-	MOZ_PV="${MOZ_PV}esr"
-fi
+MY_PN="${PN/-bin}"
+MOZ_PN="${MY_PN/-{{ channel }}}"
 
 MOZ_P="${MOZ_PN}-${MOZ_PV}"
 
-if [[ ${PN} == "firefox-dev-bin" ]]; then
-	MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/devedition/releases/"
-elif [[ ${PN} == "firefox-nightly-bin" ]]; then
-	OZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/${MOZ_PN}/nightly/latest-mozilla-central/"
-else
-	MOZ_HTTP_URI="https://archive.mozilla.org/pub/mozilla.org/${MOZ_PN}/releases/"
-fi
+inherit desktop linux-info pax-utils xdg
 
-inherit mozlinguas-v2 nsplugins pax-utils xdg-utils eapi7-ver
-
-DESCRIPTION="Firefox Web Browser"
-SRC_URI="${SRC_URI}
-	amd64? ( {{ artifacts[0].src_uri }} )
-	x86? ( {{artifacts[1].src_uri}} )"
+DESCRIPTION="Firefox Web Browser ({% if channel %}{{ channel }}{% else %}stable{% endif %})"
+SRC_URI="{% for arch in arches %}
+	{{ arch }}? ( {{ artifacts[arch].src_uri }} ){% endfor %}
+	{% for lang in lang_codes %}l10n_{{ lang }}? ( {{ artifacts[lang].src_uri }} )
+	{% endfor %}
+"
 HOMEPAGE="https://www.mozilla.org/en-US/firefox/"
 RESTRICT="strip mirror"
 
-KEYWORDS="-* amd64 x86"
+KEYWORDS="-*{% for arch in arches %} {% if channel %}~{% endif %}{{ arch }}{% endfor %}"
 SLOT="0"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-IUSE="+alsa +ffmpeg geckodriver +pulseaudio selinux startup-notification"
+IUSE="+alsa +ffmpeg geckodriver +pulseaudio selinux wayland startup-notification{% for lang_code in lang_codes %} l10n_{{ lang_code }}{% endfor %}"
 
 DEPEND="app-arch/unzip
 	alsa? (
@@ -76,9 +55,7 @@ RDEPEND="dev-libs/atk
 	>=x11-libs/pango-1.22.0
 	virtual/freedesktop-icon-theme
 	alsa? (
-		!pulseaudio? (
-			media-sound/apulse
-		)
+		!pulseaudio? ( media-sound/apulse )
 	)
 	geckodriver? ( www-apps/geckodriver )
 	pulseaudio? ( media-sound/pulseaudio )
@@ -99,80 +76,190 @@ QA_PREBUILT="
 	opt/${MOZ_PN}/pingsender
 "
 
+# Allow MOZ_GMP_PLUGIN_LIST to be set in an eclass or
+# overridden in the enviromnent (advanced hackers only)
+if [[ -z "${MOZ_GMP_PLUGIN_LIST+set}" ]] ; then
+	MOZ_GMP_PLUGIN_LIST=( gmp-gmpopenh264 gmp-widevinecdm )
+fi
+
 S="${WORKDIR}/${MOZ_PN}"
 
-src_unpack() {
-	unpack ${A}
+moz_install_xpi() {
+	debug-print-function ${FUNCNAME} "$@"
 
-	# Unpack language packs
-	mozlinguas_src_unpack
+	{% raw %}
+	if [[ ${#} -lt 2 ]] ; then
+		die "${FUNCNAME} requires at least two arguments"
+	fi
+	{% endraw %}
+
+	local DESTDIR=${1}
+	shift
+
+	insinto "${DESTDIR}"
+
+	local emid xpi_file xpi_tmp_dir
+	for xpi_file in "${@}" ; do
+		emid=
+		xpi_tmp_dir=$(mktemp -d --tmpdir="${T}")
+
+		# Unpack XPI
+		unzip -qq "${xpi_file}" -d "${xpi_tmp_dir}" || die
+
+		# Determine extension ID
+		if [[ -f "${xpi_tmp_dir}/install.rdf" ]] ; then
+			emid=$(
+				sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' \
+				"${xpi_tmp_dir}/install.rdf")
+			[[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
+		elif [[ -f "${xpi_tmp_dir}/manifest.json" ]] ; then
+			emid=$(sed -n -e 's/.*"id": "\([^"]*\)".*/\1/p' "${xpi_tmp_dir}/manifest.json")
+			[[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
+		else
+			die "failed to determine extension id"
+		fi
+
+		einfo "Installing ${emid}.xpi into ${ED}/${DESTDIR} ..."
+		newins "${xpi_file}" "${emid}.xpi"
+	done
 }
 
-src_install() {
-	declare MOZILLA_FIVE_HOME={{ install_dir }}
+pkg_setup() {
+	CONFIG_CHECK="~SECCOMP"
+	WARNING_SECCOMP="CONFIG_SECCOMP not set! This system will be unable to play DRM-protected content."
 
-	local size sizes icon_path icon name
-	sizes="16 32 48 128"
-	icon_path="${S}/browser/chrome/icons/default"
-	icon="${PN}"
-	name="Mozilla Firefox"
+	linux-info_pkg_setup
+}
 
-	# Install icons and .desktop for menu entry
-	for size in ${sizes}; do
-		insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
-		newins "${icon_path}/default${size}.png" "${icon}.png"
-	done
-	# Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
-	newicon "${S}"/browser/chrome/icons/default/default48.png ${PN}.png
-	domenu "${FILESDIR}"/${PN}.desktop
-	sed -i -e "s:@NAME@:${name}:" -e "s:@ICON@:${icon}:" \
-		"${ED}usr/share/applications/${PN}.desktop" || die
+src_unpack() {
+	einfo "${A}"
+	local _lp_dir="${WORKDIR}/language_packs"
+	local _src_file
 
-	# Add StartupNotify=true bug 237317
-	if use startup-notification; then
-		echo "StartupNotify=true" >> "${ED}"usr/share/applications/${PN}.desktop
+	if [[ ! -d "${_lp_dir}" ]] ; then
+		mkdir "${_lp_dir}" || die
 	fi
 
-	# Install firefox in /opt
-	dodir ${MOZILLA_FIVE_HOME%/*}
-	mv "${S}" "${ED}"${MOZILLA_FIVE_HOME} || die
+	for _src_file in ${A} ; do
+		if [[ ${_src_file} == *.xpi ]]; then
+			cp "${DISTDIR}/${_src_file}" "${_lp_dir}" || die "Failed to copy '${_src_file}' to '${_lp_dir}'!"
+		else
+			unpack ${_src_file}
+		fi
+	done
+}
 
-	# Disable built-in auto-update because we update firefox-bin through package manager
-	insinto ${MOZILLA_FIVE_HOME}/distribution/
+
+src_install() {
+	local MOZILLA_FIVE_HOME=/opt/${MY_PN}
+
+	dodir /opt
+	cd "${ED}"/opt &>/dev/null || die
+	mv "${S}" "${ED}"/${MOZILLA_FIVE_HOME} || die
+
+
+	pax-mark m "${ED}/"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
+
+	# Patch alsa support
+	local apulselib=
+	if use alsa && ! use pulseaudio ; then
+		apulselib="${EPREFIX}/usr/$(get_libdir)/apulse"
+		patchelf --set-rpath "${apulselib}" "${ED}${MOZILLA_FIVE_HOME}/libxul.so" || die
+	fi
+
+	# Install policy (currently only used to disable application updates)
+	insinto "${MOZILLA_FIVE_HOME}/distribution"
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
+
+	# Install system-wide preferences
+	local PREFS_DIR="${MOZILLA_FIVE_HOME}/browser/defaults/preferences"
+	insinto "${PREFS_DIR}"
+	newins "${FILESDIR}"/all-gentoo-3.js all-gentoo.js
 
 	# Fix prefs that make no sense for a system-wide install
 	insinto ${MOZILLA_FIVE_HOME}/defaults/pref/
 	doins "${FILESDIR}"/local-settings.js
-	insinto ${MOZILLA_FIVE_HOME}
-	newins "${FILESDIR}"/all-gentoo-3.js all-gentoo.js
+
+	local GENTOO_PREFS="${ED}${PREFS_DIR}/all-gentoo.js"
+
+	for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+		einfo "Disabling auto-update for ${plugin} plugin ..."
+		cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to disable autoupdate for ${plugin} media plugin"
+		pref("media.${plugin}.autoupdate",   false);
+		EOF
+	done
 
 	# Install language packs
-	# Do not install for Firefox Nightly Release Channel at this time
-	# Nightly Releases have monolithic lang packs
-	# The get_lang_artifacts function from autogen.py will need to be refactored to support single lang packs
-	# Upstream Nightly xpi file name example: firefox-100.0a1.en-US.langpack.xpi
-	# Upstream Source URI example: http://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central/firefox-100.0a1.en-US.langpack.xpi
-	if [[ ${PN} != "firefox-nightly-bin" ]]; then
-		MOZEXTENSION_TARGET="distribution/extensions" \
-			MOZ_INSTALL_L10N_XPIFILE="1" \
-			mozlinguas_src_install
+	local langpacks=( $(find "${WORKDIR}/language_packs" -type f -name '*.xpi') )
+	if [[ -n "${langpacks}" ]] ; then
+		moz_install_xpi "${MOZILLA_FIVE_HOME}/distribution/extensions" "${langpacks[@]}"
 	fi
 
-	if use alsa && ! use pulseaudio; then
-		local apulselib="/usr/$(get_libdir)/apulse"
-		patchelf --set-rpath "${apulselib}" "${ED}"${MOZILLA_FIVE_HOME}/libxul.so || die
+	# Install SVG icons
+	# local icon_symbolic_file="${FILESDIR}/firefox-symbolic.svg"
+	# insinto /usr/share/icons/hicolor/symbolic/apps
+	# newins "${icon_symbolic_file}" ${PN}-symbolic.svg
+
+	# Install icons
+	local icon_srcdir="${ED}/${MOZILLA_FIVE_HOME}/browser/chrome/icons/default"
+	local icon size
+	for icon in "${icon_srcdir}"/default*.png ; do
+		size=${icon%.png}
+		size=${size##*/default}
+
+		if [[ ${size} -eq 48 ]] ; then
+			newicon "${icon}" ${PN}.png
+		fi
+
+		newicon -s ${size} "${icon}" ${PN}.png
+	done
+
+	# Install menu
+	local app_name="Mozilla ${MOZ_PN^} (bin)"
+	local desktop_file="${FILESDIR}/${PN}.desktop"
+	local desktop_filename="${PN}.desktop"
+	local exec_command="${PN}"
+	local icon="${PN}"
+	local use_wayland="false"
+
+	if use wayland ; then
+		use_wayland="true"
 	fi
+
+	cp "${desktop_file}" "${WORKDIR}/${PN}.desktop-template" || die
+
+	sed -i \
+		-e "s:@NAME@:${app_name}:" \
+		-e "s:@EXEC@:${exec_command}:" \
+		-e "s:@ICON@:${icon}:" \
+		"${WORKDIR}/${PN}.desktop-template" \
+		|| die
+
+	newmenu "${WORKDIR}/${PN}.desktop-template" "${desktop_filename}"
+
+	rm "${WORKDIR}/${PN}.desktop-template" || die
 
 	# Create /usr/bin/firefox-bin or /usr/bin/firefox-dev-bin
+	[[ -f "${ED}/usr/bin/${PN}" ]] && rm "${ED}/usr/bin/${PN}"
+
+	# Update wrapper
+	#sed -i \
+	#	-e "s:@PREFIX@:${EPREFIX}/usr:" \
+	#	-e "s:@MOZ_FIVE_HOME@:${MOZILLA_FIVE_HOME}:" \
+	#	-e "s:@APULSELIB_DIR@:${apulselib}:" \
+	#	-e "s:@DEFAULT_WAYLAND@:${use_wayland}:" \
+	#	"${ED}/usr/bin/${PN}" \
+	#	|| die
+
+
 	dodir /usr/bin/
 	local apulselib=$(usex pulseaudio "" $(usex alsa "/usr/$(get_libdir)/apulse:" ""))
-	cat <<-EOF >"${ED}"usr/bin/${PN}
+	cat <<-EOF >"${ED}/"usr/bin/${PN}
 	#!/bin/sh
 	unset LD_PRELOAD
-	LD_LIBRARY_PATH="${apulselib}{{ install_dir }}/" \\
+	LD_LIBRARY_PATH="${apulselib}${MOZILLA_FIVE_HOME}/" \\
 	GTK_PATH=/usr/$(get_libdir)/gtk-3.0/ \\
-	exec {{install_dir }}/${MOZ_PN} "\$@"
+	exec ${MOZILLA_FIVE_HOME}/${MOZ_PN} "\$@"
 	EOF
 	fperms 0755 /usr/bin/${PN}
 
@@ -180,12 +267,6 @@ src_install() {
 	insinto /etc/revdep-rebuild
 	echo "SEARCH_DIRS_MASK=${MOZILLA_FIVE_HOME}" >> ${T}/10${PN}
 	doins "${T}"/10${PN}
-
-	# Plugins dir, still used for flash
-	share_plugins_dir
-
-	# Required in order to use plugins and even run firefox on hardened.
-	pax-mark mr "${ED}"${MOZILLA_FIVE_HOME}/{firefox,firefox-bin,plugin-container}
 }
 
 pkg_postinst() {

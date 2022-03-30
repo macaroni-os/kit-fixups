@@ -115,9 +115,8 @@ src_install() {
 	set_arch_to_kernel
 
 	myemakeargs+=(
-		DEPMOD="/bin/true"
+		DEPMOD=:
 		DESTDIR="${D}"
-		INSTALL_MOD_PATH="${INSTALL_MOD_PATH:-$EROOT}"
 	)
 
 	emake "${myemakeargs[@]}" install

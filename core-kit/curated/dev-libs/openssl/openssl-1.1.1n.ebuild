@@ -13,7 +13,7 @@ SRC_URI="
 
 LICENSE="openssl"
 SLOT="0/${PVR}" # Funtoo change -- force more frequent rebuilds.
-KEYWORDS="next"
+KEYWORDS="*"
 # bindist is currently a no-op in funtoo, maintained for compatibility with older ebuilds:
 IUSE="+asm -bindist libc_musl rfc3779 sctp cpu_flags_x86_sse2 -sslv3 static-libs test +tls-compression tls-heartbeat vanilla"
 RESTRICT="!test? ( test )"

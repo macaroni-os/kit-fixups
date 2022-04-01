@@ -4,19 +4,20 @@ EAPI="7"
 
 PYTHON_COMPAT=( {{python_compat}} )
 PYTHON_REQ_USE="gdbm"
-inherit autotools flag-o-matic mono-env python-r1 systemd user
+inherit autotools flag-o-matic mono-env python-single-r1 systemd user xdg-utils
 
 DESCRIPTION="System which facilitates service discovery on a local network"
-HOMEPAGE="http://avahi.org/"
+HOMEPAGE="https://avahi.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="*"
-IUSE="autoipd bookmarks +dbus doc gdbm gtk howl-compat -introspection ipv6 kernel_linux +mdnsresponder-compat mono nls python qt5 selinux systemd test"
+IUSE="autoipd bookmarks +dbus doc gdbm gtk howl-compat +introspection ipv6 kernel_linux +mdnsresponder-compat mono nls python qt5 selinux systemd test"
 
 REQUIRED_USE="
 	python? ( dbus gdbm ${PYTHON_REQUIRED_USE} )
+	bookmarks? ( python )
 	mono? ( dbus )
 	howl-compat? ( dbus )
 	mdnsresponder-compat? ( dbus )
@@ -42,12 +43,9 @@ DEPEND="
 	)
 	python? (
 		${PYTHON_DEPS}
+		bookmarks? ( >=dev-python/twisted-16.0.0[${PYTHON_USEDEP}] )
 		dbus? ( dev-python/dbus-python[${PYTHON_USEDEP}] )
 		introspection? ( dev-python/pygobject:3[${PYTHON_USEDEP}] )
-	)
-	bookmarks? (
-		${PYTHON_DEPS}
-		>=dev-python/twisted-16.0.0[${PYTHON_USEDEP}]
 	)
 "
 RDEPEND="
@@ -59,9 +57,16 @@ BDEPEND="
 	dev-util/glib-utils
 	doc? ( app-doc/doxygen )
 	app-doc/xmltoman
-	dev-util/intltool
+	sys-devel/gettext
 	virtual/pkgconfig
 "
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
+
 
 pkg_preinst() {
 	enewgroup netdev
@@ -75,8 +80,9 @@ pkg_preinst() {
 }
 
 pkg_setup() {
+	xdg_environment_reset
 	use mono && mono-env_pkg_setup
-	use python || use bookmarks && python_setup
+	use python && python-single-r1_pkg_setup
 }
 
 src_prepare() {
@@ -99,6 +105,7 @@ src_configure() {
 	use sh && replace-flags -O? -O0
 
 	local myconf=(
+		--disable-gtk
 		--disable-monodoc
 		--disable-python-dbus
 		--disable-qt3
@@ -111,7 +118,6 @@ src_configure() {
 		--localstatedir="${EPREFIX}/var"
 		--with-distro=gentoo
 		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
-		--disable-gtk2
 		$(use_enable dbus)
 		$(use_enable gdbm)
 		$(use_enable gtk  gtk3)
@@ -149,7 +155,7 @@ src_compile() {
 
 src_install() {
 	emake install DESTDIR="${D}"
-	use bookmarks && use python && use dbus && use gtk2 || \
+	use bookmarks && use python && use dbus || \
 		rm -f "${ED}"/usr/bin/avahi-bookmarks
 
 	# https://github.com/lathiat/avahi/issues/28
@@ -158,12 +164,16 @@ src_install() {
 
 	if use doc; then
 		docinto html
+		dodoc -r doxygen/html/.
 		insinto /usr/share/devhelp/books/avahi
 		doins avahi.devhelp
 	fi
 
 	# The build system creates an empty "/run" directory, so we clean it up here
 	rmdir "${ED}"/run || die
+
+	use python && python_optimize
+
 	if use autoipd; then
 		insinto /lib/rcscripts/net
 		doins "${FILESDIR}"/autoipd.sh

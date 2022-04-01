@@ -2,9 +2,9 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7,8,9} )
+PYTHON_COMPAT=( {{python_compat}} )
 
-inherit python-any-r1 toolchain-funcs
+inherit python-any-r1 toolchain-funcs xdg
 
 
 DESCRIPTION="Library for making brushstrokes"
@@ -37,14 +37,6 @@ RDEPEND="
 	${DEPEND}
 	!<media-gfx/mypaint-1.2.1
 "
-post_src_unpack() {
-	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die
-}
-
-src_prepare() {
-    default
-    ./autogen.sh || die
-}
 
 src_configure() {
 	tc-ld-disable-gold # bug 589266

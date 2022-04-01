@@ -9,7 +9,7 @@ inherit autotools distutils-r1
 
 DESCRIPTION="simplified, portable interface to several low-level networking routines"
 HOMEPAGE="https://github.com/ofalk/libdnet"
-SRC_URI="https://github.com/ofalk/${PN}/archive/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 S="${WORKDIR}/${PN}-${P}"
 
 LICENSE="LGPL-2"
@@ -33,6 +33,12 @@ PATCHES=(
 	"${FILESDIR}/${PN}-1.14-ndisc.patch"
 	"${FILESDIR}/${PN}-1.14-strlcpy.patch"
 )
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
 
 src_prepare() {
 	default

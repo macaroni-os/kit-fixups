@@ -41,10 +41,6 @@ release:
         url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
         src_sha1: a15a64f48741a493e49dfee7d4280a3dc10cd21d
         notes: '9 Nov 2021'
-    - perl-kit-sources:
-        url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-sources.git
-        src_sha1: 482287e2e6ed7d56e675092ad9658bebc4be6618
-        notes: '30 Nov 2020 - 5.28-release'
 
   source-collections:
     funtoo_release_1.4:
@@ -59,7 +55,6 @@ release:
      - gentoo-staging-late-2020
      - gentoo-staging-nov-2021
      - pf4public
-     - perl-kit-sources
     funtoo_late_2020:
       - flora
       - fusion809
@@ -148,6 +143,10 @@ release:
       - python-modules-kit
       - nokit
       - perl-kit:
+          kind: sourced
+          source:
+            url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-sources.git
+            branch: 5.32-release
           branch: 5.32-release
       - kde-kit:
           kind: sourced

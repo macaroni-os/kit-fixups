@@ -14,11 +14,17 @@ async def query_github_api(user, repo, query):
 async def generate(hub, **pkginfo):
 	github_user = pkginfo.get("user")
 	github_repo = pkginfo.get("repo") or pkginfo.get("name")
+	pinned_commit = pkginfo.get("pinned_commit")
+	pinned_version = pkginfo.get("pinned_version")
 	commits = await query_github_api(github_user, github_repo, "commits")
 	target_commit = commits[0]
 	commit_date = datetime.strptime(target_commit["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
 	commit_hash = target_commit["sha"]
 	version = f"{commit_date.strftime('%Y%m%d')}"
+	if pinned_commit:
+	   commit_hash = pinned_commit
+	if pinned_version:
+	    version = pinned_version
 	url = f"https://github.com/{github_user}/{github_repo}/tarball/{commit_hash}"
 	final_name = f"{github_repo}-{version}-{commit_hash}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

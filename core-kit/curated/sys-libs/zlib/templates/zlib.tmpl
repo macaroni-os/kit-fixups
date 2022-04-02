@@ -1,19 +1,17 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 AUTOTOOLS_AUTO_DEPEND="no"
 
 inherit autotools toolchain-funcs multilib multilib-minimal
 
 DESCRIPTION="Standard (de)compression library"
 HOMEPAGE="https://zlib.net/"
-SRC_URI="https://zlib.net/${P}.tar.gz
-	http://www.gzip.org/zlib/${P}.tar.gz
-	http://www.zlib.net/current/beta/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="ZLIB"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="*"
 IUSE="minizip static-libs"
 
 DEPEND="minizip? ( ${AUTOTOOLS_DEPEND} )"
@@ -22,10 +20,11 @@ RDEPEND="abi_x86_32? (
 		!app-emulation/emul-linux-x86-baselibs[-abi_x86_32(-)]
 	)
 	!<dev-libs/libxml2-2.7.7" #309623
-
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch
+)
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-1.2.11-fix-deflateParams-usage.patch
-
+	default
 	if use minizip ; then
 		cd contrib/minizip || die
 		eautoreconf

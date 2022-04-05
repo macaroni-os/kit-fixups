@@ -1,24 +1,40 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
-inherit eutils linux-info linux-mod
+EAPI=7
+
+inherit linux-info linux-mod
 
 DESCRIPTION="Broadcom's IEEE 802.11a/b/g/n hybrid Linux device driver"
-HOMEPAGE="https://www.broadcom.com"
+HOMEPAGE="https://www.broadcom.com/support/802.11"
 SRC_BASE="https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/hybrid-v35"
 SRC_URI="x86? ( ${SRC_BASE}-nodebug-pcoem-${PV//\./_}.tar.gz )
-		 amd64? ( ${SRC_BASE}_64-nodebug-pcoem-${PV//\./_}.tar.gz )
-		 https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/README_${PV}.txt -> README-${P}.txt"
+	amd64? ( ${SRC_BASE}_64-nodebug-pcoem-${PV//\./_}.tar.gz )
+	https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/README_${PV}.txt -> README-${P}.txt"
+S="${WORKDIR}"
 
 LICENSE="Broadcom"
-KEYWORDS="amd64 x86"
+KEYWORDS="-* ~amd64 ~x86"
 
 RESTRICT="mirror"
 
 DEPEND="virtual/linux-sources"
-RDEPEND=""
 
-S="${WORKDIR}"
+PATCHES=(
+	"${FILESDIR}/${PN}-6.30.223.141-makefile.patch"
+	"${FILESDIR}/${PN}-6.30.223.141-eth-to-wlan.patch"
+	"${FILESDIR}/${PN}-6.30.223.141-gcc.patch"
+	"${FILESDIR}/${PN}-6.30.223.248-r3-Wno-date-time.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r1-linux-3.18.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r2-linux-4.3-v2.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.7.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.8.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.11.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.12.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.15.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r5-linux-5.1.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r5-linux-5.6.patch"
+	"${FILESDIR}/${PN}-6.30.223.271-r6-linux-5.9.patch"
+)
 
 MODULE_NAMES="wl(net/wireless)"
 MODULESD_WL_ALIASES=("wlan0 wl")
@@ -28,8 +44,8 @@ pkg_setup() {
 	# NOTE<lxnay>: module builds correctly anyway with b43 and SSB enabled
 	# make checks non-fatal. The correct fix is blackisting ssb and, perhaps
 	# b43 via udev rules. Moreover, previous fix broke binpkgs support.
-	CONFIG_CHECK="~!B43 ~!BCMA ~!SSB"
-	CONFIG_CHECK2="LIB80211 ~!MAC80211 ~LIB80211_CRYPT_TKIP"
+	CONFIG_CHECK="~!B43 ~!BCMA ~!SSB ~!X86_INTEL_LPSS"
+	CONFIG_CHECK2="~LIB80211 ~!MAC80211 ~LIB80211_CRYPT_TKIP"
 	ERROR_B43="B43: If you insist on building this, you must blacklist it!"
 	ERROR_BCMA="BCMA: If you insist on building this, you must blacklist it!"
 	ERROR_SSB="SSB: If you insist on building this, you must blacklist it!"
@@ -37,6 +53,7 @@ pkg_setup() {
 	ERROR_MAC80211="MAC80211: If you insist on building this, you must blacklist it!"
 	ERROR_PREEMPT_RCU="PREEMPT_RCU: Please do not set the Preemption Model to \"Preemptible Kernel\"; choose something else."
 	ERROR_LIB80211_CRYPT_TKIP="LIB80211_CRYPT_TKIP: You will need this for WPA."
+	ERROR_X86_INTEL_LPSS="X86_INTEL_LPSS: Please disable it. The module does not work with it enabled."
 	if kernel_is ge 3 8 8; then
 		CONFIG_CHECK="${CONFIG_CHECK} ${CONFIG_CHECK2} CFG80211 ~!PREEMPT_RCU ~!PREEMPT"
 	elif kernel_is ge 2 6 32; then
@@ -53,31 +70,6 @@ pkg_setup() {
 
 	BUILD_PARAMS="-C ${KV_DIR} M=${S}"
 	BUILD_TARGETS="wl.ko"
-}
-
-src_prepare() {
-	epatch \
-		"${FILESDIR}/${PN}-6.30.223.141-makefile.patch" \
-		"${FILESDIR}/${PN}-6.30.223.141-eth-to-wlan.patch" \
-		"${FILESDIR}/${PN}-6.30.223.141-gcc.patch" \
-		"${FILESDIR}/${PN}-6.30.223.248-r3-Wno-date-time.patch" \
-		"${FILESDIR}/${PN}-6.30.223.271-r1-linux-3.18.patch" \
-		"${FILESDIR}/${PN}-6.30.223.271-r2-linux-4.3-v2.patch" \
-		"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.7.patch" \
-		"${FILESDIR}/${PN}-6.30.223.271-r4-linux-4.8.patch" \
-		"${FILESDIR}/linux-4.11.patch" \
-		"${FILESDIR}/linux-4.12.patch" \
-		"${FILESDIR}/linux-4.14.patch" \
-		"${FILESDIR}/linux-4.15.patch"
-
-
-
-
-	if linux_chkconfig_present PAX_CONSTIFY_PLUGIN; then
-		epatch "${FILESDIR}"/${P}-pax-no-const.patch
-	fi
-
-	epatch_user
 }
 
 src_install() {

@@ -25,7 +25,7 @@ BDEPEND="
 	virtual/pkgconfig
 "
 COMMON_DEPEND="${PYTHON_DEPS}
-	<=app-text/poppler-22.03.0:=[cairo]
+	<=app-text/poppler-22.04.0:=[cairo]
 	>=dev-cpp/cairomm-1.12
 	>=dev-cpp/glibmm-2.54.1
 	dev-cpp/gtkmm:3.0
@@ -91,7 +91,8 @@ DEPEND="${COMMON_DEPEND}
 "
 
 PATCHES=(
-	"${FILESDIR}"/${P}-poppler-fix.patch
+	"${FILESDIR}"/${PN}-1.1.2-fix-build-with-poppler-22.03.patch-r1
+	"${FILESDIR}"/${PN}-1.1.2-fix-build-with-poppler-22.04.patch
 )
 
 RESTRICT="test"

@@ -17,7 +17,7 @@ python-settings:
           alternate: python2_7
           mask: ">=dev-lang/python-3.8"
   - next:
-      - next-3.7-release:
+      - next:
           primary: python3_7
           alternate: python2_7
           mask: ">=dev-lang/python-3.8"
@@ -281,6 +281,9 @@ kit-groups:
           - dev-kit:
               source: funtoo_next
               branch: next
+          - python-kit:
+              source: funtoo_next
+              branch: next
           - python-modules-kit:
               source: funtoo_next
               branch: next
@@ -311,7 +314,3 @@ kit-groups:
           - ruby-kit:
               branch: next
               source: funtoo_late_2020
-          - python-kit:
-              kind: sourced
-              source: python-kit-sources
-              branch: next-3.7-release

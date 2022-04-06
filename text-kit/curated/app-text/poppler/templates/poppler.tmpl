@@ -6,7 +6,7 @@ inherit cmake toolchain-funcs xdg-utils
 
 CMAKE_BUILD_TYPE=""
 SRC_URI="{{artifacts[0].src_uri}}"
-KEYWORDS="*"
+KEYWORDS="{% if not stable %}-{% endif %}*"
 SLOT="0/{{subslot}}"
 
 DESCRIPTION="PDF rendering library based on the xpdf-3.0 code base"
@@ -55,9 +55,10 @@ PATCHES=(
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
 
-src_unpack() {
-	unpack $A
-	mv ${WORKDIR}/{{GITHUB_USER}}-{{GITHUB_REPO}}-* ${S} || die
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv ${WORKDIR}/{{GITHUB_USER}}-{{GITHUB_REPO}}-* ${S} || die
+	fi
 }
 
 src_prepare() {

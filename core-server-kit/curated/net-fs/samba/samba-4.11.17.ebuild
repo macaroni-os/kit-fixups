@@ -214,6 +214,7 @@ src_configure() {
 		$(use_with ldap)
 		$(use_with profiling-data)
 		--with-shared-modules=${SHAREDMODS}
+		--jobs 1
 	)
 
 	CPPFLAGS="-I${SYSROOT}${EPREFIX}/usr/include/et ${CPPFLAGS}" \

@@ -6,9 +6,13 @@ osgeo_proj4_rules:
       query: releases
 
   packages:
-    proj:
-      github:
-        repo: PROJ
-    proj-data:
-      github:
-        repo: PROJ-data
+    - proj:
+        github:
+          repo: PROJ
+          user: OSGeo
+          query: releases
+    - proj-data:
+        github:
+          repo: PROJ-data
+          user: OSGeo
+          query: releases

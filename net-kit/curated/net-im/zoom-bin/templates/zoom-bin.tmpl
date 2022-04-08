@@ -73,6 +73,8 @@ src_install() {
 	cp -Rp "${S}/"* "${D}"
 
 	dosym ../../opt/zoom/ZoomLauncher /usr/bin/zoom-bin
+	# Zoom needs the SUID bit set on chrome-sandbox, but the installer doesn't do that
+	fperms 4755 /opt/zoom/cef/chrome-sandbox
 }
 
 pkg_preinst() {

@@ -57,7 +57,7 @@ PATCHES=(
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
-		mv ${WORKDIR}/{{GITHUB_USER}}-{{GITHUB_REPO}}-* ${S} || die
+		mv ${WORKDIR}/{{ github_user }}-{{ github_repo }}-* ${S} || die
 	fi
 }
 

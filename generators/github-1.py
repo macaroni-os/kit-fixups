@@ -3,7 +3,7 @@
 
 async def generate(hub, **pkginfo):
 	for key in ["user", "repo"]:
-		if key not in pkginfo:
+		if f"github_{key}" not in pkginfo:
 			if "github" in pkginfo and key in pkginfo["github"]:
 				pkginfo[f"github_{key}"] = pkginfo["github"][key]
 			else:
@@ -44,7 +44,6 @@ async def generate(hub, **pkginfo):
 			f"https://api.github.com/repos/{github_user}/{github_repo}", is_json=True
 		)
 		pkginfo["description"] = repo_metadata["description"]
-
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild.push()
 

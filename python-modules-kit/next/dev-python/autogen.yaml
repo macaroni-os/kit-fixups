@@ -13,42 +13,6 @@
 #
 # Here are some things that we should autogen that are on stage3:
 
-dev_python_compat_rule:
-  defaults:
-    cat: dev-python
-    python_compat: python3+
-  generator: pypi-compat-1
-  packages:
-    - setuptools:
-        du_setuptools: 'no'
-        desc: Collection of extensions to Distutils
-        license: MIT
-        blocker: '!<dev-python/setuptools-47'
-        restrict: 'test'
-        homepage: >
-          https://github.com/pypa/setuptools
-          https://pypi.org/project/setuptools/
-        compat: '44.1.1'
-        python_compat: python3+ pypy3
-        revision:
-          58.0.2: 1
-        pydeps:
-          py:all:post:
-            - certifi >= 2016.9.26
-        depend: |
-          app-arch/unzip
-        body: |
-          SETUPTOOLS_USE_DISTUTILS=stdlib
-          python_install() {
-            export DISTRIBUTE_DISABLE_VERSIONED_EASY_INSTALL_SCRIPT=1
-            distutils-r1_python_install
-            # Remove any wrapper
-            if [ "$PN"  == 'setuptools-compat' ]; then
-              rm -rf ${D}/usr/bin
-            fi
-
-          }
-
 autogens:
   defaults:
     python_compat: python2+ pypy3 pypy

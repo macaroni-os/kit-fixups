@@ -17,7 +17,7 @@ RDEPEND="
 	!<net-im/pidgin-2.14.0
 	dev-libs/glib:2
 	dev-libs/libxml2
-	sys-libs/ncurses:0=
+	sys-libs/ncurses:0=[tinfo]
 "
 DEPEND="${RDEPEND}"
 BDEPEND="

@@ -1,4 +1,3 @@
-# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -44,6 +43,7 @@ RDEPEND="
 	x11-libs/libXrandr
 	x11-libs/libXrender
 	x11-libs/libXtst
+	x11-libs/libxkbcommon
 	x11-libs/pango
 "
 

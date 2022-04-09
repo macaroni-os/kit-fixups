@@ -450,7 +450,7 @@ dev_python_compat_rule:
           }
     - setuptools:
         # FL-9220: 60.0+ currently breaks python rebuilds and other things:
-        version: '59.7.0'
+        #version: '59.7.0'
         du_setuptools: 'no'
         desc: Collection of extensions to Distutils
         license: MIT
@@ -461,8 +461,6 @@ dev_python_compat_rule:
           https://pypi.org/project/setuptools/
         compat: '44.1.1'
         python_compat: python3+ pypy3
-        revision:
-          58.0.2: 1
         pydeps:
           py:all:post:
             - certifi >= 2016.9.26
@@ -871,6 +869,8 @@ simple_python_autogen_rule:
         homepage: https://github.com/facelessuser/soupsieve/ https://pypi.org/project/soupsieve/
         license: MIT
         python_compat: python3+ pypy3
+        # 2.3.2 and up use pyproject.toml which doesn't work yet on Funtoo
+        version: 2.3.1
     - ufoLib:
         pypi_name: ufoLib2
         desc: A UFO font library

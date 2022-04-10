@@ -211,10 +211,14 @@ llvm_check_deps() {
 		flags+="llvm_targets_AMDGPU(-)"
 	fi
 
-	if use opencl; then
-		has_version "sys-devel/clang:${LLVM_SLOT}[${flags}]" || return 1
+	if [[ ! -z "$flags" ]]; then
+		flags="[${flags}]"
 	fi
-	has_version "sys-devel/llvm:${LLVM_SLOT}[${flags}]"
+
+	if use opencl; then
+		has_version "sys-devel/clang:${LLVM_SLOT}${flags}" || return 1
+	fi
+	has_version "sys-devel/llvm:${LLVM_SLOT}${flags}"
 }
 
 pkg_pretend() {

@@ -216,7 +216,6 @@ DEPEND="${RDEPEND}
 	valgrind? ( dev-util/valgrind )
 	sys-devel/bison
 	sys-devel/flex
-	$(python_gen_any_dep "dev-python/importlib_metadata[\${PYTHON_USEDEP}]")
 	$(python_gen_any_dep ">=dev-python/mako-1.0.7[\${PYTHON_USEDEP}]")
 "
 

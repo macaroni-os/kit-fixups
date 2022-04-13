@@ -218,7 +218,6 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	$(python_gen_any_dep ">=dev-python/mako-0.8.0[\${PYTHON_USEDEP}]")
-	$(python_gen_any_dep "dev-python/importlib_metadata[\${PYTHON_USEDEP}]")
 	wayland? ( dev-util/wayland-scanner )
 "
 

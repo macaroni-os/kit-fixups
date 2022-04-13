@@ -317,6 +317,23 @@ dev_python_compat_rule:
         pydeps:
           py:3,pypy3:
             - importlib_metadata
+    - mako:
+        compat: '1.1.6'
+        blocker: "!<dev-python/mako-1.2.0-r1"
+        revision:
+          1.2.0: 1
+        pypi_name: Mako
+        inherit:
+          - eutils
+        python_compat: python2+
+        pydeps:
+          - importlib_metadata
+          - markupsafe
+        body: |
+          pkg_postinst() {
+            elog "Optional dependencies:"
+            optfeature "caching support" dev-python/beaker
+          }
     - more-itertools:
         compat: '4.3.0'
         blocker: '!<dev-python/more-itertools-8'
@@ -1827,8 +1844,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - lxml:
         python_compat: python2+ pypy3
-    - mako:
-        python_compat: python2+ pypy{,3}
     - pyblake2:
         python_compat: python2+ pypy{,3}
     - pycparser:

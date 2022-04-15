@@ -20,20 +20,19 @@ simple_autogen_rule:
     - metatools:
         pypi_name: funtoo-metatools
         desc: "Funtoo's metatools -- autogeneration framework."
+        rdepend: |
+          app-arch/unzip
         pydeps:
           py:all:build:
             - subpop >= 2.0.0
           py:all:
-            - aiofiles
-            - aiodns
-            - aiohttp
             - beautifulsoup
             - dict-toolbox
+            - httpx
             - jinja >= 3
             - packaging
             - pymongo
             - toml
-            - www-servers/tornado
             - xmltodict
             - colorama
 

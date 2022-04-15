@@ -14,8 +14,11 @@ def gen_ebuild(release_data, tag_data, pkginfo, nightly=False):
 		else:
 			ver_match = re.search("NVIM v([0-9.]+)", release["body"])
 			if not ver_match:
+				print(release["body"])
 				raise KeyError(f"Could not find suitable neovim stable version in body \"{release['body']}\"")
 			version = ver_match.groups()[0]
+			# NeoVim now seems to be tagging like "v{version}"
+			desired_tag = f"v{version}"
 		try:
 			sha = next(filter(lambda tag_ent: tag_ent["name"] == desired_tag, tag_data))['commit']['sha']
 		except StopIteration:

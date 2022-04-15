@@ -949,6 +949,10 @@ simple_python_autogen_rule:
         python_compat: python3+ pypy3
         # 2.3.2 and up use pyproject.toml which doesn't work yet on Funtoo
         version: 2.3.1
+    - jeepney:
+        python_compat: python3+
+        py:all:build:
+          - setuptools
     - tqdm:
         python_compat: python2+
         pydeps:
@@ -1791,8 +1795,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - ipy:
         python_compat: python2+ pypy{,3}
-    - jeepney:
-        python_compat: python3+ pypy3
     - matplotlib:
         python_compat: python3+ pypy3
     - pandas

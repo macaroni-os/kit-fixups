@@ -7,11 +7,11 @@ HOMEPAGE="http://www.funtoo.org/Networking"
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS="next"
 
 GITHUB_USER="funtoo"
 
-SRC_URI="https://www.github.com/${GITHUB_USER}/${PN}/tarball/${PVR} -> corenetwork-${PVR}.tar.gz"
+SRC_URI="https://github.com/${GITHUB_USER}/${PN}/tarball/${PVR} -> corenetwork-${PVR}.tar.gz"
 
 RDEPEND="sys-apps/openrc !<=sys-apps/openrc-0.12.4-r4"
 

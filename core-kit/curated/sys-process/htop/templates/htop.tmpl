@@ -18,7 +18,7 @@ IUSE="debug hwloc kernel_FreeBSD kernel_linux lm-sensors openvz unicode vserver"
 BDEPEND="virtual/pkgconfig"
 RDEPEND="sys-libs/ncurses:0=[unicode?]
 	hwloc? ( sys-apps/hwloc )
-	lm-sensors? ( sys-apps/lm-sensors )"
+	lm-sensors? ( sys-apps/lm_sensors )"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}"
 

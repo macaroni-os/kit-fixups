@@ -5,7 +5,6 @@ EAPI=7
 PYTHON_COMPAT=( {{ python_compat }} )
 inherit flag-o-matic python-any-r1 toolchain-funcs
 
-PATCH="${PN}-8.30-patches-01"
 DESCRIPTION="Standard GNU utilities (chmod, cp, dd, ls, sort, tr, head, wc, who,...)"
 HOMEPAGE="https://www.gnu.org/software/coreutils/"
 SRC_URI="{{ artifacts[0].src_uri }}"
@@ -52,11 +51,6 @@ RDEPEND+="
 	!<app-forensics/tct-1.18-r1
 	!<net-fs/netatalk-2.0.3-r4"
 
-PATCHES=(
-	# Upstream patches
-	"${FILESDIR}"/${PN}-9.0-fix-chmod-symlink-exit.patch
-)
-
 pkg_setup() {
 	if use test ; then
 		python-any-r1_pkg_setup
@@ -85,8 +79,8 @@ src_prepare() {
 src_configure() {
 	local myconf=(
 		--with-packager="Funtoo"
-		--with-packager-version="${PVR} (p${PATCH_VER:-0})"
-		--with-packager-bug-reports="https://bugs.gentoo.org/"
+		--with-packager-version="${PVR}"
+		--with-packager-bug-reports="https://bugs.funtoo.org/"
 		# kill/uptime - procps
 		# groups/su   - shadow
 		# hostname    - net-tools

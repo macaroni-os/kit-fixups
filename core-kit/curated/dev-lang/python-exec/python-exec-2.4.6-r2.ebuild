@@ -1,8 +1,14 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=6
 
+# Kids, don't do this at home!
 inherit python-utils-r1
+PYTHON_COMPAT=( "${_PYTHON_ALL_IMPLS[@]}" )
+
+# Inherited purely to have PYTHON_TARGET flags which will satisfy USE
+# dependencies and trigger necessary rebuilds.
+inherit python-r1
 
 DESCRIPTION="Python script wrapper"
 HOMEPAGE="https://github.com/mgorny/python-exec/"
@@ -11,16 +17,20 @@ SRC_URI="https://github.com/mgorny/python-exec/releases/download/v${PV}/${P}.tar
 LICENSE="BSD-2"
 SLOT="2"
 KEYWORDS="*"
-# Internal Python project hack.  Do not copy it.  Ever.
-IUSE="${_PYTHON_ALL_IMPLS[@]/#/python_targets_}"
+IUSE=""
+
+RDEPEND="
+	!<app-eselect/eselect-python-20160206
+	!<dev-lang/python-2.7.10-r4:2.7
+	!<dev-lang/python-3.3.5-r4:3.3
+	!<dev-lang/python-3.4.3-r4:3.4
+	!<dev-lang/python-3.5.0-r3:3.5"
 
 src_configure() {
 	local pyimpls=() i EPYTHON
-	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if use "python_targets_${i}"; then
-			python_export "${i}" EPYTHON
-			pyimpls+=( "${EPYTHON}" )
-		fi
+	for i in "${PYTHON_COMPAT[@]}"; do
+		python_export "${i}" EPYTHON
+		pyimpls+=( "${EPYTHON}" )
 	done
 
 	local myconf=(
@@ -39,29 +49,13 @@ src_install() {
 	newins - python-exec.conf \
 		< <(sed -n -e '/^#/p' config/python-exec.conf.example)
 
-	local programs=( python )
-	local scripts=( python-config 2to3 idle pydoc pyvenv )
-	local i
-	for i in "${_PYTHON_ALL_IMPLS[@]}"; do
-		if use "python_targets_${i}"; then
-			# NB: duplicate entries are harmless
-			if python_is_python3 "${i}"; then
-				programs+=( python3 )
-				scripts+=( python3-config )
-			else
-				programs+=( python2 )
-				scripts+=( python2-config )
-			fi
-		fi
-	done
-
 	local f
-	for f in "${programs[@]}"; do
+	for f in python{,2,3}; do
 		# symlink the C wrapper for python to avoid shebang recursion
 		# bug #568974
 		dosym python-exec2c /usr/bin/"${f}"
 	done
-	for f in "${scripts[@]}"; do
+	for f in python{,2,3}-config 2to3 idle pydoc pyvenv; do
 		# those are python scripts (except for new python-configs)
 		# so symlink them via the python wrapper
 		dosym ../lib/python-exec/python-exec2 /usr/bin/"${f}"
@@ -69,14 +63,14 @@ src_install() {
 }
 
 pkg_preinst() {
-	if [[ -e ${EROOT}/etc/python-exec/python-exec.conf ]]; then
+	if [[ -e ${EROOT}etc/python-exec/python-exec.conf ]]; then
 		# preserve current configuration
-		cp "${EROOT}"/etc/python-exec/python-exec.conf \
-			"${ED}"/etc/python-exec/python-exec.conf || die
+		cp "${EROOT}"etc/python-exec/python-exec.conf \
+			"${ED}"etc/python-exec/python-exec.conf || die
 	else
 		# preserve previous Python version preference
 		local py old_pythons=()
-		local config_base=${EROOT}/etc/env.d/python
+		local config_base=${EROOT}etc/env.d/python
 
 		# start with the 'global' preference (2 vs 3)
 		if [[ -f ${config_base}/config ]]; then
@@ -123,14 +117,14 @@ pkg_preinst() {
 			elog "you may want to modify the preference list yourself. In order to do so,"
 			elog "open the following file in your favorite editor:"
 			elog
-			elog "  ${EROOT}/etc/python-exec/python-exec.conf"
+			elog "  ${EROOT}etc/python-exec/python-exec.conf"
 			elog
 			elog "For more information on the new configuration format, please read"
 			elog "the comment on top of the installed configuration file."
 
 			local IFS=$'\n'
 			echo "${old_pythons[*]}" \
-				>> "${ED}"/etc/python-exec/python-exec.conf || die
+				>> "${ED}"etc/python-exec/python-exec.conf || die
 		fi
 	fi
 }

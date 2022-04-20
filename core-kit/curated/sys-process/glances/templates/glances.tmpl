@@ -27,10 +27,6 @@ BDEPEND="doc? ( dev-python/sphinx_rtd_theme )"
 
 CONFIG_CHECK="~TASK_IO_ACCOUNTING ~TASK_DELAY_ACCT ~TASKSTATS"
 
-PATCHES=(
-	"${FILESDIR}/disable-update-check.patch"
-)
-
 distutils_enable_tests setup.py
 distutils_enable_sphinx docs --no-autodoc
 

@@ -1,29 +1,27 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 inherit autotools ltprune
 
 DESCRIPTION="A system-independent library for user-level network packet capture"
-HOMEPAGE="
-	http://www.tcpdump.org/
-	https://github.com/the-tcpdump-group/libpcap
-"
-SRC_URI="
-	https://github.com/the-tcpdump-group/${PN}/archive/${P/_}.tar.gz
-"
+
+SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="bluetooth dbus netlink static-libs usb"
+IUSE="bluetooth dbus netlink rdma remote static-libs usb yydebug"
 
 RDEPEND="
-	bluetooth? ( net-wireless/bluez:= )
-	dbus? ( sys-apps/dbus )
-	netlink? ( dev-libs/libnl:3 )
+	bluetooth? ( net-wireless/bluez:=[${MULTILIB_USEDEP}] )
+	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
+	netlink? ( dev-libs/libnl:3[${MULTILIB_USEDEP}] )
+	remote? ( virtual/libcrypt:=[${MULTILIB_USEDEP}] )
+	rdma? ( sys-cluster/rdma-core )
+	usb? ( virtual/libusb:1[${MULTILIB_USEDEP}] )
 "
-DEPEND="
-	${RDEPEND}
+DEPEND="${RDEPEND}"
+BDEPEND="
 	sys-devel/flex
 	virtual/yacc
 	dbus? ( virtual/pkgconfig )
@@ -32,10 +30,15 @@ DEPEND="
 S=${WORKDIR}/${PN}-${P/_}
 
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.6.1-prefix-solaris.patch
-	"${FILESDIR}"/${PN}-1.8.1-darwin.patch
-	"${FILESDIR}"/${PN}-1.8.1-usbmon.patch
+	"${FILESDIR}"/${PN}-1.9.1-pcap-config.patch
+	"${FILESDIR}"/${PN}-1.10.0-usbmon.patch
 )
+
+post_src_unpack() {
+        if [ ! -d "${S}" ]; then
+                mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+        fi
+}
 
 src_prepare() {
 	default
@@ -47,8 +50,11 @@ src_configure() {
 	ECONF_SOURCE="${S}" \
 	econf \
 		$(use_enable bluetooth) \
-		$(use_enable usb) \
 		$(use_enable dbus) \
+		$(use_enable rdma) \
+		$(use_enable remote) \
+		$(use_enable usb) \
+		$(use_enable yydebug) \
 		$(use_with netlink libnl) \
 		--enable-ipv6
 }

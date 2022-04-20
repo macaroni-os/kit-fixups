@@ -201,6 +201,14 @@ dev_python_compat_rule:
         license: Apache-2.0
         homepage: |
           https://github.com/MagicStack/asyncpg
+    - Babel:
+        python_compat: python2+
+        compat: '2.9.1'
+        blocker: '!<dev-python/Babel-2.10'
+        revision:
+          2.10.1: 1
+        pydeps:
+          - pytz
     - entrypoints:
         version: '0.3'
         python_compat: python2+
@@ -1759,8 +1767,6 @@ dev_python_autogen_rule:
         versions:
           1.1.1:
             python_compat: python2+ pypy3
-    - Babel:
-        python_compat: python2+ pypy3
     - backports-functools-lru-cache:
         python_compat: python2+ pypy{,3}
         pypi_name: backports.functools-lru-cache

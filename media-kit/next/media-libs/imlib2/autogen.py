@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+import re
 
 
 async def generate(hub, **pkginfo):
@@ -9,20 +9,18 @@ async def generate(hub, **pkginfo):
 	sourceforge_soup = BeautifulSoup(
 		await hub.pkgtools.fetch.get_page(sourceforge_url), "lxml"
 	)
-
-	files_list = sourceforge_soup.find(id="files_list")
-	versions = (
-		version_row.get("title") for version_row in files_list.tbody.find_all("tr")
-	)
-
-	target_version = max(versions, key=lambda ver: version.parse(ver))
-
-	src_url = f"https://downloads.sourceforge.net/enlightenment/{pkginfo.get('name')}-{target_version}.tar.xz"
-
+	# Target the green download button -- it contains the official latest version! :)
+	latest = sourceforge_soup.find(class_="download")
+	# This grabs the tarball name in group 0 and the version in group 1:
+	subpath_grp = re.match(".*(imlib2-(.*)\.tar\.xz)", latest.get("title"))
+	final_name = subpath_grp.groups()[0]
+	version = subpath_grp.groups()[1]
+	url = f"https://downloads.sourceforge.net/enlightenment/{final_name}"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=target_version,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=src_url)],
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
 	)
 	ebuild.push()
 
+# vim: ts=4 sw=4 noet

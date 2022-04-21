@@ -7,7 +7,7 @@ HOMEPAGE="http://www.funtoo.org/Networking"
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 
 GITHUB_USER="funtoo"
 

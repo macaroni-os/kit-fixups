@@ -2,9 +2,18 @@ dev_python_autogen_rule:
   defaults:
     cat: sys-apps
     python_compat: python3+
-  generator: pypi-1
+  generator: pypi-simple-1
   packages:
-    - fchroot
+    - fchroot:
+        description: Funtoo's franken-chroot tool.
+        license: Apache-2.0
+        rdepend: |
+          app-emulation/qemu[static-user,qemu_user_targets_aarch64,qemu_user_targets_arm,qemu_user_targets_riscv64,qemu_user_targets_ppc64]
+          dev-libs/glib[static-libs]
+          sys-apps/attr[static-libs]
+          sys-libs/zlib[static-libs]
+          dev-libs/libpcre[static-libs]
+ 
 
 simple_autogen_rule:
   defaults:

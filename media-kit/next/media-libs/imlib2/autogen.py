@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
 	# Target the green download button -- it contains the official latest version! :)
 	latest = sourceforge_soup.find(class_="download")
 	# This grabs the tarball name in group 0 and the version in group 1:
-	subpath_grp = re.match(".*(imlib2-(.*)\.tar\.xz)", latest.get("title"))
+	subpath_grp = re.match(".*(imlib2-(.*)\.tar\.[gx]z)", latest.get("title"))
 	final_name = subpath_grp.groups()[0]
 	version = subpath_grp.groups()[1]
 	url = f"https://downloads.sourceforge.net/enlightenment/{final_name}"

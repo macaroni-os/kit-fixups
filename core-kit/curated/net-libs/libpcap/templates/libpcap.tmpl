@@ -13,12 +13,12 @@ KEYWORDS="*"
 IUSE="bluetooth dbus netlink rdma remote static-libs usb yydebug"
 
 RDEPEND="
-	bluetooth? ( net-wireless/bluez:=[${MULTILIB_USEDEP}] )
-	dbus? ( sys-apps/dbus[${MULTILIB_USEDEP}] )
-	netlink? ( dev-libs/libnl:3[${MULTILIB_USEDEP}] )
-	remote? ( virtual/libcrypt:=[${MULTILIB_USEDEP}] )
+	bluetooth? ( net-wireless/bluez:= )
+	dbus? ( sys-apps/dbus )
+	netlink? ( dev-libs/libnl:3 )
+	remote? ( virtual/libcrypt:= )
 	rdma? ( sys-cluster/rdma-core )
-	usb? ( virtual/libusb:1[${MULTILIB_USEDEP}] )
+	usb? ( virtual/libusb:1 )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="

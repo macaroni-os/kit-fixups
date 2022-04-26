@@ -33,9 +33,6 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 S=${WORKDIR}/${P%_*}
 KEYWORDS=""
 
-inherit git-r3
-EGIT_REPO_URI="https://git.savannah.gnu.org/git/grub.git"
-
 PATCHES=(
         "${FILESDIR}"/grub-2.06-xfs-v4.patch
         "${FILESDIR}"/gfxpayload.patch

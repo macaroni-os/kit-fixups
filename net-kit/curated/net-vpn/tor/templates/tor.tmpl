@@ -32,7 +32,7 @@ DEPEND="
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-tor )"
 
-DOCS=( README ChangeLog ReleaseNotes doc/HACKING )
+DOCS=( README.md ChangeLog ReleaseNotes doc/HACKING )
 
 pkg_setup() {
 	enewgroup tor

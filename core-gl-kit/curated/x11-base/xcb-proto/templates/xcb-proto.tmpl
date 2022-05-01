@@ -1,0 +1,49 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=5
+
+PYTHON_COMPAT=( {{python_compat}} )
+XORG_STATIC=no
+
+inherit python-r1 xorg-2
+
+DESCRIPTION="X C-language Bindings protocol headers"
+HOMEPAGE="https://xcb.freedesktop.org/"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+KEYWORDS="*"
+IUSE=""
+
+RDEPEND="
+	${PYTHON_DEPS}
+	!x11-proto/xcb-proto
+"
+DEPEND="
+	${RDEPEND}
+	dev-libs/libxml2
+"
+
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+
+src_configure() {
+	python_setup
+	xorg-2_src_configure
+	python_foreach_impl autotools-utils_src_configure
+}
+
+src_compile() {
+	default
+	python_foreach_impl autotools-utils_src_compile -C xcbgen \
+		top_builddir="${BUILD_DIR}"
+}
+
+src_install() {
+	xorg-2_src_install
+
+	# pkg-config file hardcodes python sitedir, bug 486512
+	sed -i -e '/pythondir/s:=.*$:=/dev/null:' \
+		"${ED}"/usr/lib*/pkgconfig/xcb-proto.pc || die
+
+	python_foreach_impl autotools-utils_src_install -C xcbgen \
+		top_builddir="${BUILD_DIR}"
+}

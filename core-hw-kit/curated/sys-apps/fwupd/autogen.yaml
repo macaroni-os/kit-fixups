@@ -1,0 +1,15 @@
+fwupd_rule:
+  generator: github-1
+  defaults:
+    python_compat: python3+
+  packages:
+    - fwupd:
+        github:
+          user: fwupd
+          repo: fwupd
+          query: releases
+    - fwupd-efi:
+        github:
+          user: fwupd
+          repo: fwupd-efi
+          query: tags

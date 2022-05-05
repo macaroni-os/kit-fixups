@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools bash-completion-r1 linux-info flag-o-matic pam readme.gentoo-r1
+inherit autotools bash-completion-r1 linux-info flag-o-matic optfeature pam readme.gentoo-r1
 
 DESCRIPTION="A userspace interface for the Linux kernel containment features"
 HOMEPAGE="https://linuxcontainers.org/ https://github.com/lxc/lxc"
@@ -10,27 +10,30 @@ SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
 KEYWORDS=""
 
-LICENSE="LGPL-3"
+LICENSE="GPL-2 LGPL-2.1 LGPL-3"
 SLOT="0"
-IUSE="apparmor +caps doc examples libressl man pam selinux +ssl +tools"
+IUSE="apparmor +caps doc io-uring man pam seccomp selinux +ssl +tools"
 
-RDEPEND="app-misc/pax-utils
+RDEPEND="
+	app-misc/pax-utils
 	sys-apps/util-linux
 	sys-libs/libcap
-	sys-libs/libseccomp
 	virtual/awk
 	caps? ( sys-libs/libcap )
+	io-uring? ( >=sys-libs/liburing-2:= )
 	pam? ( sys-libs/pam )
+	seccomp? ( sys-libs/libseccomp )
 	selinux? ( sys-libs/libselinux )
 	ssl? (
-		!libressl? ( dev-libs/openssl:0= )
-		libressl? ( dev-libs/libressl:0= )
+		dev-libs/openssl:0=
 	)"
 DEPEND="${RDEPEND}
 	>=sys-kernel/linux-headers-4
 	apparmor? ( sys-apps/apparmor )"
-BDEPEND="doc? ( app-doc/doxygen )
-	man? ( app-text/docbook-sgml-utils )"
+BDEPEND="virtual/pkgconfig
+	doc? ( app-doc/doxygen[dot] )
+	man? ( app-text/docbook-sgml-utils )
+"
 
 CONFIG_CHECK="~!NETPRIO_CGROUP
 	~CGROUPS
@@ -68,12 +71,13 @@ pkg_setup() {
 }
 
 PATCHES=(
-	"${FILESDIR}"/${PV}/${PN}-3.0.0-bash-completion.patch
 	"${FILESDIR}"/${PV}/${PN}-2.0.5-omit-sysconfig.patch # bug 558854
 )
 
 src_prepare() {
 	default
+
+	export bashcompdir="/etc/bash_completion.d"
 	eautoreconf
 }
 
@@ -90,27 +94,29 @@ src_configure() {
 		--with-rootfs-path=/var/lib/lxc/rootfs
 		--with-runtime-path=/run
 
-		--disable-asan
 		--disable-coverity-build
 		--disable-dlog
+		--disable-fuzzers
 		--disable-mutex-debugging
+		--disable-no-undefined
 		--disable-rpath
+		--disable-sanitizers
 		--disable-tests
-		--disable-ubsan
 		--disable-werror
 
 		--enable-bash
 		--enable-commands
 		--enable-memfd-rexec
-		--enable-seccomp
 		--enable-thread-safety
 
 		$(use_enable apparmor)
 		$(use_enable caps capabilities)
 		$(use_enable doc api-docs)
-		$(use_enable examples)
+		$(use_enable doc examples)
+		$(use_enable io-uring liburing)
 		$(use_enable man doc)
 		$(use_enable pam)
+		$(use_enable seccomp)
 		$(use_enable selinux)
 		$(use_enable ssl openssl)
 		$(use_enable tools)
@@ -124,9 +130,16 @@ src_configure() {
 src_install() {
 	default
 
-	mv "${ED}"/usr/share/bash-completion/completions/${PN} "${ED}"/$(get_bashcompdir)/${PN}-start || die
-	bashcomp_alias ${PN}-start \
-		${PN}-{attach,cgroup,copy,console,create,destroy,device,execute,freeze,info,monitor,snapshot,stop,unfreeze,wait}
+	# The main bash-completion file will collide with lxd, need to relocate and update symlinks.
+	mkdir -p "${ED}"/$(get_bashcompdir) || die "Failed to create bashcompdir."
+	mv "${ED}"/etc/bash_completion.d/lxc "${ED}"/$(get_bashcompdir)/lxc-start || die "Failed to relocate lxc bash-completion file."
+	rm -r "${ED}"/etc/bash_completion.d || die "Failed to remove wrong bash_completion.d content."
+
+	if use tools; then
+		bashcomp_alias lxc-start lxc-{attach,autostart,cgroup,checkpoint,config,console,copy,create,destroy,device,execute,freeze,info,ls,monitor,snapshot,stop,top,unfreeze,unshare,update-config,usernsexec,wait}
+	else
+		bashcomp_alias lxc-start lxc-usernsexec
+	fi
 
 	keepdir /etc/lxc /var/lib/lxc/rootfs /var/log/lxc
 	rmdir "${D}"/var/cache/lxc "${D}"/var/cache || die "rmdir failed"
@@ -140,8 +153,11 @@ src_install() {
 		For openrc, there is an init script provided with the package.
 		You should only need to symlink /etc/init.d/lxc to
 		/etc/init.d/lxc.configname to start the container defined in
-		/etc/lxc/configname.conf."
+		/etc/lxc/configname.conf.
 
+		Correspondingly, for systemd a service file lxc@.service is installed.
+		Enable and start lxc@configname in order to start the container defined
+		in /etc/lxc/configname.conf."
 	DISABLE_AUTOFORMATTING=true
 	readme.gentoo_create_doc
 }
@@ -151,10 +167,7 @@ pkg_postinst() {
 
 	elog "Please run 'lxc-checkconfig' to see optional kernel features."
 	elog
-	elog "Though not strictly required, some features are enabled at run-time"
-	elog "when the relevant helper programs are detected:"
-	elog "- app-emulation/lxc-templates"
-	elog "- dev-util/debootstrap"
-	elog "- sys-process/criu"
-	elog
+	optfeature "automatic template scripts" app-containers/lxc-templates
+	optfeature "Debian-based distribution container image support" dev-util/debootstrap
+	optfeature "snapshot & restore functionality" sys-process/criu
 }

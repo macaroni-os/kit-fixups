@@ -4,6 +4,7 @@ import json
 import re
 
 from bs4 import BeautifulSoup
+from packaging.version import Version
 
 '''
 Get the official latest stable 1Password Linux release from the 1Password Linux homepage: https://releases.1password.com/linux/
@@ -38,18 +39,31 @@ async def get_releases(hub, **pkginfo):
 		return None
 
 async def generate(hub, **pkginfo):
-	onepassword_release = await get_releases(hub, **pkginfo)
-	if onepassword_release is None:
-		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of 1Password")
-	version = onepassword_release["softwareVersion"]
-	final_name = f"{pkginfo['name']}-{version}.tar.gz"
-	url = "https://downloads.1password.com/linux/tar/stable/x86_64/1password-latest.tar.gz"
+	# Commenting this BeautifulSoup function out while we test 1Password upstream version file as a replacement
+	#onepassword_release = await get_releases(hub, **pkginfo)
+	#if onepassword_release is None:
+	#	raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of 1Password")
+	#version = onepassword_release["softwareVersion"]
+	#
+	# For completed details on this change see: https://bugs.funtoo.org/browse/FL-9796
+	#
+	# For the version of 1password Linux 1Password publishes an ASCII text file that contains the latest version, which allows us to deterministically derive the latest upstream package version.
+	# See below for the URL format and the exact statement from 1Password Support Team
+	# "We also publish two files that contain the version of our latest release, and they can be accessed at https://downloads.1password.com/linux/tar/stable/x86_64/LATEST and https://downloads.1password.com/linux/tar/beta/x86_64/LATEST respectively."
+	upstream_version = await hub.pkgtools.fetch.get_page("https://downloads.1password.com/linux/tar/stable/x86_64/LATEST")
+	if upstream_version is None:
+		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable upstream version of 1Password Linux")
+	version = Version(upstream_version)
+	final_name = f"{pkginfo['name']}-{version.base_version}.tar.gz"
+	# Upstream Stable URL Format: https://downloads.1password.com/linux/tar/stable/x86_64/1password-${version}.x64.tar.gz
+	# Upstream Beta URL Format: https://downloads.1password.com/linux/tar/beta/x86_64/1password-${version}.x64.tar.gz
+	url_homepage = f"https://releases.1password.com/linux/{str(version.major)}.{str(version.minor)}/"
+	url = f"https://downloads.1password.com/linux/tar/stable/x86_64/1password-{version.base_version}.x64.tar.gz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(final_name=final_name, url=url)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=version,
-		description=onepassword_release["featureList"],
-		homepage=onepassword_release["releaseNotes"],
+		version=version.base_version,
+		homepage=url_homepage,
 		keywords="-* amd64",
 		artifacts=[src_artifact]
 	)

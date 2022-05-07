@@ -47,10 +47,10 @@ async def add_ebuild(hub, json_dict=None, **pkginfo):
 
 async def generate(hub, **pkginfo):
 	pypi_name = hub.pkgtools.pyhelper.pypi_normalize_name(pkginfo)
-	json_data = await hub.pkgtools.fetch.get_page(
-		f"https://pypi.org/pypi/{pypi_name}/json", refresh_interval=pkginfo["refresh_interval"]
+	json_url = f"https://pypi.org/pypi/{pypi_name}/json"
+	json_dict = await hub.pkgtools.fetch.get_page(
+		json_url, refresh_interval=pkginfo["refresh_interval"], is_json=True
 	)
-	json_dict = json.loads(json_data, object_pairs_hook=OrderedDict)
 	await add_ebuild(hub, json_dict, **pkginfo)
 
 

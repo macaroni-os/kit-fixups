@@ -77,10 +77,9 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 
 async def generate(hub, **pkginfo):
 	pypi_name = hub.pkgtools.pyhelper.pypi_normalize_name(pkginfo)
-	json_data = await hub.pkgtools.fetch.get_page(
-		f"https://pypi.org/pypi/{pypi_name}/json", refresh_interval=pkginfo["refresh_interval"]
+	json_dict = await hub.pkgtools.fetch.get_page(
+		f"https://pypi.org/pypi/{pypi_name}/json", refresh_interval=pkginfo["refresh_interval"], is_json=True
 	)
-	json_dict = json.loads(json_data, object_pairs_hook=OrderedDict)
 	do_compat_ebuild = "compat" in pkginfo and pkginfo["compat"]
 	await add_ebuild(hub, json_dict, compat_ebuild=False, has_compat_ebuild=do_compat_ebuild, **pkginfo)
 	if do_compat_ebuild:

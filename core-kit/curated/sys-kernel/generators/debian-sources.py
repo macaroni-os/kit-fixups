@@ -22,6 +22,9 @@ def iter_upstream_release(release_name, tracker_soup):
 	most recent to oldest.
 	"""
 	for release in tracker_soup.find_all("span", class_="versions-repository"):
+		#print(release.text.strip()[:-1])
+		#for thang in release.parent.find("a").text.split("-"):
+		#	print(thang)
 		if release.text.strip()[:-1] == release_name:
 			yield release.parent.find("a").text.split("-")
 
@@ -117,7 +120,6 @@ async def preprocess_packages(hub, pkginfo_list):
 	"""
 	tracker_data = await hub.pkgtools.fetch.get_page("https://tracker.debian.org/pkg/linux")
 	all_versions_from_yaml = list(map(lambda l: f"{l['name']}-{l['version']}", pkginfo_list))
-	
 	tracker_soup = BeautifulSoup(tracker_data, "lxml")
 
 	for pkginfo in pkginfo_list:

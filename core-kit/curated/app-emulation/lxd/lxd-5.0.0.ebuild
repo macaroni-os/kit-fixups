@@ -15,6 +15,7 @@ KEYWORDS="*"
 IUSE="apparmor ipv6 nls"
 
 DEPEND="app-arch/xz-utils
+	app-arch/lz4
 	|| (
 		>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
 		>=app-emulation/lxc-4.0.6[apparmor?]

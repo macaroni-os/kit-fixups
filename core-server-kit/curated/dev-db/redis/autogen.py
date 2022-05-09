@@ -9,7 +9,7 @@ async def query_github_api(user, repo, query):
 
 
 async def generate(hub, **pkginfo):
-	majors = [ '6', '5' ]
+	majors = [ '7', '6', '5' ]
 	github_user = "redis"
 	github_repo = "redis"
 	json_data = await query_github_api(github_user, github_repo, "releases")

@@ -6,14 +6,14 @@ PYTHON_COMPAT=( python3+ )
 
 inherit toolchain-funcs linux-info flag-o-matic python-r1
 
-DESCRIPTION="utility to checkpoint/restore a process tree"
+DESCRIPTION="Checkpoint and Restore in Userspace is a utility to checkpoint/restore Linux tasks"
 HOMEPAGE="https://criu.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="doc selinux setproctitle static-libs"
+IUSE="doc selinux setproctitle static-libs -video_cards_amdgpu"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
@@ -24,7 +24,8 @@ RDEPEND="
 	net-libs/libnet:1.1
 	sys-libs/libcap
 	selinux? ( sys-libs/libselinux )
-	setproctitle? ( dev-libs/libbsd )"
+	setproctitle? ( dev-libs/libbsd )
+	video_cards_amdgpu? ( x11-libs/libdrm[video_cards_amdgpu?] )"
 DEPEND="${RDEPEND}
 	doc? (
 		app-text/asciidoc
@@ -68,6 +69,17 @@ src_prepare() {
 		sed \
 			-e 's:libselinux:no_libselinux:g' \
 			-i Makefile.config || die
+	fi
+
+  # See https://bugs.funtoo.org/browse/FL-9805 for details the below conditional USE flag
+	if ! use video_cards_amdgpu; then
+		sed \
+			-e 's:pkg-config-check,libdrm:pkg-config-check,no_libdrm:g' \
+			-i Makefile.config || die
+
+		sed \
+			-e 's:install-compel install-amdgpu_plugin:install-compel:g' \
+			-i Makefile.install || die
 	fi
 
 	use doc || sed -i 's_\(install: \)install-man _\1_g' Makefile.install

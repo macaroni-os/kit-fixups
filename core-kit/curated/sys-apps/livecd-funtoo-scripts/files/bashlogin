@@ -1,0 +1,30 @@
+#!/bin/sh
+# ============ ENV VARS ================================
+cd /root
+export LANG=en_US.UTF-8
+export HOME=/root
+export SHELL=/bin/bash
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export MAIL=/var/mail/root
+export USER=root
+
+source /etc/profile
+
+# ============ PRINT MESSAGE ===========================
+lc1='\e[01;31m' # light red
+dc1='\e[00;31m' # dark red
+lc2='\e[01;37m' # white
+dc2='\e[00;37m' # gray
+
+# fix broken console with utf8 in the alternative-kernels
+echo -n -e '\033%G'
+kbd_mode -u
+
+LINES=$(stty size|cut -d" " -f1)
+fbecho() 
+{
+  [ $LINES -ge 28 ] && echo
+}
+
+# ============ SHELL PROMPT ============================
+exec $SHELL --login

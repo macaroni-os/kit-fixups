@@ -71,16 +71,19 @@ src_prepare() {
 			-i Makefile.config || die
 	fi
 
-  # See https://bugs.funtoo.org/browse/FL-9805 for details the below conditional USE flag
-	if ! use video_cards_amdgpu; then
-		sed \
-			-e 's:pkg-config-check,libdrm:pkg-config-check,no_libdrm:g' \
-			-i Makefile.config || die
+	# Disabling criu amdgpu plugin temporarily
+	# There is an upstream bug breaking the amdgpu plugin compilation: https://github.com/checkpoint-restore/criu/issues/1877
+	# Also reference https://bugs.funtoo.org/browse/FL-9805 for more details and analysis
+	# Once the upstream bug is fixed, the if loop encasing the sed statements can be enabled for testing
+	#if ! use video_cards_amdgpu; then
+	sed \
+		-e 's:pkg-config-check,libdrm:pkg-config-check,no_libdrm:g' \
+		-i Makefile.config || die
 
-		sed \
-			-e 's:install-compel install-amdgpu_plugin:install-compel:g' \
-			-i Makefile.install || die
-	fi
+	sed \
+		-e 's:install-compel install-amdgpu_plugin:install-compel:g' \
+		-i Makefile.install || die
+	#fi
 
 	use doc || sed -i 's_\(install: \)install-man _\1_g' Makefile.install
 }

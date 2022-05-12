@@ -157,7 +157,7 @@ src_install() {
 	default
 
 	if use ldap ; then
-		dodoc README.LDAP
+		dodoc README.LDAP*
 
 		cat <<-EOF > "${T}"/ldap.conf.sudo
 		# See ldap.conf(5) and README.LDAP for details
@@ -181,7 +181,7 @@ src_install() {
 		fperms 0440 /etc/ldap.conf.sudo
 
 		insinto /etc/openldap/schema
-		newins doc/schema.OpenLDAP sudo.schema
+		newins docs/schema.OpenLDAP sudo.schema
 	fi
 	if use pam; then
 		pamd_mimic system-auth sudo auth account session

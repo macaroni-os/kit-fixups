@@ -4,7 +4,7 @@ EAPI=7
 
 inherit go-module linux-info
 
-RUNC_COMMIT=f46b6ba2c9314cfc8caae24a32ec5fe9ef1059fe
+RUNC_COMMIT=52de29d7e0f8c0899bd7efb8810dd07f0073fa87
 CONFIG_CHECK="~USER_NS"
 
 DESCRIPTION="runc container cli tools"
@@ -55,6 +55,10 @@ src_compile() {
 		COMMIT="${RUNC_COMMIT}"
 	)
 
+	# race condition in man target https://bugs.gentoo.org/765100
+	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
+	# See https://bugs.funtoo.org/browse/FL-9417
+	export GOFLAGS="-v -x -mod=vendor"
 	emake "${myemakeargs[@]}" runc man
 }
 

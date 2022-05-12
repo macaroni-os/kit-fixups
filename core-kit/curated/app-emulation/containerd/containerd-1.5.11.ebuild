@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_REVISION=1407cab509ff0d96baa4f0eb6ff9980270e6e620
+GIT_REVISION=3df54a852345ae127d1fa3092b95168e4a88e2f8
 inherit go-module systemd
 
 DESCRIPTION="A daemon to control runC"
@@ -18,10 +18,10 @@ DEPEND="
 	seccomp? ( sys-libs/libseccomp )
 "
 
-# recommended version of runc is found in script/setup/runc-version
+# recommended version of runc is found at https://github.com/containerd/containerd/tree/release/1.5/script/setup
 RDEPEND="
 	${DEPEND}
-	~app-emulation/runc-1.0.3
+	~app-emulation/runc-1.1.1
 "
 
 BDEPEND="
@@ -62,7 +62,7 @@ src_compile() {
 
 	# race condition in man target https://bugs.gentoo.org/765100
 	# we need to explicitly specify GOFLAGS for "go run" to use vendor source
-	# See FL-9417.
+	# See https://bugs.funtoo.org/browse/FL-9417
 	export GOFLAGS="-v -x -mod=vendor"
 	emake "${myemakeargs[@]}" man -j1 #nowarn
 	emake "${myemakeargs[@]}" all

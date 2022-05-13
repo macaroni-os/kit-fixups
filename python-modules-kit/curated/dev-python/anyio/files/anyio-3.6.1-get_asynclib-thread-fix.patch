@@ -1,18 +1,19 @@
---- _eventloop.py.orig	2022-03-08 19:52:16.631038721 -0700
-+++ _eventloop.py	2022-03-08 19:55:47.024696723 -0700
-@@ -129,12 +129,18 @@
+diff -urN anyio-3.6.1/src/anyio/_core/_eventloop.py anyio-3.6.1-fixed/src/anyio/_core/_eventloop.py
+--- anyio-3.6.1/src/anyio/_core/_eventloop.py	2022-05-13 06:50:26.000000000 -0600
++++ anyio-3.6.1-fixed/src/anyio/_core/_eventloop.py	2022-05-13 13:31:07.716200681 -0600
+@@ -143,13 +143,19 @@
+     finally:
          del threadlocals.current_async_module
- 
  
 +import threading
 +get_asynclib_lock = threading.Lock()
-+
+ 
  def get_asynclib(asynclib_name: Optional[str] = None) -> Any:
 +    get_asynclib_lock.acquire()
      if asynclib_name is None:
          asynclib_name = sniffio.current_async_library()
  
-     modulename = 'anyio._backends._' + asynclib_name
+     modulename = "anyio._backends._" + asynclib_name
      try:
 -        return sys.modules[modulename]
 +        out = sys.modules[modulename]
@@ -21,3 +22,4 @@
 +        out = import_module(modulename)
 +    get_asynclib_lock.release()
 +    return out
++

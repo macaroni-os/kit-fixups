@@ -23,6 +23,7 @@ KEYWORDS="*"
 IUSE="+caps dnstap dnsrps doc doh fixed-rrset geoip gssapi idn lmdb selinux test urandom xml"
 
 DEPEND="
+	=net-dns/bind-tools-${PV}*
 	dev-libs/jemalloc
 	dev-libs/json-c:=
 	dev-libs/libuv:=
@@ -48,7 +49,6 @@ BDEPEND="
 "
 
 RDEPEND="${DEPEND}
-	=net-dns/bind-tools-${PV}*
 	selinux? ( sec-policy/selinux-bind )
 	sys-process/psmisc"
 

@@ -41,24 +41,18 @@ ${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} vers
                  ${WHITE}Created by the Funtoo Core Team${OFF}
                  ${PURP}https://www.funtoo.org${OFF}
 $(cat $OS_LOGO)
-${PURP}*${RED} Configure network${GREY}: nmtui
+${PURP}*${RED} Configure network${GREY}: ${WHITE}nmtui${GREY}
 ${PURP}*${RED} Available Text Editors${WHITE}: vim${GREY}, ${WHITE}vi${GREY}, ${WHITE}nano${GREY}, ${WHITE}zile${GREY}, ${WHITE}joe
 ${PURP}*${RED} Available HEX Editors: ${WHITE}hexcurse${GREY}, ${WHITE}hexedit
 ${PURP}*${RED} Web browsers CLI: ${WHITE}elinks${GREY}, ${WHITE}w3m${GREY}, ${WHITE}links
-    ${PURP}- ${WHITE}w3m https://www.funtoo.org
-
-${PURP}*${RED} Ntfs-3g${GREY}: For NTFS disk filesystems, try Ntfs-3g.
-    ${PURP}- ${GREY}Mount disk using ntfs-3g: ${WHITE}ntfs-3g /dev/sda1 /mnt/windows
-${PURP}*${RED} Graphical User Interface${GREY}:
-    ${PURP}- ${GREY}Type ${WHITE}startx${GREY} to start graphic interface
-    ${PURP}-${GREY} Partition manager:..${WHITE}gparted${GREY}
-    ${PURP}-${GREY} Web browsers:.......${WHITE}firefox-bin${GREY}
 ${PURP}*${RED} Tools${GREY}:
-    ${PURP}-${GREY} Diagnostic: ${WHITE}glances${GREY}, ${WHITE}htop${GREY}, ${WHITE}whdd${GREY}, ${WHITE}hdparm${GREY}, ${WHITE}iostat${GREY}, ${WHITE}iotop${GREY}, ${WHITE}lsof${GREY}
+    ${PURP}-${GREY} Partition manager: ${WHITE}parted${GREY}, ${WHITE}fdisk${GREY}, ${WHITE}cfdisk${GREY}
+    ${PURP}-${GREY} Diagnostic: ${WHITE}htop${GREY}, ${WHITE}whdd${GREY}, ${WHITE}hdparm${GREY}, ${WHITE}iostat${GREY}, ${WHITE}iotop${GREY}, ${WHITE}lsof${GREY}
     ${PURP}-${GREY} Forensic / Recover: ${WHITE}photorec${GREY}, ${WHITE}foremost${GREY}, ${WHITE}dcfldd${GREY}, ${WHITE}ddrescue${GREY}
+    ${PURP}-${GREY} Mount NTFS disk using ntfs-3g: ${WHITE}ntfs-3g /dev/sda1 /mnt/windows${GREY}
+
+ ${GREY}Default password for root is ${WHITE}root${GREY}. To change the root password, type: ${WHITE}passwd
 
 ${RED} ==================================================================================${OFF}
 
- ${GREY}Default password for root is ${WHITE}root${GREY}. To change the root password, type: ${WHITE}passwd
- ${GREY}Default password for VNC is ${WHITE}funtoo${GREY}. To access using VNC please connect to port ${WHITE}5901${OFF}
 BANNER

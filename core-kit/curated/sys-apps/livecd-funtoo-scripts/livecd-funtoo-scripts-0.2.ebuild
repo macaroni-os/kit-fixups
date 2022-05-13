@@ -17,4 +17,6 @@ S="${WORKDIR}"
 src_install() {
 	dobin "${FILESDIR}/bashlogin"
 	dobin "${FILESDIR}/bashlogin-banner" || die
+	insinto /etc
+	doins "${FILESDIR}/funtoo.ascii"
 }

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # ============ ENV VARS ================================
 cd /root
 export LANG=en_US.UTF-8
@@ -11,51 +11,54 @@ export USER=root
 source /etc/profile
 
 # ============ PRINT MESSAGE ===========================
-lc1='\e[01;31m' # light red
-dc1='\e[00;94m' # light blue
-lc2='\e[01;37m' # white
-dc2='\e[00;37m' # gray
+# Colors
+BLACK=$'\033[30;01m'
+RED=$'\033[31;01m'
+GREEN=$'\033[32;01m'
+YELW=$'\033[33;01m'
+BLUE=$'\033[34;01m'
+PURP=$'\033[35;01m'
+CYAN=$'\033[36;01m'
+WHITE=$'\033[37;01m'
+GREY=$'\033[37;00m'
+OFF=$'\033[0m'
 
 # fix broken console with utf8 in the alternative-kernels
 echo -n -e '\033%G'
 kbd_mode -u
 
 LINES=$(stty size|cut -d" " -f1)
-fbecho() 
-{
+fbecho(){
   [ $LINES -ge 28 ] && echo
 }
 
 VERSION="7.0"
+OS_LOGO="/etc/funtoo.ascii"
 
 fbecho
-echo -e "${lc1} =========== ${lc2}Funtoo LiveCD ${lc1} ----- ${dc1} ${VERSION} ${lc1} =========== ${lc2}$(basename $(tty))${dc2}/6 ${lc1}=="
-echo -e "              ${dc1}https://www.funtoo.org${dc2}"
-echo
-echo -e "${dc1}*${lc1} Configure network${dc2}: nmtui${dc2}"
-fbecho
-echo -e "${dc1}*${lc1} Available Text Editors${lc2}: vim${dc2}, ${lc2}vi${dc2}, ${lc2}nano${dc2}, ${lc2}zile${dc2}, ${lc2}joe${dc2}"
-echo -e "${dc1}*${lc1} Available HEX Editors: ${lc2}hexcurse${dc2}, ${lc2}hexedit${dc2}\n"
-echo -e "${dc1}*${lc1} Web browsers CLI: ${lc2}elinks${dc2}, ${lc2}w3m${dc2}, ${lc2}links${dc2}"
-echo -e "   ${dc1}-${dc2} ${lc2}w3m https://www.funtoo.org${dc2}"
-fbecho
-echo -e "${dc1}*${lc1} Ntfs-3g${dc2}: If you need write on disk using NTFS, try Ntfs-3g."
-echo -e "   Mount disk using ntfs-3g: ${lc2}ntfs-3g /dev/sda1 /mnt/windows${dc2}\n"
-fbecho
-if [ -f /usr/bin/Xorg ]
-then
-        echo -e "${dc1}*${lc1} Graphic interface${dc2}: "
-        echo -e "   Type ${lc2}startx${dc2} to start graphic interface"
-        echo -e "   ${dc1}-${dc2} Partition manager:..${lc2}gparted${dc2}"
-        echo -e "   ${dc1}-${dc2} Web browsers:.......${lc2}firefox-bin${dc2}"
-        #echo -e "   ${dc1}-${dc2} Graphic Text Editor:.......${lc2}gvim${dc2} e ${lc2}geany${dc2}\n"
-        echo -e "${dc1}*${lc1} Tools${dc2}: "
-        echo -e "   ${dc1}-${dc2} Diagnostic: ${lc2}glances${dc2}, ${lc2}htop${dc2}, ${lc2}whdd${dc2}, ${lc2}hdparm${dc2}, ${lc2}iostat${dc2}, ${lc2}iotop${dc2}, ${lc2}lsof${dc2}"
-        echo -e "   ${dc1}-${dc2} Forensic / Recover: ${lc2}photorec${dc2}, ${lc2}foremost${dc2}, ${lc2}dcfldd${dc2}, ${lc2}ddrescue${dc2}"
-        echo -e "\n${lc1} ==================================================================================${lc2}"
-echo -e "   Default password for root is ${lc2}root${dc2}. To change the root password, type: ${lc2}passwd${dc2}"
-echo -e "   Default password for VNC is ${lc2}funtoo${dc2}. To access using VNC please connect to port ${lc2}5901${dc2}"
-        echo -e "\n   Funtoo LiveCD ${lc1}(64bit)${lc2}Created by Funtoo Core Team${dc1}\n                                   \n\n${dc2}Have a lot of fun..${dc2}"
-fbecho
-fi
-fbecho
+cat <<BANNER
+${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} version ${VERSION} ${RED} =========== ${WHITE}tty $(basename $(tty))${GREY}/6 ${RED}==${OFF}
+                 ${WHITE}Created by the Funtoo Core Team${OFF}
+                 ${PURP}https://www.funtoo.org${OFF}
+$(cat $OS_LOGO)
+${PURP}*${RED} Configure network${GREY}: nmtui
+${PURP}*${RED} Available Text Editors${WHITE}: vim${GREY}, ${WHITE}vi${GREY}, ${WHITE}nano${GREY}, ${WHITE}zile${GREY}, ${WHITE}joe
+${PURP}*${RED} Available HEX Editors: ${WHITE}hexcurse${GREY}, ${WHITE}hexedit
+${PURP}*${RED} Web browsers CLI: ${WHITE}elinks${GREY}, ${WHITE}w3m${GREY}, ${WHITE}links
+    ${PURP}- ${WHITE}w3m https://www.funtoo.org
+
+${PURP}*${RED} Ntfs-3g${GREY}: For NTFS disk filesystems, try Ntfs-3g.
+    ${PURP}- ${GREY}Mount disk using ntfs-3g: ${WHITE}ntfs-3g /dev/sda1 /mnt/windows
+${PURP}*${RED} Graphical User Interface${GREY}:
+    ${PURP}- ${GREY}Type ${WHITE}startx${GREY} to start graphic interface
+    ${PURP}-${GREY} Partition manager:..${WHITE}gparted${GREY}
+    ${PURP}-${GREY} Web browsers:.......${WHITE}firefox-bin${GREY}
+${PURP}*${RED} Tools${GREY}:
+    ${PURP}-${GREY} Diagnostic: ${WHITE}glances${GREY}, ${WHITE}htop${GREY}, ${WHITE}whdd${GREY}, ${WHITE}hdparm${GREY}, ${WHITE}iostat${GREY}, ${WHITE}iotop${GREY}, ${WHITE}lsof${GREY}
+    ${PURP}-${GREY} Forensic / Recover: ${WHITE}photorec${GREY}, ${WHITE}foremost${GREY}, ${WHITE}dcfldd${GREY}, ${WHITE}ddrescue${GREY}
+
+${RED} ==================================================================================${OFF}
+
+ ${GREY}Default password for root is ${WHITE}root${GREY}. To change the root password, type: ${WHITE}passwd
+ ${GREY}Default password for VNC is ${WHITE}funtoo${GREY}. To access using VNC please connect to port ${WHITE}5901${OFF}
+BANNER

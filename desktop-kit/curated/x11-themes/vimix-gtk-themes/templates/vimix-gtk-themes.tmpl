@@ -12,10 +12,12 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE=""
 
+BDEPEND="dev-lang/sassc"
 DEPEND="
 	x11-libs/gtk+:3
 	x11-themes/gtk-engines
-	x11-themes/gtk-engines-murrine"
+	x11-themes/gtk-engines-murrine
+"
 RDEPEND="${DEPEND}"
 
 src_unpack() {

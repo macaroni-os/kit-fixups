@@ -13,6 +13,7 @@ KEYWORDS="*"
 IUSE=""
 
 BDEPEND="sys-libs/ncurses"
+RDEPEND="!<=x11-terms/kitty-0.25.0"
 
 PATCHES=(
 	{%- for patch in patches %}
@@ -22,9 +23,18 @@ PATCHES=(
 
 RESTRICT="test" # intended to be ran on the full kitty package
 
-src_compile() { :; }
+src_compile() {
+	./build-terminfo || die 'failed to build terminfo'
+}
 
 src_install() {
 	dodir /usr/share/terminfo
-	tic -xo "${ED}"/usr/share/terminfo terminfo/kitty.terminfo || die
+
+	insinto /usr/share/terminfo
+	for directory in terminfo/*/; do
+		doins -r "${directory}"
+	done
+
+	insinto /usr/"$(get_libdir)"/kitty
+	doins -r terminfo
 }

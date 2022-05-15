@@ -24,7 +24,7 @@ KEYWORDS="*"
 {%- else %}
 KEYWORDS="next"
 {%- endif %}
-IUSE="binary btrfs custom-cflags ec2 luks lvm sign-modules zfs"
+IUSE="binary btrfs custom-cflags ec2 +logo luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
 	binary? ( >=sys-kernel/genkernel-4 )
@@ -34,6 +34,7 @@ DEPEND="
 REQUIRED_USE="
 btrfs? ( binary )
 custom-cflags? ( binary )
+logo? ( binary )
 luks? ( binary )
 lvm? ( binary )
 sign-modules? ( binary )
@@ -154,6 +155,15 @@ src_prepare() {
 		setyes_config .config CONFIG_XEN_BLKDEV_BACKEND
 		setyes_config .config CONFIG_IXGBEVF
 	fi
+	if use logo; then
+		epatch "${FILESDIR}"/latest/funtoo_logo.patch || die
+		tweak_config .config CONFIG_LOGO y
+		ewarn "Linux kernel frame buffer boot logo is now enabled with a custom Funtoo pixmap."
+		ewarn "The new logo can be viewed at /usr/src/linux/drivers/video/logo/logo_linux_clut224.ppm"
+		ewarn "Remove the quiet kernel parameter (from params in /etc/boot.conf, and re-run boot-update.)"
+		ewarn "This will ensure the custom kernel logo is displayed during boot over frame buffer."
+		ewarn ""
+	fi
 	if use sign-modules; then
 		certs_dir=$(get_certs_dir)
 		echo
@@ -180,7 +190,7 @@ src_prepare() {
 		ewarn "This kernel will ALLOW non-signed modules to be loaded with a WARNING."
 		ewarn "To enable strict enforcement, YOU MUST add module.sig_enforce=1 as a kernel boot"
 		ewarn "parameter (to params in /etc/boot.conf, and re-run boot-update.)"
-		echo
+		ewarn ""
 	fi
 	if use custom-cflags; then
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"

@@ -32,33 +32,45 @@ prometheus-exporters:
           user: prometheus
           repo: blackbox_exporter
           query: releases
+        revision:
+          0.20.0: 1
     - consul_exporter-bin:
         tarball: consul_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus
           repo: consul_exporter
           query: releases
+        revision:
+          0.8.0: 1
     - memcached_exporter-bin:
         tarball: memcached_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus
           repo: memcached_exporter
           query: releases
+        revision:
+          0.9.0: 1
     - mysqld_exporter-bin:
         tarball: mysqld_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus
           repo: mysqld_exporter
           query: releases
+        revision:
+          0.14.0: 1
     - node_exporter-bin:
         tarball: node_exporter-{version}.linux-amd64.tar.gz
         github:
           user: prometheus
           repo: node_exporter
           query: releases
+        revision:
+          1.3.1: 1
     - redis_exporter-bin:
         tarball: redis_exporter-v{version}.linux-amd64.tar.gz
         github:
           user: oliver006
           repo: redis_exporter
           query: releases
+        revision:
+          1.37.0: 1

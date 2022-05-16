@@ -19,8 +19,8 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
-	x11-terms/kitty-shell-integration
-	x11-terms/kitty-terminfo
+	~x11-terms/kitty-shell-integration-${PV}
+	~x11-terms/kitty-terminfo-${PV}
 	media-libs/fontconfig
 	media-libs/freetype:2
 	>=media-libs/harfbuzz-1.5.0:=

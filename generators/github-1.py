@@ -22,7 +22,12 @@ async def generate(hub, **pkginfo):
 		pkginfo["homepage"] = f"https://github.com/{github_user}/{github_repo}"
 
 	if query == "tags":
-		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
+		tag_args = {}
+
+		for arg in ["version", "select"]:
+			tag_args[arg] = pkginfo[arg] if arg in pkginfo else None
+
+		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **tag_args)
 	else:
 		github_result = await hub.pkgtools.github.release_gen(
 			hub,

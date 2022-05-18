@@ -34,13 +34,21 @@ fbecho(){
 
 VERSION="7.0"
 OS_LOGO="/etc/funtoo.ascii"
+OS_LOGO_SMALL="/etc/funtoo_small.ascii"
+LOCAL_RESOLUTION="$(fbset -s | grep mode -w | awk '{print $2}' | sed s,'\"',,g | cut -dx -f1)"
+
+if [ ${LOCAL_RESOLUTION} -le 1440 ];then
+	OS_LOGO_SET="${OS_LOGO_SMALL}"
+else
+	OS_LOGO_SET="${OS_LOGO}"
+fi
 
 fbecho
 cat <<BANNER
-${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} version ${VERSION} ${RED} =========== ${WHITE}tty $(basename $(tty))${GREY}/6 ${RED}==${OFF}
+${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} version ${VERSION} ${RED} =========== ${WHITE}$(basename $(tty))${GREY}/6 ${RED}==${OFF}
                  ${WHITE}Created by the Funtoo Core Team${OFF}
                  ${PURP}https://www.funtoo.org${OFF}
-$(cat $OS_LOGO)
+$(cat $OS_LOGO_SET)
 ${PURP}*${RED} Configure network${GREY}: ${WHITE}nmtui${GREY}
 ${PURP}*${RED} Available Text Editors${WHITE}: vim${GREY}, ${WHITE}vi${GREY}, ${WHITE}nano${GREY}, ${WHITE}zile${GREY}, ${WHITE}joe
 ${PURP}*${RED} Available HEX Editors: ${WHITE}hexcurse${GREY}, ${WHITE}hexedit

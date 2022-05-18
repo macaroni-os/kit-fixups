@@ -7,12 +7,10 @@ inherit autotools flag-o-matic pax-utils python-utils-r1 toolchain-funcs
 
 MY_P="Python-${PV}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-${PV}"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="https://www.python.org/"
-SRC_URI="{{artifacts[0].src_uri}}
-		{{artifacts[1].src_uri}}"
+SRC_URI="{{artifacts[0].src_uri}}"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="PSF-2"
@@ -56,6 +54,10 @@ DEPEND="${RDEPEND}
 RDEPEND+=" !build? ( app-misc/mime-types )"
 PDEPEND=">=app-eselect/eselect-python-20140125-r1"
 
+PATCHES=(
+	"${FILESDIR}/gentoo-patches/${PYVER}"
+)
+
 pkg_setup() {
 	use optimize && export CFLAGS="$CFLAGS -O3 -fno-semantic-interposition"
 }
@@ -65,10 +67,6 @@ src_prepare() {
 	rm -fr Modules/expat || die
 	rm -fr Modules/_ctypes/libffi* || die
 	rm -fr Modules/zlib || die
-
-	local PATCHES=(
-		"${WORKDIR}/${PATCHSET}"
-	)
 
 	default
 

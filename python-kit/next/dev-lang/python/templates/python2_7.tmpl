@@ -7,12 +7,10 @@ inherit autotools flag-o-matic pax-utils python-utils-r1 toolchain-funcs
 
 MY_P="Python-${PV}"
 PYVER=$(ver_cut 1-2)
-PATCHSET="python-gentoo-patches-2.7.18"
 
 DESCRIPTION="An interpreted, interactive, object-oriented programming language"
 HOMEPAGE="https://www.python.org/"
-SRC_URI="{{artifacts[0].src_uri}}
-		{{artifacts[1].src_uri}}"
+SRC_URI="{{artifacts[0].src_uri}}"
 
 S="${WORKDIR}/${MY_P}"
 
@@ -64,6 +62,10 @@ DEPEND="${RDEPEND}
 RDEPEND+=" !build? ( app-misc/mime-types )"
 PDEPEND=">=app-eselect/eselect-python-20140125-r1"
 
+PATCHES=(
+	"${FILESDIR}/gentoo-patches/${PYVER}"
+)
+
 pkg_setup() {
 	use optimize && export CFLAGS="$CFLAGS -O3 -fno-semantic-interposition"
 	if use berkdb; then
@@ -85,10 +87,6 @@ src_prepare() {
 	rm -fr Modules/expat || die
 	rm -fr Modules/_ctypes/libffi* || die
 	rm -fr Modules/zlib || die
-
-	local PATCHES=(
-		"${WORKDIR}/${PATCHSET}"
-	)
 
 	default
 
@@ -133,9 +131,7 @@ src_configure() {
 		einfo "Disabled modules: ${PYTHON_DISABLE_MODULES}"
 	fi
 
-	if [[ "$(gcc-major-version)" -ge 4 ]]; then
-		append-flags -fwrapv
-	fi
+	append-flags -fwrapv
 
 	filter-flags -malign-double
 
@@ -156,11 +152,6 @@ src_configure() {
 	# The configure script fails to use pkg-config correctly.
 	# http://bugs.python.org/issue15506
 	export ac_cv_path_PKG_CONFIG=$(tc-getPKG_CONFIG)
-
-	# Set LDFLAGS so we link modules with -lpython2.7 correctly.
-	# Needed on FreeBSD unless Python 2.7 is already installed.
-	# Please query BSD team before removing this!
-	append-ldflags "-L."
 
 	local dbmliborder
 	if use gdbm; then

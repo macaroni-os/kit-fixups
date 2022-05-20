@@ -22,7 +22,7 @@ BDEPEND="
 	dev-util/lxqt-build-tools
 "
 DEPEND="
-	app-misc/qtrxdg-tools
+	app-misc/qtxdg-tools
 	dev-libs/libqtxdg
 	dev-qt/qtcore:5
 	dev-qt/qtdbus:5

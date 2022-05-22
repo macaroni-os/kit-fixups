@@ -50,11 +50,6 @@ DEPEND="sys-devel/flex
 # src_test() defaults to make -C testing but there is no such directory (bug #504448)
 RESTRICT="test"
 
-PATCHES=(
-	"${FILESDIR}/${PN}-1.8.16-link_with_pthread.patch"
-	"${FILESDIR}/${PN}-1.9.1-ignore-bad-encoding.patch"
-)
-
 DOCS=( LANGUAGE.HOWTO README.md )
 
 pkg_setup() {
@@ -68,6 +63,12 @@ src_unpack() {
 
 src_prepare() {
 	cmake-utils_src_prepare
+
+	# Do not force libcxx
+	sed -i -e 's/\(option(use_libc++  "Use libc++ as C++ standard library."\) \(ON)\)/\1 OFF)/' CMakeLists.txt || die
+
+	# Link with pthread
+	sed -i -e 's/target_link_libraries(doxywizard.*doxygen_version/& pthread/g' addon/doxywizard/CMakeLists.txt || die
 
 	# Statically link internal xml library
 	sed -i -e '/add_library/s/$/ STATIC/' libxml/CMakeLists.txt || die

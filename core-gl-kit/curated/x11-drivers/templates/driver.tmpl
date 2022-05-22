@@ -18,7 +18,13 @@ IUSE="{{iuse}} {% if iuse_dri is defined and iuse_dri != 'force' %}{{iuse_dri}}{
 SRC_URI="{{artifacts[0].src_uri}}"
 SLOT="0"
 S="$WORKDIR/${PN}-{% if tag_name is defined %}{{tag_name}}-${PV}{%- else %}${P}{%- endif %}"
-
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+{%- endif %}
 DEPEND="
 	{%- if kernel_config is defined %}sys-kernel/linux-headers{%- endif %}
 	x11-base/xorg-proto

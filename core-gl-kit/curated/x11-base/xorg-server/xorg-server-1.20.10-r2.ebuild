@@ -120,6 +120,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.12-unloadsubmodule.patch
 	# needed for new eselect-opengl, bug #541232
 	"${FILESDIR}"/${PN}-1.18-support-multiple-Files-sections.patch
+	# see FL-9875:
+	"${FILESDIR}"/xorg-server-1.20.10-rename-xf86Opt-bool-to-boolean.patch
 )
 
 pkg_pretend() {

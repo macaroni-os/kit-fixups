@@ -45,9 +45,7 @@ RDEPEND="
 	virtual/logger
 "
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-18.4-add-support-for-package_upgrade.patch
-)
+PATCHES=()
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then

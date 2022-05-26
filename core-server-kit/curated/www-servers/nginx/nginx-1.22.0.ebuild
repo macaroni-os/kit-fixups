@@ -144,7 +144,7 @@ mod_doc["slowfs_cache"]="README.md CHANGES"
 # Lua (https://github.com/openresty/lua-nginx-module)
 mod_a["lua"]="openresty"
 mod_pn["lua"]="lua-nginx-module"
-mod_pv["lua"]="v0.10.15"
+mod_pv["lua"]="v0.10.21"
 mod_sha["lua"]="28cf5ce3b6ec8e7ab44eadac9cc1c3b6f5c387ba"
 mod_lic["lua"]="BSD-2"
 mod_p["lua"]="${mod_pn["lua"]}-${mod_pv["lua"]/v/}"
@@ -155,7 +155,7 @@ mod_doc["lua"]="README.markdown doc/HttpLuaModule.wiki"
 # Auth PAM (https://github.com/sto/ngx_http_auth_pam_module)
 mod_a["auth_pam"]="stogh"
 mod_pn["auth_pam"]="ngx_http_auth_pam_module"
-mod_pv["auth_pam"]="1.5.2"
+mod_pv["auth_pam"]="1.5.3"
 # mod_sha["auth_pam"]="f5d706ac299dc3c517fef644873739e975556e6b"
 mod_lic["auth_pam"]="BSD-2"
 mod_p["auth_pam"]="${mod_pn["auth_pam"]}-${mod_pv["auth_pam"]}"
@@ -187,7 +187,7 @@ mod_doc["metrics"]="README.md"
 # NAXSI (https://github.com/nbs-system/naxsi)
 mod_a["naxsi"]="nbs-system"
 mod_pn["naxsi"]="naxsi"
-mod_pv["naxsi"]="0.56"
+mod_pv["naxsi"]="1.3"
 mod_lic["naxsi"]="GPL-2+"
 mod_p["naxsi"]="${mod_pn["naxsi"]}-${mod_pv["naxsi"]}"
 mod_uri["naxsi"]="https://github.com/${mod_a["naxsi"]}/${mod_pn["naxsi"]}/archive/${mod_pv["naxsi"]}.tar.gz"
@@ -267,11 +267,11 @@ mod_uri["sticky"]="http://bitbucket.org/${mod_a["sticky"]}/${mod_pn["sticky"]}/g
 mod_wd["sticky"]="${WORKDIR}/${mod_p["sticky"]}"
 mod_doc["sticky"]="README.md Changelog.txt"
 
-# AJP (https://github.com/yaoweibin/nginx_ajp_module)
-mod_a["ajp"]="yaoweibin"
+# AJP (https://github.com/dvershinin/nginx_ajp_module)
+mod_a["ajp"]="dvershinin"
 mod_pn["ajp"]="nginx_ajp_module"
-mod_pv["ajp"]="0.3.0"
-mod_sha["ajp"]="bf6cd93f2098b59260de8d494f0f4b1f11a84627"
+mod_pv["ajp"]="0.3.2"
+mod_sha["ajp"]="f93b0c13bbd57cc75926d437296a9f5b500d9c6c"
 mod_lic["ajp"]="BSD-2"
 mod_p["ajp"]="${mod_pn["ajp"]}-${mod_sha["ajp"]}"
 mod_uri["ajp"]="https://github.com/${mod_a["ajp"]}/${mod_pn["ajp"]}/archive/${mod_sha["ajp"]}.tar.gz"
@@ -282,7 +282,8 @@ inherit autotools eutils ssl-cert toolchain-funcs perl-module flag-o-matic user 
 
 DESCRIPTION="Robust, small and high performance http and reverse proxy server"
 HOMEPAGE="http://nginx.org"
-SRC_URI="http://nginx.org/download/${P}.tar.gz"
+SRC_URI="https://github.com/nginx/nginx/archive/release-${PV}.tar.gz"
+#SRC_URI="http://nginx.org/download/${P}.tar.gz"
 
 for m in ${!mod_a[@]} ; do
 	SRC_URI+=" nginx_modules_external_${m}? (
@@ -531,11 +532,20 @@ pkg_setup() {
 
 src_prepare() {
 
-	eapply "${FILESDIR}/${PN}-fix-perl-install-path.patch"
-	eapply "${FILESDIR}/${PN}-httpoxy-mitigation-r1.patch"
+	eapply "${FILESDIR}/patches/${PN}-fix-perl-install-path.patch"
+	eapply "${FILESDIR}/patches/${PN}-httpoxy-mitigation-r1.patch"
 
 	if use nginx_modules_external_upstream_check; then
-		epatch "${FILESDIR}/check-1.11.5.patch"
+		epatch "${FILESDIR}/patches/upstream-check-plus-stream.patch"
+	fi
+	
+	if use nginx_modules_external_naxsi; then
+		cd "${WORKDIR}/${mod_p[naxsi]}"
+		
+		epatch "${FILESDIR}/patches/naxsi_1.21_pcre2.patch"
+
+		cd "${S}" || die
+
 	fi
 
 	if use nginx_modules_external_modsecurity; then
@@ -549,6 +559,35 @@ src_prepare() {
 
 		cd "${S}" || die
 	fi
+
+	if use nginx_modules_external_brotli; then
+		cd "${WORKDIR}/${mod_p[brotli]}"
+
+		epatch "${FILESDIR}/patches/http_brotli-detect-brotli-r3.patch"
+
+		cd "${S}" || die
+	fi
+
+	if use nginx_modules_external_cache_purge; then
+
+                cd "${WORKDIR}/${mod_p[cache_purge]}"
+
+                epatch "${FILESDIR}/patches/http_cache_purge-1.11.6+.patch"
+
+                cd "${S}" || die
+
+	fi
+	
+	if use nginx_modules_external_upload_progress; then  
+
+                cd "${WORKDIR}/${mod_p[upload_progress]}"
+
+                epatch "${FILESDIR}/patches/http_uploadprogress-issue_50-r1.patch"
+
+                cd "${S}" || die
+
+	fi
+
 
 	find auto/ -type f -print0 | xargs -0 sed -i 's:\&\& make:\&\& \\$(MAKE):' || die
 	# We have config protection, don't rename etc files
@@ -697,7 +736,7 @@ src_configure() {
 		nginx_configure+=" --user=${PN} --group=${PN}"
 	fi
 
-	./configure \
+	./auto/configure \
 		--prefix="${EPREFIX}/usr" \
 		--conf-path="${EPREFIX}/etc/${PN}/${PN}.conf" \
 		--error-log-path="${EPREFIX}/var/log/${PN}/error_log" \
@@ -720,6 +759,12 @@ src_configure() {
 	# good if people outside the gentoo community would troubleshoot and
 	# question the users setup.
 	sed -e "s;${WORKDIR};external_module;g" -i "${S}/objs/ngx_auto_config.h" || die
+}
+
+post_src_unpack() {
+        if [ ! -d "${S}" ]; then
+                mv  nginx-release-* "${S}" || die
+        fi
 }
 
 src_compile() {
@@ -747,8 +792,12 @@ src_install() {
 	doins "${FILESDIR}/example/nginx-logo.png"
 	doins "${FILESDIR}/example/powered-by-funtoo.png"
 
-	doman "${S}/man/nginx.8"
-	dodoc CHANGES* README
+	keepdir "${EROOT}etc/${PN}"/conf.d
+	insinto "${EROOT}etc/${PN}/conf.d"
+	doins "${FILESDIR}/conf.d/cis.conf"      
+	doins "${FILESDIR}/conf.d/default.conf"
+	
+	doman "${S}/docs/man/nginx.8"
 
 	# just keepdir. do not copy the default htdocs files (bug #449136)
 	keepdir "${EROOT}var/www/localhost"
@@ -771,7 +820,7 @@ src_install() {
 	fperms 0700 ${keepdir_list}
 	fowners ${PN}:${PN} ${keepdir_list}
 
-	fperms 0710 /var/log/nginx
+	fperms 0750 /var/log/nginx
 	fowners 0:${PN} /var/log/nginx
 	# logrotate
 	insinto /etc/logrotate.d
@@ -799,6 +848,7 @@ src_install() {
 	fi
 	done
 }
+
 pkg_preinst() {
 	if [[ ! -d "${EROOT}etc/${PN}/sites-available" ]] ; then
 		first_install=yes
@@ -859,6 +909,11 @@ pkg_postinst() {
 		ewarn "on ${EROOT}var/log/${PN} directory."
 		ewarn "Otherwise you end up with empty log files"
 		ewarn "after a logrotate."
+		# Contrary to this warning, it was not the default for <nginx-1.19.4-r2
+		ewarn "Attempting to fix permissions automatically:"
+		ewarn "Changing group ownership to ${PN} and adding 'rx' to group."
+		chown :${PN} ${EROOT}var/log/${PN}
+		chmod g+rx ${EROOT}var/log/${PN}
 	fi
 }
 

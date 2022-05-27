@@ -75,7 +75,7 @@ CDEPEND="
 	elogind? (
 		sys-apps/dbus
 		sys-auth/elogind[pam]
-		sys-auth/pambase[elogind]
+		sys-libs/pam[elogind]
 	)
 	!!x11-drivers/nvidia-drivers[-libglvnd(+)]
 "

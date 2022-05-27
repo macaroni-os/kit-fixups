@@ -76,7 +76,7 @@ PDEPEND="
 	video_cards_glint?         ( >=x11-drivers/xf86-video-glint-1.2.9 )
 	video_cards_i915?          ( x11-drivers/xf86-video-intel )
 	video_cards_i965?          ( >=x11-base/xorg-server-${PV}[-minimal] )
-	video_cards_intel?         ( !video_cards_i965? ( >=x11-drivers/xf86-video-intel ) )
+	video_cards_intel?         ( !video_cards_i965? ( x11-drivers/xf86-video-intel ) )
 	video_cards_mga?           ( >=x11-drivers/xf86-video-mga-1.6.5 )
 	video_cards_nouveau?       ( >=x11-drivers/xf86-video-nouveau-1.0.13 )
 	video_cards_nv?            ( >=x11-drivers/xf86-video-nv-2.1.21 )

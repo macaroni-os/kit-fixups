@@ -10,7 +10,7 @@ SLOT="0/${PV}"
 KEYWORDS="*"
 
 IUSE_SERVERS="dmx kdrive xephyr xnest xorg xvfb"
-IUSE="${IUSE_SERVERS} debug +elogind minimal selinux suid systemd test +udev unwind xcsecurity"
+IUSE="${IUSE_SERVERS} debug +elogind minimal selinux +suid systemd test +udev unwind xcsecurity"
 RESTRICT="!test? ( test )"
 
 CDEPEND="
@@ -138,6 +138,7 @@ src_configure() {
 		$(use_enable xvfb)
 		$(use_enable udev config-udev)
 		$(use_with systemd systemd-daemon)
+		--enable-glamor
 		--enable-ipv6
 		--disable-xwayland
 		--enable-libdrm
@@ -156,11 +157,18 @@ src_configure() {
 		CPP="$(tc-getPROG CPP cpp)"
 	)
 
-	if use systemd || use elogind; then
+	if use systemd; then
 		XORG_CONFIGURE_OPTIONS+=(
 			--enable-systemd-logind
 			--disable-install-setuid
 			$(use_enable suid suid-wrapper)
+		)
+	elif use elogind; then
+		# This is the funtoo option
+		XORG_CONFIGURE_OPTIONS+=(
+			--disable-systemd-logind
+			--enable-install-setuid
+			--disable-suid-wrapper
 		)
 	else
 		XORG_CONFIGURE_OPTIONS+=(

@@ -59,7 +59,7 @@ drivers_rule:
         dri_use: force
         rdepend: |
           x11-libs/libdrm[video_cards_amdgpu]
-          x11-base/xorg-server[glamor]
+          x11-base/xorg-server[glamor(+),-minimal]
         config_options: |
           --enable-glamor
     - xf86-video-ast:
@@ -69,13 +69,13 @@ drivers_rule:
         iuse: +glamor udev
         rdepend: |
           x11-libs/libdrm[video_cards_radeon]
-          glamor? ( x11-base/xorg-server[glamor] )
+          x11-base/xorg-server[glamor(+),-minimal]
           udev? ( virtual/libudev:= )
         kernel_config:
           - ~!DRM_RADEON_UMS
           - ~!FB_RADEON
         config_options: |
-          $(use_enable glamor)
+          --enable-glamor
           $(use_enable udev)
         src_prepare: |
             # gcc-10 fix:

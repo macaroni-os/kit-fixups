@@ -202,7 +202,7 @@ src_install() {
 	if ! use minimal && use xorg; then
 		# Install xorg.conf.example into docs
 		dodoc "${S}"/hw/xfree86/xorg.conf.example
-
+	else
 		rm \
 			"${ED}"/usr/bin/cvt \
 			"${ED}"/usr/share/man/man1/cvt.1 || die

@@ -72,6 +72,13 @@ pkg_setup() {
 	BUILD_TARGETS="wl.ko"
 }
 
+src_prepare() {
+	if kernel_is ge 5 17 0; then
+		sed -e 's/PDE_DATA/pde_data/g' -i src/wl/sys/wl_linux.c
+	fi
+	default
+}
+
 src_install() {
 	linux-mod_src_install
 

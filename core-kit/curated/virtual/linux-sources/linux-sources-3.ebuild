@@ -10,10 +10,10 @@ IUSE="firmware"
 RDEPEND="
 	firmware? ( sys-kernel/linux-firmware )
 	|| (
-		>=sys-kernel/dummy-sources
-		>=sys-kernel/debian-sources
-		>=sys-kernel/debian-sources-lts
-		>=sys-kernel/gentoo-sources
-		>=sys-kernel/ck-sources
-		>=sys-kernel/vanilla-sources
+		sys-kernel/dummy-sources
+		sys-kernel/debian-sources
+		sys-kernel/debian-sources-lts
+		sys-kernel/gentoo-sources
+		sys-kernel/ck-sources
+		sys-kernel/vanilla-sources
 	)"

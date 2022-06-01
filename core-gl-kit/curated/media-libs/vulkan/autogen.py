@@ -71,6 +71,31 @@ async def generate(hub, **pkginfo):
 	tools_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **tools_pkginfo, select=f"v.*"))
 	hub.pkgtools.ebuild.BreezyBuild(**tools_pkginfo).push()
 
+	##################################################################################################
+	# glslang: This also has independent versioning.
+	##################################################################################################
+
+	glslang_pkginfo = {
+		**khronos_pkginfo,
+		'github_repo': 'glslang',
+		'cat': 'dev-util',
+		'name': 'glslang',
+		'template_path': loader.template_path
+	}
+	# The tags for this on github are messy
+	json_list = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{glslang_pkginfo['github_user']}/{glslang_pkginfo['github_repo']}/tags?per_page=100", is_json=True
+	)
+	# We are looking only for tags that look like version numbers, and ignoring any tags with letters
+	for tag in json_list:
+		if any(c.isalpha() for c in tag["name"]):
+			continue
+		version = tag["name"]
+		url = tag["tarball_url"]
+		break
+	glslang_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **glslang_pkginfo, select=f"{version}"))
+	hub.pkgtools.ebuild.BreezyBuild(**glslang_pkginfo).push()
+
 
 
 # vim: ts=4 sw=4 noet

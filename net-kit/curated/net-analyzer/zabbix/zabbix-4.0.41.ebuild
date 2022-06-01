@@ -1,100 +1,83 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI="6"
 
 # needed to make webapp-config dep optional
 WEBAPP_OPTIONAL="yes"
-inherit flag-o-matic webapp java-pkg-opt-2 user systemd toolchain-funcs
+inherit flag-o-matic webapp java-pkg-opt-2 user systemd tmpfiles toolchain-funcs
 
 DESCRIPTION="ZABBIX is software for monitoring of your applications, network and servers"
 HOMEPAGE="https://www.zabbix.com/"
 MY_P=${P/_/}
 MY_PV=${PV/_/}
-SRC_URI="https://cdn.zabbix.com/${PN}/sources/stable/$(ver_cut 1-2)/${P}.tar.gz"
+SRC_URI="https://cdn.zabbix.com/zabbix/sources/stable/4.0/${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
 WEBAPP_MANUAL_SLOT="yes"
-KEYWORDS="*"
+KEYWORDS="~amd64 ~x86"
 IUSE="+agent java curl frontend ipv6 xmpp ldap libxml2 mysql openipmi oracle +postgres proxy server ssh ssl snmp sqlite odbc static"
-# Agent2 not yet work 
 REQUIRED_USE="|| ( agent frontend proxy server )
 	proxy? ( ^^ ( mysql oracle postgres sqlite odbc ) )
 	server? ( ^^ ( mysql oracle postgres odbc ) )
 	static? ( !oracle !snmp )"
 
-COMMON_DEPEND="
-	curl? ( net-misc/curl )
-	java? ( >=virtual/jdk-1.8:* )
+COMMON_DEPEND="snmp? ( net-analyzer/net-snmp )
 	ldap? (
+		net-nds/openldap
 		=dev-libs/cyrus-sasl-2*
 		net-libs/gnutls
-		net-nds/openldap
 	)
+	mysql? ( >=virtual/mysql-5.0.3 )
+	sqlite? ( >=dev-db/sqlite-3.3.5 )
+	postgres? ( >=dev-db/postgresql-8.1:* )
+	oracle? ( >=dev-db/oracle-instantclient-basic-10.0.0.0 )
+	xmpp? ( dev-libs/iksemel )
 	libxml2? ( dev-libs/libxml2 )
-	mysql? ( dev-db/mysql-connector-c )
-	odbc? ( dev-db/unixODBC )
+	curl? ( net-misc/curl )
 	openipmi? ( sys-libs/openipmi )
-	oracle? ( dev-db/oracle-instantclient-basic )
-	postgres? ( dev-db/postgresql:* )
-	proxy?  ( sys-libs/zlib )
-	server? (
-		dev-libs/libevent
-		sys-libs/zlib
-	)
-	snmp? ( net-analyzer/net-snmp )
-	sqlite? ( dev-db/sqlite )
 	ssh? ( net-libs/libssh2 )
-	ssl? ( dev-libs/openssl:=[-bindist] )
-"
+	java? ( virtual/jdk:* )
+	odbc? ( dev-db/unixODBC )
+	server? ( sys-libs/zlib )
+	proxy?  ( sys-libs/zlib )
+	ssl? ( dev-libs/openssl:=[-bindist] )"
 
 RDEPEND="${COMMON_DEPEND}
-	java? ( >=virtual/jre-1.8:* )
-	mysql? ( virtual/mysql )
 	proxy? ( net-analyzer/fping[suid] )
-	server? (
+	server? ( net-analyzer/fping[suid]
 		app-admin/webapp-config
-		dev-libs/libevent
 		dev-libs/libpcre
-		net-analyzer/fping[suid]
+		dev-libs/libevent )
+	java?	(
+		>=virtual/jre-1.4
+		dev-java/slf4j-api
 	)
 	frontend? (
-		app-admin/webapp-config
-                >=dev-lang/php-7.2.0[bcmath,ctype,sockets,gd,truetype,xml,session,xmlreader,xmlwriter,nls,sysvipc,unicode]
-                || ( dev-lang/php[apache2] dev-lang/php[cgi] dev-lang/php[fpm] )
-		media-libs/gd[png]
-		virtual/httpd-php:*
+		>=dev-lang/php-5.4.0[bcmath,ctype,sockets,gd,truetype,xml,session,xmlreader,xmlwriter,nls,sysvipc,unicode]
+		|| ( dev-lang/php[apache2] dev-lang/php[cgi] dev-lang/php[fpm] )
 		mysql? ( dev-lang/php[mysqli] )
 		odbc? ( dev-lang/php[odbc] )
 		oracle? ( dev-lang/php[oci8-instant-client] )
 		postgres? ( dev-lang/php[postgres] )
 		sqlite? ( dev-lang/php[sqlite] )
-	)
-"
+		media-libs/gd[png]
+		app-admin/webapp-config )"
 DEPEND="${COMMON_DEPEND}
 	static? (
-		curl? ( net-misc/curl[static-libs] )
 		ldap? (
+			net-nds/openldap[static-libs]
 			=dev-libs/cyrus-sasl-2*[static-libs]
 			net-libs/gnutls[static-libs]
-			net-nds/openldap[static-libs]
 		)
-		libxml2? ( dev-libs/libxml2[static-libs] )
-		mysql? ( dev-db/mysql-connector-c[static-libs] )
-		odbc? ( dev-db/unixODBC[static-libs] )
-		postgres? ( dev-db/postgresql:*[static-libs] )
-		sqlite? ( dev-db/sqlite[static-libs] )
-		ssh? ( net-libs/libssh2 )
+	mysql? ( >=virtual/mysql-5.0.3[static-libs] )
+	sqlite? ( >=dev-db/sqlite-3.3.5[static-libs] )
+	postgres? ( >=dev-db/postgresql-8.1:*[static-libs] )
+	libxml2? ( dev-libs/libxml2[static-libs] )
+	curl? ( net-misc/curl[static-libs] )
+	ssh? ( net-libs/libssh2[static-libs] )
+	odbc? ( dev-db/unixODBC[static-libs] )
 	)
-        dev-lang/go
-"
-BDEPEND="
-	virtual/pkgconfig
-"
-
-PATCHES=(
-	"${FILESDIR}/5.0/${PN}-4.0.18-modulepathfix.patch"
-	"${FILESDIR}/5.0/${PN}-3.0.30-security-disable-PidFile.patch"
-)
+	virtual/pkgconfig"
 
 S=${WORKDIR}/${MY_P}
 
@@ -122,65 +105,70 @@ pkg_setup() {
 		webapp_pkg_setup
 	fi
 
-        enewgroup zabbix
-        enewuser zabbix -1 -1 /var/lib/zabbix/home zabbix
+	enewgroup zabbix
+	enewuser zabbix -1 -1 /var/lib/zabbix/home zabbix
 }
 
 java_prepare() {
-        cd "${S}/src/zabbix_java/lib"
-        rm -v *.jar || die
+	cd "${S}/src/zabbix_java/lib"
+	rm -v *.jar || die
 
-        java-pkg_jar-from slf4j-api
+	java-pkg_jar-from slf4j-api
 }
 
 src_prepare() {
-	default
+	eapply -p1 "${FILESDIR}/4.0/patches/zbx401-modulepathfix.patch"
+	eapply_user
 }
 
 src_configure() {
-        econf \
+	econf \
+		$(use_enable server) \
+		$(use_enable proxy) \
 		$(use_enable agent) \
 		$(use_enable ipv6) \
-		$(use_enable java) \
-		$(use_enable proxy) \
-		$(use_enable server) \
 		$(use_enable static) \
-		$(use_with curl libcurl) \
+		$(use_enable java) \
 		$(use_with ldap) \
-		$(use_with libxml2) \
-		$(use_with mysql) \
-		$(use_with odbc unixodbc) \
-		$(use_with openipmi openipmi) \
-		$(use_with oracle) \
-		$(use_with postgres postgresql) \
 		$(use_with snmp net-snmp) \
+		$(use_with mysql) \
+		$(use_with postgres postgresql) \
+		$(use_with oracle) \
 		$(use_with sqlite sqlite3) \
+		$(use_with xmpp jabber) \
+		$(use_with curl libcurl) \
+		$(use_with openipmi openipmi) \
 		$(use_with ssh ssh2) \
+		$(use_with libxml2) \
+		$(use_with odbc unixodbc) \
 		$(use_with ssl openssl) \
-                || die "econf failed"
+		|| die "econf failed"
 }
 
 src_compile() {
 	if [ -f Makefile ] || [ -f GNUmakefile ] || [ -f makefile ]; then
-		emake AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)"
+		emake AR="$(tc-getAR)" RANLIB="$(tc-getRANLIB)" || die "emake failed"
 	fi
 }
 
 src_install() {
-	local dirs=(
-		/etc/zabbix
-		/var/lib/zabbix
-		/var/lib/zabbix/home
-		/var/lib/zabbix/scripts
-		/var/lib/zabbix/alertscripts
-		/var/lib/zabbix/externalscripts
+	dodir \
+		/etc/zabbix \
+		/var/lib/zabbix \
+		/var/lib/zabbix/home \
+		/var/lib/zabbix/scripts \
+		/var/lib/zabbix/alertscripts \
+		/var/lib/zabbix/externalscripts \
 		/var/log/zabbix
-	)
 
-	for dir in "${dirs[@]}"; do
-		dodir "${dir}"
-		keepdir "${dir}"
-	done
+	keepdir \
+		/etc/zabbix \
+		/var/lib/zabbix \
+		/var/lib/zabbix/home \
+		/var/lib/zabbix/scripts \
+		/var/lib/zabbix/alertscripts \
+		/var/lib/zabbix/externalscripts \
+		/var/log/zabbix
 
 	if use server; then
 		insinto /etc/zabbix
@@ -188,15 +176,15 @@ src_install() {
 		fperms 0640 /etc/zabbix/zabbix_server.conf
 		fowners root:zabbix /etc/zabbix/zabbix_server.conf
 
-		newinitd "${FILESDIR}"/zabbix-server.init zabbix-server
+		newinitd "${FILESDIR}"/4.0/zabbix-server.init zabbix-server
 
 		dosbin src/zabbix_server/zabbix_server
 
 		insinto /usr/share/zabbix
 		doins -r "${S}"/database/
 
-		systemd_dounit "${FILESDIR}"/zabbix-server.service
-		systemd_newtmpfilesd "${FILESDIR}"/zabbix-server.tmpfiles zabbix-server.conf
+		systemd_dounit "${FILESDIR}"/4.0/zabbix-server.service
+		newtmpfiles "${FILESDIR}"/4.0/zabbix-server.tmpfiles zabbix-server.conf
 	fi
 
 	if use proxy; then
@@ -205,36 +193,33 @@ src_install() {
 		fperms 0640 /etc/zabbix/zabbix_proxy.conf
 		fowners root:zabbix /etc/zabbix/zabbix_proxy.conf
 
-		newinitd "${FILESDIR}"/zabbix-proxy.init zabbix-proxy
+		newinitd "${FILESDIR}"/4.0/zabbix-proxy.init zabbix-proxy
 
 		dosbin src/zabbix_proxy/zabbix_proxy
 
 		insinto /usr/share/zabbix
 		doins -r "${S}"/database/
 
-		systemd_dounit "${FILESDIR}"/zabbix-proxy.service
-		systemd_newtmpfilesd "${FILESDIR}"/zabbix-proxy.tmpfiles zabbix-proxy.conf
+		systemd_dounit "${FILESDIR}"/4.0/zabbix-proxy.service
+		newtmpfiles "${FILESDIR}"/4.0/zabbix-proxy.tmpfiles zabbix-proxy.conf
 	fi
 
 	if use agent; then
 		insinto /etc/zabbix
-		doins "${S}"/conf/zabbix_agentd.conf
-		fperms 0640 /etc/zabbix/zabbix_agentd.conf
-		fowners root:zabbix /etc/zabbix/zabbix_agentd.conf
-
-		newinitd "${FILESDIR}"/zabbix-agentd.init zabbix-agentd
-
+		doins "${FILESDIR}/4.0"/zabbix_agentd.conf
+		doinitd "${FILESDIR}/4.0"/init.d/zabbix-agentd
 		dosbin src/zabbix_agent/zabbix_agentd
 		dobin \
 			src/zabbix_sender/zabbix_sender \
 			src/zabbix_get/zabbix_get
-
-		systemd_dounit "${FILESDIR}"/zabbix-agentd.service
-		systemd_newtmpfilesd "${FILESDIR}"/zabbix-agentd.tmpfiles zabbix-agentd.conf
+		fowners zabbix:zabbix /etc/zabbix/zabbix_agentd.conf
+		fperms 0640 /etc/zabbix/zabbix_agentd.conf
+		systemd_dounit "${FILESDIR}/zabbix-agentd.service"
+		systemd_newtmpfilesd "${FILESDIR}/zabbix-agentd.tmpfiles" zabbix-agentd.conf
 	fi
 
-	fowners root:zabbix /etc/zabbix
 	fowners zabbix:zabbix \
+		/etc/zabbix \
 		/var/lib/zabbix \
 		/var/lib/zabbix/home \
 		/var/lib/zabbix/scripts \
@@ -259,7 +244,7 @@ src_install() {
 
 	if use frontend; then
 		webapp_src_preinst
-		cp -R ui/* "${D}/${MY_HTDOCSDIR}"
+		cp -R frontends/php/* "${D}/${MY_HTDOCSDIR}"
 		webapp_configfile \
 			"${MY_HTDOCSDIR}"/include/db.inc.php \
 			"${MY_HTDOCSDIR}"/include/config.inc.php
@@ -275,23 +260,29 @@ src_install() {
 		exeinto /${ZABBIXJAVA_BASE}/bin
 		doexe src/zabbix_java/bin/zabbix-java-gateway-${MY_PV}.jar
 		exeinto /${ZABBIXJAVA_BASE}/lib
+
 		doexe \
-			src/zabbix_java/lib/logback-classic-0.9.27.jar \
-			src/zabbix_java/lib/logback-console.xml \
-			src/zabbix_java/lib/logback-core-0.9.27.jar \
-			src/zabbix_java/lib/logback.xml \
-			src/zabbix_java/lib/android-json-4.3_r3.1.jar \
-			src/zabbix_java/lib/slf4j-api-1.6.1.jar
-		newinitd "${FILESDIR}"/zabbix-jmx-proxy.init zabbix-jmx-proxy
-		newconfd "${FILESDIR}"/zabbix-jmx-proxy.conf zabbix-jmx-proxy
+                        src/zabbix_java/lib/android-json-4.3_r3.1.jar \
+                        src/zabbix_java/lib/logback-classic-1.2.9.jar \
+                        src/zabbix_java/lib/logback-classic-1.2.9.jar.md5 \
+                        src/zabbix_java/lib/logback-console.xml \
+                        src/zabbix_java/lib/logback-core-1.2.9.jar \
+                        src/zabbix_java/lib/logback-core-1.2.9.jar.md5 \
+                        src/zabbix_java/lib/logback.xml \
+                        src/zabbix_java/lib/slf4j-api-1.7.32.jar \
+                        src/zabbix_java/lib/slf4j-api-1.7.32.jar.md5
+
+		fowners -R zabbix:zabbix /${ZABBIXJAVA_BASE}
+		newinitd "${FILESDIR}"/4.0/zabbix-jmx-proxy.init zabbix-jmx-proxy
+		newconfd "${FILESDIR}"/4.0/zabbix-jmx-proxy.conf zabbix-jmx-proxy
 	fi
 }
 
 pkg_postinst() {
 	if use server || use proxy ; then
 		elog
-		elog "You may need to configure your database for Zabbix"
-		elog "if you have not already done so."
+		elog "You may need to configure your database for Zabbix,"
+		elog "if you have not already done so. "
 		elog
 
 		zabbix_homedir=$(egethome zabbix)
@@ -303,7 +294,8 @@ pkg_postinst() {
 			ewarn "custom alert scripts."
 			ewarn
 			ewarn "A real homedir might be needed for configfiles"
-			ewarn "for custom alert scripts."
+			ewarn "for custom alert scripts (e.g. ~/.sendxmpprc when"
+			ewarn "using sendxmpp for Jabber alerts)."
 			ewarn
 			ewarn "To change the homedir use:"
 			ewarn "  usermod -d /var/lib/zabbix/home zabbix"
@@ -352,8 +344,4 @@ pkg_postinst() {
 				;;
 		esac
 	fi
-}
-
-pkg_prerm() {
-	(use frontend || use server) && webapp_pkg_prerm
 }

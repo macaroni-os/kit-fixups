@@ -78,7 +78,7 @@ NV_OPENCL_VEND_DIR="OpenCL/nvidia"
 NV_X_MODDIR="xorg/modules"
 
 # Maximum supported kernel version in form major.minor
-: "${NV_MAX_KERNEL_VERSION:=5.17}"
+: "${NV_MAX_KERNEL_VERSION:=5.18}"
 
 # Fixups for issues with particular versions of the package.
 nv_do_fixups() {
@@ -237,7 +237,7 @@ nv_parse_manifest() {
 					*) nv_install_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$perms" "$f4" "$module" ;;
 				esac;;
 			GLVND_SYMLINK) nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
-			OPENGL_SYMLINK|NVCUVID_LIB_SYMLINK|ENCODEAPI_LIB_SYMLINK|NVIFR_LIB_SYMLINK|UTILITY_LIB_SYMLINK) nv_symlink_lib_arch "${NV_LIBDIR}" "$name" "$f4" "$f5" "$module" ;;
+			OPENGL_SYMLINK|NVCUVID_LIB_SYMLINK|ENCODEAPI_LIB_SYMLINK|NVIFR_LIB_SYMLINK|UTILITY_LIB_SYMLINK|GBM_BACKEND_LIB_SYMLINK) nv_symlink_lib_arch "${NV_LIBDIR}" "$name" "$f4" "$f5" "$module" ;;
 			OPENCL_LIB_SYMLINK|CUDA_SYMLINK|VDPAU_SYMLINK|VDPAU_WRAPPER_SYMLINK) nv_symlink_lib_arch "${NV_LIBDIR}/${f5%/}" "$name" "$f4" "$f6" "$module" ;;
 			OPENCL_WRAPPER_SYMLINK) nv_symlink_lib_arch "${NV_OPENCL_VEND_DIR}/lib/${f5%/}" "$name" "$f4" "$f6" "$module" ;;
 			GLX_CLIENT_SYMLINK|EGL_CLIENT_SYMLINK) nv_symlink_lib_arch "${NV_OPENGL_VEND_DIR}/lib" "$name" "$f4" "$f5" "$module" ;;
@@ -260,7 +260,20 @@ nv_parse_manifest() {
 			GLVND_EGL_ICD_JSON) nv_install "${NV_SHAREDIR}/glvnd/egl_vendor.d/" "$name" "$perms" "$module" ;;
 			EGL_EXTERNAL_PLATFORM_JSON) nv_install "${NV_SHAREDIR}/egl/egl_external_platform.d/" "$name" "$perms" "$module" ;;
 			UTILITY_BIN_SYMLINK) [ "x${f4}" = "xnvidia-installer" ] || nv_symlink "${NV_BINDIR}" "$name" "$f4" "$module" ;;
-
+			# Various new installer file fixes from https://bugs.funtoo.org/browse/FL-9800
+			# Skip installing Systemd related services, this will impact power management functionality of the driver during suspending
+			# Nvidia uses systemd services to control this driver functionality
+			# These process supervisor scripts potentially and if possible would have ported to OpenRC if needed on Funtoo
+			# For complete details on systemd power management see:
+			# http://download.nvidia.com/XFree86/Linux-x86_64/515.48.07/README/powermanagement.html#SystemdConfigur74e29
+			SYSTEMD_UNIT|SYSTEMD_UNIT_SYMLINK|SYSTEMD_SLEEP_SCRIPT);;
+			# Right now we will exclude the GPU System Processor (GSP) fireware from installation
+			# It is only used by a small subset high end Nvidia cards Telsa, T4, A100, etc.
+			# As of nvidia-drivers-515.48.07 there is only one FIRMWARE reference in the installer .manifest config
+			# Eventually we will have to plumb in the installation of the FIRMWARE when/if Nvidia integrates it into more consumer GPUs
+			# For complete details on GSP firmware see:
+			# http://download.nvidia.com/XFree86/Linux-x86_64/515.48.07/README/gsp.html
+			FIRMWARE);;
 			# Kernel modules sources handled elsewhere
 			KERNEL_MODULE_SRC|UVM_MODULE_SRC|DKMS_CONF) : ;;
 			UVM_MODULE_SRC) : ;;
@@ -339,9 +352,9 @@ src_install() {
 	# Link nvidia-modprobe utility to /usr/bin if installed.
 	[ -f "${D}${NV_ROOT}/bin/nvidia-modprobe" ] && dosym "${NV_ROOT}/bin/nvidia-modprobe" "/usr/bin/nvidia-modprobe"
 
-	# If 'tools' flag is enabled, link nvidia-settings utility into /usr/bin, install an xinitrc.d file to start it, and link it's desktop file.
+	# If 'tools' flag is enabled, link nvidia-settings and nvidia-smi utilities into /usr/bin, install an xinitrc.d file to start it, and link it's desktop file.
 	if use tools; then
-		for tool in settings xconfig; do
+		for tool in settings smi xconfig; do
 			[ -f "${D}${NV_ROOT}/bin/nvidia-${tool}" ] && dosym "${NV_ROOT}/bin/nvidia-${tool}" "/usr/bin/nvidia-${tool}"
 		done
 		exeinto /etc/X11/xinit/xinitrc.d

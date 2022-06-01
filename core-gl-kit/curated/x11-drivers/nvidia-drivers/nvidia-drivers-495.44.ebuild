@@ -339,9 +339,9 @@ src_install() {
 	# Link nvidia-modprobe utility to /usr/bin if installed.
 	[ -f "${D}${NV_ROOT}/bin/nvidia-modprobe" ] && dosym "${NV_ROOT}/bin/nvidia-modprobe" "/usr/bin/nvidia-modprobe"
 
-	# If 'tools' flag is enabled, link nvidia-settings utility into /usr/bin, install an xinitrc.d file to start it, and link it's desktop file.
+	# If 'tools' flag is enabled, link nvidia-settings and nvidia-smi utilities into /usr/bin, install an xinitrc.d file to start it, and link it's desktop file.
 	if use tools; then
-		for tool in settings xconfig; do
+		for tool in smi settings xconfig; do
 			[ -f "${D}${NV_ROOT}/bin/nvidia-${tool}" ] && dosym "${NV_ROOT}/bin/nvidia-${tool}" "/usr/bin/nvidia-${tool}"
 		done
 		exeinto /etc/X11/xinit/xinitrc.d

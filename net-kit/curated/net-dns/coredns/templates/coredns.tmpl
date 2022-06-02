@@ -1,0 +1,46 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+EGO_SUM=(
+{{ gosum }})
+
+go-module_set_globals
+
+DESCRIPTION="CoreDNS is a DNS server/forwarder, written in Go, that chains plugins"
+HOMEPAGE="https://coredns.io/ https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{artifacts[0].src_uri}}
+	${EGO_SUM_SRC_URI}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+
+DEPEND=""
+RDEPEND="${DEPEND}"
+BDEPEND=">=dev-lang/go-1.17"
+
+src_unpack() {
+	go-module_src_unpack
+	GITCOMMIT=$(ls -1 ${WORKDIR}/ | cut -d- -f3)
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_compile() {
+	CGO_ENABLE=0 go build -ldflags="-s -w -X github.com/coredns/coredns/coremain.GitCommit=${GITCOMMIT}" -o "${PN}" || die "compile failed"
+}
+
+src_install() {
+	dobin ${PN}
+	insinto /etc/"${PN}"
+	doins "${FILESDIR}"/Corefile
+	dodoc README.md
+	doman man/*
+
+	newinitd "${FILESDIR}"/"${PN}".initd ${PN}
+	newconfd "${FILESDIR}"/"${PN}".confd ${PN}
+	keepdir /var/log/"${PN}"
+}

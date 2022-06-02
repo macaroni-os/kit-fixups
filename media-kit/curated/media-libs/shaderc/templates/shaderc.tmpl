@@ -16,12 +16,12 @@ KEYWORDS="*"
 IUSE="doc test"
 
 RDEPEND="
-	>=dev-util/glslang-10.11.0.0_pre20200924
-	>=dev-util/spirv-tools-2020.5_pre20201107
+	dev-util/glslang
+	dev-util/spirv-tools
 "
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
-	>=dev-util/spirv-headers-1.5.4
+	dev-util/spirv-headers
 	doc? ( dev-ruby/asciidoctor )
 	test? (
 		dev-cpp/gtest
@@ -38,8 +38,7 @@ python_check_deps() {
 	fi
 }
 
-src_unpack() {
-	unpack ${A}
+post_src_unpack() {
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 

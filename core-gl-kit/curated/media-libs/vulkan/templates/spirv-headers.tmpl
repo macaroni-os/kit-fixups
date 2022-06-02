@@ -12,7 +12,6 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 
-src_unpack() {
-	unpack "${A}"
+post_src_unpack() {
 	mv "${WORKDIR}"/{{github_repo}}-* "${S}" || die
 }

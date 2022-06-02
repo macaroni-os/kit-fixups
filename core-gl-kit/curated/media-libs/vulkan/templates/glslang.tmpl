@@ -20,7 +20,6 @@ BDEPEND="${PYTHON_DEPS}"
 # Bug 698850
 RESTRICT="test"
 
-src_unpack() {
-	unpack "${A}"
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+post_src_unpack() {
+	mv "${WORKDIR}"/*{{github_repo}}-* "${S}" || die
 }

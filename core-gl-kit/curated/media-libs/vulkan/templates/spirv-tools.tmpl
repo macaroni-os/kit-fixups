@@ -18,15 +18,16 @@ KEYWORDS="*"
 # in the generated library. Easily hit with non-standard compiler flags
 RESTRICT="test"
 
-COMMON_DEPEND=">=dev-util/spirv-headers-1.5.4_p20210219"
+COMMON_DEPEND="{% for dep in deps %}
+	{{ dep }}{% endfor %}
+"
 DEPEND="${COMMON_DEPEND}"
 RDEPEND=""
 BDEPEND="${PYTHON_DEPS}
 	${COMMON_DEPEND}"
 
-src_unpack() {
-	unpack "${A}"
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+post_src_unpack() {
+	mv "${WORKDIR}"/*{{github_repo}}-* "${S}" || die
 }
 
 src_configure() {

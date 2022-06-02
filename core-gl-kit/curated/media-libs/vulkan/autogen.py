@@ -1,100 +1,165 @@
 #!/usr/bin/env python3
 
+import os
+import glob
+import json
+from datetime import datetime
+from packaging import version
+
+catpkgs = {
+	'Vulkan-ValidationLayers': {
+		'cat' : 'media-libs',
+		'name' : 'vulkan-layers',
+		'query': 'tags',
+		'select': "v.*",
+		'parsedeps': True,
+		'deps': ['glslang', 'SPIRV-Tools', 'Vulkan-Headers']
+	},
+	'Vulkan-Tools': {
+		'cat' : 'dev-util',
+		'name' : 'vulkan-tools',
+		'query': 'tags',
+		'select': "v.*",
+		'parsedeps': True,
+	},
+	'Vulkan-Loader': {
+		'cat': 'media-libs',
+		'name': 'vulkan-loader',
+		'query': 'tags',
+		'select': "v.*",
+		'deps': ['Vulkan-Headers'],
+		'pdeps': ['Vulkan-ValidationLayers'],
+	},
+	'Vulkan-Headers': {
+		'cat': 'dev-util',
+		'name': 'vulkan-headers',
+		'query': 'tags',
+		'select': "v.*",
+	},
+	'SPIRV-Tools': {
+		'cat': 'dev-util',
+		'name': 'spirv-tools',
+		'query': 'releases',
+		'deps': ['SPIRV-Headers',]
+	},
+	'SPIRV-Headers': {
+		'cat': 'dev-util',
+		'name': 'spirv-headers',
+		'query': 'tags',
+		'select': "sdk-.*",
+	},
+	'glslang': {
+		'cat': 'dev-util',
+		'name': 'glslang',
+		'query': 'tags',
+		'select': "sdk-.*",
+	},
+}
+
 async def generate(hub, **pkginfo):
+	# github generators
+	github_gen = {
+		'tags': hub.pkgtools.github.tag_gen,
+		'releases': hub.pkgtools.github.release_gen,
+	}
 
 	khronos_pkginfo = {
 		'github_user' : 'KhronosGroup',
-		'python_compat' : 'python3+'
+		'python_compat' : 'python3+',
+		'template_path': os.path.normpath(os.path.join(os.path.dirname(__file__), 'templates')),
 	}
 
-	##################################################################################################
-	# vulkan-loader is the 'master' ebuild which defines the version for all the other vulkan ebuilds:
-	##################################################################################################
+	# Run through all the catpkgs and record all the versions and details needed to generate ebuilds
+	for name in catpkgs:
+		catpkg_info = {
+			**khronos_pkginfo,
+			'github_repo' : name,
+			**pkginfo,
+		}
+		catpkg_info.update(catpkgs[name])
+		catpkg_info.update(await github_gen[catpkg_info['query']](hub, **catpkg_info))
 
-	loader_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo' : 'Vulkan-Loader'
-	}
-	loader_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **loader_pkginfo))
-	loader_pkginfo.update({
-		**pkginfo
-	})
-	loader_pkginfo['name'] = 'vulkan-loader'
-	loader = hub.pkgtools.ebuild.BreezyBuild(**loader_pkginfo)
-	loader.push()
-	ver = loader_pkginfo['version']
+		if 'parsedeps' in catpkg_info:
+			# this is a top-level ebuild and it determines the versions for subsequent ebuilds
+			await process_json_deps(**catpkg_info)
 
-	##################################################################################################
-	# vulkan-headers: track loader version.
-	##################################################################################################
+		# Sometimes a git commit is specified in the dependencies file
+		if 'commit' in catpkg_info:
+			# So, find the latest release or tag and then append a suffix reflecting the commit's date
+			catpkg_info.update(await process_commit_pkg(**catpkg_info))
 
-	headers_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo' : 'Vulkan-Headers',
-		'version' : ver,
-		'cat' : 'dev-util',
-		'name' : 'vulkan-headers',
-		'template_path' : loader.template_path
-	}
-	headers_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **headers_pkginfo, select=f"v{ver}"))
-	hub.pkgtools.ebuild.BreezyBuild(**headers_pkginfo).push()
+		# Finally, update the catpkgs object with all the details from here
+		catpkgs[name].update(catpkg_info)
 
-	##################################################################################################
-	# vulkan-layers: this has semi-independent versioning (can trail headers + loader a bit)
-	##################################################################################################
 
-	layers_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo' : 'Vulkan-ValidationLayers',
-		'version' : ver,
-		'cat' : 'media-libs',
-		'name' : 'vulkan-layers',
-		'template_path' : loader.template_path,
-		'revision' : { '1.2.203' : '1' }
-	}
-	tag_info = await hub.pkgtools.github.tag_gen(hub, **layers_pkginfo)
-	layers_pkginfo.update(tag_info)
-	hub.pkgtools.ebuild.BreezyBuild(**layers_pkginfo).push()
+	# Generate all the ebuilds, creating dependency strings on the fly
+	for name in catpkgs:
+		catpkg = catpkgs[name]
+		for depstr in ['deps', 'pdeps']:
+			if depstr in catpkg:
+				deps = [create_dependency_string(**catpkgs[dep]) for dep in catpkg[depstr]]
+				catpkg[depstr] = deps
+		hub.pkgtools.ebuild.BreezyBuild(**catpkg).push()
 
-	##################################################################################################
-	# vulkan-tools: This has independent versioning.
-	##################################################################################################
+###################################
+# Helper Functions
+###################################
 
-	tools_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo' : 'Vulkan-Tools',
-		'version' : ver,
-		'cat' : 'dev-util',
-		'name' : 'vulkan-tools',
-		'template_path' : loader.template_path
-	}
-	tools_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **tools_pkginfo, select=f"v.*"))
-	hub.pkgtools.ebuild.BreezyBuild(**tools_pkginfo).push()
+###
+# Create a portage compatible dependency string for a given catpkg
+###
+def create_dependency_string(**pkginfo):
+	if 'version' in pkginfo:
+		return f"={pkginfo['cat']}/{pkginfo['name']}-{pkginfo['version']}*"
+	return f"{pkginfo['cat']}/{pkginfo['name']}"
 
-	##################################################################################################
-	# glslang: This also has independent versioning.
-	##################################################################################################
+###
+# Get all the pkginfo details for a package based on a specific git commit hash
+###
+async def process_commit_pkg(**pkginfo):
+	github_user = pkginfo['github_user']
+	github_repo = pkginfo['github_repo']
+	github_commit = pkginfo['commit']
+	commit_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/commits/{github_commit}", is_json=True)
+	commit_date = datetime.strptime(commit_data["commit"]["committer"]["date"], "%Y-%m-%dT%H:%M:%SZ")
+	url = f"https://github.com/{github_user}/{github_repo}/archive/{github_commit}.tar.gz"
+	pkginfo['version'] += "_p" + commit_date.strftime("%Y%m%d")
 
-	glslang_pkginfo = {
-		**khronos_pkginfo,
-		'github_repo': 'glslang',
-		'cat': 'dev-util',
-		'name': 'glslang',
-		'template_path': loader.template_path
-	}
-	# The tags for this on github are messy
-	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{glslang_pkginfo['github_user']}/{glslang_pkginfo['github_repo']}/tags?per_page=100", is_json=True
-	)
-	# We are looking only for tags that look like version numbers, and ignoring any tags with letters
-	for tag in json_list:
-		if any(c.isalpha() for c in tag["name"]):
+	final_name = f"{pkginfo['name']}-{pkginfo['version']}.tar.gz"
+	pkginfo['artifacts'] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
+	return pkginfo
+
+
+###
+# Find the dependency versions located in the file named 'scrips/known_good.json' in the source
+###
+async def process_json_deps(**pkginfo):
+	await pkginfo['artifacts'][0].fetch()
+	pkginfo['artifacts'][0].extract()
+
+	path = glob.glob(os.path.join(
+		pkginfo['artifacts'][0].extract_path,
+		f"{pkginfo['github_user']}-{pkginfo['github_repo']}-*",
+		"scripts",
+		"known_good.json"
+	))
+
+	with open(path[0]) as depsfile:
+		data = depsfile.read()
+
+	pkgs = json.loads(data)['repos']
+	for pkg in pkgs:
+		if 'build_platforms' in pkg and not 'linux' in pkg['build_platforms']:
 			continue
-		version = tag["name"]
-		url = tag["tarball_url"]
-		break
-	glslang_pkginfo.update(await hub.pkgtools.github.tag_gen(hub, **glslang_pkginfo, select=f"{version}"))
-	hub.pkgtools.ebuild.BreezyBuild(**glslang_pkginfo).push()
+		name = pkg['name']
+		commit = pkg['commit']
+		if name in catpkgs:
+			try:
+				catpkgs[name]['version'] = version.Version(commit).public
+			except version.InvalidVersion:
+				catpkgs[name]['commit'] = commit
+
+	pkginfo['artifacts'][0].cleanup()
 
 
 

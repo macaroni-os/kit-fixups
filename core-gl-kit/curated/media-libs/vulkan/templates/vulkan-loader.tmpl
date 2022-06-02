@@ -17,18 +17,18 @@ KEYWORDS="*"
 IUSE="layers wayland X"
 
 BDEPEND=">=dev-util/cmake-3.10.2"
-DEPEND="${PYTHON_DEPS}
-	=dev-util/vulkan-headers-$(ver_cut 1-3)*
+DEPEND="{% for dep in deps %}
+	{{ dep }}{% endfor %}
+	${PYTHON_DEPS}
 	wayland? ( dev-libs/wayland:= )
 	X? (
 		x11-libs/libX11:=
 		x11-libs/libXrandr:=
 	)
 "
-PDEPEND="layers? ( media-libs/vulkan-layers:= )"
+PDEPEND="layers? ( {{ pdeps[0] }}:= )"
 
-src_unpack() {
-	unpack ${A}
+post_src_unpack() {
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* ${S} || die
 }
 

@@ -1,0 +1,14 @@
+# For Raspberry Pi 3 Model B (Broadcom BCM2837 released February 2016)
+# For Raspberry Pi 3 Model B+ (Broadcom BCM2837B0 released March 2018)
+# For Raspberry Pi Compute Module 3+ (Broadcom BCM2837B0 released January 2019)
+# Raspberry Pi Board Reference: https://en.wikipedia.org/wiki/Raspberry_Pi#Specifications
+
+CHOST="aarch64-unknown-linux-gnu"
+
+# also set CHOST_arm64 which is defined in multilib.eclass and by used by many ebuilds
+CHOST_arm64="${CHOST}"
+
+CFLAGS="-march=armv8-a+crc -mtune=cortex-a53 -ftree-vectorize -O2 -pipe -fomit-frame-pointer"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"

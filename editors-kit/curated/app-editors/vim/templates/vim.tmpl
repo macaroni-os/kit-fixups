@@ -62,10 +62,6 @@ pkg_setup() {
 }
 
 src_prepare() {
-	{%- for patch in patches %}
-	epatch "${FILESDIR}/{{patch}}"
-	{%- endfor %}
-
 	# Fixup a script to use awk instead of nawk
 	sed -i '1s|.*|#!'"${EPREFIX}"'/usr/bin/awk -f|' "${S}"/runtime/tools/mve.awk || die "mve.awk sed failed"
 

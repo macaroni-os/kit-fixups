@@ -324,6 +324,10 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
+	# libtinfo is separate from libcurses in >=ncurses-6
+	if use tinfo; then
+		sed -i "s:lcurses:lcurses -ltinfo:" ${WORKDIR}/x/y/*/build.ninja
+	fi
 	cmake_build distribution
 
 	# provide a symlink for tests

@@ -109,6 +109,17 @@ github_stuff:
             # hack to disable 2to3 which we don't need anyway and setuptools 58+ dies on
             sed -i -e 's/use_2to3/foo_2to3/g' setup.py || die
           }
+    - rdflib:
+        github:
+          query: releases
+          user: RDFLib
+        license: BSD
+        desc: Python library for working with RDF, a simple powerful language to represent information
+        homepage: https://pypi.org/project/rdflib/
+        pydeps:
+          - html5lib
+          - isodate
+          - pyparsing
 
 aiobotostuff:
   defaults:

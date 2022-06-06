@@ -8,16 +8,12 @@ JAVA_PKG_OPT_USE="jdbc"
 inherit eutils flag-o-matic prefix toolchain-funcs \
 	multiprocessing java-pkg-opt-2 cmake user
 
-# Patch version
-PATCH_SET="https://dev.gentoo.org/~whissi/dist/${PN}/${PN}-10.4.18-patches-03.tar.xz"
-
-SRC_URI="https://archive.mariadb.org/${P}/source/${P}.tar.gz
-	${PATCH_SET}"
+SRC_URI="https://archive.mariadb.org/${P}/source/${P}.tar.gz"
 
 HOMEPAGE="https://mariadb.org/"
 DESCRIPTION="An enhanced, drop-in replacement for MySQL"
 LICENSE="GPL-2 LGPL-2.1+"
-SLOT="10.4/${SUBSLOT:-0}"
+SLOT="$(ver_cut 2)/${SUBSLOT:-0}"
 IUSE="+backup bindist cracklib debug extraengine galera innodb-lz4
 	innodb-lzo innodb-snappy jdbc jemalloc kerberos latin1 libressl mroonga
 	numa odbc oqgraph pam +perl profiling rocksdb selinux +server sphinx
@@ -96,6 +92,7 @@ RDEPEND="selinux? ( sec-policy/selinux-mysql )
 	!dev-db/mariadb:10.2
 	!dev-db/mariadb:10.3
 	!dev-db/mariadb:10.5
+        !dev-db/mariadb:10.6
 	!<virtual/mysql-5.6-r11
 	!<virtual/libmysqlclient-18-r1
 	${COMMON_DEPEND}
@@ -120,6 +117,12 @@ RDEPEND="selinux? ( sec-policy/selinux-mysql )
 # For other stuff to bring us in
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
 PDEPEND="perl? ( >=dev-perl/DBD-mysql-2.9004 )"
+
+#PATCHES=(
+#	"${FILESDIR}/10.4/0001-cmake-build-without-client-libs-and-tools.patch"
+#	"${FILESDIR}/10.4/0002-libmariadb-fix-mysql_st-API-regression.patch"
+#        "${FILESDIR}/10.4/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
+#)
 
 mysql_init_vars() {
 	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX}/usr/share/mariadb"}
@@ -223,7 +226,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply "${WORKDIR}"/mariadb-patches
+	eapply	"${FILESDIR}/10.4/0001-cmake-build-without-client-libs-and-tools.patch"
+	eapply	"${FILESDIR}/10.4/0002-libmariadb-fix-mysql_st-API-regression.patch"
+        eapply	"${FILESDIR}/10.4/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
 
 	eapply_user
 

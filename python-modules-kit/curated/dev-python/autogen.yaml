@@ -631,6 +631,34 @@ dev_python_compat_rule:
               newins "${COMPLETION}" _pip
             fi
           }
+    - requests:
+        compat: 2.27.1
+        blocker: '!<dev-python/requests-2.28.0'
+        python_compat: python3+ pypy{,3}
+        desc: HTTP library for human beings
+        homepage: https://requests.readthedocs.io/en/master/
+        license: Apache-2.0
+        iuse: socks5 +ssl
+        pydeps:
+          py:all:
+            - certifi >= 2017.4.17
+            - chardet
+            - idna
+            - urllib3
+          py:3:
+            - charset_normalizer
+          use:socks5:
+            - PySocks >= 1.5.6
+          use:ssl:
+            - cryptography >= 1.3.4
+            - pyopenssl >= 0.14
+        body: |
+          # FL-7939: relax deps for idna
+          src_prepare() {
+            sed -i -e '/^idna/c idna' requests.egg-info/requires.txt || die
+            sed -i -e "s/'idna.*$/'idna',/" setup.py || die
+            distutils-r1_src_prepare
+          }
 
 
 simple_python_autogen_rule:
@@ -1102,32 +1130,6 @@ simple_python_autogen_rule:
             doins resources/qtile.desktop
             exeinto /etc/X11/Sessions
             newexe "${FILESDIR}"/${PN}-session ${PN}
-          }
-    - requests:
-        desc: HTTP library for human beings
-        homepage: https://requests.readthedocs.io/en/master/
-        license: Apache-2.0
-        iuse: socks5 +ssl
-        pydeps:
-          py:all:
-            - certifi >= 2017.4.17
-            - chardet
-            - idna
-            - urllib3
-          py:3:
-            - charset_normalizer
-          use:socks5:
-            - PySocks >= 1.5.6
-          use:ssl:
-            - cryptography >= 1.3.4
-            - pyopenssl >= 0.14
-        python_compat: python2+ pypy{,3}
-        body: |
-          # FL-7939: relax deps for idna
-          src_prepare() {
-            sed -i -e '/^idna/c idna' requests.egg-info/requires.txt || die
-            sed -i -e "s/'idna.*$/'idna',/" setup.py || die
-            distutils-r1_src_prepare
           }
     - requests-toolbelt:
         homepage: https://toolbelt.readthedocs.org/

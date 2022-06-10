@@ -34,10 +34,14 @@ async def generate(hub, **pkginfo):
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 	await artifact.fetch()
 	artifact.extract()
+	search_file = "cmake/config/OpenVDBVersions.cmake"
 	cmake_file = open(
-		glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", "CMakeLists.txt"))[0]
+		glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", search_file))[0]
 	).read()
-	abi_min = re.search("\(MINIMUM_OPENVDB_ABI_VERSION ([0-9]+)", cmake_file).group(1)
+	found = re.search("\(MINIMUM_OPENVDB_ABI_VERSION ([0-9]+)", cmake_file)
+	if not found:
+		raise hub.pkgtools.ebuild.BreezyError(f"Could not find MINIMUM_OPENVDB_ABI_VERSION in {cmake_file} in source archive.")
+	abi_min = found.group(1)
 	artifact.cleanup()
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

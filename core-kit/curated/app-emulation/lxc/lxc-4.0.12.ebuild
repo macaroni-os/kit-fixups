@@ -8,7 +8,7 @@ DESCRIPTION="A userspace interface for the Linux kernel containment features"
 HOMEPAGE="https://linuxcontainers.org/ https://github.com/lxc/lxc"
 SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
 
-KEYWORDS=""
+KEYWORDS="*"
 
 LICENSE="GPL-2 LGPL-2.1 LGPL-3"
 SLOT="0"

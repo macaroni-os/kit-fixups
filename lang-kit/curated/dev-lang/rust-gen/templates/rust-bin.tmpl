@@ -9,14 +9,13 @@ MY_P="rust-${PV}"
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
 SRC_URI="
-	{{ src_uris }}
-	rls? ( {{ stdlib_src_uri }} )
+	{{ src_uri_template }}
 "
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 SLOT="stable"
 KEYWORDS="*"
-IUSE="clippy cpu_flags_x86_sse2 doc prefix rls rustfmt"
+IUSE="clippy cpu_flags_x86_sse2 doc prefix rustfmt {{ extra_component_data.keys() | join(" ") }}"
 
 DEPEND=""
 RDEPEND="app-eselect/eselect-rust"
@@ -49,13 +48,25 @@ src_unpack() {
 
 	mv "${WORKDIR}/${MY_P}-$(rust_abi)" "${S}" || die
 
-	use rls && mv "${WORKDIR}/rust-src-${PV}/rust-src" "${S}"/src
+	{%- for component_name, component_data in extra_component_data.items() %}
+		if use {{ component_name }}; then
+			{%- for included_component in component_data.included_components %}
+				mv "${WORKDIR}/{{ component_data.extracted_name }}/{{ included_component }}" "${S}"/{{ included_component }}
+			{%- endfor %}
+		fi
+	{%- endfor %}
 }
 
 src_prepare() {
 	default
 
-	use rls && echo src >> components
+	{%- for component_name, component_data in extra_component_data.items() %}
+		if use {{ component_name }}; then
+			{%- for included_component in component_data.included_components %}
+				echo "{{ included_component }}" >> components
+			{%- endfor %}
+		fi
+	{%- endfor %}
 }
 
 patchelf_for_bin() {
@@ -74,13 +85,18 @@ multilib_src_install() {
 	# start native abi install
 	pushd "${S}" >/dev/null || die
 	local analysis std
-	analysis="$(grep 'analysis' ./components)"
-	std="$(grep 'std' ./components)"
+	analysis="$(grep -m 1 'analysis' ./components)"
+	std="$(grep -m 1 'std' ./components)"
 	local components="rustc,cargo,${std}"
 	use doc && components="${components},rust-docs"
 	use clippy && components="${components},clippy-preview"
-	use rls && components="${components},rls-preview,${analysis},src"
+	use rls && components="${components},rls-preview,${analysis}"
 	use rustfmt && components="${components},rustfmt-preview"
+
+	{%- for component_name, component_data in extra_component_data.items() %}
+		use {{ component_name }} && components="${components},{{ component_data.included_components | join(",") }}"
+	{%- endfor %}
+
 	./install.sh \
 		--components="${components}" \
 		--disable-verify \

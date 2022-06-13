@@ -41,4 +41,10 @@ rust-gen_rule:
           chost: riscv64gc-unknown-linux-gnu
 
   packages:
-    rust-bin:
+    - rust-bin:
+        extra_components:
+          rls:
+            name: rust-src
+          wasm:
+            name: rust-std
+            chost: wasm32-unknown-unknown

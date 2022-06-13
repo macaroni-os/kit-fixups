@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from packaging import version
+import glob
+import os
 
 
 def build_indented_string(parts, indent_level=1):
@@ -83,7 +85,7 @@ def get_rust_artifact(hub, name, pkginfo, chost=None):
 	return hub.pkgtools.ebuild.Artifact(url=target_url)
 
 
-def generate_rust_arch_data(hub, pkginfo):
+async def generate_rust_arch_data(hub, pkginfo):
 	"""
 	Generate arch-specific information for current Rust package: source artifacts, per-arch source URIs,
 	and a utility to match CHOST to Rust ABI.
@@ -116,6 +118,34 @@ def generate_rust_arch_data(hub, pkginfo):
 		src_uri_template.append(curr_uris)
 		src_uri_template.append(")")
 
+	extra_components = pkginfo.get("extra_components", {})
+	extra_component_data = {}
+
+	for component_name, component_data in extra_components.items():
+		src_uri_template.append(f"{component_name}? (")
+
+		component_artifact = get_rust_artifact(hub, component_data["name"], pkginfo, component_data.get("chost", None))
+		artifacts.append(component_artifact)
+
+		await component_artifact.fetch()
+		component_artifact.extract()
+
+		component_dir = glob.glob(os.path.join(component_artifact.extract_path, "*"))[0]
+		extracted_name = os.path.basename(component_dir)
+
+		with open(os.path.join(component_dir, "components"), "r") as components_file:
+			included_components = [line.strip() for line in components_file.readlines()]
+
+		component_artifact.cleanup()
+
+		extra_component_data[component_name] = {
+			"included_components": included_components,			
+			"extracted_name": extracted_name,
+		}
+
+		src_uri_template.append([component_artifact.src_uri])
+		src_uri_template.append(f")")
+
 	abi_getter_fn = [
 		"local CTARGET=${1:-${CHOST}}",
 		"case ${CTARGET%%*-} in",
@@ -126,7 +156,8 @@ def generate_rust_arch_data(hub, pkginfo):
 	return dict(
 		artifacts=artifacts,
 		src_uri_template=build_indented_string(src_uri_template),
-		abi_getter_fn=build_indented_string(abi_getter_fn)
+		abi_getter_fn=build_indented_string(abi_getter_fn),
+		extra_component_data=extra_component_data,
 	)
 
 
@@ -146,11 +177,8 @@ async def preprocess_packages(hub, pkginfo_list):
 	for pkginfo in pkginfo_list:
 		pkginfo["version"] = latest_version
 
-		arch_data = generate_rust_arch_data(hub, pkginfo)
-
-		pkginfo["src_uris"] = arch_data["src_uri_template"]
-		pkginfo["artifacts"] = arch_data["artifacts"]
-		pkginfo["abi_getter_fn"] = arch_data["abi_getter_fn"]
+		arch_data = await generate_rust_arch_data(hub, pkginfo)
+		pkginfo.update(arch_data)
 
 		stdlib_src_artifact = get_rust_artifact(hub, "rust-src", pkginfo)
 

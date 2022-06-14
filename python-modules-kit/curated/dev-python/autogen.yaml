@@ -1501,6 +1501,11 @@ dev_python_simplified_rule:
         pydeps:
           use:kerberos:
             - pykerberos
+    - motor:
+        blocker: "!<dev-python/pymongo-4.1"
+        pydeps:
+          py:all:
+            - pymongo >= 4.1
     - pyparsing:
         version: '2.4.7'
         python_compat: python2+

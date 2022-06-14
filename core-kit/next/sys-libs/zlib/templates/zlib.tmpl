@@ -41,7 +41,6 @@ src_configure() {
 
 	if use minizip ; then
 		local minizipdir="contrib/minizip"
-		mkdir -p "${BUILD_DIR}/${minizipdir}" || die
 		cd ${minizipdir} || die
 		ECONF_SOURCE="${S}/${minizipdir}" \
 		econf $(use_enable static-libs static)

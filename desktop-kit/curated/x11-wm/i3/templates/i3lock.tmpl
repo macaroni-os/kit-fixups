@@ -2,9 +2,9 @@
 
 EAPI=7
 
-inherit toolchain-funcs autotools
+inherit meson
 
-DESCRIPTION="Simple screen locker"
+DESCRIPTION="{{ description }}"
 HOMEPAGE="https://i3wm.org/i3lock/"
 SRC_URI="{{ artifacts[0].src_uri }}"
 KEYWORDS="*"
@@ -28,16 +28,9 @@ post_src_unpack() {
 }
 
 src_prepare() {
-    default
+	default
 
 	sed -i -e 's:login:system-auth:g' pam/${PN} || die
-    eautoreconf
-}
-
-src_configure() {
-    default
-	tc-export CC
-    econf
 }
 
 src_install() {

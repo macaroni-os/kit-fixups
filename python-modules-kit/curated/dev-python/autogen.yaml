@@ -1502,7 +1502,8 @@ dev_python_simplified_rule:
           use:kerberos:
             - pykerberos
     - motor:
-        blocker: "!<dev-python/pymongo-4.1"
+        rdepend: |
+          !<dev-python/pymongo-4.1
         pydeps:
           py:all:
             - pymongo >= 4.1

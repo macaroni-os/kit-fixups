@@ -1508,6 +1508,11 @@ dev_python_simplified_rule:
 #        compat: '2.4.7'
 #        blocker: "!<dev-python/pyparsing-3.0.0"
 #        python_compat: python2+
+    - prometheus_client:
+        compat: 0.12.0
+        pydeps:
+          py:all:
+            - twisted
     - rfc3986:
         compat: '1.5.0'
         revision:

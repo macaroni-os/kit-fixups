@@ -1454,7 +1454,7 @@ glibc_sanity_check() {
 	pushd "${ED}"/$(get_libdir) >/dev/null
 
 	local x striptest
-	for x in cal date env free ls true uname uptime ; do
+	for x in cal date env ls true uname ; do
 		x=$(type -p ${x})
 		[[ -z ${x} || ${x} != ${EPREFIX}/* ]] && continue
 		striptest=$(LC_ALL="C" file -L ${x} 2>/dev/null) || continue

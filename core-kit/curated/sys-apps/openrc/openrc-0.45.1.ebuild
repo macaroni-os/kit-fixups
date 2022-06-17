@@ -8,7 +8,7 @@ DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
 HOMEPAGE="https://github.com/openrc/openrc/"
 
 SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-KEYWORDS="next"
+KEYWORDS=""
 LICENSE="BSD-2"
 SLOT="0"
 IUSE="audit +bash debug ncurses pam newnet prefix -netifrc selinux static-libs unicode zsh-completion"
@@ -47,8 +47,9 @@ PDEPEND="netifrc? ( net-misc/netifrc )"
 PATCHES=(
 	"${FILESDIR}"/openrc-0.40.2-systemd-cgroups.patch #FL-6105
 	"${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
-	"${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
+	"${FILESDIR}"/openrc-0.45.1-filesystem-btrfs-funtoo.patch # FL-6211
 	"${FILESDIR}"/openrc-0.44.10-integer-expression-expected.patch # FL-6510
+	"${FILESDIR}"/openrc-0.44.10-cgroups.patch # FL-10036
 )
 
 src_prepare() {
@@ -122,10 +123,7 @@ src_install() {
 	fi
 
 	# install documentation
-	dodoc ChangeLog *.md
-	if use newnet; then
-		dodoc README.newnet
-	fi
+	dodoc *.md
 
 	# funtoo goodies
 	exeinto /etc/init.d

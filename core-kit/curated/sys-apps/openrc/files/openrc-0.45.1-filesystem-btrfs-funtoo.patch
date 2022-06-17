@@ -1,0 +1,54 @@
+--- a/init.d/meson.build
++++ b/init.d/meson.build
+@@ -2,6 +2,7 @@
+
+ init_common =  [
+   'bootmisc.in',
++  'filesystem.in',
+   'fsck.in',
+   'hostname.in',
+   'local.in',
+diff --git a/init.d/filesystem.in b/init.d/filesystem.in
+new file mode 100644
+index 00000000..fd84b5dc
+--- /dev/null
++++ b/init.d/filesystem.in
+@@ -0,0 +1,25 @@
++#!@SBINDIR@/openrc-run
++# Copyright (c) 2007-2015 The OpenRC Authors.
++# See the Authors file at the top-level directory of this distribution and
++# https://github.com/OpenRC/openrc/blob/master/AUTHORS
++#
++# This file is part of OpenRC. It is subject to the license terms in
++# the LICENSE file found in the top-level directory of this
++# distribution and at https://github.com/OpenRC/openrc/blob/master/LICENSE
++# This file may not be copied, modified, propagated, or distributed
++# except according to the terms contained in the LICENSE file.
++
++description="Perform initial detection of any filesystems"
++
++depend()
++{
++	before fsck localmount
++}
++
++start() {
++	ebegin "Detecting local filesystems"
++	if [ -x /sbin/btrfs ]; then
++		/sbin/btrfs device scan > /dev/null 2>&1
++	fi
++	eend 0
++}
+diff --git a/runlevels/Makefile b/runlevels/Makefile
+index dbfb59ca..5d2982a4 100644
+--- a/tools/meson_runlevels.sh
++++ b/tools/meson_runlevels.sh
+@@ -24,7 +24,7 @@
+ 		;;
+ esac
+ 
+-boot="bootmisc fsck hostname localmount loopback root swap sysctl"
++boot="bootmisc filesystem fsck hostname localmount loopback root swap sysctl"
+ if [ "${net}" = yes ]; then
+ 	boot="${boot} network staticroute"
+ fi

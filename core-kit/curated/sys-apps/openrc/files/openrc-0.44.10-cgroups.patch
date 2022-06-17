@@ -1,0 +1,15 @@
+--- a/init.d/cgroups.in	2022-06-16 18:07:35.495947731 -0300
++++ b/init.d/cgroups.in	2022-06-16 18:23:54.747909366 -0300
+@@ -35,6 +35,12 @@
+ 		mount -n -t cgroup \
+ 			-o none,${cgroup_opts},name=openrc,release_agent="$agent" \
+ 			openrc /sys/fs/cgroup/openrc
++		if [ $? -ne 0 ]; then
++			# release agent only available in top cgroup
++			mount -n -t cgroup \
++			-o none,${cgroup_opts},name=openrc \
++			openrc /sys/fs/cgroup/openrc
++		fi
+ 		printf 1 > /sys/fs/cgroup/openrc/notify_on_release
+ 	fi
+ 	return 0

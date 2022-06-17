@@ -72,6 +72,7 @@ pkg_setup() {
 
 PATCHES=(
 	"${FILESDIR}"/${PV}/${PN}-2.0.5-omit-sysconfig.patch # bug 558854
+	"${FILESDIR}"/${PV}/${PN}-4.0.12-cgroups.patch #FL-10036
 )
 
 src_prepare() {

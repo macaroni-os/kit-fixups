@@ -42,7 +42,7 @@ src_install() {
 
 	# pkg-config file hardcodes python sitedir, bug 486512
 	sed -i -e '/pythondir/s:=.*$:=/dev/null:' \
-		"${ED}"/usr/lib*/pkgconfig/xcb-proto.pc || die
+		"${ED}"/usr/share/pkgconfig/xcb-proto.pc || die
 
 	python_foreach_impl autotools-utils_src_install -C xcbgen \
 		top_builddir="${BUILD_DIR}"

@@ -13,7 +13,7 @@ SRC_URI="https://www.kernel.org/pub/linux/utils/kernel/kmod/${P}.tar.xz"
 LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="debug doc +lzma pkcs7 python static-libs +tools +zlib zstd"
+IUSE="debug doc +lzma +pkcs7 python static-libs +tools +zlib zstd"
 
 # Upstream does not support running the test suite with custom configure flags.
 # I was also told that the test suite is intended for kmod developers.

@@ -1,8 +1,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit autotools flag-o-matic user systemd linux-info
+inherit autotools flag-o-matic user systemd linux-info tmpfiles
 
 DESCRIPTION="Robust and highly flexible tunneling application compatible with many OSes"
 
@@ -13,31 +13,29 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 
-IUSE="down-root examples inotify iproute2 libressl lz4 +lzo mbedtls pam"
-IUSE+=" pkcs11 +plugins selinux +ssl static systemd test userland_BSD"
+IUSE="down-root examples inotify iproute2 +openssl +lz4 +lzo mbedtls pam"
+IUSE+=" pkcs11 +plugins selinux static systemd test userland_BSD"
 
 REQUIRED_USE="static? ( !plugins !pkcs11 )
-	pkcs11? ( ssl )
+	pkcs11? ( !mbedtls )
 	!plugins? ( !pam !down-root )
 	inotify? ( plugins )"
+
 
 CDEPEND="
 	kernel_linux? (
 		iproute2? ( sys-apps/iproute2[-minimal] )
-		!iproute2? ( >=sys-apps/net-tools-1.60_p20160215155418 )
-	)
-	pam? ( virtual/pam )
-	ssl? (
-		!mbedtls? (
-			!libressl? ( >=dev-libs/openssl-0.9.8:0= )
-			libressl? ( dev-libs/libressl:0= )
-		)
-		mbedtls? ( net-libs/mbedtls )
 	)
 	lz4? ( app-arch/lz4 )
 	lzo? ( >=dev-libs/lzo-1.07 )
+	mbedtls? ( net-libs/mbedtls:= )
+	openssl? ( >=dev-libs/openssl-0.9.8:0= )
+	pam? ( sys-libs/pam )
 	pkcs11? ( >=dev-libs/pkcs11-helper-1.11 )
-	systemd? ( sys-apps/systemd )"
+	systemd? ( sys-apps/systemd )
+"
+
+
 
 DEPEND="${CDEPEND}"
 
@@ -61,23 +59,30 @@ src_prepare() {
 }
 
 src_configure() {
-	use static && append-ldflags -Xcompiler -static
-	SYSTEMD_UNIT_DIR=$(systemd_get_systemunitdir) \
-	TMPFILES_DIR="/usr/lib/tmpfiles.d" \
-	IFCONFIG=/bin/ifconfig \
-	ROUTE=/bin/route \
-	econf \
-		$(use_enable inotify async-push) \
-		$(use_enable ssl crypto) \
-		$(use_with ssl crypto-library $(usex mbedtls mbedtls openssl)) \
-		$(use_enable lz4) \
-		$(use_enable lzo) \
-		$(use_enable pkcs11) \
-		$(use_enable plugins) \
-		$(use_enable iproute2) \
-		$(use_enable pam plugin-auth-pam) \
-		$(use_enable down-root plugin-down-root) \
-		$(use_enable systemd)
+    local -a myeconfargs
+
+    if ! use mbedtls; then
+        myeconfargs+=(
+            $(use_enable pkcs11)
+        )
+    fi
+
+    myeconfargs+=(
+        $(use_enable inotify async-push)
+        --with-crypto-library=$(usex mbedtls mbedtls openssl)
+        $(use_enable lz4)
+        $(use_enable lzo)
+        $(use_enable plugins)
+        $(use_enable iproute2)
+        $(use_enable pam plugin-auth-pam)
+        $(use_enable down-root plugin-down-root)
+        $(use_enable systemd)
+    )
+
+    SYSTEMD_UNIT_DIR=$(systemd_get_systemunitdir) \
+        TMPFILES_DIR="/usr/lib/tmpfiles.d" \
+        IPROUTE=$(usex iproute2 '/bin/ip' '') \
+        econf "${myeconfargs[@]}"
 }
 
 src_test() {
@@ -110,7 +115,7 @@ src_install() {
 	# install examples, controlled by the respective useflag
 	if use examples ; then
 		# dodoc does not supportly support directory traversal, #15193
-		docinto /usr/share/doc/${PF}/examples
+		docinto examples
 		dodoc -r sample contrib
 	fi
 
@@ -124,6 +129,7 @@ pkg_postinst() {
 	# dns information and other such things.
 	enewgroup openvpn
 	enewuser openvpn "" "" "" openvpn
+	tmpfiles_process openvpn.conf
 
 	if use x64-macos; then
 		elog "You might want to install tuntaposx for TAP interface support:"

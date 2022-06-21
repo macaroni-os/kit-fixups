@@ -1,0 +1,17 @@
+postgresql_gen:
+  defaults:
+    cat: dev-db
+    python_compat: python3+
+    keywords: '*'
+  packages:
+    - postgresql:
+        slots:
+          10:
+            patches:
+              - postgresql-10.0-icu68.patch
+          13:
+            patches:
+              - postgresql-13.3-riscv-spinlocks.patch
+          14:
+            keywords: 'next'
+

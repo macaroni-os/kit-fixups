@@ -21,20 +21,21 @@ async def generate(hub, **pkginfo):
 	if "homepage" not in pkginfo:
 		pkginfo["homepage"] = f"https://github.com/{github_user}/{github_repo}"
 
+	extra_args = {}
+	for arg in ["version", "select"]:
+		extra_args[arg] = pkginfo[arg] if arg in pkginfo else None
+	if extra_args["version"] == "latest":
+		del extra_args["version"]
+
 	if query == "tags":
-		tag_args = {}
-
-		for arg in ["version", "select"]:
-			tag_args[arg] = pkginfo[arg] if arg in pkginfo else None
-
-		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **tag_args)
+		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:
 		github_result = await hub.pkgtools.github.release_gen(
 			hub,
 			github_user,
 			github_repo,
 			tarball=pkginfo.get("tarball", None),
-			select=pkginfo.get("select", None),
+			**extra_args
 		)
 
 	if github_result is None:

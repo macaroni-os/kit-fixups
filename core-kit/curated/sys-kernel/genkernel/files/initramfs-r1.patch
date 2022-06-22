@@ -17,3 +17,15 @@ index 7c309d2..6c838b1 100755
  	fi
  	append_to_cpio "${TEMP}/initramfs-mdadm-temp/" mdadm
  }
+index 6c838b1..30d91ea 100755
+--- a/gen_initramfs.sh
++++ b/gen_initramfs.sh
+@@ -295,7 +295,7 @@ append_zfs(){
+ 		else
+ 			# cachefile set, copy to normalized location
+ 			cp -a "${pool_cachefile}" "${TEMP}/initramfs-zfs-temp/etc/zfs/zpool-${pool}.cache" 2>/dev/null \
+-				|| gen_dir "Could not copy file ${pool_cachefile} for ZFS"
++				|| gen_die "Could not copy file ${pool_cachefile} for ZFS"
+ 			fi
+ 	done
+

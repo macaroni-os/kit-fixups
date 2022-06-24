@@ -1483,6 +1483,9 @@ dev_python_simplified_rule:
         pydeps:
           py:all:
             - pytest-runner
+    - cppy:
+        revision:
+          1.2.1: 1
     - dbus-next:
         pypi_name: dbus_next
     - packaging:
@@ -1994,7 +1997,6 @@ dev_python_autogen_rule:
     - isort:
         python_compat: python3+ pypy3
     - mechanize
-    - cppy
     - cycler:
         pypi_name: Cycler
     - kiwisolver

@@ -973,6 +973,7 @@ simple_python_autogen_rule:
               dodoc -r demos/*
             fi
           }
+    - patch-ng
     - pycodestyle:
         python_compat: python2+
         desc: Python style guide checker (fka pep8)

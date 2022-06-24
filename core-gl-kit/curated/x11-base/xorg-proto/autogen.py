@@ -52,7 +52,12 @@ def get_pkgs_from_meson(master_cpv, fn, prefix="pcs"):
 				else:
 					ls = ls.lstrip("[").rstrip("],").split(",")
 					pkg = ls[0].strip().strip("'")
-					ver = ls[1].strip().strip("'")
+					with open(fn.replace("meson.build",f"{pkg}.pc.in"), "r") as f_ver:
+						ver_lines = f_ver.readlines()
+						for ver_line in ver_lines:
+							if ver_line.startswith("Version: "):
+								ver = ver_line.strip("Version: ").strip()
+								break
 					yield master_cpv, pkg, ver
 
 
@@ -143,11 +148,14 @@ src_install() { return 0; }
 """
 
 	meta_mappings = defaultdict(set)
-	peeves = []
 	for template_args, cpvr, artifact in xorgproto_implementations:
+		peeves = []
 		for pv_key, new_set in (await get_meson_mappings(hub, cpvr, artifact)).items():
 			meta_mappings[pv_key] |= new_set
 			peeves.append("x11-proto/%s-%s" % pv_key)
+
+		ebuild = hub.pkgtools.ebuild.BreezyBuild(artifacts=[artifact], peeves=sorted(peeves), **template_args)
+		ebuild.push()
 
 	for pv_key, all_meta_atoms in meta_mappings.items():
 		all_meta_atoms = sorted(list(all_meta_atoms))
@@ -155,16 +163,13 @@ src_install() { return 0; }
 			name=pv_key[0],
 			cat="x11-proto",
 			version=pv_key[1],
-			revision=1,
+			revision=2,
 			all_meta_atoms=all_meta_atoms,
 			template_text=sub_ebuild_template,
 		)
 		sub_ebuild.push()
 
-	for template_args, cpvr, artifact in xorgproto_implementations:
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(artifacts=[artifact], peeves=sorted(peeves), **template_args)
 
-		ebuild.push()
 
 
 # vim: ts=4 sw=4 noet

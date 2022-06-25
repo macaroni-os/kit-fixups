@@ -39,6 +39,8 @@ kernel_gen:
           - nocerts.patch
           - ikconfig.patch
           - extra_cpu_optimizations.patch
+        revision:
+          5.10.120_p1: 1
         versions:
           latest:
             umasked: True
@@ -49,6 +51,9 @@ kernel_gen:
           - mcelog.patch
           - ikconfig.patch
           - extra_cpu_optimizations.patch
+        revision:
+          5.16.18_p1: 1
+          5.18.5_p1: 1
         versions:
           latest:
             unmasked: True

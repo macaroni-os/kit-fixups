@@ -36,7 +36,7 @@ PDEPEND="networkmanager? ( net-misc/networkmanager )"
 PATCHES=(
 	# prevent dependency loop with networkmanager, libsoup, glib-networking; bug #467696
 	# https://github.com/libproxy/libproxy/issues/28
-	"${FILESDIR}/${PN}-0.4.16-avoid-nm-build-dep.patch"
+	"${FILESDIR}/${PN}-0.4.18-avoid-nm-build-dep.patch"
 )
 
 src_prepare() {

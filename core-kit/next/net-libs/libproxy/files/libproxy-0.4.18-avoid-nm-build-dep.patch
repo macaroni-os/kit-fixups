@@ -35,7 +35,7 @@ index 11d2d43..cc2b58f 100644
 -px_module(network_networkmanager   "${NM_BUILD}"     0       ${NM_LIBRARIES}${NMold_LIBRARIES})
 +endif(NM_FOUND)
 +px_module(network_networkmanager   "${NM_BUILD}"     0       ${NM_LIBRARIES})
- px_module(pacrunner_mozjs          0                 ${BIPR} ${MOZJS_LIBRARIES})
+ px_module(pacrunner_mozjs          "${MOZJS_FOUND}"  ${BIPR} ${MOZJS_LIBRARIES})
  px_module(pacrunner_natus          "${NATUS_FOUND}"  ${BIPR} ${NATUS_LIBRARIES})
  px_module(pacrunner_webkit         "${WEBKIT_FOUND}" ${BIPR} ${WEBKIT_LIBRARIES})
 diff --git a/libproxy/cmake/modules/network_networkmanager.cmk b/libproxy/cmake/modules/network_networkmanager.cmk

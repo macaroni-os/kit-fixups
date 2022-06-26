@@ -55,6 +55,7 @@ src_install() {
 	emake \
 		WITH_BASHCOMPLETION=yes \
 		WITH_SYSTEMDUNITS=yes \
+		WITH_WGQUICK=yes \
 		DESTDIR="${D}" \
 		BASHCOMPDIR="$(get_bashcompdir)" \
 		SYSTEMDUNITDIR="$(systemd_get_systemunitdir)" \

@@ -30,3 +30,15 @@
 +typedef net_device_ops_no_const OVR_OPSTYPE;
  # define OVR_OPS  netdev_ops
  # define OVR_XMIT pOrgOps->ndo_start_xmit
+ 
+--- vboxpci/include/VBox/rawpci.h
++++ vboxpci/include/VBox/rawpci.h
+@@ -545,7 +545,7 @@ typedef struct RAWPCIFACTORY
+     DECLR0CALLBACKMEMBER(void, pfnDeinitVm,(PRAWPCIFACTORY       pFactory,
+                                             PVM                  pVM,
+                                             PRAWPCIPERVM         pVmData));
+-} RAWPCIFACTORY;
++} __no_const RAWPCIFACTORY;
+ 
+ #define RAWPCIFACTORY_UUID_STR   "ea089839-4171-476f-adfb-9e7ab1cbd0fb"
+ 

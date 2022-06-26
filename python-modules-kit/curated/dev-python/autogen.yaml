@@ -220,6 +220,11 @@ dev_python_compat_rule:
           2.10.1: 1
         pydeps:
           - pytz
+    - chardet:
+        compat: '4.0.0'
+        blocker: '!<dev-python-chardet-5.0.0-r1'
+        revision:
+          5.0.0: 1
     - entrypoints:
         version: '0.3'
         python_compat: python2+
@@ -1876,8 +1881,6 @@ dev_python_autogen_rule:
     - docutils:
         python_compat: python2+ pypy3
     - dbus-python:
-        python_compat: python2+ pypy{,3}
-    - chardet:
         python_compat: python2+ pypy{,3}
     - enum34:
         python_compat: python2_7 pypy

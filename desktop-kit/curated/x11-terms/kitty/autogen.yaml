@@ -9,6 +9,13 @@ kitty_rule:
     revision:
       0.25.0: 1
   packages:
-    - kitty
+    - kitty:
+        version:
+          0.25.1:
+            python_compat: python3+
+            keywords: '*'
+          latest:
+            python_compat: python3.9+
+            keywords: next
     - kitty-terminfo
     - kitty-shell-integration

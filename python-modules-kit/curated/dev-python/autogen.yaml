@@ -1543,7 +1543,7 @@ dev_python_simplified_rule:
         revision:
           6.3.1: 2
         compat: '5.0.2'
-        blocker: "!<dev-python/setuptools_scm-6.0.0"
+        blocker: "!<=dev-python/setuptools_scm-7.0.2"
         python_compat: python3+
         du_setuptools: rdepend
         pydeps:
@@ -1553,7 +1553,7 @@ dev_python_simplified_rule:
             - tomli >= 1.0
           py:3:
             - tomli >= 1.0
-          py:3.7:
+          py:3.7:build:
             - importlib_metadata
           py:2:build:
             - toml

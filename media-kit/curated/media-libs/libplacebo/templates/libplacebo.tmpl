@@ -35,9 +35,9 @@ BDEPEND="virtual/pkgconfig
 		$(python_gen_any_dep 'dev-python/mako[${PYTHON_USEDEP}]')
 	)"
 
-src_unpack() {
-	unpack "${A}"
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+post_src_unpack() {
+	mv "${WORKDIR}"/haasn-libplacebo-* "${S}" || die
+	sed -i "s:\(#include <vulkan/vulkan.h>\):\1\n#include <vulkan/vulkan_metal.h>:" "${S}"/src/include/${PN}/vulkan.h || die
 }
 
 python_check_deps() {

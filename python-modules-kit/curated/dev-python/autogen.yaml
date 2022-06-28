@@ -1541,11 +1541,12 @@ dev_python_simplified_rule:
         python_compat: python2+ pypy{,3}
     - setuptools_scm:
         revision:
-          6.3.1: 2
+          7.0.2: 1
         compat: '5.0.2'
         blocker: "!<=dev-python/setuptools_scm-7.0.2"
         python_compat: python3+
         du_setuptools: rdepend
+        rdepend: "!<=dev-python/setuptools_scm-7.0.2"
         pydeps:
           py:all:build:
             - packaging > 20

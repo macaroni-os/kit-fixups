@@ -3,7 +3,7 @@
 EAPI=7
 
 CMAKE_MAKEFILE_GENERATOR="emake"
-PYTHON_COMPAT=( python{2_7,3_6,3_7} )
+PYTHON_COMPAT=( python2+ )
 
 inherit cmake-utils python-single-r1
 
@@ -31,7 +31,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 COMMON_DEPEND="${PYTHON_DEPS}
 	~media-libs/avidemux-core-${PV}:${SLOT}[vdpau?]
 	~media-video/avidemux-${PV}:${SLOT}[opengl?,qt5?]
-	>=dev-lang/spidermonkey-1.5-r2:0=
+	dev-lang/spidermonkey
 	dev-libs/libxml2:2
 	media-libs/a52dec:0
 	media-libs/libass:0=

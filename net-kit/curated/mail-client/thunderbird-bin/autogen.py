@@ -35,6 +35,10 @@ async def generate(hub, **pkginfo):
 	json_data = await hub.pkgtools.fetch.get_page("https://product-details.mozilla.org/1.0/thunderbird_versions.json")
 	json_dict = json.loads(json_data)
 	version = json_dict["LATEST_THUNDERBIRD_VERSION"]
+	version = version.strip()
+	if not version:
+		print("Was unable to find LATEST_THUNDERBIRD_VERSION in JSON!")
+		return
 	lang_data = await get_lang_artifacts(hub, version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

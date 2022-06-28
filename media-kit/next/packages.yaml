@@ -175,7 +175,13 @@ packages:
         - media-fonts/unifont
 - gentoo-staging-nov-2021:
     audio:
-      - media-sound/sndio
+      general:
+        - media-sound/sndio
+      formats:
+        - media-libs/faac
+    video:
+      formats:
+        - media-libs/libmp4v2
     disc:
       - app-cdr/cdrtools
     gstreamer_and_friends:

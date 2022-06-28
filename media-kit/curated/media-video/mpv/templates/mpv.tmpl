@@ -95,6 +95,7 @@ COMMON_DEPEND="
 		>=dev-libs/wayland-1.6.0
 		>=dev-libs/wayland-protocols-1.14
 		>=x11-libs/libxkbcommon-0.3.0
+		vulkan? ( media-libs/vulkan-loader[wayland] )
 	)
 	X? (
 		x11-libs/libX11

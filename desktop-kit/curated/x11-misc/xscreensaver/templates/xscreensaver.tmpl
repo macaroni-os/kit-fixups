@@ -1,3 +1,4 @@
+
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -10,7 +11,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="caps +gdk-pixbuf +gtk jpeg +locking new-login offensive +opengl pam +perl selinux suid xinerama"
+IUSE="+gdk-pixbuf +gtk jpeg +locking new-login offensive +opengl pam +perl selinux suid xinerama"
 REQUIRED_USE="
 	gdk-pixbuf? ( gtk )
 "
@@ -29,7 +30,6 @@ COMMON_DEPEND="
 	x11-libs/libXrandr
 	x11-libs/libXt
 	x11-libs/libXxf86vm
-	caps? ( sys-libs/libcap )
 	gdk-pixbuf? (
 		|| (
 			<x11-libs/gdk-pixbuf-2.42:2
@@ -102,7 +102,6 @@ src_configure() {
 
 	econf \
 		$(use_enable locking) \
-		$(use_with caps setcap-hacks) \
 		$(use_with gdk-pixbuf pixbuf) \
 		$(use_with gtk) \
 		$(use_with jpeg) \
@@ -117,7 +116,7 @@ src_configure() {
 		--with-proc-interrupts \
 		--with-randr-ext \
 		--with-text-file="${EPREFIX}"/etc/gentoo-release \
-		--with-x-app-defaults="${EPREFIX}"/usr/share/X11/app-defaults \
+		--with-app-defaults="${EPREFIX}"/usr/share/X11/app-defaults \
 		--with-xdbe-ext \
 		--with-xf86gamma-ext \
 		--with-xf86vmode-ext \
@@ -131,6 +130,9 @@ src_configure() {
 }
 
 src_install() {
+	# This dir must exist for xscreensaver make install to install PAM files:
+	dodir /etc/pam.d
+
 	emake install_prefix="${D}" install
 
 	dodoc README{,.hacking}

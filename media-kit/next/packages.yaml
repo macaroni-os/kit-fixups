@@ -175,15 +175,33 @@ packages:
         - media-fonts/unifont
 - gentoo-staging-nov-2021:
     audio:
+      apps:
+        - media-sound/fluidsynth
       general:
         - media-sound/sndio
       formats:
         - media-libs/faac
+        - media-libs/libao
+        - media-libs/libebur128
+    graphics:
+      formats:
+        - media-gfx/qrencode
+        - media-libs/libdmtx
+        - media-libs/sdl2-image
+    typography:
+      fonts:
+        - media-fonts/hack
+        - media-fonts/kanjistrokeorders
     video:
       formats:
         - media-libs/libmp4v2
+        - media-libs/libquicktime
+      toolkits:
+        - media-video/mjpegtools
+        - media-video/movit
     disc:
       - app-cdr/cdrtools
+      - app-cdr/dvd+rw-tools
     gstreamer_and_friends:
       - dev-python/gst-python
       - net-libs/libnice
@@ -265,3 +283,4 @@ packages:
       - media-plugins/gst-plugins-x264
 - flora:
   - media-sound/squeezelite
+

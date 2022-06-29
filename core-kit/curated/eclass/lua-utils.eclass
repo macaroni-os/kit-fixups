@@ -304,12 +304,18 @@ _lua_export() {
 				;;
 			LUA_PKG_DEP)
 				local d
+				local impl_strip
 				case ${impl} in
 					luajit)
 						LUA_PKG_DEP="dev-lang/luajit:="
 						;;
 					lua*)
-						LUA_PKG_DEP="dev-lang/lua:${impl#lua}"
+						impl_strip="${impl#lua}"
+						if [ "$impl_strip" = "5.1" ]; then
+							LUA_PKG_DEP="dev-lang/lua:${impl#lua}"
+						else
+							LUA_PKG_DEP="dev-lua/lua:${impl_strip}"
+						fi
 						;;
 					*)
 						die "Invalid implementation: ${impl}"

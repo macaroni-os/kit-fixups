@@ -1541,12 +1541,13 @@ dev_python_simplified_rule:
         python_compat: python2+ pypy{,3}
     - setuptools_scm:
         revision:
-          7.0.2: 1
+          7.0.2: 2
         compat: '5.0.2'
         blocker: "!<=dev-python/setuptools_scm-7.0.2"
         python_compat: python3+
         du_setuptools: rdepend
-        rdepend: "!<=dev-python/setuptools_scm-7.0.2"
+        patches:
+          - setuptools_scm-7.0.2-importlib-metadata.patch
         pydeps:
           py:all:build:
             - packaging > 20
@@ -1554,8 +1555,6 @@ dev_python_simplified_rule:
             - tomli >= 1.0
           py:3:
             - tomli >= 1.0
-          py:3.7:
-            - importlib_metadata
           py:2:build:
             - toml
     - setuptools-rust:

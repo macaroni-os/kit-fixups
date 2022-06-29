@@ -83,6 +83,14 @@ SLOT="{{slot|default('0')}}"
 LICENSE="{{license|default('')}}"
 KEYWORDS="{{keywords|default('*')}}"
 
+{%- if patches and not compat_ebuild %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+
+{%- endif %}
 S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
 
 {%- if body is defined %}

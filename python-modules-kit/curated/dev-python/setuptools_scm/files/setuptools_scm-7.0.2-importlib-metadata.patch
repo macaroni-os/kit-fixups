@@ -1,0 +1,27 @@
+--- a/src/setuptools_scm/_entrypoints.py	2022-06-28 21:30:47.565318805 -0300
++++ b/src/setuptools_scm/_entrypoints.py	2022-06-28 21:34:20.777310843 -0300
+@@ -76,14 +76,17 @@
+     try:
+         from importlib_metadata import entry_points
+     except ImportError:
+-        from collections import defaultdict
++        try:
++            from setuptools._vendor.importlib_metadata import entry_points
++        except ImportError:
++            from collections import defaultdict
+ 
+-        def entry_points() -> dict[str, list[_t.EntrypointProtocol]]:
+-            warnings.warn(
+-                "importlib metadata missing, "
+-                "this may happen at build time for python3.7"
+-            )
+-            return defaultdict(list)
++            def entry_points() -> dict[str, list[_t.EntrypointProtocol]]:
++                warnings.warn(
++                    "importlib metadata missing, "
++                    "this may happen at build time for python3.7"
++                )
++                return defaultdict(list)
+ 
+ 
+ def iter_entry_points(

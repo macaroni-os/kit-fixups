@@ -495,7 +495,7 @@ src_install() {
                 fperms 0640 /etc/zabbix/zabbix_agentd.conf
                 fowners root:zabbix /etc/zabbix/zabbix_agentd.conf
 
-                newinitd "${FILESDIR}"/zabbix-agentd.init zabbix-agentd
+                newinitd "${FILESDIR}"/6.0/zabbix-agentd.init zabbix-agentd
 
                 dosbin src/zabbix_agent/zabbix_agentd
                 dobin \

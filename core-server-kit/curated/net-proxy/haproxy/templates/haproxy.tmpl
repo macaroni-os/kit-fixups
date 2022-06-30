@@ -8,7 +8,7 @@ MY_P="${PN}-${PV/_beta/-dev}"
 
 DESCRIPTION="A TCP/HTTP reverse proxy for high availability environments"
 HOMEPAGE="http://www.haproxy.org"
-SRC_URI="http://haproxy.1wt.eu/download/$(ver_cut 1-2)/src/${MY_P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 KEYWORDS="*"
 
 LICENSE="GPL-2 LGPL-2.1"
@@ -44,11 +44,11 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}/${MY_P}"
 
 DOCS=( CHANGELOG CONTRIBUTING MAINTAINERS README )
-CONTRIBS=( halog iprange )
-# ip6range is present in 1.6, but broken.
-ver_test $PV -ge 1.7.0 && CONTRIBS+=( ip6range spoa_example tcploop )
-# TODO: mod_defender - requires apache / APR, modsecurity - the same
-ver_test $PV -ge 1.8.0 && CONTRIBS+=( hpack )
+ADMINS=( iprange systemd )
+ADMINS_DIRECT=( halog dyncookie )
+ADDONS=()
+DEV_TOOLS=( flags/flags hpack/decode hpack/gen-enc hpack/gen-rht poll/poll tcploop/tcploop )
+
 
 haproxy_use() {
 	(( $# != 2 )) && die "${FUNCNAME} <USE flag> <make option>"
@@ -72,6 +72,16 @@ src_compile() {
 		TARGET=linux-glibc
 	)
 
+	if use device-atlas ; then
+		ADDONS+=( deviceatlas )
+	fi
+	if use 51degrees ; then
+		ADDONS+=( 51degrees )
+	fi
+	if use wurfl ; then
+		ADDONS+=( wurfl )
+	fi
+
 	# TODO: PCRE2_WIDTH?
 	args+=( $(haproxy_use threads THREAD) )
 	args+=( $(haproxy_use crypt LIBCRYPT) )
@@ -88,25 +98,44 @@ src_compile() {
 	args+=( $(haproxy_use device-atlas DEVICEATLAS) )
 	args+=( $(haproxy_use wurfl WURFL) )
 	args+=( $(haproxy_use systemd SYSTEMD) )
+	args+=( $(haproxy_use prometheus-exporter PROEMEX) )
+
+	# Bug #668002
+	if use ppc || use arm || use hppa; then
+		TARGET_LDFLAGS=-latomic
+	fi
 
 	# For now, until the strict-aliasing breakage will be fixed
 	append-cflags -fno-strict-aliasing
 
-	if use prometheus-exporter; then
-		EXTRA_OBJS="contrib/prometheus-exporter/service-prometheus.o"
-	fi
-
 	# HAProxy really needs some of those "SPEC_CFLAGS", like -fno-strict-aliasing
-	emake CFLAGS="${CFLAGS} \$(SPEC_CFLAGS)" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) EXTRA_OBJS="${EXTRA_OBJS}" ${args[@]}
-	emake -C contrib/systemd SBINDIR=/usr/sbin
+	emake CFLAGS="${CFLAGS} \$(SPEC_CFLAGS)" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) EXTRA_OBJS="${EXTRA_OBJS}"	TARGET_LDFLAGS="${TARGET_LDFLAGS}" PCRE_LIB=${ERROT}/usr/$(get_libdir) ${args[@]}
+
+	for admin in ${ADMINS[@]} ; do
+		emake -C admin/${admin} \
+			SBINDIR=/usr/sbin \
+			CFLAGS="${CFLAGS} -I../../include/ -I../../ebtree/" OPTIMIZE="${CFLAGS}" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) ${args[@]}
+	done
+
+	for admin in ${ADMINS_DIRECT[@]} ; do
+		emake admin/${admin}/${admin} \
+			CFLAGS="${CFLAGS} -I../../include/ -I../../ebtree/" OPTIMIZE="${CFLAGS}" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) ${args[@]}
+	done
 
 	if use tools ; then
-		for contrib in ${CONTRIBS[@]} ; do
-			# Those two includes are a workaround for hpack Makefile missing those
-			emake -C contrib/${contrib} \
+		for addon in ${ADDONS[@]} ; do
+			emake -C addons/${addon} \
+				SBINDIR=/usr/sbin \
+				CFLAGS="${CFLAGS} -I../../include/ -I../../ebtree/" OPTIMIZE="${CFLAGS}" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) ${args[@]}
+		done
+
+		for dev in ${DEV_TOOLS[@]} ; do
+			emake dev/${dev} \
+				SBINDIR=/usr/sbin \
 				CFLAGS="${CFLAGS} -I../../include/ -I../../ebtree/" OPTIMIZE="${CFLAGS}" LDFLAGS="${LDFLAGS}" CC=$(tc-getCC) ${args[@]}
 		done
 	fi
+
 }
 
 src_install() {
@@ -118,7 +147,7 @@ src_install() {
 
 	doman doc/haproxy.1
 
-	systemd_dounit contrib/systemd/haproxy.service
+	systemd_dounit admin/systemd/haproxy.service
 
 	einstalldocs
 
@@ -128,19 +157,23 @@ src_install() {
 
 	if use doc; then
 		dodoc ROADMAP doc/*.txt
-		#if use lua; then
-		# TODO: doc/lua-api/
-		#fi
 	fi
 
 	if use tools ; then
-		has halog "${CONTRIBS[@]}" && dobin contrib/halog/halog
-		has "iprange" "${CONTRIBS[@]}" && newbin contrib/iprange/iprange haproxy_iprange
-		has "ip6range" "${CONTRIBS[@]}" && newbin contrib/ip6range/ip6range haproxy_ip6range
-		has "spoa_example" "${CONTRIBS[@]}" && newbin contrib/spoa_example/spoa haproxy_spoa_example
-		has "spoa_example" "${CONTRIBS[@]}" && newdoc contrib/spoa_example/README README.spoa_example
-		has "tcploop" "${CONTRIBS[@]}" && newbin contrib/tcploop/tcploop haproxy_tcploop
-		has "hpack" "${CONTRIBS[@]}" && newbin contrib/hpack/gen-rht haproxy_hpack
+		has halog "${ADMINS_DIRECT[@]}" && dobin admin/halog/halog
+		has iprange "${ADMINS[@]}" && {
+			newbin admin/iprange/iprange haproxy_iprange ;
+			newbin admin/iprange/ip6range haproxy_ip6range ;
+		}
+
+		has tcploop/tcploop "${DEV_TOOLS[@]}" && newbin dev/tcploop/tcploop haproxy_tcploop
+		has pool/pool "${DEV_TOOLS[@]}" && newbin dev/pool/poll haproxy_poll
+		has flags/flags "${DEV_TOOLS[@]}" && newbin dev/flags/flags haproxy_flags
+		has hpack/gen-rht "${DEV_TOOLS[@]}" && {
+			newbin dev/hpack/gen-rht haproxy_gen-rht
+			newbin dev/hpack/gen-enc haproxy_gen-enc
+			newbin dev/hpack/decode haproxy_decode
+		}
 	fi
 
 	if use examples ; then
@@ -151,7 +184,7 @@ src_install() {
 
 	if use vim-syntax ; then
 		insinto /usr/share/vim/vimfiles/syntax
-		doins contrib/syntax-highlight/haproxy.vim
+		doins admin/syntax-highlight/haproxy.vim
 	fi
 }
 
@@ -168,3 +201,4 @@ pkg_postinst() {
 		fi
 	fi
 }
+

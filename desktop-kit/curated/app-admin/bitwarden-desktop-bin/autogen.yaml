@@ -1,0 +1,9 @@
+bitwarden:
+  generator: github-1
+  packages:
+    - bitwarden-desktop-bin:
+        github:
+          user: bitwarden
+          repo: desktop
+          query: releases
+          tarball: "Bitwarden-{version}-amd64.deb"

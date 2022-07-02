@@ -10,7 +10,7 @@ inherit linux-mod toolchain-funcs
 MY_P="vbox-kernel-module-src-${PV}"
 DESCRIPTION="Kernel Modules for Virtualbox"
 HOMEPAGE="https://www.virtualbox.org/"
-SRC_URI="https://dev.gentoo.org/~polynomial-c/virtualbox/${MY_P}.tar.xz"
+SRC_URI="https://area31.host.funtoo.org/src/virtualbox/${MY_P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0/$(ver_cut 1-2)"

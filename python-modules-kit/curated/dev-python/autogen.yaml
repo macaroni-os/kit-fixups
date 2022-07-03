@@ -1783,6 +1783,14 @@ sphinx_and_friends:
             fi
           }
 
+pep517_compliance_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - flit_core:
+        desc: Simplified packaging of Python modules (core module)
 
 dev_python_autogen_rule:
   defaults:

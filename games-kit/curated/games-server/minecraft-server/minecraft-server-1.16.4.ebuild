@@ -23,7 +23,7 @@ RDEPEND="
 	)
 "
 
-RESTRICT="bindist mirror strip"
+RESTRICT="bindist strip"
 
 S="${WORKDIR}"
 

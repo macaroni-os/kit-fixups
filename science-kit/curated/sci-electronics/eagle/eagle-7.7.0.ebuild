@@ -14,7 +14,7 @@ KEYWORDS="*"
 IUSE="doc"
 
 QA_PREBUILT="opt/eagle/bin/eagle"
-RESTRICT="mirror bindist"
+RESTRICT="bindist"
 
 RDEPEND="
 	sys-libs/glibc

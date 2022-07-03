@@ -15,7 +15,6 @@ LICENSE="GPL-2 PUEL"
 SLOT="0"
 KEYWORDS="*"
 IUSE="+additions +chm headless python vboxwebsrv rdesktop-vrdp sdk"
-RESTRICT="mirror"
 
 
 DEPEND="app-arch/unzip

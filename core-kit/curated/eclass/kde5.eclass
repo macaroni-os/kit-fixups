@@ -315,7 +315,6 @@ _calculate_src_uri() {
 			case ${PV} in
 				??.?.[6-9]? | ??.??.[6-9]? )
 					SRC_URI="mirror://kde/unstable/release-service/${PV}/src/${_kmname}-${PV}.tar.xz"
-					RESTRICT+=" mirror"
 					;;
 				*)
 					SRC_URI="mirror://kde/stable/release-service/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
@@ -330,7 +329,6 @@ _calculate_src_uri() {
 				5.?.[6-9]? | 5.??.[6-9]? )
 					# Plasma 5 beta releases
 					SRC_URI="mirror://kde/unstable/plasma/${plasmapv}/${_kmname}-${PV}.tar.xz"
-					RESTRICT+=" mirror"
 					;;
 				*)
 					# Plasma 5 stable releases

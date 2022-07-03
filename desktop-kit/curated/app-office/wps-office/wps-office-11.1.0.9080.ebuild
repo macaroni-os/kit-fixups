@@ -14,7 +14,7 @@ KEYWORDS="~amd64"
 SRC_URI="http://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/linux/${MY_PV}/${PN}_${PV}.XA_amd64.deb"
 
 SLOT="0"
-RESTRICT="strip mirror" # mirror as explained at bug #547372
+RESTRICT="strip"
 LICENSE="WPS-EULA"
 IUSE=""
 

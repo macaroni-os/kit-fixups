@@ -14,7 +14,6 @@ LICENSE="grass-ipafonts mplus-fonts public-domain"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
-RESTRICT="mirror"
 
 S="${WORKDIR}"
 

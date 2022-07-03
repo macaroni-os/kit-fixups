@@ -34,7 +34,7 @@ RDEPEND="
 
 # For consolekit incompatibility see https://forums.gentoo.org/viewtopic-p-8332956.html#8332956
 
-RESTRICT="bindist mirror"
+RESTRICT="bindist"
 
 # Silence QA messages
 QA_PREBUILT="opt/${MY_P}/*"

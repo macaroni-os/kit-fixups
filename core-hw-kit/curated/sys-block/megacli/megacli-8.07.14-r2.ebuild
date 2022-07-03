@@ -30,7 +30,7 @@ S=${WORKDIR}
 # two or more download pages, and while one of the pages has a generic
 # click-through download form, the file-specific download page only requires
 # click-through on some items. See also sys-block/lsiutil
-RESTRICT="mirror bindist"
+RESTRICT="bindist"
 QA_PREBUILT="/opt/${PN}/${PN}
 	/opt/${PN}/lib/*"
 

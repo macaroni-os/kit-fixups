@@ -36,7 +36,6 @@ HOMEPAGE="http://www.gentoo.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-RESTRICT="mirror"
 IUSE="btrfs cryptsetup ibm selinux"
 
 DEPEND="sys-fs/e2fsprogs

@@ -1,4 +1,3 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -13,8 +12,6 @@ SCALA_VERSION=2.13
 MY_PN="kafka"
 MY_P="${MY_PN}_${SCALA_VERSION}-${PV}"
 SRC_URI="mirror://apache/kafka/${PV}/${MY_P}.tgz"
-
-RESTRICT="mirror"
 
 LICENSE="Apache-2.0"
 SLOT="0"

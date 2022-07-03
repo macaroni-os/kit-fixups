@@ -17,7 +17,7 @@ LICENSE="Apache-2.0 BSD truecrypt-3.0"
 SLOT="0"
 KEYWORDS="*"
 IUSE="+asm cpu_flags_x86_sse2 cpu_flags_x86_sse4_1 cpu_flags_x86_ssse3 doc X"
-RESTRICT="bindist mirror"
+RESTRICT="bindist"
 
 WX_GTK_VER="3.0-gtk3"
 

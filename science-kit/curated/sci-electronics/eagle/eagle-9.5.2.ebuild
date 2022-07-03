@@ -14,7 +14,7 @@ KEYWORDS="*"
 IUSE="doc"
 
 QA_PREBUILT="opt/eagle/eagle"
-RESTRICT="mirror bindist strip"
+RESTRICT="bindist strip"
 
 RDEPEND="
 	app-crypt/mit-krb5

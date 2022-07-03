@@ -16,7 +16,6 @@ SRC_URI="
 LICENSE="exljbris-free"
 SLOT="0"
 KEYWORDS="*"
-RESTRICT="mirror"
 
 BDEPEND="app-arch/unzip"
 

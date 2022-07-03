@@ -22,7 +22,7 @@ IUSE="widevine"
 LICENSE="Vivaldi"
 SLOT="0"
 KEYWORDS="-*{% for arch in artifacts %} {% if snapshot %}~{% endif %}{{ arch }}{% endfor %}"
-{% if snapshot %}RESTRICT="bindist mirror"{% endif %}
+{% if snapshot %}RESTRICT="bindist"{% endif %}
 
 DEPEND="virtual/libiconv"
 RDEPEND="

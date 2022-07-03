@@ -15,8 +15,6 @@ S="${WORKDIR}"
 LICENSE="Broadcom"
 KEYWORDS="-* ~amd64 ~x86"
 
-RESTRICT="mirror"
-
 DEPEND="virtual/linux-sources"
 
 PATCHES=(

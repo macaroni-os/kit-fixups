@@ -14,7 +14,7 @@ LICENSE="MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
 IUSE="pax_kernel"
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 DEPEND=""
 RDEPEND="${DEPEND}"

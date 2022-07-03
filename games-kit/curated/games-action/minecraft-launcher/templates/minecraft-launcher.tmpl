@@ -12,7 +12,7 @@ KEYWORDS="amd64"
 LICENSE="Mojang"
 SLOT="2"
 
-RESTRICT="bindist mirror"
+RESTRICT="bindist"
 
 RDEPEND="
 	>=x11-libs/gtk+-2.24.32-r1[X]

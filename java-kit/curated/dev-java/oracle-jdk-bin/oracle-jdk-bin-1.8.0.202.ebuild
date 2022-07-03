@@ -40,7 +40,7 @@ KEYWORDS="*"
 IUSE="alsa +awt commercial cups doc examples +fontconfig javafx jce nsplugin pax_kernel selinux source"
 REQUIRED_USE="javafx? ( alsa fontconfig )"
 
-RESTRICT="mirror preserve-libs strip"
+RESTRICT="preserve-libs strip"
 QA_PREBUILT="*"
 
 RDEPEND="!x64-macos? (

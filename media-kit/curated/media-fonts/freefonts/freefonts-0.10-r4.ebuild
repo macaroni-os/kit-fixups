@@ -12,7 +12,7 @@ LICENSE="freedist free-noncomm all-rights-reserved"
 SLOT="0"
 KEYWORDS="*"
 IUSE="X"
-RESTRICT="mirror bindist"
+RESTRICT="bindist"
 
 S="${WORKDIR}/freefont"
 

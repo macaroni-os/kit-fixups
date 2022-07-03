@@ -23,7 +23,7 @@ LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 IUSE=""
-RESTRICT="bindist mirror"
+RESTRICT="bindist"
 
 RDEPEND="acct-user/rslsync"
 

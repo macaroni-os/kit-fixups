@@ -61,7 +61,7 @@ DEPEND="${RDEPEND}
 
 PDEPEND="java? ( >=virtual/jre-1.8.0 )"
 
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 S=${WORKDIR}
 

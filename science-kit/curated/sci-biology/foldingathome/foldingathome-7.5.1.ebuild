@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,7 +8,7 @@ DESCRIPTION="Folding@Home is a distributed computing project for protein folding
 HOMEPAGE="https://foldingathome.org/"
 SRC_URI="https://download.foldingathome.org/releases/public/release/fahclient/centos-6.7-64bit/v$(get_version_component_range 1-2)/fahclient_${PV}-64bit-release.tar.bz2"
 
-RESTRICT="mirror bindist strip"
+RESTRICT="bindist strip"
 
 LICENSE="FAH-EULA-2014 FAH-special-permission"
 SLOT="0"

@@ -13,7 +13,6 @@ LICENSE="GPL-2+ LGPL-2.1+ MIT SGI-B-2.0 CDDL"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
-RESTRICT="mirror"
 
 RDEPEND="!app-emulation/virtualbox-bin
 	!=app-emulation/virtualbox-9999"

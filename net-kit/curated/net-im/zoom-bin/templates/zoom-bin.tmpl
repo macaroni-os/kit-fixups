@@ -14,7 +14,7 @@ LICENSE="ZOOM"
 SLOT="0"
 KEYWORDS="amd64"
 
-RESTRICT="mirror strip preserve-libs"
+RESTRICT="strip preserve-libs"
 
 IUSE="pulseaudio"
 

@@ -34,9 +34,6 @@ QA_PRESTRIPPED="
 	/usr/share/hplip/scan/plugins/bb_soap.so
 "
 
-# License does not allow us to redistribute the "source" package
-RESTRICT="mirror"
-
 src_unpack() {
 	unpack_makeself "hplip-${PV}-plugin.run"
 }

@@ -17,7 +17,7 @@ WEB_CLIENT_TV_VERSION="4.13.1-f23008b"
 MY_PV="${PV}-${COMMIT}"
 MY_P="${PN}-${MY_PV}"
 
-RESTRICT="mirror download? ( network-sandbox )"
+RESTRICT="download? ( network-sandbox )"
 
 SRC_URI="
 	https://github.com/plexinc/${PN}/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz

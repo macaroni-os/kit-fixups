@@ -14,7 +14,7 @@ LICENSE="GPL-2 Nessus-EULA"
 SLOT="0"
 KEYWORDS="*"
 
-RESTRICT="mirror fetch strip"
+RESTRICT="fetch strip"
 
 QA_PREBUILT="opt/nessus_agent/bin/nasl
 	opt/nessus_agent/bin/nessus-mkrand

@@ -21,7 +21,7 @@ SRC_URI="{% for arch in arches %}
 	{% endfor %}
 "
 HOMEPAGE="https://www.mozilla.org/en-US/firefox/"
-RESTRICT="strip mirror"
+RESTRICT="strip"
 
 KEYWORDS="-*{% for arch in arches %} {% if channel %}~{% endif %}{{ arch }}{% endfor %}"
 SLOT="0"

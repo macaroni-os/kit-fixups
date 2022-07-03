@@ -16,7 +16,7 @@ SRC_URI="
 
 SLOT="0"
 LICENSE="Plex"
-RESTRICT="mirror bindist strip"
+RESTRICT="bindist strip"
 KEYWORDS="*"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 

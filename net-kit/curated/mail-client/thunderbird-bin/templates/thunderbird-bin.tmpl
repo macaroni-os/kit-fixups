@@ -27,7 +27,7 @@ SRC_URI="${SRC_URI}
 	x86? ( ${MOZ_HTTP_URI}/${MOZ_PV}/linux-i686/en-US/${MOZ_P}.tar.bz2 -> ${PN}_i686-${PV}.tar.bz2 )"
 
 HOMEPAGE="https://www.thunderbird.net/"
-RESTRICT="strip mirror"
+RESTRICT="strip"
 
 KEYWORDS="-* amd64 x86"
 SLOT="0"

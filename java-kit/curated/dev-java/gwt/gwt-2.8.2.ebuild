@@ -15,7 +15,6 @@ DESCRIPTION="Google Web Toolkit library"
 HOMEPAGE="http://www.gwtproject.org/"
 SRC_URI="https://github.com/gwtproject/${PN}/archive/${PV}.zip -> ${P}.zip
 		https://github.com/gwtproject/${GWT_TOOLS_PN}/archive/${GWT_TOOLS_COMMIT}.zip -> ${PN}-${GWT_TOOLS_PN}-${GWT_TOOLS_COMMIT}.zip"
-RESTRICT="mirror"
 SLOT="2.8"
 LICENSE="Apache-2.0"
 KEYWORDS="*"

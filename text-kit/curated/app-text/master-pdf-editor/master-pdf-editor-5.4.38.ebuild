@@ -12,7 +12,6 @@ SRC_URI="https://code-industry.net/public/${P}-qt5.amd64.tar.gz"
 LICENSE="master-pdf-editor"
 SLOT="0"
 KEYWORDS="~amd64"
-RESTRICT="mirror"
 
 RDEPEND="
 	>=dev-qt/qtcore-5.9.8:5

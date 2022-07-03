@@ -4,9 +4,7 @@ EAPI=7
 
 inherit unpacker xdg
 
-
-
-RESTRICT="mirror strip preserve-libs"
+RESTRICT="strip preserve-libs"
 # TODO
 # * use dict from tree, linguas
 # * do src_test (use junit from tree?)

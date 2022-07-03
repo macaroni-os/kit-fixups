@@ -15,7 +15,7 @@ LICENSE="all-rights-reserved"
 SLOT="0"
 KEYWORDS="-* ~amd64"
 IUSE="ayatana gnome-keyring pax_kernel"
-RESTRICT="bindist mirror"
+RESTRICT="bindist"
 
 RDEPEND="dev-libs/atk:0[${MULTILIB_USEDEP}]
 	dev-libs/expat:0[${MULTILIB_USEDEP}]

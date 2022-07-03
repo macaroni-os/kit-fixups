@@ -4,7 +4,7 @@ EAPI=7
 
 inherit rpm font
 
-RESTRICT="mirror strip binchecks"
+RESTRICT="strip binchecks"
 
 RPM_V=1.0
 

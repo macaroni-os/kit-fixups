@@ -1,4 +1,3 @@
-# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=2
@@ -8,7 +7,6 @@ inherit eutils flag-o-matic linux-info multilib
 DESCRIPTION="A daemon to run x86 code in an emulated environment"
 HOMEPAGE="https://dev.gentoo.org/~spock/projects/uvesafb/"
 SRC_URI="mirror://funtoo/${P}.tar.bz2"
-RESTRICT="mirror"
 
 LICENSE="GPL-2"
 SLOT="0"

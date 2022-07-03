@@ -10,7 +10,7 @@ LICENSE="Spotify"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE="libnotify libressl systray pax_kernel pulseaudio"
-RESTRICT="mirror strip"
+RESTRICT="strip"
 
 BDEPEND=">=dev-util/patchelf-0.10"
 RDEPEND="

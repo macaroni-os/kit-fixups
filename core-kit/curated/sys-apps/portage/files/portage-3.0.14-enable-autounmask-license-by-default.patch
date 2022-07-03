@@ -1,0 +1,19 @@
+diff -urN --exclude .idea portage-3.0.14/lib/_emerge/create_depgraph_params.py portage-3.0.14-fixed/lib/_emerge/create_depgraph_params.py
+--- portage-3.0.14/lib/_emerge/create_depgraph_params.py	2021-02-20 19:26:45.000000000 -0700
++++ portage-3.0.14-fixed/lib/_emerge/create_depgraph_params.py	2022-07-03 12:50:47.971940281 -0600
+@@ -39,13 +39,13 @@
+ 	# changed_deps_report: report installed packages with outdated deps
+ 	# changed_slot: rebuild installed packages with outdated SLOT metadata
+ 	# binpkg_changed_deps: reject binary packages with outdated deps
+-	myparams = {"recurse" : True}
++	myparams = {"recurse": True}
+ 
+ 	autounmask_keep_keywords = myopts.get("--autounmask-keep-keywords")
+ 	autounmask_keep_masks = myopts.get("--autounmask-keep-masks")
+ 
+ 	autounmask = myopts.get("--autounmask")
+-	autounmask_license = myopts.get('--autounmask-license', 'y' if autounmask is True else 'n')
++	autounmask_license = myopts.get('--autounmask-license', 'y')
+ 	autounmask_use = myopts.get('--autounmask-use')
+ 	if autounmask == 'n':
+ 		autounmask = False

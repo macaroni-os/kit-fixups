@@ -6,7 +6,7 @@ inherit autotools golang-base bash-completion-r1 linux-info user
 
 DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/lxd/introduction/ https://github.com/lxc/lxd"
-SRC_URI="https://linuxcontainers.org/downloads/${PN}/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 # Needs to include licenses for all bundled programs and libraries.
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
@@ -15,13 +15,12 @@ KEYWORDS="*"
 IUSE="apparmor ipv6 nls"
 
 DEPEND="app-arch/xz-utils
-	|| (
-		>=app-emulation/lxc-3.0.0[apparmor?,seccomp]
-		>=app-emulation/lxc-4.0.6[apparmor?]
-	)
+	app-arch/lz4
+	>=app-emulation/lxc-4.0.6[apparmor?]
 	dev-lang/tcl
 	dev-libs/libuv
 	dev-libs/lzo
+	>=dev-util/xdelta-3.0
 	net-dns/dnsmasq[dhcp,ipv6?]"
 RDEPEND="${DEPEND}
 	net-firewall/ebtables
@@ -29,11 +28,9 @@ RDEPEND="${DEPEND}
 	sys-apps/iproute2[ipv6?]
 	sys-fs/fuse:*
 	sys-fs/lxcfs
-	dev-util/xdelta:3
 	sys-fs/squashfs-tools[lzma]
-	net-misc/rsync[xattr]
 	virtual/acl"
-BDEPEND=">=dev-lang/go-1.13
+BDEPEND=">=dev-lang/go-1.18
 	>=sys-kernel/linux-headers-4.15
 	nls? ( sys-devel/gettext )"
 
@@ -61,34 +58,34 @@ QA_PREBUILT="/usr/lib/lxd/libdqlite.so.0.0.1
 	/usr/bin/lxc-to-lxd
 	/usr/bin/lxd-agent
 	/usr/bin/lxd-benchmark
-	/usr/bin/lxd-p2c
+	/usr/bin/lxd-migrate
+	/usr/bin/lxd-user
 	/usr/sbin/lxd"
 
-EGO_PN="github.com/lxc/lxd"
-GOPATH="${S}/_dist" # this seems to reset every now and then, though
+RESTRICT="test"
+VDIR="${S}/vendor"
 
 common_op() {
 	local i
 	for i in dqlite raft; do
-		cd "${GOPATH}"/deps/${i} || die "failed to switch dir to ${i}"
+		local idir=${VDIR}/${i}
+		cd ${idir} || die "failed to switch dir to ${idir}"
 		"${@}"
-		cd "${S}" || die "failed to switch dir back from ${i} to ${S}"
+		cd "${S}" || die "failed to switch dir back from ${idir} to ${S}"
 	done
 }
 
 src_prepare() {
 	default
 
-	export GOPATH="${S}/_dist"
-
 	sed -i \
 		-e "s:\./configure:./configure --prefix=/usr --libdir=${EPREFIX}/usr/lib/lxd:g" \
 		-e "s:make:make ${MAKEOPTS}:g" \
 		Makefile || die
 
-	sed -i 's#zfs version 2>/dev/null | cut -f 2 -d - | head -1#< /sys/module/zfs/version cut -f 1#' "${GOPATH}"/deps/raft/configure.ac || die
+	sed -i 's#zfs version 2>/dev/null | cut -f 2 -d - | head -1#< /sys/module/zfs/version cut -f 1#' ${VDIR}/raft/configure.ac || die
 
-	# Fix hardcoded ovmf file path, see bug 763180
+	# Fix hardcoded ovmf file path, see bug Gentoo 763180
 	sed -i \
 		-e "s:/usr/share/OVMF:/usr/share/edk2-ovmf:g" \
 		-e "s:OVMF_VARS.ms.fd:OVMF_VARS.secboot.fd:g" \
@@ -100,66 +97,54 @@ src_prepare() {
 }
 
 src_configure() {
-	export GOPATH="${S}/_dist"
+	export RAFT_CFLAGS="-I${VDIR}/raft/include/"
+	export RAFT_LIBS="${VDIR}/raft/.libs"
 
-	export RAFT_CFLAGS="-I${GOPATH}/deps/raft/include/"
-	export RAFT_LIBS="${GOPATH}/deps/raft/.libs"
-
-	export PKG_CONFIG_PATH="${GOPATH}/raft/"
+	export PKG_CONFIG_PATH="./raft/"
 
 	common_op econf --libdir="${EPREFIX}"/usr/lib/lxd
 }
 
 src_compile() {
-	export GOPATH="${S}/_dist"
-	export GO111MODULE=auto
-	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly"
+	export GOFLAGS="-buildmode=pie -trimpath -mod=vendor"
+	export CGO_LDFLAGS_ALLOW="-Wl,-z,now"
 
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs/:${LD_LIBRARY_PATH}"
+	export CGO_CFLAGS="${CGO_CFLAGS} -I${VDIR}/dqlite/include/ -I${VDIR}/raft/include/"
+	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${VDIR}/dqlite/.libs/ -L${VDIR}/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
+	export LD_LIBRARY_PATH="${VDIR}/dqlite/.libs/:${VDIR}/raft/.libs/:${LD_LIBRARY_PATH}"
 
-	cd "${GOPATH}"/deps/raft || die
+	cd ${VDIR}/raft || die
 	emake
 
-	cd "${GOPATH}"/deps/dqlite || die
-	emake CFLAGS="-I${GOPATH}/deps/raft/include" LDFLAGS="-L${GOPATH}/deps/raft"
+	cd ${VDIR}/dqlite || die
+	emake CFLAGS="-I${VDIR}/raft/include" LDFLAGS="-L${VDIR}/raft"
 
-	cd "${GOPATH}/src/${EGO_PN}" || die
-	mkdir -p _dist/bin
-	go build -v -x -tags "netgo" -o _dist/bin/ ./lxd-p2c/... || die "Failed to build lxd-p2c"
-	CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -x -tags "agent" -o _dist/bin/ ./lxd-agent/... || die "Failed to build lxd-agent"
-	for k in fuidshift lxc lxc-to-lxd lxd lxd-benchmark; do
-		go build -v -x -tags "libsqlite3" -o _dist/bin/ ./${k}/... || die "failed compiling ${k}"
+	cd ${S}/ || die
+	mkdir -p bin || die
+
+	go build -v -x -tags "netgo" -o bin/ ./lxd-migrate/... || die "Failed to build lxd-migrate"
+	CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -x -tags "agent" -o bin/ ./lxd-agent/... || die "Failed to build lxd-agent"
+
+	for k in fuidshift lxc lxc-to-lxd lxd lxd-benchmark lxd-user; do
+		go build -v -x -tags "libsqlite3" -o bin/ ./${k}/... || die "Failed to build ${k}"
 	done
 
 	use nls && emake build-mo
 }
 
-src_test() {
-	export GO111MODULE=auto
-	export GOPATH="${S}/_dist"
-	export GOFLAGS="-buildmode=pie -trimpath -mod=readonly"
-
-	export CGO_CFLAGS="${CGO_CFLAGS} -I${GOPATH}/deps/dqlite/include/ -I${GOPATH}/deps/raft/include/"
-	export CGO_LDFLAGS="${CGO_LDFLAGS} -L${GOPATH}/deps/dqlite/.libs/ -L${GOPATH}/deps/raft/.libs -Wl,-rpath,${EPREFIX}/usr/lib/lxd"
-	export LD_LIBRARY_PATH="${GOPATH}/deps/dqlite/.libs/:${GOPATH}/deps/raft/.libs:${LD_LIBRARY_PATH}"
-
-	go test -v ${EGO_PN}/lxd || die
-}
-
 src_install() {
-	local bindir="_dist/bin"
-	export GOPATH="${S}/_dist"
+	cd ${S}/
+	local bindir="bin"
 
 	dosbin ${bindir}/lxd
 
-	for l in fuidshift lxd-agent lxd-benchmark lxd-p2c lxc lxc-to-lxd; do
+	for l in fuidshift lxd-agent lxd-benchmark lxd-migrate lxc lxc-to-lxd lxd-user; do
 		dobin ${bindir}/${l}
 	done
 
 	for m in dqlite raft; do
-		cd "${GOPATH}"/deps/${m} || die "failed switching into ${GOPATH}/${m}"
+		local mdir=${VDIR}/${m}
+		cd ${mdir} || die "failed switching into /${mdir}"
 		emake DESTDIR="${D}" install
 	done
 
@@ -172,11 +157,13 @@ src_install() {
 	rm -r "${ED}"/usr/lib/lxd/pkgconfig || die
 
 	newbashcomp scripts/bash/lxd-client lxc
+	bashcomp_alias lxc lxd.lxc
 
-	newinitd "${FILESDIR}"/${PV}/lxd.initd lxd || die
-	newconfd "${FILESDIR}"/${PV}/lxd.confd lxd || die
+	newinitd "${FILESDIR}"/5.x/lxd.initd lxd || die
+	newconfd "${FILESDIR}"/5.x/lxd.confd lxd || die
 
-	dodoc AUTHORS doc/*
+	local dodoc_opts=-r
+	dodoc -r AUTHORS doc/**
 	use nls && domo po/*.mo
 }
 

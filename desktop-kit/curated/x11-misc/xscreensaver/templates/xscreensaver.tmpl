@@ -113,7 +113,6 @@ src_configure() {
 		--with-configdir="${EPREFIX}"/usr/share/${PN}/config \
 		--with-dpms-ext \
 		--with-hackdir="${EPREFIX}"/usr/$(get_libdir)/misc/${PN} \
-		--with-proc-interrupts \
 		--with-randr-ext \
 		--with-text-file="${EPREFIX}"/etc/gentoo-release \
 		--with-app-defaults="${EPREFIX}"/usr/share/X11/app-defaults \

@@ -2,45 +2,41 @@
 
 EAPI=7
 
-GENTOO_DEPEND_ON_PERL="no"
-PYTHON_COMPAT=( python3+ )
-DISTUTILS_OPTIONAL=1
-inherit autotools bash-completion-r1 perl-module distutils-r1 flag-o-matic java-pkg-opt-2 toolchain-funcs
+PYTHON_COMPAT=( {{python_compat}} )
+inherit cmake java-pkg-opt-2 python-single-r1
 
 DESCRIPTION="Translator library for raster geospatial data formats (includes OGR support)"
 HOMEPAGE="https://gdal.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
-SLOT="0/3.2"
 LICENSE="BSD Info-ZIP MIT"
+SLOT="0/31" # subslot is libgdal.so.<SONAME>
 KEYWORDS="*"
-IUSE="armadillo +aux-xml curl debug doc fits geos gif gml hdf5 java jpeg jpeg2k lzma mdb mysql netcdf odbc ogdi opencl oracle pdf perl png postgres python spatialite sqlite threads webp xls zstd"
+IUSE="armadillo +curl cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_sse cpu_flags_x86_sse2 cpu_flags_x86_sse4_1 cpu_flags_x86_ssse3 fits geos gif gml hdf5 heif java jpeg jpeg2k lzma mysql netcdf odbc ogdi opencl oracle pdf png postgres python spatialite sqlite webp xls zstd"
+# Tests fail to build in 3.5.0, let's not worry too much yet given
+# we're only just porting to CMake. Revisit later.
+RESTRICT="test"
 
-REQUIRED_USE="
-	mdb? ( java )
-	python? ( ${PYTHON_REQUIRED_USE} )
-	spatialite? ( sqlite )
-"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )
+	spatialite? ( sqlite )"
 
-BDEPEND="
-	virtual/pkgconfig
-	doc? ( app-doc/doxygen )
+BDEPEND="virtual/pkgconfig
 	java? (
 		dev-java/ant-core
 		dev-lang/swig:0
-		>=virtual/jdk-1.7:*
+		>=virtual/jdk-1.8:*
 	)
-	perl? ( dev-lang/swig:0 )
 	python? (
 		dev-lang/swig:0
-		dev-python/setuptools[${PYTHON_USEDEP}]
-	)
-"
-DEPEND="
-	dev-libs/expat
+		$(python_gen_cond_dep '
+			dev-python/setuptools[${PYTHON_USEDEP}]
+		')
+	)"
+DEPEND="dev-libs/expat
 	dev-libs/json-c:=
-	dev-libs/libpcre
+	dev-libs/libpcre2
 	dev-libs/libxml2:2
+	dev-libs/openssl:=
 	media-libs/tiff
 	>=sci-libs/libgeotiff-1.5.1-r1:=
 	>=sci-libs/proj-6.0.0:=
@@ -51,243 +47,167 @@ DEPEND="
 	geos? ( >=sci-libs/geos-3.8.0 )
 	gif? ( media-libs/giflib:= )
 	gml? ( >=dev-libs/xerces-c-3.1 )
-	hdf5? ( >=sci-libs/hdf5-1.6.4:=[szip] )
-	jpeg? ( virtual/jpeg:0= )
+	heif? ( media-libs/libheif:= )
+	hdf5? ( >=sci-libs/hdf5-1.6.4:=[cxx,szip] )
+	jpeg? ( media-libs/libjpeg-turbo:= )
 	jpeg2k? ( media-libs/openjpeg:2= )
 	lzma? ( || (
 		app-arch/xz-utils
 		app-arch/lzma
 	) )
-	mdb? ( dev-java/jackcess:1 )
 	mysql? ( virtual/mysql )
 	netcdf? ( sci-libs/netcdf:= )
 	odbc? ( dev-db/unixODBC )
-	ogdi? ( sci-libs/ogdi )
+	ogdi? ( >=sci-libs/ogdi-4.1.0-r1 )
 	opencl? ( virtual/opencl )
 	oracle? ( dev-db/oracle-instantclient:= )
 	pdf? ( app-text/poppler:= )
-	perl? ( dev-lang/perl:= )
-	png? ( media-libs/libpng:0= )
+	png? ( media-libs/libpng:= )
 	postgres? ( >=dev-db/postgresql-8.4:= )
 	python? (
 		${PYTHON_DEPS}
-		dev-python/numpy[${PYTHON_USEDEP}]
+		$(python_gen_cond_dep '
+			dev-python/numpy[${PYTHON_USEDEP}]
+		')
 	)
 	spatialite? ( dev-db/spatialite )
 	sqlite? ( dev-db/sqlite:3 )
 	webp? ( media-libs/libwebp:= )
 	xls? ( dev-libs/freexl )
-	zstd? ( app-arch/zstd:= )
-"
+	zstd? ( app-arch/zstd:= )"
 RDEPEND="${DEPEND}
-	java? ( >=virtual/jre-1.7:* )
-"
+	java? ( >=virtual/jre-1.8:* )"
 
-PATCHES=(
-)
+pkg_setup() {
+	use python && python-single-r1_pkg_setup
+	use java && java-pkg-opt-2_pkg_setup
+}
 
-src_prepare() {
-	default
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "${S}" || die
+	fi
+}
 
-	sed -e "s: /usr/: \"${EPREFIX}\"/usr/:g" \
-		-i configure.ac || die
-
-	sed -e 's:^ar:$(AR):g' \
-		-i ogr/ogrsf_frmts/sdts/install-libs.sh || die
-
-	# SWIG: Use of the include path to find the input file is deprecated and will not work with ccache.
-	sed -e "s: gdal_array.i: ../include/gdal_array.i:" \
-		-i swig/python/GNUmakefile || die "sed python makefile failed"
-
-	eautoreconf
+src_prepare(){
+	cmake_src_prepare
 }
 
 src_configure() {
-	local myconf=(
-		# charls - not packaged in Gentoo ebuild repository
-		# kakadu, mrsid jp2mrsid - another jpeg2k stuff, ignore
-		# bsb - legal issues
-		# ingres - same story as oracle oci
-		# jasper - disabled because unmaintained and vulnerable; openjpeg will be used as JPEG-2000 provider instead
-		# podofo - we use poppler instead they are exclusive for each other
-		# tiff is a hard dep
-		--includedir="${EPREFIX}"/usr/include/${PN}
-		--disable-lto
-		--disable-static
-		--disable-driver-bsb
-		--disable-driver-mrf
-		--disable-pdf-plugin
-		--enable-shared
-		--enable-driver-grib
-		--with-bash-completion="$(get_bashcompdir)"
-		--with-cpp14
-		--with-cryptopp=no
-		--with-expat
-		--with-geotiff
-		--with-gnm
-		--with-hide-internal-symbols
-		--with-libjson-c="${EPREFIX}"/usr/
-		--with-libtiff
-		--with-libtool
-		--with-libz="${EPREFIX}"/usr/
-		--without-charls
-		--without-dods-root
-		--without-ecw
-		--without-epsilon
-		--without-fgdb
-		--without-fme
-		--without-gta
-		--without-grass
-		--without-hdf4
-		--without-idb
-		--without-ingres
-		--without-jasper
-		--without-jp2lura
-		--without-jp2mrsid
-		--without-kakadu
-		--without-kea
-		--without-libkml
-		--without-mongocxx
-		--without-mrsid
-		--without-mrsid_lidar
-		--without-msg
-		--without-rasdaman
-		--without-rasterlite2
-		--without-pcraster
-		--without-pdfium
-		--without-perl
-		--without-podofo
-		--without-python
-		--without-qhull
-		--without-sosi
-		--without-teigha
-		$(use_enable debug)
-		$(use_with armadillo)
-		$(use_with aux-xml pam)
-		$(use_with curl)
-		$(use_with fits cfitsio)
-		$(use_with geos)
-		$(use_with gif)
-		$(use_with gml xerces)
-		$(use_with hdf5)
-		$(use_with jpeg pcidsk) # pcidsk is internal, because there is no such library released developer by gdal
-		$(use_with jpeg)
-		$(use_with jpeg2k openjpeg)
-		$(use_with lzma liblzma)
-		$(use_with mysql mysql "${EPREFIX}"/usr/bin/mysql_config)
-		$(use_with netcdf)
-		$(use_with oracle oci)
-		$(use_with odbc)
-		$(use_with ogdi ogdi "${EPREFIX}"/usr)
-		$(use_with opencl)
-		$(use_with pdf poppler)
-		$(use_with png)
-		$(use_with postgres pg)
-		$(use_with spatialite)
-		$(use_with sqlite sqlite3 "${EPREFIX}"/usr)
-		$(use_with threads)
-		$(use_with webp)
-		$(use_with xls freexl)
-		$(use_with zstd)
+	local mycmakeargs=(
+		-DENABLE_IPO=OFF
+		-DGDAL_USE_EXTERNAL_LIBS=ON
+		-DGDAL_USE_INTERNAL_LIBS=OFF
+		-DBUILD_TESTING=OFF
+
+		# bug #844874 and bug #845150
+		-DCMAKE_INSTALL_INCLUDEDIR="include/gdal"
+
+		# Options here are generally off because of one of:
+		# - Not yet packaged dependencies
+		#
+		# - Off for autotools build and didn't want more churn by
+		#   enabling during port to CMake. Feel free to request them
+		#   being turned on if useful for you.
+		-DGDAL_USE_ARMADILLO=$(usex armadillo)
+		-DGDAL_USE_ARROW=OFF
+		-DGDAL_USE_BLOSC=OFF
+		-DGDAL_USE_BRUNSLI=OFF
+		-DGDAL_USE_CRNLIB=OFF
+		-DGDAL_USE_CFITSIO=$(usex fits)
+		-DGDAL_USE_CURL=$(usex curl)
+		-DGDAL_USE_CRYPTOPP=OFF
+		-DGDAL_USE_DEFLATE=OFF
+		-DGDAL_USE_ECW=OFF
+		-DGDAL_USE_EXPAT=ON
+		-DGDAL_USE_FILEGDB=OFF
+		-DGDAL_USE_FREEXL=$(usex xls)
+		-DGDAL_USE_FYBA=OFF
+		-DGDAL_USE_GEOTIFF=ON
+		-DGDAL_USE_GEOS=$(usex geos)
+		-DGDAL_USE_GIF=$(usex gif)
+		-DGDAL_USE_GTA=OFF
+		-DGDAL_USE_HEIF=$(usex heif)
+		-DGDAL_USE_HDF4=OFF
+		-DGDAL_USE_HDF5=$(usex hdf5)
+		-DGDAL_USE_HDFS=OFF
+		-DGDAL_USE_ICONV=ON # TODO dep
+		-DGDAL_USE_IDB=OFF
+		-DGDAL_USE_JPEG=$(usex jpeg)
+
+		# https://gdal.org/build_hints.html#jpeg12
+		# Independent of whether using system libjpeg
+		-DGDAL_USE_JPEG12_INTERNAL=ON
+
+		-DGDAL_USE_JSONC=ON
+		-DGDAL_USE_JXL=OFF
+		-DGDAL_USE_KDU=OFF
+		-DGDAL_USE_KEA=OFF
+		-DGDAL_USE_LERC=OFF
+		-DGDAL_USE_LIBKML=OFF
+		-DGDAL_USE_LIBLZMA=$(usex lzma)
+		-DGDAL_USE_LIBXML2=ON
+		-DGDAL_USE_LURATECH=OFF
+		-DGDAL_USE_LZ4=OFF
+		-DGDAL_USE_MONGOCXX=OFF
+		-DGDAL_USE_MRSID=OFF
+		-DGDAL_USE_MSSQL_NCLI=OFF
+		-DGDAL_USE_MSSQL_ODBC=OFF
+		-DGDAL_USE_MYSQL=$(usex mysql)
+		-DGDAL_USE_NETCDF=$(usex netcdf)
+		-DGDAL_USE_ODBC=$(usex odbc)
+		-DGDAL_USE_ODBCCPP=OFF
+		-DGDAL_USE_OGDI=$(usex ogdi)
+		-DGDAL_USE_OPENCAD=OFF
+		-DGDAL_USE_OPENCL=$(usex opencl)
+		-DGDAL_USE_OPENEXR=OFF
+		-DGDAL_USE_OPENJPEG=$(usex jpeg2k)
+		-DGDAL_USE_OPENSSL=ON
+		-DGDAL_USE_ORACLE=$(usex oracle)
+		-DGDAL_USE_PARQUET=OFF
+		-DGDAL_USE_PCRE2=ON
+		-DGDAL_USE_PDFIUM=OFF
+		-DGDAL_USE_PNG=$(usex png)
+		-DGDAL_USE_POPPLER=$(usex pdf)
+		-DGDAL_USE_POSTGRESQL=$(usex postgres)
+		-DGDAL_USE_QHULL=OFF
+		-DGDAL_USE_RASTERLITE2=OFF
+		-DGDAL_USE_RDB=OFF
+		-DGDAL_USE_SPATIALITE=$(usex spatialite)
+		-DGDAL_USE_SQLITE3=$(usex sqlite)
+		-DGDAL_USE_SFCGAL=OFF
+		-DGDAL_USE_TEIGHA=OFF
+		-DGDAL_USE_TIFF=ON
+		-DGDAL_USE_TILEDB=OFF
+		-DGDAL_USE_WEBP=$(usex webp)
+		-DGDAL_USE_XERCESC=$(usex gml)
+		-DGDAL_USE_ZLIB=ON
+		-DGDAL_USE_ZSTD=$(usex zstd)
+
+		# Bindings
+		-DBUILD_PYTHON_BINDINGS=$(usex python)
+		-DBUILD_JAVA_BINDINGS=$(usex java)
+		# bug #845369
+		-DBUILD_CSHARP_BINDINGS=OFF
+
+		# Check work/gdal-3.5.0_build/CMakeCache.txt after configure
+		# and https://github.com/OSGeo/gdal/blob/master/cmake/helpers/CheckCompilerMachineOption.cmake#L71
+		# Commented out: not (yet?) implemented upstream.
+		# Also, arm64 stuff is a TODO upstream, but not there (yet?)
+		-Dtest_avx=$(usex cpu_flags_x86_avx)
+		-Dtest_avx2=$(usex cpu_flags_x86_avx2)
+		-Dtest_sse=$(usex cpu_flags_x86_sse)
+		-Dtest_sse2=$(usex cpu_flags_x86_sse2)
+		#-Dtest_sse3=$(usex cpu_flags_x86_sse3)
+		-Dtest_sse4.1=$(usex cpu_flags_x86_sse4_1)
+		#-Dtest_sse4.2=$(usex cpu_flags_x86_sse4_2)
+		#-Dtest_sse4a=$(usex cpu_flags_x86_sse4a)
+		-Dtest_ssse3=$(usex cpu_flags_x86_ssse3)
+		#-Dtest_fma4=$(usex cpu_flags_x86_fma4)
+		#-Dtest_xop=$(usex cpu_flags_x86_xop)
 	)
 
-	tc-export AR RANLIB
-
-	if use java; then
-		myconf+=(
-			--with-java=$(java-config --jdk-home 2>/dev/null)
-			--with-jvm-lib=dlopen
-			$(use_with mdb)
-		)
-	else
-		myconf+=( --without-java --without-mdb )
-	fi
-
-	if use sqlite; then
-		append-libs -lsqlite3
-	fi
-
-	# bug #632660
-	if use ogdi; then
-		tc-export PKG_CONFIG
-		append-cflags $(${PKG_CONFIG} --cflags libtirpc)
-		append-cxxflags $(${PKG_CONFIG} --cflags libtirpc)
-	fi
-
-	ECONF_SOURCE="${S}" econf "${myconf[@]}"
-
-	# mysql-config puts this in (and boy is it a PITA to get it out)
-	if use mysql; then
-		sed -e "s: -rdynamic : :" \
-			-i GDALmake.opt || die "sed LIBS failed"
-	fi
-}
-
-src_compile() {
-	if use perl; then
-		rm "${S}"/swig/perl/*_wrap.cpp || die
-		emake -C "${S}"/swig/perl generate
-	fi
-
-	# gdal-config needed before generating Python bindings
-	default
-
-	if use java; then
-		pushd "${S}"/swig/java > /dev/null || die
-		emake
-		popd > /dev/null || die
-	fi
-
-	if use perl; then
-		pushd "${S}"/swig/perl > /dev/null || die
-		perl-module_src_configure
-		perl-module_src_compile
-		popd > /dev/null || die
-	fi
-
-	if use python; then
-		rm -f "${S}"/swig/python/*_wrap.cpp || die
-		emake -C "${S}"/swig/python generate
-		pushd "${S}"/swig/python > /dev/null || die
-		distutils-r1_src_compile
-		popd > /dev/null || die
-	fi
-
-	use doc && emake docs
-}
-
-src_install() {
-	local DOCS=( NEWS.md )
-	use doc && local HTML_DOCS=( html/. )
-
-	default
-
-	use java && java-pkg_dojar "${S}"/swig/java/gdal.jar
-
-	if use perl; then
-		pushd "${S}"/swig/perl > /dev/null || die
-		myinst=( DESTDIR="${D}" )
-		perl-module_src_install
-		popd > /dev/null || die
-		perl_delete_localpod
-	fi
-
-	if use python; then
-		# Don't clash with gdal's docs
-		unset DOCS HTML_DOCS
-
-		pushd "${S}"/swig/python > /dev/null || die
-		distutils-r1_src_install
-		popd > /dev/null || die
-
-		newdoc swig/python/README.rst README-python.rst
-
-		insinto /usr/share/${PN}/samples
-		doins -r swig/python/gdal-utils/osgeo_utils/samples/.
-	fi
-
-	doman "${S}"/man/man*/*
-	find "${D}" -name '*.la' -type f -delete || die
+	cmake_src_configure
 }
 
 pkg_postinst() {

@@ -1,0 +1,42 @@
+ultimaker_rule:
+  generator: github-1
+  defaults:
+    python_compat: python3+
+    select: '4.13' # cmake-3.20 is required for versions >= 5
+    github:
+      user: Ultimaker
+      query: tags
+  packages:
+    - cura:
+#        select: '^[0-9]\.[0-9.]*'
+        github:
+          repo: Cura
+    - curaengine:
+        github:
+          repo: CuraEngine
+    - fdm-materials:
+#        select: '^[0-9]\.[0-9.]*'
+        github:
+          repo: fdm_materials
+    - pynest2d:
+        cat: dev-python
+        github:
+          repo: pynest2d
+    - libarcus:
+        cat: dev-libs
+#        select: '^[0-9]\.[0-9.]*'
+        github:
+          repo: libArcus
+    - libcharon:
+        cat: dev-libs
+#        select: '^[0-9]\.[0-9.]*'
+        github:
+          repo: libCharon
+    - libsavitar:
+        cat: dev-libs
+        github:
+          repo: libSavitar
+    - uranium:
+        cat: net-print
+        github:
+          repo: Uranium

@@ -1673,6 +1673,92 @@ dev_python_simplified_rule:
         license: MIT
         body: |
           DOCS=( README.md )
+    - mypy:
+        pydeps:
+          py:all:
+            - psutil
+            - mypy_extensions >= 0.4.3
+            - tomli
+          py:3.7:
+            - typed-ast >= 1.4.0
+    - mypy_extensions
+    - sentry-sdk:
+        pydeps:
+          - urllib3
+          - certifi
+    - shapely:
+        pypi_name: Shapely
+        depend: ">=sci-libs/geos-3.5"
+        pydeps:
+          py:all:
+            - numpy
+          py:all:build:
+            - cython
+    - trimesh:
+        rdepend: |
+          sci-libs/scipy
+          dev-libs/xxhash
+        pydeps:
+          - chardet
+          - colorlog
+          - jsonschema
+          - lxml
+          - msgpack
+          - networkx
+          - numpy
+          - pillow
+          - pycollada
+          - pyglet
+          - requests
+          - rtree
+          - shapely
+          - svg-path
+          - sympy
+    - pycollada:
+        pydeps:
+          - lxml
+          - numpy
+          - python-dateutil >= 2.2
+    - rtree:
+        pypi_name: Rtree
+    - svg-path:
+        pypi_name: svg.path
+    - typed-ast:
+        pypi_name: typed_ast
+    - pydot:
+        rdepend: "media-gfx/graphviz"
+        pydeps:
+          - pyparsing >= 2.1.4
+    - gmpy:
+        pypi_name: gmpy2
+        depend: |
+          dev-libs/mpc:=
+          dev-libs/mpfr:=
+          dev-libs/gmp:=
+    - pythran:
+        pydeps:
+          - beniget
+          - numpy
+          - gast
+          - ply
+    - beniget:
+        pydeps:
+          - gast
+    - gast
+    - networkx:
+        compat: '2.2'
+        blocker: '!<=dev-python/networkx-2.2'
+        version: 2.6.3
+    - keyring:
+        pydeps:
+          py:all:
+            - secretstorage
+            - entrypoints
+            - jeepney
+            - importlib_metadata
+          py:all:build:
+            - setuptools_scm
+            - toml
 
 aiohttp_new_stuff:
   defaults:

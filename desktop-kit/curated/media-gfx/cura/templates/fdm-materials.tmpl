@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="FDM materials for media-gfx/cura"
+HOMEPAGE="https://github.com/Ultimaker/fdm_materials"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+LICENSE="CC0-1.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE="embedded"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DEMBEDDED=$(usex embedded on off)
+	)
+	cmake_src_configure
+}

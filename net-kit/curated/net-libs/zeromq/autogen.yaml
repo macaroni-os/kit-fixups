@@ -1,0 +1,14 @@
+zeromq:
+  generator: github-1
+  defaults:
+      github:
+        user: zeromq
+        query: releases
+  packages:
+    - zeromq:
+        github:
+          query: releases
+          repo: libzmq
+    - czmq
+    - zmqpp
+    - cppzmq

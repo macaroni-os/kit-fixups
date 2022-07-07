@@ -1075,6 +1075,7 @@ python_is_installed() {
 	has_version "${hasv_args[@]}" "${PYTHON_PKG_DEP}"
 }
 
+
 # @FUNCTION: python_fix_shebang
 # @USAGE: [-f|--force] [-q|--quiet] <path>...
 # @DESCRIPTION:
@@ -1259,7 +1260,7 @@ python_export_utf8_locale() {
 	debug-print-function ${FUNCNAME} "${@}"
 
 	# If the locale program isn't available, just return.
-	type locale >/dev/null || return 0
+	type locale &>/dev/null || return 0
 
 	if [[ $(locale charmap) != UTF-8 ]]; then
 		# Try English first, then everything else.
@@ -1315,11 +1316,220 @@ build_sphinx() {
 
 	sed -i -e 's:^intersphinx_mapping:disabled_&:' \
 		"${dir}"/conf.py || die
-	# not all packages include the Makefile in pypi tarball
-	sphinx-build -b html -d "${dir}"/_build/doctrees "${dir}" \
-		"${dir}"/_build/html || die
+	# 1. not all packages include the Makefile in pypi tarball,
+	# so we call sphinx-build directly
+	# 2. if autodoc is used, we need to call sphinx via EPYTHON,
+	# to ensure that PEP 517 venv is respected
+	# 3. if autodoc is not used, then sphinx might not be installed
+	# for the current impl, so we need a fallback to sphinx-build
+	local command=( "${EPYTHON}" -m sphinx.cmd.build )
+	if ! "${EPYTHON}" -c "import sphinx.cmd.build" 2>/dev/null; then
+		command=( sphinx-build )
+	fi
+	command+=(
+		-b html
+		-d "${dir}"/_build/doctrees
+		"${dir}"
+		"${dir}"/_build/html
+	)
+	echo "${command[@]}" >&2
+	"${command[@]}" || die
 
 	HTML_DOCS+=( "${dir}/_build/html/." )
+}
+
+# @FUNCTION: _python_check_EPYTHON
+# @INTERNAL
+# @DESCRIPTION:
+# Check if EPYTHON is set, die if not.
+_python_check_EPYTHON() {
+	if [[ -z ${EPYTHON} ]]; then
+		die "EPYTHON unset, invalid call context"
+	fi
+}
+
+# @VARIABLE: EPYTEST_DESELECT
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies an array of tests to be deselected via pytest's --deselect
+# parameter, when calling epytest.  The list can include file paths,
+# specific test functions or parametrized test invocations.
+#
+# Note that the listed files will still be subject to collection,
+# i.e. modules imported in global scope will need to be available.
+# If this is undesirable, EPYTEST_IGNORE can be used instead.
+
+# @VARIABLE: EPYTEST_IGNORE
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Specifies an array of paths to be ignored via pytest's --ignore
+# parameter, when calling epytest.  The listed files will be entirely
+# skipped from test collection.
+
+# @FUNCTION: epytest
+# @USAGE: [<args>...]
+# @DESCRIPTION:
+# Run pytest, passing the standard set of pytest options, then
+# --deselect and --ignore options based on EPYTEST_DESELECT
+# and EPYTEST_IGNORE, then user-specified options.
+#
+# This command dies on failure and respects nonfatal.
+epytest() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	_python_check_EPYTHON
+
+	local color
+	case ${NOCOLOR} in
+		true|yes)
+			color=no
+			;;
+		*)
+			color=yes
+			;;
+	esac
+
+	local args=(
+		# verbose progress reporting and tracebacks
+		-vv
+		# list all non-passed tests in the summary for convenience
+		# (includes failures, skips, xfails...)
+		-ra
+		# print local variables in tracebacks, useful for debugging
+		-l
+		# override filterwarnings=error, we do not really want -Werror
+		# for end users, as it tends to fail on new warnings from deps
+		-Wdefault
+		# override color output
+		"--color=${color}"
+		# count is more precise when we're dealing with a large number
+		# of tests
+		-o console_output_style=count
+		# disable the undesirable-dependency plugins by default to
+		# trigger missing argument strips.  strip options that require
+		# them from config files.  enable them explicitly via "-p ..."
+		# if you *really* need them.
+		-p no:cov
+		-p no:flake8
+		-p no:flakes
+		-p no:pylint
+		# sterilize pytest-markdown as it runs code snippets from all
+		# *.md files found without any warning
+		-p no:markdown
+	)
+	local x
+	for x in "${EPYTEST_DESELECT[@]}"; do
+		args+=( --deselect "${x}" )
+	done
+	for x in "${EPYTEST_IGNORE[@]}"; do
+		args+=( --ignore "${x}" )
+	done
+	set -- "${EPYTHON}" -m pytest "${args[@]}" "${@}"
+
+	echo "${@}" >&2
+	"${@}" || die -n "pytest failed with ${EPYTHON}"
+	local ret=${?}
+
+	# remove common temporary directories left over by pytest plugins
+	rm -rf .hypothesis .pytest_cache || die
+	# pytest plugins create additional .pyc files while testing
+	# see e.g. https://bugs.gentoo.org/847235
+	if [[ -n ${BUILD_DIR} && -d ${BUILD_DIR} ]]; then
+		find "${BUILD_DIR}" -name '*-pytest-*.pyc' -delete || die
+	fi
+
+	return ${ret}
+}
+
+# @FUNCTION: eunittest
+# @USAGE: [<args>...]
+# @DESCRIPTION:
+# Run unit tests using dev-python/unittest-or-fail, passing the standard
+# set of options, followed by user-specified options.
+#
+# This command dies on failure and respects nonfatal.
+eunittest() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	_python_check_EPYTHON
+
+	set -- "${EPYTHON}" -m unittest_or_fail discover -v "${@}"
+
+	echo "${@}" >&2
+	"${@}" || die -n "Tests failed with ${EPYTHON}"
+	return ${?}
+}
+
+# @FUNCTION: _python_run_check_deps
+# @INTERNAL
+# @USAGE: <impl>
+# @DESCRIPTION:
+# Verify whether <impl> is an acceptable choice to run any-r1 style
+# code.  Checks whether the interpreter is installed, runs
+# python_check_deps() if declared.
+_python_run_check_deps() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local impl=${1}
+	local hasv_args=( -b )
+	[[ ${EAPI} == 6 ]] && hasv_args=( --host-root )
+
+	einfo "Checking whether ${impl} is suitable ..."
+
+	local PYTHON_PKG_DEP
+	_python_export "${impl}" PYTHON_PKG_DEP
+	ebegin "  ${PYTHON_PKG_DEP}"
+	has_version "${hasv_args[@]}" "${PYTHON_PKG_DEP}"
+	eend ${?} || return 1
+	declare -f python_check_deps >/dev/null || return 0
+
+	local PYTHON_USEDEP="python_targets_${impl}(-)"
+	local PYTHON_SINGLE_USEDEP="python_single_target_${impl}(-)"
+	ebegin "  python_check_deps"
+	python_check_deps
+	eend ${?}
+}
+
+# @FUNCTION: python_has_version
+# @USAGE: [-b|-d|-r] <atom>...
+# @DESCRIPTION:
+# A convenience wrapper for has_version() with verbose output and better
+# defaults for use in python_check_deps().
+#
+# The wrapper accepts EAPI 7+-style -b/-d/-r options to indicate
+# the root to perform the lookup on.  Unlike has_version, the default
+# is -b.  In EAPI 6, -b and -d are translated to --host-root
+# for compatibility.
+#
+# The wrapper accepts multiple package specifications.  For the check
+# to succeed, *all* specified atoms must match.
+python_has_version() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	local root_arg=( -b )
+	case ${1} in
+		-b|-d|-r)
+			root_arg=( "${1}" )
+			shift
+			;;
+	esac
+
+	if [[ ${EAPI} == 6 ]]; then
+		if [[ ${root_arg} == -r ]]; then
+			root_arg=()
+		else
+			root_arg=( --host-root )
+		fi
+	fi
+
+	local pkg
+	for pkg; do
+		ebegin "    ${pkg}"
+		has_version "${root_arg[@]}" "${pkg}"
+		eend ${?} || return
+	done
+
+	return 0
 }
 
 # -- python.eclass functions --

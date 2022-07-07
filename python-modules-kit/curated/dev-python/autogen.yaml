@@ -1573,6 +1573,7 @@ dev_python_simplified_rule:
         inherit:
           - cargo
         cargo_optional: yes
+        cargo_path: src/rust
         iuse: cpu_flags_x86_sse2 libressl idna
         license: "|| ( Apache-2.0 BSD )"
         desc: Library providing cryptographic recipes and primitives

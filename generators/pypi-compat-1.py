@@ -64,7 +64,11 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=artifact_url)]
 	if "cargo" in local_pkginfo["inherit"] and not compat_ebuild:
-		cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(artifacts[0], "*/src/rust")
+		if "cargo_path" in local_pkginfo:
+			cargo_path = "*/"+local_pkginfo["cargo_path"]
+		else:
+			cargo_path = "*"
+		cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(artifacts[0], cargo_path)
 		local_pkginfo["crates"] = cargo_artifacts["crates"]
 		artifacts = [*artifacts, *cargo_artifacts["crates_artifacts"]]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(

@@ -225,6 +225,13 @@ dev_python_compat_rule:
         blocker: '!<dev-python/chardet-5.0.0-r1'
         revision:
           5.0.0: 1
+    - docutils:
+        compat: '0.18.1'
+        blocker: '!<dev-python/docutils-0.19-r1'
+        revision:
+          '0.19': 1
+        pydeps:
+          - setuptools
     - entrypoints:
         version: '0.3'
         python_compat: python2+
@@ -1977,8 +1984,6 @@ dev_python_autogen_rule:
         python_compat: python2+
     - PySocks:
         python_compat: python2+ pypy{,3}
-    - docutils:
-        python_compat: python2+ pypy3
     - dbus-python:
         python_compat: python2+ pypy{,3}
     - enum34:

@@ -6,9 +6,10 @@ EAPI=7
 DESCRIPTION="Virtual for Java Development Kit (JDK)"
 SLOT="${PV}"
 KEYWORDS="~amd64 ~arm64 ~ppc64"
+IUSE="headless-awt"
 
 RDEPEND="|| (
-		dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+)]
-		dev-java/openjdk-bin:${SLOT}[gentoo-vm(+)]
-		dev-java/openjdk:${SLOT}[gentoo-vm(+)]
+		dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+		dev-java/openjdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+		dev-java/openjdk:${SLOT}[gentoo-vm(+),headless-awt=]
 	)"

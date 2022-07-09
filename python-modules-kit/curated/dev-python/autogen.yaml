@@ -1885,7 +1885,127 @@ pep517_compliance_rule:
   generator: pypi-simple-1
   packages:
     - flit_core:
+        du_pep517: standalone
         desc: Simplified packaging of Python modules (core module)
+    - sip:
+        license: SIP
+        pydeps:
+          - packaging
+          - toml
+    - pep517:
+        du_pep517: flit
+        pydeps:
+          py:all:
+            - tomli
+          py:all:build:
+            - flit_core
+    - build:
+        pydeps:
+          - packaging >= 19.0
+          - pep517 >= 0.9.1
+          - tomli >= 1.0.0
+    - flit_scm:
+        du_pep517: standalone
+        pydeps:
+          - flit_core
+          - setuptools_scm
+          - tomli
+    - hatchling:
+        du_pep517: standalone
+        pydeps:
+          - editables
+          - packaging
+          - pathspec
+          - pluggy
+          - tomli
+    - editables
+    - pathspec
+    - jupyter_packaging:
+        du_pep517: hatchling
+        pydeps:
+          - deprecation
+          - packaging
+          - setuptools
+          - tomlkit
+          - wheel
+    - deprecation:
+        pydeps:
+          - packaging
+    - tomlkit
+    - meson-python:
+        du_pep517: standalone
+        rdepend: 'dev-util/patchelf'
+        pydeps:
+          - meson
+          - pyproject-metadata
+          - tomli
+    - pyproject-metadata:
+        pydeps:
+          - packaging
+    - pdm-pep517:
+        du_pep517: standalone
+        pydeps:
+          - packaging
+          - cerberus
+          - license-expression
+          - tomli
+          - tomli-w
+          - setuptools
+    - cerberus:
+        pypi_name: Cerberus
+    - license-expression:
+        pydeps:
+          py:all:
+            - boolean-py
+          py:all:build:
+            - setuptools_scm
+    - tomli-w:
+        du_pep517: flit
+    - boolean-py:
+        pypi_name: boolean.py
+    - poetry-core:
+        du_pep517: standalone
+        pydeps:
+          - attrs
+          - jsonschema
+          - lark
+          - packaging
+          - pyparsing
+          - pyrsistent
+          - six
+          - tomlkit
+    - gpep517:
+        du_pep517: no
+        pydeps:
+          - installer
+          - tomli
+        body: |
+          python_install() {
+            python_domodule gpep517
+            python_newscript - gpep517 <<-EOF
+              #!${EPREFIX}/usr/bin/python
+              import sys
+              from gpep517.__main__ import main
+              sys.exit(main())
+            EOF
+          }
+    - installer:
+        du_pep517: no
+        bdepend: 'app-arch/unzip'
+        body: |
+          python_compile() {
+            python_domodule src/installer "${WORKDIR}"/*.dist-info
+          }
+    - maturin:
+        cat: dev-util
+        inherit:
+          - cargo
+        pydeps:
+          py:all:
+            - tomli
+          py:all:build:
+            setuptools-rust
+
 
 dev_python_autogen_rule:
   defaults:

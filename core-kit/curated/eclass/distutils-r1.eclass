@@ -1441,6 +1441,7 @@ distutils-r1_python_compile() {
 					if [[ ${jobs} == INF ]]; then
 						local nproc=$(get_nproc)
 						jobs=$(( nproc + 1 ))
+					fi
 					build_args+=( -j "${jobs}" )
 				fi
 			fi

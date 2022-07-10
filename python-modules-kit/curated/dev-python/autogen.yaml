@@ -1975,7 +1975,7 @@ pep517_compliance_rule:
           - six
           - tomlkit
     - gpep517:
-        du_pep517: no
+        du_pep517: 'no'
         pydeps:
           - installer
           - tomli
@@ -1990,7 +1990,7 @@ pep517_compliance_rule:
             EOF
           }
     - installer:
-        du_pep517: no
+        du_pep517: 'no'
         bdepend: 'app-arch/unzip'
         body: |
           python_compile() {

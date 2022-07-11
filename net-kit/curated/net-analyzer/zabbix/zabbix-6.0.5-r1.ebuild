@@ -353,8 +353,8 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/6.0/patches/${PN}-4.0.18-modulepathfix.patch"
-	"${FILESDIR}/6.0/patches/${PN}-6.0.3-system.sw.packages.patch"
+	"${FILESDIR}/6/patches/${PN}-4.0.18-modulepathfix.patch"
+	"${FILESDIR}/6/patches/${PN}-6.0.3-system.sw.packages.patch"
 )
 
 S=${WORKDIR}/${MY_P}
@@ -461,15 +461,15 @@ src_install() {
                 fperms 0640 /etc/zabbix/zabbix_server.conf
                 fowners root:zabbix /etc/zabbix/zabbix_server.conf
 
-                newinitd "${FILESDIR}"/6.0/zabbix-server.init zabbix-server
+                newinitd "${FILESDIR}"/6/zabbix-server.init zabbix-server
 
                 dosbin src/zabbix_server/zabbix_server
 
                 insinto /usr/share/zabbix
                 doins -r "${S}"/database/
 
-                systemd_dounit "${FILESDIR}"/6.0/zabbix-server.service
-                systemd_newtmpfilesd "${FILESDIR}"/6.0/zabbix-server.tmpfiles zabbix-server.conf
+                systemd_dounit "${FILESDIR}"/6/zabbix-server.service
+                systemd_newtmpfilesd "${FILESDIR}"/6/zabbix-server.tmpfiles zabbix-server.conf
         fi
 
         if use proxy; then
@@ -478,15 +478,15 @@ src_install() {
                 fperms 0640 /etc/zabbix/zabbix_proxy.conf
                 fowners root:zabbix /etc/zabbix/zabbix_proxy.conf
 
-                newinitd "${FILESDIR}"/6.0/zabbix-proxy.init zabbix-proxy
+                newinitd "${FILESDIR}"/6/zabbix-proxy.init zabbix-proxy
 
                 dosbin src/zabbix_proxy/zabbix_proxy
 
                 insinto /usr/share/zabbix
                 doins -r "${S}"/database/
 
-                systemd_dounit "${FILESDIR}"/6.0/zabbix-proxy.service
-                systemd_newtmpfilesd "${FILESDIR}"/6.0/zabbix-proxy.tmpfiles zabbix-proxy.conf
+                systemd_dounit "${FILESDIR}"/6/zabbix-proxy.service
+                systemd_newtmpfilesd "${FILESDIR}"/6/zabbix-proxy.tmpfiles zabbix-proxy.conf
         fi
 
         if use agent; then
@@ -495,15 +495,15 @@ src_install() {
                 fperms 0640 /etc/zabbix/zabbix_agentd.conf
                 fowners root:zabbix /etc/zabbix/zabbix_agentd.conf
 
-                newinitd "${FILESDIR}"/6.0/zabbix-agentd.init zabbix-agentd
+                newinitd "${FILESDIR}"/6/zabbix-agentd.init zabbix-agentd
 
                 dosbin src/zabbix_agent/zabbix_agentd
                 dobin \
                         src/zabbix_sender/zabbix_sender \
                         src/zabbix_get/zabbix_get
 
-                systemd_dounit "${FILESDIR}"/6.0/zabbix-agentd.service
-                systemd_newtmpfilesd "${FILESDIR}"/6.0/zabbix-agentd.tmpfiles zabbix-agentd.conf
+                systemd_dounit "${FILESDIR}"/6/zabbix-agentd.service
+                systemd_newtmpfilesd "${FILESDIR}"/6/zabbix-agentd.tmpfiles zabbix-agentd.conf
 	fi
 	if use agent2; then
 		insinto /etc/zabbix
@@ -511,12 +511,12 @@ src_install() {
 		fperms 0640 /etc/zabbix/zabbix_agent2.conf
 		fowners root:zabbix /etc/zabbix/zabbix_agent2.conf
 
-		newinitd "${FILESDIR}"/6.0/zabbix-agent2.init zabbix-agent2
+		newinitd "${FILESDIR}"/6/zabbix-agent2.init zabbix-agent2
 
 		dosbin src/go/bin/zabbix_agent2
 
-		systemd_dounit "${FILESDIR}"/6.0/zabbix-agent2.service
-		newtmpfiles "${FILESDIR}"/6.0/zabbix-agent2.tmpfiles zabbix-agent2.conf
+		systemd_dounit "${FILESDIR}"/6/zabbix-agent2.service
+		newtmpfiles "${FILESDIR}"/6/zabbix-agent2.tmpfiles zabbix-agent2.conf
 	fi
 
 	fowners root:zabbix /etc/zabbix
@@ -568,8 +568,8 @@ src_install() {
 			src/zabbix_java/lib/logback.xml \
 			src/zabbix_java/lib/android-json-*.jar \
 			src/zabbix_java/lib/slf4j-api-*.jar
-		newinitd "${FILESDIR}"/6.0/zabbix-jmx-proxy.init zabbix-jmx-proxy
-		newconfd "${FILESDIR}"/6.0/zabbix-jmx-proxy.conf zabbix-jmx-proxy
+		newinitd "${FILESDIR}"/6/zabbix-jmx-proxy.init zabbix-jmx-proxy
+		newconfd "${FILESDIR}"/6/zabbix-jmx-proxy.conf zabbix-jmx-proxy
 	fi
 }
 
@@ -643,7 +643,7 @@ pkg_postinst() {
 	if ! use pcre2; then
 		ewarn "You are using zabbix with dev-libs/libpcre which is deprecated."
 		ewarn "Consider switching to dev-libs/libpcre2 (USE=pcre2) as soon as possible."
-		ewarn "See https://www.zabbix.com/documentation/6.0/en/manual/installation/upgrade_notes_600#pcre2-support"
+		ewarn "See https://www.zabbix.com/documentation/6/en/manual/installation/upgrade_notes_600#pcre2-support"
 	fi
 
 }

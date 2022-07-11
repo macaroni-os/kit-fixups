@@ -1989,13 +1989,8 @@ pep517_compliance_rule:
               sys.exit(main())
             EOF
           }
-    - installer:
-        du_pep517: 'no'
-        bdepend: 'app-arch/unzip'
-        body: |
-          python_compile() {
-            python_domodule src/installer "${WORKDIR}"/*.dist-info
-          }
+    # This is a hard-coded ebuild for now... See FL-10181:
+    # - installer:
     - maturin:
         cat: dev-util
         inherit:

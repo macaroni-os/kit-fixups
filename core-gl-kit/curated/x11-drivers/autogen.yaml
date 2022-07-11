@@ -19,8 +19,6 @@ drivers_rule:
         src_install: |
           insinto /usr/share/X11/xorg.conf.d
           doins config/50-joystick-all.conf
-    - xf86-input-keyboard:
-        gitlab_id: 576
     - xf86-input-libinput:
         version: 1.1.0
         revision:

@@ -2,7 +2,7 @@
 
 EAPI=7
 EGO_PN="github.com/docker/docker"
-GIT_COMMIT=75249d88bc107a122b503f6a50e89c994331867c
+GIT_COMMIT=a89b84221c
 
 inherit bash-completion-r1 golang-base golang-vcs-snapshot linux-info systemd udev user
 
@@ -36,15 +36,15 @@ RDEPEND="
 	>=dev-vcs/git-1.7
 	>=app-arch/xz-utils-4.9
 	dev-libs/libltdl
-	>=app-emulation/containerd-1.4.6[apparmor?,btrfs?,device-mapper?,seccomp?]
-	~app-emulation/docker-proxy-0.8.0_p20210525
-	cli? ( app-emulation/docker-cli )
+	>=app-emulation/containerd-1.6.4[apparmor?,btrfs?,device-mapper?,seccomp?]
+	~app-emulation/docker-proxy-0.8.0_p20220315
+	cli? ( ~app-emulation/docker-cli-${PV} )
 	container-init? ( >=sys-process/tini-0.19.0[static] )
 "
 
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#build-dependencies
 BDEPEND="
-	>=dev-lang/go-1.13.12
+	>=dev-lang/go-1.16.12
 	dev-go/go-md2man
 	virtual/pkgconfig
 "
@@ -55,7 +55,6 @@ S="${WORKDIR}/${P}/src/${EGO_PN}"
 
 # https://bugs.gentoo.org/748984 https://github.com/etcd-io/etcd/pull/12552
 PATCHES=(
-#	"${FILESDIR}/etcd-F_OFD_GETLK-fix.patch"
 	"${FILESDIR}/ppc64-buildmode.patch"
 )
 

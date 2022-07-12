@@ -30,13 +30,24 @@ async def generate(hub, **pkginfo):
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:
-		github_result = await hub.pkgtools.github.release_gen(
-			hub,
-			github_user,
-			github_repo,
-			tarball=pkginfo.get("tarball", None),
-			**extra_args
-		)
+		if "assets" in pkginfo and "tarball" in pkginfo:
+			raise KeyError("Please specify assets: or tarball: but not both.")
+		if "assets" in pkginfo:
+			github_result = await hub.pkgtools.github.release_gen(
+				hub,
+				github_user,
+				github_repo,
+				assets=pkginfo['assets'],
+				**extra_args
+			)
+		else:
+			github_result = await hub.pkgtools.github.release_gen(
+				hub,
+				github_user,
+				github_repo,
+				tarball=pkginfo.get("tarball", None),
+				**extra_args
+			)
 
 	if github_result is None:
 		raise KeyError(

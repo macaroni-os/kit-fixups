@@ -2,7 +2,9 @@ prometheus:
   generator: github-1
   packages:
     - prometheus-bin:
-        tarball: prometheus-{version}.linux-amd64.tar.gz
+        assets:
+          amd64: prometheus-{version}.linux-amd64.tar.gz
+          arm64: prometheus-{version}.linux-arm64.tar.gz
         template: prometheus-bin.tmpl
         select: 'v\d+\.\d+\.\d+$'
         github:

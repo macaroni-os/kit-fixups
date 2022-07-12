@@ -89,6 +89,10 @@ RESTRICT+=" strip"
 
 EXPORT_FUNCTIONS src_unpack src_prepare pkg_postinst
 
+# Set the default for the go module cache
+# See "go help environment" for information on this setting
+export GOMODCACHE="${WORKDIR}/go-mod"
+
 # @ECLASS-VARIABLE: EGO_SUM
 # @DESCRIPTION:
 # This is an array based on the go.sum content from inside the target package.

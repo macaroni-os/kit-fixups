@@ -839,7 +839,7 @@ python_newscript() {
 python_moduleinto() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	python_moduleroot=${1}
+	PYTHON_MODULEROOT=${1}
 }
 
 # @FUNCTION: python_domodule
@@ -863,22 +863,33 @@ python_domodule() {
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 
 	local d
-	if [[ ${python_moduleroot} == /* ]]; then
+	if [[ ${_PYTHON_MODULEROOT} == /* ]]; then
 		# absolute path
-		d=${python_moduleroot}
+		d=${_PYTHON_MODULEROOT}
 	else
 		# relative to site-packages
 		local sitedir=$(python_get_sitedir)
-		d=${sitedir#${EPREFIX}}/${python_moduleroot//.//}
+		d=${sitedir#${EPREFIX}}/${_PYTHON_MODULEROOT//.//}
 	fi
 
-	(
-		insopts -m 0644
-		insinto "${d}"
-		doins -r "${@}" || return ${?}
-	)
-
-	python_optimize "${ED%/}/${d}"
+	if [[ ${EBUILD_PHASE} == install ]]; then
+		(
+			insopts -m 0644
+			insinto "${d}"
+			doins -r "${@}" || return ${?}
+		)
+		python_optimize "${ED%/}/${d}"
+	elif [[ -n ${BUILD_DIR} ]]; then
+		local dest=${BUILD_DIR}/install${EPREFIX}/${d}
+		mkdir -p "${dest}" || die
+		cp -pR "${@}" "${dest}/" || die
+		(
+			cd "${dest}" &&
+			chmod -R a+rX "${@##*/}"
+		) || die
+	else
+		die "${FUNCNAME} can only be used in src_install or with BUILD_DIR set"
+	fi
 }
 
 # @FUNCTION: python_doheader

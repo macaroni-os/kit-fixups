@@ -1,13 +1,13 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-GIT_COMMIT=3967b7d28e15a020e4ee344283128ead633b3e0c
+GIT_COMMIT=100c70180f
 EGO_PN="github.com/docker/cli"
+MY_PV=${PV/_/-}
 inherit bash-completion-r1  golang-vcs-snapshot
 
 DESCRIPTION="the command line binary for docker"
 HOMEPAGE="https://www.docker.com/"
-MY_PV=${PV/_/-}
 SRC_URI="https://github.com/docker/cli/archive/v${MY_PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="Apache-2.0"
@@ -16,9 +16,11 @@ KEYWORDS="*"
 IUSE="hardened"
 
 RDEPEND="!<app-emulation/docker-20.10.1"
-BDEPEND="dev-go/go-md2man"
+BDEPEND="
+	>=dev-lang/go-1.16.6
+	dev-go/go-md2man"
 
-RESTRICT="installsources strip"
+RESTRICT="installsources strip test"
 
 S="${WORKDIR}/${P}/src/${EGO_PN}"
 

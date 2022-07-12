@@ -689,8 +689,8 @@ src_configure() {
 
 	if use nginx_modules_external_lua ; then
 		http_enabled=1
-		export LUAJIT_LIB=$(pkg-config --variable libdir luajit)
-		export LUAJIT_INC=$(pkg-config --variable includedir luajit)
+		export LUAJIT_LIB="$(pkg-config --variable libdir luajit)"
+		export LUAJIT_INC="$(pkg-config --variable includedir luajit)"
 	fi
 
 	if use http || use http-cache || use http2; then

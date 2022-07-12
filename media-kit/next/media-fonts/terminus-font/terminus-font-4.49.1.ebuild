@@ -10,7 +10,7 @@ SRC_URI="mirror://sourceforge/${PN}/${P%.*}/${P}.tar.gz"
 LICENSE="OFL-1.1 GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="a-like-o +center-tilde distinct-l +pcf +pcf-unicode-only +psf quote
+IUSE="a-like-o +center-tilde distinct-l +pcf +pcf-unicode-only +psf quote +otb
 	ru-dv +ru-g ru-i ru-k"
 
 DEPEND="app-arch/gzip
@@ -52,6 +52,7 @@ src_configure() {
 		--prefix="${EPREFIX}"/usr
 		--psfdir="${EPREFIX}"/usr/share/consolefonts
 		--x11dir="${EPREFIX}"/${FONTDIR}
+		--otbdir="${EPREFIX}"/${FONTDIR}
 	)
 	# selfwritten configure script
 	./configure "${configure_args[@]}" || die
@@ -61,6 +62,7 @@ src_compile() {
 	local args=(
 		$(usex psf 'psf psf-vgaw' '')
 		$(usex pcf 'pcf pcf-8bit' '')
+		$(usex otb 'otb' '')
 	)
 	[[ ${#args[@]} -gt 0 ]] && emake "${args[@]}"
 }
@@ -69,6 +71,7 @@ src_install() {
 	local args=(
 		$(usex psf 'install-psf install-psf-vgaw install-psf-ref' '')
 		$(usex pcf 'install-pcf' '')
+		$(usex otb 'install-otb' '')
 	)
 	# Set the CHECKDIR to a dummy location so we always get the same set of
 	# files installed regardless of what is in / or ROOT or wherever.
@@ -79,7 +82,7 @@ src_install() {
 
 	if use pcf-unicode-only; then
 		# Only the ter-x* fonts are unicode (ISO-10646-1) based
-		rm -f "${ED}"/usr/share/fonts/terminus/ter-[0-9a-wy-z]* || die
+		rm -f "${ED}"/usr/share/fonts/terminus/ter-[0-9a-wy-z]*[^o][^t][^b] || die
 	fi
 
 	font_src_install

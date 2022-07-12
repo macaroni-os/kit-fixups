@@ -145,7 +145,13 @@ src_install() {
 	insinto /etc/logrotate.d/
 	newins "${FILESDIR}/${PN}.logrotate" ${PN}
 
-	dodoc 00-RELEASENOTES BUGS CONTRIBUTING MANIFESTO README.md
+	for doc in 00-RELEASENOTES* BUGS* CONTRIBUTING.md MANIFESTO* README.md; do
+		if [ -e $doc ]; then
+			dodoc $doc
+		else
+			ewarn "Documentation $doc doesn't seem to exist anymore -- might need to revise docs."
+		fi
+	done
 
 	dobin src/redis-cli
 	dosbin src/redis-benchmark src/redis-server src/redis-check-aof src/redis-check-rdb

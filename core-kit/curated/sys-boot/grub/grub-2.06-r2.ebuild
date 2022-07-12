@@ -31,7 +31,7 @@ inherit bash-completion-r1 flag-o-matic multibuild optfeature toolchain-funcs
 
 SRC_URI="mirror://gnu/${PN}/${P}.tar.xz"
 S=${WORKDIR}/${P%_*}
-KEYWORDS="*"
+KEYWORDS="next"
 
 PATCHES=(
         "${FILESDIR}"/grub-2.06-xfs-v4.patch

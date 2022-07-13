@@ -161,8 +161,9 @@ _python_set_impls() {
 		case $i in
 			# Below, bump any older python3_5 or 3_6 deps to python3+.
 			# When adding new '+' entries, also update line 83 ^^
+			# Also let python3_8 be treated as python3+ when explicitly set.
 
-			python3_5|python3_6|python3_7|python3+|python3_7+)
+			python3_5|python3_6|python3_7|python3_8|python3+|python3_7+)
 				supp['python3_7']=1
 				supp['python3_8']=1
 				supp['python3_9']=1

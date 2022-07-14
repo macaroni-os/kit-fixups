@@ -58,7 +58,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/initramfs-r1.patch
 	for modfile in $(find ${S} -name modules_load); do
 		sed -i -e '/MODULES_FS/s/"$/ squashfs overlay hfsplus isofs udf loop nls_utf8"/' \
-			-e '/MODULES_CRYPTO/s/"$/ algif_skcipher af_alg crc32_generic"/' ${modfile}
+			-e '/MODULES_CRYPTO/s/"$/ algif_skcipher af_alg crc32_generic"/' \
+			-e '/MODULES_SCSI/s/"$/ vmw_pvscsi"/' ${modfile}
 	done
 }
 

@@ -2,7 +2,11 @@ containerd:
   generator: github-1
   packages:
     - containerd:
-        version: 1.5.11
+        versions:
+          1.5.13:
+            template: containerd.tmpl
+          1.6.6:
+            template: containerd-1.6.tmpl
         github:
           query: tags
 

@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-102-patches-01j.tar.xz"
+FIREFOX_PATCHSET="firefox-101-patches-05jwl.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -63,7 +63,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
+IUSE+=" system-av1 system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-webp"
 IUSE+=" wayland wifi"
 
 # Firefox-only IUSE
@@ -74,6 +74,8 @@ REQUIRED_USE="debug? ( !system-av1 )
 	wayland? ( dbus )
 	wifi? ( dbus )"
 
+# lto using clang requires lld as linker, lld does not support linker relaxation on riscv, riscv requires linker relaxation.
+REQUIRED_USE+=" riscv? ( clang? ( !lto ) )"
 # Firefox-only REQUIRED_USE flags
 REQUIRED_USE+=" || ( X wayland )"
 REQUIRED_USE+=" pgo? ( X )"
@@ -566,6 +568,12 @@ src_prepare() {
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 	eapply "${WORKDIR}/firefox-patches"
 
+	# Add fixes for riscv64
+	if use riscv64 ; then
+		eapply "${FILESDIR}"/firefox-95-fix-riscv64.patch
+		moz_clear_vendor_checksums authenticator
+	fi
+
 	# Allow user to apply any additional patches without modifing ebuild
 	eapply_user
 
@@ -614,6 +622,11 @@ src_prepare() {
 }
 
 src_configure() {
+	if use riscv64 ; then
+		CFLAGS="${CFLAGS} -mno-relax"
+	fi
+
+
 	# Show flags set at the beginning
 	einfo "Current BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
 	einfo "Current CFLAGS:\t\t${CFLAGS:-no value set}"
@@ -826,8 +839,12 @@ src_configure() {
 	else
 		# Avoid auto-magic on linker
 		if use clang ; then
-			# This is upstream's default
-			mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
+			if ! use riscv64 ; then
+				# This is upstream's default
+				mozconfig_add_options_ac "forcing ld=lld due to USE=clang" --enable-linker=lld
+			else
+				mozconfig_add_options_ac "forcing ld=bfd due to missing linker relaxations in lld for riscv" --enable-linker=bfd
+			fi
 		else
 			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 		fi
@@ -1037,7 +1054,7 @@ src_install() {
 
 	# Install policy (currently only used to disable application updates)
 	insinto "${MOZILLA_FIVE_HOME}/distribution"
-	newins "${FILESDIR}"/distribution-${PV}.ini distribution.ini
+	newins "${FILESDIR}"/distribution.ini distribution.ini
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences

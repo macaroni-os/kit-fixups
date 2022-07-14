@@ -3,12 +3,11 @@
 EAPI=7
 
 DESCRIPTION="Virtual for Java Runtime Environment (JRE)"
-SLOT="${PV}"
+SLOT="11"
 KEYWORDS="*"
 
 RDEPEND="|| (
-		virtual/jdk:${SLOT}
-		dev-java/oracle-jre-bin:${SLOT}[gentoo-vm(+)]
-		dev-java/openjdk-jre-bin:${SLOT}[gentoo-vm(+)]
-		dev-java/openjdk-jre:${SLOT}[gentoo-vm(+)]
+		virtual/jdk:11
+		dev-java/openjdk-jre-bin:11[gentoo-vm(+)]
+		dev-java/openjdk-jre:11[gentoo-vm(+)]
 	)"

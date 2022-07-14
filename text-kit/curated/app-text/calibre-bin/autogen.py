@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 	major_data = await hub.pkgtools.fetch.get_page(major_url)
 	major_soup = BeautifulSoup(major_data, "html.parser")
 	
-	ver_ref = major_soup.find("a").get("href")
+	ver_ref = "5.html"
 	ver_data = await hub.pkgtools.fetch.get_page(major_url + ver_ref)
 	ver_soup = BeautifulSoup(ver_data, "html.parser")
 	version = ver_soup.find("a").get_text()
@@ -15,7 +15,6 @@ async def generate(hub, **pkginfo):
 	src_url = major_url + version + "/"
 	src_data = await hub.pkgtools.fetch.get_page(src_url)
 	src_soup = BeautifulSoup(src_data, "html.parser")
-	
 	for link in src_soup.find_all("a"):
 		href = link.get("href")
 		if href is not None and href.endswith("i686.txz"):

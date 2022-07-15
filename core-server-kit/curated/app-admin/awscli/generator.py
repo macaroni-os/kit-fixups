@@ -11,7 +11,7 @@ async def generate(hub, **pkginfo):
 		is_json=True,
 	)
 
-	newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
+	newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, select="v[0-9.]+")
 	artifacts = [newpkginfo['artifacts'][0]]
 	version = newpkginfo['version']
 
@@ -26,7 +26,7 @@ async def generate(hub, **pkginfo):
 			ghuser = github_user
 			ghrepo = repo
 
-		newpkginfo = await hub.pkgtools.github.tag_gen(hub, ghuser, ghrepo)
+		newpkginfo = await hub.pkgtools.github.tag_gen(hub, ghuser, ghrepo, select="v[0-9.]+")
 		artifacts.append(newpkginfo['artifacts'][0])
 		deplist.append(ghrepo.replace('-tls', ''))
 

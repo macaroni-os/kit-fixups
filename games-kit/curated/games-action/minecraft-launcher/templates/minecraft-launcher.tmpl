@@ -25,7 +25,6 @@ RDEPEND="
 	net-libs/gnutls[idn]
 	net-print/cups
 	sys-apps/dbus
-	virtual/jre:1.8
 	virtual/opengl
 	x11-apps/xrandr
 	x11-libs/libXScrnSaver
@@ -59,6 +58,10 @@ pkg_postinst() {
 	einfo "This package has installed the Java Minecraft launcher."
 	einfo "To actually play the game, you need to purchase an account at:"
 	einfo "    ${HOMEPAGE}"
+
+	einfo "The minecraft-launcher now downloads its own java binary which"
+	einfo "lives at ~/.minecraft/runtime/java-runtime-gamma/ and uses this"
+	einfo "to run Minecraft. Your system java will not be used."
 }
 
 pkg_postrm() {

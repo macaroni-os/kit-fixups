@@ -1,12 +1,10 @@
-# Distributed under the terms of the GNU General Public License v2
-
 VERSION="OpenJDK ${PV}"
 JAVA_HOME="${EPREFIX}/usr/$(get_libdir)/${PN}-${SLOT}"
 JDK_HOME="${EPREFIX}/usr/$(get_libdir)/${PN}-${SLOT}"
 JAVAC="\${JAVA_HOME}/bin/javac"
 PATH="\${JAVA_HOME}/bin"
 ROOTPATH="\${JAVA_HOME}/bin"
-LDPATH="\${JAVA_HOME}/lib/:\${JAVA_HOME}/lib/server/"
+LDPATH="\${JAVA_HOME}/jre/lib/$(get_system_arch)/:\${JAVA_HOME}/jre/lib/$(get_system_arch)/server/"
 MANPATH="\${JAVA_HOME}/man"
 PROVIDES_TYPE="JDK JRE"
 PROVIDES_VERSION="1.${SLOT}"

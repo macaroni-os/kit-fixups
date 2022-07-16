@@ -1,6 +1,4 @@
-# Distributed under the terms of the GNU General Public License v2
-
-VERSION="AdoptOpenJDK ${PV}"
+VERSION="Eclipse Temurin JDK ${PV}"
 JAVA_HOME="${EPREFIX}/opt/${P}"
 JDK_HOME="${EPREFIX}/opt/${P}"
 JAVAC="\${JAVA_HOME}/bin/javac"

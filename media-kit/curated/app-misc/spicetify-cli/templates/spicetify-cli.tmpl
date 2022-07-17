@@ -33,7 +33,9 @@ src_unpack() {
 }
 
 src_compile() {
-	go build
+	go build \
+        -ldflags="-s -w -X main.version=${PV}" \
+        -mod=mod . || die "compile failed"
 }
 
 src_install() {

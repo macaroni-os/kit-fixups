@@ -38,7 +38,10 @@ CDEPEND="
 
 
 
-DEPEND="${CDEPEND}"
+DEPEND="
+	${CDEPEND}
+	dev-python/docutils
+"
 
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-openvpn )"

@@ -8,14 +8,14 @@ kitty_rule:
       query: releases
     revision:
       0.25.0: 1
+    version:
+      0.25.1:
+        python_compat: python3+
+        keywords: '*'
+      latest:
+        python_compat: python3_9+
+        keywords: next
   packages:
-    - kitty:
-        version:
-          0.25.1:
-            python_compat: python3+
-            keywords: '*'
-          latest:
-            python_compat: python3_9+
-            keywords: next
+    - kitty
     - kitty-terminfo
     - kitty-shell-integration

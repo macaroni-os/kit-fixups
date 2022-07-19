@@ -50,3 +50,15 @@ diff -urN portage-3.0.14/lib/portage/package/ebuild/fetch.py portage-3.0.14-fixe
  
  	# Generally, downloading the same file repeatedly from
  	# every single available mirror is a waste of bandwidth
+diff -urN portage-3.0.14/lib/portage/package/ebuild/digestgen.py portage-3.0.14-fixed/lib/portage/package/ebuild/digestgen.py
+--- portage-3.0.14/lib/portage/package/ebuild/digestgen.py	2022-07-19 07:19:03.674347955 -0300
++++ portage-3.0.14-fixed/lib/portage/package/ebuild/digestgen.py	2022-07-19 07:19:29.674346936 -0300
+@@ -145,7 +145,7 @@
+ 			except OSError:
+ 				st = None
+ 
+-			if not fetch({myfile : uris}, mysettings):
++			if not fetch({myfile : uris}, mysettings, try_mirrors=0):
+ 				myebuild = os.path.join(mysettings["O"],
+ 					catsplit(cpv)[1] + ".ebuild")
+ 				spawn_nofetch(myportdb, myebuild)

@@ -63,7 +63,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" system-av1 +system-harfbuzz -system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
+IUSE+=" system-av1 +system-harfbuzz -system-icu +system-jpeg +system-libevent +system-libvpx system-png system-webp"
 IUSE+=" wayland wifi +X"
 
 REQUIRED_USE="debug? ( !system-av1 )
@@ -971,7 +971,7 @@ src_install() {
 
 	# Install policy (currently only used to disable application updates)
 	insinto "${MOZILLA_FIVE_HOME}/distribution"
-	newins "${FILESDIR}"/distribution-102.0.1.ini distribution.ini
+	newins "${FILESDIR}"/distribution-102.0.2.ini distribution.ini
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences

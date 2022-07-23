@@ -56,7 +56,6 @@ COMMON_DEPEND="
 		sys-fs/e2fsprogs
 		>=dev-db/lmdb-0.9.18:=
 		argon2? ( app-crypt/argon2:= )
-		crypt? ( virtual/libcrypt:= )
 		tcpd? ( sys-apps/tcp-wrappers )
 		odbc? ( !iodbc? ( dev-db/unixODBC )
 			iodbc? ( dev-db/libiodbc ) )

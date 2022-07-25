@@ -47,14 +47,14 @@ async def generate(hub, **pkginfo):
 	)
 	vbox.push()
 
-#	vbox_mod = hub.pkgtools.ebuild.BreezyBuild(
-#		template_path=vbox_bin.template_path,
-#		cat=pkginfo["cat"],
-#		name="virtualbox-modules",
-#		version=main_ver,
-#		artifacts=mod_artifacts,
-#	)
-#	vbox_mod.push()
+	vbox_mod = hub.pkgtools.ebuild.BreezyBuild(
+		template_path=vbox_bin.template_path,
+		cat=pkginfo["cat"],
+		name="virtualbox-modules",
+		version=main_ver,
+		artifacts=mod_artifacts,
+	)
+	vbox_mod.push()
 
 	vbox_add = hub.pkgtools.ebuild.BreezyBuild(
 		template_path=vbox_bin.template_path,

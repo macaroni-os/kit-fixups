@@ -153,7 +153,7 @@ COMMON_DEPEND="
 	wayland? (
 		x11-libs/gtk+:3[wayland]
 		x11-libs/libdrm
-		x11-libs/libxkbcommon[wayland]
+		x11-libs/libxkbcommon[wayland(-)]
 	)
 	wifi? (
 		kernel_linux? (

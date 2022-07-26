@@ -58,7 +58,7 @@ src_install() {
 	fi
 
 	rm -v lib/security/cacerts || die
-	dosym -r /etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
+	dosym ../../../../../etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
 
 	dodir "${dest}"
 	cp -pPR * "${ddest}" || die

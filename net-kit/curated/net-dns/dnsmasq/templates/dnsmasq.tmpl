@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="*"
 
 IUSE="auth-dns conntrack dbus +dhcp dhcp-tools dnssec +dumpfile id idn libidn2"
-IUSE+=" +inotify ipv6 lua nettlehash nls script selinux static tftp"
+IUSE+=" +inotify ipv6 lua nettlehash nls +script selinux static tftp"
 
 DM_LINGUAS=(de es fi fr id it no pl pt_BR ro)
 

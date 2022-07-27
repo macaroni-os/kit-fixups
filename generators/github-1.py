@@ -22,12 +22,18 @@ async def generate(hub, **pkginfo):
 		pkginfo["homepage"] = f"https://github.com/{github_user}/{github_repo}"
 
 	extra_args = {}
+	if "select" in pkginfo and "match" in pkginfo:
+		raise valueError("Please use either 'select' or 'match' but not both.")
 	for arg in ["version", "select"]:
 		extra_args[arg] = pkginfo[arg] if arg in pkginfo else None
 	if extra_args["version"] == "latest":
 		del extra_args["version"]
-	if "select" in extra_args:
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=extra_args["select"])
+	if "match" in pkginfo:
+		# explicit match from YAML:
+		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=pkginfo["match"])
+	elif "select" in extra_args:
+		# If a user specifies "select", they probably want the classic grabby matcher and are using "select" to filter undesireables:
+		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.VersionMatch.GRABBY)
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:

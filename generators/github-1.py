@@ -26,7 +26,8 @@ async def generate(hub, **pkginfo):
 		extra_args[arg] = pkginfo[arg] if arg in pkginfo else None
 	if extra_args["version"] == "latest":
 		del extra_args["version"]
-
+	if "select" in extra_args:
+		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=extra_args["select"])
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:

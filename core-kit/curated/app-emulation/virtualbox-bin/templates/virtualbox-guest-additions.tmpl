@@ -65,7 +65,7 @@ src_prepare() {
 
 	# PaX fixes (see bug #298988)
 	pushd "${VBOX_MOD_SRC_DIR}" &>/dev/null || die
-	eapply "${FILESDIR}"/vboxguest-6.0.6-log-use-c99.patch
+	#eapply "${FILESDIR}"/vboxguest-6.0.6-log-use-c99.patch
 	popd &>/dev/null || die
 
 	# Disable things unused or splitted into separate ebuilds

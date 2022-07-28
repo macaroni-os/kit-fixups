@@ -9,7 +9,7 @@ inherit autotools eapi7-ver ssl-cert systemd toolchain-funcs user
 MY_P="${P/_/.}"
 #MY_S="${PN}-ce-${PV}"
 major_minor="$(ver_cut 1-2)"
-sieve_version="0.5.13"
+sieve_version="0.5.19"
 if [[ ${PV} == *_rc* ]] ; then
 	rc_dir="rc/"
 else
@@ -65,10 +65,16 @@ RDEPEND="${DEPEND}
 	net-mail/mailbase"
 
 PATCHES=(
-	"${FILESDIR}/${PN}"-unwind-generic.patch
+	"${FILESDIR}/${PN}"-autoconf-lua-version-v2.patch
 	"${FILESDIR}/${PN}"-socket-name-too-long.patch
-	)
+	"${FILESDIR}"/CVE-2022-30550.patch
+)
 
+#PATCHES=(
+#	"${FILESDIR}/${PN}"-unwind-generic.patch
+#	"${FILESDIR}/${PN}"-socket-name-too-long.patch
+#	)
+#
 pkg_setup() {
 	if use managesieve && ! use sieve; then
 		ewarn "managesieve USE flag selected but sieve USE flag unselected"

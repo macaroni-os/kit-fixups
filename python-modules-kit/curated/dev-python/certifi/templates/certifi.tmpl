@@ -23,3 +23,10 @@ KEYWORDS="*"
 RDEPEND="app-misc/ca-certificates"
 
 distutils_enable_tests unittest
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mv ${WORKDIR}/{{github_user}}-* ${S} || die
+	fi
+}
+

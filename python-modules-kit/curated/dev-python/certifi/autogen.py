@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 async def generate(hub, **pkginfo):
-	gu = "mgorny"
+	gu = "projg2"
 	gr = "certifi-shim"
 	tags = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{gu}/{gr}/tags", is_json=True)
 	version = tags[0]["name"].lstrip("v")

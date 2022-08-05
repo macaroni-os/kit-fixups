@@ -100,10 +100,12 @@ github_stuff:
         license: BSD
         desc: Python client for Docker
         homepage: https://github.com/docker/docker-py
-        rdepend: '>=dev-python/requests-2.24.0[${PYTHON_USEDEP}] >=dev-python/six-1.4.0[${PYTHON_USEDEP}] >=dev-python/websocket-client-0.32.0[${PYTHON_USEDEP}]'
-        depend: 'test? ( >=dev-python/mock-1.0.1[${PYTHON_USEDEP}] >=dev-python/paramiko-2.4.2[${PYTHON_USEDEP}] )'
+        pydeps:
+          - requests >= 2.24.0
+          - six >= 1.4.0
+          - websocket-client >= 0.32.0
         body: |
-          distutils_enable_sphinx docs dev-python/recommonmark >=dev-python/sphinx-1.4.6
+          distutils_enable_sphinx docs 'dev-python/recommonmark' '>=dev-python/sphinx-1.4.6'
           src_prepare() {
             default
             # localhost has a better chance of being in /etc/hosts

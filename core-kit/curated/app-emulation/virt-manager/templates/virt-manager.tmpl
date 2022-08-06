@@ -47,10 +47,6 @@ DOCS=( README.md NEWS.md )
 # Doesn't seem to play nicely in a sandboxed environment.
 RESTRICT="test"
 
-PATCHES=(
-	"${FILESDIR}"/virt-manager-4.0.0-setuptools-61-fix.patch
-)
-
 distutils_enable_tests pytest
 
 post_src_unpack() {

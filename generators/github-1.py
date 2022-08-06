@@ -1,5 +1,19 @@
 #!/usr/bin/python3
 
+def get_key(name, pkginfo):
+	"""
+	This function looks first in github block, and then in the main block for a specific key.
+
+	We use this for things that we initially designed to be in the main block but make a lot
+	more sense being in the github block.
+	"""
+	if name in pkginfo["github"]:
+		return pkginfo["github"][name]
+	elif name in pkginfo:
+		return pkginfo[name]
+	else:
+		return None
+
 
 async def generate(hub, **pkginfo):
 	# migrate keys inside "github:" element to "github_foo":
@@ -60,14 +74,16 @@ async def generate(hub, **pkginfo):
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:
-		if "assets" in pkginfo and "tarball" in pkginfo:
+		assets = get_key("assets", pkginfo)
+		tarball = get_key("tarball", pkginfo)
+		if assets and tarball:
 			raise KeyError("Please specify assets: or tarball: but not both.")
-		if "assets" in pkginfo:
+		if assets:
 			github_result = await hub.pkgtools.github.release_gen(
 				hub,
 				github_user,
 				github_repo,
-				assets=pkginfo['assets'],
+				assets=assets,
 				**extra_args
 			)
 		else:
@@ -75,7 +91,7 @@ async def generate(hub, **pkginfo):
 				hub,
 				github_user,
 				github_repo,
-				tarball=pkginfo.get("tarball", None),
+				tarball=tarball,   # This intentionally may be None if no tarball is found. That's OK.
 				**extra_args
 			)
 

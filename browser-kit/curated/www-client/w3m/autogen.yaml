@@ -1,7 +1,11 @@
-debian_rule:
+w3m_rule:
+  generator: github-1
   packages:
     - w3m:
-        cat: www-client
-        compression: xz
-        github_user: tats
-        github_repo: w3m
+        github:
+          user: tats
+          query: tags
+          transform:
+            - kind: string
+              match: +git
+              replace: _p

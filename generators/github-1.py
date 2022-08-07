@@ -15,6 +15,22 @@ def get_key(name, pkginfo):
 		return None
 
 
+def create_transform(transform_data):
+	def transform_lambda(tag):
+		for trans_dict in transform_data:
+			if "kind" not in trans_dict:
+				raise ValueError("Please specify 'kind' for github transform: element.")
+			kind = trans_dict['kind']
+			if kind == "string":
+				match = trans_dict['match']
+				replace = trans_dict['replace']
+				tag = tag.replace(match, replace)
+			else:
+				raise ValueError(f"Unknown 'kind' for github transform: {kind}")
+		return tag
+	return transform_lambda
+
+
 async def generate(hub, **pkginfo):
 	# migrate keys inside "github:" element to "github_foo":
 	if "github" not in pkginfo:
@@ -59,6 +75,9 @@ async def generate(hub, **pkginfo):
 	if extra_args["version"] == "latest":
 		del extra_args["version"]
 
+	if "transform" in pkginfo["github"]:
+		extra_args["transform"] = create_transform(pkginfo["github"]["transform"])
+
 	# GitHub args handling:
 
 	for gh_arg in ["select"]:
@@ -71,6 +90,7 @@ async def generate(hub, **pkginfo):
 	elif "select" in extra_args:
 		# If a user specifies "select", they probably want the classic grabby matcher and are using "select" to filter undesireables:
 		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.VersionMatch.GRABBY)
+
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	else:

@@ -401,11 +401,16 @@ dev_python_compat_rule:
         license: LGPL-2.1
         restrict: test
     - pyhamcrest:
-        pypi_name: PyHamcrest
-        compat: '1.9.0'
+        du_pep517: hatchling
+        compat:
+          version: '1.9.0'
+          pypi_name: PyHamcrest
         blocker: '!<dev-python/pyhamcrest-2.0.0'
         homepage: https://github.com/hamcrest/PyHamcrest
         license: BSD
+        pydeps:
+          py:3:build:
+            - hatch-vcs
     - pyrsistent:
         compat: '0.16.0'
         blocker: '!<dev-python/pyrsistent-0.16.0'
@@ -1948,6 +1953,11 @@ pep517_compliance_rule:
           - pathspec
           - pluggy
           - tomli
+    - hatch-vcs:
+        pypi_name: hatch_vcs
+        du_pep517: hatchling
+        pydeps:
+          - setuptools-scm
     - editables
     - pathspec
     - jupyter_packaging:

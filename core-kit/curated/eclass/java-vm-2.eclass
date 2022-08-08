@@ -4,14 +4,14 @@
 # @ECLASS: java-vm-2.eclass
 # @MAINTAINER:
 # java@gentoo.org
-# @SUPPORTED_EAPIS: 6 7 8
+# @SUPPORTED_EAPIS: 5 6 7 8
 # @BLURB: Java Virtual Machine eclass
 # @DESCRIPTION:
 # This eclass provides functionality which assists with installing
 # virtual machines, and ensures that they are recognized by java-config.
 
 case ${EAPI:-0} in
-	[678]) ;;
+	[5678]) ;;
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
@@ -24,11 +24,14 @@ RDEPEND="
 	app-eselect/eselect-java
 "
 DEPEND="${RDEPEND}"
-BDEPEND="app-arch/unzip"
-IDEPEND="app-eselect/eselect-java"
 
-if [[ ${EAPI} == 6 ]]; then
-	DEPEND+=" ${BDEPEND}"
+if [[ ${EAPI} != 5 ]]; then
+  BDEPEND="app-arch/unzip"
+  IDEPEND="app-eselect/eselect-java"
+
+  if [[ ${EAPI} == 6 ]]; then
+	  DEPEND+=" ${BDEPEND}"
+  fi
 fi
 
 export WANT_JAVA_CONFIG=2
@@ -112,11 +115,13 @@ has_eselect_java-vm_update() {
 # warn user if removing system-vm.
 
 java-vm-2_pkg_prerm() {
-	if has_eselect_java-vm_update; then
-		# We will potentially switch to a new Java system VM in
-		# pkg_postrm().
-		return
-	fi
+  if [[ ${EAPI} != 5 ]]; then
+    if has_eselect_java-vm_update; then
+      # We will potentially switch to a new Java system VM in
+      # pkg_postrm().
+      return
+    fi
+  fi
 
 	if [[ $(GENTOO_VM= java-config -f 2>/dev/null) == ${VMHANDLE} && -z ${REPLACED_BY_VERSION} ]]; then
 		ewarn "It appears you are removing your system-vm! Please run"
@@ -135,9 +140,11 @@ java-vm-2_pkg_prerm() {
 
 java-vm-2_pkg_postrm() {
 	xdg_desktop_database_update
-	if has_eselect_java-vm_update; then
-		eselect java-vm update
-	fi
+	if [[ ${EAPI} != 5 ]]; then
+    if has_eselect_java-vm_update; then
+      eselect java-vm update
+    fi
+  fi
 }
 
 

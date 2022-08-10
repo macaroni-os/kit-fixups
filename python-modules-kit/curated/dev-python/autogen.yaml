@@ -1571,6 +1571,10 @@ dev_python_simplified_rule:
         pydeps:
           py:all:
             - twisted
+    - ovs:
+        pydeps:
+          py:all:
+            - dev-python/sortedcontainers
     - rfc3986:
         compat: '1.5.0'
         revision:

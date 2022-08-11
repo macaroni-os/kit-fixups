@@ -1553,6 +1553,23 @@ dev_python_simplified_rule:
         pydeps:
           use:kerberos:
             - pykerberos
+
+    - m2r:
+        python_compat: python2+ python3+ pypy
+        pydeps:
+          py:all:build:
+            - setuptools
+          py:all:runtime:
+            - mistune
+            - docutils
+        patches:
+          - m2r-docutils.patch
+        body: |
+          python_prepare_all() {
+            sed -e "s/packages=\['tests'\],/packages=[],/" -i setup.py
+            distutils-r1_python_prepare_all
+          }
+
     - motor:
         rdepend: |
           !<dev-python/pymongo-4.1

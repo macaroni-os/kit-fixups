@@ -1,0 +1,29 @@
+diff --git a/src/Window.cc b/src/Window.cc
+index 92e3a41..6f84ca8 100644
+--- a/src/Window.cc
++++ b/src/Window.cc
+@@ -2333,6 +2333,12 @@ void FluxboxWindow::buttonPressEvent(XButtonEvent &be) {
+         return;
+     }
+ 
++    WinClient *client = 0;
++    if (!screen().focusControl().isMouseTabFocus()) {
++        // determine if we're in a label button (tab)
++        client = winClientOfLabelButtonWindow(be.window);
++    }
++
+     // if nothing was bound via keys-file then
+     // - raise() if clickRaise is enabled
+     // - hide open menues
+@@ -2351,6 +2357,11 @@ void FluxboxWindow::buttonPressEvent(XButtonEvent &be) {
+     if (!m_focused && acceptsFocus() && m_click_focus)
+         focus();
+ 
++    if (!screen().focusControl().isMouseTabFocus() &&
++        client && client != m_client &&
++        !screen().focusControl().isIgnored(be.x_root, be.y_root) ) {
++        setCurrentClient(*client, isFocused());
++    }
+ }
+ 
+ void FluxboxWindow::buttonReleaseEvent(XButtonEvent &re) {

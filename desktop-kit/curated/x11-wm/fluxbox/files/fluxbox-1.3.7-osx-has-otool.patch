@@ -1,11 +1,13 @@
---- util/fbsetbg
-+++ util/fbsetbg
-@@ -356,7 +356,8 @@
+diff --git a/util/fbsetbg b/util/fbsetbg
+index e277317..b987423 100644
+--- a/util/fbsetbg
++++ b/util/fbsetbg
+@@ -361,7 +361,8 @@ if [ "$setterfromcommandline" != true ]; then
              if [ ! "$wpsetter" = Esetroot ]; then
                  WPSETTER=$wpsetter
                  break
 -            elif ldd `which Esetroot`|grep libImlib 2>&1 > /dev/null; then
-+            elif ldd `which Esetroot`|grep libImlib 2>&1 > /dev/null || \
++	    elif ldd `which Esetroot`|grep libImlib 2>&1 > /dev/null || \
 +                otool -L `which Esetroot`|grep libImlib 2>&1 > /dev/null; then
                  WPSETTER=$wpsetter
                  break

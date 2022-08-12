@@ -1,0 +1,25 @@
+Fluxbox would segfault when no fonts were available. 
+Now it just exits with an error.
+
+diff --git a/src/FbTk/Font.cc b/src/FbTk/Font.cc
+index 0164e77..efa6cfb 100644
+--- a/src/FbTk/Font.cc
++++ b/src/FbTk/Font.cc
+@@ -43,6 +43,7 @@
+ #include <map>
+ #include <typeinfo>
+ #include <langinfo.h>
++#include <iostream>
+ 
+ #ifdef HAVE_SETLOCALE
+ #include <locale.h>
+@@ -231,6 +232,9 @@ bool Font::load(const string &name) {
+             m_fontstr = name;
+             resetEffects(*this);
+             return true;
++        } else {
++            std::cerr << "Couldn't initialize fonts. Check your fontconfig installation.\n";
++            exit(1);
+         }
+ 
+         delete tmp_font;

@@ -84,7 +84,7 @@ src_prepare() {
 		etc/ \
 		|| die
 
-	use widevine || (rm opt/vivaldi/WidevineCdm || die)
+	use widevine || (rm opt/${PN}/WidevineCdm || die)
 
 	local c d
 	for d in 16 22 24 32 48 64 128 256; do

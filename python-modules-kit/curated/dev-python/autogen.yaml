@@ -1555,7 +1555,8 @@ dev_python_simplified_rule:
             - pykerberos
 
     - m2r:
-        python_compat: python2+ python3+ pypy
+        python_compat: python3+ pypy
+        compat: '0.2.1'
         pydeps:
           py:all:build:
             - setuptools

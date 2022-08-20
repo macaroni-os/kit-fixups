@@ -10,6 +10,7 @@ arches = {
 	"riscv64": "riscv64",
 
 }
+JDK_MAX_RELEASE = 18
 
 def generate_bin_artifacts(hub, binaries_data, **pkginfo):
 	artifacts = {}
@@ -35,6 +36,8 @@ async def generate(hub, **pkginfo):
 		releases.append(rel_data["most_recent_feature_release"])
 
 	for release in releases:
+		if int(release) > JDK_MAX_RELEASE:
+			continue
 		local_pkginfo = pkginfo.copy()
 		src_url = f"https://api.adoptium.net/v3/assets/feature_releases/{release}/ga"
 		src_data = await hub.pkgtools.fetch.get_page(src_url, is_json=True)

@@ -151,7 +151,7 @@ src_prepare() {
 	chmod +x config-extract || die
 	./config-extract ${arch} ${featureset} ${subarch} || die
 	setno_config .config CONFIG_DEBUG
-	if acpi-ec; then
+	if use acpi-ec; then
 		# most fan control tools require this
 		tweak_config .config CONFIG_ACPI_EC_DEBUGFS m
 	fi

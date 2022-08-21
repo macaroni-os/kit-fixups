@@ -1,0 +1,184 @@
+From 2691107f973770bafc84b9e8aae7c791053f411e Mon Sep 17 00:00:00 2001
+From: Martin Jambor <mjambor@suse.cz>
+Date: Wed, 13 Jul 2022 13:17:25 +0200
+Subject: [PATCH] tree-sra: Fix union handling in build_reconstructed_reference
+
+As the testcase in PR 105860 shows, the code that tries to re-use the
+handled_component chains in SRA can be horribly confused by unions,
+where it thinks it has found a compatible structure under which it can
+chain the references, but in fact it found the type it was looking
+for elsewhere in a union and generated a write to a completely wrong
+part of an aggregate.
+
+I don't remember whether the plan was to support unions at all in
+build_reconstructed_reference but it can work, to an extent, if we
+make sure that we start the search only outside the outermost union,
+which is what the patch does (and the extra testcase verifies).
+
+Additionally, this commit also contains sqashed in it a backport of
+b984b84cbe4bf026edef2ba37685f3958a1dc1cf which fixes the testcase
+gcc.dg/tree-ssa/alias-access-path-13.c for many 32-bit targets.
+
+gcc/ChangeLog:
+
+2022-07-01  Martin Jambor  <mjambor@suse.cz>
+
+	PR tree-optimization/105860
+	* tree-sra.c (build_reconstructed_reference): Start expr
+	traversal only just below the outermost union.
+
+gcc/testsuite/ChangeLog:
+
+2022-07-01  Martin Jambor  <mjambor@suse.cz>
+
+	PR tree-optimization/105860
+	* gcc.dg/tree-ssa/alias-access-path-13.c: New test.
+	* gcc.dg/tree-ssa/pr105860.c: Likewise.
+
+(cherry picked from commit b110e5283e368b5377e04766e4ff82cd52634208)
+---
+ .../gcc.dg/tree-ssa/alias-access-path-13.c    | 36 +++++++++++
+ gcc/testsuite/gcc.dg/tree-ssa/pr105860.c      | 63 +++++++++++++++++++
+ gcc/tree-sra.c                                | 13 +++-
+ 3 files changed, 111 insertions(+), 1 deletion(-)
+ create mode 100644 gcc/testsuite/gcc.dg/tree-ssa/alias-access-path-13.c
+ create mode 100644 gcc/testsuite/gcc.dg/tree-ssa/pr105860.c
+
+diff --git a/gcc/testsuite/gcc.dg/tree-ssa/alias-access-path-13.c b/gcc/testsuite/gcc.dg/tree-ssa/alias-access-path-13.c
+new file mode 100644
+index 00000000000..87a94f5bf31
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/tree-ssa/alias-access-path-13.c
+@@ -0,0 +1,36 @@
++/* { dg-do compile } */
++/* { dg-options "-O2 -fdump-tree-fre1" } */
++
++struct inn
++{
++  int val;
++};
++
++struct biggerstruct
++{
++  int a, b;
++};
++
++union foo
++{
++  struct inn inn;
++  struct biggerstruct baz;
++} *fooptr;
++
++struct bar
++{
++  union foo foo;
++  int val2;
++} *barptr;
++
++int
++test ()
++{
++  union foo foo;
++  foo.inn.val = 0;
++  barptr->val2 = 123;
++  *fooptr = foo;
++  return barptr->val2;
++}
++
++/* { dg-final { scan-tree-dump-times "return 123" 1 "fre1"} } */
+diff --git a/gcc/testsuite/gcc.dg/tree-ssa/pr105860.c b/gcc/testsuite/gcc.dg/tree-ssa/pr105860.c
+new file mode 100644
+index 00000000000..77bcb4a6739
+--- /dev/null
++++ b/gcc/testsuite/gcc.dg/tree-ssa/pr105860.c
+@@ -0,0 +1,63 @@
++/* { dg-do run } */
++/* { dg-options "-O1" } */
++
++struct S1  {
++        unsigned int _0;
++        unsigned int _1;
++} ;
++struct S2  {
++        struct S1 _s1;
++        unsigned long _x2;
++} ;
++
++struct ufld_type1  {
++        unsigned int _u1t;
++        struct S2 _s2;
++} ;
++
++struct ufld_type2  {
++        unsigned int _u2t;
++        struct S1 _s1;
++} ;
++struct parm_type {
++        union {
++                struct ufld_type1 var_1;
++                struct ufld_type2 var_2;
++        } U;
++};
++
++struct parm_type  bad_function( struct parm_type arg0 )
++{
++        struct parm_type rv;
++        struct S2 var4;
++        switch( arg0.U.var_2._u2t ) {
++        case 4294967041:
++                var4._s1 = arg0.U.var_1._s2._s1;
++                rv.U.var_1._u1t = 4294967041;
++                rv.U.var_1._s2 = var4;
++                break;
++        case 4294967043:
++                rv.U.var_2._u2t = 4294967043;
++                rv.U.var_2._s1 = arg0.U.var_2._s1;
++                break;
++        default:
++                break;
++        }
++        return rv;
++}
++
++int main() {
++        struct parm_type val;
++        struct parm_type out;
++        val.U.var_2._u2t = 4294967043;
++        val.U.var_2._s1._0 = 0x01010101;
++        val.U.var_2._s1._1 = 0x02020202;
++        out = bad_function(val);
++	if (val.U.var_2._u2t != 4294967043)
++	  __builtin_abort ();
++        if (out.U.var_2._s1._0 != 0x01010101)
++	  __builtin_abort ();
++        if (val.U.var_2._s1._1 != 0x02020202 )
++	  __builtin_abort ();
++	return 0;
++}
+diff --git a/gcc/tree-sra.c b/gcc/tree-sra.c
+index 09d951a261b..420329f63f6 100644
+--- a/gcc/tree-sra.c
++++ b/gcc/tree-sra.c
+@@ -1647,7 +1647,18 @@ build_ref_for_offset (location_t loc, tree base, poly_int64 offset,
+ static tree
+ build_reconstructed_reference (location_t, tree base, struct access *model)
+ {
+-  tree expr = model->expr, prev_expr = NULL;
++  tree expr = model->expr;
++  /* We have to make sure to start just below the outermost union.  */
++  tree start_expr = expr;
++  while (handled_component_p (expr))
++    {
++      if (TREE_CODE (TREE_TYPE (TREE_OPERAND (expr, 0))) == UNION_TYPE)
++	start_expr = expr;
++      expr = TREE_OPERAND (expr, 0);
++    }
++
++  expr = start_expr;
++  tree prev_expr = NULL_TREE;
+   while (!types_compatible_p (TREE_TYPE (expr), TREE_TYPE (base)))
+     {
+       if (!handled_component_p (expr))
+-- 
+2.31.1
+

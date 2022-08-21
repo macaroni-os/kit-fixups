@@ -286,6 +286,8 @@ src_prepare() {
 			done
 		fi
 
+		eapply "${FILESDIR}/gcc-11.3.0-fix-union-handling-in-build_reconstructed_reference.patch"
+
 		#use bootstrap-lto && eapply "${FILESDIR}/Fix-bootstrap-miscompare-with-LTO-bootstrap-PR85571.patch"
 
 		# Harden things up:

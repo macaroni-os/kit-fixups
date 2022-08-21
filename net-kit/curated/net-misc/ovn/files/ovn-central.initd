@@ -1,0 +1,74 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="OVN Northbound and Southbound services"
+command="/usr/share/ovn/scripts/ovn-ctl"
+command_args=""
+pidfile="/var/run/ovn/ovn-northd.pid"
+
+checkconfig() {
+	binaries=(
+		"/usr/bin/ovn-northd"
+		"/usr/share/ovn/scripts/ovn-ctl"
+	)
+
+	for b in ${binaries[@]}; do
+		if [ ! -x ${b} ]; then
+			eerror "Wrong permission to ${b}"
+			return 1
+		fi
+	done
+
+	# Default path of OVSDB databases.
+	export OVN_DBDIR=${OVN_DBDIR:-/var/lib/ovn}
+	export OVN_RUNDIR=${OVN_RUNDIR:-/var/run/ovn}
+
+	return 0
+}
+
+depend() {
+	need net
+	use logger
+}
+
+run_ovn_ctl() {
+	set /usr/share/ovn/scripts/ovn-ctl ${1-start_northd}
+	set "$@" $OVN_CTL_OPTS
+	"$@"
+	return $?
+}
+
+start() {
+	ebegin "Starting OVN Northbound and Southbound services"
+
+	checkconfig || return 1
+	checkpath -d "${OVN_RUNDIR}" -m 0750
+
+	run_ovn_ctl
+	retval=$?
+	einfo ""
+	eend ${retval}
+}
+
+status() {
+	checkconfig || return 1
+	run_ovn_ctl status_northd
+	return $?
+}
+
+restart() {
+	checkconfig || return 1
+	run_ovn_ctl restart_northd
+	return $?
+}
+
+stop() {
+	checkconfig || return 1
+	ebegin "Stopping OVN Northbound and Southbound services"
+	run_ovn_ctl stop_northd
+	retval=$?
+	einfo ""
+	eend ${retval}
+}
+
+# vim: ts=4 filetype=gentoo-init-d

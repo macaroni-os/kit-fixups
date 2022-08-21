@@ -1,0 +1,74 @@
+#!/sbin/openrc-run
+# Copyright 2022 Funtoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+name="OVN Controller daemon"
+description=""
+command=/usr/bin/ovn-controller
+command_args="${OVN_CTL_OPTS}"
+
+depend() {
+	need net ovsdb-server ovs-vswitchd
+	use logger
+}
+
+checkconfig() {
+	binaries=(
+		"/usr/bin/ovn-controller"
+		"/usr/share/ovn/scripts/ovn-ctl"
+	)
+
+	for b in ${binaries[@]}; do
+		if [ ! -x ${b} ]; then
+			eerror "Wrong permission to ${b}"
+			return 1
+		fi
+	done
+
+	# Default path of OVSDB databases.
+	export OVN_DBDIR=${OVN_DBDIR:-/var/lib/ovn}
+	export OVN_RUNDIR=${OVN_RUNDIR:-/var/run/ovn}
+	export OVS_RUNDIR=${OVS_RUNDIR:-/var/run/openvswitch}
+
+	return 0
+}
+
+run_ovn_ctl() {
+	set /usr/share/ovn/scripts/ovn-ctl ${1-start_controller}
+	set "$@" $OVN_CTL_OPTS
+	"$@"
+	return $?
+}
+
+start() {
+	ebegin "Starting OVN Controller"
+
+	checkconfig || return 1
+	checkpath -d "${OVN_RUNDIR}" -m 0750
+
+	run_ovn_ctl
+	retval=$?
+	einfo ""
+	eend ${retval} "Failed starting OVN Controller"
+}
+
+status() {
+	checkconfig || return 1
+	run_ovn_ctl status_controller
+	return $?
+}
+
+restart() {
+	checkconfig || return 1
+	run_ovn_ctl restart_controller
+	return $?
+}
+
+stop() {
+	checkconfig || return 1
+	ebegin "Stopping OVN Controller"
+	run_ovn_ctl stop_controller
+	retval=$?
+	einfo ""
+	eend ${retval}
+}

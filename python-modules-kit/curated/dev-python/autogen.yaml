@@ -1970,11 +1970,13 @@ pep517_compliance_rule:
     - hatchling:
         du_pep517: standalone
         pydeps:
-          - editables
-          - packaging
-          - pathspec
-          - pluggy
-          - tomli
+          py:all:
+            - editables
+            - packaging
+            - pluggy
+            - tomli
+          py:all:build:
+            - pathspec
     - hatch-vcs:
         pypi_name: hatch_vcs
         du_pep517: hatchling

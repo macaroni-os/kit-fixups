@@ -45,17 +45,14 @@ kernel_gen:
           latest:
             umasked: True
     - debian-sources:
-        unmask_match: '^5\.16\.'
+        unmask_match: '^5\.18\.'
         patches:
           - xfs-libcrc32c-fix.patch
           - mcelog.patch
           - ikconfig.patch
           - extra_cpu_optimizations.patch
         revision:
-          5.16.18_p1: 1
           5.18.5_p1: 1
         versions:
           latest:
-            unmasked: True
-          5.16.18_p1:
             unmasked: True

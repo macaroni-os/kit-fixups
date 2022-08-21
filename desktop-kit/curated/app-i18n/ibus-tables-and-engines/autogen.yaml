@@ -1,0 +1,33 @@
+ibus-tables:
+  generator: github-1
+  packages:
+    - ibus-m17n:
+        github:
+          user: ibus
+          repo: ibus-m17n
+          query: releases
+          tarball: "ibus-m17n-{version}.tar.gz"
+    - ibus-table:
+        github:
+          user: kaio
+          repo: ibus-table
+          query: releases
+          tarball: "ibus-table-{version}.tar.gz"
+    - ibus-table-chinese:
+        github:
+          user: mike-fabian
+          repo: ibus-table-chinese
+          query: releases
+          tarball: "ibus-table-chinese-{version}.tar.gz"
+    - ibus-table-others:
+        github:
+          user: moebiuscurve
+          repo: ibus-table-others
+          query: releases
+          tarball: "ibus-table-others-{version}.tar.gz"
+    - ibus-table-extraphrase:
+        github:
+          user: Madman10K
+          repo: ibus-table-extraphrase
+          query: releases
+          tarball: "ibus-table-extraphrase-{version}.tar.gz"

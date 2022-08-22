@@ -1969,14 +1969,16 @@ pep517_compliance_rule:
           - tomli
     - hatchling:
         du_pep517: standalone
+        rdepend: '${DEPEND}'
         pydeps:
           py:all:
             - editables
-            - packaging
-            - pluggy
             - tomli
           py:all:build:
             - pathspec
+            - packaging
+            - pluggy
+            - installer
     - hatch-vcs:
         pypi_name: hatch_vcs
         du_pep517: hatchling

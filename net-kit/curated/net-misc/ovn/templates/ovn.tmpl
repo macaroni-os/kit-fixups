@@ -47,7 +47,6 @@ src_prepare() {
 }
 
 src_configure() {
-	set_arch_to_kernel
 	# monitor is statically enabled for bug 596206
 	# use monitor || export ovs_cv_python="no"
 	# pyside is staticly disabled

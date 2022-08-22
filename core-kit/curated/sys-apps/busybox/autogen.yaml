@@ -1,0 +1,11 @@
+busybox:
+  generator: github-1
+  packages:
+    - busybox:
+        github:
+          user: mirror
+          query: tags
+          transform:
+            - kind: string
+              match: _
+              replace: .

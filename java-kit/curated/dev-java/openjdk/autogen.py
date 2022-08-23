@@ -41,7 +41,12 @@ async def generate(hub, **pkginfo):
 		local_pkginfo = pkginfo.copy()
 		src_url = f"https://api.adoptium.net/v3/assets/feature_releases/{release}/ga"
 		src_data = await hub.pkgtools.fetch.get_page(src_url, is_json=True)
-
+		if not len(src_data):
+			hub.pkgtools.model.log.error(f"Can't find openjdk release data for release {release}")
+			continue
+		elif "source" not in src_data[0]:
+			hub.pkgtools.model.log.error(f"Can't find 'source' in release data for release {release}")
+			continue
 		src_artifact = src_data[0]["source"]["link"]
 		src_path = src_data[0]["release_name"]
 		for suffix in [ "", "-bin", "-jre-bin"]:

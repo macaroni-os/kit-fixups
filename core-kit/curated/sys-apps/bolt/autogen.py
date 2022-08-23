@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	)
 	release = json_data[0]
 	url = list(filter(lambda x: x["format"] == "tar.bz2", release["assets"]["sources"]))[0]["url"]
-	version = pkginfo['version'] = release["name"]
+	version = pkginfo['version'] = release["tag_name"]
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],

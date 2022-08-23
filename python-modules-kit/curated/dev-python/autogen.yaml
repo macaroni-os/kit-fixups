@@ -1557,6 +1557,9 @@ dev_python_simplified_rule:
     - m2r:
         python_compat: python3+ pypy
         compat: '0.2.1'
+        revision:
+          0.2.1: 1
+        blocker: "!<=dev-python/m2r-0.2.1"
         pydeps:
           py:all:build:
             - setuptools

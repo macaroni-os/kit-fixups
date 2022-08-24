@@ -7,7 +7,7 @@ inherit autotools flag-o-matic linux-info pam
 MY_PN=${PN/-utils//}
 DESCRIPTION="eCryptfs userspace utilities"
 HOMEPAGE="https://www.ecryptfs.org/"
-SRC_URI="https://dev.gentoo.org/~bkohler/dist/${P}.tar.gz"
+SRC_URI="https://bazaar.launchpad.net/~ecryptfs/ecryptfs/trunk/tarball/894 -> ${P}.tgz"
 S="${WORKDIR}/~${MY_PN}/${MY_PN}/trunk/"
 
 LICENSE="GPL-2"

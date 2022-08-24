@@ -22,7 +22,6 @@ RESTRICT="x86? ( test )
 RDEPEND="app-arch/snappy:=
 	app-arch/zstd:=
 	>=dev-libs/libbson-${PV}[static-libs?]
-	dev-python/sphinx
 	sys-libs/zlib:=
 	icu? ( dev-libs/icu:= )
 	sasl? ( dev-libs/cyrus-sasl:= )
@@ -31,6 +30,7 @@ RDEPEND="app-arch/snappy:=
 		libressl? ( dev-libs/libressl:0= )
 	)"
 DEPEND="${RDEPEND}
+	dev-python/sphinx
 	test? (
 		dev-db/mongodb
 		dev-libs/libbson[static-libs]

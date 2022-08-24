@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 		if rel["draft"] == False and rel["prerelease"] == False:
 			break
 
-	url = f"https://github.com/{github_user}/{github_repo}/archive/{version}.tar.gz"
+	#url = f"https://github.com/{github_user}/{github_repo}/archive/{version}.tar.gz"
 	url = f"https://github.com/{github_user}/{github_repo}/releases/download/{version}/mongo-c-driver-{version}.tar.gz"
 	final_name = f"{pkginfo['name']}-{version}.tar.gz"
 

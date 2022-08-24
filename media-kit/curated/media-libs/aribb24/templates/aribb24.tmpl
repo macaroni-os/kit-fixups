@@ -1,0 +1,46 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage  }}"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="LGPL-3"
+SLOT="0"
+KEYWORDS="*"
+
+RDEPEND="media-libs/libpng"
+DEPEND="${RDEPEND}"
+BDEPEND="virtual/pkgconfig"
+
+{%- if patches and version=='1.0.3' %}
+PATCHES=(
+{%- for patch in patches %}
+	"${FILESDIR}"/"${P}"-{{ patch }}
+{%- endfor %}
+)
+{%- endif %}
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "${S}" || die
+	fi
+}
+
+src_prepare() {
+	default
+	eautoreconf
+}
+
+src_configure() {
+	econf --disable-static
+}
+
+src_install() {
+	emake DESTDIR="${D}" install
+	einstalldocs
+	find "${ED}" -type f -name '*.la' -delete || die
+}

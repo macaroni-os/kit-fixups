@@ -1,0 +1,28 @@
+smplayer:
+  generator: github-1
+  defaults:
+    github_user: smplayer-dev
+    homepage: https://smplayer.info/
+  packages:
+    - smplayer:
+        desc: Free Media Player for Linux with YouTube support.
+        patches:
+          - 14.9.0.6966-unbundle-qtsingleapplication.patch # bug 487544
+          - 22.7.0-advertisement_crap.patch
+          - 18.2.0-jobserver.patch
+          - 18.3.0-disable-werror.patch
+        github:
+          repo: smplayer
+          query: releases
+    - smplayer-themes:
+        cat: x11-themes
+        desc: Icon themes for SMPlayer.
+        github:
+          repo: smplayer-themes
+          query: releases
+    - smplayer-skins:
+        cat: x11-skins
+        desc: Skin themes for SMPlayer.
+        github:
+          repo: smplayer-skins
+          query: releases

@@ -1,0 +1,16 @@
+aribb24:
+  generator: github-1
+  packages:
+    - aribb24:
+        desc: Library for decoding ARIB STD-B24 subtitles
+        homepage: https://github.com/nkoriyama/aribb24
+        patches:
+          - reset-control_time.patch
+          - fix-default-macros.patch
+          - add-missing-curly-braces.patch
+          - add-png_cflags.patch
+          - add-missing-libm-in-pkgconfig.patch
+        github:
+          user: nkoriyama
+          repo: aribb24
+          query: releases

@@ -1,0 +1,10 @@
+diff --git a/src/aribb24.pc.in b/src/aribb24.pc.in
+index faa04ee..c03e505 100644
+--- a/src/aribb24.pc.in
++++ b/src/aribb24.pc.in
+@@ -14,4 +14,5 @@ Description: ARIB B24 Captions decoder
+ Version: @VERSION@
+ Requires: @PKG_REQUIRES@
+ Cflags: -I${includedir}
++Libs.private: -lm
+ Libs: -L${libdir} -laribb24

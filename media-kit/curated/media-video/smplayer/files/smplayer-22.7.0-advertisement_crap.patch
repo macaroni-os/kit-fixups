@@ -1,0 +1,88 @@
+diff --git a/src/basegui.cpp b/src/basegui.cpp
+index 56ba487..ad55b38 100644
+--- a/src/basegui.cpp
++++ b/src/basegui.cpp
+@@ -943,9 +943,11 @@ void BaseGui::createActions() {
+ 	connect( showConfigAct, SIGNAL(triggered()),
+              this, SLOT(helpShowConfig()) );
+ 
++#ifdef DONATE_REMINDER
+ 	donateAct = new MyAction( this, "donate" );
+ 	connect( donateAct, SIGNAL(triggered()),
+              this, SLOT(helpDonate()) );
++#endif
+ 
+ 	aboutThisAct = new MyAction( this, "about_smplayer" );
+ 	aboutThisAct->setMenuRole(QAction::AboutRole);
+@@ -1919,7 +1921,9 @@ void BaseGui::retranslateStrings() {
+ #ifdef SHARE_ACTIONS
+ 	donateAct->change( Images::icon("donate"), tr("&Donate / Share with your friends") );
+ #else
++#ifdef DONATE_REMINDER
+ 	donateAct->change( Images::icon("donate"), tr("&Donate") );
++#endif
+ #endif
+ 	aboutThisAct->change( Images::icon("logo"), tr("About &SMPlayer") );
+ 
+@@ -3080,8 +3084,10 @@ void BaseGui::populateMainMenu() {
+ 		helpMenu->addAction(showConfigAct);
+ 		helpMenu->addSeparator();
+ 	}
++	#ifdef DONATE_REMINDER
+ 	helpMenu->addAction(donateAct);
+ 	helpMenu->addSeparator();
++	#endif
+ 	helpMenu->addAction(aboutThisAct);
+ 
+ 	// Access menu
+@@ -4606,6 +4612,7 @@ void BaseGui::helpDonate() {
+ 	}
+ }
+ #else
++#ifdef DONATE_REMINDER
+ void BaseGui::helpDonate() {
+ 	qDebug("BaseGui::helpDonate");
+ 
+@@ -4657,6 +4664,7 @@ void BaseGui::showHelpDonateDialog(bool * accepted) {
+ 	if (accepted != 0) *accepted = result;
+ }
+ #endif
++#endif
+ 
+ void BaseGui::helpAbout() {
+ 	About d(this);
+diff --git a/src/basegui.h b/src/basegui.h
+index ed3a54f..e09256a 100644
+--- a/src/basegui.h
++++ b/src/basegui.h
+@@ -77,10 +77,6 @@ class UpdateChecker;
+ class ShareWidget;
+ #endif
+ 
+-#ifndef SHARE_WIDGET
+-#define DONATE_REMINDER
+-#endif
+-
+ class BaseGui : public QMainWindow
+ {
+ 	Q_OBJECT
+@@ -133,8 +129,8 @@ public slots:
+ 	virtual void helpFAQ();
+ 	virtual void helpCLOptions();
+ 	virtual void helpCheckUpdates();
++#ifdef DONATE_REMINDER
+ 	virtual void helpDonate();
+-#ifndef SHARE_ACTIONS
+ 	void showHelpDonateDialog(bool * accepted = 0);
+ #endif
+ 	virtual void helpShowConfig();
+@@ -588,7 +584,9 @@ protected:
+ 	MyAction * updateYTAct;
+ #endif
+ 	MyAction * showConfigAct;
++#ifdef DONATE_REMINDER
+ 	MyAction * donateAct;
++#endif
+ 	MyAction * aboutThisAct;
+ 
+ #ifdef SHARE_MENU

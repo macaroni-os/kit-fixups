@@ -55,6 +55,11 @@ RDEPEND="${RDEPEND}
 PDEPEND="sys-devel/llvm-common
 	gold? ( >=sys-devel/llvmgold-${SLOT} )"
 
+PATCHES=(
+	"${FILESDIR}"/13.0.0/0001-addrspacecast.patch
+	"${FILESDIR}"/13.0.0/0002-selectInterleaveCount.patch
+)
+
 LLVM_COMPONENTS=( llvm )
 LLVM_MANPAGES=pregenerated
 LLVM_PATCHSET=13.0.0

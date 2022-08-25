@@ -1,0 +1,13 @@
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 504c3d2..5349897 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -43,7 +43,7 @@ libots_1_include_HEADERS = 	\
+ 	libots.h
+ 
+ bin_PROGRAMS=ots
+-ldadd = $(top_builddir)/src/libots-1.la $(OTS_LIBS) $(POPT_LIBS)
++ldadd = libots-1.la $(OTS_LIBS) $(POPT_LIBS)
+ 
+ ots_LDADD=$(ldadd)
+ 

@@ -7,28 +7,28 @@ inherit autotools bash-completion-r1 linux-info flag-o-matic optfeature pam read
 DESCRIPTION="A userspace interface for the Linux kernel containment features"
 HOMEPAGE="https://linuxcontainers.org/ https://github.com/lxc/lxc"
 SRC_URI="https://linuxcontainers.org/downloads/lxc/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 KEYWORDS="*"
 
 LICENSE="GPL-2 LGPL-2.1 LGPL-3"
 SLOT="0"
 IUSE="apparmor +caps doc io-uring man pam seccomp selinux +ssl +tools"
-
 RDEPEND="
 	app-misc/pax-utils
 	sys-apps/util-linux
 	sys-libs/libcap
 	virtual/awk
 	caps? ( sys-libs/libcap )
+	apparmor? ( sys-libs/libapparmor )
 	io-uring? ( >=sys-libs/liburing-2:= )
 	pam? ( sys-libs/pam )
 	seccomp? ( sys-libs/libseccomp )
 	selinux? ( sys-libs/libselinux )
-	ssl? (
-		dev-libs/openssl:0=
-	)"
+	ssl? ( dev-libs/openssl:0= )
+	"
 DEPEND="${RDEPEND}
-	>=sys-kernel/linux-headers-4
+	sys-kernel/linux-headers
 	apparmor? ( sys-apps/apparmor )"
 BDEPEND="virtual/pkgconfig
 	doc? ( app-doc/doxygen[dot] )
@@ -74,6 +74,11 @@ PATCHES=(
 	"${FILESDIR}"/${PV}/${PN}-2.0.5-omit-sysconfig.patch # bug 558854
 	"${FILESDIR}"/${PV}/${PN}-4.0.12-cgroups.patch #FL-10036
 )
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}"/lxc-* "${S}"
+}
 
 src_prepare() {
 	default
@@ -148,7 +153,7 @@ src_install() {
 	find "${D}" -name '*.la' -delete -o -name '*.a' -delete || die
 
 	# Gentoo-specific additions!
-	newinitd "${FILESDIR}/${PV}/${PN}.initd" ${PN}
+	newinitd "${FILESDIR}/${PN}.initd" ${PN}
 
 	DOC_CONTENTS="
 		For openrc, there is an init script provided with the package.
@@ -164,10 +169,10 @@ src_install() {
 }
 
 pkg_postinst() {
-	readme.gentoo_print_elog
-
-	elog "Please run 'lxc-checkconfig' to see optional kernel features."
 	elog
+	elog "Run 'lxc-checkconfig' to see optional kernel features."
+	elog
+
 	optfeature "automatic template scripts" app-containers/lxc-templates
 	optfeature "Debian-based distribution container image support" dev-util/debootstrap
 	optfeature "snapshot & restore functionality" sys-process/criu

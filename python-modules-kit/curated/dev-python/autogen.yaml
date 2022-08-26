@@ -94,8 +94,9 @@ github_stuff:
     python_compat: python3+
   packages:
     - docker-py:
+        version: '5.0.3'
         github:
-          query: tags
+          query: releases
           user: docker
         license: BSD
         desc: Python client for Docker

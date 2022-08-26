@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="7"
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3+ )
 
 inherit autotools gnome3-utils python-single-r1 xdg
 
@@ -27,7 +27,7 @@ BDEPEND="sys-devel/gettext
 	virtual/pkgconfig"
 
 post_src_unpack() {
-        mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 
 src_prepare() {

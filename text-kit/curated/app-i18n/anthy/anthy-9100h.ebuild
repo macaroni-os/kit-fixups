@@ -10,7 +10,7 @@ SRC_URI="https://osdn.net/dl/anthy/anthy-9100h.tar.gz"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="static-libs"
 
 RDEPEND=""
@@ -18,8 +18,6 @@ DEPEND="${RDEPEND}"
 
 PATCHES=( "${FILESDIR}/${PN}-anthy_context_t.patch" )
 DOCS=( AUTHORS ChangeLog DIARY NEWS README )
-
-SITEFILE="50${PN}-gentoo.el"
 
 src_configure() {
 	econf $(use_enable static-libs static)

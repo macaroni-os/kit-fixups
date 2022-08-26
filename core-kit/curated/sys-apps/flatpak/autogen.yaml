@@ -1,0 +1,10 @@
+flatpak:
+  generator: github-1
+  defaults:
+    tarball: flatpak-{version}.tar.xz
+    github:
+      user: flatpak
+      repo: flatpak
+      query: releases
+  packages:
+    - flatpak

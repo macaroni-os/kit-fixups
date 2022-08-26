@@ -14,11 +14,11 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="doc gnome gtk introspection kde policykit seccomp"
 
-# FIXME: Automagic dep on app-arch/zstd
 RDEPEND="
 	>=sys-fs/libostree-2020.8[gpg(+)]
 	>=net-libs/libsoup-2.4
 	>=gnome-base/dconf-0.26
+	>=dev-libs/appstream-0.12
 	>=dev-libs/appstream-glib-0.5.10
 	x11-libs/gdk-pixbuf:2
 	>=dev-libs/glib-2.56:2

@@ -73,7 +73,7 @@ COMMONDEPEND="
 	)
 	smime? ( >=app-crypt/gpgme-1.0.0:= )
 	spam-report? ( >=net-misc/curl-7.9.7 )
-	spell? ( >=app-text/enchant-2.0.0:2= )
+	spell? ( >=app-text/enchant-2.0.0 )
 	startup-notification? ( x11-libs/startup-notification )
 	svg? ( >=gnome-base/librsvg-2.40.5 )
 	valgrind? ( dev-util/valgrind )

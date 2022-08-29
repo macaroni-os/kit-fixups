@@ -98,6 +98,7 @@ github_stuff:
         github:
           query: releases
           user: docker
+        tarball: docker-{version}.tar.gz
         license: BSD
         desc: Python client for Docker
         homepage: https://github.com/docker/docker-py
@@ -107,6 +108,10 @@ github_stuff:
           - websocket-client >= 0.32.0
         body: |
           distutils_enable_sphinx docs 'dev-python/recommonmark' '>=dev-python/sphinx-1.4.6'
+          src_unpack() {
+            default
+            mv ${WORKDIR}/docker-* ${S} || die
+          }
           src_prepare() {
             default
             # localhost has a better chance of being in /etc/hosts

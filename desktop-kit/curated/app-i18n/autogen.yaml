@@ -31,6 +31,12 @@ ibus-tables:
           repo: ibus-table-extraphrase
           query: releases
           tarball: "ibus-table-extraphrase-{version}.tar.gz"
+    - ibus-input-pad:
+        github:
+          user: fujiwarat
+          repo: ibus-input-pad
+          query: releases
+          tarball: "ibus-input-pad-{version}.tar.gz"
     - ibus-pinyin:
         github:
           user: ibus
@@ -54,5 +60,22 @@ ibus-tables:
         github:
           user: ibus
           repo: ibus-anthy
+          query: tags
+          select: '^\d+\.\d+\.\d+$'
+    - ibus-bamboo:
+        github:
+          user: BambooEngine
+          repo: ibus-bamboo
+          query: releases
+    - ibus-hangul:
+        github:
+          user: libhangul
+          repo: ibus-hangul
+          query: releases
+          tarball: "ibus-hangul-{version}.tar.gz"
+    - ibus-chewing:
+        github:
+          user: definite
+          repo: ibus-chewing
           query: tags
           select: '^\d+\.\d+\.\d+$'

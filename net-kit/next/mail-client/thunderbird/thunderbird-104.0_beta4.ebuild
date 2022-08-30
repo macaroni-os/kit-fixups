@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-102-patches-02j.tar.xz"
+FIREFOX_PATCHSET="firefox-104-patches-01j.tar.xz"
 
 LLVM_MAX_SLOT=14
 
@@ -516,6 +516,7 @@ src_prepare() {
 		rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch || die
 	fi
 
+	rm -v "${WORKDIR}"/firefox-patches/*-disable_audio_thread_priority_default_features.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -551,7 +552,7 @@ src_prepare() {
 	find "${S}"/third_party -type f \( -name '*.so' -o -name '*.o' \) -print -delete || die
 
 	# Clearing checksums where we have applied patches
-	moz_clear_vendor_checksums target-lexicon-0.9.0
+	moz_clear_vendor_checksums target-lexicon
 
 	# Create build dir
 	BUILD_DIR="${WORKDIR}/${PN}_build"

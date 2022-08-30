@@ -10,12 +10,15 @@ S=${WORKDIR}/${MY_PN}-${MY_PV}
 
 DESCRIPTION="Multi-platform analytics and interactive visualization web application"
 HOMEPAGE="https://grafana.org"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="
+	amd64? ( {{ artifacts[0].src_uri }} )
+	arm64? ( {{ artifacts[1].src_uri }} )
+"
 
 LICENSE="AGPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
-IUSE="systemd"
+KEYWORDS="-* amd64 arm64"
+IUSE="systemd amd64 arm64"
 
 DEPEND=""
 RDEPEND="${DEPEND}

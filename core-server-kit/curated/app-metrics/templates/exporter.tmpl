@@ -9,12 +9,15 @@ MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="
+	{%- for arch, artifact in artifacts.items() %}
+	{{ arch }}? ( {{ artifact.src_uri }} )
+	{%- endfor %}"
 
-KEYWORDS="-* amd64"
+KEYWORDS="-* {{artifacts.keys()|sort|join(' ')}}"
 LICENSE="Apache-2.0"
 SLOT="0"
-IUSE=""
+IUSE="{{artifacts.keys()|sort|join(' ')}}"
 
 DEPEND=""
 RDEPEND="${DEPEND}"

@@ -1,0 +1,19 @@
+Use the system's malloc unconditionally as tcsh's built-in malloc fails on some
+platforms.
+
+diff -ru tcsh-6.24.01.orig/config_f.h tcsh-6.24.01/config_f.h
+--- tcsh-6.24.01.orig/config_f.h	2022-08-30 08:46:40.712024571 +0900
++++ tcsh-6.24.01/config_f.h	2022-08-30 08:54:59.672048720 +0900
+@@ -149,11 +149,7 @@
+  *		This can be much slower and no memory statistics will be
+  *		provided.
+  */
+-#if defined(__MACHTEN__) || defined(PURIFY) || defined(MALLOC_TRACE) || defined(_OSD_POSIX) || defined(__MVS__) || defined (__CYGWIN__) || defined(__GLIBC__) || defined(__OpenBSD__) || defined(__APPLE__) || defined (__ANDROID__) || defined(__NetBSD__)
+-# define SYSMALLOC
+-#else
+-# undef SYSMALLOC
+-#endif
++#define SYSMALLOC
+ 
+ /*
+  * USE_ACCESS	Use access(2) rather than stat(2) when POSIX is defined.

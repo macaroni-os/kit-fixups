@@ -1,0 +1,22 @@
+Remove '.' from the default path.
+
+Adopted from the Debian patchset, originally written by Franz Pletz.
+
+diff -ru tcsh-6.24.01.orig/config_f.h tcsh-6.24.01/config_f.h
+--- tcsh-6.24.01.orig/config_f.h	2022-08-30 13:32:19.032854018 +0900
++++ tcsh-6.24.01/config_f.h	2022-08-30 13:33:14.920856723 +0900
+@@ -96,12 +96,12 @@
+ /*
+  * DOTLAST      put "." last in the default path, for security reasons
+  */
+-#define DOTLAST
++#undef DOTLAST
+ 
+ /*
+  * NODOT	Don't put "." in the default path, for security reasons
+  */
+-#undef NODOT
++#define NODOT
+ 
+ /*
+  * AUTOLOGOUT	tries to determine if it should set autologout depending

@@ -55,6 +55,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-0.60.6.1-clang.patch"
 	# includes fix for bug #467602
 	"${FILESDIR}/${PN}-0.60.6.1-unicode.patch"
+	"${FILESDIR}/${PN}-0.60.8-cve-2019-25051.patch"
 )
 
 src_prepare() {

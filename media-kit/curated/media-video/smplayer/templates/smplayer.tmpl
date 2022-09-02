@@ -44,7 +44,6 @@ PATCHES=(
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
-	#smplayer-dev-smplayer-06363d7
 		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "$S" || die
 	fi
 }

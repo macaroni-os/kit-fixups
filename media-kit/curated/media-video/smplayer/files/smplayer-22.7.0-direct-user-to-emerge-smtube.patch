@@ -1,0 +1,22 @@
+diff --git a/src/basegui.cpp b/src/basegui.cpp
+index ad55b38..d1962c7 100644
+--- a/src/basegui.cpp
++++ b/src/basegui.cpp
+@@ -6324,7 +6324,7 @@ void BaseGui::showTubeBrowser() {
+ 	if (exec.isEmpty() || !QFile::exists(exec)) {
+ 		QMessageBox::warning(this, "SMPlayer",
+ 			tr("The YouTube Browser is not installed.") +"<br>"+ 
+-			tr("Visit %1 to get it.").arg("<a href=http://www.smtube.org>http://www.smtube.org</a>"));
++			tr("emerge smtube"));
+ 		return;
+ 	}
+ 
+@@ -6336,7 +6336,7 @@ void BaseGui::showTubeBrowser() {
+ 		QMessageBox::warning(this, "SMPlayer",
+ 			tr("The YouTube Browser failed to run.") +"<br>"+
+ 			tr("Be sure it's installed correctly.") +"<br>"+
+-			tr("Visit %1 to get it.").arg("<a href=http://www.smtube.org>http://www.smtube.org</a>"));
++			tr("emerge smtube"));
+ 	}
+ #endif
+ }

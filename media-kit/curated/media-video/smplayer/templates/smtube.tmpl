@@ -1,0 +1,68 @@
+# Copyright 2022 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+PLOCALES="bg ca cs da de el en en_GB es es_ES eu fr gl he_IL hr hu
+it ja ko ms nb_NO nn_NO pl pt pt_BR ru sq sr tr uk zh_CN zh_TW"
+PLOCALE_BACKUP="en_US"
+
+inherit plocale qmake-utils toolchain-funcs xdg
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="dev-qt/qtwebkit:5"
+RDEPEND="${DEPEND}
+	net-misc/yt-dlp"
+BDEPEND=""
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "$S" || die
+	fi
+}
+
+src_configure() {
+	cd src || die
+	eqmake5
+}
+
+gen_translation() {
+	local mydir="$(qt5_get_bindir)"
+
+	ebegin "Generating $1 translation"
+	"${mydir}"/lrelease ${PN}_${1}.ts
+	eend $? || die "failed to generate $1 translation"
+}
+
+src_compile() {
+	emake CC="$(tc-getCC)"
+
+	cd src/translations || die
+	plocale_for_each_locale gen_translation
+}
+
+src_install() {
+	# remove unneeded copies of the GPL
+	rm -f Copying* docs/*/gpl.html || die
+	emake DESTDIR="${D}" PREFIX="/usr" install
+}
+
+pkg_preinst() {
+	xdg_pkg_preinst
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+}
+
+pkg_postrm() {
+	xdg_pkg_postrm
+}

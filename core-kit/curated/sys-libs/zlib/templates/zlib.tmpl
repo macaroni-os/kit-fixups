@@ -22,6 +22,7 @@ RDEPEND="abi_x86_32? (
 	!<dev-libs/libxml2-2.7.7" #309623
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.2.11-minizip-drop-crypt-header.patch
+	"${FILESDIR}"/${PN}-1.2.12-fix-crc-calculation.patch
 )
 src_prepare() {
 	default

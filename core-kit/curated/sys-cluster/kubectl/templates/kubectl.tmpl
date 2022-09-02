@@ -13,7 +13,7 @@ KEYWORDS="*"
 IUSE="hardened"
 
 DEPEND="!sys-cluster/kubernetes"
-BDEPEND="dev-lang/go"
+BDEPEND=">=dev-lang/go-1.19"
 
 RESTRICT+=" test"
 

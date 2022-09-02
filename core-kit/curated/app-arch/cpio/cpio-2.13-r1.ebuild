@@ -14,6 +14,7 @@ IUSE="nls"
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.12-non-gnu-compilers.patch #275295
 	"${FILESDIR}"/${PN}-2.12-gcc-10.patch #705900
+	"${FILESDIR}"/${PN}-2.13-cve-2021-38185.patch
 )
 
 src_configure() {

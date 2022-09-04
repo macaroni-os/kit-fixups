@@ -6,8 +6,6 @@ PYTHON_COMPAT=( {{python_compat}} )
 
 inherit bash-completion-r1 linux-info meson python-any-r1 readme.gentoo-r1 user
 
-SRC_URI="https://libvirt.org/sources/${P}.tar.xz"
-
 DESCRIPTION="C toolkit to manipulate virtual machines"
 HOMEPAGE="https://www.libvirt.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
@@ -81,7 +79,7 @@ RDEPEND="
 	pcap? ( >=net-libs/libpcap-1.0.0 )
 	policykit? ( >=sys-auth/polkit-0.9 )
 	qemu? (
-		>=app-emulation/qemu-1.5.0
+		>=app-emulation/qemu-4.2
 		dev-libs/yajl
 	)
 	rbd? ( sys-cluster/ceph )
@@ -231,7 +229,6 @@ src_configure() {
 		$(meson_feature apparmor apparmor_profiles)
 		$(meson_feature audit)
 		$(meson_feature caps capng)
-		$(meson_feature dbus)
 		$(meson_feature dtrace)
 		$(meson_feature firewalld)
 		$(meson_feature fuse)
@@ -244,7 +241,6 @@ src_configure() {
 		$(meson_feature lvm storage_lvm)
 		$(meson_feature lvm storage_mpath)
 		$(meson_feature lxc driver_lxc)
-		$(meson_feature macvtap)
 		$(meson_feature nls)
 		$(meson_feature numa numactl)
 		$(meson_feature numa numad)
@@ -258,14 +254,12 @@ src_configure() {
 		$(meson_feature sasl)
 		$(meson_feature selinux)
 		$(meson_feature udev)
-		$(meson_feature vepa virtualport)
 		$(meson_feature virt-network driver_network)
 		$(meson_feature virtualbox driver_vbox)
 		$(meson_feature wireshark-plugins wireshark_dissector)
 		$(meson_feature xen driver_libxl)
 		$(meson_feature zfs storage_zfs)
 
-		-Dhal=disabled
 		-Dnetcf=disabled
 		-Dsanlock=disabled
 

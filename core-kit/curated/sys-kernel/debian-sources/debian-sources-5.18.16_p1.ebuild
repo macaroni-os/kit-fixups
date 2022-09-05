@@ -7,7 +7,7 @@ inherit check-reqs eutils ego
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_EXTRAVERSION="{{deb_extraversion}}"
+DEB_EXTRAVERSION="1"
 # Account for version revisions
 [[ ${PR} != "r0" ]] && DEB_EXTRAVERSION+="-${PR}"
 # Debian version -1 becomes _p1 in Funtoo:
@@ -18,14 +18,10 @@ MODULE_EXT=${PVR}-${PN}
 
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-DEB_PV="{{linux_version}}-${DEB_EXTRAVERSION}"
+DEB_PV="5.18.16-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
-{%- if unmasked %}
 KEYWORDS="*"
-{%- else %}
-KEYWORDS=""
-{%- endif %}
 IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm sign-modules zfs"
 DEPEND="
 	virtual/libelf
@@ -45,8 +41,8 @@ zfs? ( binary )
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="{{artifacts|map(attribute='src_uri')|join(' ')}}"
-S="$WORKDIR/linux-{{linux_version}}"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_5.18.16.orig.tar.xz -> linux_5.18.16.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_5.18.16-1.debian.tar.xz -> linux_5.18.16-1.debian.tar.xz"
+S="$WORKDIR/linux-5.18.16"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -128,14 +124,26 @@ src_prepare() {
 	#make -s include/linux/version.h || die "make include/linux/version.h failed"
 	cd "${S}"
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
-
-	{%- for patch in patches %}
-	if [ -e "${FILESDIR}/{{linux_version}}/{{patch}}" ]; then
-	    epatch "${FILESDIR}"/{{linux_version}}/{{patch}} || die
+	if [ -e "${FILESDIR}/5.18.16/xfs-libcrc32c-fix.patch" ]; then
+	    epatch "${FILESDIR}"/5.18.16/xfs-libcrc32c-fix.patch || die
 	else
-	    epatch "${FILESDIR}"/latest/{{patch}} || die
+	    epatch "${FILESDIR}"/latest/xfs-libcrc32c-fix.patch || die
 	fi
-	{%- endfor %}
+	if [ -e "${FILESDIR}/5.18.16/mcelog.patch" ]; then
+	    epatch "${FILESDIR}"/5.18.16/mcelog.patch || die
+	else
+	    epatch "${FILESDIR}"/latest/mcelog.patch || die
+	fi
+	if [ -e "${FILESDIR}/5.18.16/ikconfig.patch" ]; then
+	    epatch "${FILESDIR}"/5.18.16/ikconfig.patch || die
+	else
+	    epatch "${FILESDIR}"/latest/ikconfig.patch || die
+	fi
+	if [ -e "${FILESDIR}/5.18.16/extra_cpu_optimizations.patch" ]; then
+	    epatch "${FILESDIR}"/5.18.16/extra_cpu_optimizations.patch || die
+	else
+	    epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
+	fi
 	local arch featureset subarch
 	featureset="standard"
 	if [[ ${REAL_ARCH} == x86 ]]; then

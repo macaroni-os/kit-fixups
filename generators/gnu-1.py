@@ -70,7 +70,10 @@ async def generate(hub, **pkginfo):
 			generate.append({ "keywords" : "*", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
 		else:
 			# the specified version is not the latest version:
-			generate.append({ "keywords" : "next", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
+			if "restrict" in pkginfo and pkginfo["restrict"] == "next":
+				pass
+			else:
+				generate.append({ "keywords" : "next", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
 			generate.append({ "keywords" : "*", "href" : found_version[0], "version" : found_version[1]})
 				
 	for gen in generate:

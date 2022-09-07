@@ -13,7 +13,6 @@ dev_python_autogen_rule:
           sys-apps/attr[static-libs]
           sys-libs/zlib[static-libs]
           dev-libs/libpcre[static-libs]
- 
 
 simple_autogen_rule:
   defaults:
@@ -61,6 +60,7 @@ gnu_core_rule:
         version: '4.8.0'
     - gawk:
         version: '5.1.0'
+        restrict: next
     - gdbm:
         cat: sys-libs
         compression: 'gz'

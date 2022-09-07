@@ -1,0 +1,14 @@
+open-vm-tools:
+  generator: github-1
+  packages:
+    - open-vm-tools:
+        github:
+          user: vmware
+          query: tags
+          tarball: open-vm-tools-{version}.tar.gz
+          match: '^stable-([0-9.]+)$'
+        patches:
+          - 11.3.5-icu.patch
+        versions:
+          latest:
+            template: open-vm-tools.tmpl

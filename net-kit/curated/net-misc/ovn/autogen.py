@@ -82,6 +82,7 @@ async def generate(hub, **pkginfo):
 
 		url=f"https://github.com/{github_user}/{github_repo}/archive/refs/tags/v{pv}.tar.gz"
 		url_ovs=f"https://github.com/openvswitch/ovs/archive/{ovs_hash}.tar.gz"
+		ovs_final_name=f"ovn-ovs-{pv}.tar.gz"
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			version=pv,
@@ -89,7 +90,7 @@ async def generate(hub, **pkginfo):
 			github_repo=github_repo,
 			artifacts=[
 				hub.pkgtools.ebuild.Artifact(url=url),
-				hub.pkgtools.ebuild.Artifact(url=url_ovs),
+				hub.pkgtools.ebuild.Artifact(url=url_ovs, final_name=ovs_final_name),
 			],
 		)
 		ebuild.push()

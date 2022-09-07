@@ -12,13 +12,20 @@ KEYWORDS="*"
 
 LICENSE="GPL-2 LGPL-2.1 LGPL-3"
 SLOT="0"
-IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools"
+IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools +static"
 # tools-multicall is only on master atm. Ready for the next release.
-#IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools tools-multicall"
+#IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools +static tools-multicall"
 RDEPEND="
 	sys-libs/libcap
 	apparmor? ( sys-libs/libapparmor )
-	caps? ( sys-libs/libcap[static-libs] )
+	caps? (
+		static? (
+			sys-libs/libcap[static-libs]
+		)
+		!static? (
+			sys-libs/libcap
+		)
+	)
 	io-uring? ( >=sys-libs/liburing-2:= )
 	pam? ( sys-libs/pam )
 	seccomp? ( sys-libs/libseccomp )
@@ -75,6 +82,7 @@ src_unpack() {
 }
 
 src_configure() {
+
   #$(meson_use tools-multicall)
 	local emesonargs=(
 		-Dcoverity-build=false
@@ -103,14 +111,25 @@ src_configure() {
 	)
 
 	if use systemd; then
-		local emesonargs+=( -Dinit-script="systemd" )
-		local emesonargs+=( -Dsd-bus=enabled )
+		emesonargs+=( -Dinit-script="systemd" )
+		emesonargs+=( -Dsd-bus=enabled )
 	else
-		local emesonargs+=( -Dinit-script="sysvinit" )
-		local emesonargs+=( -Dsd-bus=disabled )
+		emesonargs+=( -Dinit-script="sysvinit" )
+		emesonargs+=( -Dsd-bus=disabled )
 	fi
 
-	use tools && local emesonargs+=( -Dcapabilities=true )
+	if ! use static ; then
+		# b_sanitize option is a specific meson
+		# option to select the Code sanitizer to use.
+		# Change this option seems break linking of a lot of
+		# binaries.
+		# I avoid to change the value and just replace the
+		# check under meson.build file about lxc-init.static
+		# binary.
+		sed -e "s|'none'|'false'|g" src/lxc/cmd/meson.build -i
+	fi
+
+	use tools && emesonargs+=( -Dcapabilities=true )
 
 	meson_src_configure
 }

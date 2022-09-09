@@ -115,7 +115,7 @@ src_install() {
 		# Modify /etc/{clamd,freshclam}.conf to be usable out of the box
 		sed -i -e "s:^\(Example\):\# \1:" \
 			-e "s:.*\(PidFile\) .*:\1 ${EPREFIX}/run/clamd.pid:" \
-			-e "s:.*\(LocalSocket\) .*:\1 ${EPREFIX}/run/clamd.sock:" \
+			-e "s:.*\(LocalSocket\) .*:\1 ${EPREFIX}/run/clamav/clamd.sock:" \
 			-e "s:.*\(User\) .*:\1 clamav:" \
 			-e "s:^\#\(LogFile\) .*:\1 ${EPREFIX}/var/log/clamav/clamd.log:" \
 			-e "s:^\#\(LogTime\).*:\1 yes:" \
@@ -137,9 +137,9 @@ src_install() {
 			##dodoc "${FILESDIR}"/clamav-milter.README.gentoo
 			sed -i -e "s:^\(Example\):\# \1:" \
 				-e "s:.*\(PidFile\) .*:\1 ${EPREFIX}/run/clamav-milter.pid:" \
-				-e "s+^\#\(ClamdSocket\) .*+\1 unix:${EPREFIX}/run/clamd.sock+" \
+				-e "s+^\#\(ClamdSocket\) .*+\1 unix:${EPREFIX}/run/clamav/clamd.sock+" \
 				-e "s:.*\(User\) .*:\1 clamav:" \
-				-e "s+^\#\(MilterSocket\) /.*+\1 unix:${EPREFIX}/run/clamav-milter.sock+" \
+				-e "s+^\#\(MilterSocket\) /.*+\1 unix:${EPREFIX}/run/clamav/clamav-milter.sock+" \
 				-e "s:^\#\(AllowSupplementaryGroups\).*:\1 yes:" \
 				-e "s:^\#\(LogFile\) .*:\1 ${EPREFIX}/var/log/clamav/clamav-milter.log:" \
 				"${ED}"/etc/clamav-milter.conf.sample || die

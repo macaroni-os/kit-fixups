@@ -14,6 +14,7 @@ async def generate(hub, **pkginfo):
 		upstream_version = version
 	pkg_blurb=f"Funtoo {{version}}"
 	bugs_url="https://bugs.funtoo.org/"
+	pkginfo["revision"] = revision = "1"
 	if "revision" in pkginfo and pkginfo["revision"]:
 		pkginfo["version_and_rev"] = f"{version}-r{revision}"
 	else:

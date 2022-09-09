@@ -39,6 +39,10 @@ BDEPEND="
 "
 PDEPEND="=sys-libs/binutils-libs-{{version_and_rev}}"
 
+PATCHES=(
+	"${FILESDIR}"/binutils-2.36.1-cve-2021-45078.patch
+)
+
 RESTRICT="!test? ( test )"
 
 MY_BUILDDIR=${WORKDIR}/build

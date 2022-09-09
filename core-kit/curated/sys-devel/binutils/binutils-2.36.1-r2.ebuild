@@ -30,6 +30,10 @@ SRC_URI="mirror://gnu/binutils/binutils-${PV}.tar.xz"
 SLOT=$(ver_cut 1-2)
 KEYWORDS="*"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.36.1-cve-2021-45078.patch
+)
+
 #
 # The cross-compile logic
 #
@@ -47,7 +51,7 @@ is_cross() { [[ ${CHOST} != ${CTARGET} ]] ; }
 RDEPEND="
 	>=sys-devel/binutils-config-3
 	sys-libs/zlib
-	=sys-libs/binutils-libs-2.36.1-r1
+	=sys-libs/binutils-libs-2.36.1-r2
 "
 DEPEND="${RDEPEND}"
 BDEPEND="

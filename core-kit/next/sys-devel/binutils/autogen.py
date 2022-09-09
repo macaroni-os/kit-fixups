@@ -5,6 +5,7 @@ import dyne.org.funtoo.metatools.pkgtools as pkgtools
 async def generate(hub, **pkginfo):
 	artifacts = {}
 	version = "2.36.1"
+	revision = "1"
 	unmasked = True
 	pkginfo["patchlevel"] = patchlevel = "3"
 	if patchlevel:
@@ -14,7 +15,7 @@ async def generate(hub, **pkginfo):
 		upstream_version = version
 	pkg_blurb=f"Funtoo {{version}}"
 	bugs_url="https://bugs.funtoo.org/"
-	pkginfo["revision"] = revision = "1"
+	pkginfo["revision"] = revision
 	if "revision" in pkginfo and pkginfo["revision"]:
 		pkginfo["version_and_rev"] = f"{version}-r{revision}"
 	else:
@@ -25,6 +26,6 @@ async def generate(hub, **pkginfo):
 		pkg_blurb += f" patchset: {artifacts['patches'].url}"
 	binutils = pkgtools.ebuild.BreezyBuild(artifacts=artifacts, bugs_url=bugs_url, pkg_blurb=pkg_blurb, unmasked=unmasked, **pkginfo)
 	binutils.push()
-	libs = pkgtools.ebuild.BreezyBuild(version=version, cat="sys-libs", name="binutils-libs", template_path=binutils.template_path, template="binutils-libs.tmpl", unmasked=unmasked, version_and_rev=pkginfo["version_and_rev"])
+	libs = pkgtools.ebuild.BreezyBuild(version=version, revision=revision, cat="sys-libs", name="binutils-libs", template_path=binutils.template_path, template="binutils-libs.tmpl", unmasked=unmasked, version_and_rev=pkginfo["version_and_rev"])
 	libs.push()
 # vim: ts=4 sw=4 noet

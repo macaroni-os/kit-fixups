@@ -16,6 +16,17 @@ DEPEND=">=app-misc/editor-wrapper-3
 	pcre? ( dev-libs/libpcre2 )"
 RDEPEND="${DEPEND}"
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}"
+	fi
+}
+
+src_prepare() {
+	default
+	make -f Makefile.aut distfiles || die
+}
+
 src_configure() {
 	export ac_cv_lib_ncursesw_initscr=$(usex unicode)
 	export ac_cv_lib_ncurses_initscr=$(usex !unicode)

@@ -435,7 +435,6 @@ src_configure() {
 		-Dglx=$(usex glx $glx_opt disabled)
 		-Degl=$(usex egl auto false)
 		-Dglvnd=$(usex glvnd ${glvnd_opt} false)
-		-Dasm=$(if [[ "${ABI}" == "x86*" ]] ; then echo "false" ; else echo "true"; fi)
 		-Dglx-read-only-text=$(if [[ "${ABI}" == "x86" ]] && use pax_kernel ; then echo "true" ; else echo "false"; fi)
 		-Dllvm=$(usex llvm true false)
 		-Dvalgrind=$(usex valgrind auto false)

@@ -32,7 +32,7 @@ PDEPEND="=sys-devel/binutils-2.36.1-r2"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.35.1-cet.patch
-	"${FILESDIR}"/${PN}-2.36.1-cve-2021-45078.patch
+	"${REPODIR}"/sys-devel/binutils/files/binutils-2.36.1-cve-2021-45078.patch
 )
 
 S="${WORKDIR}/${MY_P}"

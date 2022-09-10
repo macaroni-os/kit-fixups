@@ -29,12 +29,12 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-5.7-nongnu.patch"
+	{% for patch in patches %}"${WORKDIR}"/{{ patch }}
+	{% endfor %}"${FILESDIR}/${PN}-5.7-nongnu.patch"
 	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"
 	"${FILESDIR}/${PN}-6.0-ticlib.patch" #557360
 	"${FILESDIR}/${PN}-6.2_p20210123-cppflags-cross.patch" #601426
-	{% if not stable %}"${WORKDIR}"/${P/_p/-}.patch{% endif %}
 )
 
 src_configure() {

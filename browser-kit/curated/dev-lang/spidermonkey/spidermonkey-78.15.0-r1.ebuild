@@ -49,8 +49,8 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://dev.gentoo.org/~{whissi,polynomial-c,axs}/mozilla/patchsets/${FIREFOX_PATCHSET}
-	https://dev.gentoo.org/~{whissi,polynomial-c,axs}/mozilla/patchsets/${SPIDERMONKEY_PATCHSET}
+	https://dev.gentoo.org/~whissi/mozilla/patchsets/${FIREFOX_PATCHSET}
+	https://dev.gentoo.org/~whissi/mozilla/patchsets/${SPIDERMONKEY_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
@@ -97,8 +97,7 @@ BDEPEND="${PYTHON_DEPS}
 		!clang? ( sys-devel/binutils[gold] )
 	)"
 
-CDEPEND=">=dev-libs/icu-67.1:=
-	>=dev-libs/nspr-4.25
+CDEPEND=">=dev-libs/nspr-4.25
 	sys-libs/readline:0=
 	>=sys-libs/zlib-1.2.3"
 
@@ -294,8 +293,8 @@ src_configure() {
 		--disable-strip
 		--enable-readline
 		--enable-shared-js
+		--without-system-icu
 		--with-intl-api
-		--with-system-icu
 		--with-system-nspr
 		--with-system-zlib
 		--with-toolchain-prefix="${CHOST}-"
@@ -303,10 +302,6 @@ src_configure() {
 		$(use_enable jit)
 		$(use_enable test tests)
 	)
-
-	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
-		myeconfargs+=( --enable-rust-simd )
-	fi
 
 	# Modifications to better support ARM, bug 717344
 	if use cpu_flags_arm_neon ; then

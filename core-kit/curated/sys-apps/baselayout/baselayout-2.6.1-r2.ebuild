@@ -12,7 +12,7 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="build kernel_FreeBSD kernel_linux +split-usr"
 S="${WORKDIR}"/baselayout-2.6
-
+RDEPEND="!>=dev-util/meson-0.60"
 pkg_preinst() {
 	# This is written in src_install (so it's in CONTENTS), but punt all
 	# pending updates to avoid user having to do etc-update (and make the

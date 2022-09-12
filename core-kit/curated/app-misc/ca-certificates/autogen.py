@@ -17,6 +17,8 @@ async def generate(hub, **pkginfo):
 	if version is None:
 		print("Could not find a ca-certificates version.")
 		return
+	elif version == "20211016":
+		version = f"{version}-r1"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

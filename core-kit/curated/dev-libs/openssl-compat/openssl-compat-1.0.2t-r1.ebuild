@@ -82,7 +82,6 @@ src_prepare() {
 		# $(use_ssl !bindist srp) \
 	fi
 
-	# keep this in sync with app-misc/c_rehash
 	SSL_CNF_DIR="/etc/ssl"
 
 	# Make sure we only ever touch Makefile.org and avoid patching a file

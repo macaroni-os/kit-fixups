@@ -312,6 +312,7 @@ PATCHES=(
 	"${FILESDIR}"/chromium-r1.patch
 	"${FILESDIR}"/${PN}-4.3-fix-build-without-SSSE3.patch
 	"${FILESDIR}"/${PN}-4.3-altivec-novsx-yuv2rgb.patch
+	"${FILESDIR}"/ffmpeg-4.3.1-new-sdl2-version-scheme.patch
 )
 
 MULTILIB_WRAPPED_HEADERS=(

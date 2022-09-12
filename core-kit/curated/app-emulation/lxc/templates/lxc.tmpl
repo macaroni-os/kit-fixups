@@ -15,6 +15,7 @@ SLOT="0"
 IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools +static"
 # tools-multicall is only on master atm. Ready for the next release.
 #IUSE="apparmor +caps examples io-uring man pam seccomp selinux +ssl systemd +tools +static tools-multicall"
+RESTRICT="network-sandbox"
 RDEPEND="
 	sys-libs/libcap
 	apparmor? ( sys-libs/libapparmor )
@@ -37,7 +38,8 @@ DEPEND="${RDEPEND}
 	sys-kernel/linux-headers
 	apparmor? ( sys-apps/apparmor )"
 BDEPEND="virtual/pkgconfig
-	>=dev-util/meson-0.61.0
+	=dev-lang/python-3*
+	dev-python/virtualenv
 	man? ( app-text/docbook2X )
 "
 
@@ -79,11 +81,12 @@ pkg_setup() {
 src_unpack() {
 	unpack ${A}
 	mv "${WORKDIR}"/lxc-* "${S}"
+	python3 -m venv ${WORKDIR}/venv
 }
 
 src_configure() {
-
-  #$(meson_use tools-multicall)
+	. ${WORKDIR}/venv/bin/activate
+	pip install meson
 	local emesonargs=(
 		-Dcoverity-build=false
 		-Doss-fuzz=false

@@ -14,7 +14,8 @@ HOMEPAGE="https://wiki.linuxfoundation.org/openprinting/cups-filters"
 
 LICENSE="MIT GPL-2"
 SLOT="0"
-IUSE="dbus +foomatic jpeg ldap pclm perl png +postscript test tiff zeroconf"
+# TODO add the "pdf" to IUSE after mupdf is available.
+IUSE="dbus exif +foomatic jpeg ldap pclm perl png +postscript test tiff zeroconf"
 
 RESTRICT="!test? ( test )"
 
@@ -29,6 +30,7 @@ RDEPEND="
 	!<=net-print/cups-1.5.9999
 	sys-devel/bc
 	sys-libs/zlib
+	exif? ( media-libs/libexif )
 	dbus? ( sys-apps/dbus )
 	foomatic? ( !net-print/foomatic-filters )
 	jpeg? ( virtual/jpeg:0 )
@@ -47,19 +49,16 @@ BDEPEND="
 	test? ( media-fonts/dejavu )
 "
 
-src_prepare() {
-	local need_eautoreconf=
-
-	default
-
-	if ! use test ; then
-		need_eautoreconf=yes
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "$S" || die
 	fi
+}
 
-	[[ -n ${need_eautoreconf} ]] && eautoreconf
-
-	# Bug #626800
-	append-cxxflags -std=c++11
+src_prepare() {
+	default
+#	append-cxxflags -std=c++11
+	eautoreconf
 }
 
 src_configure() {
@@ -72,11 +71,13 @@ src_configure() {
 		--with-pdftops=pdftops
 		--with-rcdir=no
 		--without-php
-		--disable-static
+
+		$(use_enable exif)
 		$(use_enable dbus)
 		$(use_enable foomatic)
 		$(use_enable ldap)
 		$(use_enable pclm)
+#		$(use_enable pdf mutool)
 		--disable-mutool
 		$(use_enable postscript ghostscript)
 		$(use_enable zeroconf avahi)
@@ -85,6 +86,12 @@ src_configure() {
 		$(use_with tiff)
 	)
 	econf "${myeconfargs[@]}"
+
+	if use perl; then
+		pushd "${S}/scripting/perl" > /dev/null || die
+		perl-module_src_configure
+		popd > /dev/null || die
+	fi
 }
 
 src_compile() {
@@ -92,14 +99,19 @@ src_compile() {
 
 	if use perl; then
 		pushd "${S}/scripting/perl" > /dev/null || die
-		perl-module_src_configure
 		perl-module_src_compile
 		popd > /dev/null || die
 	fi
 }
 
 src_test() {
-	emake check
+	default
+
+	if use perl; then
+		pushd "${S}/scripting/perl" > /dev/null || die
+		perl-module_src_test
+		popd > /dev/null || die
+	fi
 }
 
 src_install() {
@@ -124,15 +136,10 @@ src_install() {
 
 	if ! use zeroconf ; then
 		sed -i -e 's:need cupsd avahi-daemon:need cupsd:g' "${T}"/cups-browsed || die
+		sed -i -e 's:cups\.service avahi-daemon\.service:cups.service:g' "${S}"/utils/cups-browsed.service || die
 	fi
 
 	doinitd "${T}"/cups-browsed
-}
-
-src_unpack() {
-	default
-	rm -rf "${S}"
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 
 pkg_postinst() {

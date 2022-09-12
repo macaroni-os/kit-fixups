@@ -4,22 +4,30 @@ EAPI="7"
 
 inherit flag-o-matic toolchain-funcs multilib-minimal
 
-MY_P=${P/_/-}
-
 DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
 HOMEPAGE="https://www.openssl.org/"
-SRC_URI="
-	https://www.openssl.org/source/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="openssl"
 SLOT="0/${PVR}" # Funtoo change -- force more frequent rebuilds.
+{%- if unmasked %}
 KEYWORDS="*"
+{%- else %}
+KEYWORDS=""
+{%- endif %}
 # bindist is currently a no-op in funtoo, maintained for compatibility with older ebuilds:
 IUSE="+asm -bindist libc_musl rfc3779 sctp cpu_flags_x86_sse2 -sslv3 static-libs test +tls-compression tls-heartbeat vanilla"
 RESTRICT="!test? ( test )"
 
-RDEPEND=">=app-misc/c_rehash-1.7-r1
-	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}] )"
+# app-misc/c_rehash is deprecated by https://bugs.funtoo.org/browse/FL-10434
+# openssl installs perl version of c_rehash by default
+# openssl also comes with its own C version of rehash, which is now preferred
+# See https://nvd.nist.gov/vuln/detail/CVE-2022-2068 for more details on c_rehash deprecation
+# Ensure we block app-misc/c_rehash for new openssl versions
+RDEPEND="
+	!app-misc/c_rehash
+	tls-compression? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+)?,${MULTILIB_USEDEP}]
+	)"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	>=dev-lang/perl-5
@@ -34,9 +42,8 @@ PDEPEND="app-misc/ca-certificates"
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
 	"${FILESDIR}"/${PN}-1.1.1i-riscv32.patch
+	"${FILESDIR}"/${PN}-3.0.5-test-memcmp.patch
 )
-
-S="${WORKDIR}/${MY_P}"
 
 # force upgrade to prevent broken login, bug 696950
 RDEPEND+=" !<net-misc/openssh-8.0_p1-r3"
@@ -64,18 +71,23 @@ src_prepare() {
 	cp "${FILESDIR}"/gentoo.config-1.0.2 gentoo.config || die
 	chmod a+rx gentoo.config || die
 
-	# keep this in sync with app-misc/c_rehash
 	SSL_CNF_DIR="/etc/ssl"
 
 	# Make sure we only ever touch Makefile.org and avoid patching a file
 	# that gets blown away anyways by the Configure script in src_configure
 	rm -f Makefile
 
+# We need to escape this entire block due to the jinja2 template comment syntax
+# colliding with a Bash Array index interpolation variable call of curly brace pound
+# Upstream Jinaj2 documentation that assisted with this fix:
+# https://jinja.palletsprojects.com/en/3.0.x/templates/?highlight=raw#escaping
+{% raw %}
 	if ! use vanilla ; then
 		if [[ $(declare -p PATCHES 2>/dev/null) == "declare -a"* ]] ; then
 			[[ ${#PATCHES[@]} -gt 0 ]] && eapply "${PATCHES[@]}"
 		fi
 	fi
+{% endraw %}
 
 	eapply_user #332661
 
@@ -235,10 +247,6 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	# openssl installs perl version of c_rehash by default, but
-	# we provide a shell version via app-misc/c_rehash
-	rm "${ED}"/usr/bin/c_rehash || die
-
 	dodoc CHANGES* FAQ NEWS README doc/*.txt doc/${PN}-c-indent.el
 
 	# create the certs directory
@@ -254,15 +262,15 @@ multilib_src_install_all() {
 		mv ${d}/{,ssl-}${m}
 		# fix up references to renamed man pages
 		sed -i '/^[.]SH "SEE ALSO"/,/^[.]/s:\([^(, ]*(1)\):ssl-\1:g' ${d}/ssl-${m}
-		ln -s ssl-${m} ${d}/openssl-${m}
+		ln -sf ssl-${m} ${d}/openssl-${m}
 		# locate any symlinks that point to this man page ... we assume
 		# that any broken links are due to the above renaming
 		for s in $(find -L ${d} -type l) ; do
 			s=${s##*/}
 			rm -f ${d}/${s}
 			# We don't want to "|| die" here
-			ln -s ssl-${m} ${d}/ssl-${s}
-			ln -s ssl-${s} ${d}/openssl-${s}
+			ln -sf ssl-${m} ${d}/ssl-${s}
+			ln -sf ssl-${s} ${d}/openssl-${s}
 		done
 	done
 	[[ -n $(find -L ${d} -type l) ]] && die "broken manpage links found :("
@@ -275,7 +283,7 @@ multilib_src_install_all() {
 }
 
 pkg_postinst() {
-	ebegin "Running 'c_rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
-	c_rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
+	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
+	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
 	eend $?
 }

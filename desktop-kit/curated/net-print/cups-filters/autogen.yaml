@@ -1,0 +1,13 @@
+cups_filers_rule:
+  generator: github-1
+  packages:
+    - cups-filters:
+        desc: Cups filters
+        homepage: https://wiki.linuxfoundation.org/openprinting/cups-filters
+        github:
+          user: OpenPrinting
+          repo: cups-filters
+          query: releases
+          tarball: cups-filters-{version}.tar.xz
+        revision:
+          1.28.16: 1

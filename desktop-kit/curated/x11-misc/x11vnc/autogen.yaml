@@ -1,0 +1,35 @@
+x11vnc_rule:
+  generator: github-1
+  defaults:
+    github:
+      user: LibVNC
+  packages:
+    - x11vnc:
+        desc: VNC server for real X displays
+        homepage: https://libvnc.github.io/
+        patches:
+          # These patches have been commited to upstream github repository
+          # the autogen will apply any patches to version 0.9.16. Please
+          # edit the template if you need to apply new patches.
+          - crypto.patch # https://github.com/LibVNC/x11vnc/issues/86
+          - anonymous-ssl.patch # https://github.com/LibVNC/x11vnc/pull/85
+          - fno-common.patch
+          - CVE-2020-29074.patch
+        revision:
+          0.9.16: 7
+        github:
+          repo: x11vnc
+          query: releases
+    - libvncserver:
+        cat: net-libs
+        desc: Library for creating vnc servers
+        homepage: https://libvnc.github.io/
+        patches:
+          - test-fix-includetest.patch
+          - test-fix-tjunittest.patch
+        revision:
+          0.9.13: 1
+        github:
+          repo: libvncserver
+          query: releases
+

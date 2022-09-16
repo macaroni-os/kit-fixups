@@ -308,6 +308,9 @@ dev_python_compat_rule:
         compat: '2.9'
         blocker: '!<dev-python/idna-3'
         license: BSD
+        du_pep517: flit
+        revision:
+          '3.4': 1
     - importlib_resources:
         compat: '3.3.1'
         python_compat: 'pypy3 python3+'

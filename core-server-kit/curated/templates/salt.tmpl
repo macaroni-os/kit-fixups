@@ -64,6 +64,7 @@ RDEPEND="
 	profile? ( dev-python/yappi[${PYTHON_USEDEP}] )
 	vim-syntax? ( app-vim/salt-vim )
 	zeromq? ( >=dev-python/pyzmq-2.2.0[${PYTHON_USEDEP}] )
+	dev-python/setuptools[${PYTHON_USEDEP}]
 "
 BDEPEND="
 	test? (
@@ -94,8 +95,6 @@ RESTRICT="!test? ( test ) x86? ( test )"
 python_prepare() {
 	# remove tests with external dependencies that may not be available
 	rm tests/unit/{test_zypp_plugins.py,utils/test_extend.py} || die
-	rm tests/unit/modules/test_{file,boto_{vpc,secgroup,elb}}.py || die
-	rm tests/unit/states/test_boto_vpc.py || die
 
 	# tests that require network access
 	rm tests/unit/{states,modules}/test_zcbuildout.py || die

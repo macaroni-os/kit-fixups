@@ -9,6 +9,7 @@ async def generate(hub, **pkginfo):
 	commit = tags[0]["commit"]["sha"]
 	final_name = f"certifi-shim-{version}-{commit[:7]}.tar.gz"
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+		revision={ "10001" : "1" },
 		gu=gu,
 		gr=gr,
 		commit=commit,

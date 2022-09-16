@@ -2024,6 +2024,20 @@ _distutils-r1_post_python_install() {
 			python_optimize "${sitedir}"
 		fi
 	fi
+	for x in $sitedir/*.egg-info; do
+		if [ ! -e $x ]; then
+			continue
+		fi
+		# fixup a .egg-info regular file to a dir with PKG-INFO in it:
+		if [ -e $x ] && [ -f $x ]; then
+			ewarn "Peforming directory PKG-INFO fix-up for $x..."
+			ls -dl $x
+			mv $x $x.pkg_info || die
+			install -d $x || die
+			mv $x.pkg_info $x/PKG-INFO || die
+			ls -l $x
+		fi
+	done
 }
 
 # @FUNCTION: _distutils-r1_check_namespace_pth

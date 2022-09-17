@@ -26,6 +26,12 @@ BDEPEND="
 	sys-apps/texinfo
 "
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv e2fsprogs* "${S}" || die
+	fi
+}
+
 src_prepare() {
 	default
 

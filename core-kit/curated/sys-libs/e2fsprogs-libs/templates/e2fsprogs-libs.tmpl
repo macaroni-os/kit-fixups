@@ -27,6 +27,12 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch #516854
 )
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv e2fsprogs* "${S}" || die
+	fi
+}
+
 src_prepare() {
 	default
 

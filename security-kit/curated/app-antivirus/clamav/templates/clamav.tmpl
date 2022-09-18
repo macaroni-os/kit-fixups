@@ -6,7 +6,7 @@ inherit cmake flag-o-matic user
 
 DESCRIPTION="Clam Anti-Virus Scanner"
 HOMEPAGE="https://www.clamav.net/"
-SRC_URI="https://www.clamav.net/downloads/production/${P}.tar.gz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -35,7 +35,10 @@ CDEPEND="
 	elibc_musl? ( sys-libs/fts-standalone )
 "
 
-BDEPEND="virtual/pkgconfig"
+BDEPEND="
+	virtual/pkgconfig
+	virtual/rust
+"
 
 DEPEND="${CDEPEND}
 	test? ( dev-libs/check )"

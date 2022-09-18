@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
 
-from bs4 import BeautifulSoup
-
 
 async def generate(hub, **pkginfo):
-	url = f"https://git.kernel.org"
-	html_data = await hub.pkgtools.fetch.get_page(
-		url + f"/pub/scm/fs/ext2/e2fsprogs.git/refs/tags/"
+
+	github_user = "tytso"
+	github_repo = "e2fsprogs"
+	app = pkginfo["name"]
+	json_list = await hub.pkgtools.fetch.get_page(
+		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
-	soup = BeautifulSoup(html_data, "html.parser")
-	best_archive = None
-	for link in soup.find_all("a"):
-		href = link.get("href")
-		if href.endswith(".tar.gz"):
-			best_archive = href
-			break
-	version = best_archive.split(".tar")[0].split("-")[1]
-	artifact = hub.pkgtools.ebuild.Artifact(url=url + f"{best_archive}")
+	for tag in json_list:
+		version = tag["name"].replace("v", "")
+		url = f"https://www.kernel.org/pub/linux/kernel/people/{github_user}/{github_repo}/v{version}/{app}-{version}.tar.xz"
+		break
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, artifacts=[artifact],
+		**pkginfo,
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
 	)
 	ebuild.push()
+	ebuild_libs = hub.pkgtools.ebuild.BreezyBuild(
+		template_path=ebuild.template_path,
+		cat="sys-libs",
+		name="e2fsprogs-libs",
+		version=version,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
+	)
+	ebuild_libs.push()
 
 
 # vim: ts=4 sw=4 noet

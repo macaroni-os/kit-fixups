@@ -1,0 +1,11 @@
+e2fsprogs_and_libs:
+  generator: github-1
+  defaults:
+    github:
+      user: tytso
+      repo: e2fsprogs
+      query: tags
+  packages:
+    - e2fsprogs
+    - e2fsprogs-libs:
+        cat: sys-libs

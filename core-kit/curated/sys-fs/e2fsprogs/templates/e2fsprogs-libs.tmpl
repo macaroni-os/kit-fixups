@@ -4,9 +4,6 @@ EAPI=7
 
 inherit toolchain-funcs usr-ldscript
 
-MY_PN=${PN%-libs}
-MY_P="${MY_PN}-${PV}"
-
 DESCRIPTION="e2fsprogs libraries (common error and subsystem)"
 HOMEPAGE="http://e2fsprogs.sourceforge.net/"
 SRC_URI="{{artifacts[0].src_uri}}"
@@ -21,15 +18,12 @@ RDEPEND="!sys-libs/com_err
 	!<sys-fs/e2fsprogs-1.41.8"
 BDEPEND="virtual/pkgconfig"
 
-S="${WORKDIR}/${MY_P}"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.42.13-fix-build-cflags.patch #516854
-)
+post_src_unpack() {
+	mv ${WORKDIR}/* ${S} || die
+}
 
 src_prepare() {
 	default
-
 	cp doc/RelNotes/v${PV}.txt ChangeLog || die "Failed to copy Release Notes"
 }
 

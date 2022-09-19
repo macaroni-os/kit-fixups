@@ -49,11 +49,15 @@ async def generate(hub, **pkginfo):
 	artifacts = []
 	for pv in handled_releases:
 		url=f"https://github.com/{github_repo}/{github_user}/archive/v{pv}.tar.gz"
+		fname=f"{github_repo}-v{pv}.tar.gz"
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			version=pv,
 			github_user=github_user,
 			github_repo=github_repo,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
+			artifacts=[hub.pkgtools.ebuild.Artifact(
+				url=url,
+				final_name=fname,
+			)],
 		)
 		ebuild.push()

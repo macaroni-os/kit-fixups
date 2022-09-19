@@ -92,7 +92,7 @@ DEPEND="${COMMON_DEPEND}
 	static? ( sys-libs/ncurses[static-libs] )
 "
 RDEPEND="${COMMON_DEPEND}
-	!dev-db/mysql !dev-db/mariadb-galera !dev-db/percona-server !dev-db/mysql-cluster
+	!dev-db/mysql-community !dev-db/mariadb-galera !dev-db/percona-server !dev-db/mysql-cluster
 	!dev-db/mariadb:0
 	!dev-db/mariadb:5.5
 	!dev-db/mariadb:10.1

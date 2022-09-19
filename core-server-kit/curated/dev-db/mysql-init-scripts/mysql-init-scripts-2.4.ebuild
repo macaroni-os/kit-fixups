@@ -19,7 +19,7 @@ DEPEND=""
 # The s6 support was added after openrc 0.16.2
 # mysql-connector-c needed for my_print_defaults
 RDEPEND="
-	!<dev-db/mysql-5.1
+	!<dev-db/mysql-community-5.1
 	!<sys-apps/openrc-0.16.2
 	dev-db/mysql-connector-c
 	"

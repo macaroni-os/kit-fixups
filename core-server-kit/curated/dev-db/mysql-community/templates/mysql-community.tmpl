@@ -60,8 +60,6 @@ DEPEND="
 RDEPEND="
 	${COMMON_DEPEND}
 	!dev-db/mariadb !dev-db/mariadb-galera !dev-db/percona-server !dev-db/mysql-cluster
-	!dev-db/mysql:0
-	!dev-db/mysql:5.7
 	selinux? ( sec-policy/selinux-mysql )
 	!prefix? (
 		dev-db/mysql-init-scripts

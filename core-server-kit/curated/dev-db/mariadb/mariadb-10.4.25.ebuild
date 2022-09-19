@@ -85,14 +85,14 @@ DEPEND="static? ( sys-libs/ncurses[static-libs] )
 	)
 	${COMMON_DEPEND}"
 RDEPEND="selinux? ( sec-policy/selinux-mysql )
-	!dev-db/mysql !dev-db/mariadb-galera !dev-db/percona-server !dev-db/mysql-cluster
+	!dev-db/mysql-community !dev-db/mariadb-galera !dev-db/percona-server !dev-db/mysql-cluster
 	!dev-db/mariadb:0
 	!dev-db/mariadb:5.5
 	!dev-db/mariadb:10.1
 	!dev-db/mariadb:10.2
 	!dev-db/mariadb:10.3
 	!dev-db/mariadb:10.5
-        !dev-db/mariadb:10.6
+	!dev-db/mariadb:10.6
 	!<virtual/mysql-5.6-r11
 	!<virtual/libmysqlclient-18-r1
 	${COMMON_DEPEND}

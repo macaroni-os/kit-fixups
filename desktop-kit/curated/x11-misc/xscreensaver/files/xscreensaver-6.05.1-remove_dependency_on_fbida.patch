@@ -1,0 +1,13 @@
+diff --git a/hacks/vidwhacker b/hacks/vidwhacker
+index 402e2c7..2d8dd00 100755
+--- a/hacks/vidwhacker
++++ b/hacks/vidwhacker
+@@ -329,7 +329,7 @@ sub get_ppm() {
+     print STDERR "$progname: selected file $fn\n" if ($verbose > 1);
+ 
+     if    ($fn =~ m/\.gif/i)   { $cmd = "giftopnm < \"$fn\""; }
+-    elsif ($fn =~ m/\.jpe?g/i) { $cmd = "exiftran -o /dev/stdout -a \"$fn\" | djpeg"; }
++    elsif ($fn =~ m/\.jpe?g/i) { $cmd = "jpegtopnm < \"$fn\""; }
+     elsif ($fn =~ m/\.png/i)   { $cmd = "pngtopnm < \"$fn\""; }
+     elsif ($fn =~ m/\.xpm/i)   { $cmd = "xpmtoppm < \"$fn\""; }
+     elsif ($fn =~ m/\.bmp/i)   { $cmd = "bmptoppm < \"$fn\""; }

@@ -12,7 +12,11 @@ async def generate(hub, **pkginfo):
 	artifacts = [
 		src_artifact,
 	]
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts)
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+			**pkginfo,
+			version=version,
+			revision={ "6.05.1": "1" },
+			artifacts=artifacts)
 	ebuild.push()
 
 

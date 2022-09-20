@@ -1,0 +1,19 @@
+diff --git a/driver/Makefile.in b/driver/Makefile.in
+index 80d3b86..b03efa5 100644
+--- a/driver/Makefile.in
++++ b/driver/Makefile.in
+@@ -567,10 +567,10 @@ install-gnome:: uninstall-old-gnome-icons
+ install-gnome:: update-icon-caches
+ 
+ update-icon-caches::
+-	@for f in /usr/share/icons/index.theme				      \
+-		  /usr/share/icons/*/index.theme			      \
+-		  /usr/share/pixmaps/index.theme			      \
+-		  /usr/share/pixmaps/*/index.theme			      \
++	@for f in $(install_prefix)/share/icons/index.theme				      \
++		  $(install_prefix)/share/icons/*/index.theme			      \
++		  $(install_prefix)/share/pixmaps/index.theme			      \
++		  $(install_prefix)/share/pixmaps/*/index.theme			      \
+ 	 ; do								      \
+ 	   if [ -f $$f ]; then						      \
+ 	     f=`dirname $$f`						     ;\

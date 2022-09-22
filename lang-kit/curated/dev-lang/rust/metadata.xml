@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>gyakovlev@gentoo.org</email>
-		<name>Georgy Yakovlev</name>
-	</maintainer>
-	<maintainer type="project">
-		<email>rust@gentoo.org</email>
-		<name>Rust Project</name>
-	</maintainer>
 	<use>
 		<flag name="clippy">Install clippy, Rust code linter</flag>
 		<flag name="miri">Install miri, an interpreter for Rust's mid-level intermediate representation (requires USE=nightly)</flag>
@@ -16,7 +8,9 @@
 		<flag name="parallel-compiler">Build a multi-threaded rustc</flag>
 		<flag name="rls">Install rls, Rust Language Server (used with IDEs supporting RLS protocol)</flag>
 		<flag name="rustfmt">Install rustfmt, Rust code formatter</flag>
+		<flag name="mrustc-bootstrap">Bootstrap using ad-hoc built mrustc compiler</flag>
 		<flag name="system-bootstrap">Bootstrap using installed rust compiler</flag>
+		<flag name="upstream-bootstrap">Bootstrap using rust compiler binaries provided by https://www.rust-lang.org</flag>
 		<flag name="system-llvm">Use the system LLVM install</flag>
 		<flag name="wasm">Build support for the wasm32-unknown-unknown target</flag>
 	</use>

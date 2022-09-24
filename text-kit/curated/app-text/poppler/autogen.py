@@ -14,7 +14,6 @@ STABLE_VERSION = "22.04.0"
 async def generate(hub, **pkginfo):
 	matcher = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.TagVersionMatch.GRABBY)
 	tags = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True)
-	versions = list(hub.pkgtools.github.iter_tag_versions(tags, matcher=matcher))
 	latest, tag_data = await hub.pkgtools.github.latest_tag_version(hub, github_user, github_repo, tags, matcher=matcher)
 
 	# Generate an ebuild for the stable version

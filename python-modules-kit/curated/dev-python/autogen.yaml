@@ -1897,6 +1897,7 @@ sphinx_and_friends:
   generator: pypi-simple-1
   packages:
     - sphinx:
+        du_pep517: flit
         iuse: latex doc
         rdepend: |
           latex? (
@@ -1919,8 +1920,8 @@ sphinx_and_friends:
             - sphinxcontrib-applehelp
             - sphinxcontrib-devhelp
             - sphinxcontrib-jsmath
-            - sphinxcontrib-htmlhelp
-            - sphinxcontrib-serializinghtml
+            - sphinxcontrib-htmlhelp >= 2.0.0
+            - sphinxcontrib-serializinghtml >= 1.1.5
             - sphinxcontrib-qthelp
             - sphinx_rtd_theme
             - packaging
@@ -1931,16 +1932,6 @@ sphinx_and_friends:
           PATCHES=(
             "$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
           )
-
-          # FL-8369: relax various deps
-          src_prepare() {
-            for dep in {docutils,MarkupSafe,Jinja2}; do
-              sed -i -e '/^${dep}/c ${dep}' Sphinx.egg-info/requires.txt || die
-              sed -i -e "s/'${dep}.*$/'${dep}',/" setup.py || die
-            done
-            distutils-r1_src_prepare
-          }
-
           python_compile_all() {
             if use doc; then
               esetup.py build_sphinx

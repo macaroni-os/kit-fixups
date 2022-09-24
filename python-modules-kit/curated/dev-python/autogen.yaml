@@ -1897,6 +1897,7 @@ sphinx_and_friends:
   generator: pypi-simple-1
   packages:
     - sphinx:
+        pypi_name: Sphinx
         du_pep517: flit
         iuse: latex doc
         rdepend: |
@@ -1927,8 +1928,6 @@ sphinx_and_friends:
             - packaging
             - importlib_metadata >= 4.4
         body: |
-          S="${WORKDIR}/${P^}"
-
           PATCHES=(
             "$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
           )

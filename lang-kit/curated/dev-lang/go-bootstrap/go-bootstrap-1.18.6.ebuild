@@ -14,11 +14,15 @@ SRC_URI="
 		!big-endian? ( ${BOOTSTRAP_DIST}/go-linux-ppc64le-bootstrap-${PV}.tbz )
 	)
 	riscv? ( ${BOOTSTRAP_DIST}/go-linux-riscv64-bootstrap-${PV}.tbz )
+	s390? ( ${BOOTSTRAP_DIST}/go-linux-s390x-bootstrap-${PV}.tbz )
+	x86? ( ${BOOTSTRAP_DIST}/go-linux-386-bootstrap-${PV}.tbz )
+	x64-macos? ( ${BOOTSTRAP_DIST}/go-darwin-amd64-bootstrap-${PV}.tbz )
+	x64-solaris? ( ${BOOTSTRAP_DIST}/go-solaris-amd64-bootstrap-${PV}.tbz )
 "
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="-* amd64 arm arm64 ppc64 riscv"
+KEYWORDS="-* amd64 arm arm64 ppc64 ~riscv ~s390 x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
 IUSE="big-endian"
 RESTRICT="strip"
 QA_PREBUILT="*"
@@ -30,5 +34,5 @@ src_install() {
 	mv go-*-bootstrap "${ED}/usr/lib/go-bootstrap" || die
 
 	# testdata directories are not needed on the installed system
-	rm -fr $(find "${ED}"/usr/lib/go -iname testdata -type d -print)
+	rm -fr $(find "${ED}"/usr/lib/go-bootstrap -iname testdata -type d -print)
 }

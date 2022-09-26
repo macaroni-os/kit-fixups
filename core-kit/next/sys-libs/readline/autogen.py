@@ -7,7 +7,7 @@ import re
 
 base_url = "https://ftp.gnu.org/gnu/"
 base_regex = r'(\d+(?:\.\d+)+)'
-
+mask_above = Version("8.2")
 async def generate(hub, **pkginfo):
 	name = pkginfo['name']
 	regex = name + '-' + base_regex
@@ -20,10 +20,12 @@ async def generate(hub, **pkginfo):
 
 	tarballs = [a.get('href') for a in soup if '.tar.' in a.contents[0] and re.findall(regex, a.contents[0]) and not a.contents[0].endswith('.sig') and not '-doc' in a.contents[0]]
 	versions = [(Version(a.split(f"{name}-")[1].split('.tar.')[0]), a) for a in tarballs]
-	stable_version = max([v for v in versions if re.findall(stable_regex, v[1])])
+	stable_versions = [v for v in versions if re.findall(stable_regex, v[1])]
+	stable_versions = [v for v in stable_versions if v[0] < mask_above]
+	stable_version = max(stable_versions)
 	newest_version = max(versions)
 
-	for version in [stable_version, newest_version]:
+	for version in [stable_version]:
 		artifact = hub.pkgtools.ebuild.Artifact(url=f"{package_url}/{version[1]}")
 		pkginfo['artifacts'] = [artifact]
 		conversion = convert_version(version, name)

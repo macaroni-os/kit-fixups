@@ -16,12 +16,16 @@ SLOT="0"
 KEYWORDS="{% if stable %}*{% endif %}"
 IUSE="afs bashlogger examples mem-scramble +net nls plugins +readline"
 
+{%- if external_readline %}
 READLINE_VER="{{ readline }}" # The version of readline this bash normally ships with.
+{%- endif %}
 
 DEPEND="
 	>=sys-libs/ncurses-5.2-r2:0=
 	nls? ( virtual/libintl )
+{%- if external_readline %}
 	readline? ( >=sys-libs/readline-${READLINE_VER}:0= )
+{%- endif %}
 "
 RDEPEND="
 	${DEPEND}
@@ -54,12 +58,14 @@ src_prepare() {
 	# Include official patches
 	[[ ${PLEVEL} -gt 0 ]] && eapply -p0 $(patches -s)
 
+{%- if external_readline %}
 	# Clean out local libs so we know we use system ones w/releases.
-	{% if stable %}
+	{%- if stable %}
 	rm -rf lib/{readline,termcap}/* || die
 	touch lib/{readline,termcap}/Makefile.in || die # for config.status
 	sed -ri -e 's:\$[{(](RL|HIST)_LIBSRC[)}]/[[:alpha:]_-]*\.h::g' Makefile.in || die
-	{% endif %}
+	{%- endif %}
+{%- endif %}
 
 	# Prefixify hardcoded path names. No-op for non-prefix.
 	hprefixify pathnames.h.in
@@ -108,6 +114,7 @@ src_configure() {
 	#use static && export LDFLAGS="${LDFLAGS} -static"
 	use nls || myconf+=( --disable-nls )
 
+{%- if external_readline %}
 	# Historically, we always used the builtin readline, but since
 	# our handling of SONAME upgrades has gotten much more stable
 	# in the PM (and the readline ebuild itself preserves the old
@@ -121,6 +128,7 @@ src_configure() {
 	# Use system readline only with released versions.
 	myconf+=( --with-installed-readline=. )
 	{% endif %}
+{%- endif %}
 
 	if use plugins ; then
 		append-ldflags -Wl,-rpath,"${EPREFIX}"/usr/$(get_libdir)/bash

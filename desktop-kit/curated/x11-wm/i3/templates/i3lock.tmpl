@@ -34,6 +34,6 @@ src_prepare() {
 }
 
 src_install() {
-	default
 	doman ${PN}.1
+	meson_src_install
 }

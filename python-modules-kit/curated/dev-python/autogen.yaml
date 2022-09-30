@@ -1872,6 +1872,9 @@ aiohttp_new_stuff:
           src_prepare() {
             default
             rm ${S}/examples/__init__.py
+
+            # Drop runtime dep to asynctest used for tests
+            sed -e '/^\tasynctest.*/d' -i ${S}/setup.cfg
           }
     - frozenlist
 

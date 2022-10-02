@@ -1,0 +1,14 @@
+firefox_gen:
+  defaults:
+    template: firefox.tmpl
+    unmasked: False
+  generator: firefox
+  packages:
+    - firefox:
+        versions:
+          105.0.1:
+            unmasked: True
+            description: "Firefox Web Browser"
+            homepage: "https://www.mozilla.com/firefox"
+            patchset_tarball: "firefox-105-patches-04j.tar.xz"
+            patchset_gentoo_dev: "juippis"

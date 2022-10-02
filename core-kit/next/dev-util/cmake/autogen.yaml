@@ -1,0 +1,23 @@
+cmake_rule:
+  generator: github-1
+  packages:
+    - cmake:
+        desc: Cross platform Make
+        homepage: https://cmake.org/
+        tarball: cmake-{version}.tar.gz
+        patches:
+          # Prefix
+          - 3.14.0_rc3-prefix-dirs.patch
+          # Handle gentoo packaging in find modules
+          - 3.17.0_rc1-FindBLAS.patch
+          - 3.5.2-FindQt4.patch
+          # Respect python eclasses
+          - 2.8.10.2-FindPythonLibs.patch
+          - 3.9.0_rc2-FindPythonInterp.patch
+          # bug 691544
+          - 3.18.0-filter_distcc_warning.patch
+        version: 3.24.1
+        github:
+          user: Kitware
+          repo: CMake
+          query: releases

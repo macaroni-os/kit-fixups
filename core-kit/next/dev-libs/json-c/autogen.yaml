@@ -1,0 +1,9 @@
+json-c:
+  generator: github-1
+  packages:
+    - json-c:
+        subslot: True
+        github:
+          user: json-c
+          query: tags
+          select: 'json-c-([\d+\.-])+'

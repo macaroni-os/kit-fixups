@@ -40,7 +40,9 @@ BDEPEND="
 PDEPEND="=sys-libs/binutils-libs-{{version_and_rev}}"
 
 PATCHES=(
+{% if version < "2.38" -%}
 	"${FILESDIR}"/binutils-2.36.1-cve-2021-45078.patch
+{% endif -%}
 )
 
 RESTRICT="!test? ( test )"

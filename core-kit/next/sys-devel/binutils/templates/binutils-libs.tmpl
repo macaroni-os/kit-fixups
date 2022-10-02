@@ -4,6 +4,10 @@ EAPI=7
 
 DESCRIPTION="Core binutils libraries (libbfd, libopcodes, libiberty) -- skeleton package"
 RDEPEND="=sys-devel/binutils-{{version_and_rev}}"
-KEYWORDS="*"
 SLOT=0
 
+{% if unmasked -%}
+KEYWORDS="*"
+{% else -%}
+KEYWORDS=""
+{% endif -%}

@@ -108,6 +108,10 @@ logfix() {
 		if [ -n "${logfile}" ]; then
 			checkpath --quiet \
 				--owner "${clamd_user}":"${clamd_user}" \
+				--mode 750 \
+				--directory $(dirname ${logfile})
+			checkpath --quiet \
+				--owner "${clamd_user}":"${clamd_user}" \
 				--mode 640 \
 				--file ${logfile}
 		fi
@@ -120,8 +124,13 @@ logfix() {
 		if [ -n "${logfile}" ]; then
 			checkpath --quiet \
 				--owner "${freshclam_user}":"${freshclam_user}" \
+				--mode 750 \
+				--directory $(dirname ${logfile})
+			checkpath --quiet \
+				--owner "${freshclam_user}":"${freshclam_user}" \
 				--mode 640 \
 				--file ${logfile}
 		fi
 	fi
+
 }

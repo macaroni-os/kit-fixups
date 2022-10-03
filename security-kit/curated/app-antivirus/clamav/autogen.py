@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 	url = f"https://www.clamav.net/downloads/production/clamav-{version}.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
 
-	revision = { "0.105.1": "2" }
+	revision = { "0.105.1": "3" }
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, revision=revision, artifacts=artifacts)
 	ebuild.push()

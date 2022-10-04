@@ -1854,6 +1854,7 @@ aiohttp_new_stuff:
         pydeps:
           - frozenlist
     - aiohttp:
+        desc: Async http client/server framework (asyncio)
         pydeps:
           py:all:
             - async_timeout > 3
@@ -1865,6 +1866,8 @@ aiohttp_new_stuff:
             - typing-extensions
             - aiosignal
             - aiodns
+            - charset_normalizer
+            - frozenlist
           py:all:build:
             - setuptools
             - cython

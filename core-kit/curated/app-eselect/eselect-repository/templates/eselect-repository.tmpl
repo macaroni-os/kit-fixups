@@ -20,10 +20,9 @@ RDEPEND="${PYTHON_DEPS}
 	dev-python/lxml[${PYTHON_USEDEP}]
 	net-misc/wget"
 
-src_unpack() {
-  default
-  rm -rf ${S}
-  mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die  
+post_src_unpack() {
+	rm -rf "${S}"
+	mv "${WORKDIR}"/* "${S}" || die
 }
 
 src_compile() {

@@ -1854,17 +1854,19 @@ aiohttp_new_stuff:
         pydeps:
           - frozenlist
     - aiohttp:
+        desc: Async http client/server framework (asyncio)
         pydeps:
           py:all:
             - async_timeout > 3
             - attrs > 17.3.0
-            - chardet
             - multidict > 4.5.0
             - yarl > 1
             - idna-ssl
             - typing-extensions
             - aiosignal
             - aiodns
+            - charset_normalizer
+            - frozenlist
           py:all:build:
             - setuptools
             - cython

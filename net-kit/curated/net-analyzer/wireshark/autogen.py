@@ -12,13 +12,16 @@ async def generate(hub, **pkginfo):
 	)
 
 	for rel in json_list:
-		print(rel)
 		version = rel["name"].replace("wireshark-", "")
 		if 'tarball_url' in rel:
 			url = rel['tarball_url']
 
 		if version != "":
 			break
+
+	fixed_version='3.6.8'
+	print(f"Latest version is {version}, which is broken.\nThis autogen is fixed to version {fixed_version}")
+	version = fixed_version
 
 	final_name = f"{github_repo}-{version}.tar.gz"
 

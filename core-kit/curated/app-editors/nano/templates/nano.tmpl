@@ -15,7 +15,7 @@ LICENSE="GPL-3"
 SLOT="0"
 IUSE="debug justify +magic minimal ncurses nls +spell static unicode"
 
-LIB_DEPEND=">=sys-libs/ncurses-5.9-r1:0=[unicode?]
+LIB_DEPEND="sys-libs/ncurses:0=
 	sys-libs/ncurses:0=[static-libs(+)]
 	magic? ( sys-apps/file[static-libs(+)] )
 	nls? ( virtual/libintl )"

@@ -35,7 +35,7 @@ unset dict lang LANGS
 
 # English dictionary 0.5 is incompatible with aspell-0.6
 RDEPEND="
-	sys-libs/ncurses:0=[unicode?]
+	sys-libs/ncurses:0=
 	nls? ( virtual/libintl )
 	!=app-dicts/aspell-en-0.5*
 "

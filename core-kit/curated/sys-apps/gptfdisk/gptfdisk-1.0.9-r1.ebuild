@@ -16,14 +16,14 @@ IUSE="ncurses static"
 # libuuid from util-linux is required.
 RDEPEND="!static? (
 		dev-libs/popt
-		ncurses? ( sys-libs/ncurses:=[unicode(+)] )
+		ncurses? ( sys-libs/ncurses:=
 		kernel_linux? ( sys-apps/util-linux )
 	)"
 DEPEND="
 	${RDEPEND}
 	static? (
 		dev-libs/popt[static-libs(+)]
-		ncurses? ( sys-libs/ncurses:=[unicode(+),static-libs(+)] )
+		ncurses? ( sys-libs/ncurses:=[static-libs(+)] )
 		kernel_linux? ( sys-apps/util-linux[static-libs(+)] )
 	)
 	virtual/pkgconfig

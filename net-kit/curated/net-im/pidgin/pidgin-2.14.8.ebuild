@@ -60,7 +60,7 @@ RDEPEND="
 	meanwhile? ( net-libs/meanwhile )
 	ncurses? (
 		>=dev-libs/libgnt-$(ver_cut 1-2)
-		sys-libs/ncurses:=[unicode(+)]
+		sys-libs/ncurses:=
 		dbus? ( ${PYTHON_DEPS} )
 		python? ( ${PYTHON_DEPS} )
 	)

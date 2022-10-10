@@ -14,7 +14,7 @@ LICENSE="GPL-3"
 SLOT="0"
 
 DEPEND="dev-util/dialog:=
-	sys-libs/ncurses:=[unicode(+)]"
+	sys-libs/ncurses:="
 RDEPEND="${DEPEND}
 	sys-apps/smartmontools"
 

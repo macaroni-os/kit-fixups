@@ -16,7 +16,7 @@ IUSE="ncurses static"
 # libuuid from util-linux is required.
 RDEPEND="!static? (
 		dev-libs/popt
-		ncurses? ( sys-libs/ncurses:=
+		ncurses? ( sys-libs/ncurses:= )
 		kernel_linux? ( sys-apps/util-linux )
 	)"
 DEPEND="

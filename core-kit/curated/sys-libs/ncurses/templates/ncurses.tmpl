@@ -15,7 +15,7 @@ SRC_URI="{% for artifact in artifacts %}
 LICENSE="MIT"
 SLOT="0/{{ soname }}" # The subslot reflects the SONAME.
 KEYWORDS="{% if stable %}*{% else %}next{% endif %}"
-IUSE="ada +cxx debug doc gpm minimal profile static-libs test tinfo trace +unicode"
+IUSE="ada +cxx debug doc gpm minimal profile static-libs test tinfo trace unicode"
 RESTRICT="!test? ( test )"
 
 DEPEND="gpm? ( sys-libs/gpm[${MULTILIB_USEDEP}] )"

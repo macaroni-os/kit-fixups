@@ -17,7 +17,7 @@ SLOT="0/{{ soname }}"  # subslot matches SONAME major
 KEYWORDS="{% if stable %}*{% endif %}"
 IUSE="static-libs +unicode utils"
 
-RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,unicode(+)?,${MULTILIB_USEDEP}]"
+RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 

@@ -24,7 +24,7 @@ RDEPEND="
 	cryptsetup? ( sys-fs/cryptsetup )
 	hardlink? ( dev-libs/libpcre2:= )
 	ncurses? (
-		sys-libs/ncurses:=[unicode(+)?]
+		sys-libs/ncurses:=
 		magic? ( sys-apps/file:0= )
 	)
 	nls? ( virtual/libintl )

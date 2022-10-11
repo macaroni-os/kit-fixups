@@ -12,7 +12,7 @@ KEYWORDS="*"
 
 BDEPEND="virtual/pkgconfig"
 
-DEPEND="sys-libs/ncurses:=[unicode(+)]"
+DEPEND="sys-libs/ncurses:="
 BDEPEND="virtual/zig"
 
 RDEPEND="${DEPEND}"

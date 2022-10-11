@@ -14,7 +14,7 @@ KEYWORDS="*"
 IUSE="debug geoip geoipv2 getline ssl unicode libressl"
 REQUIRED_USE="geoipv2? ( geoip )"
 
-RDEPEND="sys-libs/ncurses:0=[unicode?]
+RDEPEND="sys-libs/ncurses:0=
 	geoip? (
 		!geoipv2? ( dev-libs/geoip )
 		geoipv2? ( dev-libs/libmaxminddb:0= )

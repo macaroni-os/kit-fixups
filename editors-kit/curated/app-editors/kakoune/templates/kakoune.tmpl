@@ -12,7 +12,7 @@ LICENSE="Unlicense"
 SLOT="0"
 KEYWORDS="*"
 
-DEPEND="sys-libs/ncurses:0=[unicode]"
+DEPEND="sys-libs/ncurses:0="
 RDEPEND="${DEPEND}"
 BDEPEND="virtual/pkgconfig"
 

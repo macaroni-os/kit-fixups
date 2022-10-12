@@ -14,7 +14,7 @@ SRC_URI=" {{artifacts[0].src_uri}} {{artifacts[1].src_uri}}
 LICENSE="GPL-2 PUEL"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+additions +chm headless python vboxwebsrv rdesktop-vrdp sdk"
+IUSE="+additions chm headless python vboxwebsrv rdesktop-vrdp sdk"
 
 
 DEPEND="app-arch/unzip
@@ -153,7 +153,7 @@ src_install() {
 	# This ebuild / package supports only py2.7.  When py3 comes is unknown.
 	# The compile phase makes VBoxPython2_7.so.
 	# py3 support would presumably require a binary pre-compiled by py3.
-	use python && doins VBoxPython.so
+	use python && doins VBoxPython2.so
 
 	rm -rf src rdesktop* deffiles install* routines.sh runlevel.sh \
 		vboxdrv.sh VBox.sh VBox.png vboxnet.sh additions VirtualBox.desktop \
@@ -163,20 +163,22 @@ src_install() {
 		VBoxPython?_*.so
 
 	if use headless ; then
-		rm -rf VBoxSDL VirtualBox{,VM} VBoxKeyboard.so
+		#rm -rf VBoxSDL VirtualBox{,VM} VBoxKeyboard.so
+		rm -rf VirtualBox{,VM} VBoxKeyboard.so
 	fi
 
 	doins -r * || die
 
 	# create symlinks for working around unsupported $ORIGIN/.. in VBoxC.so (setuid)
 	dosym ../VBoxVMM.so /opt/VirtualBox/components/VBoxVMM.so
-	dosym ../VBoxREM.so /opt/VirtualBox/components/VBoxREM.so
+	#dosym ../VBoxREM.so /opt/VirtualBox/components/VBoxREM.so
 	dosym ../VBoxRT.so /opt/VirtualBox/components/VBoxRT.so
 	dosym ../VBoxDDU.so /opt/VirtualBox/components/VBoxDDU.so
 	dosym ../VBoxXPCOM.so /opt/VirtualBox/components/VBoxXPCOM.so
 
 	local each
-	for each in VBox{Manage,SVC,XPCOMIPCD,Tunctl,TestOGL,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
+	#for each in VBox{Manage,SVC,XPCOMIPCD,Tunctl,TestOGL,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
+	for each in VBox{Manage,SVC,XPCOMIPCD,TestOGL,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
 		fowners root:vboxusers /opt/VirtualBox/${each}
 		fperms 0750 /opt/VirtualBox/${each}
 		pax-mark -m "${ED%/}"/opt/VirtualBox/${each}
@@ -190,14 +192,15 @@ src_install() {
 
 	if ! use headless ; then
 		# Hardened build: Mark selected binaries set-user-ID-on-execution
-		for each in VBox{SDL,Headless} ; do
+		#for each in VBox{SDL,Headless} ; do
+		for each in VBoxHeadless ; do
 			fowners root:vboxusers /opt/VirtualBox/${each}
 			fperms 4510 /opt/VirtualBox/${each}
 			pax-mark -m "${ED%/}"/opt/VirtualBox/${each}
 		done
 
 		dosym ../VirtualBox/VBox.sh /opt/bin/VirtualBox
-		dosym ../VirtualBox/VBox.sh /opt/bin/VBoxSDL
+		#dosym ../VirtualBox/VBox.sh /opt/bin/VBoxSDL
 	else
 		# Hardened build: Mark selected binaries set-user-ID-on-execution
 		fowners root:vboxusers /opt/VirtualBox/VBoxHeadless
@@ -213,7 +216,7 @@ src_install() {
 	dosym ../VirtualBox/VBox.sh /opt/bin/VBoxManage
 	dosym ../VirtualBox/VBox.sh /opt/bin/VBoxVRDP
 	dosym ../VirtualBox/VBox.sh /opt/bin/VBoxHeadless
-	dosym ../VirtualBox/VBoxTunctl /opt/bin/VBoxTunctl
+	#dosym ../VirtualBox/VBoxTunctl /opt/bin/VBoxTunctl
 
 	# set an env-variable for 3rd party tools
 	echo -n "VBOX_APP_HOME=/opt/VirtualBox" > "${T}/90virtualbox"

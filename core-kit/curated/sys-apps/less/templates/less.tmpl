@@ -13,7 +13,8 @@ IUSE="pcre unicode"
 
 DEPEND=">=app-misc/editor-wrapper-3
 	>=sys-libs/ncurses-5.2:0=
-	pcre? ( dev-libs/libpcre2 )"
+	pcre? ( dev-libs/libpcre2 )
+	sys-apps/groff"
 RDEPEND="${DEPEND}"
 
 post_src_unpack() {

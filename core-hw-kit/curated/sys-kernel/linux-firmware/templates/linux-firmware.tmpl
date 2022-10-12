@@ -63,6 +63,13 @@ src_install() {
 pkg_preinst() {
 	# Make sure /boot is available if needed.
 	use initramfs && ego_pkg_preinst
+
+	# Fix 'symlink is blocked by a directory' Bug #871315 on Gentoo and FL-10491 on Funtoo
+	if has_version "<${CATEGORY}/${PN}-20220913-r1" ; then
+		rm -rf "${EROOT}"/lib/firmware/qcom/LENOVO/21BX*
+	fi
+
+
 }
 
 pkg_postinst() {

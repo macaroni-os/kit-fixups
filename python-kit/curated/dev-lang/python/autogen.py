@@ -4,17 +4,9 @@ import re
 
 
 async def generate(hub, **pkginfo):
-	github_user = "python"
-	github_repo = "cpython"
-	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{github_user}/{github_repo}/tags?per_page=100", is_json=True
-#	) + await hub.pkgtools.fetch.get_page(
-#		f"https://api.github.com/repos/{github_user}/{github_repo}/tags?per_page=100&page=2", is_json=True
-	)
-
 	versions = [ "2.7.18" ]
 	minor = 10000
-	for tag in json_list:
+	async for tag in hub.pkgtools.github.iter_all_tags(hub, "python", "cpython"):
 		v = re.match(r"v((\d+).(\d+).\d+\b)(?!-)", tag["name"])
 		if v is None:
 			continue

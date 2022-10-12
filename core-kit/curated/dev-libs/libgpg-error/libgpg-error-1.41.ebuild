@@ -21,21 +21,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-1.37-remove_broken_check.patch"
 )
 
-src_prepare() {
-	default
-
-	if use prefix ; then
-		# don't hardcode /usr/xpg4/bin/sh as shell on Solaris
-		sed -i -e 's/solaris\*/disabled/' configure.ac || die
-	fi
-
-	# only necessary for as long as we run eautoreconf, configure.ac
-	# uses ./autogen.sh to generate PACKAGE_VERSION, but autogen.sh is
-	# not a pure /bin/sh script, so it fails on some hosts
-	hprefixify -w 1 autogen.sh
-	eautoreconf
-}
-
 src_configure() {
 	local myeconfargs=(
 		$(use_enable common-lisp languages)

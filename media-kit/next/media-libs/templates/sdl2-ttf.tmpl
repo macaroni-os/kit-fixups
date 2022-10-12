@@ -1,0 +1,43 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="ZLIB"
+SLOT="0"
+KEYWORDS="*"
+IUSE="+harfbuzz static-libs X"
+
+# On bumps, check external/ for versions of bundled freetype + harfbuzz
+# to crank up the dep bounds.
+RDEPEND=">=media-libs/libsdl2-2.0.12
+	>=media-libs/freetype-2.10.4[harfbuzz?]
+	virtual/opengl
+	harfbuzz? ( >=media-libs/harfbuzz-2.8.0 )"
+DEPEND="${RDEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mv ${WORKDIR}/{{ github_user }}-{{ github_repo }}* ${S} || die
+	fi
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DSDL2TTF_VENDORED=OFF
+		-DSDL2TTF_HARFBUZZ=$(usex harfbuzz)
+	)
+
+	cmake_src_configure
+}
+
+src_install() {
+	dodoc {CHANGES,README}.txt
+
+	cmake_src_install
+}

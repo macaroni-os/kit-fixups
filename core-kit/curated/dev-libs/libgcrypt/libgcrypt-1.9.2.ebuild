@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic toolchain-funcs
+inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="General purpose crypto library based on the code used in GnuPG"
 HOMEPAGE="https://www.gnupg.org/"
@@ -16,11 +16,6 @@ IUSE="+asm cpu_flags_arm_neon cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_
 RDEPEND=">=dev-libs/libgpg-error-1.25"
 DEPEND="${RDEPEND}"
 BDEPEND="doc? ( virtual/texi2dvi )"
-
-src_prepare() {
-	default
-	eautoreconf
-}
 
 src_configure() {
 	if [[ ${CHOST} == *86*-solaris* ]] ; then

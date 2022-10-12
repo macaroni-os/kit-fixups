@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -15,6 +14,7 @@ RDEPEND=">=x11-libs/libXrandr-1.5
 	x11-libs/libXrender
 	x11-libs/libX11"
 DEPEND="${RDEPEND}
+	x11-misc/util-macros
 	x11-base/xorg-proto"
 
 src_unpack() {

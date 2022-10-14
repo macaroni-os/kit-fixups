@@ -13,13 +13,14 @@ SLOT="0"
 IUSE="build kernel_FreeBSD kernel_linux +split-usr"
 S="${WORKDIR}"/baselayout-2.6
 RDEPEND="!>=dev-util/meson-0.60"
+
 pkg_preinst() {
 	# This is written in src_install (so it's in CONTENTS), but punt all
 	# pending updates to avoid user having to do etc-update (and make the
 	# pkg_postinst logic simpler).
 	rm -f "${EROOT}"/etc/._cfg????_gentoo-release
 
-	if use build ; then
+	if use build && [ $ROOT != "/" ]; then
 		if use split-usr ; then
 			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" layout
 		else

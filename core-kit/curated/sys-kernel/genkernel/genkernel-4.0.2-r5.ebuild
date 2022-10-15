@@ -55,7 +55,7 @@ src_prepare() {
 	sed -i -e "s/##VERSION##/${PV}/" "${S}"/genkernel || die
 	mkdir patches/busybox/1.21.1/
 	cp "${FILESDIR}"/busybox-1.21.1-glibc.patch patches/busybox/1.21.1/
-	epatch "${FILESDIR}"/initramfs.patch
+	epatch "${FILESDIR}"/initramfs-r1.patch
 	for modfile in $(find ${S} -name modules_load); do
 		sed -i -e '/MODULES_FS/s/"$/ squashfs overlay hfsplus isofs udf loop nls_utf8"/' \
 			-e '/MODULES_CRYPTO/s/"$/ algif_skcipher af_alg crc32_generic"/' ${modfile}

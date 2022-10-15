@@ -16,3 +16,21 @@ debian_rule:
         cat: app-arch
         repo: "http://ftp.debian.org/debian/pool/main"
         compression: 'xz'
+
+libbsd_rule:
+  generator: dirlisting
+  packages:
+    - libbsd:
+        cat: dev-libs
+        desc: Library to provide useful functions commonly found on BSD systems
+        homepage: https://libbsd.freedesktop.org/wiki/ https://gitlab.freedesktop.org/libbsd/libbsd
+        dir:
+          url: https://libbsd.freedesktop.org/releases/
+          format: tar.xz
+    - libmd:
+        cat: app-crypt
+        desc: Message Digest functions from BSD systems
+        homepage: https://www.hadrons.org/software/libmd/
+        dir:
+          url: https://archive.hadrons.org/software/libmd/
+          format: tar.xz

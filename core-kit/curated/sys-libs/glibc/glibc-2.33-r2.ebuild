@@ -1435,43 +1435,6 @@ src_install() {
 	fi
 }
 
-# Simple test to make sure our new glibc isn't completely broken.
-# Make sure we don't test with statically built binaries since
-# they will fail.  Also, skip if this glibc is a cross compiler.
-#
-# If coreutils is built with USE=multicall, some of these files
-# will just be wrapper scripts, not actual ELFs we can test.
-glibc_sanity_check() {
-	cd / #228809
-
-	# We enter ${ED} so to avoid trouble if the path contains
-	# special characters; for instance if the path contains the
-	# colon character (:), then the linker will try to split it
-	# and look for the libraries in an unexpected place. This can
-	# lead to unsafe code execution if the generated prefix is
-	# within a world-writable directory.
-	# (e.g. /var/tmp/portage:${HOSTNAME})
-	pushd "${ED}"/$(get_libdir) >/dev/null
-
-	local x striptest
-	for x in cal date env ls true uname ; do
-		x=$(type -p ${x})
-		[[ -z ${x} || ${x} != ${EPREFIX}/* ]] && continue
-		striptest=$(LC_ALL="C" file -L ${x} 2>/dev/null) || continue
-		case ${striptest} in
-		*"statically linked"*) continue;;
-		*"ASCII text"*) continue;;
-		esac
-		# We need to clear the locale settings as the upgrade might want
-		# incompatible locale data.  This test is not for verifying that.
-		LC_ALL=C \
-		./ld-*.so --library-path . ${x} > /dev/null \
-			|| die "simple run test (${x}) failed"
-	done
-
-	popd >/dev/null
-}
-
 pkg_preinst() {
 	# nothing to do if just installing headers
 	just_headers && return
@@ -1487,7 +1450,6 @@ pkg_preinst() {
 
 	[[ -n ${ROOT} ]] && return 0
 	[[ -d ${ED}/$(get_libdir) ]] || return 0
-	[[ -z ${BOOTSTRAP_RAP} ]] && glibc_sanity_check
 
 	if [[ -L ${EROOT}/usr/lib/locale ]]; then
 		# Help portage migrate this to a directory

@@ -15,12 +15,12 @@ IUSE="ada +cxx d go +fortran objc objc++ objc-gc " # Languages
 IUSE="$IUSE test" # Run tests
 IUSE="$IUSE doc nls vanilla multilib" # docs/i18n/system flags
 IUSE="$IUSE openmp altivec graphite pch generic_host jit" # Optimizations/features flags
-IUSE="$IUSE +bootstrap bootstrap-lean bootstrap-profiled bootstrap-lto bootstrap-O3" # Bootstrap flags
+IUSE="$IUSE +bootstrap bootstrap-lean +bootstrap-profiled bootstrap-lto bootstrap-O3" # Bootstrap flags
 IUSE="$IUSE libssp +ssp" # Base hardening flags
 IUSE="$IUSE +pie +vtv link_now ssp_all" # Extra hardening flags
 [ ${GCC_MAJOR} -ge 8 ] && IUSE="$IUSE +stack_clash_protection" # Stack clash protector added in gcc-8
 IUSE="$IUSE sanitize dev_extra_warnings" # Dev flags
-
+REQUIRED_USE="bootstrap-profiled? ( bootstrap ) bootstrap-lean? ( bootstrap )"
 # Handle internal self checking options
 CHECKS_RELEASE="assert runtime"
 CHECKS_YES="${CHECKS_RELEASE} misc tree gc rtlflag"
@@ -287,8 +287,6 @@ src_prepare() {
 		fi
 
 		eapply "${FILESDIR}/gcc-11.3.0-fix-union-handling-in-build_reconstructed_reference.patch"
-
-		#use bootstrap-lto && eapply "${FILESDIR}/Fix-bootstrap-miscompare-with-LTO-bootstrap-PR85571.patch"
 
 		# Harden things up:
 		_gcc_prepare_harden
@@ -618,8 +616,11 @@ gcc_conf_cross_post() {
 src_compile() {
 	cd $WORKDIR/objdir
 	unset ABI
-	emake P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
-
+	if use bootstrap || use bootstrap-profiled || use bootstrap-lean; then
+		emake BOOT_CFLAGS="${CFLAGS}" P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
+	else
+		emake P= LIBPATH="${LIBPATH}" ${GCC_TARGET} || die "compile fail"
+	fi
 	if use jit; then
 		cd $WORKDIR/objdir-jit
 		unset ABI

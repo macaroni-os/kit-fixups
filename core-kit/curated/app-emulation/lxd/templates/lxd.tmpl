@@ -168,6 +168,24 @@ src_install() {
 }
 
 pkg_postinst() {
+	if [[ -z ${ROOT} && -n "$( rc-service lxd status| grep started )"  ]]; then
+		einfo "Restarting lxd service."
+		if nofatal rc-service lxd restart ; then
+			eerror
+			eerror "LXD service failed to start after update."
+			eerror "Please check if your configuration for ${REPLACING_VERSIONS}"
+			eerror "is still valid for the new version."
+			eerror
+		else
+			ewarn
+			ewarn "LXD service was automatically restarted."
+			ewarn "If you are unable to 'lxc exec <containername>',"
+			ewarn "then you may need to restart all containers. "
+			ewarn "This can be done with /etc/init.d/lxd stop; /etc/init.d/lxd start."
+			ewarn
+		fi
+	fi
+
 	elog
 	elog "Consult https://www.funtoo.org/LXD for more information,"
 	elog "including a Quick Start."

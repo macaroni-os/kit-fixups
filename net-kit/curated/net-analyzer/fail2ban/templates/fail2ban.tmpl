@@ -27,26 +27,21 @@ RDEPEND="
 DOCS=( ChangeLog DEVELOP README.md THANKS TODO doc/run-rootless.txt )
 
 src_unpack() {
-        unpack "${A}"
-        mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "$S" || die
+	unpack "${A}"
+	mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "$S" || die
 }
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.11.2-adjust-apache-logs-paths.patch
+)
+
 python_prepare_all() {
-	default
+#	default
+	distutils-r1_python_prepare_all
 
 	# Replace /var/run with /run, but not in the top source directory
 	find . -mindepth 2 -type f -exec \
 		sed -i -e 's|/var\(/run/fail2ban\)|\1|g' {} + || die
-
-	sed -i -e 's|runscript|openrc-run|g' files/gentoo-initd || die
-
-# Remove install messages related to systemd
-# service unit. Sorry, Poettering, not today.
-	sed -i -e "/service-unit/,+2d" "${S}"/setup.py
-
-	nonfatal eapply "${FILESDIR}/${PN}-fix-2to3.patch"
-
-	distutils-r1_python_prepare_all
 }
 
 python_compile() {
@@ -54,16 +49,27 @@ python_compile() {
 	distutils-r1_python_compile
 }
 
+python_test() {
+	bin/fail2ban-testcases \
+		--no-network \
+		--no-gamin \
+		--verbosity=4 || die "Tests failed with ${EPYTHON}"
+
+	# Workaround for bug #790251
+	rm -r fail2ban.egg-info || die
+}
+
 python_install_all() {
 	distutils-r1_python_install_all
 
 	rm -rf "${ED}"/usr/share/doc/${PN} "${ED}"/run || die
 
-	# Not ${FILESDIR}
-	newconfd files/gentoo-confd ${PN}
-	newinitd files/gentoo-initd ${PN}
+	newconfd files/fail2ban-openrc.conf ${PN}
 
-	sed -e "s:@BINDIR@:${EPREFIX}/usr/bin:g" files/${PN}.service.in > "${T}/${PN}.service" || die
+	# These two are placed in the ${BUILD_DIR} after being "built"
+	# in install_scripts().
+	newinitd "${BUILD_DIR}/fail2ban-openrc.init" "${PN}"
+
 	dotmpfiles files/${PN}-tmpfiles.conf
 
 	doman man/*.{1,5}
@@ -85,13 +91,15 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	if [[ $previous_less_than_0_7 = 0 ]] ; then
+	tmpfiles_process ${PN}-tmpfiles.conf
+
+	if [[ ${previous_less_than_0_7} = 0 ]] ; then
 		elog
 		elog "Configuration files are now in /etc/fail2ban/"
 		elog "You probably have to manually update your configuration"
-		elog "files before restarting Fail2ban!"
+		elog "files before restarting Fail2Ban!"
 		elog
-		elog "Fail2ban is not installed under /usr/lib anymore. The"
+		elog "Fail2Ban is not installed under /usr/lib anymore. The"
 		elog "new location is under /usr/share."
 		elog
 		elog "You are upgrading from version 0.6.x, please see:"
@@ -109,5 +117,10 @@ pkg_postinst() {
 		elog "dev-lang/python with USE=sqlite. If you do not use the"
 		elog "persistent database feature, then you should set"
 		elog "dbfile = :memory: in fail2ban.conf accordingly."
+	fi
+
+	if has_version sys-apps/systemd[-python] ; then
+		elog "If you want to track logins through sys-apps/systemd's"
+		elog "journal backend, then reinstall sys-apps/systemd with USE=python"
 	fi
 }

@@ -1038,6 +1038,25 @@ simple_python_autogen_rule:
         homepage: https://github.com/FirefighterBlu3/python-pam
         license: MIT
         python_compat: python3+
+    - pytz:
+        python_compat: python2+
+        pydeps:
+          - setuptools
+        rdepend: |
+          sys-libs/timezone-data
+        depend: |
+          sys-libs/timezone-data
+          app-arch/unzip
+        body: |
+          src_prepare() {
+              default
+              # configure the source code to grab zoneinfo files from /usr/share/zoneinfo by default:
+              sed -i -e "/zoneinfo_dir = os.environ.get/s:None:'/usr/share/zoneinfo':" $S/pytz/__init__.py || die
+          }
+          post_src_install() {
+              # Remove all bundled zoneinfo data:
+              find "$D" -type d -name zoneinfo -exec rm -rf {} \; 2>/dev/null
+          }
     - soupsieve:
         desc: A modern CSS selector implementation for BeautifulSoup
         homepage: https://github.com/facelessuser/soupsieve/ https://pypi.org/project/soupsieve/
@@ -2206,8 +2225,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - pyopenssl:
         python_compat: python2+ pypy{,3}
-    - pytz:
-        python_compat: python2+ pypy3
     - secretstorage:
         python_compat: python3+ pypy3
     - six:

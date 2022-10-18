@@ -51,7 +51,8 @@ src_configure() {
 		-DBUILD_TESTS=OFF
 		-DGLSLANG_INSTALL_DIR="${EPREFIX}/usr"
 		-DCMAKE_INSTALL_INCLUDEDIR="${EPREFIX}/usr/include/"
-		-DSPIRV_HEADERS_INSTALL_DIR="${EPREFIX}/usr/include/spirv"
+		-DSPIRV_HEADERS_INSTALL_DIR="${EPREFIX}/usr"
+		-DVulkanRegistry_DIR="${EPREFIX}/usr/share/vulkan/registry"
 	)
 	cmake-utils_src_configure
 }

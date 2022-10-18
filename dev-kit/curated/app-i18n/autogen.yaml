@@ -15,6 +15,11 @@ libpinyin_libchewing_and_others:
           repo: libchewing
           query: releases
           tarball: "libchewing-{version}.tar.bz2"
+    - librime:
+        github:
+          user: rime
+          repo: librime
+          query: releases
 zinnia_rule:
   defaults:
     cat: app-i18n
@@ -24,4 +29,9 @@ zinnia_rule:
         fullname: zinnia
         description: Zinnia - Online hand recognition system with machine learning
         license: BSD
+        homepage: https://taku910.github.io/zinnia/
+    - zinnia-tomoe:
+        fullname: zinnia-tomoe
+        description: Handwriting model files trained with Tomoe data
+        license: LGPL-2.1+
         homepage: https://taku910.github.io/zinnia/

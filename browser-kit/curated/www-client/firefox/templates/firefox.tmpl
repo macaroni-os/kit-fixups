@@ -62,7 +62,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack libproxy lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" system-av1 system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png system-webp"
+IUSE+=" system-av1 system-harfbuzz +system-icu +system-jpeg +system-libevent system-libvpx system-png system-webp"
 IUSE+=" wayland wifi"
 IUSE+="{% for lang_code in lang_codes %} l10n_{{ lang_code }}{% endfor %}"
 
@@ -492,8 +492,47 @@ src_unpack() {
 }
 
 src_prepare() {
+(
+/bin/cat <<DISTRIBUTION.INI
+[Global]
+id=funtoo
+version={{ version }}
+about=Mozilla Firefox for Funtoo
+about.de=Mozilla Firefox für Funtoo
+
+[Preferences]
+app.distributor="funtoo"
+app.distributor.channel="funtoo"
+startup.homepage_welcome_url="https://www.funtoo.org/"
+
+[BookmarksToolbar]
+item.1.type=default
+item.2.title=Funtoo Wiki
+item.2.link=https://www.funtoo.org/Welcome
+item.3.title=Funtoo Forums
+item.3.link=https://forums.funtoo.org/
+item.4.title=Funtoo Bugs Tracker
+item.4.link=https://bugs.funtoo.org/
+
+[BookmarksMenu]
+item.1.title=Funtoo
+item.1.type=folder
+item.1.folderId=1
+
+[BookmarksFolder-1]
+item.1.type=default
+item.2.title=Funtoo Wiki
+item.2.link=https://www.funtoo.org/Welcome
+item.3.title=Funtoo Forums
+item.3.link=https://forums.funtoo.org/
+item.4.title=Funtoo Bugs Tracker
+item.4.link=https://bugs.funtoo.org/
+DISTRIBUTION.INI
+) > "${WORKDIR}/distribution.ini"
+
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-disable_audio_thread_priority_default_features.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Add fixes for riscv64
@@ -978,7 +1017,7 @@ src_install() {
 
 	# Install policy (currently only used to disable application updates)
 	insinto "${MOZILLA_FIVE_HOME}/distribution"
-	newins "${FILESDIR}"/distribution-${PV}.ini distribution.ini
+	newins "${WORKDIR}"/distribution.ini distribution.ini
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences

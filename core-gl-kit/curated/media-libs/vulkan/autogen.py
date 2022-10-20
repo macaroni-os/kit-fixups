@@ -126,7 +126,10 @@ async def process_commit_pkg(**pkginfo):
 	pkginfo['version'] += "_p" + commit_date.strftime("%Y%m%d")
 
 	final_name = f"{pkginfo['name']}-{pkginfo['version']}.tar.gz"
-	pkginfo['artifacts'] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
+	revision = {}
+	if pkginfo["name"] == "glslang":
+		revision = { "1.3.224.1_p20221013": 1}
+	pkginfo['artifacts'] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name, revision=revision)]
 	return pkginfo
 
 

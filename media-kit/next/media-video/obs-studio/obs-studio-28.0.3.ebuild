@@ -28,7 +28,7 @@ HOMEPAGE="https://obsproject.com"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+alsa browser fdk ftl jack luajit nvenc pipewire pulseaudio python speex +ssl truetype v4l vlc wayland"
+IUSE="-ajantv2 +alsa browser fdk ftl jack luajit nvenc pipewire pulseaudio python speex +ssl truetype v4l vlc wayland"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
 BDEPEND="
@@ -36,6 +36,8 @@ BDEPEND="
 		dev-lua/luajit
 		dev-lang/swig
 	)
+	>=media-libs/librist-0.2.7
+	>=net-libs/srt-1.3.2
 	python? ( dev-lang/swig )
 "
 DEPEND="
@@ -132,6 +134,10 @@ src_configure() {
 		-DOBS_VERSION_OVERRIDE=${PV}
 		# FIXME: No info about this in the install instructions?
 		-DBUILD_VST=OFF
+		# FL-10539: obs-studio 28 adds BDEPEND for a new library called ajantv2
+		# Upstream library sources: https://github.com/aja-video/ntv2
+		# Upstream CMakeLists: https://github.com/obsproject/obs-studio/blob/master/UI/frontend-plugins/aja-output-ui/CMakeLists.txt
+		-DENABLE_AJA=$(usex ajantv2)
 	)
 
 #	if use browser; then

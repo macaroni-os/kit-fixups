@@ -23,3 +23,11 @@ RESTRICT="test"
 post_src_unpack() {
 	mv "${WORKDIR}"/*{{github_repo}}-* "${S}" || die
 }
+
+# Override the src_install to add additonal libraries
+src_install() {
+	default
+	cmake-utils_src_install
+	mv ${WORKDIR}/*glslang-*_build/OGLCompilersDLL/libOGLCompiler.a ${ED}/usr/lib64
+	mv ${WORKDIR}/*glslang-*_build/glslang/OSDependent/Unix/libOSDependent.a ${ED}/usr/lib64
+}

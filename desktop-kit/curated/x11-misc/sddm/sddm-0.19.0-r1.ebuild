@@ -43,6 +43,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-0.18.0-sddmconfdir.patch"
 	# TODO: fix properly
 	"${FILESDIR}/${PN}-0.16.0-ck2-revert.patch" # bug 633920
+	"${FILESDIR}/${PN}-0.19.0-QTBUG-88431.patch"
 )
 
 src_prepare() {

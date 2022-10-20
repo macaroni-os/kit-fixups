@@ -8,7 +8,7 @@ async def generate(hub, **pkginfo):
 	github_repo = "CMake"
 	app = pkginfo["name"]
 	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{github_user}/{github_repo}/releases?per_page=50", is_json=True
+		f"https://api.github.com/repos/{github_user}/{github_repo}/releases?per_page=100", is_json=True
 	)
 	for release in json_list:
 		if release["prerelease"] or release["draft"]:

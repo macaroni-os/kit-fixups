@@ -1,0 +1,30 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+PYTHON_COMPAT=( python3+ )
+DISTUTILS_USE_PEP517=standalone # custom backend code to build with flit from pyproject.toml
+inherit distutils-r1
+
+DESCRIPTION="v2 of the {{ description }}"
+HOMEPAGE="https://github.com/aws/aws-cli/tree/v2"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND=""
+RDEPEND="{% for dep in depend %}
+	dev-python/{{ dep }}{% endfor %}
+	!app-admin/awscli
+	!app-admin/awscli-bin
+"
+BDEPEND=""
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mv "${WORKDIR}"/{{ github_user }}-{{ github_repo }}-* "${S}" || die
+	fi
+}

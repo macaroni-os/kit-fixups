@@ -31,7 +31,6 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}"/terminator-1.91-without-icon-cache.patch
 	"${FILESDIR}"/terminator-1.91-desktop.patch
 )
 

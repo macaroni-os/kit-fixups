@@ -18,12 +18,12 @@ CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality reencrypt ssh static static-libs test +udev urandom"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !ssh !udev !fips )
+	static? ( !gcrypt !ssh !fips )
 	fips? ( !kernel !nettle )
 " # 496612, 832711, 843863
 
 LIB_DEPEND="
-	dev-libs/json-c:=
+	dev-libs/json-c:=[static-libs(+)]
 	dev-libs/popt[static-libs(+)]
 	>=sys-apps/util-linux-2.31-r1[static-libs(+)]
 	argon2? ( app-crypt/argon2:=[static-libs(+)] )

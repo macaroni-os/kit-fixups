@@ -66,4 +66,23 @@ autogens:
         compat: 1.2.0
         blocker: '!<dev-python/zipp-0.8'
 
+pypi_simple_rule:
+  generator: pypi-simple-1
+  packages:
+    - pyicu:
+        desc: Python bindings for dev-libs/icu
+        homepage: https://gitlab.pyicu.org/main/pyicu/ https://pypi.org/project/PyICU/
+        license: MIT
+        python_compat: python3+
+        rdepend: |
+          dev-libs/icu:=
+        bdepend: |
+          test? ( dev-python/six[${PYTHON_USEDEP}] )
+        body: |
+          post_src_unpack() {
+            default
+            mv ${WORKDIR}/PyICU-* ${S} || die
+          }
+          DOCS=( CHANGES CREDITS README.md )
+          distutils_enable_tests pytest
 

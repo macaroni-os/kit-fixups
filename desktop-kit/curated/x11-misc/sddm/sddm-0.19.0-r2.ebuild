@@ -82,6 +82,13 @@ src_install() {
 		|| die "Failed to create 00default.conf"
 	sed -e "/^InputMethod/s/qtvirtualkeyboard//" \
 		-i "${D}/${confd}"/00default.conf || die
+
+	if ! use elogind && ! use systemd ; then
+		# When both elogind and systemd are disable the configure.ac
+		# generates the file /etc/pam.d/sddm-greeter with pam_systemd.so
+		# intergration. This generates errors on logs.
+		sed -i -e '/pam_systemd.so/d' "${D}"/etc/pam.d/sddm-greeter
+	fi
 }
 
 pkg_postinst() {

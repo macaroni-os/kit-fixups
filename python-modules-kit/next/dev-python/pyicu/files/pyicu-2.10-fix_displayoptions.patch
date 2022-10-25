@@ -1,0 +1,14 @@
+diff --git a/_icu_.cpp b/_icu_.cpp
+index 45a0882..2c42a2f 100644
+--- a/_icu_.cpp
++++ b/_icu_.cpp
+@@ -251,7 +251,9 @@ static PyObject *PyInit_icu_(PyObject *m)
+     _init_iterators(m);
+     _init_format(m);
+     _init_dateformat(m);
++#if U_ICU_VERSION_HEX >= VERSION_HEX(72, 0, 0)
+     _init_displayoptions(m);
++#endif  // ICU >= 72
+     _init_messagepattern(m);
+     _init_numberformat(m);
+     _init_timezone(m);

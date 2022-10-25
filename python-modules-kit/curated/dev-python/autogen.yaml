@@ -853,11 +853,6 @@ simple_python_autogen_rule:
             touch ${S}/requirements/base.txt || die
             default
           }
-    - colorama:
-        python_compat: python2+ pypy3
-        desc: ANSI escape character sequences for colored terminal text & cursor positioning
-        homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
-        license: BSD
     - defcon:
         desc: A set of UFO based objects for use in font editing applications
         homepage: https://github.com/robotools/defcon
@@ -1560,6 +1555,16 @@ dev_python_simplified_rule:
         pydeps:
           py:all:
             - pytest-runner
+    - colorama:
+        python_compat: python2+ pypy3
+        desc: ANSI escape character sequences for colored terminal text & cursor positioning
+        homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
+        license: BSD
+        du_pep517: hatchling
+        compat: 0.4.4
+        blocker: "!<dev-python/colorama-0.4.6-r1"
+        revision:
+          0.4.6: 1
     - cppy:
         revision:
           1.2.1: 1

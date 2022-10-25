@@ -76,6 +76,11 @@ async def generate(hub, **pkginfo):
 			'github_repo' : name,
 			**pkginfo,
 		}
+
+		if name == "glslang":
+			revision = { "1.3.231.0_p20221013": 1 }
+			catpkg_info['revision'] = revision
+
 		catpkg_info.update(catpkgs[name])
 		catpkg_info.update(await github_gen[catpkg_info['query']](hub, **catpkg_info))
 
@@ -126,10 +131,7 @@ async def process_commit_pkg(**pkginfo):
 	pkginfo['version'] += "_p" + commit_date.strftime("%Y%m%d")
 
 	final_name = f"{pkginfo['name']}-{pkginfo['version']}.tar.gz"
-	revision = {}
-	if pkginfo["name"] == "glslang":
-		revision = { "1.3.224.1_p20221013": 1}
-	pkginfo['artifacts'] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name, revision=revision)]
+	pkginfo['artifacts'] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)]
 	return pkginfo
 
 

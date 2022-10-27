@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools
+inherit meson
 
 DESCRIPTION="Qualcomm MSM (Mobile Station Modem) Interface (QMI) modem protocol library"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/libqmi/ https://gitlab.freedesktop.org/mobile-broadband/libqmi"
@@ -23,23 +23,12 @@ BDEPEND="
 	virtual/pkgconfig
 	gtk-doc? ( dev-util/gtk-doc )"
 
-src_prepare() {
-	default
-	eautoreconf
-}
-
 src_configure() {
-	local myconf=(
-		--disable-Werror
-		--disable-static
-		$(use_enable qrtr)
-		$(use_enable mbim mbim-qmux)
-		$(use_enable gtk-doc)
+	local emesonargs=(
+		$(meson_use qrtr)
+		$(meson_use mbim mbim_qmux)
+		$(meson_use gtk-doc gtk_doc)
+		$(meson_use qrtr)
 	)
-	econf "${myconf[@]}"
-}
-
-src_install() {
-	default
-	find "${ED}" -name '*.la' -delete || die
+	meson_src_configure
 }

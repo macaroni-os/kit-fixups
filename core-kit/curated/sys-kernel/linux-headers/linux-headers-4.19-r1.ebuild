@@ -31,6 +31,7 @@ src_prepare() {
 	default
 
 	[[ -n ${PATCH_VER} ]] && eapply "${WORKDIR}"/${PV}/*.patch
+	eapply ${FILESDIR}/linux-headers-4.19-fix_missing_header_types_h.patch
 }
 
 src_install() {

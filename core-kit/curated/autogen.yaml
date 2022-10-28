@@ -34,3 +34,118 @@ libbsd_rule:
         dir:
           url: https://archive.hadrons.org/software/libmd/
           format: tar.xz
+
+lpg_suite:
+  # All versions here have been fixed according to the table available at:
+  # https://gnupg.org/download/index.html. This is a way to make sure that each
+  # package of the suite is available with the other pacakges. The python
+  # generator will get the latest version if version is not defined here or if
+  # it is set to 'latest'.
+  generator: dirlisting
+  packages:
+    - gnupg:
+        cat: app-crypt
+        desc: The GNU Privacy Guard, a GPL OpenPGP implementation
+        homepage: https://gnupg.org/
+        version: 2.3.7
+        patches:
+          - 2.1.20-gpgscm-Use-shorter-socket-path-lengts-to-improve-tes.patch
+          - 2.3.7-yubikey-workaround-fix.patch
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/gnupg/
+          format: tar.bz2
+    - gpgme:
+        cat: app-crypt
+        desc: GnuPG Made Easy is a library for making GnuPG easier to use
+        homepage: https://www.gnupg.org/related_software/gpgme
+        # Please check ABI on each bump, even if SONAMEs didn't change: bug #833355
+        # Use e.g. app-portage/iwdevtools integration with dev-libs/libabigail's abidiff.
+        # Subslot: SONAME of each: <libgpgme.libgpgmepp.libqgpgme.FUDGE>
+        # Bump FUDGE if a release is made which breaks ABI without changing SONAME.
+        # (Reset to 0 if FUDGE != 0 if libgpgme/libgpgmepp/libqpggme change.)
+        slot: '1/11.27.15.1'
+        version: 1.18.0
+        patches:
+          - 1.18.0-tests-start-stop-agent-use-command-v.patch
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/gpgme/
+          format: tar.bz2
+    - npth:
+        cat: dev-libs
+        desc: New GNU Portable Threads Library
+        homepage: https://gnupg.org/software/npth/index.html
+        version: '1.6'
+        revision:
+          '1.6': 2
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/npth/
+          format: tar.bz2
+    - pinentry:
+        cat: app-crypt
+        desc: Simple passphrase entry dialogs which utilize the Assuan protocol
+        homepage: https://gnupg.org/aegypten2
+        version: 1.2.1
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/pinentry/
+          format: tar.bz2
+    - scute:
+        cat: app-crypt
+        desc: A PKCS \#11 module for OpenPGP smartcards
+        homepage: http://www.scute.org/
+        version: 1.7.0
+        patches:
+          - 1.7.0-fno-common.patch
+        # This is an ugly workaround. Currently ImageMagick will not convert to
+        # eps due to a security policy, so the package cannot build the manual
+        # and we are getting a prebuild version from Gentoo. We need to
+        # investigate if the policy still applies with the new versions of
+        # ImageMagick and GhostScript. See (https://bugs.gentoo.org/664236, 
+        # https://bugs.gentoo.org/716674 and
+        # https://bugs.chromium.org/p/project-zero/issues/detail?id=1640#c25).
+        additional_artifacts:
+          - https://dev.gentoo.org/~soap/distfiles/scute-1.7.0-manual-eps-images.tar.xz
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/scute/
+          format: tar.bz2
+    - libassuan:
+        cat: dev-libs
+        desc: IPC library used by GnuPG and GPGME
+        homepage: https://www.gnupg.org/related_software/libassuan/
+        version: 2.5.5
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/libassuan/
+          format: tar.bz2
+    - libgcrypt:
+        cat: dev-libs
+        desc: General purpose crypto library based on the code used in GnuPG
+        homepage: https://www.gnupg.org/
+        slot: '0/20'
+        version: 1.10.1
+        patches:
+          - multilib-syspath.patch
+          - powerpc-darwin.patch
+          - 1.10.1-fix-no-asm-hppa.patch
+          - 1.9.4-no-fgrep-libgcrypt-config.patch
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/libgcrypt/
+          format: tar.gz
+    - libgpg-error:
+        cat: dev-libs
+        desc: Contains error handling functions used by GnuPG software
+        homepage: https://www.gnupg.org/related_software/libgpg-error/
+        version: '1.46'
+        patches:
+          - 1.44-remove_broken_check.patch
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/libgpg-error/
+          format: tar.bz2
+    - libksba:
+        cat: dev-libs
+        desc: X.509 and CMS (PKCS#7) library
+        homepage: https://www.gnupg.org/related_software/libksba
+        version: 1.6.2
+        patches:
+          - 1.6.0-no-fgrep-ksba-config.patch
+        dir:
+          url: https://gnupg.org/ftp/gcrypt/libksba/
+          format: tar.bz2

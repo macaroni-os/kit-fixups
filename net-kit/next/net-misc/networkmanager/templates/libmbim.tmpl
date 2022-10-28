@@ -18,8 +18,3 @@ BDEPEND="
 	dev-util/glib-utils
 	virtual/pkgconfig
 "
-
-#src_install() {
-#	default
-#	find "${ED}" -name '*.la' -delete || die
-#}

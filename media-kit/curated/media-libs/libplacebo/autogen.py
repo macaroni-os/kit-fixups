@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import json
-
+import os
 
 async def generate(hub, **pkginfo):
 	python_compat = "python3+"
@@ -17,7 +17,16 @@ async def generate(hub, **pkginfo):
 		version = v
 		url = tag["tarball_url"]
 		break
-	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
+	final_name = f'{pkginfo["name"]}-{version}-with-submodules.tar.xz'
+
+	my_archive, metadata = hub.Archive.find_by_name(final_name)
+	if my_archive is None:
+		my_archive = hub.Archive(final_name)
+		my_archive.initialize()
+		retval = os.system(f"( cd {my_archive.top_path}; git clone --recursive https://code.videolan.org/videolan/libplacebo )")
+		if retval != 0:
+			raise hub.pkgtools.ebuild.BreezyError("Unable to git clone repository.")
+		my_archive.store_by_name()
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
@@ -25,7 +34,7 @@ async def generate(hub, **pkginfo):
 		python_compat=python_compat,
 		github_user=github_user,
 		github_repo=github_repo,
-		artifacts=[hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)],
+		artifacts=[my_archive]
 	)
 	ebuild.push()
 

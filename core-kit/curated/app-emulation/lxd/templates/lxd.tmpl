@@ -27,7 +27,7 @@ RDEPEND="${DEPEND}
 	net-firewall/iptables[ipv6?]
 	sys-apps/iproute2[ipv6?]
 	sys-fs/fuse:*
-	sys-fs/lxcfs
+	=sys-fs/lxcfs-4.0.12*
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl"
 BDEPEND=">=dev-lang/go-1.18

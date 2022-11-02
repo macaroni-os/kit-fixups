@@ -15,7 +15,8 @@ async def generate(hub, **pkginfo):
 	python_compat = "python3+"
 	github_user = "mpv-player"
 	github_repo = "mpv"
-	waf_version = "2.0.20"
+	# Chekc the variable WAFRELEASE in bootstrap.py for the suitable version.
+	waf_version = "2.0.24"
 	json_data = await query_github_api(github_user, github_repo, "releases")
 	for release in json_data:
 		if release["prerelease"] or release["draft"]:

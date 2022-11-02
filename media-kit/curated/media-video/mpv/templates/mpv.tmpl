@@ -198,8 +198,6 @@ src_configure() {
 		$(use_enable drm)
 		$(usex cuda "$(use_enable drm cuda-hwaccel)" '--disable-cuda-hwaccel')
 		$(use_enable gbm)
-		$(use_enable wayland wayland-scanner)
-		$(use_enable wayland wayland-protocols)
 		$(use_enable wayland)
 		$(use_enable X x11)
 		$(use_enable xv)

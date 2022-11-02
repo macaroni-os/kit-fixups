@@ -1,0 +1,884 @@
+--- a/plugins/aiksaurus/aiksaurusgtk3/AiksaurusGTK.cpp
++++ b/plugins/aiksaurus/aiksaurusgtk3/AiksaurusGTK.cpp
+@@ -51,15 +51,15 @@
+             DialogImpl();
+             virtual ~DialogImpl();
+ 
+-            const char* runThesaurus(const char* word) throw();
+-            void setTitle(const char* title) throw();
+-            void setReplacebar(bool replacebar) throw();
+-            void setInitialMessage(const char* message) throw(std::bad_alloc);
+-
+-            void eventCancel() throw();
+-            void eventReplace(const char* replacement) throw();
+-            void eventSelectWord(const char* word) throw();
+-            void eventSearch(const char* word) throw();
++            const char* runThesaurus(const char* word);
++            void setTitle(const char* title);
++            void setReplacebar(bool replacebar);
++            void setInitialMessage(const char* message);
++
++            void eventCancel();
++            void eventReplace(const char* replacement);
++            void eventSelectWord(const char* word);
++            void eventSearch(const char* word);
+     };
+ 
+ 
+@@ -78,13 +78,13 @@
+     }
+ 
+ 
+-    void DialogImpl::setReplacebar(bool replacebar) throw()
++    void DialogImpl::setReplacebar(bool replacebar)
+     {
+         d_showreplacebar = replacebar;
+     }
+ 
+ 
+-    void DialogImpl::setInitialMessage(const char* message) throw(std::bad_alloc)
++    void DialogImpl::setInitialMessage(const char* message)
+     {
+         d_initialMessage = message;
+     }
+@@ -149,7 +149,7 @@
+     }
+ 
+ 
+-    const char* DialogImpl::runThesaurus(const char* word) throw()
++    const char* DialogImpl::runThesaurus(const char* word)
+     {
+         try {
+ 
+@@ -180,7 +180,7 @@
+     }
+ 
+ 
+-    void DialogImpl::setTitle(const char* word) throw()
++    void DialogImpl::setTitle(const char* word)
+     {
+         try {
+             d_title = (word) ? (word) : ("");
+@@ -191,13 +191,13 @@
+     }
+ 
+ 
+-    void DialogImpl::eventCancel() throw()
++    void DialogImpl::eventCancel()
+     {
+         gtk_main_quit();
+     }
+ 
+ 
+-    void DialogImpl::eventReplace(const char* replacement) throw()
++    void DialogImpl::eventReplace(const char* replacement)
+     {
+         try {
+             d_replacement = replacement;
+@@ -209,14 +209,14 @@
+     }
+ 
+ 
+-    void DialogImpl::eventSelectWord(const char* word) throw()
++    void DialogImpl::eventSelectWord(const char* word)
+     {
+         if (d_replacebar_ptr)
+             d_replacebar_ptr->setText(word);
+     }
+ 
+ 
+-    void DialogImpl::eventSearch(const char* word) throw()
++    void DialogImpl::eventSearch(const char* word)
+     {
+         try {
+             std::string w( (word) ? (word) : ("") );
+--- a/plugins/aiksaurus/aiksaurusgtk3/DialogMediator.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/DialogMediator.h
+@@ -26,10 +26,10 @@
+     class DialogMediator
+     {
+         public:
+-            virtual void eventCancel() throw() = 0;
+-            virtual void eventReplace(const char* replacement) throw() = 0;
+-            virtual void eventSelectWord(const char* word) throw() = 0;
+-            virtual void eventSearch(const char* word) throw() = 0;
++            virtual void eventCancel() = 0;
++            virtual void eventReplace(const char* replacement) = 0;
++            virtual void eventSelectWord(const char* word) = 0;
++            virtual void eventSearch(const char* word) = 0;
+     };
+ }
+ 
+--- a/plugins/aiksaurus/aiksaurusgtk3/Display.cpp
++++ b/plugins/aiksaurus/aiksaurusgtk3/Display.cpp
+@@ -29,7 +29,7 @@
+ namespace AiksaurusGTK_impl
+ {
+ 
+-    Display::Display(DialogMediator& mediator) throw()
++    Display::Display(DialogMediator& mediator)
+         : d_mediator(mediator)
+     {
+         // ensure that styles are set up.
+@@ -61,7 +61,7 @@
+     }
+ 
+ 
+-    Display::~Display() throw()
++    Display::~Display()
+     {
+         for(int i = 0;i < static_cast<int>(d_meanings.size());++i)
+         {
+@@ -71,7 +71,6 @@
+ 
+ 
+     void Display::_createMeaning(const string& title, vector<string>& words)
+-        throw(std::bad_alloc)
+     {
+         Meaning *mean = new Meaning(title, words, *this);
+         d_meanings.push_back(mean);
+@@ -79,7 +78,7 @@
+     }
+ 
+ 
+-    void Display::_resetDisplay() throw()
++    void Display::_resetDisplay()
+     {
+         // Recreate our layout widget.
+         if (d_layout)
+@@ -96,7 +95,7 @@
+         d_meanings.clear();
+     }
+ 
+-    void Display::_displayResults(const char* word) throw(Exception, std::bad_alloc)
++    void Display::_displayResults(const char* word)
+     {
+         _checkThesaurus();
+ 
+@@ -135,7 +134,7 @@
+ 
+ 
+ 
+-    void Display::_checkThesaurus() throw(Exception)
++    void Display::_checkThesaurus()
+     {
+         if (d_thesaurus.error()[0])
+         {
+@@ -151,7 +150,6 @@
+     }
+ 
+     void Display::_displayAlternatives()
+-        throw(Exception, std::bad_alloc)
+     {
+         _checkThesaurus();
+         vector<string> words;
+@@ -165,7 +163,7 @@
+     }
+ 
+ 
+-    void Display::showMessage(const char* message) throw()
++    void Display::showMessage(const char* message)
+     {
+         _resetDisplay();
+         GtkWidget* label = gtk_label_new(message);
+@@ -174,7 +172,7 @@
+         gtk_widget_show_all(d_layout);
+     }
+ 
+-    void Display::search(const char* word) throw(std::bad_alloc)
++    void Display::search(const char* word)
+     {
+         try
+         {
+@@ -195,7 +193,7 @@
+     }
+ 
+ 
+-    void Display::_handleClick(bool isDoubleClick, const char* text) throw(std::bad_alloc)
++    void Display::_handleClick(bool isDoubleClick, const char* text)
+     {
+         string str(text); // might throw
+ 
+@@ -206,7 +204,7 @@
+     }
+ 
+ 
+-    void Display::_handleSelection(GtkWidget* list) throw()
++    void Display::_handleSelection(GtkWidget* list)
+     {
+         for(int i = 0;i < static_cast<int>(d_meanings.size());++i)
+         {
+@@ -215,13 +213,13 @@
+     }
+ 
+ 
+-    GtkWidget* Display::getDisplay() throw()
++    GtkWidget* Display::getDisplay()
+     {
+         return d_scroller;
+     }
+ 
+ 
+-    const Aiksaurus& Display::getThesaurus() const throw()
++    const Aiksaurus& Display::getThesaurus() const
+     {
+         return d_thesaurus;
+     }
+@@ -233,7 +231,7 @@
+     // To do this, we have to set up a resource first so that the
+     // styles mean what we want them to mean.
+     //
+-    void Display::_initResources() throw()
++    void Display::_initResources()
+     {
+         // Execute this code only once.
+         static bool done = false;
+--- a/plugins/aiksaurus/aiksaurusgtk3/Display.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/Display.h
+@@ -28,30 +28,29 @@
+             GtkWidget* d_layout;
+             std::vector<Meaning*> d_meanings;
+ 
+-            void _handleSelection(GtkWidget* list) throw();
+-            void _handleClick(bool isDoubleClick, const char* text) throw(std::bad_alloc);
++            void _handleSelection(GtkWidget* list);
++            void _handleClick(bool isDoubleClick, const char* text);
+ 
+-            void _resetDisplay() throw();
++            void _resetDisplay();
+ 
+-            void _createMeaning(const std::string& title, std::vector<std::string>& words)
+-                throw(std::bad_alloc);
++            void _createMeaning(const std::string& title, std::vector<std::string>& words);
+ 
+-            void _displayResults(const char* word) throw(Exception, std::bad_alloc);
+-            void _displayAlternatives() throw(Exception, std::bad_alloc);
++            void _displayResults(const char* word);
++            void _displayAlternatives();
+ 
+-            void _checkThesaurus() throw(Exception);
++            void _checkThesaurus();
+ 
+-//            static void _initResources() throw();
++//            static void _initResources();
+ 
+         public:
+-            Display(DialogMediator& parent) throw();
+-            ~Display() throw();
++            Display(DialogMediator& parent);
++            ~Display();
+ 
+-            const Aiksaurus& getThesaurus() const throw();
+-            GtkWidget* getDisplay() throw();
++            const Aiksaurus& getThesaurus() const;
++            GtkWidget* getDisplay();
+ 
+-            void search(const char* word) throw(std::bad_alloc);
+-            void showMessage(const char* message) throw();
++            void search(const char* word);
++            void showMessage(const char* message);
+     };
+ 
+ }
+--- a/plugins/aiksaurus/aiksaurusgtk3/Exception.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/Exception.h
+@@ -30,10 +30,10 @@
+ 
+         public:
+ 
+-            Exception(const char* description) throw()
++            Exception(const char* description)
+                 : d_description(description) { }
+ 
+-            const char* getDescription() const throw()
++            const char* getDescription() const
+                 { return d_description; }
+ 
+             static const char* CANNOT_ALLOCATE_MEMORY;
+--- a/plugins/aiksaurus/aiksaurusgtk3/Meaning.cpp
++++ b/plugins/aiksaurus/aiksaurusgtk3/Meaning.cpp
+@@ -9,7 +9,7 @@
+ namespace AiksaurusGTK_impl
+ {
+ 
+-    static void ucwords(string& str) throw()
++    static void ucwords(string& str)
+     {
+         bool ws = true;
+         for(int i = 0;i < static_cast<int>(str.size());++i)
+@@ -26,7 +26,6 @@
+     }
+ 
+     Meaning::Meaning(const string& title, vector<string>& words, Display& display)
+-    throw(bad_alloc)
+         : d_title(title), d_words(words), d_display(display), d_lists(4), d_models(4)
+     {
+         d_masterLayout = gtk_event_box_new();
+@@ -126,20 +125,18 @@
+ 
+     }
+ 
+-    Meaning::~Meaning() throw()
++    Meaning::~Meaning()
+     {
+ 
+     }
+ 
+-    GtkWidget* Meaning::getLayout() throw()
++    GtkWidget* Meaning::getLayout()
+     {
+         return d_masterLayout;
+     }
+ 
+ 
+-    gint Meaning::_wordclick
+-    (GtkTreeSelection *sel, gpointer data)
+-    throw(std::bad_alloc)
++    gint Meaning::_wordclick(GtkTreeSelection *sel, gpointer data)
+     {
+         Meaning *m = static_cast<Meaning*>(data);
+ 		GtkTreeView *tv = gtk_tree_selection_get_tree_view(sel);
+@@ -159,7 +156,7 @@
+     }
+ 
+ 
+-    void Meaning::unselectListsExcept(GtkWidget* list) throw()
++    void Meaning::unselectListsExcept(GtkWidget* list)
+     {
+         for(int i = 0;i < static_cast<int>(d_lists.size());++i)
+         {
+--- a/plugins/aiksaurus/aiksaurusgtk3/Meaning.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/Meaning.h
+@@ -25,18 +25,17 @@
+             GtkWidget* d_label;
+ 
+             static gint _wordclick(GtkTreeSelection *sel,
+-                                   gpointer data) throw(std::bad_alloc);
++                                   gpointer data);
+ 
+         public:
+ 
+-            Meaning(const string& title, vector<string>& words, Display& display)
+-                throw(std::bad_alloc);
++            Meaning(const string& title, vector<string>& words, Display& display);
+ 
+-            ~Meaning() throw();
++            ~Meaning();
+ 
+-            GtkWidget* getLayout() throw();
++            GtkWidget* getLayout();
+ 
+-            void unselectListsExcept(GtkWidget* me) throw();
++            void unselectListsExcept(GtkWidget* me);
+     };
+ }
+ 
+--- a/plugins/aiksaurus/aiksaurusgtk3/Replacebar.cpp
++++ b/plugins/aiksaurus/aiksaurusgtk3/Replacebar.cpp
+@@ -25,7 +25,7 @@
+ namespace AiksaurusGTK_impl
+ {
+ 
+-    Replacebar::Replacebar(DialogMediator& mediator) throw()
++    Replacebar::Replacebar(DialogMediator& mediator)
+         : d_mediator(mediator)
+     {
+         // Build GUI widgets.
+@@ -59,7 +59,7 @@
+     }
+ 
+ 
+-    Replacebar::~Replacebar() throw()
++    Replacebar::~Replacebar()
+     {
+ 
+     }
+@@ -85,19 +85,19 @@
+     }
+ 
+ 
+-    GtkWidget* Replacebar::getReplacebar() throw()
++    GtkWidget* Replacebar::getReplacebar()
+     {
+         return d_replacebar_ptr;
+     }
+ 
+ 
+-    const char* Replacebar::getText() const throw()
++    const char* Replacebar::getText() const
+     {
+         return gtk_entry_get_text(GTK_ENTRY(d_replacewith_ptr));
+     }
+ 
+ 
+-    void Replacebar::setText(const char* word) throw()
++    void Replacebar::setText(const char* word)
+     {
+         gtk_entry_set_text(GTK_ENTRY(d_replacewith_ptr), word);
+     }
+--- a/plugins/aiksaurus/aiksaurusgtk3/Replacebar.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/Replacebar.h
+@@ -46,21 +46,21 @@
+ 
+         public:
+ 
+-            Replacebar(DialogMediator& mediator) throw();
++            Replacebar(DialogMediator& mediator);
+ 
+             // Warning: You need to call gtk_widget_destroy on getReplacebar(), or
+             // destroy whatever widget you put it in.  The destructor will NOT free
+             // up the memory used by the GUI widgets.
+-            ~Replacebar() throw();
++            ~Replacebar();
+ 
+             // getReplacebar(): return layout widget for replace bar.
+-            GtkWidget* getReplacebar() throw();
++            GtkWidget* getReplacebar();
+ 
+             // getText(): return current text of replace text field.
+-            const char* getText() const throw();
++            const char* getText() const;
+ 
+             // setText(): reset text of replace text field to something new.
+-            void setText(const char* str) throw();
++            void setText(const char* str);
+     };
+ 
+ }
+--- a/plugins/aiksaurus/aiksaurusgtk3/Toolbar.cpp
++++ b/plugins/aiksaurus/aiksaurusgtk3/Toolbar.cpp
+@@ -26,7 +26,7 @@
+ namespace AiksaurusGTK_impl
+ {
+ 
+-    Toolbar::Toolbar(DialogMediator& mediator, GtkWidget* window) throw(std::bad_alloc)
++    Toolbar::Toolbar(DialogMediator& mediator, GtkWidget* window)
+         : d_mediator(mediator),
+           d_searchbar_words(12),
+           d_ishistorymove(false),
+@@ -87,12 +87,12 @@
+         _updateNavigation();
+     }
+ 
+-    Toolbar::~Toolbar() throw()
++    Toolbar::~Toolbar()
+     {
+ 
+     }
+ 
+-    void Toolbar::_updateNavigation() throw(std::bad_alloc)
++    void Toolbar::_updateNavigation()
+     {
+         if (d_history.size_back())
+             d_backbutton_ptr->enable();
+@@ -111,7 +111,7 @@
+         d_forwardbutton_ptr->updateMenuOptions();
+     }
+ 
+-    void Toolbar::search(const char* str) throw(std::bad_alloc)
++    void Toolbar::search(const char* str)
+     {
+         if (!d_ishistorymove)
+             d_history.search(str);
+@@ -126,29 +126,29 @@
+ 			gtk_combo_box_text_append_text(combo, reinterpret_cast<const char*>(ptr->data));
+     }
+ 
+-    void Toolbar::_setTooltip(GtkWidget* w, const char* str) throw()
++    void Toolbar::_setTooltip(GtkWidget* w, const char* str)
+     {
+         gtk_widget_set_tooltip_text(w,	str);
+     }
+ 
+-    void Toolbar::focus() throw()
++    void Toolbar::focus()
+     {
+         gtk_window_set_focus(GTK_WINDOW(d_window_ptr), gtk_bin_get_child(GTK_BIN(d_searchbar_ptr)));
+     }
+ 
+-    const char* Toolbar::getText() const throw()
++    const char* Toolbar::getText() const
+     {
+         return gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(d_searchbar_ptr))));
+     }
+ 
+-    GtkWidget* Toolbar::getToolbar() throw()
++    GtkWidget* Toolbar::getToolbar()
+     {
+         return d_toolbar_ptr;
+     }
+ 
+ 
+ 
+-    void Toolbar::_backClicked(GtkWidget*, gpointer data) throw()
++    void Toolbar::_backClicked(GtkWidget*, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+         tb->d_history.move_back();
+@@ -157,7 +157,7 @@
+         tb->d_ishistorymove = false;
+     }
+ 
+-    void Toolbar::_backMenuClicked(GList* element, gpointer data) throw()
++    void Toolbar::_backMenuClicked(GList* element, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+         tb->d_history.move_back_to(element);
+@@ -166,7 +166,7 @@
+         tb->d_ishistorymove = false;
+     }
+ 
+-    void Toolbar::_forwardClicked(GtkWidget*, gpointer data) throw()
++    void Toolbar::_forwardClicked(GtkWidget*, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+         tb->d_history.move_forward();
+@@ -175,7 +175,7 @@
+         tb->d_ishistorymove = false;
+     }
+ 
+-    void Toolbar::_forwardMenuClicked(GList* element, gpointer data) throw()
++    void Toolbar::_forwardMenuClicked(GList* element, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+         tb->d_history.move_forward_to(element);
+@@ -184,7 +184,7 @@
+         tb->d_ishistorymove = false;
+     }
+ 
+-    void Toolbar::_searchBarChanged(GtkWidget*, gpointer data) throw()
++    void Toolbar::_searchBarChanged(GtkWidget*, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+ 		bool popup_visible;
+@@ -194,7 +194,7 @@
+             tb->d_searchhack = true;
+     }
+ 
+-    void Toolbar::_searchBarHide(GtkWidget*, gpointer data) throw()
++    void Toolbar::_searchBarHide(GtkWidget*, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+ 
+@@ -204,12 +204,12 @@
+         tb->d_searchhack = false;
+     }
+ 
+-    void Toolbar::_searchBarActivate(GtkWidget* w, gpointer data) throw()
++    void Toolbar::_searchBarActivate(GtkWidget* w, gpointer data)
+     {
+       _searchClicked(w, data);
+     }
+ 
+-    void Toolbar::_searchClicked(GtkWidget*, gpointer data) throw()
++    void Toolbar::_searchClicked(GtkWidget*, gpointer data)
+     {
+         Toolbar* tb = static_cast<Toolbar*>(data);
+         tb->d_mediator.eventSearch( tb->getText() );
+--- a/plugins/aiksaurus/aiksaurusgtk3/Toolbar.h
++++ b/plugins/aiksaurus/aiksaurusgtk3/Toolbar.h
+@@ -55,33 +55,33 @@
+             GtkWidget* d_searchbar_ptr;
+             GtkWidget* d_searchbar_label_ptr;
+ 
+-            void _updateNavigation() throw(std::bad_alloc);
++            void _updateNavigation();
+ 
+-            void _setTooltip(GtkWidget* w, const char* str) throw();
++            void _setTooltip(GtkWidget* w, const char* str);
+ 
+-            static void _backClicked(GtkWidget* w, gpointer data) throw();
+-            static void _backMenuClicked(GList* element, gpointer data) throw();
++            static void _backClicked(GtkWidget* w, gpointer data);
++            static void _backMenuClicked(GList* element, gpointer data);
+ 
+-            static void _forwardClicked(GtkWidget* w, gpointer data) throw();
+-            static void _forwardMenuClicked(GList* element, gpointer data) throw();
++            static void _forwardClicked(GtkWidget* w, gpointer data);
++            static void _forwardMenuClicked(GList* element, gpointer data);
+ 
+-            static void _searchBarChanged(GtkWidget* w, gpointer data) throw();
+-            static void _searchBarShow(GtkWidget* w, gpointer data) throw();
+-            static void _searchBarHide(GtkWidget* w, gpointer data) throw();
+-            static void _searchBarActivate(GtkWidget* w, gpointer d) throw();
++            static void _searchBarChanged(GtkWidget* w, gpointer data);
++            static void _searchBarShow(GtkWidget* w, gpointer data);
++            static void _searchBarHide(GtkWidget* w, gpointer data);
++            static void _searchBarActivate(GtkWidget* w, gpointer d);
+ 
+-            static void _searchClicked(GtkWidget* w, gpointer data) throw();
++            static void _searchClicked(GtkWidget* w, gpointer data);
+ 
+         public:
+ 
+-            Toolbar(DialogMediator& mediator, GtkWidget* window) throw(std::bad_alloc);
+-            ~Toolbar() throw();
++            Toolbar(DialogMediator& mediator, GtkWidget* window);
++            ~Toolbar();
+ 
+-            GtkWidget* getToolbar() throw();
+-            const char* getText() const throw();
+-            void focus() throw();
++            GtkWidget* getToolbar();
++            const char* getText() const;
++            void focus();
+ 
+-            void search(const char* str) throw(std::bad_alloc);
++            void search(const char* str);
+     };
+ 
+ }
+--- a/plugins/sdw/xp/docinfo.cpp
++++ b/plugins/sdw/xp/docinfo.cpp
+@@ -38,7 +38,6 @@
+ /** Reads a bytestring, followed by a padding. aMaxlen is the max. number of bytes to read. */
+ static void readPaddedByteString(GsfInput* aStream, UT_UCS4String& aString,
+                                  UT_iconv_t aConverter, UT_uint32 aMaxlen)
+-    throw(UT_Error) 
+ {
+ 	UT_UCS4Char* str;
+ 	readByteString(aStream, str, aConverter);
+@@ -115,8 +114,7 @@
+ 	aDoc->setMetaDataProp(aKey, str);
+ }
+ 
+-void SDWDocInfo::load(GsfInfile* aDoc, PD_Document* aPDDoc) 
+-	throw(UT_Error)
++void SDWDocInfo::load(GsfInfile* aDoc, PD_Document* aPDDoc)
+ {
+ 	char* headStr = NULL;
+ 
+--- a/plugins/sdw/xp/docinfo.h
++++ b/plugins/sdw/xp/docinfo.h
+@@ -41,7 +41,7 @@
+ 		 * @param aDoc The OLE Document which contains the stream
+ 		 * @param aPDDoc The PD_Document on which the metadata will be set.
+ 		 * Should be called as load(mDoc, getDoc()); */
+-		static void load(GsfInfile *aDoc, PD_Document* aPDDoc) throw(UT_Error);
++		static void load(GsfInfile *aDoc, PD_Document* aPDDoc);
+ };
+ 
+ #endif
+--- a/plugins/sdw/xp/ie_imp_StarOffice.cpp
++++ b/plugins/sdw/xp/ie_imp_StarOffice.cpp
+@@ -183,7 +183,6 @@
+ #endif
+ 
+ void streamRead(GsfInput* aStream, TextAttr& aAttr, gsf_off_t aEoa)
+-    throw(UT_Error)
+ {
+ 	UT_uint8 flags;
+ 	gsf_off_t newPos;
+@@ -422,8 +421,7 @@
+   return password;
+ }
+ 
+-void readByteString(GsfInput* stream, char*& str, UT_uint16* aLength) 
+-    throw(UT_Error) 
++void readByteString(GsfInput* stream, char*& str, UT_uint16* aLength)
+ {
+ 	UT_uint16 length;
+ 	str = NULL;
+@@ -436,7 +434,7 @@
+ 		*aLength = length;
+ }
+ 
+-void readByteString(GsfInput* stream, UT_UCS4Char*& str, UT_iconv_t converter, SDWCryptor* cryptor) throw(UT_Error) 
++void readByteString(GsfInput* stream, UT_UCS4Char*& str, UT_iconv_t converter, SDWCryptor* cryptor)
+ {
+ 	UT_uint16 len;
+ 	char* rawString;
+@@ -532,7 +530,7 @@
+ // ********************************************************************************
+ // Header Class
+ 
+-void DocHdr::load(GsfInput* stream) throw(UT_Error) 
++void DocHdr::load(GsfInput* stream)
+ {
+ 	UT_DEBUGMSG(("SDW: entering DocHdr::load\n"));
+ 	static const char sw3hdr[] = "SW3HDR";
+@@ -614,7 +612,7 @@
+ 		g_object_unref(G_OBJECT(mOle));
+ }
+ 
+-void IE_Imp_StarOffice::readRecSize(GsfInput* aStream, UT_uint32& aSize, gsf_off_t* aEOR) throw(UT_Error) {
++void IE_Imp_StarOffice::readRecSize(GsfInput* aStream, UT_uint32& aSize, gsf_off_t* aEOR) {
+ 	// Yes, that's correct, only 3 bytes.
+ 	guint8 buf [3];
+ 	aSize = 0;
+@@ -630,7 +628,7 @@
+ 		*aEOR = gsf_input_tell(aStream) + aSize;
+ }
+ 
+-void readFlagRec(GsfInput* stream, UT_uint8& flags, gsf_off_t* newPos) throw(UT_Error) 
++void readFlagRec(GsfInput* stream, UT_uint8& flags, gsf_off_t* newPos)
+ {
+ 	streamRead(stream, flags);
+ 	if (newPos)
+--- a/plugins/sdw/xp/ie_imp_StarOffice.h
++++ b/plugins/sdw/xp/ie_imp_StarOffice.h
+@@ -48,8 +48,7 @@
+  * is zero-terminated, length must include the byte for termination.
+  * str must be delete[]'d, not free'd!
+  * aLength, if non-null, contains the length of the string in bytes. */
+-void readByteString(GsfInput* stream, char*& str, UT_uint16* aLength = NULL)
+-    throw(UT_Error);
++void readByteString(GsfInput* stream, char*& str, UT_uint16* aLength = NULL);
+ 
+ /*! Reads a bytestring from a stream and converts it to UCS-4. Optionally,
+  * it can also decrypt it.
+@@ -57,7 +56,7 @@
+  * @param str The string where the bytestring should be stored
+  * @param converter Iconv handle for charset conversion
+  * @param cryptor (Optional) The cryptor used for decrypting the string */
+-void readByteString(GsfInput* stream, UT_UCS4Char*& str, UT_iconv_t converter, SDWCryptor* cryptor = NULL) throw(UT_Error);
++void readByteString(GsfInput* stream, UT_UCS4Char*& str, UT_iconv_t converter, SDWCryptor* cryptor = NULL);
+ 
+ class DocHdr {
+ 	public:
+@@ -67,7 +66,7 @@
+ 		 * \param stream The OLE Stream to load from - should be the one
+ 		 *               with the name "StarWriterDocument"
+ 		 * \throw UT_Error on failure */
+-		void load(GsfInput* stream) throw(UT_Error);
++		void load(GsfInput* stream);
+ 
+ 		UT_uint8 cLen; // ???
+ 		UT_uint16 nVersion;
+@@ -199,7 +198,7 @@
+ 		 * \param aStream the stream to read from
+ 		 * \param aSize Reference to the size of the record
+ 		 * \param aEOR End of Record - file position where the record is finished*/
+-		void readRecSize(GsfInput* stream, UT_uint32& aSize, gsf_off_t* aEOR = NULL) throw(UT_Error);
++		void readRecSize(GsfInput* stream, UT_uint32& aSize, gsf_off_t* aEOR = NULL);
+ 		/*! Reads a string from the file where the first sint32 contains the length. If it
+ 		 * is zero-terminated, length must include the byte for termination. The string will
+ 		 * be converted to the charset given in mDocHdr. If the document is encrypted, the
+@@ -207,7 +206,7 @@
+ 		 * \param stream The stream to read from
+ 		 * \param str Reference to pointer to UT_UCS4Char, where the string is stored.
+ 		 * Must be free'd. Is NULL if the function fails. */
+-		void readByteString(GsfInput* stream, UT_UCS4Char*& str) throw(UT_Error) {
++		void readByteString(GsfInput* stream, UT_UCS4Char*& str) {
+ 			::readByteString(stream, str, mDocHdr.converter, mDocHdr.cryptor);
+ 		}
+ 
+@@ -222,32 +221,32 @@
+  * \param flags Flags (also contain the length in the 4 least significant bytes)
+  * \param newPos (optional) Pointer to a variable where the position after the
+  * flags record is stored. */
+-void readFlagRec(GsfInput* stream, UT_uint8& flags, gsf_off_t* newPos = NULL) throw(UT_Error);
++void readFlagRec(GsfInput* stream, UT_uint8& flags, gsf_off_t* newPos = NULL);
+ 
+ /*! Reads one character from the given GsfInput.
+  * \param aStream The OLE Stream
+  * \param aChar Reference to the character
+  * \throw UT_Error on failure */
+-inline void readChar(GsfInput* aStream, char& aChar) throw(UT_Error) {
++inline void readChar(GsfInput* aStream, char& aChar) {
+ 	if (!gsf_input_read(aStream, 1, reinterpret_cast<guint8*>(&aChar)))
+ 		throw UT_IE_BOGUSDOCUMENT;
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_uint8& aDest) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_uint8& aDest) {
+ 	if (!gsf_input_read(aStream, 1, static_cast<guint8*>(&aDest)))
+ 		throw UT_IE_BOGUSDOCUMENT;
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_sint8& aDest) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_sint8& aDest) {
+ 	streamRead(aStream, reinterpret_cast<UT_uint8 &>(aDest));
+ }
+ 
+-inline void streamRead(GsfInput* aStream, char& aDest) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, char& aDest) {
+ 	streamRead(aStream, reinterpret_cast<UT_uint8 &>(aDest));
+ }
+ 
+ 
+-inline void streamRead(GsfInput* aStream, UT_uint16& aDest, bool isLittleEndian = true) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_uint16& aDest, bool isLittleEndian = true) {
+ 	guint8 buf [2];
+ 	if (!gsf_input_read(aStream, 2, buf))
+ 		throw UT_IE_BOGUSDOCUMENT;
+@@ -259,11 +258,11 @@
+ 	}
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_sint16& aDest, bool isLittleEndian = true) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_sint16& aDest, bool isLittleEndian = true) {
+ 	streamRead(aStream, reinterpret_cast<UT_uint16 &>(aDest), isLittleEndian);
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_uint32& aDest, bool isLittleEndian = true) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_uint32& aDest, bool isLittleEndian = true) {
+ 	guint8 buf [4];
+ 	if (!gsf_input_read(aStream, 4, buf))
+ 		throw UT_IE_BOGUSDOCUMENT;
+@@ -275,17 +274,17 @@
+ 	}
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_sint32& aDest, bool isLittleEndian = true) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_sint32& aDest, bool isLittleEndian = true) {
+ 	streamRead(aStream, reinterpret_cast<UT_uint32 &>(aDest), isLittleEndian);
+ }
+ 
+ // reads the value as uint8
+-inline void streamRead(GsfInput* aStream, bool& aDest) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, bool& aDest) {
+ 	streamRead(aStream, reinterpret_cast<UT_uint8&>(aDest));
+ }
+ 
+ // Class ID
+-inline void streamRead(GsfInput* aStream, ClsId& aClsId) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, ClsId& aClsId) {
+ 	streamRead(aStream, aClsId.n1);
+ 	streamRead(aStream, aClsId.n2);
+ 	streamRead(aStream, aClsId.n3);
+@@ -301,18 +300,18 @@
+ #include "ut_debugmsg.h"
+ 
+ // for completeness...
+-inline void streamRead(GsfInput* aStream, char* aBuffer, UT_uint32 length) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, char* aBuffer, UT_uint32 length) {
+ 	if (!gsf_input_read(aStream, length, reinterpret_cast<guint8 *>(aBuffer)))
+ 		throw UT_IE_BOGUSDOCUMENT;
+ }
+ 
+-inline void streamRead(GsfInput* aStream, UT_uint8* aBuffer, UT_uint32 length) throw(UT_Error) {
++inline void streamRead(GsfInput* aStream, UT_uint8* aBuffer, UT_uint32 length) {
+ 	if (!gsf_input_read(aStream, length, static_cast<guint8*>(aBuffer)))
+ 		throw UT_IE_BOGUSDOCUMENT;
+ }
+ 
+ // readRecSize must have been called already. readFlagRec must not.
+ // aEoa = position of the end of the attr.
+-void streamRead(GsfInput* aStream, TextAttr& aAttr, gsf_off_t aEoa) throw(UT_Error);
++void streamRead(GsfInput* aStream, TextAttr& aAttr, gsf_off_t aEoa);
+ 
+ #endif /* IE_IMP_STAROFFICE_H */
+--- a/src/af/util/xp/ut_iconv.cpp
++++ b/src/af/util/xp/ut_iconv.cpp
+@@ -73,7 +73,7 @@
+ /*!
+  * Convert characters from in_charset to out_charset
+  */
+-auto_iconv::auto_iconv(const char * in_charset, const char *out_charset) throw(UT_iconv_t)
++auto_iconv::auto_iconv(const char * in_charset, const char *out_charset)
+ {
+ 	m_h = UT_ICONV_INVALID;
+ 
+--- a/src/af/util/xp/ut_iconv.h
++++ b/src/af/util/xp/ut_iconv.h
+@@ -43,8 +43,7 @@
+ 
+   explicit auto_iconv(UT_iconv_t iconv);
+ 
+-  explicit auto_iconv(const char * in_charset, const char *out_charset)
+-      throw(UT_iconv_t);
++  explicit auto_iconv(const char * in_charset, const char *out_charset);
+   ~auto_iconv();
+   operator UT_iconv_t();
+ 

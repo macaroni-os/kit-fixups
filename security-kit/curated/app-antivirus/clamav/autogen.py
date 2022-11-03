@@ -6,13 +6,13 @@ import re
 async def generate(hub, **pkginfo):
 
 	html = await hub.pkgtools.fetch.get_page("https://www.clamav.net/downloads")
-	version = (re.search(f"clamav-([0-9.]*).tar.gz", html)).group(1)
+	version = (re.search(f"clamav-([0-9.-]*).tar.gz", html)).group(1)
 	url = f"https://www.clamav.net/downloads/production/clamav-{version}.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
 
 	revision = { "0.105.1": "3" }
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, revision=revision, artifacts=artifacts)
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version.replace("-","_p"), revision=revision, artifacts=artifacts)
 	ebuild.push()
 
 

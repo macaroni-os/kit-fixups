@@ -11,20 +11,9 @@ async def generate(hub, **pkginfo):
 	json_dict = await hub.pkgtools.fetch.get_page(
 		f"https://pypi.org/pypi/{pypi_name}/json", refresh_interval=pkginfo["refresh_interval"], is_json=True
 	)
-
-	if "version" not in pkginfo or pkginfo["version"] == "latest":
-		# This will grab the latest version:
-		pkginfo["version"] = json_dict["info"]["version"]
-
-	artifact_url = None
-	for artifact in json_dict["releases"][pkginfo["version"]]:
-		if artifact["packagetype"] == "sdist":
-			artifact_url = artifact["url"]
-			break
-	assert (
-		artifact_url is not None
-	), f"Artifact URL could not be found in {pkginfo}. This can indicate a PyPi package without a 'source' distribution."
-
+	if "version" not in json_dict:
+		json_dict["version"] = "latest"
+	artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(pkginfo, json_dict, strict=False)
 	hub.pkgtools.pyhelper.pypi_normalize_version(pkginfo)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, artifacts=[hub.pkgtools.ebuild.Artifact(url=artifact_url)])

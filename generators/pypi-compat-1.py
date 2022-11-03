@@ -42,7 +42,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		if "du_pep517" in local_pkginfo:
 			# It doesn't make sense to enable new PEP 517 support for python2.7-compat ebuilds:
 			del local_pkginfo["du_pep517"]
-		artifact_url = hub.pkgtools.pyhelper.sdist_artifact_url(json_dict["releases"], local_pkginfo["version"])
+		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=True)
 	else:
 		if has_compat_ebuild:
 			compat_split = local_pkginfo["python_compat"].split()

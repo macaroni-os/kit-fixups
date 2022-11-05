@@ -1,0 +1,18 @@
+sudo:
+  generator: github-1
+  packages:
+    - sudo:
+        github:
+          user: sudo-project
+          query: releases
+          select: '\d+\.\d+\.\d+(\/\d+)?'
+          transform:
+            - kind: string
+              match: SUDO_
+              replace: ''
+            - kind: string
+              match: _
+              replace: .
+            - kind: string
+              match: p
+              replace: .

@@ -111,6 +111,10 @@ set_secure_path() {
 	einfo "... done"
 }
 
+post_src_unpack() {
+	mv ${WORKDIR}/* ${S} || die
+}
+
 src_configure() {
 	local SECURE_PATH
 	set_secure_path

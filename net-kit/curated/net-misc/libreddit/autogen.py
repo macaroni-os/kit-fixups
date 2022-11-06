@@ -9,7 +9,7 @@ def get_release(releases_data):
 
 
 async def generate(hub, **pkginfo):
-	github_user = "spikecodes"
+	github_user = pkginfo["name"]
 	github_repo = pkginfo["name"]
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True

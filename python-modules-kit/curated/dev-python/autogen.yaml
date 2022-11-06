@@ -2343,6 +2343,10 @@ stuff_from_next:
   generator: pypi-compat-1
   packages:
     - wheel:
+        compat: '0.37.1'
+        blocker: '!<dev-python/wheel-0.38.2-r1'
+        revision:
+          0.38.2: 1
         pydeps:
           - packaging
         body: |

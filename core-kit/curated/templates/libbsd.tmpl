@@ -11,10 +11,11 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="static-libs"
 
-RDEPEND=""
+RDEPEND="
+	app-crypt/libmd
+"
 DEPEND="${RDEPEND}
 	>=sys-kernel/linux-headers-3.17
-	app-crypt/libmd
 "
 BDEPEND=""
 

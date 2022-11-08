@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
 		version=ebuild_version,
 		artifacts=[
 			hub.pkgtools.ebuild.Artifact(
-				url=f"https://github.com/balena-io/{repo}/releases/download/{version}/balena-{repo}-electron_{ebuild_version}_amd64.deb",
+				url=f"https://github.com/balena-io/{repo}/releases/download/{version}/balena-{repo}_{ebuild_version}_amd64.deb",
 				final_name=f"{name}-{ebuild_version}.deb",
 			)
 		],

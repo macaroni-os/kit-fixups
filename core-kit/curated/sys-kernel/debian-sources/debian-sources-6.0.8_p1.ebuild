@@ -18,7 +18,7 @@ MODULE_EXT=${PVR}-${PN}
 
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-DEB_PV="6.0.3-${DEB_EXTRAVERSION}"
+DEB_PV="6.0.8-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS=""
@@ -47,8 +47,8 @@ zfs? ( binary )
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_6.0.3.orig.tar.xz -> linux_6.0.3.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_6.0.3-1.debian.tar.xz -> linux_6.0.3-1.debian.tar.xz"
-S="$WORKDIR/linux-6.0.3"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_6.0.8.orig.tar.xz -> linux_6.0.8.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_6.0.8-1.debian.tar.xz -> linux_6.0.8-1.debian.tar.xz"
+S="$WORKDIR/linux-6.0.8"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -130,23 +130,23 @@ src_prepare() {
 	#make -s include/linux/version.h || die "make include/linux/version.h failed"
 	cd "${S}"
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
-	if [ -e "${FILESDIR}/6.0.3/xfs-libcrc32c-fix.patch" ]; then
-	    epatch "${FILESDIR}"/6.0.3/xfs-libcrc32c-fix.patch || die
+	if [ -e "${FILESDIR}/6.0.8/xfs-libcrc32c-fix.patch" ]; then
+	    epatch "${FILESDIR}"/6.0.8/xfs-libcrc32c-fix.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/xfs-libcrc32c-fix.patch || die
 	fi
-	if [ -e "${FILESDIR}/6.0.3/mcelog.patch" ]; then
-	    epatch "${FILESDIR}"/6.0.3/mcelog.patch || die
+	if [ -e "${FILESDIR}/6.0.8/mcelog.patch" ]; then
+	    epatch "${FILESDIR}"/6.0.8/mcelog.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/mcelog.patch || die
 	fi
-	if [ -e "${FILESDIR}/6.0.3/ikconfig.patch" ]; then
-	    epatch "${FILESDIR}"/6.0.3/ikconfig.patch || die
+	if [ -e "${FILESDIR}/6.0.8/ikconfig.patch" ]; then
+	    epatch "${FILESDIR}"/6.0.8/ikconfig.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	fi
-	if [ -e "${FILESDIR}/6.0.3/extra_cpu_optimizations.patch" ]; then
-	    epatch "${FILESDIR}"/6.0.3/extra_cpu_optimizations.patch || die
+	if [ -e "${FILESDIR}/6.0.8/extra_cpu_optimizations.patch" ]; then
+	    epatch "${FILESDIR}"/6.0.8/extra_cpu_optimizations.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
 	fi

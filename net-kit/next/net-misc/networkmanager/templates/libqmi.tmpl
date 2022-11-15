@@ -20,6 +20,7 @@ RDEPEND=">=dev-libs/glib-2.56
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
+	app-shells/bash-completion
 	virtual/pkgconfig
 	gtk-doc? ( dev-util/gtk-doc )"
 

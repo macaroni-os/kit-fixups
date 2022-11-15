@@ -15,6 +15,7 @@ KEYWORDS="*"
 RDEPEND=">=dev-libs/glib-2.56:2"
 DEPEND="${RDEPEND}"
 BDEPEND="
+	app-shells/bash-completion
 	dev-util/glib-utils
 	virtual/pkgconfig
 "

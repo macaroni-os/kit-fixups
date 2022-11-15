@@ -19,9 +19,6 @@ async def generate(hub, **pkginfo):
 		if version != "":
 			break
 
-	fixed_version='3.6.8'
-	print(f"Latest version is {version}, which is broken.\nThis autogen is fixed to version {fixed_version}")
-	version = fixed_version
 
 	final_name = f"{github_repo}-{version}.tar.gz"
 

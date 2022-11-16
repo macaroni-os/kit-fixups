@@ -54,8 +54,8 @@ async def generate(hub, **pkginfo):
 	versions = [Version(a["tag_name"].lstrip("v")) for a in releases]
 	latest = max([v for v in versions])
 
-	# Create an ebuild for the most recent 3 major versions
-	for major in [latest.major, latest.major - 1, latest.major - 2]:
+	# Create an ebuild for the most recent 2 major versions
+	for major in [latest.major, latest.major - 1]:
 		version = max([v for v in versions if v.major == major])
 
 		# find available architecture tarballs on the elastic site

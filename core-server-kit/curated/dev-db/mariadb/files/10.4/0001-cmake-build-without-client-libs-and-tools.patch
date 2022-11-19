@@ -1,28 +1,29 @@
-From ad045f055efc41e3aa0dde8184e834d229852cc4 Mon Sep 17 00:00:00 2001
+From 4d6de66a367806fcbed173c4d2211fe698acf2da Mon Sep 17 00:00:00 2001
 From: Thomas Deutschmann <whissi@gentoo.org>
 Date: Sat, 23 May 2020 10:51:36 +0200
-Subject: [PATCH 1/3] cmake: build without client libs and tools
+Subject: [PATCH 1/5] cmake: build without client libs and tools
 
 Signed-off-by: Thomas Deutschmann <whissi@gentoo.org>
 ---
- CMakeLists.txt                       | 18 +++++++++++++-----
- extra/CMakeLists.txt                 |  7 ++++++-
- libmariadb/CMakeLists.txt            |  2 +-
+ CMakeLists.txt                       | 24 ++++++++++++++++--------
+ cmake/mariadb_connector_c.cmake      |  2 +-
+ extra/CMakeLists.txt                 |  9 +++++++--
+ libmariadb/CMakeLists.txt            |  6 +-----
  libmariadb/include/CMakeLists.txt    |  2 ++
  libmariadb/libmariadb/CMakeLists.txt | 31 ++++++++++++++++---------------
- man/CMakeLists.txt                   |  4 ++--
- scripts/CMakeLists.txt               |  7 ++++++-
+ man/CMakeLists.txt                   |  2 +-
+ scripts/CMakeLists.txt               | 18 ++++++++++++------
  scripts/mysql_install_db.sh          |  4 ++--
  scripts/mysqld_safe.sh               |  8 +++++++-
  scripts/wsrep_sst_common.sh          |  5 ++++-
  support-files/CMakeLists.txt         |  6 ++++--
- 11 files changed, 63 insertions(+), 31 deletions(-)
+ 12 files changed, 73 insertions(+), 44 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 88a0d64e..330f2710 100644
+index 94b459c5..7241d90f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -366,8 +366,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/include)
+@@ -368,8 +368,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/include)
  MYSQL_CHECK_ZLIB_WITH_COMPRESS()
  # Add bundled wolfssl/wolfcrypt or system openssl.
  MYSQL_CHECK_SSL()
@@ -89,7 +90,7 @@ index 2fc56ce5..0583d758 100644
  TARGET_LINK_LIBRARIES(perror mysys)
  
 diff --git a/libmariadb/CMakeLists.txt b/libmariadb/CMakeLists.txt
-index 76036d1d..c65d2aa5 100644
+index c491df69..a082d14f 100644
 --- a/libmariadb/CMakeLists.txt
 +++ b/libmariadb/CMakeLists.txt
 @@ -397,7 +397,7 @@ ENDIF()
@@ -119,10 +120,10 @@ index b9eed535..0ef4fd0b 100644
     COMPONENT Development)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
 diff --git a/libmariadb/libmariadb/CMakeLists.txt b/libmariadb/libmariadb/CMakeLists.txt
-index 70e8fa58..2911aa5e 100644
+index 9e007a6b..c692a0c5 100644
 --- a/libmariadb/libmariadb/CMakeLists.txt
 +++ b/libmariadb/libmariadb/CMakeLists.txt
-@@ -397,9 +397,10 @@ IF(WIN32)
+@@ -402,9 +402,10 @@ IF(WIN32)
                     "FILE_DESCRIPTION:Dynamic lib for client/server communication")
  ENDIF()
  
@@ -136,7 +137,7 @@ index 70e8fa58..2911aa5e 100644
  
  IF(UNIX)
    ADD_LIBRARY(libmariadb SHARED ${libmariadb_RC} ${MARIADB_OBJECTS} ${EMPTY_FILE})
-@@ -426,7 +427,9 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Linux" OR
+@@ -431,7 +432,9 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Linux" OR
    SET_TARGET_PROPERTIES(libmariadb PROPERTIES LINK_FLAGS "${CC_BINARY_DIR}/libmariadb/mariadbclient.def")
  ENDIF()
  
@@ -147,7 +148,7 @@ index 70e8fa58..2911aa5e 100644
  SET_TARGET_PROPERTIES(libmariadb PROPERTIES IMPORTED_INTERFACE_LINK_LIBRARIES "${SYSTEM_LIBS}")
  
  SET_TARGET_PROPERTIES(libmariadb PROPERTIES PREFIX "")
-@@ -440,12 +443,12 @@ INCLUDE(${CC_SOURCE_DIR}/cmake/symlink.cmake)
+@@ -445,12 +448,12 @@ INCLUDE(${CC_SOURCE_DIR}/cmake/symlink.cmake)
  # of the config program. To make sure these programs can
  # use mariadb client library we provide libmysql symlinks
  
@@ -164,7 +165,7 @@ index 70e8fa58..2911aa5e 100644
    ENDIF()
  ENDIF()
  
-@@ -459,17 +462,15 @@ IF(NOT WIN32)
+@@ -464,23 +467,15 @@ IF(NOT WIN32)
    SET_TARGET_PROPERTIES(mariadbclient PROPERTIES OUTPUT_NAME "${LIBMARIADB_STATIC_NAME}")
  ENDIF()
  
@@ -173,6 +174,11 @@ index 70e8fa58..2911aa5e 100644
  INSTALL(TARGETS mariadbclient
            COMPONENT Development
            DESTINATION ${INSTALL_LIBDIR})
+-IF(WIN32)
+-INSTALL(TARGETS libmariadb
+-        COMPONENT SharedLibraries
+-        DESTINATION ${INSTALL_LIBDIR})
+-ELSE()
 -# in cmake 3.12+ we can use
 -#INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
 -#        COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
@@ -182,6 +188,7 @@ index 70e8fa58..2911aa5e 100644
 +ENDIF(ENABLE_STATIC_LIBS)
  INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
 -        COMPONENT Development NAMELINK_ONLY)
+-ENDIF()
 +        COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
  
@@ -210,10 +217,10 @@ index 58c1efae..589e5411 100644
  		mysqld_safe_helper.1 wsrep_sst_common.1
  		wsrep_sst_mysqldump.1 wsrep_sst_rsync.1
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
-index 4ff2b3e3..2cb2d7ac 100644
+index 358045c1..36e74bcb 100644
 --- a/scripts/CMakeLists.txt
 +++ b/scripts/CMakeLists.txt
-@@ -326,7 +326,6 @@ ELSE()
+@@ -327,7 +327,6 @@ ELSE()
    # On Unix, most of the files end up in the bin directory
    SET(BIN_SCRIPTS
      msql2mysql
@@ -221,7 +228,7 @@ index 4ff2b3e3..2cb2d7ac 100644
      mysql_setpermission
      mysql_secure_installation
      mysqlaccess
-@@ -338,6 +337,12 @@ ELSE()
+@@ -339,6 +338,12 @@ ELSE()
      ${WSREP_SCRIPTS}
      ${SYSTEMD_SCRIPTS}
    )
@@ -235,7 +242,7 @@ index 4ff2b3e3..2cb2d7ac 100644
      IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${file}.sh)
        CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/${file}.sh
 diff --git a/scripts/mysql_install_db.sh b/scripts/mysql_install_db.sh
-index 4e61c101..c065ee37 100644
+index 7e6e256d..1de0abc3 100644
 --- a/scripts/mysql_install_db.sh
 +++ b/scripts/mysql_install_db.sh
 @@ -291,10 +291,10 @@ then
@@ -252,7 +259,7 @@ index 4e61c101..c065ee37 100644
    fi
  elif test -n "$dirname0" -a -x "$dirname0/@bindir@/my_print_defaults"
 diff --git a/scripts/mysqld_safe.sh b/scripts/mysqld_safe.sh
-index 59b487fa..669b795c 100644
+index f37d83d9..9af7a8f2 100644
 --- a/scripts/mysqld_safe.sh
 +++ b/scripts/mysqld_safe.sh
 @@ -108,7 +108,13 @@ EOF
@@ -271,18 +278,18 @@ index 59b487fa..669b795c 100644
      echo "$MY_BASEDIR_VERSION/bin/$1"
    elif test -x "@bindir@/$1"
 diff --git a/scripts/wsrep_sst_common.sh b/scripts/wsrep_sst_common.sh
-index deebe7cf..ae2cff54 100644
+index 6a94cb0f..99b6bc50 100644
 --- a/scripts/wsrep_sst_common.sh
 +++ b/scripts/wsrep_sst_common.sh
-@@ -635,6 +635,7 @@ script_binary=$(dirname "$0")
- SCRIPTS_DIR=$(cd "$script_binary"; pwd -P)
+@@ -745,6 +745,7 @@ script_binary=$(dirname "$0")
+ SCRIPTS_DIR=$(cd "$script_binary"; pwd)
  EXTRA_DIR="$SCRIPTS_DIR/../extra"
  CLIENT_DIR="$SCRIPTS_DIR/../client"
 +LIBEXEC_DIR="$SCRIPTS_DIR/../libexec/mariadb"
  
  if [ -x "$CLIENT_DIR/mysql" ]; then
      MYSQL_CLIENT="$CLIENT_DIR/mysql"
-@@ -671,7 +672,9 @@ wsrep_log_info()
+@@ -781,7 +782,9 @@ wsrep_log_info()
      wsrep_log "[INFO] $*"
  }
  

@@ -1,29 +1,8 @@
-From 4d6de66a367806fcbed173c4d2211fe698acf2da Mon Sep 17 00:00:00 2001
-From: Thomas Deutschmann <whissi@gentoo.org>
-Date: Sat, 23 May 2020 10:51:36 +0200
-Subject: [PATCH 1/5] cmake: build without client libs and tools
-
-Signed-off-by: Thomas Deutschmann <whissi@gentoo.org>
----
- CMakeLists.txt                       | 24 ++++++++++++++++--------
- cmake/mariadb_connector_c.cmake      |  2 +-
- extra/CMakeLists.txt                 |  9 +++++++--
- libmariadb/CMakeLists.txt            |  6 +-----
- libmariadb/include/CMakeLists.txt    |  2 ++
- libmariadb/libmariadb/CMakeLists.txt | 31 ++++++++++++++++---------------
- man/CMakeLists.txt                   |  2 +-
- scripts/CMakeLists.txt               | 18 ++++++++++++------
- scripts/mysql_install_db.sh          |  4 ++--
- scripts/mysqld_safe.sh               |  8 +++++++-
- scripts/wsrep_sst_common.sh          |  5 ++++-
- support-files/CMakeLists.txt         |  6 ++++--
- 12 files changed, 73 insertions(+), 44 deletions(-)
-
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d5074a97..55e96d36 100644
+index 1fb12c16..f5c0c086 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -382,8 +382,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/include)
+@@ -384,8 +384,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/include)
  MYSQL_CHECK_ZLIB_WITH_COMPRESS()
  # Add bundled wolfssl/wolfcrypt or system openssl.
  MYSQL_CHECK_SSL()
@@ -32,13 +11,13 @@ index d5074a97..55e96d36 100644
  
  SET(MALLOC_LIBRARY "system")
  
-@@ -433,25 +431,35 @@ MARK_AS_ADVANCED(PYTHON_SHEBANG)
+@@ -435,22 +433,32 @@ MARK_AS_ADVANCED(PYTHON_SHEBANG)
  # Add storage engines and plugins.
  CONFIGURE_PLUGINS()
  
 -ADD_SUBDIRECTORY(include)
 +IF(NOT WITHOUT_CLIENTLIBS)
-+ ADD_SUBDIRECTORY(include)
++  ADD_SUBDIRECTORY(include)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
  ADD_SUBDIRECTORY(dbug)
  ADD_SUBDIRECTORY(strings)
@@ -60,20 +39,13 @@ index d5074a97..55e96d36 100644
    ADD_SUBDIRECTORY(tests)
    ADD_SUBDIRECTORY(sql)
    OPTION (WITH_EMBEDDED_SERVER "Compile MariaDB with embedded server" OFF)
--  IF(WITH_EMBEDDED_SERVER)
--    ADD_SUBDIRECTORY(libmysqld)
--    ADD_SUBDIRECTORY(libmysqld/examples)
--    ADD_SUBDIRECTORY(unittest/embedded)
-+  IF(WITH_EMBEDDED_SERVER) 
-+   IF(WITHOUT_TOOLS)
-+     MYSQL_CHECK_READLINE()
-+   ENDIF(WITHOUT_TOOLS)
-+   ADD_SUBDIRECTORY(libmysqld)
-+   ADD_SUBDIRECTORY(libmysqld/examples)
-+   ADD_SUBDIRECTORY(unittest/embedded)
-   ENDIF(WITH_EMBEDDED_SERVER)
-   IF(NOT WIN32)
-     ADD_FEATURE_INFO(EMBEDDED_SERVER WITH_EMBEDDED_SERVER "Embedded MariaDB Server Library")
+   IF(WITH_EMBEDDED_SERVER)
++    IF(WITHOUT_TOOLS)
++      MYSQL_CHECK_READLINE()
++    ENDIF(WITHOUT_TOOLS)
+     ADD_SUBDIRECTORY(libmysqld)
+     ADD_SUBDIRECTORY(libmysqld/examples)
+     ADD_SUBDIRECTORY(unittest/embedded)
 diff --git a/cmake/mariadb_connector_c.cmake b/cmake/mariadb_connector_c.cmake
 index a9b10334..72c46fa3 100644
 --- a/cmake/mariadb_connector_c.cmake
@@ -88,7 +60,7 @@ index a9b10334..72c46fa3 100644
                    COMMAND ${CMAKE_COMMAND} -E make_directory \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${INSTALL_BINDIR})
                  EXECUTE_PROCESS(
 diff --git a/extra/CMakeLists.txt b/extra/CMakeLists.txt
-index 5021128e..48698b5c 100644
+index 5021128e..380352d9 100644
 --- a/extra/CMakeLists.txt
 +++ b/extra/CMakeLists.txt
 @@ -46,10 +46,15 @@ ADD_CUSTOM_TARGET(GenError
@@ -97,11 +69,11 @@ index 5021128e..48698b5c 100644
  
 -MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.c COMPONENT Client)
 +IF(NOT WITHOUT_CLIENTLIBS)
-+MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.c)
-+MYSQL_ADD_EXECUTABLE(perror perror.c)
++  MYSQL_ADD_EXECUTABLE(my_print_defaults my_print_defaults.c)
++  MYSQL_ADD_EXECUTABLE(perror perror.c)
 +ELSE(NOT WITHOUT_CLIENTLIBS)
-+ADD_EXECUTABLE(my_print_defaults my_print_defaults.c)
-+ADD_EXECUTABLE(perror perror.c)
++  ADD_EXECUTABLE(my_print_defaults my_print_defaults.c)
++  ADD_EXECUTABLE(perror perror.c)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
  TARGET_LINK_LIBRARIES(my_print_defaults  mysys)
  
@@ -110,19 +82,20 @@ index 5021128e..48698b5c 100644
  TARGET_LINK_LIBRARIES(perror mysys)
  
 diff --git a/libmariadb/CMakeLists.txt b/libmariadb/CMakeLists.txt
-index 1a853c7a..b35693f0 100644
+index 4918ef74..07b7e6a4 100644
 --- a/libmariadb/CMakeLists.txt
 +++ b/libmariadb/CMakeLists.txt
-@@ -417,7 +417,7 @@ ENDIF()
+@@ -422,7 +422,8 @@ ENDIF()
  INCLUDE(${CC_SOURCE_DIR}/plugins/CMakeLists.txt)
  ADD_SUBDIRECTORY(include)
  ADD_SUBDIRECTORY(libmariadb)
--IF(NOT WIN32)
-+IF(NOT WIN32 AND NOT WITHOUT_CLIENTLIBS)
+-IF(NOT MSVC)
++
++IF(NOT MSVC AND NOT WITHOUT_CLIENTLIBS)
    ADD_SUBDIRECTORY(mariadb_config)
  ENDIF()
  
-@@ -434,10 +434,6 @@ IF(CLIENT_DOCS)
+@@ -439,10 +440,6 @@ IF(CLIENT_DOCS)
            COMPONENT SharedLibraries)
  ENDIF()
  
@@ -151,10 +124,10 @@ index b9eed535..0ef4fd0b 100644
     COMPONENT Development)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
 diff --git a/libmariadb/libmariadb/CMakeLists.txt b/libmariadb/libmariadb/CMakeLists.txt
-index 8f08c55f..ec85975d 100644
+index 070fdc95..1b0cc8c6 100644
 --- a/libmariadb/libmariadb/CMakeLists.txt
 +++ b/libmariadb/libmariadb/CMakeLists.txt
-@@ -404,9 +404,10 @@ IF(WIN32)
+@@ -433,9 +433,12 @@ IF(WIN32)
                     "FILE_DESCRIPTION:Dynamic lib for client/server communication")
  ENDIF()
  
@@ -162,24 +135,29 @@ index 8f08c55f..ec85975d 100644
 -ADD_LIBRARY(mariadbclient STATIC  ${MARIADB_OBJECTS} ${EMPTY_FILE})
 -TARGET_LINK_LIBRARIES(mariadbclient ${SYSTEM_LIBS})
 +IF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
-+ ADD_LIBRARY(mariadbclient STATIC  ${MARIADB_OBJECTS} ${EMPTY_FILE})
-+ TARGET_LINK_LIBRARIES(mariadbclient ${SYSTEM_LIBS})
++  IF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
++    ADD_LIBRARY(mariadbclient STATIC  ${MARIADB_OBJECTS} ${EMPTY_FILE})
++    TARGET_LINK_LIBRARIES(mariadbclient ${SYSTEM_LIBS})
++  ENDIF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
 +ENDIF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
  
  IF(UNIX)
    ADD_LIBRARY(libmariadb SHARED ${libmariadb_RC} ${MARIADB_OBJECTS} ${EMPTY_FILE})
-@@ -429,7 +430,9 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Linux" OR
+@@ -458,7 +461,12 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Linux" OR
    SET_TARGET_PROPERTIES(libmariadb PROPERTIES LINK_FLAGS "${CC_BINARY_DIR}/libmariadb/mariadbclient.def")
  ENDIF()
  
 -SET_TARGET_PROPERTIES(mariadbclient PROPERTIES IMPORTED_INTERFACE_LINK_LIBRARIES "${SYSTEM_LIBS}")
 +IF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
-+ SET_TARGET_PROPERTIES(mariadbclient PROPERTIES IMPORTED_INTERFACE_LINK_LIBRARIES "${SYSTEM_LIBS}")
++  IF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
++    SET_TARGET_PROPERTIES(mariadbclient PROPERTIES IMPORTED_INTERFACE_LINK_LIBRARIES "${SYSTEM_LIBS}")
++  ENDIF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
 +ENDIF(ENABLE_STATIC_LIBS OR NOT WITHOUT_TOOLS)
++
  SET_TARGET_PROPERTIES(libmariadb PROPERTIES IMPORTED_INTERFACE_LINK_LIBRARIES "${SYSTEM_LIBS}")
  
  SET_TARGET_PROPERTIES(libmariadb PROPERTIES PREFIX "")
-@@ -443,12 +446,12 @@ INCLUDE(${CC_SOURCE_DIR}/cmake/symlink.cmake)
+@@ -472,12 +480,12 @@ INCLUDE(${CC_SOURCE_DIR}/cmake/symlink.cmake)
  # of the config program. To make sure these programs can
  # use mariadb client library we provide libmysql symlinks
  
@@ -188,39 +166,47 @@ index 8f08c55f..ec85975d 100644
    create_symlink(libmysqlclient${CMAKE_SHARED_LIBRARY_SUFFIX} libmariadb ${INSTALL_LIBDIR})
 -  create_symlink(libmysqlclient_r${CMAKE_SHARED_LIBRARY_SUFFIX} libmariadb ${INSTALL_LIBDIR})
 -  IF(NOT CMAKE_SYSTEM_NAME MATCHES AIX)
-+#  create_symlink(libmysqlclient_r${CMAKE_SHARED_LIBRARY_SUFFIX} libmariadb ${INSTALL_LIBDIR})
++  # create_symlink(libmysqlclient_r${CMAKE_SHARED_LIBRARY_SUFFIX} libmariadb ${INSTALL_LIBDIR})
 +  IF(ENABLE_STATIC_LIBS AND NOT CMAKE_SYSTEM_NAME MATCHES AIX)
      create_symlink(libmysqlclient${CMAKE_STATIC_LIBRARY_SUFFIX} mariadbclient ${INSTALL_LIBDIR})
 -    create_symlink(libmysqlclient_r${CMAKE_STATIC_LIBRARY_SUFFIX} mariadbclient ${INSTALL_LIBDIR})
-+#    create_symlink(libmysqlclient_r${CMAKE_STATIC_LIBRARY_SUFFIX} mariadbclient ${INSTALL_LIBDIR})
++    # create_symlink(libmysqlclient_r${CMAKE_STATIC_LIBRARY_SUFFIX} mariadbclient ${INSTALL_LIBDIR})
    ENDIF()
  ENDIF()
  
-@@ -462,17 +465,15 @@ IF(NOT WIN32)
+@@ -491,23 +499,15 @@ IF(NOT WIN32)
    SET_TARGET_PROPERTIES(mariadbclient PROPERTIES OUTPUT_NAME "${LIBMARIADB_STATIC_NAME}")
  ENDIF()
  
+-INSTALL(TARGETS mariadbclient
 +IF(NOT WITHOUT_CLIENTLIBS)
-+IF(ENABLE_STATIC_LIBS)  
- INSTALL(TARGETS mariadbclient
++  IF(ENABLE_STATIC_LIBS)
++    INSTALL(TARGETS mariadbclient
            COMPONENT Development
            DESTINATION ${INSTALL_LIBDIR})
+-IF(WIN32)
+-INSTALL(TARGETS libmariadb
+-        COMPONENT SharedLibraries
+-        DESTINATION ${INSTALL_LIBDIR})
+-ELSE()
 -# in cmake 3.12+ we can use
 -#INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
 -#        COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
 -# but as long as we build on CentOS 7 with its cmake 2.8.12.2 we have to use
 -INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
 -        COMPONENT SharedLibraries NAMELINK_SKIP)
-+ENDIF(ENABLE_STATIC_LIBS)
- INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
+-INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
 -        COMPONENT Development NAMELINK_ONLY)
-+        COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
+-ENDIF()
++  ENDIF(ENABLE_STATIC_LIBS)
++  INSTALL(TARGETS libmariadb LIBRARY DESTINATION ${INSTALL_LIBDIR}
++    COMPONENT SharedLibraries NAMELINK_COMPONENT Development)
 +ENDIF(NOT WITHOUT_CLIENTLIBS)
  
  IF(MSVC)
     # On Windows, install PDB
 diff --git a/man/CMakeLists.txt b/man/CMakeLists.txt
-index e9df857d..bd20accd 100644
+index e9df857d..00624bf3 100644
 --- a/man/CMakeLists.txt
 +++ b/man/CMakeLists.txt
 @@ -36,7 +36,7 @@ SET(MAN1_CLIENT msql2mysql.1 mysql.1 mysql_find_rows.1 mysql_waitpid.1
@@ -228,12 +214,12 @@ index e9df857d..bd20accd 100644
                  mysqlhotcopy.1 mysql_setpermission.1 mysql_tzinfo_to_sql.1
                  mysql_convert_table_format.1 replace.1 mysql_secure_installation.1
 -		perror.1 resolve_stack_dump.1)
-+                resolve_stack_dump.1)
++		resolve_stack_dump.1)
  SET(MAN1_DEVEL mysql_config.1)
  SET(MAN1_TEST mysql-stress-test.pl.1 mysql-test-run.pl.1 mysql_client_test.1
                mysqltest.1 mysqltest_embedded.1 mysql_client_test_embedded.1
 diff --git a/scripts/CMakeLists.txt b/scripts/CMakeLists.txt
-index aca78f38..bc992dde 100644
+index 9eec793c..1ebbe124 100644
 --- a/scripts/CMakeLists.txt
 +++ b/scripts/CMakeLists.txt
 @@ -333,19 +333,25 @@ ELSE()
@@ -259,9 +245,9 @@ index aca78f38..bc992dde 100644
    )
  
 +  IF(NOT WITHOUT_CLIENTLIBS)
-+    SET(BIN_SCRIPTS
-+      ${BIN_SCRIPTS}
-+      mysql_config
++	SET(BIN_SCRIPTS
++        ${BIN_SCRIPTS}
++        mysql_config
 +    )
 +  ENDIF(NOT WITHOUT_CLIENTLIBS)
 +
@@ -305,10 +291,10 @@ index 34a2de1c..c2b2a89b 100644
      echo "$MY_BASEDIR_VERSION/bin/$1"
    elif test -x "@bindir@/$1"
 diff --git a/scripts/wsrep_sst_common.sh b/scripts/wsrep_sst_common.sh
-index 9d69ddf6..68214a11 100644
+index d98a336d..53176b1b 100644
 --- a/scripts/wsrep_sst_common.sh
 +++ b/scripts/wsrep_sst_common.sh
-@@ -720,6 +720,7 @@ script_binary=$(dirname "$0")
+@@ -745,6 +745,7 @@ script_binary=$(dirname "$0")
  SCRIPTS_DIR=$(cd "$script_binary"; pwd)
  EXTRA_DIR="$SCRIPTS_DIR/../extra"
  CLIENT_DIR="$SCRIPTS_DIR/../client"
@@ -316,12 +302,13 @@ index 9d69ddf6..68214a11 100644
  
  if [ -x "$CLIENT_DIR/mariadb" ]; then
      MYSQL_CLIENT="$CLIENT_DIR/mariadb"
-@@ -756,7 +757,9 @@ wsrep_log_info()
+@@ -781,7 +782,10 @@ wsrep_log_info()
      wsrep_log "[INFO] $*"
  }
  
 -if [ -x "$SCRIPTS_DIR/my_print_defaults" ]; then
-+if [ -x "$LIBEXEC_DIR/my_print_defaults" ]; then
++if [ -x "$LIBEXEC_DIR/my_print_defaults" ]; 
++then
 +    MY_PRINT_DEFAULTS="$LIBEXEC_DIR/my_print_defaults"
 +elif [ -x "$SCRIPTS_DIR/my_print_defaults" ]; then
      MY_PRINT_DEFAULTS="$SCRIPTS_DIR/my_print_defaults"

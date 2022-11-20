@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools gnome3 readme.gentoo-r1 udev user vala
+inherit meson gnome3 readme.gentoo-r1 udev user vala
 
 DESCRIPTION="Modem and mobile broadband management libraries"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/ModemManager/"
@@ -12,7 +12,7 @@ LICENSE="GPL-2+"
 SLOT="0/1" # subslot = dbus interface version, i.e. N in org.freedesktop.ModemManager${N}
 KEYWORDS="*"
 
-IUSE="elogind +introspection mbim policykit +qmi +qrtr +udev vala"
+IUSE="elogind +introspection mbim policykit +qmi +qrtr +udev vala bash-completion"
 REQUIRED_USE="
 	qrtr? ( qmi )
 	vala? ( introspection )
@@ -23,7 +23,7 @@ DEPEND="
 	>=dev-libs/glib-2.56.0:2
 	udev? ( >=dev-libs/libgudev-232:= )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.6:= )
-	mbim? ( >=net-libs/libmbim-1.26.0 )
+	mbim? ( net-libs/libmbim )
 	policykit? ( >=sys-auth/polkit-0.106[introspection?] )
 	qmi? ( >=net-libs/libqmi-1.30.8:=[qrtr?] )
 	qrtr? ( >=net-libs/libqrtr-glib-1.0.0:= )
@@ -42,8 +42,12 @@ BDEPEND="
 S="${WORKDIR}/ModemManager-${PV}"
 
 src_prepare() {
-	eautoreconf
-	DOC_CONTENTS="
+	use vala && vala_src_prepare
+	gnome3_src_prepare
+}
+
+src_configure() {
+		DOC_CONTENTS="
 		If your USB modem shows up only as a storage device when you plug it in,
 		then you should install sys-apps/usb_modeswitch, which will automatically
 		switch it over to USB modem mode whenever you plug it in.\n"
@@ -54,31 +58,26 @@ src_prepare() {
 			add your user account to the 'plugdev' group."
 	fi
 
-	use vala && vala_src_prepare
-	gnome3_src_prepare
-}
 
-src_configure() {
-	local myconf=(
-		--disable-Werror
-		--disable-static
-		--with-dist-version=${PVR}
-		--with-udev-base-dir="$(get_udevdir)"
-		$(use_with udev)
-		$(use_enable introspection)
-		$(use_with mbim)
-		$(use_with policykit polkit)
-		$(use_with elogind systemd-suspend-resume)
-		--without-systemd-journal
-		$(use_with qmi)
-		$(use_with qrtr)
-		$(use_enable vala)
+
+	local emesonargs=(
+		-Ddist_version=\"${PVR}\"
+		-Dsystemdsystemunitdir=$(usex elogind || echo "no")
+		$(meson_use udev)
+		$(meson_use introspection)
+		$(meson_use mbim)
+		$(meson_use elogind systemd_suspend_resume)
+		$(meson_use elogind systemd_journal)
+		$(meson_use qmi)
+		$(meson_use qrtr)
+		$(meson_use vala vapi)
+		$(meson_use bash-completion bash_completion)
 	)
-	gnome3_src_configure "${myconf[@]}"
+	meson_src_configure
 }
 
 src_install() {
-	gnome3_src_install
+	meson_src_install
 
 	# Allow users in plugdev group full control over their modem
 	if use policykit; then

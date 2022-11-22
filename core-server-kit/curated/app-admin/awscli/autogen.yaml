@@ -61,7 +61,7 @@ awscliv1:
         license: MIT
 
 awscliv2:
-  generator: github-1
+  generator: python-github-1
   defaults:
     github:
       user: aws
@@ -70,8 +70,9 @@ awscliv2:
   packages:
     - awscliv2:
         cat: app-admin
-        template: awscliv2.tmpl
-        depend:
+        python_compat: python3_8+
+        license: Apache-2.0
+        pydeps:
           - aws-crt-python
           - colorama
           - distro
@@ -79,8 +80,13 @@ awscliv2:
           - prompt_toolkit
           - python-dateutil
           - ruamel-yaml
+        rdepend: |
+          !app-admin/awscli
+          !app-admin/awscli-bin
+        body: |
+          DISTUTILS_USE_PEP517=standalone
 
-awscliv2-deps:
+custom-generator:
   packages:
     - aws-crt-python:
         cat: dev-python

@@ -1603,8 +1603,6 @@ dev_python_simplified_rule:
           py:all:runtime:
             - mistune
             - docutils
-        patches:
-          - m2r-docutils.patch
         body: |
           python_prepare_all() {
             sed -e "s/packages=\['tests'\],/packages=[],/" -i setup.py

@@ -10,8 +10,7 @@ async def generate(hub, **pkginfo):
 	src_pattern = re.compile(f"^({pkginfo.get('name')}-([\\d.]+)\\.tar\\.xz)$")
 
 	tuxfamily_soup = BeautifulSoup(
-		await hub.pkgtools.fetch.get_page(tuxfamily_url), "lxml"
-	)
+		await hub.pkgtools.fetch.get_page(tuxfamily_url), features="xml")
 
 	link_matches = (
 		src_pattern.match(link.get("href")) for link in tuxfamily_soup.find_all("a")

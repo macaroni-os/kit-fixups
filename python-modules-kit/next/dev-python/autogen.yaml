@@ -79,3 +79,57 @@ pypi_simple_rule:
         body: |
           DOCS=( CHANGES CREDITS README.md )
 
+
+pypi_compat_rule:
+  defaults:
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - ruamel-yaml:
+        pypi_name: ruamel.yaml
+        desc: YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order
+        iuse: test
+        pydeps:
+          use:test:
+            - flake8
+            - pytest
+            - ruamel-std-pathlib
+          py:all:build:
+            - setuptools
+        body: |
+          python_install() {
+            distutils-r1_python_install --single-version-externally-managed
+            find "${ED}" -name '*.pth' -delete || die
+          }
+
+          python_test() {
+            # This file produced by setup.py breaks finding system-wide installed ruamel.std.pthlib
+            # due to shared namespace
+            rm "${BUILD_DIR}/lib/ruamel/__init__.py" || die
+
+            py.test -v _test/test_*.py || die
+          }
+    - ruamel-std-pathlib:
+        pypi_name: ruamel.std.pathlib
+        desc: improvements over the standard pathlib module
+        iuse: test
+        pydeps:
+          use:test:
+            - flake8
+            - pytest
+          py:all:build:
+            - setuptools
+        body: |
+          python_install() {
+            distutils-r1_python_install --single-version-externally-managed
+            find "${ED}" -name '*.pth' -delete || die
+          }
+
+          python_test() {
+            # This file produced by setup.py breaks finding system-wide installed ruamel.std.pthlib
+            # due to shared namespace
+            rm "${BUILD_DIR}/lib/ruamel/__init__.py" || die
+
+            py.test -v _test/test_*.py || die
+          }
+

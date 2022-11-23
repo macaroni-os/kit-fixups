@@ -2,7 +2,7 @@
 
 EAPI=7
 
-LUA_COMPAT=( lua5-{1..3} )
+LUA_COMPAT=( lua5-{1..2} )
 PYTHON_COMPAT=( python3+ )
 
 inherit fcaps flag-o-matic lua-single python-any-r1 qmake-utils xdg-utils cmake user
@@ -16,15 +16,19 @@ S="${WORKDIR}/${P/_/}"
 
 LICENSE="GPL-2"
 SLOT="0/${PV}"
-IUSE="prefix-guest androiddump bcg729 brotli +capinfos +captype ciscodump +dftest doc dpauxmon"
-IUSE+=" +dumpcap +editcap http2 ilbc kerberos libxml2 lto lua lz4 maxminddb"
-IUSE+=" +mergecap +minizip +netlink opus +plugins plugin-ifdemo +pcap +qt5 +randpkt"
-IUSE+=" +randpktdump +reordercap sbc selinux +sharkd smi snappy spandsp sshdump ssl"
-IUSE+=" sdjournal test +text2pcap tfshark +tshark +udpdump zlib +zstd"
+IUSE="prefix-guest androiddump -bcg729 brotli +capinfos +captype ciscodump +dftest -doc dpauxmon"
+IUSE+=" +dumpcap +editcap http2 -ilbc kerberos libxml2 lto lua lz4 maxminddb"
+IUSE+=" +mergecap +minizip +netlink opus +plugins +pcap +qt5 +randpkt"
+IUSE+=" +randpktdump +reordercap sbc selinux +sharkd smi snappy -spandsp sshdump ssl"
+IUSE+=" -sdjournal -test +text2pcap tfshark +tshark +udpdump zlib +zstd tfshark"
+
+# plugin-ifdemo needs Qt6
+IUSE+=" -plugin-ifdemo"
+
 
 CDEPEND="
-	>=dev-libs/glib-2.32:2
-	>=net-dns/c-ares-1.5
+	>=dev-libs/glib-2.50:2
+	>=net-dns/c-ares-1.13
 	dev-libs/libgcrypt:0
 	bcg729? ( media-libs/bcg729 )
 	brotli? ( app-arch/brotli:= )
@@ -44,9 +48,12 @@ CDEPEND="
 	qt5? (
 		dev-qt/qtcore:5
 		dev-qt/qtgui:5
+		dev-qt/linguist:5
+		dev-qt/qtprintsupport:5
 		dev-qt/qtmultimedia:5
 		dev-qt/qtprintsupport:5
 		dev-qt/qtwidgets:5
+		dev-qt/qtconcurrent:5
 		x11-misc/xdg-utils
 	)
 	sbc? ( media-libs/sbc )
@@ -72,7 +79,7 @@ BDEPEND="
 	virtual/pkgconfig
 	doc? (
 		app-doc/doxygen
-		dev-ruby/asciidoctor
+		app-text/asciidoctor
 	)
 	qt5? (
 		dev-qt/linguist-tools:5
@@ -165,6 +172,7 @@ src_configure() {
 		-DBUILD_text2pcap=$(usex text2pcap)
 		-DBUILD_tfshark=$(usex tfshark)
 		-DBUILD_tshark=$(usex tshark)
+		-DBUILD_tfshark=$(usex tfshark)
 		-DBUILD_udpdump=$(usex udpdump)
 		-DBUILD_wireshark=$(usex qt5)
 		-DDISABLE_WERROR=yes

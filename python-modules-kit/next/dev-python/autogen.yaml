@@ -132,4 +132,27 @@ pypi_compat_rule:
 
             py.test -v _test/test_*.py || die
           }
+    - llfuse:
+        desc: Python bindings for the low level FUSE API
+        iuse: doc examples test
+        pydeps:
+          use:test:
+            - pytest
+          py:all:build:
+            - setuptools
+        rdepend: |
+            sys-fs/fuse
+        depend: |
+            sys-apps/attr
+            virtual/pkgconfig
+        body: |
+          python_test() {
+            py.test -v || die "Tests failed under ${EPYTHON}"
+          }
+
+          python_install_all() {
+            use doc && local HTML_DOCS=( doc/html/. )
+            use examples && dodoc -r examples
+            distutils-r1_python_install_all
+          }
 

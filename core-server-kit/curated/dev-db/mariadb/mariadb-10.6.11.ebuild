@@ -99,7 +99,7 @@ RDEPEND="${COMMON_DEPEND}
 	!dev-db/mariadb:10.2
 	!dev-db/mariadb:10.3
 	!dev-db/mariadb:10.4
-        !dev-db/mariadb:10.5
+	!dev-db/mariadb:10.5
 	!<virtual/mysql-5.6-r11
 	!<virtual/libmysqlclient-18-r1
 	selinux? ( sec-policy/selinux-mysql )
@@ -126,13 +126,6 @@ RDEPEND="${COMMON_DEPEND}
 # dev-perl/DBD-mysql is needed by some scripts installed by MySQL
 # percona-xtrabackup-bin causes a circular dependency if DBD-mysql is not already installed
 PDEPEND="perl? ( >=dev-perl/DBD-mysql-2.9004 )"
-
-#PATCHES=(
-#        "${FILESDIR}/10.6/0001-cmake-build-without-client-libs-and-tools.patch"
-#        "${FILESDIR}/10.6/0002-libmariadb-fix-mysql_st-API-regression.patch"
-#        "${FILESDIR}/10.6/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
-#        "${FILESDIR}/10.6/0004-cmake-don-t-install-mysql-d-.service-symlinks.patch"
-#)
 
 mysql_init_vars() {
 	MY_SHAREDSTATEDIR=${MY_SHAREDSTATEDIR="${EPREFIX}/usr/share/mariadb"}
@@ -229,10 +222,12 @@ src_unpack() {
 }
 
 src_prepare() {
+
 	eapply "${FILESDIR}/10.6/0001-cmake-build-without-client-libs-and-tools.patch"
-        eapply "${FILESDIR}/10.6/0002-libmariadb-fix-mysql_st-API-regression.patch"
-        eapply "${FILESDIR}/10.6/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
-        eapply "${FILESDIR}/10.6/0004-cmake-don-t-install-mysql-d-.service-symlinks.patch"
+	eapply "${FILESDIR}/10.6/0002-libmariadb-fix-mysql_st-API-regression.patch"
+	eapply "${FILESDIR}/10.6/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
+	eapply "${FILESDIR}/10.6/0004-cmake-don-t-install-mysql-d-.service-symlinks.patch"
+	eapply "${FILESDIR}/10.6/0005-libmariadb-plugins-auth-CMakeLists-txt.patch"
 
 	eapply_user
 
@@ -244,7 +239,7 @@ src_prepare() {
 	}
 
 	if use jemalloc; then
-		echo "TARGET_LINK_LIBRARIES(mariadbd jemalloc)" >> "${S}/sql/CMakeLists.txt"
+		echo "TARGET_LINK_LIBRARIES(mariadbd LINK_PUBLIC jemalloc)" >> "${S}/sql/CMakeLists.txt"
 	elif use tcmalloc; then
 		echo "TARGET_LINK_LIBRARIES(mariadbd tcmalloc)" >> "${S}/sql/CMakeLists.txt"
 	fi
@@ -576,22 +571,35 @@ src_test() {
 	# create directories because mysqladmin might run out of order
 	mkdir -p "${T}"/var-tests{,/log} || die
 
+	if [[ ! -f "${S}/mysql-test/unstable-tests" ]] ; then
+		touch "${S}"/mysql-test/unstable-tests || die
+	fi
+
 	cp "${S}"/mysql-test/unstable-tests "${T}/disabled.def" || die
 
 	local -a disabled_tests
 	disabled_tests+=( "compat/oracle.plugin;0;Needs example plugin which Gentoo disables" )
+	disabled_tests+=( "innodb_gis.1;25095;Known rounding error with latest AMD processors" )
+	disabled_tests+=( "innodb_gis.gis;25095;Known rounding error with latest AMD processors" )
+	disabled_tests+=( "main.gis;25095;Known rounding error with latest AMD processors" )
 	disabled_tests+=( "main.explain_non_select;0;Sporadically failing test" )
 	disabled_tests+=( "main.func_time;0;Dependent on time test was written" )
+	disabled_tests+=( "main.mysql_upgrade;27044;Sporadically failing test" )
 	disabled_tests+=( "main.plugin_auth;0;Needs client libraries built" )
+	disabled_tests+=( "main.selectivity_no_engine;26320;Sporadically failing test" )
 	disabled_tests+=( "main.stat_tables;0;Sporadically failing test" )
 	disabled_tests+=( "main.stat_tables_innodb;0;Sporadically failing test" )
 	disabled_tests+=( "main.upgrade_MDEV-19650;25096;Known to be broken" )
 	disabled_tests+=( "mariabackup.*;0;Broken test suite" )
 	disabled_tests+=( "perfschema.nesting;23458;Known to be broken" )
+	disabled_tests+=( "perfschema.prepared_statements;0;Broken test suite" )
+	disabled_tests+=( "perfschema.privilege_table_io;27045;Sporadically failing test" )
 	disabled_tests+=( "plugins.auth_ed25519;0;Needs client libraries built" )
 	disabled_tests+=( "plugins.cracklib_password_check;0;False positive due to varying policies" )
 	disabled_tests+=( "plugins.two_password_validations;0;False positive due to varying policies" )
 	disabled_tests+=( "roles.acl_statistics;0;False positive due to a user count mismatch caused by previous test" )
+	disabled_tests+=( "spider.*;0;Fails with network sandbox" )
+	disabled_tests+=( "sys_vars.wsrep_on_without_provider;25625;Known to be broken" )
 
 	if ! use latin1 ; then
 		disabled_tests+=( "funcs_1.is_columns_mysql;0;Requires USE=latin1" )

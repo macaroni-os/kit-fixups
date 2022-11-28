@@ -40,7 +40,8 @@ src_install() {
 			telegram.png
 	done
 
-	domenu "${WORKDIR}/tdesktop-${PV}"/lib/xdg/telegramdesktop.desktop
+    sed -i '/SingleMainWindow=true/d' "${WORKDIR}/tdesktop-${PV}"/lib/xdg/org.telegram.desktop.desktop
+	domenu "${WORKDIR}/tdesktop-${PV}"/lib/xdg/org.telegram.desktop.desktop
 }
 
 pkg_postinst() {

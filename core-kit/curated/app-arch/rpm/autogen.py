@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
             Version(re.findall(regex, a.get('href'))[0]),
             a.get('href')
         )
-        for a in soup if a.contents[0].startswith(pkginfo['name'])
+        for a in soup if a.get('href').startswith(pkginfo['name'])
     ])
 
     download_url = base_url + newest[1]
@@ -23,12 +23,12 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
 
     latest = max([(
-            Version(re.findall(regex, a.contents[0])[0]),
+            Version(re.findall(regex, a.get('href'))[0]),
             a.get('href')
-        ) for a in soup if '.tar.' in a.contents[0]
+        ) for a in soup if '.tar.' in a.get('href')
     ])
 
-    artifact = hub.pkgtools.ebuild.Artifact(url=f"{download_url}/{latest[1]}")
+    artifact = hub.pkgtools.ebuild.Artifact(url=f"{download_url}{latest[1]}")
     ebuild = hub.pkgtools.ebuild.BreezyBuild(
         **pkginfo,
         version=latest[0],

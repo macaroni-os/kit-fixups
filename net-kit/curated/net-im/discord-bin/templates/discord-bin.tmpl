@@ -83,6 +83,9 @@ src_install() {
 
 	fperms +x /opt/discord/Discord
 	fperms 4755 /opt/discord/chrome-sandbox || die
+	if [ -f "${ED%/}"/opt/discord/chrome_crashpad_handler ]; then
+		fperms 4755 /opt/discord/chrome_crashpad_handler || die
+	fi
 	dosym ../../opt/discord/Discord usr/bin/discord
 	pax-mark -m "${ED%/}"/opt/discord/discord
 }

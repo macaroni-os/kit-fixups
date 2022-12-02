@@ -39,7 +39,7 @@ DEPEND="${RDEPEND}"
 BDEPEND="dev-qt/linguist-tools:5
 	virtual/pkgconfig"
 
-DOCS=( AUTHORS Changelog CONTRIBUTING.md README.md TODO )
+DOCS=( AUTHORS Changelog CONTRIBUTING.md README.md )
 
 src_prepare() {
 	MULTIBUILD_VARIANTS=( base )

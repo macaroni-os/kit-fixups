@@ -214,8 +214,8 @@ pkg_postinst() {
 	fi
 
 	elog
-	elog "To switch between available Ruby profiles, execute as root:"
-	elog "\teselect ruby set ruby(23|24|...)"
+	elog "Do not use this version of dev-lang/ruby, it is unsupported by Ruby Upstream."
+	elog "Please upgrade to Ruby 2.7 or greater."
 	elog
 }
 

@@ -243,6 +243,12 @@ src_install() {
 
 pkg_postinst() {
 	eselect ruby set ruby${MY_SUFFIX}
+
+	elog
+	elog "Do not use this version of dev-lang/ruby, it is unsupported by Ruby Upstream."
+	elog "Please upgrade to Ruby 2.7 or greater."
+	elog
+
 }
 
 pkg_postrm() {

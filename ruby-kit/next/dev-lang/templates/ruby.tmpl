@@ -60,8 +60,10 @@ PDEPEND="
 	rdoc? ( {{ pdepend_rdoc }}[ruby_targets_{{ target }}] )
 	xemacs? ( app-xemacs/ruby-modes )"
 
+
+
 src_prepare() {
-	eapply "{{ gen_path }}"/files/"${SLOT}"/010*.patch
+	eapply "{{ gen_path }}"/ruby/files/"${SLOT}"/010-default-gem-location.patch
 
 	einfo "Unbundling gems..."
 	cd "$S"
@@ -231,7 +233,7 @@ pkg_postinst() {
 
 	elog
 	elog "To switch between available Ruby profiles, execute as root:"
-	elog "\teselect ruby set ruby(26|27|30|31|...)"
+	elog "\teselect ruby set ruby(27|30|31|...)"
 	elog
 }
 

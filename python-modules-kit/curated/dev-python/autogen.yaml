@@ -237,6 +237,36 @@ dev_python_compat_rule:
         license: Apache-2.0
         homepage: |
           https://github.com/MagicStack/asyncpg
+    - automat:
+        desc: Self-service finite-state machines for the programmer on the go
+        compat: '20.2.0'
+        blocker: '!<dev-python/automat-22.10.0'
+        python_compat: python3+ pypy3
+        pydeps:
+          py:all:build:
+            - attrs
+            - six
+          py:2:build:
+            - m2r
+        rdepend: |
+          ${DEPEND}
+        body: |
+          src_unpack() {
+            default
+            mv ${WORKDIR}/A* ${S} || die
+          }
+          python_prepare_all() {
+            # avoid a setuptools_scm dependency
+            sed -r -i "s:use_scm_version=True:version='${PV}': ;
+              s:[\"']setuptools[_-]scm[\"'](,|)::" setup.py || die
+            distutils-r1_python_prepare_all
+          }
+          pkg_postinst() {
+            einfo "For additional visualization functionality install these optional dependencies"
+            einfo "    >=dev-python/twisted-16.1.1"
+            einfo "    media-gfx/graphviz[python]"
+          }
+
     - Babel:
         python_compat: python2+
         compat: '2.9.1'
@@ -2126,8 +2156,6 @@ dev_python_autogen_rule:
     - async_timeout:
         python_compat: python3+ pypy3
     - attrs:
-        python_compat: python2+ pypy3
-    - automat:
         python_compat: python2+ pypy3
     - authres:
         versions:

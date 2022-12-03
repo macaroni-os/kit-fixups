@@ -63,7 +63,7 @@ PDEPEND="
 
 
 src_prepare() {
-	eapply "{{ gen_path }}"/ruby/files/"${SLOT}"/010-default-gem-location.patch
+	eapply "{{ gen_path }}"/files/"${SLOT}"/010-default-gem-location.patch
 
 	einfo "Unbundling gems..."
 	cd "$S"

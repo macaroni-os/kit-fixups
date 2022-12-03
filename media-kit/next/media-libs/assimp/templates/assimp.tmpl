@@ -1,0 +1,58 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="Importer library to import assets from 3D files"
+HOMEPAGE="https://github.com/assimp/assimp"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="BSD"
+SLOT="0/5.2.5"
+KEYWORDS="*"
+IUSE="samples"
+
+RDEPEND="
+	dev-libs/boost:=
+	sys-libs/zlib[minizip]
+	samples? (
+		media-libs/freeglut
+		virtual/opengl
+		x11-libs/libX11
+	)
+"
+DEPEND="${RDEPEND}"
+
+DOCS=( CodeConventions.md Readme.md )
+
+src_unpack() {
+	unpack ${A}
+	mv "${WORKDIR}"/assimp-assimp-* "${S}"
+}
+
+src_configure() {
+	# Assimp sometimes has bad versioning so here we get the version from PV, escape the dots and
+	# paste it into a sed call that replaces the project definition in the CMakeLists.txt file to
+	# always have the correct version, removing the need to use patches for this like they do in Gentoo
+	v=$(echo "${PV}" | sed -r 's/\./\\./g')
+	sed -i "s/PROJECT(Assimp VERSION.*/PROJECT(Assimp VERSION ${v})/g" "${S}"/CMakeLists.txt
+	local mycmakeargs=(
+		-DASSIMP_ASAN=OFF
+		-DASSIMP_BUILD_ASSIMP_TOOLS=ON
+		-DASSIMP_BUILD_DOCS=OFF
+		-DASSIMP_BUILD_SAMPLES=$(usex samples)
+		-DASSIMP_BUILD_ZLIB=OFF
+		-DASSIMP_DOUBLE_PRECISION=OFF
+		-DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+		-DASSIMP_IGNORE_GIT_HASH=ON
+		-DASSIMP_UBSAN=OFF
+		-DASSIMP_WARNINGS_AS_ERRORS=OFF
+	)
+
+	if use samples; then
+		mycmakeargs+=( -DOpenGL_GL_PREFERENCE="GLVND" )
+	fi
+
+	cmake_src_configure
+}

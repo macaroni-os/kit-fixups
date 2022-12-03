@@ -4,10 +4,12 @@ from packaging.version import Version
 async def generate(hub, **pkginfo):
 	supported_releases = {
 		# Current LTS release
-		'2.13': '>=2.12,<2.14',
-		'2.17': '>=2.17,<2.18',
-		'2.16': '>=2.16,<2.17',
-		'2.15': '>=2.15,<2.16',
+		'2.13': { 'selector': '>=2.12,<2.14' },
+		'2.17': { 'selector': '>=2.17,<2.18' },
+		'2.16': { 'selector': '>=2.16,<2.17' },
+		'2.15': { 'selector': '>=2.15,<2.16' },
+		# New Release
+		'3.0': { 'selector': '>=3.0,<3.1', 'template': 'openvswitch3.tmpl' },
 	}
 	github_user = "openvswitch"
 	github_repo = "ovs"
@@ -19,6 +21,7 @@ async def generate(hub, **pkginfo):
 
 	for rel in json_list:
 		selectedVersion = None
+		overrideTemplate = False
 		version = rel["name"][1:]
 
 		if len(supported_releases) == 0:
@@ -26,13 +29,18 @@ async def generate(hub, **pkginfo):
 
 		v1 = Version(version)
 		for k, v in supported_releases.items():
-			selector = SpecifierSet(v)
+			selector = SpecifierSet(v['selector'])
 			if v1 in selector:
 				selectedVersion = k
 				break
 
 		if selectedVersion:
-			handled_releases.append(version)
+			template = supported_releases[selectedVersion]['template'] \
+				if 'template' in supported_releases[selectedVersion] else None
+			handled_releases.append({
+				'version':version,
+				'template': template,
+			})
 			del supported_releases[k]
 			continue
 
@@ -42,13 +50,13 @@ async def generate(hub, **pkginfo):
 			continue
 
 	artifacts = []
-	for pv in handled_releases:
+	for pvdata in handled_releases:
+		pv=pvdata['version']
 		url=f"https://www.openvswitch.org/releases/openvswitch-{pv}.tar.gz"
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			version=pv,
-			github_user=github_user,
-			github_repo=github_repo,
+			template=pvdata['template'],
 			artifacts=[hub.pkgtools.ebuild.Artifact(url=url)],
 		)
 		ebuild.push()

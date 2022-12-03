@@ -28,7 +28,7 @@ done
 
 IUSE="${IUSE_VIDEO_CARDS}
 	cpu_flags_x86_sse2 d3d9 debug +egl +gbm gles1 +gles2 +glvnd +llvm
-	lm-sensors opencl osmesa selinux test unwind vaapi valgrind vdpau vulkan
+	lm_sensors opencl osmesa selinux test unwind vaapi valgrind vdpau vulkan
 	vulkan-overlay wayland +X xa xvmc zink +zstd"
 
 REQUIRED_USE="
@@ -60,7 +60,7 @@ RDEPEND="
 			virtual/libelf:0=
 		)
 	)
-	lm-sensors? ( sys-apps/lm-sensors:= )
+	lm_sensors? ( sys-apps/lm_sensors:= )
 	opencl? (
 				>=virtual/opencl-3
 				dev-libs/libclc
@@ -425,7 +425,7 @@ src_configure() {
 		$(meson_feature gles1)
 		$(meson_feature gles2)
 		$(meson_feature llvm)
-		$(meson_feature lm-sensors lmsensors)
+		$(meson_feature lm_sensors lmsensors)
 		$(meson_use osmesa)
 		$(meson_use selinux)
 		$(meson_feature unwind libunwind)

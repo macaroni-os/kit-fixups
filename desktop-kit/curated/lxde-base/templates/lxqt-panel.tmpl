@@ -15,7 +15,7 @@ KEYWORDS="*"
 LICENSE="LGPL-2.1 LGPL-2.1+"
 SLOT="0"
 IUSE="+alsa colorpicker cpuload +desktopswitch +directorymenu dom +kbindicator
-+mainmenu +mount networkmonitor pulseaudio +quicklaunch lm-sensors +showdesktop
++mainmenu +mount networkmonitor pulseaudio +quicklaunch lm_sensors +showdesktop
 +spacer +statusnotifier sysstat +taskbar tray +volume +worldclock"
 
 # Work around a missing header issue: https://bugs.gentoo.org/666278
@@ -46,7 +46,7 @@ DEPEND="
 	x11-libs/libX11
 	cpuload? ( sys-libs/libstatgrab )
 	kbindicator? ( x11-libs/libxkbcommon )
-	lm-sensors? ( sys-apps/lm-sensors )
+	lm_sensors? ( sys-apps/lm_sensors )
 	mount? ( kde-frameworks/solid:5 )
 	networkmonitor? ( sys-libs/libstatgrab )
 	statusnotifier? (
@@ -84,7 +84,7 @@ src_configure() {
 		-DMOUNT_PLUGIN=$(usex mount)
 		-DNETWORKMONITOR_PLUGIN=$(usex networkmonitor)
 		-DQUICKLAUNCH_PLUGIN=$(usex quicklaunch)
-		-DSENSORS_PLUGIN=$(usex lm-sensors)
+		-DSENSORS_PLUGIN=$(usex lm_sensors)
 		-DSHOWDESKTOP_PLUGIN=$(usex showdesktop)
 		-DSPACER_PLUGIN=$(usex spacer)
 		-DSTATUSNOTIFIER_PLUGIN=$(usex statusnotifier)

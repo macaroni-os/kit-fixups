@@ -13,12 +13,12 @@ KEYWORDS="*"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-IUSE="debug hwloc kernel_FreeBSD kernel_linux lm-sensors openvz unicode vserver"
+IUSE="debug hwloc kernel_FreeBSD kernel_linux lm_sensors openvz unicode vserver"
 
 BDEPEND="virtual/pkgconfig"
 RDEPEND="sys-libs/ncurses:0=
 	hwloc? ( sys-apps/hwloc )
-	lm-sensors? ( sys-apps/lm_sensors )"
+	lm_sensors? ( sys-apps/lm_sensors )"
 DEPEND="${RDEPEND}
 	${PYTHON_DEPS}"
 
@@ -57,7 +57,7 @@ src_configure() {
 		$(use_enable openvz)
 		$(use_enable unicode)
 		$(use_enable vserver)
-		$(use_enable lm-sensors sensors)
+		$(use_enable lm_sensors sensors)
 	)
 
 	if ! use hwloc && use kernel_linux ; then

@@ -21,7 +21,7 @@ LICENSE="HPND BSD GPL-2"
 SLOT="0/40"
 KEYWORDS="*"
 IUSE="
-	X bzip2 doc elf kmem ipv6 libressl lm-sensors mfd-rewrites minimal mysql
+	X bzip2 doc elf kmem ipv6 libressl lm_sensors mfd-rewrites minimal mysql
 	netlink pcap pci perl python rpm selinux smux ssl tcpd ucd-compat zlib systemd
 "
 REQUIRED_USE="
@@ -32,7 +32,7 @@ REQUIRED_USE="
 COMMON_DEPEND="
 	bzip2? ( app-arch/bzip2 )
 	elf? ( dev-libs/elfutils )
-	lm-sensors? ( sys-apps/lm-sensors )
+	lm_sensors? ( sys-apps/lm_sensors )
 	mysql? ( dev-db/mysql-connector-c:0= )
 	netlink? ( dev-libs/libnl:3 )
 	pcap? ( net-libs/libpcap )
@@ -99,7 +99,7 @@ src_prepare() {
 src_configure() {
 	# keep this in the same line, configure.ac arguments are passed down to config.h
 	local mibs="host ucd-snmp/dlmod ucd-snmp/diskio ucd-snmp/extensible mibII/mta_sendmail etherlike-mib/dot3StatsTable"
-	use lm-sensors && mibs="${mibs} ucd-snmp/lmsensorsMib"
+	use lm_sensors && mibs="${mibs} ucd-snmp/lmsensorsMib"
 	use smux && mibs="${mibs} smux"
 
 	# Assume /etc/mtab is not present with a recent baselayout/openrc (bug #565136)

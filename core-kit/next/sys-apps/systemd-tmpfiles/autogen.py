@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 	github_user = "systemd"
 	github_repo = "systemd-stable"
 
-	pkginfo.update(await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, version="251.1", transform=lambda x: x.replace("-rc","_rc")))
+	pkginfo.update(await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, transform=lambda x: x.replace("-rc","_rc")))
 
 	available_build_options = await hub.pkgtools.meson.get_build_options_from_artifact(pkginfo["artifacts"][0])
 	boolean_build_options = (

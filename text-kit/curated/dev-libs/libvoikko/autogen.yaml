@@ -1,0 +1,9 @@
+libvoikko:
+  generator: github-1
+  packages:
+    - libvoikko:
+        github:
+          user: voikko
+          repo: corevoikko
+          query: tags
+          select: 'rel-libvoikko-\d+\.\d+\.\d+$'

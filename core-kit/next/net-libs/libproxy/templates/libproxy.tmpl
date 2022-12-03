@@ -16,7 +16,6 @@ KEYWORDS="*"
 IUSE="gnome kde mono networkmanager perl python spidermonkey webkit"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{commit_sha[:7]}}"
 BDEPEND="
 	virtual/pkgconfig
 "
@@ -38,6 +37,11 @@ PATCHES=(
 	# https://github.com/libproxy/libproxy/issues/28
 	"${FILESDIR}/${PN}-0.4.18-avoid-nm-build-dep.patch"
 )
+
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
 
 src_prepare() {
 	cmake_src_prepare

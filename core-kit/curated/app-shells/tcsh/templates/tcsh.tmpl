@@ -26,10 +26,7 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.24.01-ftbfs-gcc-10.patch
 	"${FILESDIR}"/${PN}-6.24.01-no-dot-in-default-path.patch
-	"${FILESDIR}"/${PN}-6.24.01-use-autoconf-2.69.patch
-	"${FILESDIR}"/${PN}-6.24.01-use-sysmalloc.patch
 	"${FILESDIR}"/${PN}-6.23.02-dircolors.patch
-	"${FILESDIR}"/${PN}-6.21.04-no-nls.patch
 	"${FILESDIR}"/${PN}-6.21.00-use-ncurses.patch
 )
 

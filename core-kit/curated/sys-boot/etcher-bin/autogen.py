@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 	name = pkginfo["name"]
 	repo = name.rstrip("-bin")
 	releases_data = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True
+		f"https://api.github.com/repos/{user}/{repo}/releases?per_page=100", is_json=True
 	)
 	latest_release = get_release(releases_data)
 	if latest_release is None:

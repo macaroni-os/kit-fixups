@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 
 async def generate(hub, **pkginfo):
-	col_url = f"https://dev.gentoo.org/~whissi/dist/intel-microcode/"
+	col_url = f"https://dev.gentoo.org/~sam/distfiles/sys-firmware/intel-microcode/"
 	html_data = await hub.pkgtools.fetch.get_page(col_url)
 	soup = BeautifulSoup(html_data, "html.parser")
 	best_archive = None

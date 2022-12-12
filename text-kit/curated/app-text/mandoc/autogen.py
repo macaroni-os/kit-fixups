@@ -37,24 +37,24 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	return list(sorted_list)
 
 async def generate(hub, **pkginfo):
-	app = "mandoc"
-	extension = f".tar.gz"
-	src_url = f"https://mandoc.bsd.lv/snapshots/"
-	src_data = await hub.pkgtools.fetch.get_page(src_url)
-	soup = BeautifulSoup(src_data, "html.parser")
+	#app = "mandoc"
+	#extension = f".tar.gz"
+	#src_url = f"https://mandoc.bsd.lv/snapshots/"
+	#src_data = await hub.pkgtools.fetch.get_page(src_url)
+	#soup = BeautifulSoup(src_data, "html.parser")
 
-	hrefs = []
+	#hrefs = []
 
-	for link in soup.find_all("a"):
-		hrefs.append(link.get("href"))
-	href_tuples = filter_and_sort_hrefs(hrefs, app, extension)
+	#for link in soup.find_all("a"):
+	#	hrefs.append(link.get("href"))
+	#href_tuples = filter_and_sort_hrefs(hrefs, app, extension)
 
-	if not len(href_tuples):
-		raise hub.pkgtools.ebuild.BreezyError(f"No valid tarballs found for {app}.")
-	href, version = href_tuples[-1]
-	artifact = hub.pkgtools.ebuild.Artifact(url=f"{src_url}{href}")
+	#if not len(href_tuples):
+	#	raise hub.pkgtools.ebuild.BreezyError(f"No valid tarballs found for {app}.")
+	#href, version = href_tuples[-1]
+	artifact = hub.pkgtools.ebuild.Artifact(url=f"https://distfiles.gentoo.org/distfiles/mandoc-1.14.6.tar.gz")
 	generate = []
-	generate.append({ "cat" : "app-text", "name": "mandoc", "version" : version})
+	generate.append({ "cat": "app-text", "name": "mandoc", "version": "1.14.6"})
 
 	for gen in generate:
 		pkginfo.update(gen)

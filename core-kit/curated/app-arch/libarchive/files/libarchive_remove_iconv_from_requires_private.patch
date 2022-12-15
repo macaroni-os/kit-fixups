@@ -1,0 +1,18 @@
+Subject: [PATCH] remove iconv from Requires.private as there is no pkgconfig file for iconv
+---
+Index: configure.ac
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/configure.ac b/configure.ac
+--- a/configure.ac	(revision 3da2fb7ee2d929bc8f02bcf3d42def768667c939)
++++ b/configure.ac	(date 1671006620103)
+@@ -378,7 +378,6 @@
+     AC_CHECK_HEADERS([localcharset.h])
+     am_save_LIBS="$LIBS"
+     LIBS="${LIBS} ${LIBICONV}"
+-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }iconv"
+     AC_CHECK_FUNCS([locale_charset])
+     LIBS="${am_save_LIBS}"
+     if test "x$ac_cv_func_locale_charset" != "xyes"; then

@@ -46,12 +46,6 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-5.7.0-mix-signal.h-include.patch
 )
 
-
-src_unpack() {
-    unpack ${A}
-	mv "${WORKDIR}"/iproute2-* "${S}"
-}
-
 doecho() {
 	echo "${@}"
 	"${@}" || die

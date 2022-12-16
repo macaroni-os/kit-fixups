@@ -11,4 +11,4 @@ SLOT="0"
 KEYWORDS="-* riscv64"
 
 BDEPEND=""
-RDEPEND="|| ( ~dev-lang/rust-${PV}[${MULTILIB_USEDEP}] )"
+RDEPEND="|| ( ~dev-lang/rust-bin-${PV}[${MULTILIB_USEDEP}] ~dev-lang/rust-${PV}[${MULTILIB_USEDEP}] )"

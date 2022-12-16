@@ -89,11 +89,11 @@ src_install() {
 	keepdir /etc/ssl/ovn
 	fperms 0750 /etc/ssl/ovn
 
-	newconfd "${FILESDIR}/ovn-central.confd" ovn-central
-	newconfd "${FILESDIR}/ovn-ic.confd" ovn-ic
-	newconfd "${FILESDIR}/ovn-ic-ovsdb.confd" ovn-ic-ovsdb
-	newconfd "${FILESDIR}/ovn-controller.confd" ovn-controller
-	newconfd "${FILESDIR}/ovn-controller-vtep.confd" ovn-controller-vtep
+	newconfd "${FILESDIR}"/ovn-central.confd ovn-central
+	newconfd "${FILESDIR}"/ovn-ic.confd ovn-ic
+	newconfd "${FILESDIR}"/ovn-ic-ovsdb.confd ovn-ic-ovsdb
+	newconfd "${FILESDIR}"/ovn-controller.confd ovn-controller
+	newconfd "${FILESDIR}"/ovn-controller-vtep.confd ovn-controller-vtep
 
 	if use systemd ; then
 		systemd_dounit "${FILESDIR}"/ovn-central.service
@@ -101,6 +101,12 @@ src_install() {
 		systemd_dounit "${FILESDIR}"/ovn-ic-ovsdb.service
 		systemd_dounit "${FILESDIR}"/ovn-controller.service
 		systemd_dounit "${FILESDIR}"/ovn-controller-vtep.service
+	else
+		newinitd "${FILESDIR}"/ovn-ic.initd ovn-ic
+		newinitd "${FILESDIR}"/ovn-ic-ovsdb.initd ovn-ic-ovsdb
+		newinitd "${FILESDIR}"/ovn-controller.initd ovn-controller
+		newinitd "${FILESDIR}"/ovn-controller-vtep.initd ovn-controller-vtep
+		newinitd "${FILESDIR}"/ovn-central.initd ovn-central
 	fi
 
 	insinto /etc/logrotate.d

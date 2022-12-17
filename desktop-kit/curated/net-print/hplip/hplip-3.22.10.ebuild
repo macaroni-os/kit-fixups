@@ -3,23 +3,20 @@
 EAPI=7
 
 PYTHON_COMPAT=( python3+ )
-PYTHON_REQ_USE="threads(+),xml"
-
-# 14 and 15 spit out a lot of warnings about subdirs
-WANT_AUTOMAKE="1.13"
+PYTHON_REQ_USE="threads(+),xml(+)"
 
 inherit autotools linux-info python-single-r1 readme.gentoo-r1 udev
 
 DESCRIPTION="HP Linux Imaging and Printing - Print, scan, fax drivers and service tools"
 HOMEPAGE="https://developers.hp.com/hp-linux-imaging-and-printing"
 SRC_URI="mirror://sourceforge/hplip/${P}.tar.gz
-		https://dev.gentoo.org/~billie/distfiles/${PN}-3.20.11-patches-2.tar.xz"
+		https://dev.gentoo.org/~billie/distfiles/${PN}-3.22.6-patches-1.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm arm64 ppc ppc64 x86"
+KEYWORDS="*"
 
-IUSE="doc fax +hpcups hpijs kde libnotify libressl -libusb0 minimal parport policykit qt5 scanner +snmp static-ppds X"
+IUSE="doc fax +hpcups hpijs kde libnotify libusb0 minimal parport policykit qt5 scanner +snmp static-ppds X"
 
 COMMON_DEPEND="
 	net-print/cups
@@ -34,10 +31,9 @@ COMMON_DEPEND="
 			media-gfx/sane-backends
 		)
 		snmp? (
-			!libressl? ( dev-libs/openssl:0= )
-			libressl? ( dev-libs/libressl:= )
+			dev-libs/openssl:0=
 			net-analyzer/net-snmp:=
-			$(python_gen_cond_dep 'net-dns/avahi[dbus,${PYTHON_MULTI_USEDEP}]')
+			net-dns/avahi[dbus,python,${PYTHON_SINGLE_USEDEP}]
 		)
 	)
 "
@@ -51,19 +47,19 @@ RDEPEND="
 	${COMMON_DEPEND}
 	app-text/ghostscript-gpl
 	!minimal? (
-		$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_MULTI_USEDEP}]' 'python3*')
+		$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]' 'python3*')
 		kernel_linux? ( virtual/udev )
 		$(python_gen_cond_dep '
-			>=dev-python/dbus-python-1.2.0-r1[${PYTHON_MULTI_USEDEP}]
-			dev-python/distro[${PYTHON_MULTI_USEDEP}]
-			fax? ( dev-python/reportlab[${PYTHON_MULTI_USEDEP}] )
+			>=dev-python/dbus-python-1.2.0-r1[${PYTHON_USEDEP}]
+			dev-python/distro[${PYTHON_USEDEP}]
+			fax? ( dev-python/reportlab[${PYTHON_USEDEP}] )
 			qt5? (
-				>=dev-python/PyQt5-5.5.1[dbus,gui,widgets,${PYTHON_MULTI_USEDEP}]
-				libnotify? ( dev-python/notify2[${PYTHON_MULTI_USEDEP}] )
+				>=dev-python/PyQt5-5.5.1[dbus,gui,widgets,${PYTHON_USEDEP}]
+				libnotify? ( dev-python/notify2[${PYTHON_USEDEP}] )
 			)
 			scanner? (
-				>=dev-python/reportlab-3.2[${PYTHON_MULTI_USEDEP}]
-				>=dev-python/pillow-3.1.1[${PYTHON_MULTI_USEDEP}]
+				>=dev-python/reportlab-3.2[${PYTHON_USEDEP}]
+				>=dev-python/pillow-3.1.1[${PYTHON_USEDEP}]
 				X? (
 					|| (
 						kde? ( kde-misc/skanlite )
@@ -219,8 +215,9 @@ src_configure() {
 	# disable class driver for now
 	econf \
 		--disable-class-driver \
-		--disable-foomatic-rip-hplip-install \
 		--disable-cups11-build \
+		--disable-foomatic-rip-hplip-install \
+		--disable-imageProcessor-build \
 		--disable-lite-build \
 		--disable-shadow-build \
 		--disable-qt3 \
@@ -283,5 +280,10 @@ src_install() {
 }
 
 pkg_postinst() {
+	udev_reload
 	readme.gentoo_print_elog
+}
+
+pkg_postrm() {
+	udev_reload
 }

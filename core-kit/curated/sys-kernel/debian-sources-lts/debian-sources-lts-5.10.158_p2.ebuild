@@ -18,7 +18,8 @@ MODULE_EXT=${PVR}-${PN}
 
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-DEB_PV="5.10.127-${DEB_EXTRAVERSION}"
+KERNEL_VERSION="5.10.158"
+DEB_PV="${KERNEL_VERSION}-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
@@ -40,9 +41,9 @@ zfs? ( binary )
 "
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
-HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="https://security.debian.org/debian-security/pool/updates/main/l/linux/linux_5.10.127.orig.tar.xz -> linux_5.10.127.orig.tar.xz https://security.debian.org/debian-security/pool/updates/main/l/linux/linux_5.10.127-2.debian.tar.xz -> linux_5.10.127-2.debian.tar.xz"
-S="$WORKDIR/linux-5.10.127"
+HOMEPAGE="https://packages.debian.org/stable/kernel/"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_VERSION}.orig.tar.xz -> linux_${KERNEL_VERSION}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz"
+S="$WORKDIR/linux-${KERNEL_VERSION}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -124,28 +125,28 @@ src_prepare() {
 	#make -s include/linux/version.h || die "make include/linux/version.h failed"
 	cd "${S}"
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
-	if [ -e "${FILESDIR}/5.10.127/xfs-libcrc32c-fix.patch" ]; then
-	    epatch "${FILESDIR}"/5.10.127/xfs-libcrc32c-fix.patch || die
+	if [ -e "${FILESDIR}/${KERNEL_VERSION}/xfs-libcrc32c-fix.patch" ]; then
+	    epatch "${FILESDIR}"/${KERNEL_VERSION}/xfs-libcrc32c-fix.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/xfs-libcrc32c-fix.patch || die
 	fi
-	if [ -e "${FILESDIR}/5.10.127/mcelog.patch" ]; then
-	    epatch "${FILESDIR}"/5.10.127/mcelog.patch || die
+	if [ -e "${FILESDIR}/${KERNEL_VERSION}/mcelog.patch" ]; then
+	    epatch "${FILESDIR}"/${KERNEL_VERSION}/mcelog.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/mcelog.patch || die
 	fi
-	if [ -e "${FILESDIR}/5.10.127/nocerts.patch" ]; then
-	    epatch "${FILESDIR}"/5.10.127/nocerts.patch || die
+	if [ -e "${FILESDIR}/${KERNEL_VERSION}/nocerts.patch" ]; then
+	    epatch "${FILESDIR}"/${KERNEL_VERSION}/nocerts.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/nocerts.patch || die
 	fi
-	if [ -e "${FILESDIR}/5.10.127/ikconfig.patch" ]; then
-	    epatch "${FILESDIR}"/5.10.127/ikconfig.patch || die
+	if [ -e "${FILESDIR}/${KERNEL_VERSION}/ikconfig.patch" ]; then
+	    epatch "${FILESDIR}"/${KERNEL_VERSION}/ikconfig.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	fi
-	if [ -e "${FILESDIR}/5.10.127/extra_cpu_optimizations.patch" ]; then
-	    epatch "${FILESDIR}"/5.10.127/extra_cpu_optimizations.patch || die
+	if [ -e "${FILESDIR}/${KERNEL_VERSION}/extra_cpu_optimizations.patch" ]; then
+	    epatch "${FILESDIR}"/${KERNEL_VERSION}/extra_cpu_optimizations.patch || die
 	else
 	    epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
 	fi
@@ -164,7 +165,7 @@ src_prepare() {
 	chmod +x config-extract || die
 	./config-extract ${arch} ${featureset} ${subarch} || die
 	setno_config .config CONFIG_DEBUG
-	if acpi-ec; then
+	if use acpi-ec; then
 		# most fan control tools require this
 		tweak_config .config CONFIG_ACPI_EC_DEBUGFS m
 	fi

@@ -7,7 +7,7 @@ inherit check-reqs eutils ego
 SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
-DEB_EXTRAVERSION="2"
+DEB_EXTRAVERSION="1"
 # Account for version revisions
 [[ ${PR} != "r0" ]] && DEB_EXTRAVERSION+="-${PR}"
 # Debian version -1 becomes _p1 in Funtoo:
@@ -18,7 +18,7 @@ MODULE_EXT=${PVR}-${PN}
 
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-KERNEL_VERSION="6.0.10"
+KERNEL_VERSION="6.0.12"
 DEB_PV="${KERNEL_VERSION}-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
@@ -48,7 +48,7 @@ zfs? ( binary )
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_VERSION}.orig.tar.xz -> linux_${KERNEL_VERSION}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_VERSION}-${DEB_EXTRAVERSION}.debian.tar.xz -> linux_${KERNEL_VERSION}-${DEB_EXTRAVERSION}.debian.tar.xz"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_VERSION}.orig.tar.xz -> linux_${KERNEL_VERSION}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz"
 S="$WORKDIR/linux-${KERNEL_VERSION}"
 
 get_patch_list() {

@@ -14,7 +14,7 @@ SRC_URI=" {{artifacts[0].src_uri}} {{artifacts[1].src_uri}}
 LICENSE="GPL-2 PUEL"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+additions chm headless python vboxwebsrv rdesktop-vrdp sdk"
+IUSE="+additions doc headless python vboxwebsrv rdesktop-vrdp sdk"
 
 
 DEPEND="app-arch/unzip
@@ -36,7 +36,6 @@ RDEPEND="!app-emulation/virtualbox-additions
 		x11-libs/libXinerama
 		x11-libs/libXrandr
 		x11-libs/libXrender
-		chm? ( dev-libs/expat )
 	)
 	dev-libs/libxml2
 	sys-fs/lvm2
@@ -118,7 +117,12 @@ src_install() {
 	insinto /opt/VirtualBox
 	dodir /opt/bin
 
-	doins UserManual.pdf
+	if use doc; then
+		dodoc UserManual.pdf
+		docompress -x /usr/share/doc/${PF}/qt
+		docinto qt
+		dodoc UserManual.q{ch,hc}
+	fi
 
 	if use sdk ; then
 		doins -r sdk
@@ -144,12 +148,6 @@ src_install() {
 		dosym ../../opt/VirtualBox/rdesktop-vrdp /opt/bin/rdesktop-vrdp
 	fi
 
-	if ! use headless && use chm; then
-		doins kchmviewer VirtualBox.chm
-		fowners root:vboxusers /opt/VirtualBox/kchmviewer
-		fperms 0750 /opt/VirtualBox/kchmviewer
-	fi
-
 	# This ebuild / package supports only py2.7.  When py3 comes is unknown.
 	# The compile phase makes VBoxPython2_7.so.
 	# py3 support would presumably require a binary pre-compiled by py3.
@@ -158,9 +156,8 @@ src_install() {
 	rm -rf src rdesktop* deffiles install* routines.sh runlevel.sh \
 		vboxdrv.sh VBox.sh VBox.png vboxnet.sh additions VirtualBox.desktop \
 		VirtualBox.tar.bz2 LICENSE VBoxSysInfo.sh rdesktop* vboxwebsrv \
-		webtest kchmviewer VirtualBox.chm vbox-create-usb-node.sh \
-		90-vbox-usb.fdi uninstall.sh vboxshell.py vboxdrv-pardus.py \
-		VBoxPython?_*.so
+		webtest vbox-create-usb-node.sh 90-vbox-usb.fdi uninstall.sh \
+		vboxshell.py vboxdrv-pardus.py VBoxPython?_*.so
 
 	if use headless ; then
 		#rm -rf VBoxSDL VirtualBox{,VM} VBoxKeyboard.so

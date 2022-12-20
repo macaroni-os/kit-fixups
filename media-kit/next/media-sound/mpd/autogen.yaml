@@ -1,0 +1,11 @@
+mpd_rule:
+  generator: github-1
+  packages:
+    - mpd:
+        github:
+          user: MusicPlayerDaemon
+          query: tags
+          transform:
+            - kind: string
+              match: +git
+              replace: _p

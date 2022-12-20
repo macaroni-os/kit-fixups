@@ -99,8 +99,8 @@ pkg_setup() {
 src_prepare() {
 	default
 
-# Set revision number
-sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Gentoo release"
+	# Set revision number
+	sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Gentoo release"
 
 	if use python; then
 		pushd contrib/pyzfs >/dev/null || die
@@ -111,6 +111,7 @@ sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-funtoo/" META || die "Could not set Gent
 	# prevent errors showing up on zfs-mount stop, #647688
 	# openrc will unmount all filesystems anyway.
 	sed -i "/^ZFS_UNMOUNT=/ s/yes/no/" "etc/default/zfs.in" || die
+	eautoreconf
 }
 
 src_configure() {

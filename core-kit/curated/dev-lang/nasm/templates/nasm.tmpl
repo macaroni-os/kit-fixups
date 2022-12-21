@@ -42,5 +42,5 @@ src_compile() {
 
 src_install() {
 	default
-	emake DESTDIR="${D}" install_rdf $(usex doc install_doc '')
+	emake DESTDIR="${D}" $(usex doc install_doc '')
 }

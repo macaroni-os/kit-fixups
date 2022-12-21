@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit flag-o-matic linux-info meson systemd xdg-utils user
+inherit flag-o-matic linux-info meson xdg-utils user
 
 DESCRIPTION="The Music Player Daemon (mpd)"
 HOMEPAGE="https://www.musicpd.org https://github.com/MusicPlayerDaemon/MPD"
@@ -89,7 +89,6 @@ RDEPEND="
 	sndio? ( media-sound/sndio )
 	soundcloud? ( >=dev-libs/yajl-2:= )
 	sqlite? ( dev-db/sqlite:3 )
-	systemd? ( sys-apps/systemd )
 	twolame? ( media-sound/twolame )
 	udisks? ( sys-fs/udisks:2 )
 	upnp? ( net-libs/libupnp:0 )
@@ -179,14 +178,14 @@ src_configure() {
 		-Dsmbclient=$(usex samba enabled disabled)
 		-Dsoxr=$(usex libsoxr enabled disabled)
 		-Dsqlite=$(usex sqlite enabled disabled)
-		-Dsystemd=$(usex systemd enabled disabled)
 		-Dtest=$(usex test true false)
 		-Dudisks=$(usex udisks enabled disabled)
-		-Dupnp=$(usex upnp enabled disabled)
+		-Dupnp=$(usex upnp auto disabled)
 		-Dwebdav=$(usex webdav enabled disabled)
 		-Dzeroconf=$(usex zeroconf avahi disabled)
 		-Dzlib=$(usex zlib enabled disabled)
 		-Dzzip=$(usex zip enabled disabled)
+		-Dsystemd=disabled
 		)
 
 	emesonargs+=(
@@ -260,8 +259,8 @@ src_configure() {
 		-Dio_uring=enabled
 		-Dtcp=true
 
-		-Dsystemd_system_unit_dir="$(systemd_get_systemunitdir)"
-		-Dsystemd_user_unit_dir="$(systemd_get_userunitdir)"
+		-Dsystemd_system_unit_dir=""
+		-Dsystemd_user_unit_dir=""
 		)
 
 	if use icu; then

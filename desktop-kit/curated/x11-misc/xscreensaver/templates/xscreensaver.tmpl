@@ -77,7 +77,6 @@ BDEPEND="
 	virtual/pkgconfig
 "
 PATCHES=(
-	"${FILESDIR}"/${PN}-6.01-interix.patch
 	"${FILESDIR}"/${PN}-5.31-pragma.patch
 	"${FILESDIR}"/${PN}-6.01-gentoo.patch
 	"${FILESDIR}"/${PN}-5.45-gcc.patch
@@ -87,13 +86,14 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.01-configure-install_sh.patch
 	"${FILESDIR}"/${PN}-6.03-without-gl-configure.patch
 	"${FILESDIR}"/${PN}-6.05.1-fix_hardcoded_icons_dir.patch
-	"${FILESDIR}"/${PN}-6.05.1-remove_dependency_on_fbida.patch
 )
 
 DOCS=( README{,.hacking} )
 
 post_src_unpack() {
-	mv "${WORKDIR}"/* "${S}" || die
+	if [ ! -d "${S}" ] ; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
 }
 
 src_prepare() {
@@ -111,6 +111,9 @@ src_prepare() {
 	# We are patching driver/XScreenSaver.ad.in, so let's delete the
 	# header generated from it so that it gets back in sync during build:
 	rm driver/XScreenSaver_ad.h || die
+
+	sed -i -e 's/Screensaver;//g' driver/xscreensaver-settings.desktop.in || die
+	sed -i -e 's/Screensaver;//g' driver/xscreensaver.desktop.in || die
 
 	config_rpath_update "${S}"/config.rpath
 

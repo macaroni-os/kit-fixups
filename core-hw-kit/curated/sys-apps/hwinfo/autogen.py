@@ -13,15 +13,14 @@ async def get_latest_release(hub, **pkginfo):
     # Iterate all links in the page
     for a in BeautifulSoup(html, features="html.parser").find_all("a", href=True):
         href = a['href']
-        # Check if the link begins with m17n-contrib, ends with .tar.gz and doesn't contain RC(Release Candidate) in the name
-        if href.endswith(archive) and href.startswith(pkg_name) and href.find(".rc") == -1:
+        if href.endswith(archive) and href.startswith(f"./{pkg_name}") and href.find(".rc") == -1:
             return href
 
 async def generate(hub, **pkginfo):
     result = await get_latest_release(hub, **pkginfo)
-    
+
     # At the end there is a +1 because we need to remove the - before the version number
-    version = result[:result.rfind("-")][len(pkg_name) + 1:] 
+    version = result[:result.rfind("-")][len(pkg_name) + len("./") + 1:] 
     url = f"{url_g}{result}"
 
     ebuild = hub.pkgtools.ebuild.BreezyBuild(

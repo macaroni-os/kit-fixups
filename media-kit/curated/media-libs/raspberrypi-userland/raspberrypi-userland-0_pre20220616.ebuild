@@ -10,7 +10,7 @@ inherit cmake flag-o-matic udev
 	# * libraspberrypi-bin-dbgsym_2+git20201022~151804+e432bc3-1_arm64.deb
 	# * "e432bc3" is the first 7 hex digits of the commit hash.
 	# * Go to https://github.com/raspberrypi/userland/commits/master and find the full hash
-	GIT_COMMIT="c4fd1b8986c6d6d4ae5cd51e65a8bbeb495dfa4e"
+	GIT_COMMIT="54fd97ae4066a10b6b02089bc769ceed328737e0"
 	SRC_URI="https://github.com/raspberrypi/userland/archive/${GIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="arm arm64"
 	S="${WORKDIR}/userland-${GIT_COMMIT}"

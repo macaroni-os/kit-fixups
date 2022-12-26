@@ -25,11 +25,11 @@ COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
 
 GITHUB_REPO="${PN}"
 GITHUB_USER="funtoo"
-GITHUB_TAG="29204cbbf64a14bbbd10df3ea6b8a373d5a66e13"
+GITHUB_TAG="543747b3c50e74a2013d6958db413c4d6e847db4"
 
 inherit bash-completion-r1 eutils
 SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz ${COMMON_URI}"
-KEYWORDS="*"
+KEYWORDS="next"
 
 DESCRIPTION="Gentoo automatic kernel building scripts"
 HOMEPAGE="http://www.gentoo.org"
@@ -56,9 +56,11 @@ src_prepare() {
 	mkdir patches/busybox/1.21.1/
 	cp "${FILESDIR}"/busybox-1.21.1-glibc.patch patches/busybox/1.21.1/
 	epatch "${FILESDIR}"/initramfs-r1.patch
+	epatch "${FILESDIR}"/mdev_hotplug.patch
 	for modfile in $(find ${S} -name modules_load); do
 		sed -i -e '/MODULES_FS/s/"$/ squashfs overlay hfsplus isofs udf loop nls_utf8"/' \
-			-e '/MODULES_CRYPTO/s/"$/ algif_skcipher af_alg crc32_generic"/' ${modfile}
+			-e '/MODULES_CRYPTO/s/"$/ algif_skcipher af_alg crc32_generic"/' \
+			-e '/MODULES_SCSI/s/"$/ vmw_pvscsi"/' ${modfile}
 	done
 }
 

@@ -1,0 +1,21 @@
+Subject: [PATCH] setup hotpluging if hotplug available
+---
+Index: defaults/linuxrc
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/defaults/linuxrc b/defaults/linuxrc
+--- a/defaults/linuxrc	(revision ca9dc231dc949cf547ffc078a430333533bb1d38)
++++ b/defaults/linuxrc	(date 1671993938627)
+@@ -316,8 +316,8 @@
+ 	# Serialize hotplug events
+ 	touch /dev/mdev.seq
+ 
+-	# Setup hotplugging for firmware loading
+-	echo /sbin/mdev > /proc/sys/kernel/hotplug
++	# Setup hotplugging for firmware loading if hotplug available
++	test -f /proc/sys/kernel/hotplug && echo /sbin/mdev > /proc/sys/kernel/hotplug
+ fi
+ 
+ # Load modules listed in MY_HWOPTS if /lib/modules exists for the running kernel

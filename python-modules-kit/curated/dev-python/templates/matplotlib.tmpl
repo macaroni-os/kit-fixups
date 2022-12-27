@@ -113,6 +113,9 @@ python_prepare_all() {
 		-i lib/matplotlib/{mathtext,fontconfig_pattern}.py \
 		|| die "sed pyparsing failed"
 
+	sed -e 's|setuptools_scm>=4,<7|setuptools_scm>=4|g' -i setup.py || \
+		die "sed setup.py setuptools_scm failed"
+
 	hprefixify setupext.py
 
 	rm -rf libqhull || die

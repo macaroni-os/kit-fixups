@@ -4,7 +4,7 @@ EAPI=7
 inherit cmake llvm toolchain-funcs
 
 # check this on updates
-LLVM_MAX_SLOT=12
+LLVM_MAX_SLOT=14
 
 DESCRIPTION="Advanced shading language for production GI renderers"
 HOMEPAGE="http://opensource.imageworks.com/?p=osl"
@@ -27,7 +27,7 @@ RDEPEND="
 	dev-libs/pugixml
 	>=media-libs/openexr-3:=
 	media-libs/openimageio:=
-	<=sys-devel/clang-13:=
+	<=sys-devel/clang-$((${LLVM_MAX_SLOT} + 1)):=
 	sys-libs/zlib:=
 	dev-python/pybind11
 	partio? ( media-libs/partio )

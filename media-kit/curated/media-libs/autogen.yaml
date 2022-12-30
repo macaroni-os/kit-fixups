@@ -23,3 +23,23 @@ media_catpkg:
           user: jasper-software
           repo: jasper
           query: releases
+    - oidn:
+        assets:
+          src: oidn-{version}.src.tar.gz
+        github:
+          user: OpenImageDenoise
+          repo:  oidn
+          query: releases
+    - libharu:
+        github:
+          user: libharu
+          repo: libharu
+          query: releases
+    - opencolorio:
+        versions:
+          2.1.2:
+            github:
+              user: AcademySoftwareFoundation
+              repo: OpenColorIO
+              query: releases
+            python_compat: python3+

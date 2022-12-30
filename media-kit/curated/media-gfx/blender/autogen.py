@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 
 async def generate(hub, **pkginfo):
-	python_compat = "python3_9+"
+	python_compat = "python3_10+"
 	src_url = "https://download.blender.org/source/"
 	src_data = await hub.pkgtools.fetch.get_page(src_url)
 	soup = BeautifulSoup(src_data, "html.parser")

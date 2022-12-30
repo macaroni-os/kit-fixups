@@ -154,7 +154,6 @@ src_prepare() {
 	sed -e "s|blender.svg|blender-${BV}.svg|" -i source/creator/CMakeLists.txt || die
 	sed -e "s|blender-symbolic.svg|blender-${BV}-symbolic.svg|" -i source/creator/CMakeLists.txt || die
 	sed -e "s|blender.desktop|blender-${BV}.desktop|" -i source/creator/CMakeLists.txt || die
-	sed -e "s|blender-thumbnailer.py|blender-${BV}-thumbnailer.py|" -i source/creator/CMakeLists.txt || die
 
 	sed -e "s|Name=Blender|Name=Blender ${PV}|" -i release/freedesktop/blender.desktop || die
 	sed -e "s|Exec=blender|Exec=blender-${BV}|" -i release/freedesktop/blender.desktop || die
@@ -163,7 +162,6 @@ src_prepare() {
 	mv release/freedesktop/icons/scalable/apps/blender.svg release/freedesktop/icons/scalable/apps/blender-${BV}.svg || die
 	mv release/freedesktop/icons/symbolic/apps/blender-symbolic.svg release/freedesktop/icons/symbolic/apps/blender-${BV}-symbolic.svg || die
 	mv release/freedesktop/blender.desktop release/freedesktop/blender-${BV}.desktop || die
-	mv release/bin/blender-thumbnailer.py release/bin/blender-${BV}-thumbnailer.py || die
 
 }
 
@@ -287,7 +285,6 @@ src_install() {
 	dodoc "${CMAKE_USE_DIR}"/release/text/readme.html
 	rm -r "${ED}"/usr/share/doc/blender || die
 
-	python_fix_shebang "${ED}/usr/bin/blender-${BV}-thumbnailer.py"
 	python_optimize "${ED}/usr/share/blender/${BV}/scripts"
 
 	mv "${ED}/usr/bin/blender" "${ED}/usr/bin/blender-${BV}"
@@ -311,11 +308,11 @@ pkg_postinst() {
 	ewarn "  https://developer.blender.org/"
 	ewarn
 
-	if ! use python_single_target_python3_9; then
+	if ! use python_single_target_python3_10; then
 		elog "You are building Blender with a newer python version than"
 		elog "supported by this version upstream."
 		elog "If you experience breakages with e.g. plugins, please switch to"
-		elog "python_single_target_python3_9 instead."
+		elog "python_single_target_python3_10 instead."
 		elog "Bug: https://bugs.gentoo.org/737388"
 		elog
 	fi

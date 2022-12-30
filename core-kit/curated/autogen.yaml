@@ -8,6 +8,18 @@ github_rule:
           user: libarchive
           repo: libarchive
           query: releases
+    - minizip-ng:
+        cat: sys-libs
+        github:
+          user: zlib-ng
+          repo: minizip-ng
+          query: releases
+    - zlib-ng:
+        cat: sys-libs
+        github:
+          user: zlib-ng
+          repo: zlib-ng
+          query: releases
 
 debian_rule:
   generator: debian

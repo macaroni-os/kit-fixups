@@ -36,7 +36,6 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-3.3.0-use-gnuinstalldirs.patch"
-	"${FILESDIR}/${PN}-3.4.0-0001-documentation-CMakeLists.txt-force-python2.patch"
 	"${FILESDIR}/${PN}-3.4.3-install-tutorials-into-bin.patch"
 	"${FILESDIR}/${PN}-3.4.4-add-CUDA11-compatibility.patch"
 )

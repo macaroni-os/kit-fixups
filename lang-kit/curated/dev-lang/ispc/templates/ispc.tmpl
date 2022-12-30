@@ -6,7 +6,7 @@ PYTHON_COMPAT=( {{python_compat}} )
 
 inherit cmake llvm python-any-r1
 
-LLVM_MAX_SLOT=12
+LLVM_MAX_SLOT=15
 
 DESCRIPTION="Intel SPMD Program Compiler"
 HOMEPAGE="https://ispc.github.io/"
@@ -21,9 +21,17 @@ RDEPEND="<sys-devel/clang-13:="
 DEPEND="
 	${RDEPEND}
 	${PYTHON_DEPS}"
+
+# https://bugs.funtoo.org/browse/FL-10884
+# As of dev-lang/ispc-1.18.1 compiling examples requires
+# dev-util/ninja-1.10.0 or greater
 BDEPEND="
 	sys-devel/bison
-	sys-devel/flex"
+	sys-devel/flex
+	examples? (
+		>=dev-util/ninja-1.10.0
+	)
+"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-llvm.patch"
@@ -58,6 +66,7 @@ src_configure() {
 		-DARM_ENABLED=$(usex arm)
 		-DCMAKE_SKIP_RPATH=ON
 		-DISPC_NO_DUMPS=ON
+		-DISPC_INCLUDE_EXAMPLES=$(usex examples)
 	)
 	cmake_src_configure
 }

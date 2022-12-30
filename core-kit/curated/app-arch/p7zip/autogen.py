@@ -4,7 +4,7 @@ from packaging import version
 
 
 async def generate(hub, **pkginfo):
-	github_user = "jinfeihan57"
+	github_user = "p7zip-project"
 	github_repo = pkginfo.get("name")
 
 	release_data = await hub.pkgtools.fetch.get_page(

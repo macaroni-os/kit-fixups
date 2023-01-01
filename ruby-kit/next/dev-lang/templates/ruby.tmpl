@@ -21,7 +21,17 @@ KEYWORDS="*"
 {%- else %}
 KEYWORDS=""
 {%- endif %}
-IUSE="berkdb debug doc examples gdbm ipv6 jemalloc jit +rdoc rubytests socks5 +ssl static-libs systemtap tk xemacs"
+IUSE="berkdb debug examples gdbm ipv6 jemalloc jit +rdoc rubytests socks5 +ssl static-libs systemtap tk xemacs"
+
+{%- if version == "3.2.0" %}
+# https://bugs.funtoo.org/browse/FL-10864
+# For some reason Generating RDoc documentation is not loading libruby32.so.3.2 properly
+# error while loading shared libraries: libruby32.so.3.2: cannot open shared object file: No such file or directory
+# For now disabling RDoc generation for Ruby 3.2.0 until this new behavior can be debugged further
+IUSE+=" -doc"
+{%- else %}
+IUSE+=" doc"
+{%- endif %}
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
@@ -43,6 +53,9 @@ RDEPEND="
 	sys-libs/zlib
 	>=app-eselect/eselect-ruby-{{ eselect_version }}
 "
+{%- if version == "3.2.0" %}
+RDEPEND+=">=virtual/rust-1.58.0"
+{%- endif %}
 
 DEPEND="${RDEPEND}"
 
@@ -216,7 +229,7 @@ src_install() {
 		dodoc -r sample
 	fi
 
-	dodoc ChangeLog {{ news_doc }} doc/NEWS* README*
+	dodoc ChangeLog {{ news_doc }} README*
 
 	if use rubytests; then
 		pushd test

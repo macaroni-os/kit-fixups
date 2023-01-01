@@ -4,7 +4,6 @@ EAPI=7
 
 DESCRIPTION="Manages multiple Ruby versions"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Ruby"
-SRC_URI="https://dev.gentoo.org/~graaff/ruby-team/ruby.eselect-${PVR}.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -17,5 +16,5 @@ S=${WORKDIR}
 
 src_install() {
 	insinto /usr/share/eselect/modules
-	newins "${WORKDIR}/ruby.eselect-${PVR}" ruby.eselect
+	newins "${FILESDIR}/ruby.eselect" ruby.eselect
 }

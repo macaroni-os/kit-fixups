@@ -118,7 +118,7 @@ _ruby_get_all_impls() {
 	local found_one=0
 	local BACKUP_RUBY=ruby26
 	# like in ruby-single.eclass, we will fall back to ruby26 if we do not find a valid imp.
-	for target in ruby31 ruby30 ruby27 ruby26; do
+	for target in ruby32 ruby31 ruby30 ruby27 ruby26; do
 		# ^^ outer loop because it defines the ordering with 'preferred' version coming first.
 		for implementation in ${USE_RUBY}; do
 			[ "$implementation" != "$target" ] && continue

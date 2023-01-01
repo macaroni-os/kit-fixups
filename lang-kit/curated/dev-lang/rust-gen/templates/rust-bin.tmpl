@@ -33,6 +33,11 @@ QA_PREBUILT="
 	opt/${P}/lib/rustlib/.*/lib/.*
 "
 
+# A rmeta file is custom binary format that contains the metadata for the crate.
+# Rmeta files do not support linking, since they do not contain compiled object files.
+# So we can safely silence the warning for this QA check.
+QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"
+
 rust_abi() {
 {{ abi_getter_fn }}
 }
@@ -90,7 +95,6 @@ multilib_src_install() {
 	local components="rustc,cargo,${std}"
 	use doc && components="${components},rust-docs"
 	use clippy && components="${components},clippy-preview"
-	use rls && components="${components},rls-preview,${analysis}"
 	use rustfmt && components="${components},rustfmt-preview"
 
 	{%- for component_name, component_data in extra_component_data.items() %}
@@ -125,7 +129,6 @@ multilib_src_install() {
 	)
 
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
-	use rls && symlinks+=( rls )
 	use rustfmt && symlinks+=( rustfmt cargo-fmt )
 
 	einfo "installing eselect-rust symlinks and paths"
@@ -169,9 +172,6 @@ multilib_src_install() {
 	if use clippy; then
 		echo /usr/bin/clippy-driver >> "${T}/provider-${P}"
 		echo /usr/bin/cargo-clippy >> "${T}/provider-${P}"
-	fi
-	if use rls; then
-		echo /usr/bin/rls >> "${T}/provider-${P}"
 	fi
 	if use rustfmt; then
 		echo /usr/bin/rustfmt >> "${T}/provider-${P}"

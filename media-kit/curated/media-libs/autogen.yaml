@@ -43,3 +43,11 @@ media_catpkg:
               repo: OpenColorIO
               query: releases
             python_compat: python3+
+    - gd:
+        desc: GD is an open source code library for the dynamic creation of images by programmers.
+        homepage: https://libgd.github.io/
+        github:
+          user: libgd
+          repo: libgd
+          query: tags
+        select: 'gd-[0-9.]*$'

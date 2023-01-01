@@ -2,12 +2,10 @@
 
 EAPI=7
 
-inherit multilib rpm toolchain-funcs
+inherit toolchain-funcs
 
-DESCRIPTION="Hardware detection tool used in SuSE Linux"
-HOMEPAGE="https://github.com/openSUSE/hwinfo/"
-# The SRC_URI is a source rpm package because the github repo misses some features and there
-# are way too many tags to go trough until we hit the appropriate one
+DESCRIPTION="{{ description }}"
+HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
 SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="GPL-2"
@@ -22,26 +20,40 @@ DEPEND="${RDEPEND}
 	sys-devel/flex
 	>=sys-kernel/linux-headers-2.6.17"
 
-src_unpack() {
-	rpm_src_unpack ${A}
-	unpack ${WORKDIR}/${P}.tar.xz
+src_prepare() {
+	echo "${PV}" > VERSION
+	sed -i "s/changelog//g" Makefile
+
+	# Respect AR variable.
+	sed -i \
+		-e 's:ar r:$(AR) r:' \
+		src/{,isdn,ids,smp,hd}/Makefile || die
+
+	# Respect LDFLAGS.
+	sed -i -e 's:$(CC) $(CFLAGS):$(CC) $(LDFLAGS) $(CFLAGS):' src/ids/Makefile || die
+
+	# Respect MAKE variable. Skip forced -pipe and -g. Respect LDFLAGS.
+	sed -i \
+		-e 's:make:$(MAKE):' \
+		-e 's:-pipe -g::' \
+		-e 's:LDFLAGS.*=:LDFLAGS +=:' \
+		Makefile{,.common} || die
+
+	default
 }
 
-# Oh god, so here is the problem with this application. For some reason when the makefile is compiled
-# it is normal to get errors, but these errors are automatically resolved, this pisses off emake
-# however, so to fix this we're using raw make. After that you might notice that we don't use MAKEOPTS
-# and that's because when compiling here it also fails with parallel(don't know why). That's not a problem at~
-# least because the application is small in C translation units and given how long an O(n^2) loop in the Makefile~
-# takes that resolves errors and inconsistencies(6.5 minutes on a machine with an AMD Ryzen 9 3900x and 32gb of ram)
-# It honestly wouldn't make a difference in the long run. Just to note that as of version 22.1 there is a pull request
-# to the github repo of this application that resolves the O(n^2) loop problem and from my test compilation compiles in 55 seconds
-# so at least this may be resolved in the next release.
-#
-# That's not all, when the first make fails we might not be getting an actual error, so
-# we have a final check, which calls make and tests if the hwinfo executable exists. Why call make again?
-# For some reason the executable didn't get outputted the first time on a random basis, but calling it again
-# almost always fixes the problem, and if this fails then we definitely have an error so we die
-# I will keep this under an if statement so that future versions don't do this stupidity
+# Let's just list the issues with the application that require this
+# 1. The makefile produces errors in normal behaviour, hence why in src_compile we use raw make
+# 1. The MAKEOPTS are not used because it results in inconsisent fails with parallel
+# 1. When the first make fails we might not be getting an error so we have a final check here that just calls
+#    make and tests if the executable exists. Why call again? On a random basis the executable might not be
+#    output on the first try but calling make again fixes all the problems and ofc if this fails there definitely
+#    is an error
+# 1. Double compilation here is not a problem. Why? Because there is a really slow algorithm that fixes errors
+#    that runs in an O(n^2) loop. This loop resolves the errors mentioned above but also takes about
+#    7 minutes on a system that uses a 12 core AMD Ryzen 9 3900x with 32gb of ram. A PR is opened on the repo and
+#    as of the time of writing(version 22.1) we hope that the next release would have this resolved. Additonally
+#    the application is small in translation units so it doesn't make a difference
 fallback_compilation_strategy() {
 	make CC="$1" RPM_OPT_FLAGS="$2" || (make; test -f "${WORKDIR}/hwinfo") || die
 }
@@ -56,9 +68,8 @@ src_install() {
 	emake DESTDIR="${ED}" LIBDIR="/usr/$(get_libdir)" install
 	keepdir /var/lib/hardware/udi
 
-	dodoc changelog README*
+	dodoc README*
 	docinto examples
 	dodoc doc/example*.c
 	doman doc/*.{1,8}
 }
-

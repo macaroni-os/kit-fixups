@@ -2,14 +2,14 @@
 
 EAPI=7
 
-USE_RUBY="ruby27 ruby30 ruby31"
+USE_RUBY="{{ use_ruby }}"
 RUBY_FAKEGEM_EXTRADOC="README.md"
 RUBY_FAKEGEM_EXTENSIONS=(ext/stringio/extconf.rb)
 RUBY_FAKEGEM_GEMSPEC="${PN}.gemspec"
 
 inherit ruby-fakegem
 
-DESCRIPTION="{{ description }}"
+DESCRIPTION='{{ description }}'
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
 SRC_URI="{{ artifacts[0].src_uri }}"
 

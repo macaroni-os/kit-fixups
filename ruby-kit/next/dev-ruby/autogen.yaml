@@ -1,15 +1,47 @@
 rubygems_github:
   generator: github-1
+  defaults:
+    use_ruby: "ruby27 ruby30 ruby31 ruby32"
   packages:
+    - debug:
+        github:
+          user: ruby
+          repo: debug
+          query: tags
+    - irb:
+        github:
+          user: ruby
+          repo: irb
+          query: tags
     - json:
         github:
           user: flori
           repo: json
           query: tags
+    - matrix:
+        github:
+          user: ruby
+          repo: matrix
+          query: tags
     - net-ftp:
         github:
           user: ruby
           repo: net-ftp
+          query: tags
+    - net-imap:
+        github:
+          user: ruby
+          repo: net-imap
+          query: tags
+    - net-pop:
+        github:
+          user: ruby
+          repo: net-pop
+          query: tags
+    - net-smtp:
+        github:
+          user: ruby
+          repo: net-smtp
           query: tags
     - net-telnet:
         github:
@@ -25,6 +57,11 @@ rubygems_github:
         github:
           user: ruby
           repo: power_assert
+          query: tags
+    - prime:
+        github:
+          user: ruby
+          repo: prime
           query: tags
     - racc:
         github:
@@ -83,18 +120,20 @@ rubygems_github:
           query: tags
 rubygems_manual:
   generator: rubygems
+  defaults:
+    use_ruby: "ruby27 ruby30 ruby31 ruby32"
   packages:
     - bundler:
         versions:
-          2.3.18:
+          2.4.1:
               homepage: "https://github.com/rubygems/rubygems"
     - did_you_mean:
         versions:
-          1.6.1:
+          1.6.3:
             homepage: "https://github.com/yuki24/did_you_mean"
     - kpeg:
         versions:
-          1.3.1:
+          1.3.2:
             homepage: "https://github.com/evanphx/kpeg"
     - lolcat:
         versions:
@@ -102,7 +141,7 @@ rubygems_manual:
             homepage: "https://github.com/busyloop/lolcat"
     - minitest:
         versions:
-          5.16.2:
+          5.16.3:
             homepage: "https://github.com/seattlerb/minitest"
     - optimist:
         versions:
@@ -110,9 +149,9 @@ rubygems_manual:
             homepage: "https://manageiq.github.io/optimist/"
     - psych:
         versions:
-          4.0.4:
+          5.0.1:
             homepage: "https://github.com/ruby/psych"
     - rss:
         versions:
           0.2.9:
-            homepage: "ttps://github.com/ruby/rss"
+            homepage: "https://github.com/ruby/rss"

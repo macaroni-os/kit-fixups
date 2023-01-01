@@ -3,8 +3,8 @@
 EAPI=7
 
 USE_RUBY="{{ use_ruby }}"
-RUBY_FAKEGEM_BINWRAP=""
 RUBY_FAKEGEM_EXTRADOC="README.md"
+RUBY_FAKEGEM_BINDIR="exe"
 RUBY_FAKEGEM_GEMSPEC="${PN}.gemspec"
 
 inherit ruby-fakegem
@@ -14,11 +14,11 @@ HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
 SRC_URI="{{ artifacts[0].src_uri }}"
 
 KEYWORDS="*"
-LICENSE="|| ( Ruby-BSD BSD-2 )"
-SLOT="1"
-IUSE="test"
+LICENSE="|| ( Ruby BSD-2 )"
+SLOT="0"
+IUSE=""
 
-ruby_add_bdepend "test? ( dev-ruby/minitest )"
+ruby_add_bdepend "test? ( dev-ruby/test-unit )"
 
 post_src_unpack() {
 	if [ ! -d "${S}/all/${P}" ] ; then
@@ -27,7 +27,10 @@ post_src_unpack() {
 }
 
 all_ruby_prepare() {
-	sed -i -e 's/git ls-files -z/find * -print0/' ${RUBY_FAKEGEM_GEMSPEC} || die
+	sed -e 's:require_relative ":require "./:' \
+		-i ${RUBY_FAKEGEM_GEMSPEC} || die
+}
 
-	sed -i -e '/bundler/ s:^:#:' Rakefile || die
+all_ruby_install() {
+	doman man/irb.1
 }

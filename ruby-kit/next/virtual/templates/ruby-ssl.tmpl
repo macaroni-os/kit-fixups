@@ -1,7 +1,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-USE_RUBY="ruby27 ruby30 ruby31"
+USE_RUBY="{{ use_ruby }}"
 
 inherit ruby-ng
 
@@ -10,9 +10,9 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="
-	ruby_targets_ruby27? ( dev-lang/ruby:2.7[ssl] )
-	ruby_targets_ruby30? ( dev-lang/ruby:3.0[ssl] )
-	ruby_targets_ruby31? ( dev-lang/ruby:3.1[ssl] )
+{%- for target, version in rdepends.items() %}
+	ruby_targets_{{ target }}? ( dev-lang/ruby:{{ version }}[ssl] )
+{%- endfor %}
 "
 
 pkg_setup() { :; }

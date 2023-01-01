@@ -37,6 +37,12 @@ RDEPEND="
 !sys-devel/binutils-config
 !<sys-libs/binutils-libs-{{version_and_rev}}
 !<sys-devel/binutils-{{version_and_rev}}
+{% if version >= "2.38" -%}
+dev-libs/isl
+dev-libs/mpc
+dev-libs/mpfr
+dev-libs/gmp
+{% endif -%}
 sys-libs/zlib"
 DEPEND="${RDEPEND}"
 {% if version >= "2.38" -%}
@@ -50,12 +56,6 @@ BDEPEND="
 		sys-devel/bc
 	)
 	nls? ( sys-devel/gettext )
-	{% if version >= "2.38" -%}
-	dev-libs/isl
-	dev-libs/mpc
-	dev-libs/mpfr
-	dev-libs/gmp
-	{% endif -%}
 	sys-devel/flex
 	virtual/yacc
 "

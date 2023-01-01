@@ -76,7 +76,7 @@ _ruby_single_implementations_depend() {
 	local found_one=0
 	# If ebuild doesn't enable one of our rubies explicitly in USE_RUBY, we will fall back to BACKUP_RUBY:
 	local BACKUP_RUBY=ruby26
-	for _ruby_implementation in ruby31 ruby30 ruby27 ruby26; do
+	for _ruby_implementation in ruby32 ruby31 ruby30 ruby27 ruby26; do
 		# ^^ outer loop because it defines the ordering with 'preferred' version coming first.
 		for ruse in ${USE_RUBY}; do
 			if [[ "${ruse}" == "${_ruby_implementation}" ]]; then

@@ -37,6 +37,7 @@ async def generate(hub, **pkginfo):
     ebuild = hub.pkgtools.ebuild.BreezyBuild(
         **pkginfo,
         version=latest[0].public + '_p' + str(newest.post),
+        revision={'6.4_p20221231' : '1'},
         artifacts=[stable_artifact] + patch_artifacts,
         patches=[p[1].split('.gz')[0] for p in patches] # a list of all the unzipped patch filenames
     )

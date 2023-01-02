@@ -20,11 +20,12 @@ REQUIRED_USE="
 RESTRICT="test"
 
 DEPEND="
+	sys-apps/dbus
 	>=dev-libs/glib-2.56.0:2
 	udev? ( >=dev-libs/libgudev-232:= )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.6:= )
 	mbim? ( net-libs/libmbim )
-	policykit? ( >=sys-auth/polkit-0.106[introspection?] )
+	policykit? ( sys-auth/polkit[elogind?,introspection?] )
 	qmi? ( >=net-libs/libqmi-1.30.8:=[qrtr?] )
 	qrtr? ( >=net-libs/libqrtr-glib-1.0.0:= )
 	elogind? ( sys-auth/elogind )
@@ -63,6 +64,7 @@ src_configure() {
 	local emesonargs=(
 		-Ddist_version=\"${PVR}\"
 		-Dsystemdsystemunitdir=$(usex elogind || echo "no")
+		-Dpolkit=$(usex policykit "strict" "no")
 		$(meson_use udev)
 		$(meson_use introspection)
 		$(meson_use mbim)

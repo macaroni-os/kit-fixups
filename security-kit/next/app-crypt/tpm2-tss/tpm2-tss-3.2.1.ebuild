@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic linux-info multilib-minimal tmpfiles udev
+inherit autotools flag-o-matic linux-info multilib-minimal tmpfiles udev user
 
 DESCRIPTION="TCG Trusted Platform Module 2.0 Software Stack"
 HOMEPAGE="https://github.com/tpm2-software/tpm2-tss"

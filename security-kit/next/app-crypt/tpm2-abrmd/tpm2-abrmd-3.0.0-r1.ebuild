@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic systemd
+inherit autotools flag-o-matic systemd user
 
 DESCRIPTION="TPM2 Access Broker & Resource Manager"
 HOMEPAGE="https://github.com/tpm2-software/tpm2-abrmd"

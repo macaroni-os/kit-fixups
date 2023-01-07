@@ -43,9 +43,18 @@ else
 	OS_LOGO_SET="${OS_LOGO}"
 fi
 
+sbctl status &> /dev/null
+if [ "$?" -ne 0 ]; then
+	MODE_HEADER="Legacy BIOS"
+	UEFI_STATUS="${WHITE}$(echo "LiveCD using Legacy BIOS Mode")"
+else
+	MODE_HEADER="UEFI"
+	UEFI_STATUS="${WHITE}$(echo "LiveCD using UEFI Mode - $(sbctl status|grep "Secure" | awk '{print $1, $2}') ${GREEN}$(sbctl status|grep "Secure" | awk '{print $4}')")"
+fi
+
 fbecho
 cat <<BANNER
-${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} version ${VERSION} ${RED} =========== ${WHITE}$(basename $(tty))${GREY}/6 ${RED}==${OFF}
+${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} Boot ${MODE_HEADER} Mode ${RED} =========== ${WHITE}$(basename $(tty))${GREY}/6 ${RED}==${OFF}
                  ${WHITE}Created by the Funtoo Core Team${OFF}
                  ${PURP}https://www.funtoo.org${OFF}
 $(cat $OS_LOGO_SET)
@@ -54,12 +63,16 @@ ${PURP}*${RED} Available Text Editors${WHITE}: vim${GREY}, ${WHITE}vi${GREY}, ${
 ${PURP}*${RED} Available HEX Editor: ${WHITE}hexedit
 ${PURP}*${RED} Web browsers CLI: ${WHITE}elinks${GREY}, ${WHITE}w3m${GREY}, ${WHITE}links
 ${PURP}*${RED} Tools${GREY}:
-    ${PURP}-${GREY} Partition manager: ${WHITE}parted${GREY}, ${WHITE}fdisk${GREY}, ${WHITE}cfdisk${GREY}
+    ${PURP}-${GREY} Partition manager: ${WHITE}parted${GREY}, ${WHITE}fdisk${GREY}, ${WHITE}cfdisk${GREY}, ${WHITE}gfdisk${GREY}
     ${PURP}-${GREY} Diagnostic: ${WHITE}htop${GREY}, ${WHITE}whdd${GREY}, ${WHITE}hdparm${GREY}, ${WHITE}iostat${GREY}, ${WHITE}iotop${GREY}, ${WHITE}lsof${GREY}
     ${PURP}-${GREY} Forensic / Recover: ${WHITE}photorec${GREY}, ${WHITE}foremost${GREY}, ${WHITE}dcfldd${GREY}, ${WHITE}ddrescue${GREY}
     ${PURP}-${GREY} Mount NTFS disk using ntfs-3g: ${WHITE}ntfs-3g /dev/sda1 /mnt/windows${GREY}
 
  ${GREY}Default password for root is ${WHITE}root${GREY}. To change the root password, type: ${WHITE}passwd
+
+${RED} ==================================================================================${OFF}
+
+${PURP}*${RED} ${UEFI_STATUS}
 
 ${RED} ==================================================================================${OFF}
 

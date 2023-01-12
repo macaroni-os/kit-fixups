@@ -2008,6 +2008,9 @@ sphinx_and_friends:
             - packaging
             - importlib_metadata >= 4.4
         body: |
+          PATCHES=(
+            "$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
+          )
           python_compile_all() {
             if use doc; then
               esetup.py build_sphinx

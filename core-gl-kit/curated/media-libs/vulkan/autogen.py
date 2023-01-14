@@ -5,7 +5,6 @@ import glob
 import json
 from datetime import datetime
 from packaging import version
-
 catpkgs = {
 	'Vulkan-ValidationLayers': {
 		'cat' : 'media-libs',
@@ -13,7 +12,8 @@ catpkgs = {
 		'query': 'tags',
 		'select': "v.*",
 		'parsedeps': True,
-		'deps': ['glslang', 'SPIRV-Tools', 'Vulkan-Headers']
+		'deps': ['glslang', 'SPIRV-Tools', 'Vulkan-Headers'],
+		'version' : '1.3.236'
 	},
 	'Vulkan-Tools': {
 		'cat' : 'dev-util',
@@ -21,6 +21,7 @@ catpkgs = {
 		'query': 'tags',
 		'select': "v.*",
 		'parsedeps': True,
+		'version' : '1.3.236'
 	},
 	'Vulkan-Loader': {
 		'cat': 'media-libs',
@@ -29,30 +30,35 @@ catpkgs = {
 		'select': "v.*",
 		'deps': ['Vulkan-Headers'],
 		'pdeps': ['Vulkan-ValidationLayers'],
+		'version' : '1.3.236'
 	},
 	'Vulkan-Headers': {
 		'cat': 'dev-util',
 		'name': 'vulkan-headers',
 		'query': 'tags',
 		'select': "v.*",
+		'version' : '1.3.236'
 	},
 	'SPIRV-Tools': {
 		'cat': 'dev-util',
 		'name': 'spirv-tools',
 		'query': 'releases',
-		'deps': ['SPIRV-Headers',]
+		'deps': ['SPIRV-Headers'],
+		'version': '2022.2'
 	},
 	'SPIRV-Headers': {
 		'cat': 'dev-util',
 		'name': 'spirv-headers',
 		'query': 'tags',
 		'select': "sdk-.*",
+		'version' : '1.3.236.0'
 	},
 	'glslang': {
 		'cat': 'dev-util',
 		'name': 'glslang',
 		'query': 'tags',
 		'select': "sdk-.*",
+		'version' : '1.3.236.0'
 	},
 }
 
@@ -82,6 +88,7 @@ async def generate(hub, **pkginfo):
 			catpkg_info['revision'] = revision
 
 		catpkg_info.update(catpkgs[name])
+		print(f"Processing {catpkg_info['name']}")
 		catpkg_info.update(await github_gen[catpkg_info['query']](hub, **catpkg_info))
 
 		if 'parsedeps' in catpkg_info:

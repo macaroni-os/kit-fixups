@@ -1979,8 +1979,14 @@ sphinx_and_friends:
   defaults:
     cat: dev-python
     python_compat: python3+ pypy
-  generator: pypi-simple-1
+  generator: pypi-compat-1
   packages:
+    - alabaster:
+        du_setuptools: rdepend
+        compat: 0.7.9
+        revision:
+          0.7.13: 1
+        blocker: '!<=dev-python/alabaster-0.7.13'
     - sphinx:
         version: 5.3.0
         pypi_name: Sphinx
@@ -2175,8 +2181,6 @@ dev_python_autogen_rule:
     python_compat: python3+
   generator: pypi-1
   packages:
-    - alabaster:
-        python_compat: python2+ pypy{,3}
     - aiohttp-socks:
         python_compat: python3+ pypy3
     - async_timeout:

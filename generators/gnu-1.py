@@ -36,7 +36,18 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	"""
 	valid_list = filter(lambda href: filter_valid_href(href, name, extension), hrefs)
 	tuple_list = map(lambda href: (href, get_version_from_href(href, name, extension)), valid_list)
-	sorted_list = sorted(tuple_list, key=lambda tup: version.parse(tup[1]))
+
+	# Do NOT use sorted() below. We need to catch individual exceptions below:
+	unsorted_list = []
+	for url, v_str in tuple_list:
+		try:
+			v_obj = version.parse(v_str)
+			if v_obj.__class__.__name__ == "LegacyVersion":
+				continue
+		except version.InvalidVersion:
+			continue
+		unsorted_list.append((url, v_str, v_obj))
+	sorted_list = sorted(unsorted_list, key=lambda tup: tup[2])
 	return list(sorted_list)
 
 async def generate(hub, **pkginfo):
@@ -80,7 +91,7 @@ async def generate(hub, **pkginfo):
 		pkginfo.update(gen)
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=f"{src_url}/{gen['href']}")],
+			artifacts=[hub.pkgtools.ebuild.Artifact(url=f"{src_url}{gen['href']}")],
 		)
 		ebuild.push()
 

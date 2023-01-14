@@ -2,14 +2,14 @@
 
 EAPI=6
 
-PYTHON_COMPAT=( {{python_compat}} )
+PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE='threads(+)'
 
 inherit bash-completion-r1 eapi7-ver flag-o-matic gnome2-utils pax-utils python-r1 toolchain-funcs waf-utils xdg-utils
 
 DESCRIPTION="Media player based on MPlayer and mplayer2"
-HOMEPAGE="https://mpv.io/ https://github.com/{{github_user}}/{{github_repo}}"
-SRC_URI="{{artifacts[0].src_uri}} {{artifacts[1].src_uri}}"
+HOMEPAGE="https://mpv.io/ https://github.com/mpv-player/mpv"
+SRC_URI="https://github.com/mpv-player/mpv/archive/bca516bd2c282670aa2c92663329e7d5ddf978e0.tar.gz -> mpv-0.35.0.20221129-bca516bd2c282670aa2c92663329e7d5ddf978e0.tar.gz https://waf.io/waf-2.0.24 -> waf-2.0.24"
 
 DOCS=( RELEASE_NOTES README.md DOCS/{client-api,interface}-changes.rst )
 
@@ -129,11 +129,11 @@ RDEPEND="${COMMON_DEPEND}
 "
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}"/{{github_repo}}-* "${S}" || die
+	mv "${WORKDIR}"/mpv-* "${S}" || die
 }
 
 src_prepare() {
-	cp "${DISTDIR}"/waf-{{waf_version}} "${S}"/waf || die
+	cp "${DISTDIR}"/waf-2.0.24 "${S}"/waf || die
 	chmod +x "${S}"/waf || die
 	default
 }

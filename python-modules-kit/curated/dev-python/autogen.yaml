@@ -1545,6 +1545,11 @@ testing_deps_rule:
   generator: pypi-compat-1
   packages:
     - iniconfig:
+        compat: 1.1.1
+        blocker: '!<=dev-python/iniconfig-2.0.0-r1'
+        revision:
+          2.0.0: 1
+        du_pep517: hatchling
         license: MIT
         python_compat: python2+ pypy3
         pydeps:

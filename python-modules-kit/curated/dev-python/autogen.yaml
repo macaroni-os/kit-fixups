@@ -1633,7 +1633,8 @@ dev_python_simplified_rule:
         pypi_name: dbus_next
     - packaging:
         version: '21.3'
-        du_pep517: flit
+#       This is needed for newer packaging, but 21.3 still uses setuptools
+#       du_pep517: flit
         compat: '20.9'
         blocker: "!<=dev-python/packaging-18.0"
         python_compat: python3+

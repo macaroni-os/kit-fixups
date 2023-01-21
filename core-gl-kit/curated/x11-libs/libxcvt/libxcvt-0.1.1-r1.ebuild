@@ -6,13 +6,11 @@ XORG_TARBALL_SUFFIX="gz"
 inherit xorg-3 meson
 
 DESCRIPTION="X.Org xcvt library and cvt program"
-SRC_URI="https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/libxcvt-0.1.1/libxcvt-libxcvt-0.1.1.tar.gz"
+SRC_URI="https://gitlab.freedesktop.org/xorg/lib/libxcvt/-/archive/${P}/${PN}-${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-
-RDEPEND="!<x11-base/xorg-server-1.20.10-r5"
 
 S="${WORKDIR}/${PN}-${PN}-${PV}"
 

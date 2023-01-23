@@ -19,7 +19,6 @@ DEPEND=">=dev-libs/libpcre-3.4
 	dev-lang/perl
 	berkdb? (
 		>=sys-libs/db-3.2:*
-		<sys-libs/db-7:*
 	)
 	cdb? ( || ( >=dev-db/tinycdb-0.76 >=dev-db/cdb-0.75-r4 ) )
 	eai? ( dev-libs/icu:= )
@@ -56,7 +55,6 @@ REQUIRED_USE="ldap-bind? ( ldap sasl )"
 
 PATCHES=(
 	"${FILESDIR}/patches/${PN}-3.1.1-funtoo.patch"
-	"${FILESDIR}/patches/${PN}-3.4.6-db.patch"
 )
 
 pkg_setup() {

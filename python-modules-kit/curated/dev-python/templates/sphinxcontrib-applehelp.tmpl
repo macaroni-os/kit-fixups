@@ -3,11 +3,8 @@
 EAPI=7
 PYTHON_COMPAT=( {{python_compat}} )
 
-DISTUTILS_USE_PEP517=flit
 inherit distutils-r1
 
-MY_P=${PN/-/.}-${PV}
-S=${WORKDIR}/${MY_P}
 DESCRIPTION="Sphinx extension which outputs Apple help book"
 HOMEPAGE="http://www.sphinx-doc.org"
 SRC_URI="{{artifacts[0].src_uri}}"

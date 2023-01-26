@@ -36,7 +36,6 @@ async def get_minimum_node_version(artifact):
 		package = os.path.join(artifact.extract_path, artifact.final_name.split("-linux")[0], "package.json")
 		package_info = json.load(open(package))
 	artifact.cleanup()
-
 	version = Version(package_info["engines"]["node"])
 	return { 'minimum': version.public, 'series': max(version.major, MINIMUM_STABLE_NODEJS) }
 
@@ -57,16 +56,25 @@ async def generate(hub, **pkginfo):
 	# Create an ebuild for the most recent 2 major versions
 	for major in [latest.major, latest.major - 1]:
 		version = max([v for v in versions if v.major == major])
-
 		# find available architecture tarballs on the elastic site
 		download_page = f"{download_url}/{github_repo}-{version.public.replace('.', '-')}"
 		html = await hub.pkgtools.fetch.get_page(download_page)
-		soup = BeautifulSoup(html, "html.parser").find_all("a", href=True)
+		tarballs = []
 
-		tarballs = [a.get('href') for a in soup if 'linux' in a.get('href')]
-		if not len(tarballs):
-			tarballs = [a.get('href') for a in soup if '.tar.' in a.get('href')]
+		# The most reliable way to extract version information from these pages is to look for a special <script> tag
+		# which contains Javascript (JSON). We can parse this, and extract the necessary information.
 
+		soup = BeautifulSoup(html, "lxml")
+		json_data = json.loads(str(soup.find('script', id="__NEXT_DATA__" ).text))
+		package_data = json_data["props"]["pageProps"]["entry"][0][0]["package"]
+		for package in package_data:
+			if not package["title"].startswith("Linux"):
+				continue
+			if not package["url"].endswith(".tar.gz"):
+				continue
+			tarballs.append(package["url"])
+		if not tarballs:
+			raise hub.pkgtools.ebuild.BreezyError(f"No tarballs found for {pkginfo['name']} when looking at {download_page} __NEXT_DATA__ <script> tag.") 
 		artifacts = await generate_artifacts(hub, pkginfo, tarballs)
 
 		# find the compatible node version for kibana-bin

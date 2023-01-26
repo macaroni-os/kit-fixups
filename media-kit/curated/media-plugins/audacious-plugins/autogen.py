@@ -26,6 +26,7 @@ async def generate(hub, **pkginfo):
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,
+		revision={ "4.2" : "1" },
 		github_user=github_user,
 		github_repo=github_repo,
 		artifacts=[artifact],

@@ -11,7 +11,7 @@ HOMEPAGE="https://audacious-media-player.org/"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="aac +alsa ampache bs2b cdda cue ffmpeg flac fluidsynth gme http jack
+IUSE="aac +alsa ampache bs2b cdda cue ffmpeg flac fluidsynth gme +http jack
 	lame libnotify libsamplerate lirc mms modplug mp3 nls opengl pulseaudio
 	scrobbler sdl sid sndfile soxr speedpitch streamtuner vorbis wavpack X"
 REQUIRED_USE="ampache? ( http ) streamtuner? ( http )"

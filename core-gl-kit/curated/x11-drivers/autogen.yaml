@@ -54,7 +54,7 @@ drivers_rule:
         gitlab_id: 592
     - xf86-video-amdgpu:
         gitlab_id: 593
-        dri_use: force
+        iuse_dri: force
         rdepend: |
           x11-libs/libdrm[video_cards_amdgpu]
           x11-base/xorg-server[glamor(+),-minimal]
@@ -97,12 +97,12 @@ drivers_rule:
     - xf86-video-glint:
         gitlab_id: 607
     - xf86-video-mga:
-        dri_use: dri
+        iuse_dri: dri
         gitlab_id: 614
         config_options: |
           $(use_enable dri)
     - xf86-video-nouveau:
-        dri_use: force
+        iuse_dri: force
         gitlab_id: 5034
         rdepend: |
           x11-libs/libdrm[video_cards_nouveau]
@@ -136,14 +136,14 @@ drivers_rule:
           eautoreconf || die
           python_fix_shebang scripts
     - xf86-video-r128:
-        dri_use: dri
+        iuse_dri: dri
         gitlab_id: 624
         config_options: |
           $(use_enable dri)
     - xf86-video-siliconmotion:
         gitlab_id: 631
     - xf86-video-tdfx:
-        dri_use: dri
+        iuse_dri: dri
         gitlab_id: 641
         config_options: |
           $(use_enable dri)
@@ -158,7 +158,7 @@ drivers_rule:
           x11-libs/libXcomposite
     - xf86-video-vmware:
         revision: 2
-        dri_use: force
+        iuse_dri: force
         gitlab_id: 651
         depend: |
           >=x11-base/xorg-server-1.20.10-r2

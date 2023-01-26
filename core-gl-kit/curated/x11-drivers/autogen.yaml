@@ -117,8 +117,6 @@ drivers_rule:
         inherit: python-single-r1
         gitlab_id: 623
         iuse: xspice
-        patches:
-          - xf86-video-qxl-use-boolean-instead-of-bool.patch
         revision:
           0.1.5: 2
         rdepend: |
@@ -170,5 +168,3 @@ drivers_rule:
             media-libs/mesa[xa]
             media-libs/mesa[video_cards_xa]
           )
-        patches:
-          - xf86-video-vmware-gcc12.patch

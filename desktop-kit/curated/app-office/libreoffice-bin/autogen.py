@@ -111,14 +111,7 @@ async def add_l10n_ebuild(hub, ebuild_bin, version, **pkginfo):
 	ebuild_l10n.push()
 
 async def generate(hub, **pkginfo):
-	html_url = f"https://www.libreoffice.org/download/download/"
-	html_data = await hub.pkgtools.fetch.get_page(html_url)
-	soup = BeautifulSoup(html_data, "html.parser")
-	for link in soup.find_all("a"):
-		href = link.get("href")
-		if href.endswith(".xz?idx=1"):
-			version = href.split(".tar")[0].split("-")[1]
-	dl_url = f"https://downloadarchive.documentfoundation.org/libreoffice/old/{version}/rpm/x86_64/"
+	dl_url = f"https://downloadarchive.documentfoundation.org/libreoffice/old/latest/rpm/x86_64/"
 	main_tarball_version = await hub.pkgtools.pages.iter_links(
 		base_url=dl_url,
 		match_fn=lambda x: re.match(f"LibreOffice_([0-9.]+)_Linux_x86-64_rpm.tar.gz", x),
@@ -127,7 +120,7 @@ async def generate(hub, **pkginfo):
 	)
 	url = dl_url + f"LibreOffice_{main_tarball_version}_Linux_x86-64_rpm.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
-	ebuild_bin = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts)
+	ebuild_bin = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=main_tarball_version, artifacts=artifacts)
 	ebuild_bin.push()
 	await add_l10n_ebuild(hub, ebuild_bin, version=ebuild_bin.version, **pkginfo)
 	src_version = "6.4.0.3"

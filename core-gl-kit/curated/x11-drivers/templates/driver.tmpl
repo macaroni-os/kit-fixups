@@ -33,11 +33,11 @@ DEPEND="
 	sys-devel/m4
 	>=x11-misc/util-macros-1.18
 	{{depend}}
-	{%- if use_dri == 'force' %}
+	{%- if iuse_dri == 'force' %}
 	x11-base/xorg-server[-minimal]
 	x11-libs/libdrm
-	{%- elif use_dri is defined %}
-	{{use_dri}}? ( x11-base/xorg-server[-minimal] x11-libs/libdrm )
+	{%- elif iuse_dri is defined %}
+	{{iuse_dri}}? ( x11-base/xorg-server[-minimal] x11-libs/libdrm )
 	{%- endif %}
 "
 

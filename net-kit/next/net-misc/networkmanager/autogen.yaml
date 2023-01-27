@@ -13,8 +13,10 @@ modemmanager_rule:
     - modemmanager:
         cat: net-misc
         gitlab_repo: ModemManager
+        revision:
+          '1.21.2': '1'
     - libqmi:
         revision:
-          1.30.8: 1
+          '1.30.8': '1'
     - libqrtr-glib
     - libmbim

@@ -24,9 +24,9 @@ DEPEND="
 	>=dev-libs/glib-2.56.0:2
 	udev? ( >=dev-libs/libgudev-232:= )
 	introspection? ( >=dev-libs/gobject-introspection-0.9.6:= )
-	mbim? ( net-libs/libmbim )
+	mbim? ( >=net-libs/libmbim-1.29.2 )
 	policykit? ( sys-auth/polkit[elogind?,introspection?] )
-	qmi? ( >=net-libs/libqmi-1.30.8:=[qrtr?] )
+	qmi? ( >=net-libs/libqmi-1.33.2:=[qrtr?] )
 	qrtr? ( >=net-libs/libqrtr-glib-1.0.0:= )
 	elogind? ( sys-auth/elogind )
 "

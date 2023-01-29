@@ -16,10 +16,6 @@ KEYWORDS=""
 KEYWORDS="*"
 {%- endif %}
 
-# To avoid file collisions in /usr/include/CL/
-DEPEND="!<app-eselect/eselect-opencl-1.2.0"
-RDEPEND="${DEPEND}"
-
 src_unpack() {
 	unpack "${A}"
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die

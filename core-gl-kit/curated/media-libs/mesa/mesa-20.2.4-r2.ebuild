@@ -511,7 +511,6 @@ pkg_postinst() {
 	# Switch to mesa opencl
 	if use opencl; then
 		einfo "Make sure you have the ocl-icd OpenCL dispatcher enabled:"
-		einfo "    # eselect opencl set --use-old ocl-icd"
 	fi
 
 	# run omxregister-bellagio to make the OpenMAX drivers known system-wide

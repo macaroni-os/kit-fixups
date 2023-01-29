@@ -28,7 +28,6 @@ IUSE="${IUSE_DUMMY} +X +opencl +cuda +tools +egl +glvnd +uvm +wayland"
 
 COMMON="
 	opencl? (
-		app-eselect/eselect-opencl
 		dev-libs/ocl-icd
 	)
 	>=sys-libs/glibc-2.6.1
@@ -427,6 +426,5 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	use opencl && "${ROOT}"/usr/bin/eselect opencl set --use-old ocl-icd
 	readme.gentoo_print_elog
 }

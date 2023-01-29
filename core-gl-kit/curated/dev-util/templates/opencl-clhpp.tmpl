@@ -22,10 +22,6 @@ DEPEND="${RDEPEND}
 	${PYTHON_DEPS}
 "
 
-RDEPEND="${RDEPEND}
-	!<app-eselect/eselect-opencl-1.2.0
-"
-
 pkg_setup() {
 	python-any-r1_pkg_setup
 }

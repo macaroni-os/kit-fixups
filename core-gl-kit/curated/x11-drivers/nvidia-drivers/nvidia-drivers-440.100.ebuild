@@ -50,7 +50,6 @@ IUSE="${IUSE} ${IUSE_KERNELS} ${IUSE_NV_PKG} ${IUSE_DUMMY}"
 
 COMMON="
 	opencl? (
-		app-eselect/eselect-opencl
 		dev-libs/ocl-icd
 	)
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
@@ -561,7 +560,6 @@ pkg_postinst() {
 
 	# If we'e not using glvnd, switch to the nvidia opengl vendor implementation
 	! use_if_iuse glvnd && use X && "${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
-	use opencl && "${ROOT}"/usr/bin/eselect opencl set --use-old ocl-icd
 
 	readme.gentoo_print_elog
 

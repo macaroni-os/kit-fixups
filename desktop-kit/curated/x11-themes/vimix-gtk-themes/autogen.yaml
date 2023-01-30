@@ -1,0 +1,11 @@
+vimix_rule:
+  generator: github-1
+  packages:
+    - vimix-gtk-themes:
+        github:
+          user: vinceliuice
+          query: releases
+          transform:
+            - kind: string
+              match: "-"
+              replace: "."

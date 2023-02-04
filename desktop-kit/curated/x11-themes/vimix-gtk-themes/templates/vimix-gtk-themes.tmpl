@@ -10,13 +10,15 @@ KEYWORDS="*"
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE=""
+IUSE="gtk2"
 
 BDEPEND="dev-lang/sassc"
 DEPEND="
 	x11-libs/gtk+:3
-	x11-themes/gtk-engines
-	x11-themes/gtk-engines-murrine
+	gtk2? (
+		"x11-themes/gtk-engines"
+		"x11-themes/gtk-engines-murrine"
+	)
 "
 RDEPEND="${DEPEND}"
 
@@ -28,5 +30,5 @@ src_unpack() {
 
 src_install() {
 	mkdir -p "${ED}"/usr/share/themes
-	./install.sh -a -d "${ED}"/usr/share/themes || die
+	./install.sh -t all -s all -d "${ED}"/usr/share/themes || die
 }

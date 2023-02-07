@@ -18,7 +18,7 @@ LICENSE="GPL-3+"
 # The future Funtoo toolchain development efforts can collectively consider this GNU Gold deprecation proposal
 IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
 {% if version >= "2.38" -%}
-IUSE+="pgo"
+IUSE="${IUSE} pgo"
 {% endif -%}
 REQUIRED_USE="default-gold? ( gold )"
 

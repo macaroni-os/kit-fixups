@@ -4,7 +4,6 @@ import dyne.org.funtoo.metatools.pkgtools as pkgtools
 
 releases = [
 	#	version		patch	revision	unmasked
-	(	"2.36.1",	"3",	"1",		True),
 	(	"2.39",		"5",	"4",		True),
 ]
 

@@ -19,7 +19,8 @@ async def generate(hub, **pkginfo):
 		if release["prerelease"] or release["draft"]:
 			continue
 		tag_name = release["tag_name"][0:]
-		break
+		if tag_name == "3.00":
+			break
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

@@ -21,6 +21,7 @@ IUSE="pulseaudio"
 QA_PREBUILT="opt/zoom/*"
 
 RDEPEND="${DEPEND}
+	app-crypt/mit-krb5
 	pulseaudio? ( media-sound/pulseaudio )
 	app-i18n/ibus
 	dev-libs/glib:2

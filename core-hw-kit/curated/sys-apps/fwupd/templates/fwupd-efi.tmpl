@@ -20,7 +20,10 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-DEPEND="sys-boot/gnu-efi"
+DEPEND="
+	sys-boot/gnu-efi
+	$(python_gen_any_dep 'dev-python/pefile[${PYTHON_USEDEP}]')
+"
 
 RDEPEND="!<sys-apps/fwupd-1.6.0"
 

@@ -14,3 +14,11 @@ fwupd_rule:
           user: fwupd
           repo: fwupd-efi
           query: tags
+
+python_mods_rule:
+  generator: pypi-compat-1
+  defaults:
+    python_compat: python3+
+    cat: dev-python
+  packages:
+    - pefile

@@ -1,0 +1,13 @@
+direnv-bin:
+  generator: github-1
+  packages:
+    - direnv-bin:
+        github:
+          user: direnv
+          repo: direnv
+          query: releases
+          assets:
+            amd64: direnv.linux-amd64
+            arm64: direnv.linux-arm64
+          template: direnv-bin.tmpl
+

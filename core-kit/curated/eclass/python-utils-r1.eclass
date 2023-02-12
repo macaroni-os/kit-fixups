@@ -840,7 +840,7 @@ python_newscript() {
 python_moduleinto() {
 	debug-print-function ${FUNCNAME} "${@}"
 
-	PYTHON_MODULEROOT=${1}
+	_PYTHON_MODULEROOT=${1}
 }
 
 # @FUNCTION: python_domodule

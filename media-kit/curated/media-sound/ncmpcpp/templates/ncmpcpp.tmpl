@@ -40,3 +40,9 @@ src_configure() {
 	use taglib && opts+=" --with-taglib"
 	econf $opts
 }
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv ${WORKDIR}/{{github_user}}-{{github_repo}}* "${S}" || die
+	fi
+}

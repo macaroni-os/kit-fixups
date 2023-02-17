@@ -531,8 +531,12 @@ DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-Don-t-use-build-id.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-847568-Support-system-harfbuzz.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-847568-Support-system-graphite2.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-disable_audio_thread_priority_default_features.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bgo-877267-rust-opaque-binding-type.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Add fixes for riscv64
@@ -739,8 +743,6 @@ src_configure() {
 	fi
 
 	mozconfig_use_with system-av1
-	mozconfig_use_with system-harfbuzz
-	mozconfig_use_with system-harfbuzz system-graphite2
 	mozconfig_use_with system-icu
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-libevent

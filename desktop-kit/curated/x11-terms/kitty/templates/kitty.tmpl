@@ -4,9 +4,18 @@ EAPI=7
 
 PYTHON_COMPAT=( {{python_compat}} )
 
-inherit python-single-r1 toolchain-funcs xdg
+inherit python-single-r1 toolchain-funcs xdg {% if needs_golang -%} go-module {%- endif %}
+{% if needs_golang %}
+EGO_SUM=(
+{{gosum}})
 
-SRC_URI="{{artifacts[0].src_uri}}"
+go-module_set_globals
+{%- endif %}
+
+SRC_URI="
+	{{artifacts[0].src_uri}}
+	{% if needs_golang -%} ${EGO_SUM_SRC_URI} {%- endif %}
+"
 KEYWORDS="{{keywords}}"
 
 DESCRIPTION="{{ description }}"
@@ -58,6 +67,8 @@ PATCHES=(
 	{%- endfor %}
 )
 
+QA_FLAGS_IGNORED="usr/bin/kitten" # written in Go
+
 src_prepare() {
 	default
 
@@ -107,6 +118,7 @@ src_install() {
 	dobin linux-package/bin/kitty
 
 	fperms +x /usr/$(get_libdir)/kitty/shell-integration/ssh/{askpass.py,kitty}
+	fperms +x /usr/bin/kitten
 
 	python_fix_shebang "${ED}"
 }

@@ -1,20 +1,17 @@
 kitty_rule:
-  generator: github-1
   defaults:
     tarball: kitty-{version}.tar.xz
     github:
       user: kovidgoyal
       repo: kitty
-      query: releases
-    revision:
-      0.25.0: 1
     version:
       0.25.1:
         python_compat: python3+
-        keywords: '*'
-      0.26.5:
+        keywords: "*"
+      latest:
         python_compat: python3_9+
         keywords: next
+        needs_golang: true
   packages:
     - kitty
     - kitty-terminfo

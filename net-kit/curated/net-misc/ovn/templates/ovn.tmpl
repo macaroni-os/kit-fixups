@@ -36,9 +36,6 @@ src_prepare() {
 	# the ovs code.
 
 	cd ${S}/ovs
-	sed -i \
-		-e '/^SUBDIRS +=.*/d' \
-		datapath/Makefile.am || die "sed failed"
 	eautoreconf
 
 	cd ${S}

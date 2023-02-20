@@ -1,9 +1,9 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 # NOTE: we cannot depend on autotools here starting with gcc-4.3.x
-inherit eutils libtool multilib-minimal
+inherit eutils libtool
 
 MY_PV=${PV/_p*}
 MY_P=${PN}-${MY_PV}
@@ -17,7 +17,7 @@ SLOT="0/6" # libmpfr.so version
 KEYWORDS="*"
 IUSE="+static-libs"
 
-RDEPEND=">=dev-libs/gmp-5.0.0[${MULTILIB_USEDEP},static-libs?]"
+RDEPEND=">=dev-libs/gmp-5.0.0[static-libs?]"
 DEPEND="${RDEPEND}"
 
 S=${WORKDIR}/${MY_P}
@@ -33,17 +33,17 @@ src_prepare() {
 	elibtoolize
 }
 
-multilib_src_configure() {
+src_configure() {
 	# Make sure mpfr doesn't go probing toolchains it shouldn't #476336#19
-	ECONF_SOURCE=${S} \
 	user_redefine_cc=yes \
 	econf \
 		--docdir="\$(datarootdir)/doc/${PF}" \
 		$(use_enable static-libs static)
 }
 
-multilib_src_install_all() {
-	rm "${ED}"/usr/share/doc/"${P}"/COPYING*
+src_install() {
+	default
+	rm "${ED}"/usr/share/doc/"${P}"/COPYING* || die
 	use static-libs || find "${ED}"/usr -name '*.la' -delete
 }
 

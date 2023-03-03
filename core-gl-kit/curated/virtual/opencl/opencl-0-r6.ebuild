@@ -9,7 +9,7 @@ CARDS=( amdgpu i965 nvidia )
 IUSE="${CARDS[@]/#/video_cards_}"
 
 # amdgpu-pro-opencl and intel-ocl-sdk are amd64-only
-RDEPEND="app-eselect/eselect-opencl
+RDEPEND="
 	|| (
 		>=media-libs/mesa-9.1.6[opencl]
 		amd64? (

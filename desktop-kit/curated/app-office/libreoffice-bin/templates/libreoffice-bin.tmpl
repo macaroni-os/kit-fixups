@@ -22,7 +22,7 @@ BIN_COMMON_DEPEND="
 	=app-text/libmwaw-0.3*
 	>=dev-libs/icu-64.2
 	>=media-gfx/graphite2-1.3.10
-	media-libs/harfbuzz:0/0.9.18[icu]
+	>=media-libs/harfbuzz-2.6.4:0=[graphite,icu]
 	media-libs/libpng:0/16
 	>=sys-devel/gcc-8.3.0
 	>=sys-libs/glibc-2.29
@@ -76,7 +76,6 @@ COMMON_DEPEND="
 	media-gfx/graphite2
 	media-libs/fontconfig
 	media-libs/freetype:2
-	>=media-libs/harfbuzz-0.9.42:=[graphite,icu]
 	media-libs/lcms:2
 	>=media-libs/libcdr-0.1.0
 	>=media-libs/libepoxy-1.3.1[X]

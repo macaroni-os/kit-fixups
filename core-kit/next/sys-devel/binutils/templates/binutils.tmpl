@@ -7,19 +7,7 @@ inherit eutils libtool flag-o-matic gnuconfig multilib toolchain-funcs
 DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 LICENSE="GPL-3+"
-# Proposition: consider disabling gold for binutils-2.39 and greater
-# Related Bug: https://bugs.funtoo.org/browse/FL-10758
-# GNU Gold is considered to be suffering from upstream bitrot: https://en.wikipedia.org/wiki/Gold_(linker)
-# GNU Gold is a project of Google and they sadly have decided to move onto other linkers
-# It currently has no official upstream maintainer due to Google abandoning it
-# GNU Gold has considerable less upstream commit activity than the main GNU bfd (ld) linker
-# Upstream GNU gold commits: https://sourceware.org/git/?p=binutils-gdb.git;a=history;f=gold;hb=HEAD
-# Setting the gold USE flag to match sys-devel/binutils-2.36.1_p3-r1 for now, which is forcing it on by default
-# The future Funtoo toolchain development efforts can collectively consider this GNU Gold deprecation proposal
 IUSE="cet default-gold doc +gold multitarget +nls +plugins static-libs test vanilla"
-{% if version >= "2.38" -%}
-IUSE+="pgo"
-{% endif -%}
 REQUIRED_USE="default-gold? ( gold )"
 
 SRC_URI="{{artifacts.values()|map(attribute='src_uri')|join(' ')}}"
@@ -37,18 +25,8 @@ RDEPEND="
 !sys-devel/binutils-config
 !<sys-libs/binutils-libs-{{version_and_rev}}
 !<sys-devel/binutils-{{version_and_rev}}
-{% if version >= "2.38" -%}
-dev-libs/isl
-dev-libs/mpc
-dev-libs/mpfr
-dev-libs/gmp
-{% endif -%}
 sys-libs/zlib"
 DEPEND="${RDEPEND}"
-{% if version >= "2.38" -%}
-# See https://bugs.funtoo.org/browse/FL-10753 for complete
-# details on why dev-libs/isl was added for building binutils 2.39
-{% endif -%}
 BDEPEND="
 	doc? ( sys-apps/texinfo )
 	test? (
@@ -60,12 +38,6 @@ BDEPEND="
 	virtual/yacc
 "
 PDEPEND="=sys-libs/binutils-libs-{{version_and_rev}}"
-
-PATCHES=(
-{% if version < "2.38" -%}
-	"${FILESDIR}"/binutils-2.36.1-cve-2021-45078.patch
-{% endif -%}
-)
 
 RESTRICT="!test? ( test )"
 
@@ -92,11 +64,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
-	# Avoid really confusing logs from subconfigure spam, makes logs far
-	# more legible.
-	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
-
 	strip-linguas -u */po
 
 	# Keep things sane
@@ -136,12 +103,6 @@ src_configure() {
 		myconf+=( --enable-default-hash-style=gnu )
 	fi
 
-	if use vanilla ; then
-		PKG_VERSION="Funtoo"
-	else
-		PKG_VERSION="{{pkg_blurb}}"
-	fi
-
 	myconf+=(
 		--prefix=/usr
 		--host=${CHOST}
@@ -157,29 +118,15 @@ src_configure() {
 		--enable-textrel-check=warning
 		--disable-werror
 		--with-bugurl="{{bugs_url}}"
-		--with-pkgversion="${PKG_VERSION}"
+		--with-pkgversion="{{pkg_blurb}}"
 		--with-system-zlib
 		--without-zlib
 		# Strip out broken static link flags.
 		# https://gcc.gnu.org/PR56750
 		--without-stage1-ldflags
 		--without-debuginfod
-		{% if version >= "2.38" -%}
-		--enable-new-dtags
-		--disable-jansson
-		--disable-{gdb,libdecnumber,readline,sim}
-		# Avoid automagic dev-libs/msgpack dep, bug #865875
-		--without-msgpack
-		{% endif -%}
 		${EXTRA_ECONF}
 	)
-
-	{% if version >= "2.38" -%}
-	if use pgo ; then
-		myconf+=( $(use_enable pgo pgo-build lto) )
-		export BUILD_CFLAGS="${CFLAGS}"
-	fi
-	{% endif -%}
 
 	echo ./configure "${myconf[@]}"
 	"${S}"/configure "${myconf[@]}" || die

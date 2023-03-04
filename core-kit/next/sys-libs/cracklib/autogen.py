@@ -4,13 +4,14 @@
 async def generate(hub, **pkginfo):
 	user = "cracklib"
 	repo = pkginfo["name"]
-	releases = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)
-	version = None
-	for release in releases:
-		if release["prerelease"] or release["draft"]:
-			continue
-		version = release["tag_name"].lstrip("v")
-		break
+	#releases = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{user}/{repo}/releases", is_json=True)
+	#version = None
+	#for release in releases:
+	#	if release["prerelease"] or release["draft"]:
+	#		continue
+	#	version = release["tag_name"].lstrip("v")
+	#	break
+	version="2.9.8"
 	url = f"https://github.com/{user}/{repo}/releases/download/v{version}/cracklib-{version}.tar.gz"
 	src_artifact = hub.pkgtools.ebuild.Artifact(url=url)
 	words_artifact = hub.pkgtools.ebuild.Artifact(url="/".join(url.split("/")[:-1])+f"/cracklib-words-{version}.gz")

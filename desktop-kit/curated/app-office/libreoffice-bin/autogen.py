@@ -115,19 +115,15 @@ async def autogen_libreoffice(hub, pkginfo, version="latest", gen={"main", "l10n
 	has now been tweaked to get the latest "stable" release, which typically has a 3-part version, such as 7.5.1. We
 	do support the possibility that an extra "point" release is made available in the actual binaries directory, such
 	as 7.5.1.2, as this can happen (at least with "testing" releases, but in theory with "stable" releases too.)
-
-	As per FL-11067, we now use the /testing path rather than /stable as /testing still uses the quad-version format.
 	"""
 	if version == "latest":
 		mirror = "https://mirror1.cs-georgetown.net/tdf/libreoffice"
-		base_url = f"{mirror}/testing"
-		main_versions = await hub.pkgtools.pages.iter_links(
+		base_url = f"{mirror}/stable"
+		main_version = hub.pkgtools.pages.latest(await hub.pkgtools.pages.iter_links(
 			base_url=base_url,
 			match_fn=lambda x: re.match(f"([0-9]\.[0-9]\.[0-9])/", x),
 			fixup_fn=lambda x: x.groups()[0],
-		)
-		main_version = main_versions[-1]
-		# We now have the main version, like "7.5.1". But we need to look inside this dir to find the full version:
+		))
 		dl_url = base_url + f"/{main_version}/rpm/x86_64"
 		version = await hub.pkgtools.pages.iter_links(
 				base_url=dl_url,
@@ -135,12 +131,6 @@ async def autogen_libreoffice(hub, pkginfo, version="latest", gen={"main", "l10n
 				fixup_fn=lambda x: x.groups()[0],
 				first_match=True
 		)
-		# Now, version equals the full version, which could also be "7.5.1" or could be "7.5.1.2".
-	else:
-		# If version is directly specified, assume it's a 4-part version, and download it directly from archives.
-		# Please note that this URL contains a lot of old beta versions but may not be updated with 7.5.x+ versions:
-		mirror = "https://mirror1.cs-georgetown.net/tdf/libreoffice"
-		dl_url = f"{mirror}/old/{version}/rpm/x86_64"
 	url = dl_url + f"/LibreOffice_{version}_Linux_x86-64_rpm.tar.gz"
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
 	if "main" in gen:

@@ -3,6 +3,13 @@
 from bs4 import BeautifulSoup
 import os
 import re
+from subprocess import getoutput
+
+async def get_archive_dir(hub, artifact):
+	await artifact.ensure_fetched()
+	out = getoutput(f"cat {artifact.final_path} | tar tzvf - | head -n 1")
+	return out.split()[-1].split("/")[0]
+
 
 def get_lang_artifacts(hub, lang_url, lang_soup, lang_type):
 	artifacts = {}
@@ -111,11 +118,26 @@ async def add_l10n_ebuild(hub, version, dl_url, **pkginfo):
 
 async def autogen_libreoffice(hub, pkginfo, version="latest", gen={"main", "l10n"}):
 	"""
-	This autogen was originally written to download the most bleeding-edge version of libreoffice-bin available. This
-	has now been tweaked to get the latest "stable" release, which typically has a 3-part version, such as 7.5.1. We
-	do support the possibility that an extra "point" release is made available in the actual binaries directory, such
-	as 7.5.1.2, as this can happen (at least with "testing" releases, but in theory with "stable" releases too.)
+	As documented in FL-11072 and (primarily) FL-11067, the LibreOffice archives use an unusual versioning
+	scheme which is now fully understood, and is reflected in their archive names.
+
+	"7.5.1" was released. The RPM's and all released binaries are labeled "7.5.1". If you look *inside*
+	the tarball, the main directories have the version "7.5.1.2". If you start LibreOffice, it reports as
+	being "7.5.1.2".
+
+	These versions should not change over time. So "7.5.2" will actually be a "7.5.2.x" version, as released.
+
+	To handle this complexity, the autogen finds the "main_version", which is the directory on the mirrors
+	that contains the latest stable version. It then looks inside for the RPMS, which in the past have been
+	"7.5.1.x" but now have been renamed to be "7.5.1". We include code to optionally handle if we see a 
+	4-part version in the RPM files, as this happens in the "old/" directory as this used to be how RPMs
+	were labeled. This is the "tar_outer_version".
+
+	Once we have the tarball, we use some code to look inside it to get the version we use for the ebuild.
+	This is the "version", which is extracted from "tar_inner_name", the name of the directory in the tarball.
+	This is what LibreOffice reports when you run it and go to "About LibreOffice." This is what we use.
 	"""
+	libre_regex = "LibreOffice_([0-9.]+)_Linux_x86-64_rpm"
 	if version == "latest":
 		mirror = "https://mirror1.cs-georgetown.net/tdf/libreoffice"
 		base_url = f"{mirror}/stable"
@@ -125,16 +147,18 @@ async def autogen_libreoffice(hub, pkginfo, version="latest", gen={"main", "l10n
 			fixup_fn=lambda x: x.groups()[0],
 		))
 		dl_url = base_url + f"/{main_version}/rpm/x86_64"
-		version = await hub.pkgtools.pages.iter_links(
+		tar_outer_version = await hub.pkgtools.pages.iter_links(
 				base_url=dl_url,
-				match_fn=lambda x: re.match(f"LibreOffice_([0-9.]+)_Linux_x86-64_rpm.tar.gz", x),
+				match_fn=lambda x: re.match(f"{libre_regex}.tar.gz", x),
 				fixup_fn=lambda x: x.groups()[0],
 				first_match=True
 		)
-	url = dl_url + f"/LibreOffice_{version}_Linux_x86-64_rpm.tar.gz"
-	artifacts = [hub.pkgtools.ebuild.Artifact(url=url)]
+	url = dl_url + f"/LibreOffice_{tar_outer_version}_Linux_x86-64_rpm.tar.gz"
+	artifact = hub.pkgtools.ebuild.Artifact(url=url)
+	tar_inner_name = await get_archive_dir(hub, artifact)
+	version = re.match(libre_regex, tar_inner_name).groups()[0]
 	if "main" in gen:
-		ebuild_bin = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=artifacts)
+		ebuild_bin = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, version=version, artifacts=[artifact])
 		ebuild_bin.push()
 	if "l10n" in gen:
 		await add_l10n_ebuild(hub, version=version, dl_url=dl_url, **pkginfo)

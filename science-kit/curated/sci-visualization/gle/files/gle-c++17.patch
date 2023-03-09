@@ -1,0 +1,2607 @@
+diff -r -U2 src.orig/gle/axis.cpp src/gle/axis.cpp
+--- src.orig/gle/axis.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/axis.cpp	2022-12-24 13:08:07.880937784 +0700
+@@ -56,5 +56,5 @@
+ void nice_ticks(double *dticks, double *gmin,double *gmax, double *t1,double *tn,int minset, int maxset);
+ void numtrim(char **d,char *s, double dticks);
+-void nice_log_ticks(double *start, double *last, double gmin, double gmax) throw (ParserError);
++void nice_log_ticks(double *start, double *last, double gmin, double gmax);
+ 
+ double fnloglen(double v, GLEAxis *ax);
+@@ -873,5 +873,5 @@
+ }
+ 
+-void nice_log_ticks(double *start, double *last, double gmin, double gmax) throw (ParserError) {
++void nice_log_ticks(double *start, double *last, double gmin, double gmax) {
+ 	if (gmin <= 0 || gmax <= 0) {
+ 		stringstream err;
+@@ -1121,5 +1121,5 @@
+ }
+ 
+-int axis_type_check(const char *s) throw (ParserError) {
++int axis_type_check(const char *s) {
+ 	int type = axis_type(s);
+ 	if (type == GLE_AXIS_ALL) {
+diff -r -U2 src.orig/gle/axis.h src/gle/axis.h
+--- src.orig/gle/axis.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/axis.h	2022-12-24 13:08:07.880937784 +0700
+@@ -63,5 +63,5 @@
+ int axis_get_orth(int axis, int which);
+ int axis_type(const char *s);
+-int axis_type_check(const char *s) throw (ParserError);
++int axis_type_check(const char *s);
+ const char* axis_type_name(int type);
+ bool axis_is_pos(double pos, int* cnt, double del, vector<double>& vec);
+diff -r -U2 src.orig/gle/begin.cpp src/gle/begin.cpp
+--- src.orig/gle/begin.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/begin.cpp	2022-12-24 13:08:07.880937784 +0700
+@@ -52,5 +52,5 @@
+ void replace_exp(string& exp);
+ 
+-double token_next_double(int i) throw(ParserError) {
++double token_next_double(int i) {
+ 	char* tok = tk[i];
+ 	if (!is_float(tok)) {
+diff -r -U2 src.orig/gle/begin.h src/gle/begin.h
+--- src.orig/gle/begin.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/begin.h	2022-12-24 13:08:07.880937784 +0700
+@@ -72,5 +72,5 @@
+ void replace_exp(string& exp);
+ 
+-double token_next_double(int i) throw(ParserError);
++double token_next_double(int i);
+ 
+ bool get_block_line(int pln, string& srclin);
+diff -r -U2 src.orig/gle/config.cpp src/gle/config.cpp
+--- src.orig/gle/config.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/config.cpp	2022-12-24 13:08:07.881937784 +0700
+@@ -73,5 +73,5 @@
+ #define skipspace doskip(tk[ct],&ct)
+ 
+-void begin_config(const std::string& block, int *pln, int *pcode, int *cp) throw(ParserError) {
++void begin_config(const std::string& block, int *pln, int *pcode, int *cp) {
+ 	string block_name(block);
+ 	ConfigSection* section = g_Config.getSection(block_name);
+diff -r -U2 src.orig/gle/core.cpp src/gle/core.cpp
+--- src.orig/gle/core.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/core.cpp	2022-12-24 13:08:07.881937784 +0700
+@@ -507,5 +507,5 @@
+ }
+ 
+-void g_set_pagesize(const string& papersize) throw (ParserError) {
++void g_set_pagesize(const string& papersize) {
+ 	SpaceStringTokenizer tokens(papersize.c_str());
+ 	const string& token = tokens.next_token();
+@@ -521,5 +521,5 @@
+ }
+ 
+-void g_set_margins(const string& margins) throw (ParserError) {
++void g_set_margins(const string& margins) {
+ 	SpaceStringTokenizer tokens(margins.c_str());
+ 	g.topmargin = tokens.next_double();
+@@ -1882,5 +1882,5 @@
+ }
+ 
+-void g_marker2(int i, double sz, double dval) throw(ParserError) {
++void g_marker2(int i, double sz, double dval) {
+ 	static double cx,cy,h,scale;
+ 	static double x1,y1,x2,y2;
+@@ -2045,5 +2045,5 @@
+ }
+ 
+-void g_postscript(char *fname, double wx, double wy) throw(ParserError) {
++void g_postscript(char *fname, double wx, double wy) {
+ 	/*
+ 	fname ... the filename
+@@ -2158,5 +2158,5 @@
+ }
+ 
+-void g_update_bitmap_type(const string& fname, int* type) throw(ParserError) {
++void g_update_bitmap_type(const string& fname, int* type) {
+ 	if (*type == 0) {
+ 		string ext;
+@@ -2264,5 +2264,5 @@
+ }
+ 
+-void g_bitmap(string& fname, double wx, double wy, int type) throw(ParserError) {
++void g_bitmap(string& fname, double wx, double wy, int type) {
+ 	fname = GLEExpandEnvironmentVariables(fname);
+ 	validate_file_name(fname, true);
+@@ -2289,5 +2289,5 @@
+ }
+ 
+-void g_bitmap(GLEBitmap* bitmap, double wx, double wy, int type) throw(ParserError) {
++void g_bitmap(GLEBitmap* bitmap, double wx, double wy, int type) {
+ 	/* Read header */
+ 	int result = bitmap->readHeader();
+@@ -2328,5 +2328,5 @@
+ }
+ 
+-void g_bitmap_info(string& fname, int xvar, int yvar, int type)  throw(ParserError) {
++void g_bitmap_info(string& fname, int xvar, int yvar, int type) {
+ 	fname = GLEExpandEnvironmentVariables(fname);
+ 	validate_file_name(fname, true);
+@@ -2365,5 +2365,5 @@
+ void g_arrowpoints(double cx, double cy, double dx, double dy, GLEArrowPoints* pts);
+ 
+-void g_arrowline(double x2, double y2, int flag, int can_fillpath) throw(ParserError) {
++void g_arrowline(double x2, double y2, int flag, int can_fillpath) {
+ 	double x1,y1;
+ 	GLECore* core = g_get_core();
+@@ -2572,5 +2572,5 @@
+ }
+ 
+-void g_set_arrow_style(const char* shape) throw(ParserError) {
++void g_set_arrow_style(const char* shape) {
+ 	if (str_i_equals(shape, "SIMPLE")) {
+ 		g_set_arrow_style(GLE_ARRSTY_SIMPLE);
+@@ -2595,5 +2595,5 @@
+ }
+ 
+-void g_set_arrow_tip(const char* tip) throw (ParserError) {
++void g_set_arrow_tip(const char* tip) {
+ 	if (str_i_equals(tip, "SHARP")) {
+ 		g_set_arrow_tip(GLE_ARRTIP_SHARP);
+@@ -2605,5 +2605,5 @@
+ }
+ 
+-void g_arrow(double dx, double dy, int can_fillpath) throw(ParserError) {
++void g_arrow(double dx, double dy, int can_fillpath) {
+ 	int old_join;
+ 	char old_lstyle[15];
+@@ -2757,5 +2757,5 @@
+ }
+ 
+-int g_parse_compatibility(const string& compat) throw (ParserError) {
++int g_parse_compatibility(const string& compat) {
+ 	TokenizerLanguage lang;
+ 	lang.setSpaceTokens(" ");
+@@ -2788,5 +2788,5 @@
+ }
+ 
+-int g_set_compatibility(const string& compat) throw (ParserError) {
++int g_set_compatibility(const string& compat) {
+ 	int value = g_parse_compatibility(compat);
+ 	g_set_compatibility(value);
+diff -r -U2 src.orig/gle/core.h src/gle/core.h
+--- src.orig/gle/core.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/core.h	2022-12-24 13:08:07.881937784 +0700
+@@ -221,5 +221,5 @@
+ void g_hint(char *s);
+ void g_marker(int i, double sz);
+-void g_marker2(int i, double sz, double dval) throw (ParserError);
++void g_marker2(int i, double sz, double dval);
+ void g_set_hei(double h);
+ bool gclip(double *x1,double *y1, double *x2, double *y2,double xmin, double ymin, double xmax, double ymax);
+@@ -238,6 +238,6 @@
+ // they will simply print warning message if libraries are not linked
+ //
+-void g_bitmap(string& fname, double wx, double wy, int type) throw(ParserError);
+-void g_bitmap_info(string& fname, int xvar, int yvar, int type) throw(ParserError);
++void g_bitmap(string& fname, double wx, double wy, int type);
++void g_bitmap_info(string& fname, int xvar, int yvar, int type);
+ int g_bitmap_string_to_type(const std::string& stype);
+ int g_bitmap_string_to_type(const char* stype);
+@@ -250,5 +250,5 @@
+ 
+ void g_arrowsize(GLEArrowProps* arrow);
+-void g_arrowline(double x2, double y2, int flag, int can_fillpath) throw(ParserError);
++void g_arrowline(double x2, double y2, int flag, int can_fillpath);
+ 
+ void g_arrowpoints(double cx,double cy,double dx,double dy, double *ax1,
+@@ -274,5 +274,5 @@
+ void g_resetfont();
+ 
+-void g_arrow(double dx, double dy, int can_fillpath) throw(ParserError);
++void g_arrow(double dx, double dy, int can_fillpath);
+ void g_arrowcurve(double x, double y, int arrow, double a1, double a2, double d1, double d2);
+ bool g_has_size();
+@@ -296,6 +296,6 @@
+ int g_get_compatibility();
+ void g_set_compatibility(int compat);
+-int g_set_compatibility(const string& compat) throw (ParserError);
+-int g_parse_compatibility(const string& compat) throw (ParserError);
++int g_set_compatibility(const string& compat);
++int g_parse_compatibility(const string& compat);
+ void g_compatibility_settings();
+ 
+@@ -324,8 +324,8 @@
+ void g_undev(GLERectangle* rect);
+ void g_undev(GLERectangle* rect, gmodel* g);
+-void g_set_arrow_style(const char* shape) throw (ParserError);
+-void g_set_arrow_tip(const char* tip) throw (ParserError);
++void g_set_arrow_style(const char* shape);
++void g_set_arrow_tip(const char* tip);
+ 
+-void g_bitmap(GLEBitmap*, double wx, double wy, int type) throw(ParserError);
++void g_bitmap(GLEBitmap*, double wx, double wy, int type);
+ 
+ void g_set_tex_scale(const char* ss);
+@@ -419,5 +419,5 @@
+ void g_set_pos(double zx,double zy);
+ void g_newpath(void);
+-void g_postscript(char *ss,double w,double h) throw (ParserError);
++void g_postscript(char *ss,double w,double h);
+ bool g_parse_ps_boundingbox(const string& line, int* bx1, int* by1, int* bx2, int* by2);
+ void g_rdev(double x, double y,double *xd,double *yd);
+diff -r -U2 src.orig/gle/d_cairo.cpp src/gle/d_cairo.cpp
+--- src.orig/gle/d_cairo.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/d_cairo.cpp	2022-12-24 13:08:07.882937784 +0700
+@@ -553,5 +553,5 @@
+ }
+ 
+-void GLECairoDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLECairoDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ }
+ 
+@@ -855,5 +855,5 @@
+ }
+ 
+-void GLECairoDeviceSVG::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLECairoDeviceSVG::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	m_width = width;
+ 	m_height = height;
+@@ -880,5 +880,5 @@
+ }
+ 
+-void GLECairoDevicePDF::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLECairoDevicePDF::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	clearRecordedData();
+ 	m_width = width;
+@@ -910,5 +910,5 @@
+ }
+ 
+-void GLECairoDeviceEPS::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLECairoDeviceEPS::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	clearRecordedData();
+ 	m_width = width;
+@@ -1018,5 +1018,5 @@
+ }
+ 
+-void GLECairoDeviceEMF::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLECairoDeviceEMF::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	m_width = width;
+ 	m_height = height;
+diff -r -U2 src.orig/gle/d_dummy.cpp src/gle/d_dummy.cpp
+--- src.orig/gle/d_dummy.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/d_dummy.cpp	2022-12-24 13:08:07.882937784 +0700
+@@ -147,5 +147,5 @@
+ }
+ 
+-void GLEDummyDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void GLEDummyDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	g_scale(PS_POINTS_PER_INCH/CM_PER_INCH, PS_POINTS_PER_INCH/CM_PER_INCH);
+ 	g_translate(1.0*CM_PER_INCH/72, 1.0*CM_PER_INCH/72);
+diff -r -U2 src.orig/gle/d_interface.h src/gle/d_interface.h
+--- src.orig/gle/d_interface.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/d_interface.h	2022-12-24 13:08:07.882937784 +0700
+@@ -87,5 +87,5 @@
+ 	virtual void narc(dbl r,dbl t1,dbl t2,dbl cx,dbl cy) = 0;
+ 	virtual void newpath(void) = 0;
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) = 0;
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) = 0;
+ 	virtual void pscomment(char* ss) = 0;
+ 	virtual void reverse(void)    /* reverse the order of stuff in the current path */ = 0;
+@@ -170,5 +170,5 @@
+ 	virtual void narc(dbl r,dbl t1,dbl t2,dbl cx,dbl cy);
+ 	virtual void newpath(void);
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual void pscomment(char* ss);
+ 	virtual void reverse(void)    /* reverse the order of stuff in the current path */;
+@@ -266,5 +266,5 @@
+ 	virtual void narc(dbl r,dbl t1,dbl t2,dbl cx,dbl cy);
+ 	virtual void newpath(void);
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual void pscomment(char* ss);
+ 	virtual void reverse(void)    /* reverse the order of stuff in the current path */;
+@@ -309,5 +309,5 @@
+ 	GLECairoDevicePDF(bool showerror);
+ 	virtual ~GLECairoDevicePDF();
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual int getDeviceType();
+ };
+@@ -317,5 +317,5 @@
+ 	GLECairoDeviceEPS(bool showerror);
+ 	virtual ~GLECairoDeviceEPS();
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual int getDeviceType();
+ 	virtual void getRecordedBytes(string* output);
+@@ -326,5 +326,5 @@
+ 	GLECairoDeviceSVG(bool showerror);
+ 	virtual ~GLECairoDeviceSVG();
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual int getDeviceType();
+ };
+@@ -343,5 +343,5 @@
+ 	virtual ~GLECairoDeviceEMF();
+ 	virtual void set_matrix(double newmat[3][3]);
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual int getDeviceType();
+ 	virtual void closedev(void);
+@@ -390,5 +390,5 @@
+ 	virtual void narc(dbl r,dbl t1,dbl t2,dbl cx,dbl cy);
+ 	virtual void newpath(void);
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual void pscomment(char* ss);
+ 	virtual void reverse(void)    /* reverse the order of stuff in the current path */;
+@@ -491,5 +491,5 @@
+ 	virtual void narc(dbl r,dbl t1,dbl t2,dbl cx,dbl cy);
+ 	virtual void newpath(void);
+-	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError);
++	virtual void opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile);
+ 	virtual void pscomment(char* ss);
+ 	virtual void reverse(void)    /* reverse the order of stuff in the current path */;
+diff -r -U2 src.orig/gle/d_ps.cpp src/gle/d_ps.cpp
+--- src.orig/gle/d_ps.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/d_ps.cpp	2022-12-24 13:08:07.882937784 +0700
+@@ -179,5 +179,5 @@
+ }
+ 
+-void PSGLEDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError) {
++void PSGLEDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) {
+ 	first_ellipse = 1;
+ 	m_OutputName.copy(outputfile);
+diff -r -U2 src.orig/gle/drawit.cpp src/gle/drawit.cpp
+--- src.orig/gle/drawit.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/drawit.cpp	2022-12-24 13:08:07.882937784 +0700
+@@ -82,5 +82,5 @@
+ }
+ 
+-void text_load_include(GLEParser* parser, const string& fname, GLESourceLine* code, GLESourceFile* file) throw(ParserError);
++void text_load_include(GLEParser* parser, const string& fname, GLESourceLine* code, GLESourceFile* file);
+ 
+ void gle_set_constants() {
+@@ -186,5 +186,5 @@
+ }
+ 
+-void validate_open_input_stream(ifstream& input, const string& fname) throw(ParserError) {
++void validate_open_input_stream(ifstream& input, const string& fname) {
+ 	string expanded(GLEExpandEnvironmentVariables(fname));
+ 	validate_file_name(expanded, true);
+@@ -195,5 +195,5 @@
+ }
+ 
+-FILE* validate_fopen(const string& fname, const char *mode, bool isread) throw(ParserError) {
++FILE* validate_fopen(const string& fname, const char *mode, bool isread) {
+ 	string expanded(GLEExpandEnvironmentVariables(fname));
+ 	validate_file_name(expanded, isread);
+@@ -206,5 +206,5 @@
+ }
+ 
+-void validate_file_name(const string& fname, bool isread) throw(ParserError) {
++void validate_file_name(const string& fname, bool isread) {
+ 	GLEInterface* iface = GLEGetInterfacePointer();
+ 	if (iface->hasFileInfos()) {
+@@ -252,5 +252,5 @@
+ }
+ 
+-void DrawIt(GLEScript* script, GLEFileLocation* outfile, CmdLineObj* cmdline, bool silent) throw (ParserError) {
++void DrawIt(GLEScript* script, GLEFileLocation* outfile, CmdLineObj* cmdline, bool silent) {
+ 	GLEGlobalSource* glecode = script->getSource();
+ 	GLEInterface* iface = script->getGLEInterface();
+@@ -395,5 +395,5 @@
+ }
+ 
+-void text_load_include(GLEParser* parser, const string& fname, GLESourceLine* code, GLESourceFile* file) throw(ParserError) {
++void text_load_include(GLEParser* parser, const string& fname, GLESourceLine* code, GLESourceFile* file) {
+ 	GLEFileLocation* loc = file->getLocation();
+ 	loc->setName(fname);
+diff -r -U2 src.orig/gle/drawit.h src/gle/drawit.h
+--- src.orig/gle/drawit.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/drawit.h	2022-12-24 13:08:07.882937784 +0700
+@@ -37,4 +37,4 @@
+  ************************************************************************/
+ 
+-void CompileGLE(const string& output_file, GLEGlobalSource &glecode, CmdLineObj* cmdline, bool silent) throw(ParserError);
+-void DrawIt(GLEScript* script, GLEFileLocation* outfile, CmdLineObj* cmdline, bool silent = false) throw (ParserError);
++void CompileGLE(const string& output_file, GLEGlobalSource &glecode, CmdLineObj* cmdline, bool silent);
++void DrawIt(GLEScript* script, GLEFileLocation* outfile, CmdLineObj* cmdline, bool silent = false);
+diff -r -U2 src.orig/gle/d_x.cpp src/gle/d_x.cpp
+--- src.orig/gle/d_x.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/d_x.cpp	2022-12-24 13:08:07.882937784 +0700
+@@ -432,5 +432,5 @@
+ }
+ /*---------------------------------------------------------------------------*/
+-void X11GLEDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile) throw(ParserError)
++void X11GLEDevice::opendev(double width, double height, GLEFileLocation* outputfile, const string& inputfile)
+ {
+ 	gle_nspeed = 2; /* text mode = slow and fast */
+diff -r -U2 src.orig/gle/eval.cpp src/gle/eval.cpp
+--- src.orig/gle/eval.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/eval.cpp	2022-12-24 13:08:07.883937784 +0700
+@@ -127,5 +127,5 @@
+ }
+ 
+-void eval_get_extra_arg_test(int i, const char* type) throw(ParserError) {
++void eval_get_extra_arg_test(int i, const char* type) {
+ 	int max_arg = g_CmdLine.getNbExtraArgs();
+ 	if (max_arg == 0) {
+@@ -141,5 +141,5 @@
+ }
+ 
+-double eval_get_extra_arg_f(int i) throw(ParserError) {
++double eval_get_extra_arg_f(int i) {
+ 	eval_get_extra_arg_test(i, "");
+ 	const string& arg = g_CmdLine.getExtraArg(i-1);
+@@ -152,5 +152,5 @@
+ }
+ 
+-const char* eval_get_extra_arg_s(int i) throw(ParserError) {
++const char* eval_get_extra_arg_s(int i) {
+ 	eval_get_extra_arg_test(i, "$");
+ 	return g_CmdLine.getExtraArg(i-1).c_str();
+@@ -370,5 +370,5 @@
+ }
+ 
+-void eval_pcode_loop(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int plen) throw(ParserError) {
++void eval_pcode_loop(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int plen) {
+ 	if (plen > 1000) {
+ 		gprint("Expression is suspiciously long %d \n",plen);
+@@ -993,5 +993,5 @@
+ }
+ 
+-GLESub* eval_subroutine_call(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++GLESub* eval_subroutine_call(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	if (*(pcode+(*cp)++) != 1) {
+ 		(*cp)--;
+@@ -1010,5 +1010,5 @@
+ }
+ 
+-void eval_do_object_block_call(GLEArrayImpl* stk, GLESub* sub, GLEObjectDO* obj) throw(ParserError) {
++void eval_do_object_block_call(GLEArrayImpl* stk, GLESub* sub, GLEObjectDO* obj) {
+ 	GLEObjectDOConstructor* cons = obj->getConstructor();
+ 	obj->makePropertyStore();
+@@ -1046,5 +1046,5 @@
+ }
+ 
+-GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	int fixed_cp;
+ 	if (cp == 0) {
+@@ -1070,5 +1070,5 @@
+ }
+ 
+-double evalDouble(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++double evalDouble(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	GLEMemoryCell* mc = evalGeneric(stk, pclist, pcode, cp);
+ 	gle_memory_cell_check(mc, GLEObjectTypeDouble);
+@@ -1076,5 +1076,5 @@
+ }
+ 
+-bool evalBool(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++bool evalBool(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	GLEMemoryCell* mc = evalGeneric(stk, pclist, pcode, cp);
+ 	gle_memory_cell_check(mc, GLEObjectTypeBool);
+@@ -1082,5 +1082,5 @@
+ }
+ 
+-GLEString* evalStringPtr(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++GLEString* evalStringPtr(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	GLEMemoryCell* mc = evalGeneric(stk, pclist, pcode, cp);
+ 	gle_memory_cell_check(mc, GLEObjectTypeString);
+@@ -1088,10 +1088,10 @@
+ }
+ 
+-GLERC<GLEColor> evalColor(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++GLERC<GLEColor> evalColor(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	GLEMemoryCell* mc = evalGeneric(stk, pclist, pcode, cp);
+ 	return memory_cell_to_color(get_global_polish(), stk, mc, g_get_throws_error(), 0);
+ }
+ 
+-GLERC<GLEString> evalString(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, bool allowOther) throw(ParserError) {
++GLERC<GLEString> evalString(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, bool allowOther) {
+ 	GLERC<GLEString> result;
+ 	GLEMemoryCell* mc = evalGeneric(stk, pclist, pcode, cp);
+diff -r -U2 src.orig/gle/font.cpp src/gle/font.cpp
+--- src.orig/gle/font.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/font.cpp	2022-12-24 13:08:07.883937784 +0700
+@@ -47,5 +47,5 @@
+ int text_gprint(int *in,int ilen);
+ int fftext_block(uchar *s,double width,int justify);
+-void font_load(void) throw (ParserError);
++void font_load(void);
+ void font_init(void);
+ 
+@@ -141,5 +141,5 @@
+ }
+ 
+-void font_load(void) throw(ParserError) {
++void font_load(void) {
+ 	/* load font.dat */
+ 	char inbuff[200];
+diff -r -U2 src.orig/gle/glearray.cpp src/gle/glearray.cpp
+--- src.orig/gle/glearray.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/glearray.cpp	2022-12-24 13:08:07.884937784 +0700
+@@ -209,5 +209,5 @@
+ }
+ 
+-void GLEZData::read(const string& fname) throw(ParserError) {
++void GLEZData::read(const string& fname) {
+ 	string expanded(GLEExpandEnvironmentVariables(fname));
+ 	validate_file_name(expanded, false);
+diff -r -U2 src.orig/gle/glearray.h src/gle/glearray.h
+--- src.orig/gle/glearray.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/glearray.h	2022-12-24 13:08:07.884937784 +0700
+@@ -103,5 +103,5 @@
+ 	GLEZData();
+ 	~GLEZData();
+-	void read(const string& fname) throw(ParserError);
++	void read(const string& fname);
+ 	inline double getZMin() { return m_ZMin; }
+ 	inline double getZMax() { return m_ZMax; }
+diff -r -U2 src.orig/gle/gle.cpp src/gle/gle.cpp
+--- src.orig/gle/gle.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/gle.cpp	2022-12-24 13:08:07.884937784 +0700
+@@ -88,5 +88,5 @@
+ void load_one_file_stdin(CmdLineObj& cmdline, size_t* exit_code);
+ void init_option_args(CmdLineObj& cmdline);
+-void do_gen_inittex(CmdLineObj& cmdline, GLEOptions& options) throw(ParserError);
++void do_gen_inittex(CmdLineObj& cmdline, GLEOptions& options);
+ void process_option_args(CmdLineObj& cmdline, GLEOptions& options);
+ void do_run_other_version(ConfigCollection& coll, int argc, char **argv);
+@@ -326,5 +326,5 @@
+ }
+ 
+-void do_gen_inittex(CmdLineObj& cmdline, GLEOptions& options) throw(ParserError) {
++void do_gen_inittex(CmdLineObj& cmdline, GLEOptions& options) {
+ 	// Generate inittex.ini from init.tex
+ 	if (cmdline.hasOption(GLE_OPT_MKINITTEX)) {
+@@ -705,5 +705,5 @@
+ }
+ 
+-GLERC<GLEScript> load_gle_code_sub(const char* name, CmdLineObj& cmdline) throw(ParserError) {
++GLERC<GLEScript> load_gle_code_sub(const char* name, CmdLineObj& cmdline) {
+ 	string in_name = name;
+ 	GLERC<GLEScript> script = new GLEScript();
+@@ -714,5 +714,5 @@
+ }
+ 
+-GLERC<GLEScript> load_gle_code_sub_stdin(CmdLineObj& cmdline) throw(ParserError) {
++GLERC<GLEScript> load_gle_code_sub_stdin(CmdLineObj& cmdline) {
+ 	GLERC<GLEScript> script = new GLEScript();
+ 	GLEFileLocation* loc = script->getLocation();
+@@ -741,5 +741,5 @@
+ }
+ 
+-void writeRecordedOutputFile(const string& fname, int deviceCode, string* buffer) throw (ParserError) {
++void writeRecordedOutputFile(const string& fname, int deviceCode, string* buffer) {
+ 	string outf = fname;
+ 	outf.append(g_device_to_ext(deviceCode));
+@@ -752,5 +752,5 @@
+ }
+ 
+-void writeRecordedOutputFile(const string& fname, int deviceCode, GLEScript* script) throw (ParserError) {
++void writeRecordedOutputFile(const string& fname, int deviceCode, GLEScript* script) {
+ 	string* buffer = script->getRecordedBytesBuffer(deviceCode);
+ 	writeRecordedOutputFile(fname, deviceCode, buffer);
+@@ -775,11 +775,11 @@
+ 	void update_bounding_box();
+ 	void delete_previous_output(int deviceCode);
+-	void create_cairo_eps() throw(ParserError);
+-	bool process_one_file_tex() throw(ParserError);
++	void create_cairo_eps();
++	bool process_one_file_tex();
+ 	void do_output_type(const char* type);
+ 	void cat_stdout(const char* ext);
+ 	void cat_stdout_and_del(const char* ext);
+-	void create_latex_eps_ps_pdf() throw(ParserError);
+-	void convert_eps_to_pdf_no_latex() throw(ParserError);
++	void create_latex_eps_ps_pdf();
++	void convert_eps_to_pdf_no_latex();
+ 	istream* get_eps_stream();
+ 	bool hasGenerated(int deviceCode);
+@@ -789,5 +789,5 @@
+ 	void setHasFile(int deviceCode, bool value);
+ 	void setHasIncFile(int deviceCode, bool value);
+-	void write_recorded_data(int deviceCode) throw(ParserError);
++	void write_recorded_data(int deviceCode);
+ 	void clean_tex_temp_files();
+ 	void clean_inc_file(int deviceCode);
+@@ -831,5 +831,5 @@
+ }
+ 
+-void GLELoadOneFileManager::create_cairo_eps() throw(ParserError) {
++void GLELoadOneFileManager::create_cairo_eps() {
+ 	CmdLineArgSet* device = (CmdLineArgSet*)m_CmdLine->getOption(GLE_OPT_DEVICE)->getArg(0);
+ 	if (!hasGenerated(GLE_DEVICE_EPS) && device->hasValue(GLE_DEVICE_EPS)) {
+@@ -845,5 +845,5 @@
+ }
+ 
+-bool GLELoadOneFileManager::process_one_file_tex() throw(ParserError) {
++bool GLELoadOneFileManager::process_one_file_tex() {
+ 	CmdLineArgSet* device = (CmdLineArgSet*)m_CmdLine->getOption(GLE_OPT_DEVICE)->getArg(0);
+ 	delete_previous_output(GLE_DEVICE_EPS);
+@@ -950,5 +950,5 @@
+ }
+ 
+-void GLELoadOneFileManager::convert_eps_to_pdf_no_latex() throw(ParserError) {
++void GLELoadOneFileManager::convert_eps_to_pdf_no_latex() {
+ 	CmdLineArgSet* device = (CmdLineArgSet*)m_CmdLine->getOption(GLE_OPT_DEVICE)->getArg(0);
+ 	if (device->hasValue(GLE_DEVICE_PDF) && !hasGenerated(GLE_DEVICE_PDF)) {
+@@ -992,5 +992,5 @@
+ }
+ 
+-void GLELoadOneFileManager::create_latex_eps_ps_pdf() throw(ParserError) {
++void GLELoadOneFileManager::create_latex_eps_ps_pdf() {
+ 	/* m_OutName has no path and no extension */
+ 	m_IncName.fromAbsolutePath(m_OutName->getFullPath() + "_inc");
+@@ -1091,5 +1091,5 @@
+ }
+ 
+-void GLELoadOneFileManager::write_recorded_data(int deviceCode) throw (ParserError) {
++void GLELoadOneFileManager::write_recorded_data(int deviceCode) {
+ 	CmdLineArgSet* device = (CmdLineArgSet*)m_CmdLine->getOption(GLE_OPT_DEVICE)->getArg(0);
+ 	if (!device->hasValue(deviceCode)) {
+@@ -1172,5 +1172,5 @@
+ }
+ 
+-void load_one_file_sub(GLEScript* script, CmdLineObj& cmdline, size_t* exit_code) throw(ParserError) {
++void load_one_file_sub(GLEScript* script, CmdLineObj& cmdline, size_t* exit_code) {
+ 	GLEFileLocation out_name; /* out_name has no extension */
+ 	GLEGetInterfacePointer()->getConfig()->setAllowConfigBlocks(false);
+diff -r -U2 src.orig/gle/gle-interface/gle-sourcefile.h src/gle/gle-interface/gle-sourcefile.h
+--- src.orig/gle/gle-interface/gle-sourcefile.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/gle-interface/gle-sourcefile.h	2022-12-24 13:08:07.883937784 +0700
+@@ -92,5 +92,5 @@
+ 	int getNextInsertIndex(int line, int pos);
+ 	void load(istream& input);
+-	void load() throw(ParserError);
++	void load();
+ 	bool tryLoad();
+ 	inline void addObjectDOConstructor(GLEObjectDOConstructor* cons) { m_Cons.add(cons); }
+@@ -129,5 +129,5 @@
+ 	void performUpdates();
+ 	void sourceLineFileAndNumber(int line, ostream& err);
+-	void load() throw(ParserError);
++	void load();
+ 	bool tryLoad();
+ 	void clearObjectDOConstructors();
+diff -r -U2 src.orig/gle/gle-interface.cpp src/gle/gle-interface.cpp
+--- src.orig/gle/gle-interface.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/gle-interface.cpp	2022-12-24 13:08:07.883937784 +0700
+@@ -70,6 +70,6 @@
+ 
+ void init_option_args(CmdLineObj& cmdline);
+-void load_one_file_sub(GLEScript* script, CmdLineObj& cmdline, size_t* exit_code) throw(ParserError);
+-GLERC<GLEScript> load_gle_code_sub(const char* name, CmdLineObj& cmdline) throw(ParserError);
++void load_one_file_sub(GLEScript* script, CmdLineObj& cmdline, size_t* exit_code);
++GLERC<GLEScript> load_gle_code_sub(const char* name, CmdLineObj& cmdline);
+ 
+ void GLEScaleSimpleLineProperties(double scale, bool dir, GLEPropertyStore* prop);
+@@ -1066,5 +1066,5 @@
+ 
+ void output_error(ParserError& err);
+-void eval(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, double *oval, GLEString **ostr, int *otyp) throw(ParserError);
++void eval(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, double *oval, GLEString **ostr, int *otyp);
+ 
+ GLEObjectDO* GLEObjectDOConstructor::constructObject() {
+diff -r -U2 src.orig/gle/glepro.h src/gle/glepro.h
+--- src.orig/gle/glepro.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/glepro.h	2022-12-24 13:08:07.884937784 +0700
+@@ -73,8 +73,8 @@
+ int mem_total(void);
+ int mem_worst(void);
+-GLERC<GLEColor> pass_color_var(const std::string& token) throw(ParserError);
++GLERC<GLEColor> pass_color_var(const std::string& token);
+ int pass_font(const std::string& token);
+ int pass_justify(const std::string& token);
+-int pass_marker(char *s) throw(ParserError);
++int pass_marker(char *s);
+ int testfree(int i);
+ int text_printf(int *in,int ilen);
+@@ -146,7 +146,7 @@
+ void do_wait_for_enter();
+ void do_wait_for_enter_exit(int exitcode);
+-void validate_open_input_stream(ifstream& input, const string& fname) throw(ParserError);
+-FILE* validate_fopen(const string& fname, const char *mode, bool isread) throw(ParserError);
+-void validate_file_name(const string& fname, bool isread) throw(ParserError);
++void validate_open_input_stream(ifstream& input, const string& fname);
++FILE* validate_fopen(const string& fname, const char *mode, bool isread);
++void validate_file_name(const string& fname, bool isread);
+ string fontdir(const char *s);
+ int check_has_font(const std::string& name);
+diff -r -U2 src.orig/gle/gle-sourcefile.cpp src/gle/gle-sourcefile.cpp
+--- src.orig/gle/gle-sourcefile.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/gle-sourcefile.cpp	2022-12-24 13:08:07.883937784 +0700
+@@ -236,5 +236,5 @@
+ }
+ 
+-void GLESourceFile::load() throw(ParserError) {
++void GLESourceFile::load() {
+ 	// called to load the main script or an include file
+ 	if (getLocation()->isStdin()) {
+@@ -375,5 +375,5 @@
+ }
+ 
+-void GLEGlobalSource::load() throw(ParserError) {
++void GLEGlobalSource::load() {
+ 	GLESourceFile* main = getMainFile();
+ 	main->load();
+diff -r -U2 src.orig/gle/graph2.cpp src/gle/graph2.cpp
+--- src.orig/gle/graph2.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/graph2.cpp	2022-12-24 13:08:07.885937784 +0700
+@@ -371,5 +371,5 @@
+ }
+ 
+-double graph_bar_pos(double xpos, int bar, int set) throw(ParserError) {
++double graph_bar_pos(double xpos, int bar, int set) {
+ 	if (set < 1 || set > g_nbar) {
+ 		g_throw_parser_error("illegal bar set: ", set);
+@@ -393,5 +393,5 @@
+ }
+ 
+-void draw_bar(double x, double yf, double yt, double wd, bar_struct* barset, int di, GLEDataSet* toDataSet) throw(ParserError) {
++void draw_bar(double x, double yf, double yt, double wd, bar_struct* barset, int di, GLEDataSet* toDataSet) {
+ 	/* draw a bar, wd wide, centere at x , from yf, to yt */
+ 	x = x + wd/2;
+@@ -535,5 +535,5 @@
+ }
+ 
+-void window_set(bool showError) throw(ParserError) {
++void window_set(bool showError) {
+ 	// Called twice:
+ 	// - Before processing "let" commands - then "showError = false"
+@@ -1342,5 +1342,5 @@
+ }
+ 
+-void draw_mark(double x, double y, int mrk, double msize, double dval, GLEDataSet* ds) throw (ParserError) {
++void draw_mark(double x, double y, int mrk, double msize, double dval, GLEDataSet* ds) {
+ 	if (ds->contains(x, y)) {
+ 		g_move(fnXY(x, y, ds));
+@@ -1535,5 +1535,5 @@
+ 	~GLELetDataSet();
+ 	void initializeFrom(int dn, int var);
+-	void complainNoFunction() throw (ParserError);
++	void complainNoFunction();
+ 	bool interpolateTo(double x, int lr);
+ 	inline int getNbValues() { return m_Vals.size(); }
+@@ -1609,5 +1609,5 @@
+ }
+ 
+-void GLELetDataSet::complainNoFunction() throw (ParserError) {
++void GLELetDataSet::complainNoFunction() {
+ 	for (unsigned int i = 1; i < m_Vals.size(); i++) {
+ 		if (m_Vals[i].x == m_Vals[i-1].x) {
+@@ -2161,10 +2161,10 @@
+ 	GLEFitLS();
+ 	virtual ~GLEFitLS();
+-	void polish(const string& str) throw(ParserError);
++	void polish(const string& str);
+ 	void setXY(vector<double>* x, vector<double>* y);
+ 	void fit();
+ 	void testFit();
+ 	void setVarsVals(double* vals);
+-	void toFunctionStr(const string& format, string* str) throw(ParserError);
++	void toFunctionStr(const string& format, string* str);
+ 	virtual double fitMSE(double* vals);
+ 	inline GLEFunctionParserPcode* getFunction() { return m_Function.get(); }
+@@ -2182,5 +2182,5 @@
+ }
+ 
+-void GLEFitLS::polish(const string& str) throw(ParserError) {
++void GLEFitLS::polish(const string& str) {
+ 	m_FunctionStr = str;
+ 	m_Function->polish(str.c_str(), &m_VarMap);
+@@ -2265,5 +2265,5 @@
+ }
+ 
+-void GLEFitLS::toFunctionStr(const string& format, string* str) throw(ParserError) {
++void GLEFitLS::toFunctionStr(const string& format, string* str) {
+ 	*str = "";
+ 	string fmt_str = format;
+@@ -2329,10 +2329,10 @@
+ 	void initVars();
+ 	void initStep();
+-	void doLet() throw(ParserError);
+-	void parseFitFunction(const string& fct, GLEParser* parser) throw(ParserError);
+-	void parseHistogram(GLEParser* parser) throw(ParserError);
+-	void doFitFunction() throw(ParserError);
+-	void doHistogram() throw(ParserError);
+-	void complainAboutNoFunctions(GLEVectorAutoDelete<GLELetDataSet>& datasets) throw(ParserError);
++	void doLet();
++	void parseFitFunction(const string& fct, GLEParser* parser);
++	void parseHistogram(GLEParser* parser);
++	void doFitFunction();
++	void doHistogram();
++	void complainAboutNoFunctions(GLEVectorAutoDelete<GLELetDataSet>& datasets);
+ 	bool checkIdenticalRanges(GLEVectorAutoDelete<GLELetDataSet>& datasets);
+ 	void transformIdenticalRangeDatasets(GLEVectorAutoDelete<GLELetDataSet>& datasets, DataFill* fill);
+@@ -2567,5 +2567,5 @@
+ }
+ 
+-void GLELet::complainAboutNoFunctions(GLEVectorAutoDelete<GLELetDataSet>& datasets) throw(ParserError) {
++void GLELet::complainAboutNoFunctions(GLEVectorAutoDelete<GLELetDataSet>& datasets) {
+ 	for (unsigned int i = 0; i < datasets.size(); i++) {
+ 		if (!datasets[i]->isFunction()) {
+@@ -2575,5 +2575,5 @@
+ }
+ 
+-void GLELet::doLet() throw(ParserError) {
++void GLELet::doLet() {
+ 	if (m_LetTo <= m_LetFrom) {
+ 		stringstream ss;
+@@ -2688,5 +2688,5 @@
+ }
+ 
+-void GLELet::parseFitFunction(const string& fct, GLEParser* parser) throw(ParserError) {
++void GLELet::parseFitFunction(const string& fct, GLEParser* parser) {
+ 	Tokenizer* tokens = parser->getTokens();
+ 	string& token = tokens->next_token();
+@@ -2758,5 +2758,5 @@
+ }
+ 
+-void GLELet::doFitFunction() throw(ParserError) {
++void GLELet::doFitFunction() {
+ 	bool linfit = false, logefit = false, log10fit = false, powxfit = false, genfit = false;
+ 	// doing fitting routines
+@@ -2922,5 +2922,5 @@
+ }
+ 
+-void GLELet::parseHistogram(GLEParser* parser) throw(ParserError) {
++void GLELet::parseHistogram(GLEParser* parser) {
+ 	Tokenizer* tokens = parser->getTokens();
+ 	string& token = tokens->next_token();
+@@ -2948,5 +2948,5 @@
+ }
+ 
+-void GLELet::doHistogram() throw(ParserError) {
++void GLELet::doHistogram() {
+ 	int bins = m_nrBins;
+ 	GLEDataPairs histData(getDataset(m_HistDS));
+@@ -3041,5 +3041,5 @@
+ // DATA results in the line being drawn from the minimum to the maximum of the data series
+ 
+-GLELet* parseLet(GLEParser* parser, int codeLine) throw(ParserError) {
++GLELet* parseLet(GLEParser* parser, int codeLine) {
+ 	GLELet* let = new GLELet();
+ 	let->setCodeLine(codeLine);
+@@ -3134,5 +3134,5 @@
+ }
+ 
+-GLELet* parseLet(GLESourceLine& sline) throw(ParserError) {
++GLELet* parseLet(GLESourceLine& sline) {
+ 	GLEParser* parser = get_global_parser();
+ 	parser->setString(sline.getCodeCStr());
+@@ -3140,5 +3140,5 @@
+ }
+ 
+-GLELet* parseLet(const string& letFct, int codeLine) throw(ParserError) {
++GLELet* parseLet(const string& letFct, int codeLine) {
+ 	GLEParser* parser = get_global_parser();
+ 	parser->setString(letFct.c_str());
+@@ -3146,5 +3146,5 @@
+ }
+ 
+-void doLet(GLELet* let, bool nofirst) throw(ParserError) {
++void doLet(GLELet* let, bool nofirst) {
+ 	g_set_error_line(let->getCodeLine());
+ 	let->setNoFirst(nofirst);
+@@ -3256,5 +3256,5 @@
+ }
+ 
+-void do_dataset(int d, GLEGraphBlockInstance* graphBlock) throw(ParserError) {
++void do_dataset(int d, GLEGraphBlockInstance* graphBlock) {
+ 	int ct = 2;
+ 	while (ct <= ntk)	{
+@@ -3625,5 +3625,5 @@
+ }
+ 
+-void do_bigfile_compatibility_dn(int dn) throw(ParserError) {
++void do_bigfile_compatibility_dn(int dn) {
+ 	string infile = dp[dn]->bigfile;
+ 	if (infile.length() >= 1 && infile[infile.length()-1] == '$') {
+@@ -3737,5 +3737,5 @@
+ }
+ 
+-void do_bigfile_compatibility() throw(ParserError) {
++void do_bigfile_compatibility() {
+ 	for (int dn = 1; dn <= ndata; dn++) {
+ 		if (dp[dn] != NULL) {
+@@ -4326,5 +4326,5 @@
+ }
+ 
+-void GLEDataSet::checkRanges() throw(ParserError) {
++void GLEDataSet::checkRanges() {
+ 	// when parsing "let" -> already create dataset with ensureCreate...
+ 	// so that dn command applies to it
+diff -r -U2 src.orig/gle/graph.cpp src/gle/graph.cpp
+--- src.orig/gle/graph.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/graph.cpp	2022-12-24 13:08:07.884937784 +0700
+@@ -85,8 +85,8 @@
+ void free_temp(void);
+ void set_sizelength(void);
+-void draw_graph(KeyInfo* keyinfo, GLEGraphBlockInstance* graphBlock) throw (ParserError);
++void draw_graph(KeyInfo* keyinfo, GLEGraphBlockInstance* graphBlock);
+ void do_set_bar_color(const char* tk, bar_struct* bar, int type);
+ void do_set_bar_style(const char* tk, bar_struct* bar);
+-void do_axis_part_all(int xset) throw (ParserError);
++void do_axis_part_all(int xset);
+ bool do_remaining_entries(int ct, bool isCommandCheck);
+ void graph_freebars();
+@@ -423,5 +423,5 @@
+ // A useful value for base is 0.25
+ 
+-void begin_graph(GLEGraphBlockBase* graphBlockBase, GLEGraphBlockInstance* graphBlock) throw (ParserError) {
++void begin_graph(GLEGraphBlockBase* graphBlockBase, GLEGraphBlockInstance* graphBlock) {
+ 	g_colormap = NULL;
+ 	for (unsigned int i = 0; i < g_letCmds.size(); i++) {
+@@ -999,5 +999,5 @@
+ }
+ 
+-void do_axis(int axis, bool craxis) throw (ParserError) {
++void do_axis(int axis, bool craxis) {
+ 	int ct = 2;
+ 	while (ct <= ntk)  {
+@@ -1099,5 +1099,5 @@
+ }
+ 
+-void do_labels(int axis, bool showerr) throw (ParserError) {
++void do_labels(int axis, bool showerr) {
+ 	int ct = 2;
+ 	while (ct <= ntk)  {
+@@ -1141,5 +1141,5 @@
+ }
+ 
+-void do_side(int axis, bool showerr) throw (ParserError) {
++void do_side(int axis, bool showerr) {
+ 	int ct = 2;
+ 	while (ct <= ntk)  {
+@@ -1161,5 +1161,5 @@
+ }
+ 
+-void do_ticks(int axis, bool showerr) throw (ParserError) {
++void do_ticks(int axis, bool showerr) {
+ 	int ct = 2;
+ 	while (ct <= ntk)  {
+@@ -1190,5 +1190,5 @@
+ }
+ 
+-void do_subticks(int axis, bool showerr) throw (ParserError) {
++void do_subticks(int axis, bool showerr) {
+ 	int ct = 2;
+ 	while (ct <= ntk)  {
+@@ -1217,5 +1217,5 @@
+ }
+ 
+-void do_axis_part(int axis, bool craxis, int xset) throw (ParserError) {
++void do_axis_part(int axis, bool craxis, int xset) {
+ 	// craxis = command is for current axis
+ 	// showerr = passing options for axis command to labels/side/ticks commands
+@@ -1242,5 +1242,5 @@
+ }
+ 
+-void do_axis_part_all(int xset) throw (ParserError) {
++void do_axis_part_all(int xset) {
+ 	int axis = axis_type(tk[1]);
+ 	if (axis == GLE_AXIS_ALL) {
+@@ -1551,5 +1551,5 @@
+ }
+ 
+-void draw_graph(KeyInfo* keyinfo, GLEGraphBlockInstance* graphBlock) throw (ParserError) {
++void draw_graph(KeyInfo* keyinfo, GLEGraphBlockInstance* graphBlock) {
+ 	GLERectangle box;
+ 	double ox,oy;
+@@ -1777,5 +1777,5 @@
+ }
+ 
+-int get_dataset_identifier(const std::string& ds, bool def) throw(ParserError) {
++int get_dataset_identifier(const std::string& ds, bool def) {
+ 	int len = ds.size();
+ 	if (len <= 1 || toupper(ds[0]) != 'D') {
+@@ -1815,5 +1815,5 @@
+ }
+ 
+-int get_dataset_identifier(const string& ds, GLEParser* parser, bool def) throw(ParserError) {
++int get_dataset_identifier(const string& ds, GLEParser* parser, bool def) {
+ 	Tokenizer* tokens = parser->getTokens();
+ 	if (str_i_equals(ds, "d")) {
+@@ -1853,5 +1853,5 @@
+ }
+ 
+-int get_column_number(GLEParser* parser) throw(ParserError) {
++int get_column_number(GLEParser* parser) {
+ 	Tokenizer* tokens = parser->getTokens();
+ 	const string& token = tokens->next_token();
+diff -r -U2 src.orig/gle/graph.h src/gle/graph.h
+--- src.orig/gle/graph.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/graph.h	2022-12-24 13:08:07.884937784 +0700
+@@ -291,15 +291,15 @@
+ void gdraw_key(KeyInfo* info);
+ void copy_default(int d);
+-void do_dataset(int d, GLEGraphBlockInstance* graphBlock) throw(ParserError);
++void do_dataset(int d, GLEGraphBlockInstance* graphBlock);
+ void do_each_dataset_settings();
+ void fill_vec(double x1, double y1, double x2, double y2, vector<double>* vec);
+ void do_smooth(void);
+-void window_set(bool showError) throw(ParserError);
++void window_set(bool showError);
+ void reset_axis_ranges();
+ bool should_autorange_based_on_lets();
+ void deleteLet(GLELet* let);
+-GLELet* parseLet(GLESourceLine& sline) throw(ParserError);
+-GLELet* parseLet(const string& letFct, int codeLine) throw(ParserError);
+-void doLet(GLELet* let, bool nofirst) throw(ParserError);
++GLELet* parseLet(GLESourceLine& sline);
++GLELet* parseLet(const string& letFct, int codeLine);
++void doLet(GLELet* let, bool nofirst);
+ void request(void);
+ /*int draw_axis(void *axis);*/
+@@ -308,5 +308,5 @@
+ void store_window_bounds_to_vars();
+ void do_dataset_key(int d);
+-void do_bigfile_compatibility() throw(ParserError);
++void do_bigfile_compatibility();
+ void ensureDataSetCreated(int d);
+ 
+@@ -348,5 +348,5 @@
+ 
+ void draw_vec(double x1, double y1, double x2, double y2, GLEDataSet* ds);
+-void draw_mark(double x1, double y1, int i, double sz, double dval, GLEDataSet* ds) throw (ParserError);
++void draw_mark(double x1, double y1, int i, double sz, double dval, GLEDataSet* ds);
+ 
+ /* range of dataset dimension is initialized in window_set */
+@@ -469,5 +469,5 @@
+ 	bool contains(double x, double y);
+ 	bool contains(const GLEPoint& p);
+-	void checkRanges() throw(ParserError);
++	void checkRanges();
+ 	void copyRangeIfRequired(int dimension);
+ 	vector<int> getMissingValues();
+@@ -541,14 +541,14 @@
+ void vinit_axis(int i);
+ void vinit_title_axis();
+-void draw_bar(double x, double yf, double yt, double wd, bar_struct* barset, int di, GLEDataSet* toDataSet) throw(ParserError);
++void draw_bar(double x, double yf, double yt, double wd, bar_struct* barset, int di, GLEDataSet* toDataSet);
+ void get_dataset_ranges();
+ void set_bar_axis_places();
+-int get_dataset_identifier(const std::string& ds, bool def = false) throw(ParserError);
+-int get_dataset_identifier(const string& ds, GLEParser* parser, bool def) throw(ParserError);
++int get_dataset_identifier(const std::string& ds, bool def = false);
++int get_dataset_identifier(const string& ds, GLEParser* parser, bool def);
+ 
+-double graph_bar_pos(double xpos, int bar, int set) throw(ParserError);
+-void begin_graph(GLEGraphBlockBase* graphBlockBase, GLEGraphBlockInstance* graphBlock) throw (ParserError);
++double graph_bar_pos(double xpos, int bar, int set);
++void begin_graph(GLEGraphBlockBase* graphBlockBase, GLEGraphBlockInstance* graphBlock);
+ bool execute_graph(GLESourceLine& sline, bool isCommandCheck, GLEGraphBlockInstance* graphBlock);
+-void begin_key(int *pln, int *pcode, int *cp) throw (ParserError);
++void begin_key(int *pln, int *pcode, int *cp);
+ void begin_tab(int *pln, int *pcode, int *cp);
+ void begin_text(int *pln, int *pcode, int *cp, double w, int just);
+diff -r -U2 src.orig/gle/letzfitz/fit.cpp src/gle/letzfitz/fit.cpp
+--- src.orig/gle/letzfitz/fit.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/letzfitz/fit.cpp	2022-12-24 13:08:07.885937784 +0700
+@@ -83,6 +83,6 @@
+ public:
+ 	GLEFitZData();
+-	void loadData() throw(ParserError);
+-	void sortData() throw(ParserError);
++	void loadData();
++	void sortData();
+ };
+ 
+@@ -94,5 +94,5 @@
+ 
+ // different from the one in let.cpp because fields are optional here
+-void get_from_to_step_fitz(TOKENS tk, int ntok, int *curtok, double* from, double* to, double* step) throw(ParserError) {
++void get_from_to_step_fitz(TOKENS tk, int ntok, int *curtok, double* from, double* to, double* step) {
+ 	(*curtok) = (*curtok) + 1;
+ 	if ((*curtok) >= ntok) {
+@@ -134,5 +134,5 @@
+ }
+ 
+-void begin_fitz(int *pln, int *pcode, int *cp) throw(ParserError) {
++void begin_fitz(int *pln, int *pcode, int *cp) {
+ 	GLEFitZData data;
+ 	// Start with pcode from the next line
+@@ -254,5 +254,5 @@
+ }
+ 
+-void GLEFitZData::loadData() throw(ParserError) {
++void GLEFitZData::loadData() {
+ 	TokenizerLanguage lang;
+ 	StreamTokenizer tokens(&lang);
+@@ -283,5 +283,5 @@
+ }
+ 
+-void GLEFitZData::sortData() throw(ParserError) {
++void GLEFitZData::sortData() {
+ 	/* Copy data */
+ 	for (vector<double>::size_type i = 0; i < pntxyz.size(); i+=3) {
+diff -r -U2 src.orig/gle/letzfitz/let.cpp src/gle/letzfitz/let.cpp
+--- src.orig/gle/letzfitz/let.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/letzfitz/let.cpp	2022-12-24 13:08:07.885937784 +0700
+@@ -70,5 +70,5 @@
+ #define next_str(s) ct+=1;s=tk[ct]
+ 
+-void get_from_to_step(TOKENS tk, int ntok, int *curtok, double* from, double* to, double* step) throw(ParserError) {
++void get_from_to_step(TOKENS tk, int ntok, int *curtok, double* from, double* to, double* step) {
+ 	(*curtok) = (*curtok) + 1;
+ 	if ((*curtok) >= ntok) {
+@@ -107,5 +107,5 @@
+ }
+ 
+-void begin_letz(int *pln, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError) {
++void begin_letz(int *pln, GLEPcodeList* pclist, int *pcode, int *cp) {
+ 	// Variables
+ 	double xmin = 10, xmax = 10, xstep = 1;
+diff -r -U2 src.orig/gle/pass.cpp src/gle/pass.cpp
+--- src.orig/gle/pass.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/pass.cpp	2022-12-24 13:08:07.886937784 +0700
+@@ -65,5 +65,5 @@
+ void get_join(TOKENS tk,int *ntok,int *curtok,int *pcode,int *plen);
+ void g_marker_def(char *s1, char *s2);
+-void font_load(void) throw(ParserError);
++void font_load(void);
+ bool execute_graph(GLESourceLine& sline, bool isCommandCheck);
+ 
+@@ -236,5 +236,5 @@
+ }
+ 
+-void GLEParser::checkmode() throw(ParserError) {
++void GLEParser::checkmode() {
+ 	/* Check for text mode block */
+ 	if (cur_mode != 0) {
+@@ -280,5 +280,5 @@
+ }
+ 
+-void GLEParser::checkValidName(const string& name, const char* type, int pos) throw(ParserError) {
++void GLEParser::checkValidName(const string& name, const char* type, int pos) {
+ 	if (name.length() <= 0) {
+ 		throw getTokens()->error(pos, string("zero length ")+type+" name");
+@@ -296,5 +296,5 @@
+ }
+ 
+-double GLEParser::evalTokenToDouble() throw(ParserError) {
++double GLEParser::evalTokenToDouble() {
+ 	double x = 0.0;
+ 	Tokenizer* tokens = getTokens();
+@@ -310,5 +310,5 @@
+ }
+ 
+-void GLEParser::evalTokenToString(string* str) throw(ParserError) {
++void GLEParser::evalTokenToString(string* str) {
+ 	Tokenizer* tokens = getTokens();
+ 	string& expr = tokens->next_multilevel_token();
+@@ -322,5 +322,5 @@
+ }
+ 
+-void GLEParser::evalTokenToFileName(string* str) throw(ParserError) {
++void GLEParser::evalTokenToFileName(string* str) {
+ 	Tokenizer* tokens = getTokens();
+    const string& token = tokens->next_continuous_string_excluding("\"$+");
+@@ -332,5 +332,5 @@
+ }
+ 
+-void GLEParser::polish(GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEParser::polish(GLEPcode& pcode, int *rtype) {
+ 	Tokenizer* tokens = getTokens();
+ 	string& expr = tokens->next_multilevel_token();
+@@ -346,5 +346,5 @@
+ }
+ 
+-void GLEParser::polish_eol(GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEParser::polish_eol(GLEPcode& pcode, int *rtype) {
+ 	setAllowSpace(true);
+ 	polish(pcode, rtype);
+@@ -352,9 +352,9 @@
+ }
+ 
+-void GLEParser::polish(const char* str, GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEParser::polish(const char* str, GLEPcode& pcode, int *rtype) {
+ 	m_polish->polish(str, pcode, rtype);
+ }
+ 
+-void GLEParser::polish_pos(const string& arg, int pos, GLEPcode& pcode, int* rtype) throw(ParserError) {
++void GLEParser::polish_pos(const string& arg, int pos, GLEPcode& pcode, int* rtype) {
+ 	try {
+ 		m_polish->internalPolish(arg.c_str(), pcode, rtype);
+@@ -365,5 +365,5 @@
+ }
+ 
+-void GLEParser::get_xy(GLEPcode& pcode) throw(ParserError) {
++void GLEParser::get_xy(GLEPcode& pcode) {
+ 	int vtype = 1;
+ 	polish(pcode, &vtype);
+@@ -372,20 +372,20 @@
+ }
+ 
+-void GLEParser::get_exp(GLEPcode& pcode) throw(ParserError) {
++void GLEParser::get_exp(GLEPcode& pcode) {
+ 	int vtype = 1;
+ 	polish(pcode, &vtype);
+ }
+ 
+-void GLEParser::get_exp_eol(GLEPcode& pcode) throw(ParserError) {
++void GLEParser::get_exp_eol(GLEPcode& pcode) {
+ 	int vtype = 1;
+ 	polish_eol(pcode, &vtype);
+ }
+ 
+-void GLEParser::get_strexp(GLEPcode& pcode) throw(ParserError) {
++void GLEParser::get_strexp(GLEPcode& pcode) {
+ 	int vtype = 2;
+ 	polish(pcode, &vtype);
+ }
+ 
+-int GLEParser::get_anyexp(GLEPcode& pcode) throw(ParserError) {
++int GLEParser::get_anyexp(GLEPcode& pcode) {
+ 	int vtype = 0;
+ 	polish(pcode, &vtype);
+@@ -393,5 +393,5 @@
+ }
+ 
+-void GLEParser::get_if(GLEPcode& pcode) throw(ParserError) {
++void GLEParser::get_if(GLEPcode& pcode) {
+ 	Tokenizer* tokens = getTokens();
+ 	string expr = tokens->next_multilevel_token();
+@@ -418,5 +418,5 @@
+ }
+ 
+-void GLEParser::parse_if(int srclin, GLEPcode& pcode) throw(ParserError) {
++void GLEParser::parse_if(int srclin, GLEPcode& pcode) {
+ 	get_if(pcode);
+ 	GLESourceBlock* block = add_block(GLE_SRCBLK_MAGIC+GLE_OPBEGIN_IF, srclin);
+@@ -426,5 +426,5 @@
+ }
+ 
+-void GLEParser::get_subroutine_call(GLEPcode& pcode, string* name, int poscol) throw(ParserError) {
++void GLEParser::get_subroutine_call(GLEPcode& pcode, string* name, int poscol) {
+ 	string fct_name;
+ 	if (name != NULL) {
+@@ -444,5 +444,5 @@
+ }
+ 
+-void GLEParser::pass_subroutine_call(GLESubCallInfo* info, int poscol) throw(ParserError) {
++void GLEParser::pass_subroutine_call(GLESubCallInfo* info, int poscol) {
+ 	GLESub* sub = info->getSub();
+ 	int np = sub->getNbParam();
+@@ -559,5 +559,5 @@
+ }
+ 
+-void GLEParser::gen_subroutine_call_polish_arg(GLESubCallInfo* info, int i, GLEPcode& pcode) throw(ParserError) {
++void GLEParser::gen_subroutine_call_polish_arg(GLESubCallInfo* info, int i, GLEPcode& pcode) {
+ 	GLESub* sub = info->getSub();
+ 	try {
+@@ -590,5 +590,5 @@
+ }
+ 
+-void GLEParser::gen_subroutine_call_code(GLESubCallInfo* info, GLEPcode& pcode) throw(ParserError) {
++void GLEParser::gen_subroutine_call_code(GLESubCallInfo* info, GLEPcode& pcode) {
+ 	/* pass all arguments */
+ 	GLESub* sub = info->getSub();
+@@ -604,5 +604,5 @@
+ }
+ 
+-GLESub* GLEParser::get_subroutine_declaration(GLEPcode& pcode) throw(ParserError) {
++GLESub* GLEParser::get_subroutine_declaration(GLEPcode& pcode) {
+ 	string uc_token;
+ 	string& token = m_tokens.next_token();
+@@ -659,5 +659,5 @@
+ }
+ 
+-void GLEParser::get_subroutine_default_param(GLESub* sub) throw(ParserError) {
++void GLEParser::get_subroutine_default_param(GLESub* sub) {
+ 	if (sub == NULL) {
+ 		return;
+@@ -677,5 +677,5 @@
+ }
+ 
+-int GLEParser::get_optional(OPKEY lkey, GLEPcode& pcode) throw(ParserError) {
++int GLEParser::get_optional(OPKEY lkey, GLEPcode& pcode) {
+ 	// find the largest width
+ 	int count, width;
+@@ -728,9 +728,9 @@
+ }
+ 
+-void GLEParser::duplicate_error(GLEPcode& pcode, int pos) throw(ParserError) {
++void GLEParser::duplicate_error(GLEPcode& pcode, int pos) {
+ 	if (pcode.getInt(pos) != 0) throw error("duplicate or illegal combination of qualifiers");
+ }
+ 
+-int GLEParser::get_one_option(op_key* lkey, GLEPcode& pcode, int plen) throw(ParserError) {
++int GLEParser::get_one_option(op_key* lkey, GLEPcode& pcode, int plen) {
+ // switches 	int 	placed in directly, 1 present, 0 not present
+ // expressions 	LONG* 	pointed to, 0 if not present.
+@@ -796,9 +796,9 @@
+ }
+ 
+-int GLEParser::get_first(OPKEY lkey) throw(ParserError) {
++int GLEParser::get_first(OPKEY lkey) {
+ 	return get_first(m_tokens.next_token(), lkey);
+ }
+ 
+-int GLEParser::get_first(const string& token, OPKEY lkey) throw(ParserError) {
++int GLEParser::get_first(const string& token, OPKEY lkey) {
+ 	int count, width;
+ 	get_key_info(lkey, &count, &width);
+@@ -811,5 +811,5 @@
+ }
+ 
+-bool GLEParser::try_get_token(const char* token) throw(ParserError) {
++bool GLEParser::try_get_token(const char* token) {
+ 	string& my_token = m_tokens.try_next_token();
+ 	if (str_i_equals(token, my_token.c_str())) {
+@@ -821,5 +821,5 @@
+ }
+ 
+-void GLEParser::get_token(const char* token) throw(ParserError) {
++void GLEParser::get_token(const char* token) {
+ 	string& my_token = m_tokens.next_token();
+ 	if (!str_i_equals(token, my_token.c_str())) {
+@@ -828,5 +828,5 @@
+ }
+ 
+-void GLEParser::get_fill(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_fill(GLEPcode& pcode) {
+ 	get_color(pcode);
+ }
+@@ -912,5 +912,5 @@
+ }
+ 
+-GLERC<GLEColor> pass_color_var(const std::string& token) throw(ParserError) {
++GLERC<GLEColor> pass_color_var(const std::string& token) {
+ 	GLERC<GLEColor> color(new GLEColor());
+ 	int result = 0;
+@@ -927,5 +927,5 @@
+ }
+ 
+-void GLEParser::get_color(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_color(GLEPcode& pcode) {
+ 	int result = 0;
+ 	GLERC<GLEColor> color;
+@@ -969,5 +969,5 @@
+ }
+ 
+-void GLEParser::get_marker(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_marker(GLEPcode& pcode) {
+ 	int vtype = 1;
+ 	string& token = m_tokens.next_token();
+@@ -984,5 +984,5 @@
+ }
+ 
+-int pass_marker(char *name) throw(ParserError) {
++int pass_marker(char *name) {
+ 	string marker;
+ 	polish_eval_string(name, &marker);
+@@ -990,5 +990,5 @@
+ }
+ 
+-void GLEParser::define_marker_1(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::define_marker_1(GLEPcode& pcode) {
+ 	string name;
+ 	Tokenizer* tokens = getTokens();
+@@ -1002,5 +1002,5 @@
+ }
+ 
+-void GLEParser::define_marker_2(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::define_marker_2(GLEPcode& pcode) {
+ 	string name, sub;
+ 	Tokenizer* tokens = getTokens();
+@@ -1061,5 +1061,5 @@
+ }
+ 
+-void GLEParser::get_font(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_font(GLEPcode& pcode) {
+ 	string& token = m_tokens.next_token();
+ 	if (str_starts_with(token, "\"") || str_var_valid_name(token)) {
+@@ -1086,5 +1086,5 @@
+ }
+ 
+-void GLEParser::get_papersize(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_papersize(GLEPcode& pcode) {
+ 	const string& token = m_tokens.next_token();
+ 	int type = g_papersize_type(token);
+@@ -1099,5 +1099,5 @@
+ }
+ 
+-void GLEParser::get_justify(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_justify(GLEPcode& pcode) {
+ 	const string& token = m_tokens.next_token();
+ 	if (str_starts_with(token, "\"") || str_var_valid_name(token)) {
+@@ -1123,13 +1123,13 @@
+ }
+ 
+-void GLEParser::get_join(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_join(GLEPcode& pcode) {
+ 	pcode.addInt(get_first(op_join));
+ }
+ 
+-void GLEParser::get_cap(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_cap(GLEPcode& pcode) {
+ 	pcode.addInt(get_first(op_cap));
+ }
+ 
+-void GLEParser::get_var_add(int *var, int *vtype) throw (ParserError) {
++void GLEParser::get_var_add(int *var, int *vtype) {
+ 	string uc_token;
+ 	string& token = m_tokens.next_token();
+@@ -1138,5 +1138,5 @@
+ }
+ 
+-void GLEParser::get_var(GLEPcode& pcode) throw (ParserError) {
++void GLEParser::get_var(GLEPcode& pcode) {
+ 	int var;
+ 	int vtype = 0;
+@@ -1194,5 +1194,5 @@
+ }
+ 
+-void GLEParser::passt(GLESourceLine &SLine, GLEPcode& pcode) throw(ParserError) {
++void GLEParser::passt(GLESourceLine &SLine, GLEPcode& pcode) {
+ 	resetSpecial();
+ 	static int i,f,vtyp,v,vidx;
+@@ -1970,5 +1970,5 @@
+ }
+ 
+-void GLEParser::do_text_mode(GLESourceLine &SLine, Tokenizer* tokens, GLEPcode& pcode) throw (ParserError) {
++void GLEParser::do_text_mode(GLESourceLine &SLine, Tokenizer* tokens, GLEPcode& pcode) {
+ 	int pos_endoffs = pcode.size();
+ 	// Save space for end offset
+@@ -2061,5 +2061,5 @@
+ }
+ 
+-void GLEParser::check_loop_variable(int var) throw (ParserError) {
++void GLEParser::check_loop_variable(int var) {
+ 	GLESourceBlock* block = last_block();
+ 	if (block == NULL || var != block->getVariable()) {
+@@ -2071,5 +2071,5 @@
+ }
+ 
+-GLESourceBlock* GLEParser::check_block_type(int pos, int t0, int t1, int t2) throw (ParserError) {
++GLESourceBlock* GLEParser::check_block_type(int pos, int t0, int t1, int t2) {
+ 	GLESourceBlock* block = last_block();
+ 	if (block == NULL) {
+diff -r -U2 src.orig/gle/pass.h src/gle/pass.h
+--- src.orig/gle/pass.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/pass.h	2022-12-24 13:08:07.886937784 +0700
+@@ -152,56 +152,56 @@
+ 	GLEBlocks* getBlockTypes();
+ 	void initTokenizer();
+-	double evalTokenToDouble() throw(ParserError);
+-	void evalTokenToString(string* str) throw(ParserError);
+-	void evalTokenToFileName(string* str) throw(ParserError);
++	double evalTokenToDouble();
++	void evalTokenToString(string* str);
++	void evalTokenToFileName(string* str);
+ 	bool pass_block_specific(GLESourceLine& sourceLine, GLEPcode& pcode);
+-	void passt(GLESourceLine &SLine, GLEPcode& pcode) throw(ParserError);
+-	void polish_eol(GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void polish(GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void polish(const char* str, GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void polish_pos(const string& arg, int pos, GLEPcode& pcode, int* rtype) throw(ParserError);
+-	void get_var(GLEPcode& pcode) throw (ParserError);
+-	void get_xy(GLEPcode& pcode) throw(ParserError);
+-	void get_exp(GLEPcode& pcode) throw(ParserError);
+-	void get_exp_eol(GLEPcode& pcode) throw(ParserError);
+-	void get_strexp(GLEPcode& pcode) throw(ParserError);
+-	int get_anyexp(GLEPcode& pcode) throw(ParserError);
+-	void pass_subroutine_call(GLESubCallInfo* info, int poscol) throw(ParserError);
+-	void gen_subroutine_call_code(GLESubCallInfo* info, GLEPcode& pcode) throw(ParserError);
+-	void gen_subroutine_call_polish_arg(GLESubCallInfo* info, int i, GLEPcode& pcode) throw(ParserError);
++	void passt(GLESourceLine &SLine, GLEPcode& pcode);
++	void polish_eol(GLEPcode& pcode, int *rtype);
++	void polish(GLEPcode& pcode, int *rtype);
++	void polish(const char* str, GLEPcode& pcode, int *rtype);
++	void polish_pos(const string& arg, int pos, GLEPcode& pcode, int* rtype);
++	void get_var(GLEPcode& pcode);
++	void get_xy(GLEPcode& pcode);
++	void get_exp(GLEPcode& pcode);
++	void get_exp_eol(GLEPcode& pcode);
++	void get_strexp(GLEPcode& pcode);
++	int get_anyexp(GLEPcode& pcode);
++	void pass_subroutine_call(GLESubCallInfo* info, int poscol);
++	void gen_subroutine_call_code(GLESubCallInfo* info, GLEPcode& pcode);
++	void gen_subroutine_call_polish_arg(GLESubCallInfo* info, int i, GLEPcode& pcode);
+ 	void evaluate_subroutine_arguments(GLESubCallInfo* info, GLEArrayImpl* arguments);
+-	void get_subroutine_call(GLEPcode& pcode, string* name = NULL, int poscol = 0) throw(ParserError);
+-	GLESub* get_subroutine_declaration(GLEPcode& pcode) throw(ParserError);
+-	void get_subroutine_default_param(GLESub* sub) throw(ParserError);
+-	void get_if(GLEPcode& pcode) throw(ParserError);
+-	void parse_if(int srclin, GLEPcode& pcode) throw(ParserError);
++	void get_subroutine_call(GLEPcode& pcode, string* name = NULL, int poscol = 0);
++	GLESub* get_subroutine_declaration(GLEPcode& pcode);
++	void get_subroutine_default_param(GLESub* sub);
++	void get_if(GLEPcode& pcode);
++	void parse_if(int srclin, GLEPcode& pcode);
+ 	GLESourceBlock* add_else_block(int srclin, GLEPcode& pcode, bool dangling);
+ 	GLESourceBlock* add_else_block_update(int srclin, GLEPcode& pcode, int start_offs, bool dangling);
+ 	void do_endif(int srclin, GLEPcode& pcode);
+ 	void do_endsub(int srclin, GLEPcode& pcode);
+-	int get_optional(OPKEY lkey, GLEPcode& pcode) throw(ParserError);
+-	int get_first(OPKEY lkey) throw(ParserError);
+-   int get_first(const string& token, OPKEY lkey) throw(ParserError);
+-	void get_token(const char* token) throw(ParserError);
+-	bool try_get_token(const char* token) throw(ParserError);
+-	void get_fill(GLEPcode& pcode) throw (ParserError);
+-	void get_marker(GLEPcode& pcode) throw (ParserError);
+-	void get_var_add(int *var, int *vtype) throw (ParserError);
+-	int pass_marker(const string& marker) throw (ParserError);
+-	void define_marker_1(GLEPcode& pcode) throw (ParserError);
+-	void define_marker_2(GLEPcode& pcode) throw (ParserError);
+-	void get_font(GLEPcode& pcode) throw (ParserError);
+-	void get_justify(GLEPcode& pcode) throw (ParserError);
+-	void get_color(GLEPcode& pcode) throw (ParserError);
+-	void get_join(GLEPcode& pcode) throw (ParserError);
+-	void get_cap(GLEPcode& pcode) throw (ParserError);
+-	void get_papersize(GLEPcode& pcode) throw (ParserError);
+-	void do_text_mode(GLESourceLine &SLine, Tokenizer* tokens, GLEPcode& pcode) throw (ParserError);
+-	void checkmode() throw(ParserError);
++	int get_optional(OPKEY lkey, GLEPcode& pcode);
++	int get_first(OPKEY lkey);
++   int get_first(const string& token, OPKEY lkey);
++	void get_token(const char* token);
++	bool try_get_token(const char* token);
++	void get_fill(GLEPcode& pcode);
++	void get_marker(GLEPcode& pcode);
++	void get_var_add(int *var, int *vtype);
++	int pass_marker(const string& marker);
++	void define_marker_1(GLEPcode& pcode);
++	void define_marker_2(GLEPcode& pcode);
++	void get_font(GLEPcode& pcode);
++	void get_justify(GLEPcode& pcode);
++	void get_color(GLEPcode& pcode);
++	void get_join(GLEPcode& pcode);
++	void get_cap(GLEPcode& pcode);
++	void get_papersize(GLEPcode& pcode);
++	void do_text_mode(GLESourceLine &SLine, Tokenizer* tokens, GLEPcode& pcode);
++	void checkmode();
+ 	void get_block_type(int type, string& result);
+ 	ParserError create_option_error(OPKEY lkey, int count, const string& token);
+-	int get_one_option(op_key* lkey, GLEPcode& pcode, int plen) throw(ParserError);
+-	void duplicate_error(GLEPcode& pcode, int pos) throw(ParserError);
+-	void checkValidName(const string& name, const char* type, int pos) throw(ParserError);
++	int get_one_option(op_key* lkey, GLEPcode& pcode, int plen);
++	void duplicate_error(GLEPcode& pcode, int pos);
++	void checkValidName(const string& name, const char* type, int pos);
+ 	void setAllowSpace(bool allow);
+ 	bool not_at_end_command();
+@@ -212,6 +212,6 @@
+ 	GLESourceBlock* find_block(int type);
+ 	void remove_last_block();
+-	void check_loop_variable(int var) throw (ParserError);
+-	GLESourceBlock* check_block_type(int pos, int t0, int t1, int t2) throw (ParserError);
++	void check_loop_variable(int var);
++	GLESourceBlock* check_block_type(int pos, int t0, int t1, int t2);
+ 	GLESubMap* getSubroutines();
+ 	inline Tokenizer* getTokens() { return &m_tokens; }
+@@ -239,5 +239,5 @@
+ int gt_index(OPKEY lkey,char *s);
+ int pass_justify(const std::string& s);
+-int pass_marker(char *s) throw(ParserError);
++int pass_marker(char *s);
+ void mark_clear(void);
+ void pass_checkmode(void);
+diff -r -U2 src.orig/gle/polish.cpp src/gle/polish.cpp
+--- src.orig/gle/polish.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/polish.cpp	2022-12-24 13:08:07.886937784 +0700
+@@ -93,5 +93,5 @@
+ }
+ 
+-void GLEPolish::get_array_index(GLEPcode& pcode) throw(ParserError) {
++void GLEPolish::get_array_index(GLEPcode& pcode) {
+ 	int vtype = 1;
+ 	internalPolish(pcode, &vtype);
+@@ -99,5 +99,5 @@
+ }
+ 
+-int GLEPolish::get_params(GLEPcode& pcode, int np, int* plist, const string& name, int np_default ) throw(ParserError) {
++int GLEPolish::get_params(GLEPcode& pcode, int np, int* plist, const string& name, int np_default ) {
+ 	// called when subroutine is a left hand argument => a = myfunc(4,5)
+ 	// returns the number of parameters found
+@@ -130,5 +130,5 @@
+ }
+ 
+-void GLEPolish::polish(const char *expr, GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEPolish::polish(const char *expr, GLEPcode& pcode, int *rtype) {
+ 	try {
+ 		internalPolish(expr, pcode, rtype);
+@@ -139,5 +139,5 @@
+ }
+ 
+-void GLEPolish::internalPolish(const char *expr, GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEPolish::internalPolish(const char *expr, GLEPcode& pcode, int *rtype) {
+ 	#ifdef DEBUG_POLISH
+ 		gprint("==== Start of expression {%s} \n",expr);
+@@ -147,5 +147,5 @@
+ }
+ 
+-void GLEPolish::internalPolish(GLEPcode& pcode, int *rtype) throw(ParserError) {
++void GLEPolish::internalPolish(GLEPcode& pcode, int *rtype) {
+ 	GLESub* sub;
+ 	string uc_token;
+@@ -424,5 +424,5 @@
+ }
+ 
+-void GLEPolish::internalEval(const char *exp, double *x) throw(ParserError) {
++void GLEPolish::internalEval(const char *exp, double *x) {
+ 	// difference with eval: no try / catch
+ 	int rtype = 1, cp = 0;
+@@ -434,5 +434,5 @@
+ }
+ 
+-void GLEPolish::internalEvalString(const char* exp, string* str) throw(ParserError) {
++void GLEPolish::internalEvalString(const char* exp, string* str) {
+ 	// difference with eval_string: no try / catch
+ 	int rtype = 2, cp = 0;
+@@ -445,5 +445,5 @@
+ }
+ 
+-void GLEPolish::eval(GLEArrayImpl* stk, const char *exp, double *x) throw(ParserError) {
++void GLEPolish::eval(GLEArrayImpl* stk, const char *exp, double *x) {
+ 	int rtype = 1, cp = 0;
+ 	GLEPcodeList pc_list;
+@@ -453,5 +453,5 @@
+ }
+ 
+-void GLEPolish::evalString(GLEArrayImpl* stk, const char *exp, string *str, bool allownum) throw(ParserError) {
++void GLEPolish::evalString(GLEArrayImpl* stk, const char *exp, string *str, bool allownum) {
+ 	int rtype = allownum ? 0 : 2;
+ 	int cp = 0;
+@@ -463,5 +463,5 @@
+ }
+ 
+-GLEMemoryCell* GLEPolish::evalGeneric(GLEArrayImpl* stk, const char *exp) throw(ParserError) {
++GLEMemoryCell* GLEPolish::evalGeneric(GLEArrayImpl* stk, const char *exp) {
+ 	int cp = 0;
+ 	int rtype = 0;
+@@ -495,5 +495,5 @@
+ }
+ 
+-void polish(char *expr, GLEPcode& pcode, int *rtype) throw(ParserError) {
++void polish(char *expr, GLEPcode& pcode, int *rtype) {
+ 	GLEPolish* polish = get_global_polish();
+ 	if (polish != NULL) {
+@@ -515,5 +515,5 @@
+ }
+ 
+-void polish_eval(char *exp, double *x) throw(ParserError) {
++void polish_eval(char *exp, double *x) {
+ 	GLEPolish* polish = get_global_polish();
+ 	GLERC<GLEArrayImpl> stk(new GLEArrayImpl());
+@@ -521,5 +521,5 @@
+ }
+ 
+-void polish_eval_string(const char *exp, string *str, bool allownum) throw(ParserError) {
++void polish_eval_string(const char *exp, string *str, bool allownum) {
+ 	GLEPolish* polish = get_global_polish();
+ 	GLERC<GLEArrayImpl> stk(new GLEArrayImpl());
+@@ -693,5 +693,5 @@
+ }
+ 
+-void GLEFunctionParserPcode::polish(const char* fct, StringIntHash* vars) throw(ParserError) {
++void GLEFunctionParserPcode::polish(const char* fct, StringIntHash* vars) {
+ 	GLEPolish* polish = get_global_polish();
+ 	if (polish != NULL) {
+@@ -703,5 +703,5 @@
+ }
+ 
+-void GLEFunctionParserPcode::polishPos(const char* fct, int pos, StringIntHash* vars) throw(ParserError) {
++void GLEFunctionParserPcode::polishPos(const char* fct, int pos, StringIntHash* vars) {
+ 	GLEPolish* polish = get_global_polish();
+ 	if (polish != NULL) {
+@@ -718,5 +718,5 @@
+ }
+ 
+-void GLEFunctionParserPcode::polishX() throw(ParserError) {
++void GLEFunctionParserPcode::polishX() {
+ 	polish("x", NULL);
+ }
+diff -r -U2 src.orig/gle/polish.h src/gle/polish.h
+--- src.orig/gle/polish.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/polish.h	2022-12-24 13:08:07.886937784 +0700
+@@ -134,7 +134,7 @@
+ 	GLEFunctionParserPcode();
+ 	~GLEFunctionParserPcode();
+-	void polish(const char* fct, StringIntHash* vars = NULL) throw(ParserError);
+-	void polishPos(const char* fct, int pos, StringIntHash* vars = NULL) throw(ParserError);
+-	void polishX() throw(ParserError);
++	void polish(const char* fct, StringIntHash* vars = NULL);
++	void polishPos(const char* fct, int pos, StringIntHash* vars = NULL);
++	void polishX();
+ 	double evalDouble();
+ 	bool evalBool();
+@@ -150,15 +150,15 @@
+ 	GLEPolish();
+ 	~GLEPolish();
+-	void internalPolish(const char *expr, GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void internalPolish(GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void internalEval(const char *exp, double *x) throw(ParserError);
+-    void internalEvalString(const char* exp, string* str) throw(ParserError);
+-	void polish(const char *expr, GLEPcode& pcode, int *rtype) throw(ParserError);
+-	void eval(GLEArrayImpl* stk, const char *exp, double *x) throw(ParserError);
+-	void evalString(GLEArrayImpl* stk, const char *exp, string *str, bool allownum = false) throw(ParserError);
+-	GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, const char *exp) throw(ParserError);
+-	int get_params(GLEPcode& pcode, int np, int* plist, const string& name, int np_default = 0) throw(ParserError);
+-	void get_array_index(GLEPcode& pcode) throw(ParserError);
+-	double evalTokenToDouble() throw(ParserError);
++	void internalPolish(const char *expr, GLEPcode& pcode, int *rtype);
++	void internalPolish(GLEPcode& pcode, int *rtype);
++	void internalEval(const char *exp, double *x);
++    void internalEvalString(const char* exp, string* str);
++	void polish(const char *expr, GLEPcode& pcode, int *rtype);
++	void eval(GLEArrayImpl* stk, const char *exp, double *x);
++	void evalString(GLEArrayImpl* stk, const char *exp, string *str, bool allownum = false);
++	GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, const char *exp);
++	int get_params(GLEPcode& pcode, int np, int* plist, const string& name, int np_default = 0);
++	void get_array_index(GLEPcode& pcode);
++	double evalTokenToDouble();
+ 	Tokenizer* getTokens(const string& str);
+ 	void initTokenizer();
+@@ -172,7 +172,7 @@
+ };
+ 
+-void polish_eval(char *exp, double *x) throw(ParserError);
+-void polish_eval_string(const char *exp, string *str, bool allownum = false) throw(ParserError);
+-void polish(char *expr, GLEPcode& pcode, int *rtype) throw(ParserError);
++void polish_eval(char *exp, double *x);
++void polish_eval_string(const char *exp, string *str, bool allownum = false);
++void polish(char *expr, GLEPcode& pcode, int *rtype);
+ void eval_pcode(GLEPcode& pcode, double* x);
+ void eval_pcode_str(GLEPcode& pcode, string& x);
+diff -r -U2 src.orig/gle/run.cpp src/gle/run.cpp
+--- src.orig/gle/run.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/run.cpp	2022-12-24 13:08:07.887937784 +0700
+@@ -56,5 +56,5 @@
+ #include "gle-interface/gle-interface.h"
+ 
+-void name_get2(char *n,double *x1,double *y1,double *x2,double *y2) throw(ParserError);
++void name_get2(char *n,double *x1,double *y1,double *x2,double *y2);
+ 
+ #define GRAPHDEF extern
+@@ -82,9 +82,9 @@
+ void begin_tex_preamble(int *pln, int *pcode, int *cp);
+ void begin_tex(GLERun* run, int *pln, int *pcode, int *cp);
+-void begin_surface(int *pln, int *pcode, int *cp) throw(ParserError);
+-void begin_letz(int *pln, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-void begin_fitz(int *pln, int *pcode, int *cp) throw(ParserError);
+-void begin_contour(int *pln, int *pcode, int *cp) throw(ParserError);
+-// void begin_fitls(int *pln, int *pcode, int *cp) throw(ParserError);
++void begin_surface(int *pln, int *pcode, int *cp);
++void begin_letz(int *pln, GLEPcodeList* pclist, int *pcode, int *cp);
++void begin_fitz(int *pln, int *pcode, int *cp);
++void begin_contour(int *pln, int *pcode, int *cp);
++// void begin_fitls(int *pln, int *pcode, int *cp);
+ 
+ class GLEBox {
+@@ -176,9 +176,9 @@
+ 	~GLEFile();
+ 	void close();
+-	void open(const char* fname) throw(ParserError);
+-	bool eof() throw(ParserError);
+-	char* getToken() throw(ParserError);
+-	char* readLine() throw(ParserError);
+-	void gotoNewLine() throw(ParserError);
++	void open(const char* fname);
++	bool eof();
++	char* getToken();
++	char* readLine();
++	void gotoNewLine();
+ 	void resetLang();
+ 	void setLangChars(int type, const char* str);
+@@ -195,14 +195,14 @@
+ int f_getchan(void);
+ void f_readahead(int chn);
+-int f_testchan(int chn) throw(ParserError);
++int f_testchan(int chn);
+ void siffree(char **s);
+ void f_getline(int chn);
+ char *f_gettok(int chn);
+ static int chn;
+-int f_eof(int chn) throw(ParserError);
++int f_eof(int chn);
+ char *f_getnext(int chn);
+ 
+ void f_create_chan(int var, const char* fname, int rd_wr);
+-void f_close_chan(int idx) throw(ParserError);
++void f_close_chan(int idx);
+ 
+ 
+@@ -234,5 +234,5 @@
+ #define PCODE_UNKNOWN_COMMAND 1
+ 
+-void byte_code_error(int err) throw(ParserError) {
++void byte_code_error(int err) {
+ 	char str[50];
+ 	TokenizerPos pos;
+@@ -256,5 +256,5 @@
+ }
+ 
+-void error_before_drawing_cmds(const char* name) throw(ParserError) {
++void error_before_drawing_cmds(const char* name) {
+ 	// NOTE: this can be broken by GLEGlobalSource::performUpdates(), which puts includes at front
+ 	string str = name;
+@@ -530,5 +530,5 @@
+ }
+ 
+-void GLERun::do_pcode(GLESourceLine &sline, int *srclin, int *pcode, int plen, int *pend, bool& mkdrobjs) throw(ParserError) {
++void GLERun::do_pcode(GLESourceLine &sline, int *srclin, int *pcode, int plen, int *pend, bool& mkdrobjs) {
+ /* srclin = The source line number */
+ /* pcode =  a pointer to the pcode output buffer */
+@@ -1767,5 +1767,5 @@
+ }
+ 
+-GLEStoredBox* GLERun::last_box() throw (ParserError) {
++GLEStoredBox* GLERun::last_box() {
+ 	GLEBoxStack* stack = GLEBoxStack::getInstance();
+ 	if (stack->size() <= 0) {
+@@ -1775,5 +1775,5 @@
+ }
+ 
+-bool GLERun::box_end() throw (ParserError) {
++bool GLERun::box_end() {
+ 	double x1, y1, x2, y2;
+ 	GLEBoxStack* stack = GLEBoxStack::getInstance();
+@@ -1844,5 +1844,5 @@
+ }
+ 
+-GLEObjectRepresention* GLERun::name_to_object(GLEObjectRepresention* obj, GLEArrayImpl* path, GLEJustify* just, unsigned int offs) throw (ParserError) {
++GLEObjectRepresention* GLERun::name_to_object(GLEObjectRepresention* obj, GLEArrayImpl* path, GLEJustify* just, unsigned int offs) {
+ 	/* check for just object name */
+ 	unsigned int size = path->size();
+@@ -1922,5 +1922,5 @@
+ }
+ 
+-GLEObjectRepresention* GLERun::name_to_object(GLEString* name, GLEJustify* just) throw(ParserError) {
++GLEObjectRepresention* GLERun::name_to_object(GLEString* name, GLEJustify* just) {
+ 	int idx, type;
+ 	GLERC<GLEArrayImpl> path(name->split('.'));
+@@ -1949,5 +1949,5 @@
+ }
+ 
+-void GLERun::name_to_point(GLEString* name, GLEPoint* point) throw(ParserError) {
++void GLERun::name_to_point(GLEString* name, GLEPoint* point) {
+ 	GLEJustify just;
+ 	GLEObjectRepresention* obj = name_to_object(name, &just);
+@@ -1962,5 +1962,5 @@
+ }
+ 
+-void GLERun::name_to_size(GLEString* name, double *wd, double *hi) throw(ParserError) {
++void GLERun::name_to_size(GLEString* name, double *wd, double *hi) {
+ 	GLEJustify just;
+ 	GLEObjectRepresention* obj = name_to_object(name, &just);
+@@ -1976,5 +1976,5 @@
+ }
+ 
+-void GLERun::name_join(GLEString *n1, GLEString *n2, int marrow, double a1, double a2, double d1, double d2)  throw(ParserError) {
++void GLERun::name_join(GLEString *n1, GLEString *n2, int marrow, double a1, double a2, double d1, double d2)  {
+ 	GLEJustify j1, j2;
+ 	GLEObjectRepresention* obj1 = name_to_object(n1, &j1);
+@@ -2007,5 +2007,5 @@
+ }
+ 
+-void GLERun::draw_object_static(const string& path, const string& name, int* pcode, int* cp, bool mkdrobjs) throw (ParserError) {
++void GLERun::draw_object_static(const string& path, const string& name, int* pcode, int* cp, bool mkdrobjs) {
+ 	int cp_backup = *cp;
+ 	GLEPoint orig;
+@@ -2094,5 +2094,5 @@
+ }
+ 
+-void GLERun::draw_object_subbyname(GLESub* sub, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) throw (ParserError) {
++void GLERun::draw_object_subbyname(GLESub* sub, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) {
+ 	bool hasoffs = (path->size() > 1);
+ 	GLEDevice* olddev = NULL;
+@@ -2141,5 +2141,5 @@
+ }
+ 
+-void GLERun::draw_object_dynamic(int idx, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) throw (ParserError) {
++void GLERun::draw_object_dynamic(int idx, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) {
+ 	GLEDataObject* obj = getVars()->getObject(idx);
+ 	if (obj == NULL || obj->getType() != GLEObjectTypeObjectRep) {
+@@ -2207,5 +2207,5 @@
+ }
+ 
+-void GLERun::draw_object(const string& path, const char* newname) throw (ParserError) {
++void GLERun::draw_object(const string& path, const char* newname) {
+ 	int idx, type;
+ 	char ostr[255];
+@@ -2251,5 +2251,5 @@
+ }
+ 
+-void GLERun::begin_object(const std::string& name, GLESub* sub) throw (ParserError) {
++void GLERun::begin_object(const std::string& name, GLESub* sub) {
+ 	GLEStoredBox* box = box_start();
+ 	box->setStroke(false);
+@@ -2286,5 +2286,5 @@
+ }
+ 
+-void GLERun::end_object() throw (ParserError) {
++void GLERun::end_object() {
+ 	GLEBoxStack* stack = GLEBoxStack::getInstance();
+ 	if (stack->size() <= 0) {
+@@ -2392,5 +2392,5 @@
+ }
+ 
+-int f_eof(int chn) throw(ParserError) {
++int f_eof(int chn) {
+ 	if (f_testchan(chn) == -1) return 1;
+ 	else return (int)g_Files[chn]->eof();
+@@ -2405,5 +2405,5 @@
+ }
+ 
+-int f_testchan(int chn) throw(ParserError) {
++int f_testchan(int chn) {
+ 	if (chn < 0 || chn >= (int)g_Files.size() || g_Files[chn] == NULL) {
+ 		char chn_s[10];
+@@ -2434,5 +2434,5 @@
+ }
+ 
+-void f_close_chan(int idx) throw(ParserError) {
++void f_close_chan(int idx) {
+ 	if (f_testchan(idx) != -1) {
+ 		GLEFile* file = g_Files[idx];
+@@ -2466,5 +2466,5 @@
+ }
+ 
+-void GLEFile::open(const char* fname) throw(ParserError) {
++void GLEFile::open(const char* fname) {
+ 	m_FileName = fname;
+ 	if (isRead()) {
+@@ -2487,10 +2487,10 @@
+ }
+ 
+-char* GLEFile::readLine() throw(ParserError) {
++char* GLEFile::readLine() {
+ 	m_buffer = m_Input->read_line();
+ 	return (char*)m_buffer.c_str();
+ }
+ 
+-char* GLEFile::getToken() throw(ParserError) {
++char* GLEFile::getToken() {
+ 	m_buffer = m_Input->next_token();
+ 	str_remove_quote(m_buffer);
+@@ -2498,9 +2498,9 @@
+ }
+ 
+-void GLEFile::gotoNewLine() throw(ParserError) {
++void GLEFile::gotoNewLine() {
+ 	m_Input->token_skip_to_end();
+ }
+ 
+-bool GLEFile::eof() throw(ParserError) {
++bool GLEFile::eof() {
+ 	return m_Input->has_more_tokens() == 0 ? true : false;
+ }
+diff -r -U2 src.orig/gle/run.h src/gle/run.h
+--- src.orig/gle/run.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/run.h	2022-12-24 13:08:07.887937784 +0700
+@@ -42,19 +42,19 @@
+ class GLEPcodeList;
+ 
+-void sub_call(int idx,double *pval,char **pstr,int *npm, int *otyp) throw(ParserError);
++void sub_call(int idx,double *pval,char **pstr,int *npm, int *otyp);
+ 
+-GLEString* evalStringPtr(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-GLERC<GLEString> evalString(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, bool allowOther) throw(ParserError);
+-GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-double evalDouble(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-bool evalBool(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-GLERC<GLEColor> evalColor(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-GLESub* eval_subroutine_call(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp) throw(ParserError);
+-void eval_do_object_block_call(GLEArrayImpl* stk, GLESub* sub, GLEObjectDO* obj) throw(ParserError);
++GLEString* evalStringPtr(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++GLERC<GLEString> evalString(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp, bool allowOther);
++GLEMemoryCell* evalGeneric(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++double evalDouble(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++bool evalBool(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++GLERC<GLEColor> evalColor(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++GLESub* eval_subroutine_call(GLEArrayImpl* stk, GLEPcodeList* pclist, int *pcode, int *cp);
++void eval_do_object_block_call(GLEArrayImpl* stk, GLESub* sub, GLEObjectDO* obj);
+ 
+ void clear_run();
+ 
+-void g_set_pagesize(const string& papersize) throw (ParserError);
+-void g_set_margins(const string& margins) throw (ParserError);
++void g_set_pagesize(const string& papersize);
++void g_set_margins(const string& margins);
+ 
+ GLEFileLocation* get_output_file();
+@@ -91,23 +91,23 @@
+ 	GLEBlocks* getBlockTypes();
+ 	void setDeviceIsOpen(bool open);
+-	void do_pcode(GLESourceLine &SLine,int *srclin, int *pcode, int plen, int *pend, bool& mkdrobjs) throw(ParserError);
+-	void begin_object(const std::string& name, GLESub* sub) throw (ParserError);
+-	void end_object() throw (ParserError);
+-	void draw_object_static(const string& path, const string& name, int* pcode, int* cp, bool mkdrobjs) throw (ParserError);
+-	void draw_object_subbyname(GLESub* sub, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) throw (ParserError);
+-	void draw_object_dynamic(int idx, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig) throw (ParserError);
+-	void draw_object(const string& name, const char* newname) throw (ParserError);
+-	void sub_call(GLESub* sub, GLEArrayImpl* arguments = 0) throw(ParserError);
+-	void sub_call_stack(GLESub* sub, GLEArrayImpl* stk) throw(ParserError);
++	void do_pcode(GLESourceLine &SLine,int *srclin, int *pcode, int plen, int *pend, bool& mkdrobjs);
++	void begin_object(const std::string& name, GLESub* sub);
++	void end_object();
++	void draw_object_static(const string& path, const string& name, int* pcode, int* cp, bool mkdrobjs);
++	void draw_object_subbyname(GLESub* sub, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig);
++	void draw_object_dynamic(int idx, GLEObjectRepresention* newobj, GLEArrayImpl* path, GLEPoint* orig);
++	void draw_object(const string& name, const char* newname);
++	void sub_call(GLESub* sub, GLEArrayImpl* arguments = 0);
++	void sub_call_stack(GLESub* sub, GLEArrayImpl* stk);
+ 	void name_set(GLEString* name, double x1, double y1, double x2, double y2);
+-	static GLEObjectRepresention* name_to_object(GLEObjectRepresention* obj, GLEArrayImpl* path, GLEJustify* just, unsigned int offs) throw (ParserError);
+-	GLEObjectRepresention* name_to_object(GLEString* name, GLEJustify* just) throw(ParserError);
++	static GLEObjectRepresention* name_to_object(GLEObjectRepresention* obj, GLEArrayImpl* path, GLEJustify* just, unsigned int offs);
++	GLEObjectRepresention* name_to_object(GLEString* name, GLEJustify* just);
+ 	bool is_name(GLEObjectRepresention* obj, GLEArrayImpl* path, unsigned int offs);
+ 	bool is_name(GLEString* name);
+-	void name_to_point(GLEString* name, GLEPoint* point) throw(ParserError);
+-	void name_to_size(GLEString* name, double *wd, double *hi) throw(ParserError);
+-	void name_join(GLEString* n1, GLEString* n2, int marrow, double a1, double a2, double d1, double d2)  throw(ParserError);
+-	GLEStoredBox* last_box() throw (ParserError);
+-	bool box_end() throw (ParserError);
++	void name_to_point(GLEString* name, GLEPoint* point);
++	void name_to_size(GLEString* name, double *wd, double *hi);
++	void name_join(GLEString* n1, GLEString* n2, int marrow, double a1, double a2, double d1, double d2);
++	GLEStoredBox* last_box();
++	bool box_end();
+ 	void begin_length(int var);
+ 	void end_length();
+diff -r -U2 src.orig/gle/sub.cpp src/gle/sub.cpp
+--- src.orig/gle/sub.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/sub.cpp	2022-12-24 13:08:07.887937784 +0700
+@@ -356,5 +356,5 @@
+ }
+ 
+-GLESub* sub_get(int idx) throw(ParserError) {
++GLESub* sub_get(int idx) {
+ 	if (!sub_is_valid(idx)) {
+ 		g_throw_parser_error("illegal subroutine identifier: ", idx);
+@@ -373,5 +373,5 @@
+ 
+ /* 	Run a user defined function  */
+-void GLERun::sub_call_stack(GLESub* sub, GLEArrayImpl* stk) throw(ParserError) {
++void GLERun::sub_call_stack(GLESub* sub, GLEArrayImpl* stk) {
+ 	// Save current return value
+ 	//gprint(sub->getName());
+@@ -407,5 +407,5 @@
+ 
+ /* 	Run a user defined function  */
+-void GLERun::sub_call(GLESub* sub, GLEArrayImpl* arguments) throw(ParserError) {
++void GLERun::sub_call(GLESub* sub, GLEArrayImpl* arguments) {
+ 	GLEMemoryCell save_return_value;
+ 	GLE_MC_INIT(save_return_value);
+@@ -437,5 +437,5 @@
+ }
+ 
+-void call_sub_byname(const string& name, double* args, int nb, const char* err_inf) throw(ParserError) {
++void call_sub_byname(const string& name, double* args, int nb, const char* err_inf) {
+ 	GLESub* sub = sub_find(name);
+ 	if (sub == NULL)  {
+@@ -454,5 +454,5 @@
+ }
+ 
+-void call_sub_byid(int idx, double* args, int nb, const char* err_inf) throw(ParserError) {
++void call_sub_byid(int idx, double* args, int nb, const char* err_inf) {
+ 	GLESub* sub = sub_get(idx);
+ 	if (sub == NULL) return;
+diff -r -U2 src.orig/gle/sub.h src/gle/sub.h
+--- src.orig/gle/sub.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/sub.h	2022-12-24 13:08:07.887937784 +0700
+@@ -219,10 +219,10 @@
+ };
+ 
+-GLESub* sub_get(int idx) throw(ParserError);
++GLESub* sub_get(int idx);
+ GLESub* sub_find(const string& s);
+ void sub_param(GLESub* sub, const string& name);
+ 
+-void call_sub_byname(const string& name, double* args, int nb, const char* err_inf) throw(ParserError);
+-void call_sub_byid(int idx, double* args, int nb, const char* err_inf) throw(ParserError);
++void call_sub_byname(const string& name, double* args, int nb, const char* err_inf);
++void call_sub_byid(int idx, double* args, int nb, const char* err_inf);
+ 
+ #endif
+diff -r -U2 src.orig/gle/surface/gcontour.cpp src/gle/surface/gcontour.cpp
+--- src.orig/gle/surface/gcontour.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/surface/gcontour.cpp	2022-12-24 13:08:07.887937784 +0700
+@@ -100,5 +100,5 @@
+ 	inline double* getDataXArray() { return &m_XPt[0]; }
+ 	inline double* getDataYArray() { return &m_YPt[0]; }
+-	inline void read(const string& fname) throw(ParserError) { m_Data.read(fname); }
++	inline void read(const string& fname) { m_Data.read(fname); }
+ 	inline GLERectangle* getBounds() { return m_Data.getBounds(); }
+ 	inline int getNX() { return m_Data.getNX(); }
+@@ -120,5 +120,5 @@
+ 	void fillDefault(double zmin, double zmax, double zdel);
+ 	void createLabels(bool alpha);
+-	void openData(const string& name, const string& lab) throw(ParserError);
++	void openData(const string& name, const string& lab);
+ 	void closeData();
+ 	void doContour(double zz[], int nrz, int nx, int ny, double zmax);
+@@ -182,5 +182,5 @@
+ }
+ 
+-void GLEContourInfo::openData(const string& name, const string& lab) throw(ParserError) {
++void GLEContourInfo::openData(const string& name, const string& lab) {
+ 	m_DatFile = validate_fopen(name, "w", false);
+ 	m_LabFile = validate_fopen(lab, "w", false);
+@@ -328,5 +328,5 @@
+ }
+ 
+-void get_contour_values(GLEContourInfo* info, int ct) throw(ParserError) {
++void get_contour_values(GLEContourInfo* info, int ct) {
+ 	double from, to, step;
+ 	bool has_from = false;
+@@ -356,5 +356,5 @@
+ }
+ 
+-void begin_contour(int *pln, int *pcode, int *cp) throw(ParserError) {
++void begin_contour(int *pln, int *pcode, int *cp) {
+ 	string data_file;
+ 	vector<double> cval;
+diff -r -U2 src.orig/gle/surface/gsurface.cpp src/gle/surface/gsurface.cpp
+--- src.orig/gle/surface/gsurface.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/surface/gsurface.cpp	2022-12-24 13:08:07.887937784 +0700
+@@ -70,5 +70,5 @@
+ void text_expand(int x);
+ void hide_defaults();
+-void pass_line() throw(ParserError);
++void pass_line();
+ void pass_title();
+ void pass_cube();
+@@ -231,5 +231,5 @@
+ }
+ 
+-void pass_line() throw(ParserError) {
++void pass_line() {
+ 	if (ntk<1) return;
+ 	kw("SIZE") {sf.screenx = getf(); sf.screeny = getf();}
+diff -r -U2 src.orig/gle/texinterface.cpp src/gle/texinterface.cpp
+--- src.orig/gle/texinterface.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/texinterface.cpp	2022-12-24 13:08:07.888937784 +0700
+@@ -105,14 +105,14 @@
+ }
+ 
+-TeXObject* TeXInterface::draw(const char* str) throw(ParserError) {
++TeXObject* TeXInterface::draw(const char* str) {
+ 	TeXObjectInfo info;
+ 	return draw(str, info, 1);
+ }
+ 
+-TeXObject* TeXInterface::draw(const std::string& str, GLERectangle* box) throw(ParserError) {
++TeXObject* TeXInterface::draw(const std::string& str, GLERectangle* box) {
+ 	TeXObjectInfo info;
+ 	return draw(str.c_str(), info, 1, box);
+ }
+-TeXObject* TeXInterface::drawUTF8(const char* str, GLERectangle* box) throw(ParserError) {
++TeXObject* TeXInterface::drawUTF8(const char* str, GLERectangle* box) {
+ 	TeXObjectInfo info;
+ 	string utf8 = str;
+@@ -121,10 +121,10 @@
+ }
+ 
+-TeXObject* TeXInterface::draw(const char* str, int nblines, GLERectangle* box) throw(ParserError) {
++TeXObject* TeXInterface::draw(const char* str, int nblines, GLERectangle* box) {
+ 	TeXObjectInfo info;
+ 	return draw(str, info, nblines, box);
+ }
+ 
+-TeXObject* TeXInterface::draw(const char* str, TeXObjectInfo& info, int nblines, GLERectangle* box) throw(ParserError) {
++TeXObject* TeXInterface::draw(const char* str, TeXObjectInfo& info, int nblines, GLERectangle* box) {
+ 	/* Load hash */
+ 	tryLoadHash();
+@@ -167,5 +167,5 @@
+ }
+ 
+-TeXObject* TeXInterface::drawObj(TeXHashObject* hobj, TeXObjectInfo& info, GLERectangle* box) throw(ParserError) {
++TeXObject* TeXInterface::drawObj(TeXHashObject* hobj, TeXObjectInfo& info, GLERectangle* box) {
+ 	/* Throw exception if disabled*/
+ 	if (!isEnabled()) {
+diff -r -U2 src.orig/gle/texinterface.h src/gle/texinterface.h
+--- src.orig/gle/texinterface.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/texinterface.h	2022-12-24 13:08:07.888937784 +0700
+@@ -220,10 +220,10 @@
+ 	TeXInterface();
+ 	~TeXInterface();
+-	TeXObject* draw(const char* str) throw(ParserError);
+-	TeXObject* drawUTF8(const char* str, GLERectangle* box = NULL) throw(ParserError);
+-	TeXObject* draw(const std::string& str, GLERectangle* box) throw(ParserError);
+-	TeXObject* draw(const char* str, int nblines, GLERectangle* box = NULL) throw(ParserError);
+-	TeXObject* draw(const char* str, TeXObjectInfo& info, int nblines, GLERectangle* box = NULL) throw(ParserError);
+-	TeXObject* drawObj(TeXHashObject* hobj, TeXObjectInfo& info, GLERectangle* box = NULL) throw(ParserError);
++	TeXObject* draw(const char* str);
++	TeXObject* drawUTF8(const char* str, GLERectangle* box = NULL);
++	TeXObject* draw(const std::string& str, GLERectangle* box);
++	TeXObject* draw(const char* str, int nblines, GLERectangle* box = NULL);
++	TeXObject* draw(const char* str, TeXObjectInfo& info, int nblines, GLERectangle* box = NULL);
++	TeXObject* drawObj(TeXHashObject* hobj, TeXObjectInfo& info, GLERectangle* box = NULL);
+ 	void scaleObject(string& obj_str, double hei);
+ 	void checkObjectDimensions();
+diff -r -U2 src.orig/gle/tokens/Tokenizer.cpp src/gle/tokens/Tokenizer.cpp
+--- src.orig/gle/tokens/Tokenizer.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/tokens/Tokenizer.cpp	2022-12-24 13:08:07.888937784 +0700
+@@ -174,5 +174,5 @@
+ }
+ 
+-double tokenizer_string_to_double(const char* value) throw(ParserError) {
++double tokenizer_string_to_double(const char* value) {
+ 	char *endp;
+ 	double dvalue = strtod(value, &endp);
+@@ -275,5 +275,5 @@
+ 
+ 
+-void g_throw_parser_error(const string& err) throw(ParserError) {
++void g_throw_parser_error(const string& err) {
+ 	TokenizerPos pos;
+ 	pos.setColumn(-1);
+@@ -282,5 +282,5 @@
+ }
+ 
+-void g_throw_parser_error(const char* str1, const char* str2, const char* str3) throw(ParserError) {
++void g_throw_parser_error(const char* str1, const char* str2, const char* str3) {
+ 	TokenizerPos pos;
+ 	pos.setColumn(-1);
+@@ -292,5 +292,5 @@
+ }
+ 
+-void g_throw_parser_error_sys(const char* str1, const char* str2, const char* str3) throw(ParserError) {
++void g_throw_parser_error_sys(const char* str1, const char* str2, const char* str3) {
+ 	TokenizerPos pos;
+ 	pos.setColumn(-1);
+@@ -305,5 +305,5 @@
+ }
+ 
+-void g_throw_parser_error(const char* err, int idx) throw(ParserError) {
++void g_throw_parser_error(const char* err, int idx) {
+ 	char str[30];
+ 	sprintf(str, "%d", idx);
+@@ -636,5 +636,5 @@
+ }
+ 
+-int Tokenizer::has_more_tokens() throw(ParserError) {
++int Tokenizer::has_more_tokens() {
+   if (m_token_has_pushback > 0) {
+ 	  return 1;
+@@ -652,5 +652,5 @@
+ }
+ 
+-string& Tokenizer::next_token() throw(ParserError) {
++string& Tokenizer::next_token() {
+ 	get_check_token();
+ //	cerr << m_token_start << "\t" << m_token << endl;
+@@ -658,10 +658,10 @@
+ }
+ 
+-string& Tokenizer::try_next_token() throw(ParserError) {
++string& Tokenizer::try_next_token() {
+ 	get_token();
+ 	return m_token;
+ }
+ 
+-double Tokenizer::next_double() throw(ParserError) {
++double Tokenizer::next_double() {
+ 	char *ptr;
+ 	get_check_token();
+@@ -671,5 +671,5 @@
+ }
+ 
+-int Tokenizer::next_integer() throw(ParserError) {
++int Tokenizer::next_integer() {
+ 	char* ptr;
+ 	get_check_token();
+@@ -686,5 +686,5 @@
+ }
+ 
+-void Tokenizer::get_token() throw(ParserError) {
++void Tokenizer::get_token() {
+ 	get_token_2();
+ 	if ((!m_langhash.isNull()) && m_token.length() > 0) {
+@@ -719,5 +719,5 @@
+ }
+ 
+-void Tokenizer::get_token_2() throw(ParserError) {
++void Tokenizer::get_token_2() {
+ 	if (m_token_has_pushback > 0) {
+ 		const TokenAndPos& tkpos = m_pushback_tokens.back();
+@@ -799,5 +799,5 @@
+ }
+ 
+-void Tokenizer::copy_string(char string_delim) throw(ParserError) {
++void Tokenizer::copy_string(char string_delim) {
+ 	TokenizerPos pos = token_stream_pos();
+ 	while (m_token_at_end == 0) {
+@@ -815,5 +815,5 @@
+ }
+ 
+-void Tokenizer::multi_level_do_multi(char open) throw(ParserError) {
++void Tokenizer::multi_level_do_multi(char open) {
+ 	vector<char> m_open_token;
+ 	m_open_token.push_back(open);
+@@ -853,5 +853,5 @@
+ }
+ 
+-string& Tokenizer::next_continuous_string_excluding(const char* forbidden) throw(ParserError) {
++string& Tokenizer::next_continuous_string_excluding(const char* forbidden) {
+    undo_pushback_token();
+ 	m_token = "";
+@@ -889,5 +889,5 @@
+ }
+ 
+-string& Tokenizer::next_multilevel_token() throw(ParserError) {
++string& Tokenizer::next_multilevel_token() {
+    undo_pushback_token();
+ 	m_token = "";
+@@ -932,5 +932,5 @@
+ }
+ 
+-string& Tokenizer::read_line() throw(ParserError) {
++string& Tokenizer::read_line() {
+ 	m_token = "";
+ 	while (m_token_has_pushback > 0) {
+@@ -1026,5 +1026,5 @@
+ }
+ 
+-void Tokenizer::next_token_and_pos(TokenAndPos& tkpos) throw(ParserError) {
++void Tokenizer::next_token_and_pos(TokenAndPos& tkpos) {
+ 	get_check_token();
+ 	tkpos.setToken(m_token);
+@@ -1056,5 +1056,5 @@
+ }
+ 
+-void Tokenizer::get_check_token() throw(ParserError) {
++void Tokenizer::get_check_token() {
+ 	get_token();
+ 	if (m_token.length() == 0) {
+@@ -1063,5 +1063,5 @@
+ }
+ 
+-void Tokenizer::peek_token(string* token) throw(ParserError) {
++void Tokenizer::peek_token(string* token) {
+ 	get_check_token();
+ 	pushback_token();
+@@ -1085,5 +1085,5 @@
+ }
+ 
+-int Tokenizer::is_next_token(const char* token) throw(ParserError) {
++int Tokenizer::is_next_token(const char* token) {
+ 	get_token();
+ 	if (m_token.length() == 0) {
+@@ -1098,5 +1098,5 @@
+ }
+ 
+-int Tokenizer::is_next_token_i(const char* token) throw(ParserError) {
++int Tokenizer::is_next_token_i(const char* token) {
+ 	get_token();
+ 	if (m_token.length() == 0) {
+@@ -1111,5 +1111,5 @@
+ }
+ 
+-int Tokenizer::is_next_token_in(const char* charlist) throw(ParserError) {
++int Tokenizer::is_next_token_in(const char* charlist) {
+ 	get_check_token();
+ 	if (m_token.length() == 1) {
+@@ -1121,5 +1121,5 @@
+ }
+ 
+-int Tokenizer::ensure_next_token_in(const char* charlist) throw(ParserError) {
++int Tokenizer::ensure_next_token_in(const char* charlist) {
+ 	get_check_token();
+ 	if (m_token.length() == 1) {
+@@ -1130,5 +1130,5 @@
+ }
+ 
+-void Tokenizer::ensure_next_token(const char* token) throw(ParserError) {
++void Tokenizer::ensure_next_token(const char* token) {
+ 	get_check_token();
+ 	if (m_token != token) {
+@@ -1137,5 +1137,5 @@
+ }
+ 
+-void Tokenizer::ensure_next_token_i(const char* token) throw(ParserError) {
++void Tokenizer::ensure_next_token_i(const char* token) {
+ 	get_check_token();
+ 	if (!str_i_equals(m_token.c_str(), token)) {
+@@ -1144,5 +1144,5 @@
+ }
+ 
+-void Tokenizer::ensure_next_token_list(const char* charlist) throw(ParserError) {
++void Tokenizer::ensure_next_token_list(const char* charlist) {
+ 	char err = 0;
+ 	int len = strlen(charlist);
+@@ -1166,5 +1166,5 @@
+ }
+ 
+-char Tokenizer::token_read_sig_char() throw(ParserError) {
++char Tokenizer::token_read_sig_char() {
+ 	char token_ch;
+ 	while (1) {
+@@ -1270,5 +1270,5 @@
+ }
+ 
+-void Tokenizer::read_till_close_comment() throw(ParserError) {
++void Tokenizer::read_till_close_comment() {
+ 	TokenizerPos start = m_token_count;
+ 	int prev_ch = 0;
+@@ -1362,5 +1362,5 @@
+ }
+ 
+-void StreamTokenizer::open_tokens(const char* fname) throw(ParserError) {
++void StreamTokenizer::open_tokens(const char* fname) {
+ 	m_fb = new filebuf();
+ 	m_fb->open(fname, ios::in);
+@@ -1375,5 +1375,5 @@
+ }
+ 
+-void StreamTokenizer::open_tokens(const string& fname) throw(ParserError) {
++void StreamTokenizer::open_tokens(const string& fname) {
+ 	open_tokens(fname.c_str());
+ }
+diff -r -U2 src.orig/gle/tokens/Tokenizer.h src/gle/tokens/Tokenizer.h
+--- src.orig/gle/tokens/Tokenizer.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/tokens/Tokenizer.h	2022-12-24 13:08:07.888937784 +0700
+@@ -138,5 +138,5 @@
+ IThrowsError* g_get_throws_error();
+ 
+-double tokenizer_string_to_double(const char* value) throw(ParserError);
++double tokenizer_string_to_double(const char* value);
+ 
+ #if defined(__UNIX__) || defined(__MAC__)
+@@ -146,11 +146,11 @@
+ #endif
+ 
+-void g_throw_parser_error(const string& err) throw(ParserError);
++void g_throw_parser_error(const string& err);
+ 
+-void g_throw_parser_error(const char* err, int idx) throw(ParserError);
++void g_throw_parser_error(const char* err, int idx);
+ 
+-void g_throw_parser_error(const char* str1, const char* str2, const char* str3) throw(ParserError);
++void g_throw_parser_error(const char* str1, const char* str2, const char* str3);
+ 
+-void g_throw_parser_error_sys(const char* str1, const char* str2 = NULL, const char* str3 = NULL) throw(ParserError);
++void g_throw_parser_error_sys(const char* str1, const char* str2 = NULL, const char* str3 = NULL);
+ 
+ #define MAX_PUSHBACK_CH 2
+@@ -303,19 +303,19 @@
+ 	virtual ~Tokenizer();
+ 
+-	int has_more_tokens() throw(ParserError);
++	int has_more_tokens();
+ 	// end of stream not reached
+ 
+-	string& next_token() throw(ParserError);
++	string& next_token();
+ 	// returns next token.  throws exception if no more tokens.
+ 
+-	string& next_continuous_string_excluding(const char* forbidden) throw(ParserError);
++	string& next_continuous_string_excluding(const char* forbidden);
+ 
+-	string& try_next_token() throw(ParserError);
++	string& try_next_token();
+ 
+-	string& read_line() throw(ParserError);
++	string& read_line();
+ 
+-	double next_double() throw(ParserError);
++	double next_double();
+ 
+-	int next_integer() throw(ParserError);
++	int next_integer();
+ 	// reads an integer token.  throws exception if token is not
+ 	// an integer
+@@ -333,5 +333,5 @@
+ 	TokenizerLangElem* try_find_lang_elem(int i);
+ 
+-	void next_token_and_pos(TokenAndPos& tkpos) throw(ParserError);
++	void next_token_and_pos(TokenAndPos& tkpos);
+ 
+ 	void pushback_token();
+@@ -345,5 +345,5 @@
+ 	void pushback_token(const char* token);
+ 
+-	void peek_token(string* token) throw(ParserError);
++	void peek_token(string* token);
+ 	// look at next token without moving the current token pointer
+ 
+@@ -366,9 +366,9 @@
+ 	inline const TokenizerPos& token_stream_pos() const { return m_token_count; };
+ 
+-	int is_next_token(const char* token) throw(ParserError);
++	int is_next_token(const char* token);
+ 
+-	int is_next_token_i(const char* token) throw(ParserError);
++	int is_next_token_i(const char* token);
+ 
+-	int is_next_token(const string& token) throw(ParserError) {
++	int is_next_token(const string& token) {
+ 		return is_next_token(token.c_str());
+ 	}
+@@ -377,17 +377,17 @@
+ 	// the next token is not consumed.
+ 
+-	int is_next_token_in(const char* charlist) throw(ParserError);
++	int is_next_token_in(const char* charlist);
+ 
+-	void ensure_next_token(const char* token) throw(ParserError);
++	void ensure_next_token(const char* token);
+ 	// ensures the next token is [token] and moves current token pointer
+ 	// raises exception if next token is not [token]
+ 
+-	void ensure_next_token_i(const char* token) throw(ParserError);
++	void ensure_next_token_i(const char* token);
+ 
+-	int ensure_next_token_in(const char* charlist) throw(ParserError);
++	int ensure_next_token_in(const char* charlist);
+ 	// reads a one-character token occurring in charlist.
+ 	// raises exception when the next token is not as expected.
+ 
+-	void ensure_next_token_list(const char* charlist) throw(ParserError);
++	void ensure_next_token_list(const char* charlist);
+ 	// reads a list of one-character tokens
+ 
+@@ -395,9 +395,9 @@
+ 	// skips to end of line
+ 
+-	void read_till_close_comment() throw(ParserError);
++	void read_till_close_comment();
+ 
+-	string& next_multilevel_token() throw(ParserError);
++	string& next_multilevel_token();
+ 
+-	virtual char token_read_sig_char() throw(ParserError);
++	virtual char token_read_sig_char();
+ 
+ 	virtual void on_trailing_space();
+@@ -450,12 +450,12 @@
+ 	void reset_nopos();
+ 	void reset_all();
+-    void undo_pushback_token();
+-	void copy_string(char endch) throw(ParserError);
+-	void multi_level_do_multi(char open) throw(ParserError);
+-	void get_token() throw(ParserError);
++  	void undo_pushback_token();
++	void copy_string(char endch);
++	void multi_level_do_multi(char open);
++	void get_token();
+ 	// consumes one token (and forgets it?)
+ 	// raises exception when e.g. a string constant is not terminated.
+-	void get_token_2() throw(ParserError);
+-	void get_check_token() throw(ParserError);
++	void get_token_2();
++	void get_check_token();
+ 	TokenizerLangElem* findLangElem(const TokenizerLangHash* hash);
+ 	TokenizerLangElem* findLangElem2(const TokenizerLangHash* hash);
+@@ -472,6 +472,6 @@
+ 	StreamTokenizer(istream* _is, TokenizerLanguage* lang);
+ 	virtual ~StreamTokenizer();
+-	void open_tokens(const char* fname) throw(ParserError);
+-	void open_tokens(const string& fname) throw(ParserError);
++	void open_tokens(const char* fname);
++	void open_tokens(const string& fname);
+ 	void open_tokens(istream* strm, const char* fname);
+ 	void close_tokens();
+diff -r -U2 src.orig/gle/var.cpp src/gle/var.cpp
+--- src.orig/gle/var.cpp	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/var.cpp	2022-12-24 13:08:07.888937784 +0700
+@@ -635,5 +635,5 @@
+ }
+ 
+-void ensure_valid_var_name(const string& name) throw(ParserError) {
++void ensure_valid_var_name(const string& name) {
+ 	if (!var_valid_name(name)) {
+ 		g_throw_parser_error("illegal variable name '", name.c_str(), "'");
+@@ -641,5 +641,5 @@
+ }
+ 
+-void ensure_valid_var_name(Tokenizer* tokens, const string& name) throw(ParserError) {
++void ensure_valid_var_name(Tokenizer* tokens, const string& name) {
+ 	if (!var_valid_name(name)) {
+ 		throw tokens->error(string("illegal variable name '")+name+"'");
+diff -r -U2 src.orig/gle/var.h src/gle/var.h
+--- src.orig/gle/var.h	2022-04-14 02:47:12.000000000 +0700
++++ src/gle/var.h	2022-12-24 13:08:07.889937784 +0700
+@@ -224,6 +224,6 @@
+ void var_remove_local_submap();
+ bool str_var_valid_name(const string& name);
+-void ensure_valid_var_name(const string& name) throw(ParserError);
+-void ensure_valid_var_name(Tokenizer* tokens, const string& name) throw(ParserError);
++void ensure_valid_var_name(const string& name);
++void ensure_valid_var_name(Tokenizer* tokens, const string& name);
+ 
+ #endif

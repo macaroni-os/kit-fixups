@@ -34,11 +34,10 @@ post_src_unpack() {
     fi
 }
 
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-115-wanalyzer-diagnostic.patch
-	"${FILESDIR}"/${PN}-115-no-werror.patch
-)
+src_prepare() {
+	default
+	sed -i -e 's/-Werror//g' "${S}"/Make.defaults || die
+}
 
 src_compile() {
 	emake \

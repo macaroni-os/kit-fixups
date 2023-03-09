@@ -1,0 +1,12 @@
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index d2a3d24..c93e097 100644
+--- a/src/gui/CMakeLists.txt
++++ src/gui/CMakeLists.txt
+@@ -69,6 +69,7 @@ target_link_libraries ( qgle LINK_PUBLIC
+ 	Qt::Widgets
+ 	Qt::OpenGL
+ 	${CAIRO_LIBRARIES}
++	${CMAKE_DL_LIBS}
+ 	)
+ 
+ if(UNIX AND NOT APPLE)

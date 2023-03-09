@@ -34,19 +34,21 @@ async def get_from_folder(soup):
 	artifact = None
 	for version_row in files_list.tbody.find_all("tr"):
 		version = version_row.get("title")
-		try:
-			artifact = hub.pkgtools.ebuild.Artifact(url=f"https://downloads.sourceforge.net/enlightenment/imlib2-{version}.tar.xz")
-			await artifact.fetch()
-		except hub.pkgtools.fetch.FetchError:
+		artifact = hub.pkgtools.ebuild.Artifact(url=f"https://downloads.sourceforge.net/enlightenment/imlib2-{version}.tar.xz")
+		fetched = await artifact.ensure_fetched(throw=False)
+		if not fetched:
+			hub.pkgtools.model.log.warning(f"couldn't download {version} -- ERROR above has been handled --- autogen will gracefully attempt next-most-recent version...")
 			artifact = None
 			continue
-		break
+		else:
+			break
 	if artifact is None:
 		return {}
-	return {
+	out = {
 		"artifacts" : [artifact],
 		"version" : version
 	}
+	return out
 
 
 async def generate(hub, **pkginfo):

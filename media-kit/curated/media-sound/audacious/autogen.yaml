@@ -1,0 +1,21 @@
+audacious_rule:
+  generator: github-1
+  packages:
+    - audacious:
+        cat: media-sound
+        desc: Lightweight and versatile audio player
+        homepage: https://audacious-media-player.org/
+        github:
+          user: audacious-media-player
+          repo: audacious
+          query: tags
+          select: '^audacious-\d+(\.\d+)*$'
+    - audacious-plugins:
+        cat: media-plugins
+        desc: Plugins for Audacious music player
+        homepage: https://audacious-media-player.org/
+        github:
+          user: audacious-media-player
+          repo: audacious-plugins
+          query: tags
+          select: '^audacious-plugins-\d+(\.\d+)*$'

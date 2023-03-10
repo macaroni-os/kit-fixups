@@ -11,7 +11,7 @@ HOMEPAGE="https://01.org/linuxgraphics https://gitlab.freedesktop.org/drm/igt-gp
 SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="MIT"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="*"
 SLOT="0"
 
 IUSE="chamelium doc man overlay runner tests unwind valgrind video_cards_amdgpu video_cards_intel video_cards_nouveau X xv"
@@ -70,10 +70,7 @@ BDEPEND="${PYTHON_DEPS}"
 
 src_prepare() {
 	sed -e "s/find_program('rst2man-3'/find_program('rst2man.py', 'rst2man-3'/" -i man/meson.build
-	local PATCHES=(
-		"${FILESDIR}"/igt-gpu-tools-1.26-lib-meson-build-Fix-underscorify-call.patch
-	)
-	default_src_prepare
+	default
 }
 
 src_configure() {

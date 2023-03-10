@@ -105,8 +105,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.0.14-track-and-deny-keywords-r1.patch"
 	"${FILESDIR}/${PN}-3.0.14-aliases-name-check.patch"
 	"${FILESDIR}/${PN}-3.0.14-cdn-feature-ignore-mirror.patch"
+	"${FILESDIR}/${PN}-3.0.14-fixed_obsolete_egrep_warning.patch"
 )
-
 python_prepare_all() {
 	distutils-r1_python_prepare_all
 

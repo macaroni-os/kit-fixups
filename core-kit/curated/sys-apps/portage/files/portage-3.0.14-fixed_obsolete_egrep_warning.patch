@@ -1,0 +1,80 @@
+diff --git a/bin/install-qa-check.d/05prefix b/bin/install-qa-check.d/05prefix
+index e1fc2bd..c1a5606 100644
+--- a/bin/install-qa-check.d/05prefix
++++ b/bin/install-qa-check.d/05prefix
+@@ -20,7 +20,7 @@ install_qa_check_prefix() {
+ 	fi
+ 
+ 	if [[ -d ${D} ]] ; then
+-		INSTALLTOD=$(find ${D%/} | egrep -v "^${ED}" | sed -e "s|^${D%/}||" | awk '{if (length($0) <= length("'"${EPREFIX}"'")) { if (substr("'"${EPREFIX}"'", 1, length($0)) != $0) {print $0;} } else if (substr($0, 1, length("'"${EPREFIX}"'")) != "'"${EPREFIX}"'") {print $0;} }')
++		INSTALLTOD=$(find ${D%/} | grep -E -v "^${ED}" | sed -e "s|^${D%/}||" | awk '{if (length($0) <= length("'"${EPREFIX}"'")) { if (substr("'"${EPREFIX}"'", 1, length($0)) != $0) {print $0;} } else if (substr($0, 1, length("'"${EPREFIX}"'")) != "'"${EPREFIX}"'") {print $0;} }')
+ 		if [[ -n ${INSTALLTOD} ]] ; then
+ 			eqawarn "QA Notice: the following files are outside of the prefix:"
+ 			eqawarn "${INSTALLTOD}"
+diff --git a/bin/install-qa-check.d/60pkgconfig b/bin/install-qa-check.d/60pkgconfig
+index 1b34c04..2ac92a8 100644
+--- a/bin/install-qa-check.d/60pkgconfig
++++ b/bin/install-qa-check.d/60pkgconfig
+@@ -2,7 +2,7 @@
+ 
+ pkgconfig_check() {
+ 	# Look for leaking LDFLAGS into pkg-config files
+-	local f=$(egrep -sH '^Libs.*-Wl,(-O[012]|--hash-style)' "${ED}"/usr/*/pkgconfig/*.pc)
++	local f=$(grep -E -sH '^Libs.*-Wl,(-O[012]|--hash-style)' "${ED}"/usr/*/pkgconfig/*.pc)
+ 	if [[ -n ${f} ]] ; then
+ 		eqawarn "QA Notice: pkg-config files with wrong LDFLAGS detected:"
+ 		eqawarn "${f//${D}}"
+diff --git a/repoman/lib/repoman/modules/vcs/cvs/changes.py b/repoman/lib/repoman/modules/vcs/cvs/changes.py
+index 583a96f..197143b 100644
+--- a/repoman/lib/repoman/modules/vcs/cvs/changes.py
++++ b/repoman/lib/repoman/modules/vcs/cvs/changes.py
+@@ -91,7 +91,7 @@ class Changes(ChangesBase):
+ 				continue
+ 
+ 			_out = repoman_getstatusoutput(
+-				"egrep -q %s %s" % (headerstring, portage._shell_quote(_file)))
++				"grep -E -q %s %s" % (headerstring, portage._shell_quote(_file)))
+ 			if _out[0] == 0:
+ 				headers.append(_file)
+ 
+diff --git a/repoman/lib/repoman/modules/vcs/cvs/status.py b/repoman/lib/repoman/modules/vcs/cvs/status.py
+index 697e5dc..834138e 100644
+--- a/repoman/lib/repoman/modules/vcs/cvs/status.py
++++ b/repoman/lib/repoman/modules/vcs/cvs/status.py
+@@ -64,8 +64,8 @@ class Status:
+ 		"""
+ 
+ 		cmd = (r"cvs -n up 2>/dev/null | "
+-				r"egrep '^[^\?] .*' | "
+-				r"egrep -v '^. .*/digest-[^/]+|^cvs server: .* -- ignored$'")
++				r"grep -E '^[^\?] .*' | "
++				r"grep -E -v '^. .*/digest-[^/]+|^cvs server: .* -- ignored$'")
+ 		msg = ("Performing a %s with a little magic grep to check for updates."
+ 				% green("cvs -n up"))
+ 
+diff --git a/repoman/lib/repoman/modules/vcs/svn/changes.py b/repoman/lib/repoman/modules/vcs/svn/changes.py
+index 5bf2139..1b78b03 100644
+--- a/repoman/lib/repoman/modules/vcs/svn/changes.py
++++ b/repoman/lib/repoman/modules/vcs/svn/changes.py
+@@ -113,7 +113,7 @@ class Changes(ChangesBase):
+ 			headerstring = r"'\$(%s).*\$'" % "|".join(enabled_keywords)
+ 
+ 			_out = repoman_getstatusoutput(
+-				"egrep -q %s %s" % (headerstring, portage._shell_quote(_file)))
++				"grep -E -q %s %s" % (headerstring, portage._shell_quote(_file)))
+ 			if _out[0] == 0:
+ 				headers.append(_file)
+ 
+diff --git a/repoman/lib/repoman/modules/vcs/svn/status.py b/repoman/lib/repoman/modules/vcs/svn/status.py
+index c145056..925c8aa 100644
+--- a/repoman/lib/repoman/modules/vcs/svn/status.py
++++ b/repoman/lib/repoman/modules/vcs/svn/status.py
+@@ -85,7 +85,7 @@ class Status:
+ 			(calls sys.exit on fatal problems)
+ 		"""
+ 
+-		cmd = "svn status -u 2>&1 | egrep -v '^.  +.*/digest-[^/]+' | head -n-1"
++		cmd = "svn status -u 2>&1 | grep -E -v '^.  +.*/digest-[^/]+' | head -n-1"
+ 		msg = ("Performing a %s with a little magic grep to check for updates."
+ 				% green("svn status -u"))
+ 

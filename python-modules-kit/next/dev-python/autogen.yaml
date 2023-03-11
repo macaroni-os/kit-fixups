@@ -155,4 +155,26 @@ pypi_compat_rule:
             use examples && dodoc -r examples
             distutils-r1_python_install_all
           }
+github_pythons:
+  generator: python-github-1
+  defaults:
+    python_compat: python3+
+  packages:
+    - cachecontrol:
+        github:
+          query: tags
+          user: ionrock
+        license: Apache-2.0
+        desc: The httplib2 caching algorithms packaged up for use with requests. 
+        homepage: https://github.com/ionrock/cachecontrol/ https://pypi.org/project/CacheControl/
+        pydeps:
+          py:all:build:
+            - requests
+            - msgpack
+          use:test:
+            - cherrypy
+            - lockfile
+            - mock
+        body: |
+          distutils_enable_tests pytest
 

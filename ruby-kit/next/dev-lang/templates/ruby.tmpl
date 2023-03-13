@@ -21,17 +21,7 @@ KEYWORDS="*"
 {%- else %}
 KEYWORDS=""
 {%- endif %}
-IUSE="berkdb debug examples gdbm ipv6 jemalloc jit +rdoc rubytests socks5 +ssl static-libs systemtap tk xemacs"
-
-{%- if version == "3.2.0" %}
-# https://bugs.funtoo.org/browse/FL-10864
-# For some reason Generating RDoc documentation is not loading libruby32.so.3.2 properly
-# error while loading shared libraries: libruby32.so.3.2: cannot open shared object file: No such file or directory
-# For now disabling RDoc generation for Ruby 3.2.0 until this new behavior can be debugged further
-IUSE+=" -doc"
-{%- else %}
-IUSE+=" doc"
-{%- endif %}
+IUSE="berkdb debug doc examples gdbm ipv6 jemalloc jit +rdoc rubytests socks5 +ssl static-libs systemtap tk xemacs"
 
 RDEPEND="
 	berkdb? ( sys-libs/db:= )
@@ -246,7 +236,7 @@ pkg_postinst() {
 
 	elog
 	elog "To switch between available Ruby profiles, execute as root:"
-	elog "\teselect ruby set ruby(27|30|31|...)"
+	elog "\teselect ruby set ruby(27|30|31|32|...)"
 	elog
 }
 

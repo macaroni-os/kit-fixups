@@ -156,16 +156,18 @@ pypi_compat_rule:
             distutils-r1_python_install_all
           }
 github_pythons:
-  generator: python-github-1
+  generator: pypi-compat-1
   defaults:
     python_compat: python3+
   packages:
     - cachecontrol:
+        desc: The httplib2 caching algorithms packaged up for use with requests.
+        iuse: test
+        python_compat: python3+ pypy3
         github:
           query: tags
           user: ionrock
         license: Apache-2.0
-        desc: The httplib2 caching algorithms packaged up for use with requests. 
         homepage: https://github.com/ionrock/cachecontrol/ https://pypi.org/project/CacheControl/
         pydeps:
           py:all:build:
@@ -176,5 +178,8 @@ github_pythons:
             - lockfile
             - mock
         body: |
-          distutils_enable_tests pytest
+          post_src_unpack() {
+            mv "${WORKDIR}"/CacheControl-* "${S}" || die
+            rm -f "${S}"/tests/__init__.py
+          }
 

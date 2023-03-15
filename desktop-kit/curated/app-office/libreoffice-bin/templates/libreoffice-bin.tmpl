@@ -12,7 +12,7 @@ inherit prefix rpm toolchain-funcs xdg-utils
 DESCRIPTION="A full office productivity suite. Binary package"
 HOMEPAGE="https://www.libreoffice.org"
 
-IUSE="gnome gstreamer +gtk java kde zeroconf"
+IUSE="gnome gstreamer +gtk java kde"
 LICENSE="LGPL-3"
 SLOT="0"
 KEYWORDS="-* ~amd64"
@@ -120,7 +120,7 @@ COMMON_DEPEND="
 		kde-frameworks/kwindowsystem:5
 	)
 	dev-db/mariadb-connector-c
-	zeroconf? ( net-dns/avahi )
+	net-dns/avahi
 "
 
 RDEPEND="${COMMON_DEPEND}
@@ -169,10 +169,6 @@ src_prepare() {
 		fi
 	done
 
-	# Remove files that require zeroconf if USE flag not set
-	use zeroconf || rm -f ./opt/libreoffice${MY_PV2}/program/libsdlo.so
-	use zeroconf || rm -f ./opt/libreoffice${MY_PV2}/program/libsdfiltlo.so
-	use zeroconf || rm -f ./opt/libreoffice${MY_PV2}/program/libsduilo.so
 	# Remove files that require java if USE flag not set
 	use java || rm -f ./opt/libreoffice${MY_PV2}/program/libofficebean.so
 	# Remove files that require gstreamer if USE flag not set

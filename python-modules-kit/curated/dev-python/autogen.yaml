@@ -2406,18 +2406,19 @@ stuff_from_next:
   packages:
     - wheel:
         compat: '0.37.1'
+        du_pep517: flit
         blocker: '!<dev-python/wheel-0.38.2-r1'
         revision:
           0.38.2: 1
+        desc: reference implementation of the Python wheel packaging standard, as defined in PEP 427
         pydeps:
           - packaging
         body: |
           src_prepare() {
-            sed -e 's:--cov=wheel::g' -i setup.cfg || die
-
             # unbundle packaging
             rm -r src/wheel/vendored || die
             sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
+            sed -i -e 's:wheel\.vendored\.::' tests/*.py || die
 
             distutils-r1_src_prepare
           }

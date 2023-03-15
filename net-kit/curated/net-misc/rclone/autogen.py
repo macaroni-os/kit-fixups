@@ -30,9 +30,9 @@ async def get_gosum_artifacts(hub, github_user, github_repo, version):
 async def generate(hub, **pkginfo):
 	github_user = "rclone"
 	github_repo = "rclone"
-	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/tags")
+	json_data = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/releases")
 	json_dict = json.loads(json_data)
-	version = json_dict[0]["name"]
+	version = json_dict[0]["tag_name"]
 	artifacts = await get_gosum_artifacts(hub, github_user, github_repo, version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

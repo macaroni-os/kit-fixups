@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
 			)
 	}
 	gosum_raw = await hub.pkgtools.fetch.get_page(f"https://github.com/{github_user}/{github_repo}/raw/v{version}/go.sum")
-	await hub.pkgtools.golang.add_gosum_archive(hub, gosum_raw, pkginfo)
+	await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo, gosum_data=gosum_raw)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild.push()
 

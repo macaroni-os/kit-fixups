@@ -15,18 +15,16 @@ async def generate(hub, **pkginfo):
 	latest_release = get_release(release_data)
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
-	version = latest_release["tag_name"]
+	tag = latest_release["tag_name"]
+	version = pkginfo["version"] = tag.lstrip("v")
 	url = latest_release["tarball_url"]
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'
-	src_artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
-	artifacts = await hub.pkgtools.golang.generate_gosum_from_artifact(src_artifact)
+	pkginfo['artifacts'] = { 'main' : hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name) }
+	await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts']['main'])
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=version.lstrip("v"),
 		github_user=user,
-		github_repo=repo,
-		gosum=artifacts["gosum"],
-		artifacts=[src_artifact, *artifacts["gosum_artifacts"]],
+		github_repo=repo
 	)
 	ebuild.push()
 

@@ -286,6 +286,7 @@ go-module_src_unpack() {
 }
 
 go-module_src_prepare() {
+	_go-module_src_prepare_verify_gosum
 	# See Funtoo Linux bug FL-6885,FL-9561 for why this is needed:
 	xdg_environment_reset
 	default
@@ -354,9 +355,6 @@ _go-module_src_unpack_gosum() {
 		done
 	fi
 	export GOPROXY="file://${goproxy_dir}"
-
-	# Validate the gosum now
-	_go-module_src_unpack_verify_gosum
 }
 
 # @FUNCTION: _go-module_gosum_synthesize_files
@@ -431,11 +429,11 @@ _go-module_src_unpack_vendor() {
 	eqawarn "Please request that the author migrate to EGO_SUM."
 }
 
-# @FUNCTION: _go-module_src_unpack_verify_gosum
+# @FUNCTION: _go-module_src_prepare_verify_gosum
 # @DESCRIPTION:
 # Validate the Go modules declared by EGO_SUM are sufficient to cover building
 # the package, without actually building it yet.
-_go-module_src_unpack_verify_gosum() {
+_go-module_src_prepare_verify_gosum() {
 	# shellcheck disable=SC2120
 	debug-print-function "${FUNCNAME}" "$@"
 

@@ -9,7 +9,7 @@
 
 EXPORT_FUNCTIONS src_prepare
 
-IUSE+="memsaver"
+IUSE+="+memsaver"
 
 memsaver_src_prepare() {
 	if use memsaver; then
@@ -32,15 +32,20 @@ memsaver_src_prepare() {
 
 		if [ ${jobs} -lt 1 ]; then
 			einfo "Using jobs setting of 1 (limited by memory)"
-			jobs=-j1
+			jobs=1
 		elif [ ${jobs} -gt ${max_parallelism} ]; then
 			einfo "Using jobs setting of ${max_parallelism} (limited by physical cores)"
-			jobs=-j${max_parallelism}
+			jobs=${max_parallelism}
 		else
 			einfo "Using jobs setting of ${jobs} (limited by memory)"
-			jobs=-j${jobs}
+			jobs=${jobs}
 		fi
 	else
-		jobs="-j$(makeopts_jobs)"
+		jobs="$(makeopts_jobs)"
 		einfo "Using default Portage jobs setting."
+	fi
+
+	if [ -z "${MAKEOPTS}" ]; then
+		MAKEOPTS="-j${jobs}"
+	fi
 }

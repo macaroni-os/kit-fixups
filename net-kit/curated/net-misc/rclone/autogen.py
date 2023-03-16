@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-import json
-import re
-
-
 async def generate(hub, **pkginfo):
 	github_user = "rclone"
 	github_repo = "rclone"

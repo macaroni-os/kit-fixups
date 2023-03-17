@@ -4,12 +4,16 @@ import logging
 import re
 
 async def generate(hub, **pkginfo):
+
 	slots = [
 		("7.4", "latest", ["php-iodbc-header-location.patch", "apache.patch", "bug81656-gcc-11.patch"], None),
 		("8.0", "latest", ["php-iodbc-header-location.patch", "php80-firebird-warnings.patch"], None),
 		("8.1", "latest" , ["php-iodbc-header-location.patch"], None),
+  	("8.2", "latest" , ["php-iodbc-header-location.patch"], None),
 	]
+
 	php_url = "https://www.php.net/releases/?json&version={slot}"
+
 	for slot, v_spec, patch_list, dists_url in slots:
 		php_data = await hub.pkgtools.fetch.get_page(php_url.format(slot=slot), is_json=True)
 		patches = "(\n"

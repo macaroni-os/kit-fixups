@@ -16,6 +16,12 @@ SLOT="0"
 
 DEPEND="sys-fs/btrfs-progs"
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/{{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
+
 src_prepare() {
 	default
 	# Don't try to install a gzipped manfile during emake install

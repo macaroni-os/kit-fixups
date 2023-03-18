@@ -12,12 +12,15 @@ EGO_SUM=(
 
 go-module_set_globals
 
-SRC_URI="{{artifacts['main'].src_uri}}
-{{artifacts['go_bundle'].src_uri}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="MIT BSD-with-disclosure"
 SLOT="0"
 KEYWORDS="*"
+
+post_src_unpack() {
+	mv ${WORKDIR}/{{github_user}}* ${S} || die
+}
 
 src_compile() {
 	emake PREFIX=${EPREFIX}/usr FZF_VERSION=${PV} FZF_REVISION=tarball bin/${PN}

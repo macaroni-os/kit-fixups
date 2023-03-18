@@ -9,8 +9,8 @@ EGO_SUM=(
 
 go-module_set_globals
 
-SRC_URI="{{artifacts[0].src_uri}}
-	${EGO_SUM_SRC_URI}"
+SRC_URI="{{artifacts['main'].src_uri}}
+{{artifacts['go_bundle'].src_uri}}"
 
 DESCRIPTION="Make your containers better, smaller, more secure and do less to get there"
 HOMEPAGE="https://dockersl.im/ https://github.com/docker-slim/docker-slim"
@@ -21,7 +21,7 @@ KEYWORDS="*"
 IUSE=""
 
 post_src_unpack() {
-	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+	mv "${WORKDIR}"/{{github_user}}-* "${S}" || die
 }
 
 src_compile() {
@@ -32,13 +32,13 @@ src_compile() {
 		-X github.com/docker-slim/docker-slim/pkg/version.appVersionRev=current \
 		-X github.com/docker-slim/docker-slim/pkg/version.appVersionTime=${BUILD_TIME}"
 
-	for cmd_name in docker-slim{,-sensor}; do
+	for cmd_name in slim{,-sensor}; do
 		CGO_ENABLED=0 go build -ldflags="${LD_FLAGS}" -mod=vendor ./cmd/${cmd_name} || die "compile failed"
 	done
 }
 
 src_install() {
-	for cmd_name in docker-slim{,-sensor}; do
+	for cmd_name in slim{,-sensor}; do
 		dobin ${cmd_name}
 	done
 

@@ -12,8 +12,8 @@ EGO_SUM=(
 
 go-module_set_globals
 
-SRC_URI="{{artifacts[0].src_uri}}
-	${EGO_SUM_SRC_URI}"
+SRC_URI="{{artifacts['main'].src_uri}}
+{{artifacts['go_bundle'].src_uri}}"
 
 LICENSE="MIT BSD-with-disclosure"
 SLOT="0"
@@ -36,7 +36,7 @@ src_install() {
 	insinto /usr/share/nvim/runtime/plugin
 	doins plugin/${PN}.vim
 
-	newbashcomp shell/completion.bash ${PN}
+	newbashcomp shell/completion.bash ${PN} || die
 
 	insinto /usr/share/zsh/site-functions
 	newins shell/completion.zsh _${PN}

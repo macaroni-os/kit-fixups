@@ -11,8 +11,8 @@ go-module_set_globals
 
 DESCRIPTION="a simple but powerful password manager for the terminal"
 HOMEPAGE="https://www.gopass.pw/"
-SRC_URI="{{ artifacts[0].src_uri }}
-	${EGO_SUM_SRC_URI}"
+SRC_URI="{{ artifacts['main'].src_uri }}
+{{ artifacts['go_bundle'].src_uri }}"
 
 LICENSE="MIT Apache-2.0 BSD MPL-2.0 BSD-2"
 SLOT="0"

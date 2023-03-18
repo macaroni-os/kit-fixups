@@ -122,6 +122,9 @@ async def generate(hub, **pkginfo):
 
 	pkginfo.update(github_result)
 
+	if "extensions" in pkginfo and "golang" in pkginfo["extensions"]:
+		await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts'][0])
+
 	if "description" not in pkginfo:
 		repo_metadata = await hub.pkgtools.fetch.get_page(
 			f"https://api.github.com/repos/{github_user}/{github_repo}", is_json=True

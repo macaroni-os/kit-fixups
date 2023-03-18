@@ -26,25 +26,16 @@ async def generate(hub, **pkginfo):
 			f"Can't find suitable release of {github_repo}"
 		)
 
-	latest_version = latest_release["tag_name"].lstrip("distrobuilder-")
+	pkginfo['version'] = latest_version = latest_release["tag_name"].lstrip("distrobuilder-")
 
 	source_url = latest_release["tarball_url"]
 	source_name = f"{github_repo}-{latest_version}.tar.gz"
 
-	source_artifact = hub.pkgtools.ebuild.Artifact(
-		url=source_url, final_name=source_name
-	)
-
-	golang_deps = await hub.pkgtools.golang.generate_gosum_from_artifact(
-		source_artifact
-	)
-
+	pkginfo['artifacts'] = { 'main' : hub.pkgtools.ebuild.Artifact(url=source_url, final_name=source_name) }
+	await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=latest_version,
 		github_user=github_user,
-		github_repo=github_repo,
-		gosum=golang_deps["gosum"],
-		artifacts=[source_artifact, *golang_deps["gosum_artifacts"]],
+		github_repo=github_repo
 	)
 	ebuild.push()

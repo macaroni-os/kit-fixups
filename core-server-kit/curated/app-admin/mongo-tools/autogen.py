@@ -23,7 +23,7 @@ async def generate(hub, **pkginfo):
 	github_repo = pkginfo.get("name")
 
 	# STEP 1: Get released version string from official Web site, because we don't want in-progress not-yet-released tags (a prior issue):
-	ver = await get_version_from_website(hub, **pkginfo)
+	pkginfo['version'] = ver = await get_version_from_website(hub, **pkginfo)
 	
 	# STEP 2: Look for GitHub tag with this version, and get its info. Since it's officially released, the tag sha1 shouldn't change:
 	tag_meta = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/git/ref/tags/{ver}", is_json=True)
@@ -38,22 +38,15 @@ async def generate(hub, **pkginfo):
 	url = f"https://github.com/{github_user}/{github_repo}/archive/{commit_sha1}.tar.gz"
 	final_name = f'{pkginfo["name"]}-{ver}-{commit_sha1[:8]}.tar.gz'
 
-	source_artifact = hub.pkgtools.ebuild.Artifact(
-		url=url, final_name=final_name
-	)
+	pkginfo['artifacts'] = { 'main' : hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name) }
 
-	golang_deps = await hub.pkgtools.golang.generate_gosum_from_artifact(
-		source_artifact
-	)
+	await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		github_user=github_user,
 		github_repo=github_repo,
-		version=ver,
-		commit_sha1=commit_sha1,
-		gosum=golang_deps["gosum"],
-		artifacts=[source_artifact, *golang_deps["gosum_artifacts"]],
+		commit_sha1=commit_sha1
 	)
 	ebuild.push()
 

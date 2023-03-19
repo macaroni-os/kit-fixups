@@ -9,8 +9,7 @@ EGO_SUM=(
 
 go-module_set_globals
 
-SRC_URI="{{artifacts['main'].src_uri}}
-{{artifacts['go_bundle'].src_uri}}"
+SRC_URI="{{src_uri}}"
 
 DESCRIPTION="Fast, cross-platform HTTP/2 web server with automatic HTTPS"
 HOMEPAGE="https://caddyserver.com/ https://github.com/caddyserver/caddy"
@@ -19,6 +18,10 @@ LICENSE="Apache-2.0 BSD ECL-2.0 MIT"
 SLOT="0"
 KEYWORDS="*"
 IUSE=""
+
+post_src_unpack() {
+	mv ${WORKDIR}/{{github_user}}-* ${S} || die
+}
 
 src_compile() {
 	go build -mod=mod ./cmd/caddy || die "compile failed"

@@ -76,6 +76,8 @@ src_prepare() {
 	sed -i 's:%{_var}/tmp:/var/tmp:' macros.in || die "Fixing tmppath failed"
 	# fix #492642
 	sed -i "s:@__PYTHON@:${PYTHON}:" macros.in || die "Fixing %__python failed"
+	# fix label followed by declaration FL-11111
+	sed -i 's|setmeta:|setmeta: ;|g' lib/fsm.c
 
 	eapply_user
 	eautoreconf

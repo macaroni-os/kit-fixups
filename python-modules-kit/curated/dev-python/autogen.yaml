@@ -141,10 +141,19 @@ github_stuff:
         license: BSD
         desc: Python library for working with RDF, a simple powerful language to represent information
         homepage: https://pypi.org/project/rdflib/
+        du_pep517: standalone
         pydeps:
           - html5lib
           - isodate
           - pyparsing
+          - poetry-core
+    - lark:
+        github:
+          query: tags
+          user: lark-parser
+        license: BSD
+        homepage: https://pypi.org/project/lark
+        desc: Parsing toolkit for Python, built with a focus on ergonomics, performance and modularity.
 
 aiobotostuff:
   defaults:
@@ -2141,6 +2150,10 @@ pep517_compliance_rule:
           - pyrsistent
           - six
           - tomlkit
+        body: |
+          post_src_unpack() {
+            mv poetry_core*  "${S}" || die
+          }
     - python-dotenv:
         du_pep517: setuptools
         body: |

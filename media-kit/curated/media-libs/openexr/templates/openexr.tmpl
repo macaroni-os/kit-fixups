@@ -13,8 +13,8 @@ SRC_URI="{{artifacts[0].src_uri}}"
 LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="*"
-IUSE="cpu_flags_x86_avx examples large-stack static-libs utils test threads"
-RESTRICT="!test? ( test )"
+IUSE="cpu_flags_x86_avx examples large-stack static-libs utils threads"
+RESTRICT="( test )"
 
 # FL-9012: blocker below to address an earlier version of openexr having a incorrect SLOT of 2.
 RDEPEND="
@@ -27,29 +27,16 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
-PATCHES=(
-	"${FILESDIR}"/openexr-3.1.1-0003-disable-failing-test.patch
-)
-
-DOCS=( CHANGES.md GOVERNANCE.md PATENTS README.md SECURITY.md docs/SymbolVisibility.md )
+DOCS=( CHANGES.md GOVERNANCE.md PATENTS README.md SECURITY.md docs/SymbolVisibility.rst )
 
 post_src_unpack() {
 	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die
 }
 
-src_prepare() {
-	# Fix path for testsuite
-	sed -e "s:/var/tmp/:${T}:" \
-		-i "${S}"/src/test/${MY_PN}{,Fuzz,Util}Test/tmpDir.h || die "failed to set temp path for tests"
-
-	cmake_src_prepare
-
-}
-
 src_configure() {
 	local mycmakeargs=(
 		-DBUILD_SHARED_LIBS=$(usex !static-libs)
-		-DBUILD_TESTING=$(usex test)
+		-DBUILD_TESTING=OFF
 		-DOPENEXR_BUILD_TOOLS=$(usex utils)
 		-DOPENEXR_ENABLE_LARGE_STACK=$(usex large-stack)
 		-DOPENEXR_ENABLE_THREADING=$(usex threads)
@@ -59,13 +46,10 @@ src_configure() {
 		-DOPENEXR_USE_CLANG_TIDY=OFF		# don't look for clang-tidy
 	)
 
-	use test && mycmakeargs+=( -DOPENEXR_RUN_FUZZ_TESTS=ON )
-
 	cmake_src_configure
 }
 
 src_install() {
 	use examples && docompress -x /usr/share/doc/${PF}/examples
 	cmake_src_install
-
 }

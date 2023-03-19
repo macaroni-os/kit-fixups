@@ -1,18 +1,15 @@
 kitty_rule:
+  generator: github-1
   defaults:
-    tarball: kitty-{version}.tar.xz
     github:
       user: kovidgoyal
       repo: kitty
-    version:
-      0.25.1:
-        python_compat: python3+
-        keywords: "*"
-      latest:
-        python_compat: python3_9+
-        keywords: next
-        needs_golang: true
+      query: releases
+      # Use official release tarball which has some pre-generated docs, avoiding deps:
+      tarball: kitty-{version}.tar.xz
   packages:
-    - kitty
+    - kitty:
+        extensions:
+          - golang
     - kitty-terminfo
     - kitty-shell-integration

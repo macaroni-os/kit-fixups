@@ -144,15 +144,18 @@ src_install() {
 
 	find "${ED}" -type f -name "*.la" -delete || die
 
+	# FL-11088: put lsmod and modinfo in both /bin and /sbin for compatibility,
+	# so third-party scripts can find them in either place.
+
 	if use tools; then
 		local cmd
-		for cmd in depmod insmod modprobe rmmod; do
-			dosym ../bin/kmod /sbin/${cmd}
+		for cmd in depmod insmod modprobe rmmod lsmod modinfo; do
+			dosym ../bin/kmod /sbin/${cmd} || die
 		done
 
 		# These are also usable as normal user
 		for cmd in lsmod modinfo; do
-			dosym kmod /bin/${cmd}
+			dosym kmod /bin/${cmd} || die
 		done
 	fi
 

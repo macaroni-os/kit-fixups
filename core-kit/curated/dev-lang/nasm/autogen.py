@@ -1,34 +1,33 @@
 #!/usr/bin/env python3
 
-from packaging import version
-
-def get_release(releases_data):
-	releases = list(filter(lambda x: x['name'] != "verified" and "rc" not in x['name'], releases_data))
-	return None if not releases else sorted(releases, key=lambda x: version.parse(x["name"])).pop()
+import re
 
 async def generate(hub, **pkginfo):
-	github_user = "netwide-assembler"
-	github_repo = pkginfo['name']
-	homepage = "https://www.nasm.us"
+	pkginfo['homepage'] = "https://www.nasm.us"
 	
-	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
+	versions = await hub.pkgtools.pages.iter_links (
+		base_url=f"{pkginfo['homepage']}/pub/nasm/releasebuilds",
+		match_fn=lambda x: re.match(f"(\d+(?:\.\d+)+)\/", x),
+		fixup_fn=lambda x: x.groups()[0]
 	)
-
-	latest_release = get_release(json_list)
-	if latest_release is None:
-		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {github_repo}")
-	version = latest_release['name'].lstrip("nasm-")
+	if not versions:
+		hub.pkgtools.model.log.debug(versions)
+		raise KeyError("Could not find any suitable release.")
 	
-	url = f"{homepage}/pub/{github_repo}/releasebuilds/{version}/{github_repo}-{version}.tar.xz"
-	#final_name = f"{github_repo}-{version}.tar.xz"
-	src_artifact = hub.pkgtools.ebuild.Artifact(url=url)
+	# Use this if you need to stop the autogen at a given version.
+	# versions = ['2.16']
+
+	pkginfo['version'] = hub.pkgtools.pages.latest(versions)
+
+	hub.pkgtools.model.log.debug(f"Versions found: {versions}")
+	hub.pkgtools.model.log.debug(f"Selected version: {hub.pkgtools.pages.latest(versions)}")
+
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		homepage = homepage,
-		version=version,
-		github_user=github_user,
-		github_repo=github_repo,
-		artifacts=[src_artifact]
+		artifacts=[ hub.pkgtools.ebuild.Artifact( url =
+			f"{pkginfo['homepage']}/pub/nasm/releasebuilds/{pkginfo['version']}/nasm-{pkginfo['version']}.tar.xz"
+		)]
 	)
 	ebuild.push()
+
+# vim: ts=4 sw=4 noet

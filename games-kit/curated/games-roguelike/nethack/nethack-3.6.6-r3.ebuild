@@ -13,29 +13,32 @@ S="${WORKDIR}/NetHack-NetHack-${PV}_Released"
 LICENSE="nethack"
 SLOT="0"
 KEYWORDS="*"
-IUSE="X"
+#IUSE="X"
 
-RDEPEND="sys-libs/ncurses:0=
-	X? (
-		x11-libs/libXaw
-		x11-libs/libXpm
-		x11-libs/libXt
-	)"
-DEPEND="${RDEPEND}
-	X? ( x11-base/xorg-proto )
-	"
-BDEPEND="virtual/pkgconfig
-	X? (
-		x11-apps/bdftopcf
-		x11-apps/mkfontdir
-	)"
+RDEPEND="sys-libs/ncurses:0="
+#
+#	X? (
+#		x11-libs/libXaw
+#		x11-libs/libXpm
+#		x11-libs/libXt
+#	)"
+DEPEND="${RDEPEND}"
+#	X? ( x11-base/xorg-proto )
+#	"
+BDEPEND="virtual/pkgconfig"
+#	X? (
+#		x11-apps/bdftopcf
+#		x11-apps/mkfontdir
+#	)"
 
 src_prepare() {
 	eapply "${FILESDIR}/${PN}-3.6.1-recover.patch"
 	eapply_user
 
-	ewarn this package is EXPERIMENTAL.  Currently fails to compile with USE="X"
-	cp "sys/unix/hints/linux$(usex X -x11 '' )" hint || die "Failed to copy hint file"
+	ewarn this package needs a maintainer.  Currently fails to compile with USE="X"
+	ewarn so it has been forcibly removed. See FL-11052
+#	cp "sys/unix/hints/linux$(usex X -x11 '' )" hint || die "Failed to copy hint file"
+	cp "sys/unix/hints/linux" hint || die "Failed to copy hint file"
 	sys/unix/setup.sh hint || die "Failed to run setup.sh"
 }
 
@@ -46,7 +49,7 @@ src_compile() {
 	append-cflags "-DDEF_PAGER=\\\"${PAGER}\\\""
 	append-cflags -DSYSCF "-DSYSCF_FILE=\\\"${EPREFIX}/etc/nethack.sysconf\\\""
 
-	use X && append-cflags -DX11_GRAPHICS -DUSE_XPM
+#	use X && append-cflags -DX11_GRAPHICS -DUSE_XPM
 
 	LOCAL_MAKEOPTS=(
 		CC="$(tc-getCC)" CFLAGS="${CFLAGS}" LFLAGS="${LDFLAGS}"
@@ -76,22 +79,22 @@ src_install() {
 	insinto /etc/skel
 	newins "${FILESDIR}/${PN}-3.6.0-nethackrc" .nethackrc
 
-	if use X ; then
-		cd "${S}/win/X11" || die "Failed to enter win/X11 directory"
-
-		mkdir -p "${ED}/etc/X11/app-defaults/" || die "Failed to make app-defaults directory"
-		mv "${ED}/usr/$(get_libdir)/nethack/NetHack.ad" "${ED}/etc/X11/app-defaults/" || die "Failed to move NetHack.ad"
-
-		newicon nh_icon.xpm nethack.xpm
-		make_desktop_entry ${PN} Nethack
-
-		# install nethack fonts
-		bdftopcf -o nh10.pcf nh10.bdf || die "Converting fonts failed"
-		bdftopcf -o ibm.pcf ibm.bdf || die "Converting fonts failed"
-		insinto "/usr/$(get_libdir)/nethack/fonts"
-		doins *.pcf
-		mkfontdir "${ED}/usr/$(get_libdir)/nethack/fonts" || die "mkfontdir failed"
-	fi
+#	if use X ; then
+#		cd "${S}/win/X11" || die "Failed to enter win/X11 directory"
+#
+#		mkdir -p "${ED}/etc/X11/app-defaults/" || die "Failed to make app-defaults directory"
+#		mv "${ED}/usr/$(get_libdir)/nethack/NetHack.ad" "${ED}/etc/X11/app-defaults/" || die "Failed to move NetHack.ad"
+#
+#		newicon nh_icon.xpm nethack.xpm
+#		make_desktop_entry ${PN} Nethack
+#
+#		# install nethack fonts
+#		bdftopcf -o nh10.pcf nh10.bdf || die "Converting fonts failed"
+#		bdftopcf -o ibm.pcf ibm.bdf || die "Converting fonts failed"
+#		insinto "/usr/$(get_libdir)/nethack/fonts"
+#		doins *.pcf
+#		mkfontdir "${ED}/usr/$(get_libdir)/nethack/fonts" || die "mkfontdir failed"
+#	fi
 
 	rm -r "${ED}/var/games/nethack" || die "Failed to clean var/games/nethack"
 	keepdir /var/games/nethack/save

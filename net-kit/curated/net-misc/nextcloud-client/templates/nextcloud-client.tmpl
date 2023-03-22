@@ -26,6 +26,7 @@ COMMON_DEPEND=">=dev-db/sqlite-3.8:3
 	dev-qt/qtsvg:5
 	dev-qt/qtwebsockets:5
 	dev-qt/qtwidgets:5
+	kde-frameworks/karchive
 	sys-libs/zlib
 	dolphin? (
 		kde-frameworks/kcoreaddons:5

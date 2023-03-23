@@ -21,18 +21,19 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_PN^}/app"
 
-src_prepare() {
-	mv _Postman Postman
-	default
-}
-
 src_install() {
 	local dir="/opt/${PN}"
 
 	insinto "${dir}"
 	doins -r *
+
 	fperms 755 "${dir}"/postman
 	fperms 755 "${dir}"/Postman
+
+	fperms 4755 "${dir}"/chrome-sandbox || die
+	if [ -f "${ED%/}${dir}"/chrome_crashpad_handler ]; then
+		fperms 4755 "${dir}"/chrome_crashpad_handler || die
+	fi
 
 	make_wrapper "${PN}" "${dir}/Postman"
 	newicon "resources/app/assets/icon.png" "${PN}.png"

@@ -14,3 +14,120 @@ dev_python_autogen_rule:
             template: salt-2019.tmpl
           latest:
             python_compat: python3+
+
+# FL-9464: Virtual pecl-module-kit
+
+pecl-kit:
+  generator: github-1
+  defaults:
+    cat: dev-php
+    use_php: php7-4 php8-0 php8-1 php8-2
+  packages:
+    - pecl-amqp:
+        template: pecl/pecl-amqp.tmpl
+        github:
+          user: php-amqp
+          repo: php-amqp
+          query: tags
+    - pecl-apcu:
+        template: pecl/pecl-apcu.tmpl
+        github:
+          user: krakjoe
+          repo: apcu
+          query: tags
+    - pecl-eio:
+        template: pecl/pecl-eio.tmpl
+        github:
+          user: rosmanov
+          repo: pecl-eio
+          query: tags
+    - pecl-event:
+        template: pecl/pecl-event.tmpl
+        github:
+          user: swoole
+          repo: swoole-src
+          query: tags
+    - pecl-http:
+        template: pecl/pecl-http.tmpl
+        github:
+          user:  m6w6
+          repo: ext-http
+          query: tags
+    - pecl-imagick:
+        template: pecl/pecl-imagick.tmpl
+        github:
+          user: Imagick
+          repo: imagick
+          query: tags
+    - pecl-mailparse:
+        template: pecl/pecl-mailparse.tmpl
+        github:
+          user: php
+          repo: pecl-mail-mailparse
+          query: tags
+    - pecl-mcrypt:
+        template: pecl/pecl-mcrypt.tmpl
+        github:
+          user: php
+          repo: pecl-encryption-mcrypt
+          query: tags
+    - pecl-memcache:
+        template: pecl/pecl-memcache.tmpl
+        github:
+          user: websupport-sk
+          repo: pecl-memcache
+          query: tags
+    - pecl-mongodb:
+        template: pecl/pecl-mongodb.tmpl
+        github:
+          user: mongodb
+          repo: mongo-php-driver
+          query: tags
+    - pecl-oauth:
+        template: pecl/pecl-oauth.tmpl
+        github:
+          user: php
+          repo: pecl-web_services-oauth
+          query: tags
+    - pecl-pam:
+        template: pecl/pecl-pam.tmpl
+        github:
+          user: amishmm
+          repo: php-pam
+          query: tags
+    - pecl-radius:
+        template: pecl/pecl-radius.tmpl
+        github:
+          user: LawnGnome
+          repo: php-radius
+          query: tags
+    - pecl-redis:
+        template: pecl/pecl-redis.tmpl
+        github:
+          user: phpredis
+          repo: phpredis
+          query: tags
+    - pecl-translit:
+        template: pecl/pecl-translit.tmpl
+        github:
+          user: derickr
+          repo: pecl-translit
+          query: tags
+    - pecl-xdiff:
+        template: pecl/pecl-xdiff.tmpl
+        github:
+          user: php
+          repo: pecl-text-xdiff
+          query: tags
+    - pecl-yaml:
+        template: pecl/pecl-yaml.tmpl
+        github:
+          user: php
+          repo: pecl-file_formats-yaml
+          query: tags
+    - pecl-yaz:
+        template: pecl/pecl-yaz.tmpl
+        github:
+          user: indexdata
+          repo: phpyaz
+          query: tags

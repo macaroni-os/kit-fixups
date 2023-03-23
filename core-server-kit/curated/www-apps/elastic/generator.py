@@ -66,6 +66,8 @@ async def generate(hub, **pkginfo):
 
 		soup = BeautifulSoup(html, "lxml")
 		json_data = json.loads(str(soup.find('script', id="__NEXT_DATA__" ).text))
+		if "entry" not in json_data["props"]["pageProps"]:
+			continue
 		package_data = json_data["props"]["pageProps"]["entry"][0][0]["package"]
 		for package in package_data:
 			if not package["title"].startswith("Linux"):

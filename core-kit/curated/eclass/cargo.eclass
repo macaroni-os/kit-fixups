@@ -161,44 +161,58 @@ cargo_src_unpack() {
 	mkdir -p "${ECARGO_VENDOR}" || die
 	mkdir -p "${S}" || die
 
-	local archive shasum pkg
-	for archive in ${A}; do
-		case "${archive}" in
-			*.crate)
-				ebegin "Loading ${archive} into Cargo registry"
-				tar -xf "${DISTDIR}"/${archive} -C "${ECARGO_VENDOR}/" || die
-				# generate sha256sum of the crate itself as cargo needs this
-				shasum=$(sha256sum "${DISTDIR}"/${archive} | cut -d ' ' -f 1)
-				pkg=$(basename ${archive} .crate)
-				cat <<- EOF > ${ECARGO_VENDOR}/${pkg}/.cargo-checksum.json
-				{
-					"package": "${shasum}",
-					"files": {}
-				}
-				EOF
-				# if this is our target package we need it in ${WORKDIR} too
-				# to make ${S} (and handle any revisions too)
-				if [[ ${P} == ${pkg}* ]]; then
-					tar -xf "${DISTDIR}"/${archive} -C "${WORKDIR}" || die
-				fi
-				eend $?
-				;;
-			cargo-snapshot*)
-				ebegin "Unpacking ${archive}"
-				mkdir -p "${S}"/target/snapshot
-				tar -xzf "${DISTDIR}"/${archive} -C "${S}"/target/snapshot --strip-components 2 || die
-				# cargo's makefile needs this otherwise it will try to
-				# download it
-				touch "${S}"/target/snapshot/bin/cargo || die
-				eend $?
-				;;
-			*)
-				unpack ${archive}
-				;;
-		esac
-	done
+	if [ "${A/${P}-funtoo-crates-bundle-/}" != "${A}" ]; then
+		unpack ${A}
+		local crate
+		for crate in "${WORKDIR}"/funtoo-crates-bundle-"${PN}"/*; do
+			_cargo_process_crate "${crate}"
+		done
+	else
+		local archive shasum pkg
+		for archive in ${A}; do
+			case "${archive}" in
+				*.crate)
+					_cargo_process_crate "${DISTDIR}"/"${archive}"
+					;;
+				cargo-snapshot*)
+					ebegin "Unpacking ${archive}"
+					mkdir -p "${S}"/target/snapshot
+					tar -xzf "${DISTDIR}"/${archive} -C "${S}"/target/snapshot --strip-components 2 || die
+					# cargo's makefile needs this otherwise it will try to
+					# download it
+					touch "${S}"/target/snapshot/bin/cargo || die
+					eend $?
+					;;
+				*)
+					unpack ${archive}
+					;;
+			esac
+		done
+	fi
 
 	cargo_gen_config
+}
+
+_cargo_process_crate() {
+	local archive=$1
+
+	ebegin "Loading ${archive} into Cargo registry"
+	tar -xf ${archive} -C "${ECARGO_VENDOR}/" || die
+	# generate sha256sum of the crate itself as cargo needs this
+	shasum=$(sha256sum ${archive} | cut -d ' ' -f 1)
+	pkg=$(basename ${archive} .crate)
+	cat <<- EOF > ${ECARGO_VENDOR}/${pkg}/.cargo-checksum.json
+	{
+		"package": "${shasum}",
+		"files": {}
+	}
+	EOF
+	# if this is our target package we need it in ${WORKDIR} too
+	# to make ${S} (and handle any revisions too)
+	if [[ ${P} == ${pkg}* ]]; then
+		tar -xf ${archive} -C "${WORKDIR}" || die
+	fi
+	eend $?
 }
 
 # @FUNCTION: cargo_live_src_unpack

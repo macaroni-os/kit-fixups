@@ -1,0 +1,12 @@
+lib_users_rule:
+  generator: python-github-1
+  packages:
+    - lib_users:
+        desc: Checks /proc for libraries and files being mapped but marked as deleted
+        python_compat: python3+
+        license: GPL-2
+        restrict: test
+        github:
+          user: klausman
+          repo: lib_users
+          query: tags

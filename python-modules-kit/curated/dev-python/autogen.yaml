@@ -478,6 +478,12 @@ dev_python_compat_rule:
         pydeps:
           py:3:build:
             - hatch-vcs
+    - pyopenssl:
+        compat: '21.0.0'
+        pypi_name: pyOpenSSL
+        blocker: '!<dev-python/pyopenssl-22.0.0'
+        homepage: https://github.com/pyca/pyopenssl
+        license: Apache-2.0
     - pyrsistent:
         compat: '0.16.0'
         blocker: '!<dev-python/pyrsistent-0.16.0'
@@ -2308,8 +2314,6 @@ dev_python_autogen_rule:
     - ply:
         python_compat: python2+ pypy{,3}
     - pyelftools:
-        python_compat: python2+ pypy{,3}
-    - pyopenssl:
         python_compat: python2+ pypy{,3}
     - secretstorage:
         python_compat: python3+ pypy3

@@ -481,9 +481,11 @@ dev_python_compat_rule:
     - pyopenssl:
         compat: '21.0.0'
         pypi_name: pyOpenSSL
-        blocker: '!<dev-python/pyopenssl-22.0.0'
+        blocker: '!<=dev-python/pyopenssl-23.1.1'
         homepage: https://github.com/pyca/pyopenssl
         license: Apache-2.0
+        revision:
+          23.1.1: 1
     - pyrsistent:
         compat: '0.16.0'
         blocker: '!<dev-python/pyrsistent-0.16.0'

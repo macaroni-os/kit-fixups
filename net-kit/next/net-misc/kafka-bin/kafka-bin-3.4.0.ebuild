@@ -11,14 +11,14 @@ HOMEPAGE="http://kafka.apache.org/"
 SCALA_VERSION=2.13
 MY_PN="kafka"
 MY_P="${MY_PN}_${SCALA_VERSION}-${PV}"
-SRC_URI="mirror://apache/kafka/${PV}/${MY_P}.tgz"
+SRC_URI="https://archive.apache.org/dist/kafka/${PV}/${MY_P}.tgz"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
-IUSE="internal-zookeeper"
+KEYWORDS="*"
+IUSE="+internal-zookeeper"
 
-RDEPEND="virtual/jre:1.8"
+RDEPEND="virtual/jre:17"
 DEPEND="${RDEPEND}"
 
 S="${WORKDIR}/${MY_P}"

@@ -1671,6 +1671,8 @@ dev_python_simplified_rule:
         pydeps:
           use:kerberos:
             - pykerberos
+          py:all:
+            - dnspython
 
     - m2r:
         python_compat: python3+ pypy
@@ -1871,7 +1873,6 @@ dev_python_simplified_rule:
           - urllib3
           - certifi
     - shapely:
-        pypi_name: Shapely
         depend: ">=sci-libs/geos-3.5"
         pydeps:
           py:all:

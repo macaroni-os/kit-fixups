@@ -15,7 +15,7 @@ SRC_URI="https://dlcdn.apache.org/maven/maven-${MY_MV}/${PV}/binaries/${MY_P}-bi
 HOMEPAGE="https://maven.apache.org/"
 
 LICENSE="Apache-2.0"
-SLOT="3.8"
+SLOT="3.9"
 KEYWORDS="amd64 x86"
 
 DEPEND="

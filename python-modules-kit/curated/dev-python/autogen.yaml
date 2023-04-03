@@ -1671,8 +1671,6 @@ dev_python_simplified_rule:
         pydeps:
           use:kerberos:
             - pykerberos
-          py:all:
-            - dnspython
 
     - m2r:
         python_compat: python3+ pypy
@@ -2101,6 +2099,12 @@ pep517_compliance_rule:
             - packaging
             - pluggy
             - installer
+            - trove-classifiers
+    - trove-classifiers:
+        pydeps:
+          py:all:build:
+            - calver
+    - calver
     - hatch-vcs:
         pypi_name: hatch_vcs
         du_pep517: hatchling

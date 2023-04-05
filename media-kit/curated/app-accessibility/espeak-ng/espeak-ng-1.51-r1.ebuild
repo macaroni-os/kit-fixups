@@ -11,7 +11,7 @@ SRC_URI="https://github.com/espeak-ng/espeak-ng/archive/${PV}.tar.gz -> ${P}.tar
 LICENSE="GPL-3+ unicode"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+async +klatt l10n_ru l10n_zh man mbrola +sound"
+IUSE="+async +klatt l10n_ru l10n_zh mbrola +sound"
 
 COMMON_DEPEND="
 	!app-accessibility/espeak
@@ -24,7 +24,6 @@ RDEPEND="${COMMON_DEPEND}
 "
 BDEPEND="
 	virtual/pkgconfig
-	man? ( || ( app-text/ronn-ng app-text/ronn ) )
 "
 
 DOCS=( CHANGELOG.md README.md docs )

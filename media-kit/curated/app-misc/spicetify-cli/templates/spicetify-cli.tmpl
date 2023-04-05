@@ -17,16 +17,13 @@ LICENSE="Apache-2.0 BSD GPL-3 MIT"
 SLOT="0"
 KEYWORDS="*"
 IUSE="hook"
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 INSTALLDIR="/opt/${PN}"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-recognize_funtoo_install_path.patch"
 )
-
-post_src_unpack() {
-	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
-}
 
 src_compile() {
 	go build \

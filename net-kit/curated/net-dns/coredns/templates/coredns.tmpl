@@ -21,7 +21,13 @@ KEYWORDS="*"
 DEPEND=""
 RDEPEND="${DEPEND}"
 BDEPEND=">=dev-lang/go-1.17"
-S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
+
+src_unpack() {
+	go-module_src_unpack
+	GITCOMMIT=$(ls -1 ${WORKDIR}/ | cut -d- -f3)
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
 
 src_compile() {
 	CGO_ENABLE=0 go build -ldflags="-s -w -X github.com/coredns/coredns/coremain.GitCommit=${GITCOMMIT}" -o "${PN}" || die "compile failed"

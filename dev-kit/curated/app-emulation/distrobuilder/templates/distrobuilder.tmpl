@@ -17,6 +17,7 @@ SRC_URI="{{ src_uri }}"
 LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="*"
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 RDEPEND="
 	dev-util/debootstrap
@@ -27,10 +28,6 @@ RDEPEND="
 "
 
 CONFIG_CHECK="~OVERLAY_FS"
-
-post_src_unpack() {
-	mv ${WORKDIR}/{{github_user}}-* ${S} || die
-}
 
 src_compile() {
 	GOBIN="${S}/bin" go install ./... || die "compile failed"

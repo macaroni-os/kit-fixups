@@ -276,7 +276,9 @@ go-module_set_globals() {
 #	local go proxy.
 # - Otherwise do a normal unpack.
 go-module_src_unpack() {
-	if [[ "${#EGO_VENDOR[@]}" -gt 0 ]]; then
+	if [ "${A/${P}-funtoo-go-bundle-/}" != "${A}" ]; then
+		_go-module_src_unpack_funtoo_bundle
+	elif [[ "${#EGO_VENDOR[@]}" -gt 0 ]]; then
 		_go-module_src_unpack_vendor
 	elif [[ "${#EGO_SUM[@]}" -gt 0 ]]; then
 		_go-module_src_unpack_gosum
@@ -292,6 +294,36 @@ go-module_src_prepare() {
 	default
 }
 
+# @FUNCTION: _go-module_src_unpack_gosum
+# @DESCRIPTION:
+# Populate a GOPROXY directory hierarchy with distfiles from a Funtoo Go
+# bundle and unpack the base distfiles.
+#
+# Exports GOPROXY environment variable so that Go calls will source the
+# directory correctly.
+_go-module_src_unpack_funtoo_bundle() {
+	einfo "Using Funtoo Go Bundle..."
+
+	local goproxy_dir="${T}/go-proxy"
+	mkdir -p "${goproxy_dir}" || die
+
+	local f
+	local dep
+	local goproxy_mod_dir
+	local go_srcdir="${WORKDIR}"/funtoo-go-bundle-"${PN}"
+
+	unpack ${A}
+
+	for dep in "${go_srcdir}"/*; do
+		f="${dep#"${go_srcdir}/"}"
+		# Unescape slashes in filename to get the path in the goproxy directory
+		goproxy_mod_path="${f//\%2F//}"
+
+		_go-module_process_dependency "${f}" "${goproxy_mod_path}"
+	done
+
+	export GOPROXY="file://${goproxy_dir}"
+}
 
 # @FUNCTION: _go-module_src_unpack_gosum
 # @DESCRIPTION:
@@ -316,45 +348,43 @@ _go-module_src_unpack_gosum() {
 	# symlink into place.
 	local f
 	local goproxy_mod_dir
-	if [ "${A/${P}-funtoo-go-bundle-/}" != "${A}" ]; then
-		einfo "Using Funtoo Go Bundle..."
-		local go_srcdir=${WORKDIR}/funtoo-go-bundle-${PN}
-		unpack ${A}
-		for f in ${EGO_A}; do
-			goproxy_mod_path="${_GOMODULE_GOSUM_REVERSE_MAP["${f}"]}"
-			debug-print-function "Populating go proxy for ${goproxy_mod_path}"
-			# Build symlink hierarchy
-			goproxy_mod_dir=$( dirname "${goproxy_dir}"/"${goproxy_mod_path}" )
-			mkdir -p "${goproxy_mod_dir}" || die
-			ln -sf "${go_srcdir}"/"${f}" "${goproxy_dir}/${goproxy_mod_path}" ||
-				die "Failed to ln"
-			local v=${goproxy_mod_path}
-			v="${v%.mod}"
-			v="${v%.zip}"
-			v="${v//*\/}"
-			_go-module_gosum_synthesize_files "${goproxy_mod_dir}" "${v}"
-		done
-	else
-		for f in $A; do
-			goproxy_mod_path="${_GOMODULE_GOSUM_REVERSE_MAP["${f}"]}"
-			if [[ -n "${goproxy_mod_path}" ]]; then
-				debug-print-function "Populating go proxy for ${goproxy_mod_path}"
-				# Build symlink hierarchy
-				goproxy_mod_dir=$( dirname "${goproxy_dir}"/"${goproxy_mod_path}" )
-				mkdir -p "${goproxy_mod_dir}" || die
-				ln -sf "${DISTDIR}"/"${f}" "${goproxy_dir}/${goproxy_mod_path}" ||
-					die "Failed to ln"
-				local v=${goproxy_mod_path}
-				v="${v%.mod}"
-				v="${v%.zip}"
-				v="${v//*\/}"
-				_go-module_gosum_synthesize_files "${goproxy_mod_dir}" "${v}"
-			else
-				unpack "$f"
-			fi
-		done
-	fi
+	for f in $A; do
+		goproxy_mod_path="${_GOMODULE_GOSUM_REVERSE_MAP["${f}"]}"
+		_go-module_process_dependency "${f}" "${goproxy_mod_path}"
+	done
 	export GOPROXY="file://${goproxy_dir}"
+}
+
+# @FUNCTION: _go-module_process_dependency
+# @DESCRIPTION:
+# Symlinks a Go module into a target Goproxy directory.
+#
+# Requires `go_srcdir` and `goproxy_dir` to be set accordingly by the caller.
+_go-module_process_dependency() {
+	local f=$1
+	local goproxy_mod_path=$2
+
+	if [[ -n "${goproxy_mod_path}" ]]; then
+		debug-print-function "Populating go proxy for ${goproxy_mod_path}"
+
+		# Build symlink hierarchy
+		goproxy_mod_dir=$( dirname "${goproxy_dir}"/"${goproxy_mod_path}" )
+
+		mkdir -p "${goproxy_mod_dir}" || die
+
+		ln -sf "${go_srcdir}"/"${f}" "${goproxy_dir}/${goproxy_mod_path}" ||
+			die "Failed to ln"
+
+		local v=${goproxy_mod_path}
+
+		v="${v%.mod}"
+		v="${v%.zip}"
+		v="${v//*\/}"
+
+		_go-module_gosum_synthesize_files "${goproxy_mod_dir}" "${v}"
+	else
+		unpack "$f"
+	fi
 }
 
 # @FUNCTION: _go-module_gosum_synthesize_files
@@ -436,10 +466,6 @@ _go-module_src_unpack_vendor() {
 _go-module_src_prepare_verify_gosum() {
 	# shellcheck disable=SC2120
 	debug-print-function "${FUNCNAME}" "$@"
-
-	if [[ ! ${_GO_MODULE_SET_GLOBALS_CALLED} ]]; then
-		die "go-module_set_globals must be called in global scope"
-	fi
 
 	cd "${S}"
 

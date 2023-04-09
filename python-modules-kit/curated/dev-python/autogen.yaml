@@ -944,6 +944,13 @@ simple_python_autogen_rule:
             - setuptools
             # Due to unfortunate setup.py, there is a hard dep on testtools.
             - testtools >= 2.5.0-r1
+    - eyeD3:
+        python_compat: python3+ pypy3
+        desc: Python tool for working with audio files, specifically MP3 files containing ID3 metadata
+        license: GPL-3
+        pydeps:
+          py:all:
+            - deprecation
     - fetchcord:
         cat: net-im
         pypi_name: FetchCord

@@ -21,6 +21,8 @@ RDEPEND="
 	dev-python/ovs[${PYTHON_USEDEP}]
 	dev-python/twisted[conch,${PYTHON_USEDEP}]
 	dev-python/zope-interface[${PYTHON_USEDEP}]
+	net-dns/unbound
+	sys-libs/libunwind
 	debug? ( dev-lang/perl )"
 DEPEND="${RDEPEND}
 	sys-apps/util-linux[caps]"

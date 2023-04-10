@@ -102,7 +102,7 @@ IUSE_SANE_BACKENDS=(
 	xerox_mfp
 )
 
-IUSE="gphoto2 snmp systemd threads usb v4l xinetd +zeroconf"
+IUSE="gphoto2 nls snmp systemd threads +usb v4l xinetd +zeroconf"
 
 for GBACKEND in ${IUSE_SANE_BACKENDS[@]}; do
 	case ${GBACKEND} in
@@ -242,6 +242,7 @@ src_configure() {
 	myconf+=(
 		--enable-ipv6
 		--disable-locking
+		$(use_enable nls)
 		$(use_with gphoto2)
 		$(use_with systemd)
 		$(use_with v4l)

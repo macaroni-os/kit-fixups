@@ -1,63 +1,46 @@
-from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 async def generate(hub, **pkginfo):
-    # NOTE: Disable 3.9 for now that fail in compilation.
-    #       Arangodb requires gcc >=9.3 but 3.7 and 3.8
-    #       works.
-	supported_releases = {
-		#'3.9': '>=3.9,<3.10',
-		'3.8': '>=3.8,<3.9',
-		'3.7': '>=3.7,<3.8',
-	}
-	github_user = "arangodb"
-	github_repo = "arangodb"
-	json_list = await hub.pkgtools.fetch.get_page(
-		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
-	)
+    github_repo = github_user = "arangodb"
 
-	handled_releases=[]
+    json_list = await hub.pkgtools.fetch.get_page(
+        f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
+    )
 
-	for rel in json_list:
-		selectedVersion = None
-		version = rel["name"][1:]
+    # filter out versions that are words (e.g. "devel") and prereleases
+    releases = list(filter(
+        lambda v: not v.is_prerelease,
+        [Version(rel['name'][1:]) for rel in json_list if rel['name'][1:][0].isnumeric()]
+    ))
+    supported_releases = set([v.minor for v in releases])
+    handled_releases = []
+    for m in supported_releases:
+        # get the latest release in each minor release tree
+        handled_releases.append(max([v for v in releases if v.minor == m]))
 
-		# Drop garbage version (like vdevel)
-		if version[0:1] != "3":
-			continue
+    artifacts = []
+    for pv in handled_releases:
+        url=f"https://github.com/{github_repo}/{github_user}/archive/v{pv}.tar.gz"
+        fname=f"{github_repo}-v{pv}.tar.gz"
+        keywords="next"
+        if pv == min(handled_releases): keywords="*"
 
-		if len(supported_releases) == 0:
-			break
+        # 3.10 series dynamically tries to fetch 3rd party modules via git
+        # this sucks because some of those modules don't have tags, and the commit hash isn't specified
+        # so we'll just skip the 3.10 series and revisit after 3.8.x gets deprecated
+        if pv == max(handled_releases): keywords="-*"
 
-		v1 = Version(version)
-		for k, v in supported_releases.items():
-			selector = SpecifierSet(v)
-			if v1 in selector:
-				selectedVersion = k
-				break
+        ebuild = hub.pkgtools.ebuild.BreezyBuild(
+            **pkginfo,
+            version=pv,
+            github_user=github_user,
+            github_repo=github_repo,
+            keywords=keywords,
+            artifacts=[hub.pkgtools.ebuild.Artifact(
+                url=url,
+                final_name=fname,
+            )],
+        )
+        ebuild.push()
 
-		if selectedVersion:
-			handled_releases.append(version)
-			del supported_releases[k]
-			continue
-
-		# skip release if {version} contains prerelease string
-		skip = len(list(filter(lambda n: n > -1, map(lambda s: version.find(s), ["alpha", "beta", "rc"])))) > 0
-		if skip:
-			continue
-
-	artifacts = []
-	for pv in handled_releases:
-		url=f"https://github.com/{github_repo}/{github_user}/archive/v{pv}.tar.gz"
-		fname=f"{github_repo}-v{pv}.tar.gz"
-		ebuild = hub.pkgtools.ebuild.BreezyBuild(
-			**pkginfo,
-			version=pv,
-			github_user=github_user,
-			github_repo=github_repo,
-			artifacts=[hub.pkgtools.ebuild.Artifact(
-				url=url,
-				final_name=fname,
-			)],
-		)
-		ebuild.push()
+# vim:ts=4 sw=4

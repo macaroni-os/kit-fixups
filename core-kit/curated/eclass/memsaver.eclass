@@ -7,7 +7,7 @@
 #
 # MAINTAINERS: drobbins@funtoo.org adbosco@funtoo.org seemant@funtoo.org
 
-EXPORT_FUNCTIONS src_prepare
+EXPORT_FUNCTIONS src_prepare src_configure
 
 IUSE+="+memsaver"
 
@@ -40,12 +40,16 @@ memsaver_src_prepare() {
 			einfo "Using jobs setting of ${jobs} (limited by memory)"
 			jobs=${jobs}
 		fi
+		export MAKEOPTS="-j${jobs}"
 	else
 		jobs="$(makeopts_jobs)"
 		einfo "Using default Portage jobs setting."
+		if [ -z "${MAKEOPTS}" ]; then
+			export MAKEOPTS="-j${jobs}"
+		fi
 	fi
+}
 
-	if [ -z "${MAKEOPTS}" ]; then
-		MAKEOPTS="-j${jobs}"
-	fi
+memsaver_src_configure() {
+	memsaver_src_prepare
 }

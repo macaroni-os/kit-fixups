@@ -951,6 +951,7 @@ simple_python_autogen_rule:
         pydeps:
           py:all:
             - deprecation
+            - filetype
     - fetchcord:
         cat: net-im
         pypi_name: FetchCord
@@ -965,6 +966,10 @@ simple_python_autogen_rule:
           net-im/discord-bin
           app-misc/neofetch
           x11-apps/mesa-progs
+        python_compat: python3+
+    - filetype:
+        desc: Infer file type and MIME type checking the magic numbers signature of a file or buffer.
+        license: MIT
         python_compat: python3+
     - fonttools:
         desc: Library for manipulating TrueType, OpenType, AFM and Type1 fonts

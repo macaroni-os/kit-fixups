@@ -12,8 +12,9 @@ SRC_URI="{{ artifacts[0].src_uri }}"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+X bzip2 cpu_flags_x86_mmx cpu_flags_x86_sse2 debug doc +gif +jpeg mp3 +png +shm
-	static-libs +tiff +webp zlib"
+IUSE="bzip2 debug doc +gif heif +jpeg lzma mp3 +png postscript +shm static-libs svg
+	+tiff +truetype +webp +X zlib
+	cpu_flags_x86_mmx cpu_flags_x86_sse2"
 
 REQUIRED_USE="shm? ( X )"
 
@@ -21,9 +22,13 @@ RDEPEND="
 	media-libs/freetype:2[${MULTILIB_USEDEP}]
 	bzip2? ( app-arch/bzip2[${MULTILIB_USEDEP}] )
 	gif? ( media-libs/giflib:=[${MULTILIB_USEDEP}] )
+	heif? ( media-libs/libheif:=[${MULTILIB_USEDEP}] )
 	jpeg? ( virtual/jpeg:0=[${MULTILIB_USEDEP}] )
+	lzma? ( app-arch/xz-utils[${MULTILIB_USEDEP}] )
 	mp3? ( media-libs/libid3tag:=[${MULTILIB_USEDEP}] )
 	png? ( >=media-libs/libpng-1.6.10:0=[${MULTILIB_USEDEP}] )
+	postscript? ( app-text/libspectre[${MULTILIB_USEDEP}] )
+	svg? ( gnome-base/librsvg:=[${MULTILIB_USEDEP}] )
 	tiff? ( >=media-libs/tiff-4.0.4:0[${MULTILIB_USEDEP}] )
 	webp? ( media-libs/libwebp:=[${MULTILIB_USEDEP}] )
 	X? (
@@ -39,17 +44,22 @@ BDEPEND="virtual/pkgconfig"
 
 multilib_src_configure() {
 	local myeconfargs=(
-		$(use_with X x)
-		$(use_with bzip2)
 		$(use_enable debug)
+		$(use_enable static-libs static)
+		$(use_enable truetype text)
+		$(use_with bzip2 bz2)
 		$(use_with gif)
+		$(use_with heif)
 		$(use_with jpeg)
+		$(use_with lzma)
 		$(use_with mp3 id3)
 		$(use_with png)
+		$(use_with postscript ps)
 		$(use_with shm x-shm-fd)
-		$(use_enable static-libs static)
+		$(use_with svg)
 		$(use_with tiff)
 		$(use_with webp)
+		$(use_with X x)
 		$(use_with zlib)
 	)
 

@@ -22,6 +22,7 @@ RDEPEND="virtual/cron
 	dev-lang/perl
 	dev-perl/Date-Calc
 	dev-perl/Date-Manip
+	dev-perl/HTML-Parser
 	dev-perl/Tie-IxHash
 	dev-perl/Sys-CPU
 	dev-perl/Sys-MemInfo"

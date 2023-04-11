@@ -182,4 +182,43 @@ github_pythons:
             mv "${WORKDIR}"/CacheControl-* "${S}" || die
             rm -f "${S}"/tests/__init__.py
           }
+github_pythons_actual:
+  generator: python-github-1
+  defaults:
+    python_compat: python3+ pypy3
+  packages:
+    - python-xlib:
+        desc: A fully functional X client library for Python, written in Python
+        github:
+          query: releases
+        pydeps:
+          py:all:
+            - six
+          py:all:build:
+            - setuptools_scm
+            - packaging
+          use:test:
+            - mock
+        depend: |
+          doc? ( sys-apps/texinfo )
+        iuse: doc test
+        inherit:
+          - virtualx
+        license: LGPL-2+
+        body: |
+          python_compile_all() {
+            use doc && emake -C doc/info
+          }
 
+          src_test() {
+            virtx distutils-r1_src_test
+          }
+
+          python_test() {
+            "${EPYTHON}" -m unittest discover -v || die "Tests fail with ${EPYTHON}"
+          }
+
+          python_install_all() {
+            use doc && doinfo doc/info/*.info
+            distutils-r1_python_install_all
+          }

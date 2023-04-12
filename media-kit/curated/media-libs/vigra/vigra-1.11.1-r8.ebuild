@@ -1,80 +1,71 @@
-# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-MY_P="${P}-src"
-MY_V="${PV//\./-}"
-PYTHON_COMPAT=( python2_7 )
-PYTHON_REQ_USE="threads(+),xml"
-inherit cmake-utils python-r1
+PYTHON_COMPAT=( python3+ )
+PYTHON_REQ_USE="threads(+),xml(+)"
+inherit cmake flag-o-matic python-r1
 
 DESCRIPTION="C++ computer vision library emphasizing customizable algorithms and structures"
 HOMEPAGE="https://ukoethe.github.io/vigra/"
 
-if [[ ${PV} == *9999 ]] ; then
-	EGIT_REPO_URI="https://github.com/ukoethe/${PN}.git"
-	inherit git-r3
-else
-	SRC_URI="https://github.com/ukoethe/${PN}/releases/download/Version-${MY_V}/${MY_P}.tar.gz"
-	KEYWORDS="amd64 arm64 ~sparc x86 ~amd64-linux ~x86-linux ~sparc-solaris ~x64-solaris ~x86-solaris"
-fi
+SRC_URI="https://github.com/ukoethe/${PN}/releases/download/Version-${PV//\./-}/${P}-src.tar.gz"
+KEYWORDS="*"
 
 LICENSE="MIT"
 SLOT="0"
 IUSE="doc +fftw +hdf5 +jpeg mpi openexr +png +python test +tiff valgrind +zlib"
 
 REQUIRED_USE="
-	doc? ( hdf5 fftw )
 	python? ( hdf5 ${PYTHON_REQUIRED_USE} )
 	test? ( hdf5 python fftw )"
 
 BDEPEND="
-	doc? (
-		app-doc/doxygen
-		>=dev-python/sphinx-1.1.3-r5[${PYTHON_USEDEP}]
-	)
 	test? (
 		>=dev-python/nose-1.1.2-r1[${PYTHON_USEDEP}]
 		valgrind? ( dev-util/valgrind )
 	)
 "
-# runtime dependency on python:2.7 is required by the vigra-config script
+# runtime dependency on python is required by the vigra-config script
 DEPEND="
-	dev-lang/python:2.7
-	fftw? ( sci-libs/fftw:3.0 )
+	fftw? ( sci-libs/fftw:3.0= )
 	hdf5? ( >=sci-libs/hdf5-1.8.0:=[mpi=] )
-	jpeg? ( virtual/jpeg:0 )
+	jpeg? ( media-libs/libjpeg-turbo:= )
 	openexr? (
-		media-libs/openexr:=
-		|| (
-			dev-libs/imath:=
-			media-libs/ilmbase:=
-		)
+		>=dev-libs/imath-3.1.4-r2:=
+		>=media-libs/openexr-3:0=
 	)
 	png? ( media-libs/libpng:0= )
 	python? (
+		${PYTHON_DEPS}
 		dev-libs/boost:=[python?,${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
-		${PYTHON_DEPS}
 	)
-	tiff? ( media-libs/tiff:0= )
+	tiff? ( media-libs/tiff:= )
 	zlib? ( sys-libs/zlib )
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${PYTHON_DEPS}
+	${DEPEND}
+"
 
 # Severely broken, also disabled in Fedora, bugs #390447, #653442
 RESTRICT="test"
 
 PATCHES=(
+	# git master
 	"${FILESDIR}/${P}-fix-incorrect-template-parameter-type.patch"
+	"${FILESDIR}/${P}-boost-python.patch"
+	"${FILESDIR}/${P}-python3.7.patch" # bug 701208
+	"${FILESDIR}/${P}-gcc-10.patch" # bug 723302
+	# TODO: upstream
 	"${FILESDIR}/${P}-lib_suffix.patch"
+	"${FILESDIR}/${P}-cmake-module-dir.patch"
+	"${FILESDIR}/${P}-sphinx.ext.pngmath.patch" # thanks to Debian; bug 678308
+	"${FILESDIR}/${P}-openexr3.patch"
 )
 
 pkg_setup() {
-	if use python || use doc; then
-		python_setup
-	fi
+	use python && python_setup
 }
 
 src_prepare() {
@@ -85,11 +76,7 @@ src_prepare() {
 		fi
 	}
 
-	cmake-utils_src_prepare
-
-	if [[ ${PV} != *9999 ]]; then
-		rm -r doc || die "failed to remove shipped docs"
-	fi
+	cmake_src_prepare
 
 	vigra_disable fftw fftw3
 	vigra_disable fftw fftw3f
@@ -99,28 +86,36 @@ src_prepare() {
 	vigra_disable zlib
 
 	# Don't use python_fix_shebang because we can't put this behind USE="python"
-	sed -i -e '/env/s:python:python2:' config/vigra-config.in || die
+	sed -i -e '/env/s:python:python3:' config/vigra-config.in || die
+
+	use doc || cmake_comment_add_subdirectory docsrc
+
+	if ! use test; then
+		cmake_comment_add_subdirectory test
+		cmake_run_in vigranumpy cmake_comment_add_subdirectory test
+	fi
 }
 
 src_configure() {
+	# Needed for now ("fix" compatibility with >=sci-libs/hdf5-1.12)
+	# bug #808731
+	use hdf5 && append-cppflags -DH5_USE_110_API
+
 	vigra_configure() {
 		local mycmakeargs=(
 			-DAUTOEXEC_TESTS=OFF
-			-DDOCDIR="${BUILD_DIR}/doc"
-			-DDOCINSTALL="share/doc/${PF}"
+			-DDOCINSTALL="share/doc/${PF}/html"
 			-DWITH_HDF5=$(usex hdf5)
 			-DWITH_OPENEXR=$(usex openexr)
 			-DWITH_VALGRIND=$(usex valgrind)
 			-DWITH_VIGRANUMPY=$(usex python)
 		)
-		cmake-utils_src_configure
+		cmake_src_configure
 	}
 
 	if use python; then
 		python_foreach_impl vigra_configure
 	else
-		# required for docdir
-		_cmake_check_build_dir init
 		vigra_configure
 	fi
 }
@@ -128,7 +123,7 @@ src_configure() {
 src_compile() {
 	local VIGRA_BUILD_DIR
 	vigra_compile() {
-		cmake-utils_src_compile
+		cmake_src_compile
 		VIGRA_BUILD_DIR="${BUILD_DIR}"
 	}
 	if use python; then
@@ -136,27 +131,21 @@ src_compile() {
 	else
 		vigra_compile
 	fi
-
-	if use doc; then
-		einfo "Generating Documentation"
-		# use build dir from last compile command
-		VARTEXFONTS="${T}/fonts" BUILD_DIR="${VIGRA_BUILD_DIR}" cmake-utils_src_make doc
-	fi
 }
 
 src_install() {
 	if use python; then
-		python_foreach_impl cmake-utils_src_install
+		python_foreach_impl cmake_src_install
 		python_optimize
 	else
-		cmake-utils_src_install
+		cmake_src_install
 	fi
 }
 
 src_test() {
 	# perhaps disable tests (see #390447)
 	vigra_test() {
-		PYTHONPATH="${BUILD_DIR}/vigranumpy/vigra" cmake-utils_src_test
+		PYTHONPATH="${BUILD_DIR}/vigranumpy/vigra" cmake_src_test
 	}
 	if use python; then
 		python_foreach_impl vigra_test

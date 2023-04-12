@@ -1,0 +1,33 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="{{ description }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ artifacts[0].src_uri }}"
+
+LICENSE="GPL-2.0"
+SLOT="0"
+KEYWORDS="*"
+
+IUSE="debug emacs +history sloppy +xft +xrandr"
+
+RDEPEND="
+	history? ( sys-libs/readline:= )
+	xft? ( x11-libs/libXft )
+	xrandr? ( x11-libs/libXrandr )
+	x11-libs/libX11
+	x11-libs/libXtst
+	x11-libs/libXres
+"
+DEPEND="
+	${RDEPEND}
+	x11-base/xorg-proto
+"
+BDEPEND="virtual/pkgconfig"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}"
+	fi
+}

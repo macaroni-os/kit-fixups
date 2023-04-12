@@ -24,7 +24,7 @@ RDEPEND="
 	alsa? ( media-libs/alsa-lib )
 	jack? ( virtual/jack )
 	pulseaudio? ( media-sound/pulseaudio )
-	portaudio? ( media-sound/portaudio )
+	portaudio? ( media-libs/portaudio )
 	qt5? (
 		dev-qt/qtcore:5
 		dev-qt/qtgui:5

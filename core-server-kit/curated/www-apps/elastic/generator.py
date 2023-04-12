@@ -85,6 +85,7 @@ async def generate(hub, **pkginfo):
 
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
+			github_repo=github_repo,
 			version=version.public.replace('-', '_'),
 			major=major,
 			artifacts=dict(artifacts),

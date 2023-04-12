@@ -5,11 +5,12 @@ EAPI=7
 inherit systemd user
 
 MY_PN="${PN%-bin}"
-MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="Analytics and search dashboard for Elasticsearch"
 HOMEPAGE="https://www.elastic.co/products/kibana"
-{% if artifacts|length > 1 %}SRC_URI="{% for arch in artifacts %}
+{%- if artifacts|length > 1 %}
+SRC_URI="
+	{%- for arch in artifacts %}
 	{{ arch }}? ( {{ artifacts[arch].src_uri }} ){% endfor %}
 {% else %}SRC_URI="{% for arch in artifacts %}{{ artifacts[arch].src_uri }}{% endfor %}{% endif %}"
 
@@ -24,7 +25,7 @@ RDEPEND="
 	>=net-libs/nodejs-{{ nodejs.minimum }}
 	=net-libs/nodejs-{{ nodejs.series }}*
 	dev-libs/nss
-	{% if nodejs.series <= 12 %}dev-libs/expat{% endif %}
+	{%- if nodejs.series <= 12 %}dev-libs/expat{% endif %}
 "
 {% if nodejs.series > 12 %}
 # Do not complain about CFLAGS etc since we don't use them
@@ -36,7 +37,6 @@ QA_PRESTRIPPED="
 	opt/kibana/node_modules/re2/build/Release/re2.node
 "
 {% endif %}
-S="${WORKDIR}/${MY_P}"
 
 MY_FILESDIR="${REPODIR}/www-apps/elastic/files/${PN}"
 
@@ -47,7 +47,7 @@ pkg_setup() {
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
-		mv ${MY_P}* "${S}" || die
+		mv {{ github_repo }}-{{ version }} "${S}" || die
 	fi
 }
 
@@ -67,9 +67,6 @@ src_prepare() {
 	# move optimize, plugins to /var/lib/kibana
 	rm -r optimize plugins || die
 	{% endif %}
-	# handle node.js version with RDEPEND
-	sed -i /node_version_validator/d \
-		src/setup_node_env/{% if nodejs.series >= 14 %}no_transpilation_dist{% else %}index{% endif %}.js || die
 }
 
 src_install() {

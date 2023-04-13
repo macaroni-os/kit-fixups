@@ -1,0 +1,26 @@
+diff --git a/plugins/dool_mysql_keys.py b/plugins/dool_mysql_keys.py
+index 763e3cb..4b9f5ac 100644
+--- a/plugins/dool_mysql_keys.py
++++ b/plugins/dool_mysql_keys.py
+@@ -38,7 +38,7 @@ class dstat_plugin(dstat):
+             for name in self.vars: self.val[name] = -1
+ 
+         except Exception as e:
+-            if op.debug > 1: print('%s: exception' (self.filename, e))
++            if op.debug > 1: print('%s: exception' % (self.filename, e))
+             for name in self.vars: self.val[name] = -1
+ 
+ # vim:ts=4:sw=4:et
+diff --git a/plugins/dool_squid.py b/plugins/dool_squid.py
+index c864cf5..dae36dd 100644
+--- a/plugins/dool_squid.py
++++ b/plugins/dool_squid.py
+@@ -45,7 +45,7 @@ class dstat_plugin(dstat):
+             if op.debug > 1: print('%s: lost pipe to squidclient, %s' % (self.filename, e))
+             for name in self.vars: self.val[name] = -1
+         except Exception as e:
+-            if op.debug > 1: print('%s: exception' (self.filename, e))
++            if op.debug > 1: print('%s: exception' % (self.filename, e))
+             for name in self.vars: self.val[name] = -1
+ 
+ # vim:ts=4:sw=4:et

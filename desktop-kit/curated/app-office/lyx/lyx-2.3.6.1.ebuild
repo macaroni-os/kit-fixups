@@ -15,7 +15,7 @@ SRC_URI="ftp://ftp.lyx.org/pub/lyx/stable/2.3.x/${MY_P}.tar.xz
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="aspell cups debug dia dot enchant gnumeric html +hunspell +latex monolithic-build nls rcs rtf svg l10n_he"
+IUSE="aspell cups debug dia dot enchant gnumeric html +hunspell +latex monolithic-build nls ocaml perl rcs rtf svg l10n_he"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 BDEPEND="
@@ -54,10 +54,10 @@ RDEPEND="${PYTHON_DEPS}
 		dev-texlive/texlive-pictures
 		dev-texlive/texlive-plaingeneric
 		|| (
-			dev-tex/hevea
-			dev-tex/latex2html
-			dev-tex/tex4ht[java]
+			ocaml? ( dev-tex/hevea )
+			perl? ( dev-tex/latex2html )
 			dev-tex/tth
+			dev-tex/tex4ht[java]
 		)
 	)
 	rcs? ( dev-vcs/rcs )

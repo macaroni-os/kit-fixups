@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 
-import json
-
+from packaging.version import Version
 
 async def generate(hub, **pkginfo):
-	json_data = await hub.pkgtools.fetch.get_page("https://api.github.com/repos/keepassxreboot/keepassxc/releases")
-	json_dict = json.loads(json_data)
-	for r in json_dict:
-		if "prerelease" in r and r["prerelease"] is True:
-			continue
-		release = r
-		break
-	version = release["tag_name"]
-	url = f"https://github.com/keepassxreboot/keepassxc/releases/download/{version}/keepassxc-{version}-src.tar.xz"
+	github_user = "keepassxreboot"
+	github_repo = pkginfo["name"]
+
+	newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
+	version = Version(newpkginfo["version"])
+
+	if version.major > 2 and version.minor > 8:
+		botan = 3
+	else:
+		botan = 2
+
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo, version=version, artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
+		**pkginfo,
+		version=version,
+		botan=botan,
+		github_user=github_user,
+		github_repo=github_repo,
+		artifacts=newpkginfo["artifacts"],
 	)
 	ebuild.push()
 

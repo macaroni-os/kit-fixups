@@ -13,46 +13,46 @@ KEYWORDS="*"
 IUSE=""
 
 RDEPEND="sys-libs/zlib
->---media-libs/libpng:0="
+	media-libs/libpng:0="
 DEPEND="${RDEPEND}"
 
 DOCS=( AUTHORS.txt README.txt )
 
 src_prepare() {
->---rm -R src/{libpng,zlib} || die
->---find . -type d -name build -exec rm -R {} + || die
+	rm -R src/{libpng,zlib} || die
+	find . -type d -name build -exec rm -R {} + || die
 
->---# next release is almost a complete rewrite, so plug this compilation
->---# problem in anticipation of the much (c)leaner(?) rewrite
->---sed -i \
->--->----e 's/^#if defined AT_FDCWD/#if (defined(AT_FDCWD) \&\& !(defined(__SVR4) \&\& defined(__sun)))/' \
->--->---src/optipng/ioutil.c || die
+	# next release is almost a complete rewrite, so plug this compilation
+	# problem in anticipation of the much (c)leaner(?) rewrite
+	sed -i \
+		-e 's/^#if defined AT_FDCWD/#if (defined(AT_FDCWD) \&\& !(defined(__SVR4) \&\& defined(__sun)))/' \
+		src/optipng/ioutil.c || die
 
->---tc-export CC AR RANLIB
->---export LD="$(tc-getCC)"
+	tc-export CC AR RANLIB
+	export LD="$(tc-getCC)"
 
->---eapply_user
+	eapply_user
 }
 
 src_configure() {
->---./configure \
->--->----with-system-libpng \
->--->----with-system-zlib \
->--->---|| die "configure failed"
+	./configure \
+		-with-system-libpng \
+		-with-system-zlib \
+		|| die "configure failed"
 }
 
 src_compile() {
->---emake -C src/optipng
+	emake -C src/optipng
 }
 
 src_install() {
->---einstalldocs
+	einstalldocs
 
->---dodoc doc/*.txt
->---docinto html
->---dodoc doc/*.html
->---doman src/${PN}/man/${PN}.1
+	dodoc doc/*.txt
+	docinto html
+	dodoc doc/*.html
+	doman src/${PN}/man/${PN}.1
 
->---dobin src/${PN}/${PN}
+	dobin src/${PN}/${PN}
 }
 

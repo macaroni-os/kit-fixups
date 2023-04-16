@@ -251,6 +251,9 @@ unpack_makeself() {
 		XZ*)
 			"${exe[@]}" | unxz | tar --no-same-owner -xf -
 			;;
+		Zstandard*)
+			"${exe[@]}" | unzstd | tar --no-same-owner -xf -
+			;;
 		*)
 			eerror "Unknown filetype \"${filetype}\" ?"
 			false

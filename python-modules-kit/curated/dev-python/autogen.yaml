@@ -1137,6 +1137,11 @@ simple_python_autogen_rule:
               # Remove all bundled zoneinfo data:
               find "$D" -type d -name zoneinfo -exec rm -rf {} \; 2>/dev/null
           }
+    - setuptools_scm_git_archive:
+        python_compat: python3+
+        pydeps:
+          py:all:build:
+            - setuptools_scm
     - soupsieve:
         desc: A modern CSS selector implementation for BeautifulSoup
         homepage: https://github.com/facelessuser/soupsieve/ https://pypi.org/project/soupsieve/

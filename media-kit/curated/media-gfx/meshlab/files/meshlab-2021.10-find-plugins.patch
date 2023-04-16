@@ -1,0 +1,39 @@
+diff --git a/common/CMakeLists.txt b/common/CMakeLists.txt
+index aaae963..c7195d1 100644
+--- a/common/CMakeLists.txt
++++ b/common/CMakeLists.txt
+@@ -129,6 +129,12 @@ set(RESOURCES meshlab-common.qrc)
+ set(TARGET_TYPE SHARED)
+ add_library(meshlab-common ${TARGET_TYPE} ${SOURCES} ${HEADERS} ${RESOURCES})
+ 
++if(NOT WIN32 AND NOT APPLE)
++    target_compile_definitions(
++        meshlab-common PRIVATE MESHLAB_LIB_INSTALL_DIR="${MESHLAB_LIB_INSTALL_DIR}")
++endif()
++
++
+ target_compile_definitions(meshlab-common
+ 	PUBLIC
+ 		MESHLAB_VERSION=${MESHLAB_VERSION}
+diff --git a/common/globals.cpp b/common/globals.cpp
+index 1c31602..048ed8c 100644
+--- a/common/globals.cpp
++++ b/common/globals.cpp
+@@ -90,13 +90,17 @@ QString meshlab::defaultPluginPath()
+ #ifdef Q_OS_LINUX
+ 	else if (pluginsDir.dirName() == "bin") {
+ 		pluginsDir.cdUp();
++#ifdef MESHLAB_LIB_INSTALL_DIR
++		pluginsDir.cd(MESHLAB_LIB_INSTALL_DIR);
++#else
+ 		pluginsDir.cd("lib");
+ 		pluginsDir.cd("meshlab");
++#endif
+ 		if (pluginsDir.exists("plugins")) {
+ 			pluginsDir.cd("plugins");
+ 			return pluginsDir.absolutePath();
+ 		}
+ 	}
+ #endif
+ 	qDebug("Meshlab Initialization: Serious error. Unable to find the plugins directory.");
+ 	return {};

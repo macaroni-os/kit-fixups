@@ -112,7 +112,7 @@ src_install() {
 	doins -r linux-package/*
 	dobin linux-package/bin/kitty
 
-	fperms +x /usr/$(get_libdir)/kitty/shell-integration/ssh/{askpass.py,kitty}
+	fperms +x /usr/$(get_libdir)/kitty/shell-integration/ssh/kitty
 	fperms +x /usr/bin/kitten
 
 	python_fix_shebang "${ED}"

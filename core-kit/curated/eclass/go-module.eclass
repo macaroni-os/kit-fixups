@@ -288,7 +288,9 @@ go-module_src_unpack() {
 }
 
 go-module_src_prepare() {
-	_go-module_src_prepare_verify_gosum
+	if [ ${#EGO_SUM} != 0 ] || [ ${#GOPROXY} != 0 ]; then
+		_go-module_src_prepare_verify_gosum
+	fi
 	# See Funtoo Linux bug FL-6885,FL-9561 for why this is needed:
 	xdg_environment_reset
 	default

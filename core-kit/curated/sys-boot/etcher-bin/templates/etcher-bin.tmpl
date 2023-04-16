@@ -52,6 +52,9 @@ src_install() {
 
 	# correct permissions of install components
 	fperms 4755 "${MY_INSTALL_DIR}/chrome-sandbox" || die
+	if [ -f "${ED%/}${MY_INSTALL_DIR}"/chrome_crashpad_handler ]; then
+		fperms 4755 "${MY_INSTALL_DIR}"/chrome_crashpad_handler || die
+	fi
 	fperms a+x "${MY_INSTALL_DIR}/${MY_EXEC}" || die
 	fperms a+x "${MY_INSTALL_DIR}/${MY_EXEC}.bin" || die
 	pax-mark m "${MY_INSTALL_DIR}/${MY_EXEC}" || die

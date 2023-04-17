@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import traceback
+import yaml
+import sys
+
+try:
+    with open(sys.argv[1], "r") as f:
+        yaml.safe_load(f)
+except Exception as e:
+    ex_info = traceback.format_exc(limit=1).strip()
+    for line in ex_info.split("\n"):
+        print(f"   {line}")
+    exit(1)

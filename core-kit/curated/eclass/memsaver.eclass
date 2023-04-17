@@ -7,11 +7,11 @@
 #
 # MAINTAINERS: drobbins@funtoo.org adbosco@funtoo.org seemant@funtoo.org
 
-EXPORT_FUNCTIONS src_prepare src_configure
+EXPORT_FUNCTIONS src_configure
 
 IUSE+="+memsaver"
 
-memsaver_src_prepare() {
+memsaver_src_configure() {
 	if use memsaver; then
 		# set the default language so that we can parse the system properties consistently
 		export LANGUAGE=C.UTF-8
@@ -48,8 +48,4 @@ memsaver_src_prepare() {
 			export MAKEOPTS="-j${jobs}"
 		fi
 	fi
-}
-
-memsaver_src_configure() {
-	memsaver_src_prepare
 }

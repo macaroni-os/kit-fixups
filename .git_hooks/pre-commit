@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# TODO:
+# - autogens in same dir as Manifest
+# - Manifest with DIST entries
+#
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then

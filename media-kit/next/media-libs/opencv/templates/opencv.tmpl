@@ -231,7 +231,9 @@ post_src_unpack() {
 	if [ ! -d "${S}" ]; then
 		mv {{ github_user }}-{{ github_repo }}-* "${S}" || die
 	fi
-	mv {{ github_user }}-{{ github_repo }}_contrib-* {{ github_repo }}_contrib || die
+	if use contrib; then
+		mv {{ github_user }}-{{ github_repo }}_contrib-* {{ github_repo }}_contrib || die
+	fi
 }
 
 src_prepare() {

@@ -67,7 +67,6 @@ src_unpack() {
 src_prepare() {
 	default
 
-	sed -i 's/USBMUXD = -lusbmuxd/USBMUXD = -lusbmuxd-2.0/g' Makefile
 	# Fix libturbojpeg location
 	sed -i \
 		-e 's/libturbojpeg.a/libturbojpeg.so/g' \

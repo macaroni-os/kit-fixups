@@ -41,4 +41,5 @@ src_configure() {
 src_install() {
 	default
 	find "${D}" -name '*.la' -type f -delete || die
+	cp "${ED}"/usr/lib64/pkgconfig/${PN}-*.pc "${ED}"/usr/lib64/pkgconfig/${PN}.pc
 }

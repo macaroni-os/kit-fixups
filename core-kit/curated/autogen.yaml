@@ -20,6 +20,13 @@ github_rule:
           user: zlib-ng
           repo: zlib-ng
           query: releases
+    - bindfs:
+        cat: sys-fs
+        github:
+          user: mpartel
+          repo: bindfs
+          query: tags
+
 
 debian_rule:
   generator: debian

@@ -1609,6 +1609,14 @@ testing_deps_rule:
         pydeps:
           py:all:build:
             - setuptools_scm
+            - hatch-vcs
+        body: |
+          src_prepare() {
+            # fix license in pyproject.toml
+            sed -i -e 's/license = "MIT"/license = { text = "MIT" }/g' pyproject.toml || die
+
+            distutils-r1_src_prepare
+          }
     - pluggy:
         compat: 0.9.0
         blocker: '!<=dev-python/pluggy-1.0.0'

@@ -20,6 +20,12 @@ RDEPEND="
 	${COMMON_DEPEND}
 "
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}-* "${S}" || die
+	fi
+}
+
 src_configure() {
 	local myeconfargs=(
 		--dbdir="${EPREFIX}/var/lib/dhcpcd"
@@ -142,3 +148,5 @@ pkg_postinst() {
 		elog "using the dns, you need to install net-dns/bind-tools."
 	fi
 }
+
+# vim:ts=4 sw=4 noet

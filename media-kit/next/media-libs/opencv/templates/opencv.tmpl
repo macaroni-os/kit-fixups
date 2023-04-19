@@ -5,7 +5,7 @@ EAPI=7
 PYTHON_COMPAT=( python3+ )
 
 : ${CMAKE_MAKEFILE_GENERATOR:=ninja}
-inherit java-pkg-opt-2 java-ant-2 python-r1 toolchain-funcs cmake-multilib
+inherit python-r1 toolchain-funcs cmake-multilib
 
 DESCRIPTION="A collection of algorithms and sample code for various computer vision problems"
 HOMEPAGE="https://opencv.org"
@@ -26,7 +26,6 @@ REQUIRED_USE="
 	cuda? ( tesseract? ( opencl ) )
 	gflags? ( contrib )
 	glog? ( contrib )
-	java? ( python )
 	opengl? ( || ( gtk qt5 ) )
 	python? ( ${PYTHON_REQUIRED_USE} )
 	tesseract? ( contrib )"
@@ -62,7 +61,6 @@ RDEPEND="
 		media-libs/libdc1394[${MULTILIB_USEDEP}]
 		sys-libs/libraw1394[${MULTILIB_USEDEP}]
 	)
-	java? ( >=virtual/jre-1.6:* )
 	jpeg? ( virtual/jpeg:0[${MULTILIB_USEDEP}] )
 	lapack? ( virtual/lapack )
 	opencl? ( virtual/opencl[${MULTILIB_USEDEP}] )
@@ -92,7 +90,6 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig[${MULTILIB_USEDEP}]
 	media-libs/harfbuzz
 	eigen? ( dev-cpp/eigen:3 )
-	java?  ( >=virtual/jdk-1.6 )
 	vaapi?  ( x11-libs/libva )"
 
 MULTILIB_WRAPPED_HEADERS=(
@@ -223,7 +220,6 @@ pkg_pretend() {
 
 pkg_setup() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
-	java-pkg-opt-2_pkg_setup
 }
 
 
@@ -250,14 +246,6 @@ src_prepare() {
 	if use examples; then
 		sed -i 's/\(opencv_dnn\)/\1\n  opencv_gapi/' samples/cpp/CMakeLists.txt  || die
 	fi
-
-	java-pkg-opt-2_src_prepare
-
-	# this really belongs in src_prepare() too
-	JAVA_ANT_ENCODING="iso-8859-1"
-	# set encoding so even this cmake build will pick it up.
-	export ANT_OPTS+=" -Dfile.encoding=iso-8859-1"
-	java-ant-2_src_configure
 }
 
 multilib_src_configure() {
@@ -334,7 +322,7 @@ multilib_src_configure() {
 	# OpenCV build components
 	# ===================================================
 		-DBUILD_SHARED_LIBS=ON
-		-DBUILD_JAVA=$(multilib_native_usex java) # Ant needed, no compile flag
+		-DBUILD_JAVA=OFF
 		-DBUILD_ANDROID_EXAMPLES=OFF
 		-DBUILD_opencv_apps=
 		-DBUILD_DOCS=OFF # Doesn't install anyways.
@@ -344,7 +332,7 @@ multilib_src_configure() {
 		-DBUILD_WITH_DEBUG_INFO=$(usex debug)
 	#	-DBUILD_WITH_STATIC_CRT=OFF
 		-DBUILD_WITH_DYNAMIC_IPP=OFF
-		-DBUILD_FAT_JAVA_LIB=$(multilib_native_usex java)
+		-DBUILD_FAT_JAVA_LIB=OFF
 	#	-DBUILD_ANDROID_SERVICE=OFF
 		-DBUILD_CUDA_STUBS=$(multilib_native_usex cuda)
 		-DOPENCV_EXTRA_MODULES_PATH=$(usex contrib "${WORKDIR}/opencv_contrib/modules" "")
@@ -369,7 +357,7 @@ multilib_src_configure() {
 		-DENABLE_PROFILING=OFF
 		-DENABLE_COVERAGE=OFF
 
-		-DHAVE_opencv_java=$(multilib_native_usex java YES NO)
+		-DHAVE_opencv_java=NO
 		-DENABLE_NOISY_WARNINGS=OFF
 		-DOPENCV_WARNINGS_ARE_ERRORS=OFF
 		-DENABLE_IMPL_COLLECTION=OFF

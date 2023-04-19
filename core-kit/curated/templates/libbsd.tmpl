@@ -12,7 +12,7 @@ KEYWORDS="*"
 IUSE="static-libs"
 
 RDEPEND="
-	app-crypt/libmd
+	app-crypt/libmd[static-libs(+)]
 "
 DEPEND="${RDEPEND}
 	>=sys-kernel/linux-headers-3.17

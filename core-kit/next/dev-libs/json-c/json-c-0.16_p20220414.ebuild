@@ -6,11 +6,11 @@ inherit cmake
 
 DESCRIPTION="A JSON implementation in C"
 HOMEPAGE="https://github.com/json-c/json-c/wiki"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="https://github.com/json-c/json-c/tarball/2f2ddc1f2dbca56c874e8f9c31b5b963202d80e7 -> json-c-0.16-2f2ddc1.tar.gz"
 
 KEYWORDS="*"
 
-SLOT="0/{{ subslot }}"
+SLOT="0/5"
 IUSE="cpu_flags_x86_rdrand doc static-libs threads"
 
 BDEPEND="doc? ( >=app-doc/doxygen-1.8.13 )
@@ -24,7 +24,7 @@ BDEPEND="doc? ( >=app-doc/doxygen-1.8.13 )
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
-		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+		mv json-c-json-c* "${S}" || die
 	fi
 }
 

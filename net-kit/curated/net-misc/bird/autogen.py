@@ -3,7 +3,7 @@
 import re
 
 # We have seen a new "3.0-alpha0" tag -- so this may be changing:
-v_pattern="v([0-9.]+)"
+v_pattern="^v([0-9.]+)$"
 
 async def generate(hub, **pkginfo):
 	project_id = "6"

@@ -75,8 +75,7 @@ src_install() {
 	dodir "${dest}"
 	cp -pPR * "${ddest}" || die
 	
-	# temporal disabling creation of the symlink as the symlink has the same name as the folder to link for this particular version
-	#dosym "${P}" "/opt/${PN}-${SLOT}"
+	dosym "${P}" "/opt/${PN}-${SLOT}"
 	
 	dodir "${djavaconfig}" 
 

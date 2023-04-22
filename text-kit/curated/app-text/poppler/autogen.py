@@ -1,63 +1,61 @@
 #!/usr/bin/env python3
 
-import json
-import re
+from bs4 import BeautifulSoup
+from packaging.version import Version
 import glob
-import os
-from enum import Enum
+import os.path
+import re
 
-github_user = "freedesktop"
-github_repo = "poppler"
-
-STABLE_VERSION = "22.04.0"
+masked_above = "23.04.0" # if required by inkscape
+masked_above = None
 
 async def generate(hub, **pkginfo):
-	matcher = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.TagVersionMatch.GRABBY)
-	tags = await hub.pkgtools.fetch.get_page(f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True)
-	latest, tag_data = await hub.pkgtools.github.latest_tag_version(hub, github_user, github_repo, tags, matcher=matcher)
+    user = repo = pkginfo["name"]
+    project_path = f"{user}%2F{repo}"
+    info_url = f"https://gitlab.freedesktop.org/api/v4/projects/{project_path}/repository/tags"
+    download_url = f"https://gitlab.freedesktop.org/{user}/{repo}/-/archive"
 
-	# Generate an ebuild for the stable version
-	await generate_ebuild(hub, tags, stable=True, matcher=matcher, **pkginfo)
+    tag_dict = await hub.pkgtools.fetch.get_page(info_url, is_json=True)
+    tags = [tag["name"].split('-')[1] for tag in tag_dict]
 
-	# Now, generate an ebuild for the latest version
-	if latest != STABLE_VERSION:
-		await generate_ebuild(hub, tags, stable=False, matcher=matcher, **pkginfo)
+    frozen = None
+    fixed = True
 
+    if masked_above and tags[0] != masked_above:
+        frozen = [v for v in tags if v == masked_above]
+        fixed = False
 
-async def generate_ebuild(hub, tags, stable=True, matcher=None, **pkginfo):
-	select = None
-	if stable:
-		select = f"poppler-{STABLE_VERSION}"
+    for tag in [frozen, tags]:
+        if not tag: continue
 
-	newpkginfo = await hub.pkgtools.github.tag_gen(
-		hub,
-		github_user,
-		github_repo,
-		tag_data=tags,
-		select=select,
-		matcher=matcher
-	)
-	if newpkginfo is None:
-		hub.pkgtools.model.log.warning(f"No poppler version found: {select}")
-		return
-	pkginfo.update(newpkginfo)
+        version = tag[0]
 
-	artifact = pkginfo["artifacts"][0]
-	await artifact.fetch()
-	artifact.extract()
-	# needed for subslot changes in the future
-	cmake_file = open(
-		glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", "CMakeLists.txt"))[0]
-	).read()
-	soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
-	subslot = soversion.group(1)
-	template_args = dict(github_user=github_user, github_repo=github_repo, subslot=subslot, stable=stable)
-	artifact.cleanup()
+        # If there are multiple ebuilds being generated only the fixed version is marked as stable
+        stable = fixed or (version == masked_above)
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		**template_args,
-	)
-	ebuild.push()
+        package = f"{user}-{repo}-{version}"
 
-# vim: ts=4 sw=4 noet
+        artifact = hub.pkgtools.ebuild.Artifact(url=f"{download_url}/{repo}-{version}/{package}.tar.bz2")
+
+        # Find the soname
+        await artifact.fetch()
+        artifact.extract()
+        cmake_file = open(
+           glob.glob(os.path.join(artifact.extract_path, f"{package}", "CMakeLists.txt"))[0]
+        ).read()
+        soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
+        subslot = soversion.group(1)
+        artifact.cleanup()
+
+        ebuild = hub.pkgtools.ebuild.BreezyBuild(
+            **pkginfo,
+            version=version,
+            subslot=subslot,
+            gitlab_user=user,
+            gitlab_repo=repo,
+            artifacts=[artifact],
+            stable=stable
+        )
+        ebuild.push()
+
+# vim:ts=4 sw=4 noet

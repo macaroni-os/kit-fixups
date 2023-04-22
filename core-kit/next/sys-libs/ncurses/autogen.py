@@ -27,7 +27,8 @@ async def generate(hub, **pkginfo):
     html = await hub.pkgtools.fetch.get_page(patches_url)
     soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
 
-    patches = [(Version(re.findall(regex, a.get('href'))[0]), a.get('href')) for a in soup if re.findall(regex, a.contents[0]) and not 'asc' in a.get('href')]
+    # Ignore the first patch, as that one is to upgrade from the previous major.minor version to this one
+    patches = [(Version(re.findall(regex, a.get('href'))[0]), a.get('href')) for a in soup if re.findall(regex, a.contents[0]) and not 'asc' in a.get('href')][1:]
 
     # Find the newest patch
     newest = max(patches)[0]

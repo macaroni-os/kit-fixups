@@ -25,15 +25,36 @@ async def generate(hub, **pkginfo):
 		else:
 			pkginfo["version"] = pkgver
 
-	artifact = pkginfo['artifacts'][0]
-	await artifact.fetch()
-	artifact.extract()
+	# "subslot: True" just means that we want to subslot
+	if pkginfo['subslot'] == True:
 
-	cmake_file = open(
-		glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", "CMakeLists.txt"))[0]).read()
-	soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
-	pkginfo['subslot'] = soversion.group(1)
-	artifact.cleanup()
+		artifact = pkginfo['artifacts'][0]
+		await artifact.ensure_fetched()
+		artifact.extract()
+
+		found_cmake = glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", "CMakeLists.txt"))
+		if found_cmake:
+			cmake_file = open(found_cmake[0]).read()
+			soversion = re.search("SOVERSION\s*([0-9]+)", cmake_file)
+		else:
+			# For versions that use autotools instead of CMake
+			found_makefile_am = glob.glob(os.path.join(artifact.extract_path, f"{github_user}-{github_repo}-*", "Makefile.am"))
+			if found_makefile_am:
+				makefile_am = open(found_makefile_am[0]).read()
+				soversion = re.search("libjson_c_la_LDFLAGS\s*=\s*-version-info\s*([0-9]+)", makefile_am)
+			else:
+				soversion = None
+
+		artifact.cleanup()
+
+
+		if soversion is not None:
+			pkginfo['slot'] = f'0/{soversion.group(1)}'
+		else:
+			hub.pkgtools.model.log.warning(f'Cannot determine the SONAME. Setting subslot to "0".')
+			pkginfo['slot'] = "0/0"
+	else:
+		pkginfo['slot'] = "0"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

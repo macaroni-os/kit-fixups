@@ -15,7 +15,7 @@ DESCRIPTION="PostgreSQL RDBMS"
 HOMEPAGE="https://www.postgresql.org/"
 SRC_URI="{{artifacts[0].src_uri}}"
 
-IUSE="debug doc icu kerberos ldap{% if slot > 10 %} llvm{% endif %}{% if slot > 13 %} lz4{% endif%} nls pam
+IUSE="debug doc icu kerberos ldap llvm{% if slot > 13 %} lz4{% endif%} nls pam
 	perl python +readline selinux +server ssl static-libs tcl
 	threads uuid xml zlib"
 
@@ -28,12 +28,10 @@ virtual/libintl
 icu? ( dev-libs/icu:= )
 kerberos? ( virtual/krb5 )
 ldap? ( net-nds/openldap:= )
-{%- if slot > 10 %}
 llvm? (
 	sys-devel/llvm:=
 	sys-devel/clang:=
 )
-{%- endif %}
 {%- if slot > 13 %}
 lz4? ( app-arch/lz4 )
 {%- endif %}
@@ -148,7 +146,7 @@ src_configure() {
 		$(use_with icu)
 		$(use_with kerberos gssapi)
 		$(use_with ldap)
-		{% if slot > 10 %}$(use_with llvm){% endif %}
+		$(use_with llvm)
 		{% if slot > 13 %}$(use_with lz4){% endif %}
 		$(use_with pam)
 		$(use_with perl)

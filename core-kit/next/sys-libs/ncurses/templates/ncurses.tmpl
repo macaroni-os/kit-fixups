@@ -29,9 +29,8 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
-    # Intermediate commenting out the application of upstream patches. See https://bugs.funtoo.org/browse/FL-10888
-	#{% for patch in patches %}"${WORKDIR}"/{{ patch }}
-	#{% endfor %}
+	{% for patch in patches %}"${WORKDIR}"/{{ patch }}
+	{% endfor %}
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
 	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"

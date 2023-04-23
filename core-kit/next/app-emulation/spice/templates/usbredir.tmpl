@@ -4,8 +4,6 @@ EAPI=7
 
 inherit flag-o-matic meson
 
-MY_PV=${PV/_p*/}
-
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://www.spice-space.org/usbredir.html"
 SRC_URI="{{artifacts[0].src_uri}}"
@@ -23,6 +21,6 @@ DOCS="README* TODO *.txt"
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
-		mv "${WORKDIR}"/{{github_user}}-{{github_repo}}* "${S}" || die
+		mv "${WORKDIR}"/{{gitlab_user}}-{{gitlab_repo}}* "${S}" || die
 	fi
 }

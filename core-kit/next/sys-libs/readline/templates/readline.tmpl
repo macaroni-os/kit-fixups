@@ -2,54 +2,46 @@
 
 EAPI=7
 
-VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/chetramey.asc
 inherit flag-o-matic multilib multilib-minimal preserve-libs toolchain-funcs usr-ldscript
 
-MY_P=${PN}-${PV/_/-}
-S="${WORKDIR}"/${MY_P}
+S="${WORKDIR}"/${PN}-{{ base_version }}
 DESCRIPTION="Another cute console display library"
 HOMEPAGE="https://tiswww.case.edu/php/chet/readline/rltop.html"
-SRC_URI="{{ artifacts[0].src_uri }}"
-
+SRC_URI="{%- for artifact in artifacts %}
+	{{ artifact.src_uri }}
+{%- endfor %}
+"
 
 LICENSE="GPL-3"
 SLOT="0/{{ soname }}"  # subslot matches SONAME major
-KEYWORDS="{% if stable %}*{% endif %}"
+KEYWORDS="*"
 IUSE="static-libs +unicode utils"
 
 RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
+UPSTREAM_PATCHES=(
+	{% for patch in patches %}"${DISTDIR}"/{{ patch }}
+	{%- endfor %}
+)
+
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.0-no_rpath.patch
 	"${FILESDIR}"/${PN}-6.2-rlfe-tgoto.patch #385091
 	"${FILESDIR}"/${PN}-7.0-headers.patch
 	"${FILESDIR}"/${PN}-8.0-headers.patch
-	{% if stable %}"${FILESDIR}"/${PN}-8.0-darwin-shlib-versioning.patch{% endif %}
-	{% if stable %}"${FILESDIR}"/${PN}-8.1-windows-signals.patch{% endif %}
 )
 
+
 src_prepare() {
+	eapply -p0 "${UPSTREAM_PATCHES[@]}"
+
 	default
 
-	if use prefix && [[ ! -x "${BROOT}"/usr/bin/pkg-config ]] ; then
-		# If we're bootstrapping, make a guess. We don't have pkg-config
-		# around yet. bug #818103.
-		# Incorrectly populating this leads to underlinked libreadline.
-		local ncurses_libs
-		local ncurses_libs_suffix=$(usex unicode w '')
-
-		ncurses_libs="-lncurses${ncurses_libs_suffix}"
-
-		if has_version "sys-libs/ncurses[tinfo(+)]" ; then
-			ncurses_libs+=" -ltinfo${ncurses_libs_suffix}"
-		fi
-	else
-		# Force ncurses linking. #71420
-		# Use pkg-config to get the right values. #457558
-		local ncurses_libs=$($(tc-getPKG_CONFIG) ncurses$(usex unicode w '') --libs)
-	fi
+	# Force ncurses linking. #71420
+	# Use pkg-config to get the right values. #457558
+	local ncurses_libs=$($(tc-getPKG_CONFIG) ncurses$(usex unicode w '') --libs)
 
 	sed -i \
 		-e "/^SHLIB_LIBS=/s:=.*:='${ncurses_libs}':" \
@@ -57,10 +49,6 @@ src_prepare() {
 	sed -i \
 		-e "/^[[:space:]]*LIBS=.-lncurses/s:-lncurses:${ncurses_libs}:" \
 		examples/rlfe/configure || die
-
-	# fix building under Funtoo/FreeBSD; upstream FreeBSD deprecated
-	# objformat for years, so we don't want to rely on that.
-	sed -i -e '/objformat/s:if .*; then:if true; then:' support/shobj-conf || die
 
 	ln -s ../.. examples/rlfe/readline || die # for local readline headers
 }

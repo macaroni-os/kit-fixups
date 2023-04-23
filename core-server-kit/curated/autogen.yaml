@@ -50,7 +50,7 @@ pecl-kit:
     - pecl-http:
         template: pecl/pecl-http.tmpl
         github:
-          user:  m6w6
+          user: m6w6
           repo: ext-http
           query: tags
     - pecl-imagick:
@@ -96,6 +96,16 @@ pecl-kit:
           user: amishmm
           repo: php-pam
           query: tags
+    - pecl-raphf:
+        template: pecl/pecl-raphf.tmpl
+        github:
+          user: m6w6
+          repo: ext-raphf
+          query: tags
+          transform:
+          - kind: string
+            match: release-
+            replace: ''
     - pecl-radius:
         template: pecl/pecl-radius.tmpl
         github:

@@ -1017,6 +1017,15 @@ simple_python_autogen_rule:
             echo "SFTP support dev-python/paramiko"
             echo "Browser support dev-python/wxpython"
           }
+    - gi-docgen:
+        cat: dev-util
+        desc: A documentation generator for GObject-based libraries
+        homepage: https://gitlab.gnome.org/GNOME/gi-docgen
+        license: "|| ( Apache-2.0 GPL-3+ ) CC0-1.0 OFL-1.1 MIT GPL-3+ LGPL-2 MIT MPL-1.1 CC-By-SA-3"
+        python_compat: python3+
+        pydeps:
+          - markdown
+          - typogrify
     - khal:
         cat: app-misc
         desc: A CalDAV based calendar
@@ -1175,6 +1184,13 @@ simple_python_autogen_rule:
           py:all:build:
             - setuptools
             - setuptools_scm
+    - typogrify:
+        python_compat: python3+
+        homepage: https://github.com/mintchaos/typogrify/
+        desc: Filters for web typography, supporting Django & Jinja templates
+        license: BSD
+        pydeps:
+          - smartypants
     - ufoLib:
         pypi_name: ufoLib2
         desc: A UFO font library

@@ -15,18 +15,18 @@ KEYWORDS="*"
 CRYPTO_BACKENDS="gcrypt kernel nettle +openssl"
 # we don't support nss since it doesn't allow cryptsetup to be built statically
 # and it's missing ripemd160 support so it can't provide full backward compatibility
-IUSE="${CRYPTO_BACKENDS} +argon2 fips nls pwquality reencrypt ssh static static-libs test +udev urandom"
+IUSE="${CRYPTO_BACKENDS} doc fips nls pwquality +reencrypt ssh static static-libs test +udev urandom"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="^^ ( ${CRYPTO_BACKENDS//+/} )
-	static? ( !gcrypt !ssh !fips )
+	static? ( !gcrypt !openssl !udev !fips )
 	fips? ( !kernel !nettle )
-" # 496612, 832711, 843863
+" # 496612, 832711, 843863. See FL-10620 about static vs udev.
 
 LIB_DEPEND="
-	dev-libs/json-c:=[static-libs(+)]
+	>=dev-libs/json-c-0.16_p20220414:=[static-libs(+)]
 	dev-libs/popt[static-libs(+)]
 	>=sys-apps/util-linux-2.31-r1[static-libs(+)]
-	argon2? ( app-crypt/argon2:=[static-libs(+)] )
+	app-crypt/argon2:=[static-libs(+)]
 	gcrypt? (
 		dev-libs/libgcrypt:0=[static-libs(+)]
 		dev-libs/libgpg-error[static-libs(+)]
@@ -44,7 +44,7 @@ RDEPEND="static-libs? ( ${LIB_DEPEND} )
 	udev? ( virtual/libudev:= )"
 # vim-core needed for xxd in tests
 DEPEND="${RDEPEND}
-	app-text/asciidoctor
+	doc? ( app-text/asciidoctor )
 	static? ( ${LIB_DEPEND} )
 	test? ( app-editors/vim-core )"
 BDEPEND="
@@ -82,24 +82,23 @@ src_configure() {
 	fi
 
 	local myeconfargs=(
-		--disable-internal-argon2
+		--enable-libargon2
 		--enable-shared
 		--sbindir="${EPREFIX}"/sbin
 		# for later use
 		--with-default-luks-format=LUKS2
 		--with-tmpfilesdir="${EPREFIX}/usr/lib/tmpfiles.d"
 		--with-crypto_backend=$(for x in ${CRYPTO_BACKENDS//+/} ; do usev ${x} ; done)
-		$(use_enable argon2 libargon2)
+		$(use_enable doc asciidoc)
+		$(use_enable udev)
 		$(use_enable nls)
 		$(use_enable pwquality)
-		$(use_enable reencrypt cryptsetup-reencrypt)
+		$(usex reencrypt '' '--disable-luks2-reencrypt')
 		$(use_enable !static external-tokens)
 		$(use_enable static static-cryptsetup)
 		$(use_enable static-libs static)
-		$(use_enable udev)
 		$(use_enable !urandom dev-random)
 		$(use_enable ssh ssh-token)
-		$(usex argon2 '' '--with-luks2-pbkdf=pbkdf2')
 		$(use_enable fips)
 	)
 	econf "${myeconfargs[@]}"
@@ -126,12 +125,6 @@ src_install() {
 		mv "${ED}"/sbin/cryptsetup{.static,} || die
 		mv "${ED}"/sbin/veritysetup{.static,} || die
 		mv "${ED}"/sbin/integritysetup{.static,} || die
-		if use ssh ; then
-			mv "${ED}"/sbin/cryptsetup-ssh{.static,} || die
-		fi
-		if use reencrypt ; then
-			mv "${ED}"/sbin/cryptsetup-reencrypt{.static,} || die
-		fi
 	fi
 	find "${ED}" -type f -name "*.la" -delete || die
 

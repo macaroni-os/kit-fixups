@@ -93,7 +93,7 @@ src_install() {
 	cmake-utils_src_install
 	use doc && HTML_DOCS=( "${BUILD_DIR}"/doc/html/. )
 
-	use static-libs && dolib.a src/libssh.a
+	use static-libs && dolib.a "${BUILD_DIR}"/src/libssh.a
 
 	# compatibility symlink until all consumers have been updated
 	# to no longer use libssh_threads.so

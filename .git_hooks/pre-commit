@@ -5,6 +5,7 @@
 # - Manifest with DIST entries
 #
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 if git rev-parse --verify HEAD >/dev/null 2>&1
 then
 	against=HEAD
@@ -19,39 +20,30 @@ allownonascii=$(git config --type=bool hooks.allownonascii)
 # Redirect output to stderr.
 exec 1>&2
 
-# Cross platform projects tend to avoid non-ASCII filenames; prevent
-# them from being added to the repository. We exploit the fact that the
-# printable range starts at the space character and ends with tilde.
-if [ "$allownonascii" != "true" ] &&
-	# Note that the use of brackets around a tr range is ok here, (it's
-	# even required, for portability to Solaris 10's /usr/bin/tr), since
-	# the square bracket bytes happen to fall in the designated range.
-	test $(git diff --cached --name-only --diff-filter=A -z $against |
-	  LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
-then
-	cat <<\EOF
-Error: Attempt to add a non-ASCII file name.
-
-This can cause problems if you want to work with people on other platforms.
-
-To be portable it is advisable to rename the file.
-
-If you know what you are doing you can disable this check using:
-
-  git config hooks.allownonascii true
-EOF
-	exit 1
-fi
 errors=0
 cyan="\e[1;36m"
 norm="\e[m"
 yuck="\e[1;31m"
-echo -e "== ${cyan}Checking Python${norm}"
-for pf in $(find . -type f -name "*.py" | xargs git diff --cached --name-only $against); do
-	echo "OK $pf"
-done
-echo -e "== ${cyan}Checking Ebuilds and Templates${norm}"
 
+if [ -z "$(which pylint )" ]; then
+	echo -e "${yuck}!!" pylint is not in your path.${norm}
+	echo "   Please install pylint via pip3 install --user pylint,"
+	echo "   then add ~/.local/bin to your path to resolve."
+	exit 1
+fi
+set -o pipefail
+echo -e "== ${cyan}Checking Python${norm}"
+for pyfile in $(find . -type f -name '*.py' | xargs git diff --cached --name-only $against); do
+	py_out="$(pylint -E $pyfile | tail -n +2 | sed -e 's/^/!! /')"
+	if [ $? -ne 0 ]; then
+		echo -e "${yuck}$py_out${norm}"
+		errors=$(( $errors + 1 ))
+	else
+		echo "OK $pyfile"
+	fi
+done
+
+echo -e "== ${cyan}Checking Ebuilds and Templates${norm}"
 for f in $(find . -type f \( -name "*.ebuild" -o -name "*.tmpl" \) | xargs git diff --cached --name-only $against); do
 	if [ -n "$( head -n1 $f | grep '[Cc]opyright' )" ]; then
 		echo -e "${yuck}!! $f${norm}"
@@ -61,6 +53,7 @@ for f in $(find . -type f \( -name "*.ebuild" -o -name "*.tmpl" \) | xargs git d
 		echo "OK $f"
 	fi
 done
+
 echo -e "== ${cyan}Checking YAML${norm}"
 for yf in $(find . -type f -name "*.yaml" | xargs git diff --cached --name-only $against); do
 	y_out=$($SCRIPT_DIR/tools/yamllint $yf)

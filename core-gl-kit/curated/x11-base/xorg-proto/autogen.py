@@ -89,13 +89,13 @@ async def generate(hub, **pkginfo):
 	template_args = dict(
 		**pkginfo,
 		version="2019.2",
-		GITHUB_REPO="xorg-xorgproto",
-		GITHUB_USER="freedesktop",
-		GITHUB_TAG="f61f9a3ee1aa77ebcc67730cda9bfde88e4e9c5f",
+		GITLAB_GROUP="xorg/proto",
+		GITLAB_PROJ="xorgproto",
+		GITLAB_TAG="f61f9a3ee1aa77ebcc67730cda9bfde88e4e9c5f",
 	)
 	cpvr = "{cat}/{name}-{version}".format(**template_args)
-	url = "https://www.github.com/{GITHUB_USER}/{GITHUB_REPO}/tarball/{GITHUB_TAG}".format(**template_args)
-	final_name = "{name}-{GITHUB_TAG}.tar.gz".format(**template_args)
+	url = "https://gitlab.freedesktop.org/{GITLAB_GROUP}/{GITLAB_PROJ}/-/archive/{GITLAB_TAG}/{GITLAB_PROJ}-{GITLAB_TAG}.tar.gz".format(**template_args)
+	final_name = "{name}-{version}.tar.gz".format(**template_args)
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 
 	xorgproto_implementations.append((template_args, cpvr, artifact))
@@ -104,13 +104,13 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version="2018.4_p20180627",
 		revision=2,
-		GITHUB_REPO="xorg-xorgproto",
-		GITHUB_USER="freedesktop",
-		GITHUB_TAG="af9b5f43439378efd1e12d11d487a71f42790fec",
+		GITLAB_GROUP="xorg/proto",
+		GITLAB_PROJ="xorgproto",
+		GITLAB_TAG="af9b5f43439378efd1e12d11d487a71f42790fec",
 	)
 	cpvr = "{cat}/{name}-{version}-r{revision}".format(**template_args)
-	url = "https://www.github.com/{GITHUB_USER}/{GITHUB_REPO}/tarball/{GITHUB_TAG}".format(**template_args)
-	final_name = "{name}-{GITHUB_TAG}.tar.gz".format(**template_args)
+	url = "https://gitlab.freedesktop.org/{GITLAB_GROUP}/{GITLAB_PROJ}/-/archive/{GITLAB_TAG}/{GITLAB_PROJ}-{GITLAB_TAG}.tar.gz".format(**template_args)
+	final_name = "{name}-{GITLAB_TAG}.tar.gz".format(**template_args)
 	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 
 	xorgproto_implementations.append((template_args, cpvr, artifact))

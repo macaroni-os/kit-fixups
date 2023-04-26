@@ -1,6 +1,6 @@
 devlibs_github:
   defaults:
-    cat: dev-libs/
+    cat: dev-libs
   generator: github-1
   packages:
     - libmaxminddb:
@@ -9,4 +9,9 @@ devlibs_github:
         github:
           user: maxmind
           repo: libmaxminddb
+          query: releases
+    - waylandpp:
+        github:
+          user: NilsBrause
+          repo: waylandpp
           query: releases

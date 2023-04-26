@@ -116,7 +116,6 @@ src_install() {
 	fi
 
 	make_desktop_entry spicy Spicy "utilities-terminal" "Network;RemoteAccess;"
-	readme.gentoo_create_doc
 }
 
 pkg_postinst() {

@@ -641,7 +641,7 @@ dev_python_compat_rule:
         license: "LGPL 2.1"
     - zstandard:
         compat: '0.14.1'
-        version: '0.17.0'
+        version: '0.18.0'
         blocker: '!<dev-python/zstandard-0.15.0'
         homepage: https://pypi.org/project/zstandard/ https://github.com/indygreg/python-zstandard
         license: BSD
@@ -868,6 +868,15 @@ simple_python_autogen_rule:
             insinto "/usr/share/${PN}/themes"
             doins themes/*.theme
             distutils-r1_src_install
+          }
+    - brotlicffi:
+        python_compat: python3+ pypy3
+        restrict: test
+        rdepend: |
+          >=app-arch/brotli-1.0.9
+        body: |
+          src_configure() {
+            export USE_SHARED_BROTLI=1
           }
     - cairocffi:
         desc: CFFI based drop in replacement for Pycairo
@@ -1429,6 +1438,30 @@ simple_python_autogen_rule:
             fi
             python_optimize
           }
+    - urllib3:
+        du_pep517: hatchling
+        python_compat: python3+ pypy3
+        restrict: test
+        iuse: doc
+        pydeps:
+          py:all:build:
+            - hatchling >= 1.6.0
+          py:all:
+            - brotlicffi >= 0.8.0
+            - certifi
+            - cryptography >= 1.9
+            - idna >= 2.0.0
+            - pyopenssl >= 17.1.0
+            - PySocks >= 1.5.6
+            - zstandard >= 0.18.0
+          use:doc:
+            - mock
+            - sphinx
+        blocker: |
+          !~dev-python/PySocks-1.5.7
+        rdepend: |
+          >=app-arch/brotli-1.0.9
+          virtual/python-ipaddress
     - urwid:
         desc: Curses-based user interface library for Python
         homepage: http://urwid.org/ https://pypi.org/project/urwid/ https://github.com/urwid/urwid/
@@ -1475,8 +1508,7 @@ simple_python_autogen_rule:
             - dev-python/xmltodict
         rdepend: |
           app-misc/jq
-
-salt_misc_deps_rule:
+misc:
   defaults:
     cat: dev-python
     python_compat: python3+
@@ -1487,19 +1519,39 @@ salt_misc_deps_rule:
         python_compat: python2+
     - distro:
         license: Apache-2.0
+
+metatools:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
     - h11
     - httpcore:
         pydeps:
           - h11
           - sniffio
           - anyio
-    - httpx:
-        version: 0.22.0
+          - certifi
+          - h2
+    - h2:
         pydeps:
-          - httpcore
-          - brotlipy
-          - rfc3986
-          - charset_normalizer
+          - hpack
+          - hyperframe
+    - hpack
+    - hyperframe
+    - httpx:
+        du_pep517: hatchling
+        pydeps:
+          py:all:build:
+            - hatch-fancy-pypi-readme
+          py:all:
+            - certifi
+            - httpcore
+            - sniffio
+            - idna
+            - h2
+    - rich
     - sniffio:
         license: '|| ( Apache-2.0 MIT )'
 

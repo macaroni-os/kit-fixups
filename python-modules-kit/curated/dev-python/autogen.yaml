@@ -813,6 +813,21 @@ simple_python_autogen_rule:
           python_test() {
             "${PYTHON}" -m unittest discover || die "tests failed under ${EPYTHON}"
           }
+    - astroid:
+        desc: Abstract Syntax Tree for logilab packages
+        license: LGPL-2.1
+        iuse: test
+        pydeps:
+          py:all:
+            - lazy-object-proxy
+            - six
+            - typed-ast
+            - wrapt
+          use:test:
+            - nose
+            - numpy
+            - pytest
+            - python-dateutil
     - atomicwrites:
         homepage: https://github.com/untitaker/python-atomicwrites
         license: MIT
@@ -1070,6 +1085,16 @@ simple_python_autogen_rule:
               doins misc/__khal
             fi
           }
+    - lazy-object-proxy:
+        desc: A fast and thorough lazy object proxy
+        homepage:  https://github.com/ionelmc/python-lazy-object-proxy https://python-lazy-object-proxy.readthedocs.org https://pypi.org/project/lazy-object-proxy/
+        license: BSD
+        iuse: test
+        pydeps:
+          py:build:all:
+            - setuptools
+          use:test:
+            - pytest
     - mccabe:
         python_compat: python2+
         desc: "flake8 plugin: McCabe complexity checker"
@@ -1147,6 +1172,21 @@ simple_python_autogen_rule:
           https://github.com/PyCQA/pyflakes
           https://pypi.org/project/pyflakes/
         license: MIT
+    - pylint:
+        desc: Python code static checker
+        license: GPL-2
+        iuse: doc test
+        pydeps:
+          py:build:all:
+            - setuptools
+          py:all:
+            - astroid
+            - isort
+            - mccabe
+          use:doc:
+            - sphinx
+          use:test:
+            - pytest
     - python-pam:
         desc: Python3 module for PAM authentication
         homepage: https://github.com/FirefighterBlu3/python-pam

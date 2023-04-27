@@ -779,6 +779,43 @@ dev_python_compat_rule:
             sed -i -e 's/"idna.*$/"idna",/' -e 's/"charset_normalizer.*$/"charset_normalizer",/' setup.py || die
             distutils-r1_src_prepare
           }
+    - urllib3:
+        compat: '1.26.15'
+        python_compat: python3+ pypy3
+        restrict: test
+        versions:
+          latest:
+            du_pep517: hatchling
+            rdepend: |
+              >=app-arch/brotli-1.0.9
+            pydeps:
+              py:3:build:
+                - hatchling >= 1.6.0
+              py:3:
+                - pyopenssl >= 17.1.0
+                - cryptography >= 1.9
+                - brotlicffi >= 0.8.0
+                - zstandard >= 0.18.0
+          '1.26.15':
+            du_pep517: setuptools
+            pydeps:
+              py:all:build:
+                - setuptools
+              py:all:
+                - pyopenssl >= 0.14
+                - cryptography >= 1.3.4
+        revision:
+          '1.26.15': '1'
+        pydeps:
+          py:all:
+            - certifi
+            - idna >= 2.0.0
+            - PySocks >= 1.5.6
+        blocker: |
+          !~dev-python/PySocks-1.5.7
+          !=dev-python/urllib3-1.26.15
+        rdepend: |
+          virtual/python-ipaddress[${PYTHON_USEDEP}]
 
 
 simple_python_autogen_rule:
@@ -813,6 +850,21 @@ simple_python_autogen_rule:
           python_test() {
             "${PYTHON}" -m unittest discover || die "tests failed under ${EPYTHON}"
           }
+    - astroid:
+        desc: Abstract Syntax Tree for logilab packages
+        license: LGPL-2.1
+        iuse: test
+        pydeps:
+          py:all:
+            - lazy-object-proxy
+            - six
+            - typed-ast
+            - wrapt
+          use:test:
+            - nose
+            - numpy
+            - pytest
+            - python-dateutil
     - atomicwrites:
         homepage: https://github.com/untitaker/python-atomicwrites
         license: MIT
@@ -1070,6 +1122,16 @@ simple_python_autogen_rule:
               doins misc/__khal
             fi
           }
+    - lazy-object-proxy:
+        desc: A fast and thorough lazy object proxy
+        homepage:  https://github.com/ionelmc/python-lazy-object-proxy https://python-lazy-object-proxy.readthedocs.org https://pypi.org/project/lazy-object-proxy/
+        license: BSD
+        iuse: test
+        pydeps:
+          py:build:all:
+            - setuptools
+          use:test:
+            - pytest
     - mccabe:
         python_compat: python2+
         desc: "flake8 plugin: McCabe complexity checker"
@@ -1147,6 +1209,21 @@ simple_python_autogen_rule:
           https://github.com/PyCQA/pyflakes
           https://pypi.org/project/pyflakes/
         license: MIT
+    - pylint:
+        desc: Python code static checker
+        license: GPL-2
+        iuse: doc test
+        pydeps:
+          py:build:all:
+            - setuptools
+          py:all:
+            - astroid
+            - isort
+            - mccabe
+          use:doc:
+            - sphinx
+          use:test:
+            - pytest
     - python-pam:
         desc: Python3 module for PAM authentication
         homepage: https://github.com/FirefighterBlu3/python-pam
@@ -1438,30 +1515,6 @@ simple_python_autogen_rule:
             fi
             python_optimize
           }
-    - urllib3:
-        du_pep517: hatchling
-        python_compat: python3+ pypy3
-        restrict: test
-        iuse: doc
-        pydeps:
-          py:all:build:
-            - hatchling >= 1.6.0
-          py:all:
-            - brotlicffi >= 0.8.0
-            - certifi
-            - cryptography >= 1.9
-            - idna >= 2.0.0
-            - pyopenssl >= 17.1.0
-            - PySocks >= 1.5.6
-            - zstandard >= 0.18.0
-          use:doc:
-            - mock
-            - sphinx
-        blocker: |
-          !~dev-python/PySocks-1.5.7
-        rdepend: |
-          >=app-arch/brotli-1.0.9
-          virtual/python-ipaddress
     - urwid:
         desc: Curses-based user interface library for Python
         homepage: http://urwid.org/ https://pypi.org/project/urwid/ https://github.com/urwid/urwid/
@@ -1508,7 +1561,8 @@ simple_python_autogen_rule:
             - dev-python/xmltodict
         rdepend: |
           app-misc/jq
-misc:
+
+salt_misc_deps_rule:
   defaults:
     cat: dev-python
     python_compat: python3+
@@ -1519,39 +1573,19 @@ misc:
         python_compat: python2+
     - distro:
         license: Apache-2.0
-
-metatools:
-  defaults:
-    cat: dev-python
-    python_compat: python3+
-  generator: pypi-simple-1
-  packages:
     - h11
     - httpcore:
         pydeps:
           - h11
           - sniffio
           - anyio
-          - certifi
-          - h2
-    - h2:
-        pydeps:
-          - hpack
-          - hyperframe
-    - hpack
-    - hyperframe
     - httpx:
-        du_pep517: hatchling
+        version: 0.22.0
         pydeps:
-          py:all:build:
-            - hatch-fancy-pypi-readme
-          py:all:
-            - certifi
-            - httpcore
-            - sniffio
-            - idna
-            - h2
-    - rich
+          - httpcore
+          - brotlipy
+          - rfc3986
+          - charset_normalizer
     - sniffio:
         license: '|| ( Apache-2.0 MIT )'
 
@@ -2490,8 +2524,6 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - sphinxcontrib-websupport:
         python_compat: python3+ pypy3
-    - urllib3:
-        python_compat: python2+ pypy{,3}
     - wcwidth:
         python_compat: python2+ pypy3
     - werkzeug:

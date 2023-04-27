@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit desktop eutils unpacker pax-utils xdg
+inherit desktop eutils electron unpacker pax-utils xdg
 
 MY_PN="${PN/-bin}"
 MY_INSTALL_DIR="/opt/balenaEtcher"
@@ -51,10 +51,6 @@ src_install() {
 	domenu "${FILESDIR}/${MY_PN}.desktop" || die
 
 	# correct permissions of install components
-	fperms 4755 "${MY_INSTALL_DIR}/chrome-sandbox" || die
-	if [ -f "${ED%/}${MY_INSTALL_DIR}"/chrome_crashpad_handler ]; then
-		fperms 4755 "${MY_INSTALL_DIR}"/chrome_crashpad_handler || die
-	fi
 	fperms a+x "${MY_INSTALL_DIR}/${MY_EXEC}" || die
 	fperms a+x "${MY_INSTALL_DIR}/${MY_EXEC}.bin" || die
 	pax-mark m "${MY_INSTALL_DIR}/${MY_EXEC}" || die

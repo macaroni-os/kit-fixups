@@ -1,25 +1,27 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit meson
 
 DESCRIPTION="X.Org combined protocol headers"
 HOMEPAGE="https://cgit.freedesktop.org/xorg/proto/xorgproto/"
-
-GITHUB_REPO="{{GITHUB_REPO}}"
-GITHUB_USER="{{GITHUB_USER}}"
-GITHUB_TAG="{{GITHUB_TAG}}"
 SRC_URI="{{artifacts|map(attribute='src_uri')|join(' ')}}"
 KEYWORDS="*"
 
-src_unpack() {
-	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${GITHUB_REPO}"-??????? "${S}" || die
-}
-
 LICENSE="GPL-2 MIT"
 SLOT="0"
+
+RDEPEND="
+{%- for peeve in peeves %}
+    ={{peeve}}*:0/stub
+{%- endfor %}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ GITLAB_PROJ }}-{{ GITLAB_TAG }} "${S}" || die
+	fi
+}
 
 src_configure() {
 	local emesonargs=(
@@ -43,9 +45,3 @@ src_install() {
 	)
 	einstalldocs
 }
-
-RDEPEND="
-{%- for peeve in peeves %}
-    ={{peeve}}*:0/stub
-{%- endfor %}"
-

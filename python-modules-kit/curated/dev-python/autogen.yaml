@@ -1475,8 +1475,7 @@ simple_python_autogen_rule:
             - dev-python/xmltodict
         rdepend: |
           app-misc/jq
-
-salt_misc_deps_rule:
+misc:
   defaults:
     cat: dev-python
     python_compat: python3+
@@ -1487,19 +1486,39 @@ salt_misc_deps_rule:
         python_compat: python2+
     - distro:
         license: Apache-2.0
+
+metatools:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
     - h11
     - httpcore:
         pydeps:
           - h11
           - sniffio
           - anyio
-    - httpx:
-        version: 0.22.0
+          - certifi
+          - h2
+    - h2:
         pydeps:
-          - httpcore
-          - brotlipy
-          - rfc3986
-          - charset_normalizer
+          - hpack
+          - hyperframe
+    - hpack
+    - hyperframe
+    - httpx:
+        du_pep517: hatchling
+        pydeps:
+          py:all:build:
+            - hatch-fancy-pypi-readme
+          py:all:
+            - certifi
+            - httpcore
+            - sniffio
+            - idna
+            - h2
+    - rich
     - sniffio:
         license: '|| ( Apache-2.0 MIT )'
 

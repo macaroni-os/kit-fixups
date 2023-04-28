@@ -1909,6 +1909,8 @@ dev_python_simplified_rule:
             - typing-extensions
     - cryptography:
         compat: '3.3.2'
+        revision: 
+          '40.0.2': '1'
         blocker: "!<dev-python/cryptography-3.4.2"
         inherit:
           - cargo
@@ -1930,6 +1932,7 @@ dev_python_simplified_rule:
         pydeps:
           py:3:build:
             - setuptools-rust >= 0.12.1
+            - cffi >= 1.11.3
           py:all:
             - six >= 1.4.1
             - virtual/python-enum34

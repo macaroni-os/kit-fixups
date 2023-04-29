@@ -1250,9 +1250,7 @@ simple_python_autogen_rule:
           }
     - psutil:
         desc: Retrieve information on running processes and system utilization
-        du_pep517: setuptools
         python_compat: python2+ pypy{,3}
-        restrict: test
         revision:
           "5.9.5": "1"
         body: |

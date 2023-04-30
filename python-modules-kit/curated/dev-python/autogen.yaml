@@ -812,9 +812,6 @@ dev_python_compat_rule:
             - certifi
             - idna >= 2.0.0
             - PySocks >= 1.5.6
-        blocker: |
-          !~dev-python/PySocks-1.5.7
-          !=dev-python/urllib3-1.26.15
         rdepend: |
           virtual/python-ipaddress[${PYTHON_USEDEP}]
 

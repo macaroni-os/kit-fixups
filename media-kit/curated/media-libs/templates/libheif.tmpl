@@ -2,9 +2,9 @@
 
 EAPI=7
 
-inherit autotools xdg
+inherit cmake
 
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{ src_uri }}"
 KEYWORDS="*"
 
 DESCRIPTION="ISO/IEC 23008-12:2017 HEIF file format decoder and encoder"
@@ -12,52 +12,46 @@ HOMEPAGE="https://github.com/strukturag/libheif"
 
 LICENSE="GPL-3"
 SLOT="0/1.12"
-IUSE="+aom gdk-pixbuf go rav1e test +threads x265"
-REQUIRED_USE="test? ( go )"
-RESTRICT="!test? ( test )"
+IUSE="+aom gdk-pixbuf rav1e +threads x265"
+RESTRICT="( test )"
 
-BDEPEND="test? ( dev-lang/go )"
+BDEPEND=""
 DEPEND="
 	media-libs/dav1d:=
 	media-libs/libde265:=
-	media-libs/libpng:0=
-	sys-libs/zlib:=
-	virtual/jpeg:0=
 	aom? ( >=media-libs/libaom-2.0.0:= )
 	gdk-pixbuf? ( x11-libs/gdk-pixbuf )
-	go? ( dev-lang/go )
 	rav1e? ( media-video/rav1e:= )
 	x265? ( media-libs/x265:= )"
+
 RDEPEND="${DEPEND}"
 
+
 src_prepare() {
-	default
-	sed -i -e 's:-Werror::' configure.ac || die
-	eautoreconf
+	cmake_src_prepare
 }
 
+# SvtEnc requires media-libs/svt-av1 https://gitlab.com/AOMediaCodec/SVT-AV1
+# LIBSHARPYUV requires media-libs/libsharpyuv which needs to be compiled
+# from the libwepb sources https://chromium.googlesource.com/webm/libwebp
 src_configure() {
-	export GO111MODULE=auto
-	local econf_args=(
-		--enable-libde265
-		--disable-static
-		$(use go || echo --disable-go)
-		$(use_enable aom)
-		$(use_enable gdk-pixbuf)
-		$(use_enable rav1e)
-		$(use_enable threads multithreading)
-		$(use_enable x265)
+	local mycmakeargs=(
+		-DBUILD_SHARED_LIBS=ON
+		-DBUILD_TESTING=OFF
+		-DENABLE_MULTITHREADING_SUPPORT=$(usex threads ON OFF)
+		-DENABLE_PARALLEL_TILE_DECODING=$(usex threads ON OFF)
+		-DWITH_DAV1D=ON
+		-DWITH_EXAMPLES=OFF
+		-DWITH_LIBDE265=ON
+		-DWITH_LIBSHARPYUV=OFF
+		-DWITH_SvtEnc=OFF
+		-DWITH_AOM_DECODER=$(usex aom ON OFF)
+		-DWITH_AOM_ENCODER=$(usex aom ON OFF)
+		-DWITH_GDK_PIXBUF=$(usex gdk-pixbuf ON OFF)
+		-DWITH_RAV1E=$(usex rav1e ON OFF)
+		-DWITH_X265=$(usex x265 ON OFF)
 	)
-	ECONF_SOURCE="${S}" econf "${econf_args[@]}"
+
+	cmake_src_configure @mycmakeargs
 }
 
-src_test() {
-	default
-	emake -C go test
-}
-
-src_install() {
-	default
-	einstalldocs
-	find "${ED}" -name '*.la' -delete || die
-}

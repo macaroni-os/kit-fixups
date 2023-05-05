@@ -7,7 +7,7 @@ regex = r'(\d+(?:[\.-]\d+)+)'
 
 async def generate(hub, **pkginfo):
     name = pkginfo["name"]
-    download_url = f"https://download.savannah.nongnu.org/releases/{name}/"
+    download_url = f"https://download-mirror.savannah.nongnu.org/releases/{name}/"
     html = await hub.pkgtools.fetch.get_page(download_url)
     soup = BeautifulSoup(html, 'html.parser').find_all("a", href=True)
 

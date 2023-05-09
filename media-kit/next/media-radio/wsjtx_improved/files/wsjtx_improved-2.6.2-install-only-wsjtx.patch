@@ -1,0 +1,190 @@
+This patch disables default installation any files other binary/resources files except wsjtx.
+
+
+--- wsjtx-b/CMakeLists.txt	2023-05-06 00:30:35.199267316 +0300
++++ wsjtx/CMakeLists.txt	2023-05-06 00:33:39.127267904 +0300
+@@ -1577,91 +1577,91 @@
+ #   )
+ # install (EXPORT udp-static NAMESPACE wsjtx::
+ #   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wsjtx
+ #   )
+ 
+-install (TARGETS udp_daemon message_aggregator wsjtx_app_version
+-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+-  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+-  )
+-
+-install (TARGETS jt9 wsprd fmtave fcal fmeasure
+-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+-  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+-  )
++#install (TARGETS udp_daemon message_aggregator wsjtx_app_version
++#  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
++#  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
++#  )
++
++#install (TARGETS jt9 wsprd fmtave fcal fmeasure
++#  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
++#  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
++#  )
+ 
+ if(WSJT_BUILD_UTILS)
+ install (TARGETS ft8code jt65code jt9code jt4code msk144code 
+   q65code fst4sim q65sim echosim
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+   )
+ endif(WSJT_BUILD_UTILS)  
+ 
+-install (PROGRAMS
+-  ${RIGCTL_EXE}
+-  DESTINATION ${CMAKE_INSTALL_BINDIR}
+-  #COMPONENT runtime
+-  RENAME rigctl-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+-  )
+-
+-install (PROGRAMS
+-  ${RIGCTLD_EXE}
+-  DESTINATION ${CMAKE_INSTALL_BINDIR}
+-  #COMPONENT runtime
+-  RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+-  )
+-
+-install (PROGRAMS
+-  ${RIGCTLCOM_EXE}
+-  DESTINATION ${CMAKE_INSTALL_BINDIR}
+-  #COMPONENT runtime
+-  RENAME rigctlcom-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+-  )
+-
+-install (FILES
+-  README
+-  COPYING
+-  AUTHORS
+-  THANKS
+-  NEWS
+-  BUGS
+-  DESTINATION ${CMAKE_INSTALL_DOCDIR}
+-  #COMPONENT runtime
+-  )
+-
+-install (FILES
+-  cty.dat
+-  cty.dat_copyright.txt
+-  grid.dat
+-  sat.dat
+-  contrib/Ephemeris/JPLEPH
+-  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
+-  #COMPONENT runtime
+-  )
+-
+-install (DIRECTORY
+-  example_log_configurations
+-  DESTINATION ${CMAKE_INSTALL_DOCDIR}
+-  FILES_MATCHING REGEX "^.*[^~]$"
+-  #COMPONENT runtime
+-  )
++#install (PROGRAMS
++#  ${RIGCTL_EXE}
++#  DESTINATION ${CMAKE_INSTALL_BINDIR}
++#  #COMPONENT runtime
++#  RENAME rigctl-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
++#  )
++
++#install (PROGRAMS
++#  ${RIGCTLD_EXE}
++#  DESTINATION ${CMAKE_INSTALL_BINDIR}
++#  #COMPONENT runtime
++#  RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
++#  )
++
++#install (PROGRAMS
++#  ${RIGCTLCOM_EXE}
++#  DESTINATION ${CMAKE_INSTALL_BINDIR}
++#  #COMPONENT runtime
++#  RENAME rigctlcom-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
++#  )
++
++#install (FILES
++#  README
++#  COPYING
++#  AUTHORS
++#  THANKS
++#  NEWS
++#  BUGS
++#  DESTINATION ${CMAKE_INSTALL_DOCDIR}
++#  #COMPONENT runtime
++#  )
++
++#install (FILES
++#  cty.dat
++#  cty.dat_copyright.txt
++#  grid.dat
++#  sat.dat
++#  contrib/Ephemeris/JPLEPH
++#  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
++#  #COMPONENT runtime
++#  )
++
++#install (DIRECTORY
++#  example_log_configurations
++#  DESTINATION ${CMAKE_INSTALL_DOCDIR}
++#  FILES_MATCHING REGEX "^.*[^~]$"
++#  #COMPONENT runtime
++#  )
+ 
+ if (NOT UNIX)
+   install (DIRECTORY
+   ${PROJECT_SOURCE_DIR}/sounds
+   DESTINATION ${CMAKE_INSTALL_BINDIR}
+   #COMPONENT runtime
+   )
+   endif (NOT UNIX)
+ 	
+ if (UNIX)
+-  install (DIRECTORY
+-  ${PROJECT_SOURCE_DIR}/sounds
+-  DESTINATION $ENV{HOME}
+-  #COMPONENT runtime
+-  )
++#  install (DIRECTORY
++#  ${PROJECT_SOURCE_DIR}/sounds
++#  DESTINATION $ENV{HOME}
++#  #COMPONENT runtime
++#  )
+   endif (UNIX)
+ 
+ #
+ # Mac installer files
+ #
+@@ -1715,20 +1715,20 @@
+ 
+ 
+ if (NOT WIN32 AND NOT APPLE)
+   # install a desktop file so wsjtx appears in the application start
+   # menu with an icon
+-  install (
+-    FILES wsjtx.desktop message_aggregator.desktop
+-    DESTINATION share/applications
+-    #COMPONENT runtime
+-    )
+-  install (
+-    FILES icons/Unix/wsjtx_icon.png
+-    DESTINATION share/pixmaps
+-    #COMPONENT runtime
+-    )
++  #install (
++#    FILES wsjtx.desktop message_aggregator.desktop
++#    DESTINATION share/applications
++#    #COMPONENT runtime
++#    )
++#  install (
++#    FILES icons/Unix/wsjtx_icon.png
++#    DESTINATION share/pixmaps
++#    #COMPONENT runtime
++#    )
+ endif (NOT WIN32 AND NOT APPLE)
+ 
+ if (APPLE)
+   set (CMAKE_POSTFLIGHT_SCRIPT
+     "${wsjtx_BINARY_DIR}/postflight.sh")

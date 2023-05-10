@@ -9,5 +9,9 @@ gdal_rule:
         github:
           repo: gdal
           query: tags
-        select: 'v[0-9.]*$'
-        version: 3.6.4
+          select: 'v[0-9.]*$'
+        version:
+          latest:
+            keywords: ""
+          3.6.4:
+            keywords: "*"

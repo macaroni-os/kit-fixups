@@ -1,8 +1,20 @@
 usbredir:
+  defaults:
+    gitlab:
+      url: https://gitlab.freedesktop.org
+      user: spice
   packages:
-    - spice
-    - spice-protocol
+    - spice:
+        gitlab:
+          project_id: 62
+    - spice-protocol:
+        gitlab:
+          project_id: 68
     - usbredir:
         cat: sys-apps
+        gitlab:
+          project_id: 72
     - spice-gtk:
+        gitlab:
+          project_id: 64
         cat: net-misc

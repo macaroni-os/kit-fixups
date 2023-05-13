@@ -190,6 +190,7 @@ src_install() {
 			fi
 		done | xargs -0 rm -f || die
 	fi
+	rm -f "${ED}${vimfiles}"/doc/tags || die
 
 	newbashcomp "${FILESDIR}"/xxd-completion xxd
 

@@ -1,7 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 # 🦊 ❤ metatools: {autogen_id}
 
-
 EAPI=7
 PYTHON_COMPAT=( python3+ )
 
@@ -9,9 +8,9 @@ inherit desktop meson optfeature python-any-r1 readme.gentoo-r1 xdg
 
 DESCRIPTION="Set of GObject and Gtk objects for connecting to Spice servers and a client GUI"
 HOMEPAGE="https://www.spice-space.org https://cgit.freedesktop.org/spice/spice-gtk/"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
-
+S="${WORKDIR}/${PN}-{{tag_name}}"
 
 LICENSE="LGPL-2.1"
 SLOT="0"

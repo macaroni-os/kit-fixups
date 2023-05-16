@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 	tag_dict = await hub.pkgtools.fetch.get_page(info_url, is_json=True)
 	tags = [tag["name"].split('-')[1] for tag in tag_dict]
 
-	frozen = [ "22.08.0" ]
+	frozen = [ "22.04.0" ]
 	fixed = True
 
 	if masked_above and tags[0] != masked_above:

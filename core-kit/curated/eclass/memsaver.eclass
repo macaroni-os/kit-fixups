@@ -21,7 +21,7 @@ memsaver_src_configure() {
 		jobs=$((mem/1750000))
 
 		# don't use more jobs than physical cores:
-		if [ -e /sys/devices/system/cpu/possible ]; the:n
+		if [ -e /sys/devices/system/cpu/possible ]; then
 			# This can say "per socket" or "per cluster", so accept both:
 			physical_cores=$(lscpu | grep 'Core(s) per' | awk '{ print $NF }')
 			cpus=$(lscpu | grep '^Socket(s):' | awk '{ print $NF }')

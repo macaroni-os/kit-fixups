@@ -22,7 +22,8 @@ memsaver_src_configure() {
 
 		# don't use more jobs than physical cores:
 		if [ -e /sys/devices/system/cpu/possible ]; then
-			physical_cores=$(lscpu | grep 'Core(s) per socket:' | awk '{ print $NF }')
+			# This can say "per socket" or "per cluster", so accept both:
+			physical_cores=$(lscpu | grep 'Core(s) per' | awk '{ print $NF }')
 			cpus=$(lscpu | grep '^Socket(s):' | awk '{ print $NF }')
 			# actual physical cores, without considering hyperthreading:
 			max_parallelism=$(( $physical_cores * $cpus ))

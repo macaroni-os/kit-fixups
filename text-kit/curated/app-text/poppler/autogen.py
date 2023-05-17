@@ -8,7 +8,7 @@ import re
 
 masked_above = "23.04.0" # if required by inkscape
 masked_above = None
-keywords_dict = { "default" : "next" , "22.08.0" : "*" }
+keywords_dict = { "default" : "next" , "22.08.0" : "*", "22.04.0" : "*" }
 
 async def generate(hub, **pkginfo):
 	user = repo = pkginfo["name"]
@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 	tag_dict = await hub.pkgtools.fetch.get_page(info_url, is_json=True)
 	tags = [tag["name"].split('-')[1] for tag in tag_dict]
 
-	frozen = [ "22.08.0" ]
+	frozen = [ "22.04.0" ]
 	fixed = True
 
 	if masked_above and tags[0] != masked_above:
@@ -46,7 +46,6 @@ async def generate(hub, **pkginfo):
 		soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
 		subslot = soversion.group(1)
 		artifact.cleanup()
-		print("bink")
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			version=version,

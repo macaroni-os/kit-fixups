@@ -22,22 +22,21 @@ memsaver_src_configure() {
 
 		# don't use more jobs than physical cores:
 		if [ -e /sys/devices/system/cpu/possible ]; then
-			physical_cores=$(lscpu | grep 'Core(s) per socket:' | awk '{ print $NF }')
-			cpus=$(lscpu | grep '^Socket(s):' | awk '{ print $NF }')
 			# actual physical cores, without considering hyperthreading:
-			max_parallelism=$(( $physical_cores * $cpus ))
+			max_parallelism="$( lscpu -p | grep -v '^#' | cut -f2 -d, | sort -u | wc -l )"
+			einfo "memsaver.eclass limiting max parallelism to ${max_parallelism}"
 		else
 			max_parallelism=999
 		fi
 
 		if [ ${jobs} -lt 1 ]; then
-			einfo "Using jobs setting of 1 (limited by memory)"
+			einfo "memsaver.eclass using jobs setting of 1 (limited by memory)"
 			jobs=1
 		elif [ ${jobs} -gt ${max_parallelism} ]; then
-			einfo "Using jobs setting of ${max_parallelism} (limited by physical cores)"
+			einfo "memsaver.eclass using jobs setting of ${max_parallelism} (limited by physical cores)"
 			jobs=${max_parallelism}
 		else
-			einfo "Using jobs setting of ${jobs} (limited by memory)"
+			einfo "memsaver.eclass using jobs setting of ${jobs} (limited by memory)"
 			jobs=${jobs}
 		fi
 		export MAKEOPTS="-j${jobs}"

@@ -7,13 +7,6 @@ dev_python_autogen_rule:
     - ansible:
         version: 2.9.13
         python_compat: python2+ pypy3
-    - salt:
-        versions:
-          2019.2.5:
-            python_compat: python2_7
-            template: salt-2019.tmpl
-          latest:
-            python_compat: python3+
 
 # FL-9464: Virtual pecl-module-kit
 

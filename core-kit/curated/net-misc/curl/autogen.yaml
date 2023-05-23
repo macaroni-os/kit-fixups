@@ -1,0 +1,13 @@
+curl:
+  generator: github-1
+  packages:
+    - curl:
+        github:
+          query: releases
+          tarball: curl-{version}.tar.gz
+          match: curl-(.*)
+          transform:
+            - kind: string
+              match: _
+              replace: .
+

@@ -1,0 +1,12 @@
+diff -urN openrc-0.44.10/init.d/hwclock.in openrc-0.44.10-fixed/init.d/hwclock.in
+--- openrc-0.44.10/init.d/hwclock.in	2021-12-20 19:14:51.000000000 -0500
++++ openrc-0.44.10-fixed/init.d/hwclock.in	2023-05-23 23:42:52.106317840 -0400
+@@ -72,7 +72,7 @@
+ {
+ 	if ! yesno $clock_adjfile; then
+ 		# Some implementations don't handle adjustments
+-		if LC_ALL=C hwclock --help 2>&1 | grep -q "\-\-noadjfile"; then
++		if LC_ALL=C hwclock --help 2>&1 | grep -q -- --noadjfile; then
+ 			echo --noadjfile
+ 		fi
+ 	fi

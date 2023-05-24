@@ -10,7 +10,7 @@ SRC_URI="https://linuxcontainers.org/downloads/lxcfs/${P}.tar.gz"
 
 LICENSE="Apache-2.0 LGPL-2+"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS=""
 
 RDEPEND="
 	sys-fs/fuse:3

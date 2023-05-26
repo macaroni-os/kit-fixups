@@ -114,7 +114,7 @@ src_install() {
 		newins "${FILESDIR}"/nvidia.conf.modprobe-r1 nvidia.conf
 	fi
 	newins "${FILESDIR}"/nvidia-rmmod.conf.modprobe nvidia-rmmod.conf
-	newins "${FILESDIR}"/nouveau-blacklist.conf
+	doins "${FILESDIR}"/nouveau-blacklist.conf
 	# Ensures that our device nodes are created when not using X
 	sed -e 's:/opt/bin:'"${NVDRIVERS_DIR}"'/bin:g' "${FILESDIR}/nvidia-udev.sh" > "${T}/nvidia-udev.sh"
 	exeinto "$(get_udevdir)"

@@ -2,15 +2,11 @@
 
 EAPI=7
 
-CRATES="
-{{crates}}"
-
 inherit cargo
 
 DESCRIPTION="A complete text editor for your terminal"
 HOMEPAGE="https://github.com/jmacdonald/amp"
-SRC_URI="{{artifacts[0].src_uri}}
-	$(cargo_crate_uris ${CRATES})"
+SRC_URI="{{src_uri}}"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -29,14 +25,11 @@ RDEPEND="
 	sys-libs/zlib
 "
 
-src_unpack() {
-	cargo_src_unpack
-	rm -rf ${S}
-	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+post_src_unpack() {
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-*/* ${S} || die
 }
 
 src_install() {
 	cargo_src_install
-
 	dodoc README.md
 }

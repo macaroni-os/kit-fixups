@@ -1584,12 +1584,6 @@ io_stuff_rule:
           - trio >= 0.16
         revision:
           3.5.0: 1
-        body: |
-          src_prepare() {
-            default
-            # See FL-9522
-            ( cat ${FILESDIR}/anyio-3.6.1-get_asynclib-thread-fix.patch | patch -p1 ) || die
-          }
     - async-generator:
         license: '|| ( Apache-2.0 MIT )'
         pypi_name: async_generator

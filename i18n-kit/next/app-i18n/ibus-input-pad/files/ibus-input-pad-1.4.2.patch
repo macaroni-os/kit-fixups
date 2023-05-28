@@ -1,0 +1,27 @@
+diff --git a/engine/engine.c b/engine/engine.c
+index c767448..1044b47 100644
+--- a/engine/engine.c
++++ b/engine/engine.c
+@@ -445,7 +445,7 @@ ibus_input_pad_engine_property_activate (IBusEngine *engine,
+         void *window = NULL;
+ 
+         if (input_pad_window == NULL || input_pad->window_data == NULL) {
+-            input_pad_window = input_pad_window_new (TRUE);
++            input_pad_window = input_pad_window_new ();
+             input_pad->window_data = input_pad_window;
+             if (!g_strcmp0 (prop_name, "show-input-pad-layout-only")) {
+                 set_keyboard_only_kbdui (input_pad_window);
+@@ -519,11 +519,12 @@ ibus_input_pad_engine_get_type (void)
+ void
+ ibus_input_pad_init (int *argc, char ***argv, IBusBus *bus)
+ {
++    gboolean do_exit = FALSE;
+     config = ibus_bus_get_input_pad_config (bus);
+     if (config) {
+         g_object_ref_sink (config);
+     }
+-    input_pad_window_init (argc, argv, 0);
++    input_pad_window_init (argc, argv, 0, &do_exit);
+ }
+ 
+ void

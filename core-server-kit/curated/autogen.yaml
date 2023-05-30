@@ -7,13 +7,6 @@ dev_python_autogen_rule:
     - ansible:
         version: 2.9.13
         python_compat: python2+ pypy3
-    - salt:
-        versions:
-          2019.2.5:
-            python_compat: python2_7
-            template: salt-2019.tmpl
-          latest:
-            python_compat: python3+
 
 # FL-9464: Virtual pecl-module-kit
 
@@ -142,3 +135,197 @@ pecl-kit:
           user: indexdata
           repo: phpyaz
           query: tags
+
+# FL-9463: Virtual pear-module-kit php-module-kit
+
+pear-kit:
+  generator: github-1
+  defaults:
+    cat: dev-php
+  packages:
+    - PEAR-Archive_Tar:
+        template: pear/PEAR-Archive_Tar.tmpl
+        github:
+            user: pear
+            repo: Archive_Tar
+            query: tags
+    - PEAR-Cache_Lite:
+        template: pear/PEAR-Cache_Lite.tmpl
+        github:
+            user: pear
+            repo: Cache_Lite
+            query: tags
+    - PEAR-Console_CommandLine:
+        template: pear/PEAR-Console_CommandLine.tmpl
+        github:
+            user: pear
+            repo: Console_CommandLine
+            query: tags
+    - PEAR-Console_Getargs:
+        template: pear/PEAR-Console_Getargs.tmpl
+        github:
+            user: pear
+            repo: Console_Getargs
+            query: tags
+    - PEAR-Console_Getopt:
+        template: pear/PEAR-Console_Getopt.tmpl
+        github:
+            user: pear
+            repo: Console_Getopt
+            query: tags
+    - PEAR-Console_Table:
+        template: pear/PEAR-Console_Table.tmpl
+        github:
+            user: pear
+            repo: Console_Table
+            query: tags
+    - PEAR-Crypt_GPG:
+        template: pear/PEAR-Crypt_GPG.tmpl
+        github:
+            user: pear
+            repo: Crypt_GPG
+            query: tags
+    - PEAR-Exception:
+        template: pear/PEAR-Exception.tmpl
+        github:
+            user: pear
+            repo: PEAR_Exception
+            query: tags
+    - PEAR-File_Archive:
+        template: pear/PEAR-File_Archive.tmpl
+        github:
+            user: pear
+            repo: File_Archive
+            query: tags
+    - PEAR-File_Find:
+        template: pear/PEAR-File_Find.tmpl
+        github:
+            user: pear
+            repo: File_Find
+            query: tags
+    - PEAR-File_Gettext:
+        template: pear/PEAR-File_Gettext.tmpl
+        github:
+            user: pear
+            repo: File_Gettext
+            query: tags
+    - PEAR-HTML_AJAX:
+        template: pear/PEAR-HTML_AJAX.tmpl
+        github:
+            user: pear
+            repo: HTML_AJAX
+            query: tags
+    - PEAR-HTTP_Request2:
+        template: pear/PEAR-HTTP_Request2.tmpl
+        github:
+            user: pear
+            repo: HTTP_Request2
+            query: tags
+    - PEAR-Image_Color2:
+        template: pear/PEAR-Image_Color2.tmpl
+        github:
+            user: pear
+            repo: Image_Color2
+            query: tags
+    - PEAR-Image_Text:
+        template: pear/PEAR-Image_Text.tmpl
+        github:
+            user: pear
+            repo: Image_Text
+            query: tags
+    - PEAR-Log:
+        template: pear/PEAR-Log.tmpl
+        github:
+            user: pear
+            repo: Log
+            query: tags
+    - PEAR-MIME_Type:
+        template: pear/PEAR-MIME_Type.tmpl
+        github:
+            user: pear
+            repo: MIME_Type
+            query: tags
+    - PEAR-Math_BigInteger:
+        template: pear/PEAR-Math_BigInteger.tmpl
+        github:
+            user: pear
+            repo: Math_BigInteger
+            query: tags
+    - PEAR-Net_IDNA2:
+        template: pear/PEAR-Net_IDNA2.tmpl
+        github:
+            user: pear
+            repo: Net_IDNA2
+            query: tags
+    - PEAR-Net_Sieve:
+        template: pear/PEAR-Net_Sieve.tmpl
+        github:
+            user: pear
+            repo: Net_Sieve
+            query: tags
+    - PEAR-Net_Socket:
+        template: pear/PEAR-Net_Socket.tmpl
+        github:
+            user: pear
+            repo: Net_Socket
+            query: tags
+    - PEAR-Net_URL2:
+        template: pear/PEAR-Net_URL2.tmpl
+        github:
+            user: pear
+            repo: Net_URL2
+            query: tags
+    - PEAR-Numbers_Words:
+        template: pear/PEAR-Numbers_Words.tmpl
+        github:
+            user: pear
+            repo: Numbers_Words
+            query: tags
+    - PEAR-PHP_Beautifier:
+        template: pear/PEAR-PHP_Beautifier.tmpl
+        github:
+            user: pear
+            repo: PHP_Beautifier
+            query: tags
+    - PEAR-Services_W3C_CSSValidator:
+        template: pear/PEAR-Services_W3C_CSSValidator.tmpl
+        github:
+            user: pear
+            repo: Services_W3C_CSSValidator
+            query: tags
+    - PEAR-Spreadsheet_Excel_Writer:
+        template: pear/PEAR-Spreadsheet_Excel_Writer.tmpl
+        github:
+            user: pear
+            repo: Spreadsheet_Excel_Writer
+            query: tags
+    - PEAR-System_Command:
+        template: pear/PEAR-System_Command.tmpl
+        github:
+            user: pear
+            repo: System_Command
+            query: tags
+    - PEAR-Text_Password:
+        template: pear/PEAR-Text_Password.tmpl
+        github:
+            user: pear
+            repo: Text_Password
+            query: tags
+    - PEAR-Text_Highlighter:
+        template: pear/PEAR-Text_Highlighter.tmpl
+        github:
+            user: pear
+            repo: Text_Highlighter
+            query: tags
+    - PEAR-XML_Parser:
+        template: pear/PEAR-XML_Parser.tmpl
+        github:
+            user: pear
+            repo: XML_Parser
+            query: tags
+    - PEAR-XML_Serializer:
+        template: pear/PEAR-XML_Serializer.tmpl
+        github:
+            user: pear
+            repo: XML_Serializer
+            query: tags

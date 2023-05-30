@@ -62,7 +62,7 @@ RDEPEND="
 	)
 	lm_sensors? ( sys-apps/lm_sensors:= )
 	opencl? (
-				>=virtual/opencl-3
+				virtual/opencl
 				dev-libs/libclc
 				virtual/libelf:0=
 			)

@@ -1,0 +1,10 @@
+--- a/Makefile
++++ b/Makefile
+@@ -59,6 +59,7 @@ install: build
+ 	mkdir -p $(DESTDIR)$(engine_dir)
+ 	mkdir -p $(DESTDIR)$(PREFIX)/lib/ibus-$(engine_name)
+ 	mkdir -p $(DESTDIR)$(ibus_dir)/component/
++	mkdir -p $(DESTDIR)$(PREFIX)/share/applications/
+ 
+ 	cp -R -f icons data $(DESTDIR)$(engine_dir)
+ 	cp -f $(engine_gui_name) $(DESTDIR)$(PREFIX)/share/applications/

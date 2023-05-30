@@ -9,6 +9,19 @@
 #    cat: media-libs
 #  packages:
 
+mediakit_packages:
+  generator: github-1
+  packages:
+    - libsamplerate:
+        github:
+          user: libsndfile
+          repo: libsamplerate
+          query: releases
+    - hamlib:
+        github:
+          user: hamlib
+          repo: hamlib
+          query: releases
 
 sdl2libs_rule:
   generator: github-1

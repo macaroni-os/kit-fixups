@@ -1912,7 +1912,7 @@ dev_python_simplified_rule:
             - typing-extensions
     - cryptography:
         compat: '3.3.2'
-        revision: 
+        revision:
           '40.0.2': '1'
         blocker: "!<dev-python/cryptography-3.4.2"
         inherit:
@@ -1925,7 +1925,6 @@ dev_python_simplified_rule:
         depend: |
           libressl? ( dev-libs/libressl:0= )
           !libressl? ( dev-libs/openssl:0= )
-        bdepend: |
           !x86? ( >=virtual/rust-1.37.0 )
           x86? (
             cpu_flags_x86_sse2? (

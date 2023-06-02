@@ -42,6 +42,9 @@ rust-gen_rule:
 
   packages:
     - rust-bin:
+        version:
+          latest: {}
+          1.69.0: {}
         extra_components:
           rust-src:
             name: rust-src

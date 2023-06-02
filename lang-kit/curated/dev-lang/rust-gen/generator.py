@@ -175,8 +175,11 @@ async def preprocess_packages(hub, pkginfo_list):
 	latest_version = await get_latest_version(hub, user, repo)
 
 	for pkginfo in pkginfo_list:
-		pkginfo["version"] = latest_version
-
+		if "version" in pkginfo:
+			if pkginfo["version"] == "latest":
+				pkginfo["version"] = latest_version
+		else:
+			pkginfo["version"] = latest_version
 		arch_data = await generate_rust_arch_data(hub, pkginfo)
 		pkginfo.update(arch_data)
 
@@ -205,3 +208,5 @@ async def generate(hub, **pkginfo):
 	)
 
 	virtual_ebuild.push()
+
+# vim: ts=4 sw=4 noet

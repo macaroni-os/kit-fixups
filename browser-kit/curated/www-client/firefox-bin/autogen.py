@@ -73,11 +73,11 @@ async def generate(hub, **pkginfo):
 			'version': "FIREFOX_DEVEDITION",
 			'url_path': "devedition/releases",
 		},
-		'nightly': {
-			'version': "FIREFOX_NIGHTLY",
-			'url_path': "firefox/nightly/latest-mozilla-central",
-			'l10n_path': "firefox/nightly/latest-mozilla-central-l10n",
-		},
+#		'nightly': {
+#			'version': "FIREFOX_NIGHTLY",
+#			'url_path': "firefox/nightly/latest-mozilla-central",
+#			'l10n_path': "firefox/nightly/latest-mozilla-central-l10n",
+#		},
 	}
 
 	# Loop through each release channel and push out an ebuild

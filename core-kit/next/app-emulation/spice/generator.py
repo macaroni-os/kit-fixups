@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 import os
 
-async def generate_archive_from_git(hub, pkginfo, url):
+async def generate_archive_from_git(hub, pkginfo):
+	url = f"https://gitlab.freedesktop.org/{pkginfo['gitlab']['user']}/{pkginfo['name']}.git"
 	final_name = f"{pkginfo['name']}-{pkginfo['version']}-with-submodules.tar.xz"
 	my_archive, metadata = hub.Archive.find_by_name(final_name)
 	if my_archive is None:
 		my_archive = hub.Archive(final_name)
 		my_archive.initialize()
-		retval = os.system(f"( cd {my_archive.top_path}; git clone --depth 1 --branch {pkginfo['tag_name']} --recursive {url} {pkginfo['name']}-{pkginfo['tag_name']})")
+		cmd = f"( cd {my_archive.top_path}; git clone --depth 1 --branch {pkginfo['tag_name']} --recursive {url} {pkginfo['name']}-{pkginfo['tag_name']})"
+		hub.pkgtools.model.log.info(cmd)
+		retval = os.system(cmd)
 		if retval != 0:
 			raise hub.pkgtools.ebuild.BreezyError("Unable to git clone repository.")
 		await my_archive.store_by_name()
@@ -38,8 +41,8 @@ async def generate(hub, **pkginfo):
 				selected_release = release
 				break
 	pkginfo['tag_name'] = selected_release['tag_name']
-	if pkginfo['name'] == 'spice':
-		artifact = await generate_archive_from_git(hub, pkginfo, "https://gitlab.freedesktop.org/spice/spice.git")
+	if pkginfo['name'] in [ 'spice', 'spice-gtk' ]:
+		artifact = await generate_archive_from_git(hub, pkginfo)
 	else:
 		source_url = None
 		for source in release['assets']['sources']:

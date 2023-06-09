@@ -112,8 +112,7 @@ github_pythons:
             - mock
         body: |
           post_src_unpack() {
-            mv "${WORKDIR}"/CacheControl-* "${S}" || die
-            rm -f "${S}"/tests/__init__.py
+            rm "${S}"/tests/__init__.py || die
           }
 
 

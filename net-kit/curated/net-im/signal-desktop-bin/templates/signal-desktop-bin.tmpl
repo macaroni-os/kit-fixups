@@ -15,6 +15,7 @@ LICENSE="GPL-3 MIT MIT-with-advertising BSD-1 BSD-2 BSD Apache-2.0 ISC openssl Z
 SLOT="0"
 KEYWORDS="-* amd64"
 IUSE="+sound"
+RESTRICT="splitdebug strip"
 
 RDEPEND="
 	app-accessibility/at-spi2-atk
@@ -77,7 +78,6 @@ QA_PREBUILT="opt/Signal/signal-desktop
 	opt/Signal/resources/app.asar.unpacked/node_modules/sharp/vendor/8.10.5/lib/libvips.so.42
 	opt/Signal/resources/app.asar.unpacked/node_modules/zkgroup/libzkgroup.so"
 
-RESTRICT="splitdebug"
 
 S="${WORKDIR}"
 

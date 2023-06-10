@@ -328,11 +328,8 @@ gstreamer_multilib_src_configure() {
 		fi
 	fi
 
-	if grep -qF "option('package-name'" "${EMESON_SOURCE}"/meson_options.txt ; then
-		gst_conf+=( -Dpackage-name="Gentoo GStreamer ebuild" )
-	fi
 	if grep -qF "option('package-origin'" "${EMESON_SOURCE}"/meson_options.txt ; then
-		gst_conf+=( -Dpackage-origin="https://www.gentoo.org" )
+		gst_conf+=( -Dpackage-origin="https://www.funtoo.org" )
 	fi
 
 	einfo "Configuring to build ${GST_PLUGINS_ENABLED} plugin(s) ..."

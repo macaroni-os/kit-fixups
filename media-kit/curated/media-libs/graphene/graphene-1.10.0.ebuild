@@ -41,7 +41,6 @@ src_configure() {
 		$(meson_use cpu_flags_x86_sse2 sse2)
 		$(meson_use cpu_flags_arm_neon arm_neon)
 		$(meson_use test tests)
-		-Dbenchmarks=false
 		-Dinstalled_tests=false
 	)
 

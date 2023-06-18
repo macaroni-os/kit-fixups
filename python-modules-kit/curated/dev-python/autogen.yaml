@@ -74,10 +74,15 @@ tornado_stuff:
   defaults:
     cat: dev-python
     python_compat: python3+
-  generator: pypi-simple-1
+  generator: pypi-compat-1
   packages:
     - service_identity:
-        python_compat: python2+
+        compat:
+          version: 21.1.0
+        blocker: "!<=dev-python/service_identity-23.1.0"
+        revision:
+          23.1.0: 1
+        du_pep517: hatchling
         license: MIT
         pydeps:
           - pyasn1

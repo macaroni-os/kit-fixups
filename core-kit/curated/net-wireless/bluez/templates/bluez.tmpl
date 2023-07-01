@@ -70,7 +70,7 @@ PATCHES=(
 
 	# Fedora patches
 	# http://www.spinics.net/lists/linux-bluetooth/msg40136.html
-	"${FILESDIR}"/0001-obex-Use-GLib-helper-function-to-manipulate-paths.patch
+	"${FILESDIR}"/bluez-5.68-obex-use-glib-path-functions.patch
 
 	# This reverts commit ac2c2e10b3adb432a572b618c6f53cabb6b3c80b. It
 	# causes problems with Logitech MX wireless input devices (see

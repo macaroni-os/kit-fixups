@@ -9,10 +9,6 @@ release:
     | many independent contributors/authors as documented in the source code commit history.
     | Copyright 2017-{{cur_year}} Sony Interactive Entertainment, Inc.
   repositories:
-    - deadbeef:
-        copyright: |
-          | Copyright 2014-{{cur_year}} Roman Kuzmitskii (https://github.com/damex) and GitHub repository contributors.
-        url: https://github.com/damex/deadbeef-overlay.git
     - faustoo:
         copyright: |
           | Copyright 2013-{{cur_year}} Federico Moro (https://github.com/fmoro) and GitHub repository contributors.
@@ -47,7 +43,6 @@ release:
      - flora
      - faustoo
      - fusion809
-     - deadbeef
      - gentoo-staging:
          src_sha1: 9292583023a6610905c79a4707db3ac6c63b3a31
          notes: '21 Jun 2019'
@@ -71,7 +66,6 @@ release:
       - flora
       - faustoo
       - fusion809
-      - deadbeef
       - gentoo-staging:
           src_sha1: a40e31d83f4be169ca3d3dc362e2a0d880a30c40
           notes: '21 Dec 2019'
@@ -102,8 +96,6 @@ release:
             include:
               gentoo-staging:
                 - '*'
-              deadbeef:
-                - deadbeef-plugins
               faustoo:
                 - waf
                 - googlecode

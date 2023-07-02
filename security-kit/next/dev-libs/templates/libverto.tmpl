@@ -1,0 +1,56 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools
+
+DESCRIPTION="Main event loop abstraction library"
+HOMEPAGE="https://github.com/latchset/libverto/"
+
+SRC_URI="{{ src_uri }}"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="*"
+IUSE="glib +libev libevent +threads"
+REQUIRED_USE="|| ( glib libev libevent )"
+
+DEPEND="glib? ( >=dev-libs/glib-2.34.3 )
+	libev? ( >=dev-libs/libev-4.15 )
+	libevent? ( >=dev-libs/libevent-2.0.21 )"
+
+RDEPEND="${DEPEND}"
+
+DOCS=( AUTHORS ChangeLog NEWS README )
+
+# this patch is in upstream will not be necessary from 0.3.3 version (see: https://github.com/latchset/libverto/commit/39f2ef6317254297a8f6efa2fbadf4d913976d27 )
+PATCHES=(
+	"${FILESDIR}"/${P}-non-bash.patch
+)
+
+
+post_src_unpack() {
+	mv "${WORKDIR}"/latchset-libverto-* "${S}" || die
+}
+
+
+src_prepare() {
+	default
+	eautoreconf
+}
+
+src_configure() {
+	ECONF_SOURCE="${S}" \
+	econf \
+		$(use_with glib) \
+		$(use_with libev) \
+		$(use_with libevent) \
+		$(use_with threads pthread) \
+		--disable-static
+}
+
+src_install() {
+	default
+
+	find "${ED}" -name '*.la' -delete || die
+}

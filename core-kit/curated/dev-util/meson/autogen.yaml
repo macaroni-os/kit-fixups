@@ -1,0 +1,12 @@
+meson_rule:
+  generator: github-1
+  packages:
+    - meson:
+        github:
+          user: mesonbuild
+          query: tags
+          tarball: "meson-{version}.tar.gz"
+        template: meson.tmpl
+        versions:
+          latest: {}
+          0.59.1: {}

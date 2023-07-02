@@ -71,8 +71,12 @@ release:
           notes: '21 Dec 2019'
 
   remotes:
+    dev:
+      url: https://code.funtoo.org/bitbucket/scm/auto/{repo}
     prod:
-      url: ssh://repos@harvester.funtoo.org/funtoo/tree/{repo}
+      url: ssh://git@code.funtoo.org:7999/auto/{repo}
+      mirrors:
+        - ssh://git@github.com/funtoo/{repo}
   kit-definitions:
     defaults:
       masters:

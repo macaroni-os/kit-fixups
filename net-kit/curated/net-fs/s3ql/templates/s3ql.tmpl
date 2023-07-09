@@ -25,6 +25,7 @@ RDEPEND=">=dev-db/sqlite-3.7.0:3
 	dev-python/google-auth[${PYTHON_USEDEP}]
 	dev-python/google-auth-oauthlib[${PYTHON_USEDEP}]
 	dev-python/requests[${PYTHON_USEDEP}]
+	>=dev-python/trio-0.22.1-r1[${PYTHON_USEDEP}]
 	systemd? ( dev-python/python-systemd[${PYTHON_USEDEP}] )"
 DEPEND="${RDEPEND}
 	test? (

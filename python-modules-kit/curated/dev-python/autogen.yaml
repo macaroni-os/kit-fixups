@@ -1619,15 +1619,20 @@ io_stuff_rule:
     - async-generator:
         license: '|| ( Apache-2.0 MIT )'
         pypi_name: async_generator
+    - exceptiongroup:
+        du_pep517: flit_scm
     - trio:
+        revision:
+          0.22.1: 1
         license: '|| ( Apache-2.0 MIT )'
         pydeps:
-          - attrs >= 19.2.0
+          - attrs >= 20.1.0
           - sortedcontainers
           - async-generator >= 1.9
           - idna
           - outcome
           - sniffio
+          - exceptiongroup
     - sortedcontainers:
         license: Apache-2.0
         python_compat: python2+

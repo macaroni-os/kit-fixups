@@ -25,7 +25,7 @@ async def generate(hub, **pkginfo):
 	my_archive, metadata = hub.Archive.find_by_name(final_name)
 	if my_archive is None:
 		my_archive = hub.Archive(final_name)
-		my_archive.initialize()
+		await my_archive.initialize()
 		retval = os.system(f"( cd {my_archive.top_path}; git clone --depth 1 --branch v{v} --recursive https://code.videolan.org/videolan/libplacebo )")
 		if retval != 0:
 			raise hub.pkgtools.ebuild.BreezyError("Unable to git clone repository.")

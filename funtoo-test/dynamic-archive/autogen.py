@@ -25,7 +25,7 @@ async def generate(hub, **pkginfo):
     my_archive, metadata = hub.Archive.find_by_name(f"dynamic-archive-1.0-{id_key}.tar.xz", key={"id_key": id_key})
     if not my_archive:
         my_archive = hub.Archive(f"dynamic-archive-1.0-{id_key}.tar.xz")
-        my_archive.initialize("dynamic-archive-1.0")
+        await my_archive.initialize("dynamic-archive-1.0")
         with open(os.path.join(my_archive.top_path, "README"), "w") as myf:
             myf.write("HELLO")
         await my_archive.store_by_name(key={"id_key" : id_key})
@@ -34,7 +34,7 @@ async def generate(hub, **pkginfo):
     my_archive, metadata = hub.Archive.find_by_name("dynamic-archive-1.0.tar.xz")
     if not my_archive:
         my_archive = hub.Archive("dynamic-archive-1.0.tar.xz")
-        my_archive.initialize("dynamic-archive-1.0")
+        await my_archive.initialize("dynamic-archive-1.0")
         with open(os.path.join(my_archive.top_path, "README"), "w") as myf:
             myf.write("HELLO")
         await my_archive.store_by_name()

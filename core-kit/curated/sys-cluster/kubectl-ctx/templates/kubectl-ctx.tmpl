@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="A kubectl plugin for interactively changing the kubeconfig context"
+HOMEPAGE="https://github.com/weibeld/kubectl-ctx"
+SRC_URI="{{ src_uri }}"
+
+LICENSE=""
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+DEPEND="
+	sys-cluster/kubectl
+	app-shells/fzf
+"
+RDEPEND="${DEPEND}"
+BDEPEND=""
+
+S="${WORKDIR}/{{ github_repo }}-{{ sha }}"
+
+src_install() {
+	dobin kubectl-ctx
+	dodoc README.md
+}
+

@@ -1,0 +1,36 @@
+qtile:
+  generator: python-github-1
+  packages:
+    - qtile:
+        github:
+          user: funtoo
+          query: tags
+        desc: A full-featured, hackable tiling window manager written in Python
+        homepage: http://www.qtile.org/
+        license: MIT
+        cat: x11-wm
+        restrict: test
+        du_pep517: setuptools
+        pydeps:
+          py:all:
+            - setuptools_scm
+            - cairocffi >= 1.6.0-r1
+            - cffi >= 1.1.0
+            - six >= 1.4.1
+            - xcffib >= 0.8.1
+            - dbus-next
+        rdepend: |
+          x11-libs/cairo[X,xcb(+)]
+          x11-libs/pango
+          x11-libs/libnotify
+          media-sound/pulseaudio
+        body: |
+          python_install_all() {
+            local DOCS=( CHANGELOG README.rst )
+            distutils-r1_python_install_all
+            insinto /usr/share/xsessions
+            doins resources/qtile.desktop
+            exeinto /etc/X11/Sessions
+            newexe "${FILESDIR}"/${PN}-session ${PN}
+          }
+

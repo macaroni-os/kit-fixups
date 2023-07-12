@@ -63,8 +63,15 @@ autogens:
         compat: '1.9'
         blocker: '!<dev-python/webcolors-1.9'
     - zipp:
-        compat: 1.2.0
-        blocker: '!<dev-python/zipp-0.8'
+        python_compat: python3+ pypy3
+        compat: '1.2.0'
+        blocker: '!<=dev-python/zipp-2'
+        homepage: https://github.com/jaraco/zipp
+        license: MIT
+        pydeps:
+          py:all:
+            - toml
+            - setuptools_scm
 
 pypi_simple_rule:
   generator: pypi-simple-1

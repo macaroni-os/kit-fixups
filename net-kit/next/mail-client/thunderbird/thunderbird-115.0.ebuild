@@ -2,9 +2,9 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-105-patches-01j.tar.xz"
+FIREFOX_PATCHSET="firefox-115-patches-04.tar.xz"
 
-LLVM_MAX_SLOT=14
+LLVM_MAX_SLOT=13
 
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
@@ -63,7 +63,7 @@ LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
 
 IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
 IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" system-av1 +system-harfbuzz -system-icu +system-jpeg +system-libevent +system-libvpx system-png system-webp"
+IUSE+=" system-av1 +system-harfbuzz -system-icu +system-jpeg +system-libevent -system-libvpx system-png system-webp"
 IUSE+=" wayland wifi +X"
 
 REQUIRED_USE="debug? ( !system-av1 )
@@ -512,11 +512,25 @@ src_unpack() {
 }
 
 src_prepare() {
-	if use lto; then
-		rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch || die
-	fi
+(
+/bin/cat <<DISTRIBUTION.INI
+[Global]
+id=funtoo
+version=${MOZ_PV}
+about=Mozilla Thunderbird for Funtoo
+about.de=Mozilla Thunderbird für Funtoo
 
+[Preferences]
+app.distributor="funtoo"
+app.distributor.channel="funtoo"
+DISTRIBUTION.INI
+) > "${WORKDIR}/distribution.ini"
+
+	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-disable_audio_thread_priority_default_features.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bgo-908297-ppc64-profiler.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1838655-arm-unified-build-missing-include.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -969,7 +983,7 @@ src_install() {
 
 	# Install policy (currently only used to disable application updates)
 	insinto "${MOZILLA_FIVE_HOME}/distribution"
-	newins "${FILESDIR}"/distribution-${PV}.ini distribution.ini
+	newins "${WORKDIR}"/distribution.ini distribution.ini
 	newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
 
 	# Install system-wide preferences

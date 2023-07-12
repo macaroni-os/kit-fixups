@@ -1,0 +1,26 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+SRC_URI="{{ src_uri }}"
+KEYWORDS="*"
+
+DESCRIPTION="Simple and flexible tool for managing secrets"
+HOMEPAGE="https://github.com/getsops/sops"
+LICENSE="MPL-2.0"
+SLOT="0"
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+DOCS=( {CHANGELOG,README}.rst )
+
+src_compile() {
+	CGO_ENABLED=0 \
+		go build -v -ldflags "-s -w" -o "${PN}" ./cmd/sops
+}
+
+src_install() {
+	einstalldocs
+	dobin ${PN}
+}

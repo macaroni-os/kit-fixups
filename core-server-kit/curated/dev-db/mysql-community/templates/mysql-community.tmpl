@@ -9,7 +9,7 @@ inherit cmake flag-o-matic linux-info multiprocessing prefix toolchain-funcs use
 MY_PV="${PV//_pre*}"
 MY_P="${PN}-${MY_PV}"
 
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{src_uri}}"
 
 HOMEPAGE="https://www.mysql.com/"
 DESCRIPTION="A fast, multi-threaded, multi-user SQL database server"
@@ -26,7 +26,7 @@ REQUIRED_USE="?? ( tcmalloc jemalloc )
 	router? ( server )
 	tcmalloc? ( server )"
 
-KEYWORDS="*"
+KEYWORDS="{{keywords}}"
 
 COMMON_DEPEND="
 	>=app-arch/lz4-0_p131:=

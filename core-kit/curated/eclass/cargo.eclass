@@ -161,12 +161,32 @@ cargo_src_unpack() {
 	mkdir -p "${ECARGO_VENDOR}" || die
 	mkdir -p "${S}" || die
 
+	cargo_gen_config
+
 	if [ "${A/${P}-funtoo-crates-bundle-/}" != "${A}" ]; then
 		unpack ${A}
+
+		local crates_dir="${WORKDIR}"/funtoo-crates-bundle-"${PN}"
+
 		local crate
-		for crate in "${WORKDIR}"/funtoo-crates-bundle-"${PN}"/*; do
+		for crate in "${crates_dir}"/*.crate; do
 			_cargo_process_crate "${crate}"
 		done
+
+		pushd "${crates_dir}" >/dev/null
+
+		local extra
+		for extra in "${WORKDIR}"/funtoo-crates-bundle-"${PN}"/*.tar.xz; do
+				tar xf "${extra}"
+				local filename=$(basename "${extra}")
+				local unpack_dir="${filename%.tar.xz}"
+
+				pushd "${unpack_dir}" >/dev/null
+				cat funtoo_config.toml | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
+				popd >/dev/null
+		done
+
+		popd >/dev/null
 	else
 		local archive shasum pkg
 		for archive in ${A}; do
@@ -189,8 +209,6 @@ cargo_src_unpack() {
 			esac
 		done
 	fi
-
-	cargo_gen_config
 }
 
 _cargo_process_crate() {

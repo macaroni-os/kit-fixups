@@ -546,6 +546,8 @@ dev_python_compat_rule:
             distutils-r1_python_prepare_all
           }
     - pyyaml:
+        revision:
+          6.0.1: 1
         compat: '5.4.1'
         blocker: '!<dev-python/pyyaml-6.0'
         python_compat: python3+ pypy3
@@ -563,9 +565,9 @@ dev_python_compat_rule:
           libyaml? ( dev-libs/libyaml )
         pydeps:
           use:libyaml:build:
-            - cython
+            - cython < 3
           use:libyaml:
-            - cython
+            - cython < 3
         body: |
           python_configure_all() {
             mydistutilsargs=( $(use_with libyaml) )
@@ -2134,6 +2136,10 @@ better_autogens_without_templates:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - cython:
+        pypi_name: Cython
+        version: 0.29.36
+        python_compat: python2+
     - py:
         python_compat: python2+ pypy{,3}
         revision:
@@ -2379,9 +2385,6 @@ dev_python_autogen_rule:
     - click:
         python_compat: python3+ pypy3
     - cloudflare
-    - cython:
-        python_compat: python2+ pypy3
-        pypi_name: Cython
     - daemonize:
         python_compat: python2+ pypy3
     - defusedxml:
@@ -2432,7 +2435,7 @@ dev_python_autogen_rule:
         pypi_name: msgpack
         python_compat: python2_7
     - multidict
-    - numpy
+    - numpy:
         # FL-9243: numpy >=1.22.0 only supports Python >=3.8
         version: 1.21.5
     - flake8-polyfill:

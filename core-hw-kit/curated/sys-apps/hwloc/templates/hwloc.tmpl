@@ -32,8 +32,7 @@ RDEPEND=">=sys-libs/ncurses-5.9-r3:=
 		x11-libs/libX11
 	)"
 DEPEND="${RDEPEND}"
-# 2.69-r5 for --runstatedir
-BDEPEND=">=sys-devel/autoconf-2.69-r5
+BDEPEND=">=sys-devel/autoconf-2.69-r4
 	virtual/pkgconfig"
 
 DOCS=( AUTHORS NEWS README VERSION )

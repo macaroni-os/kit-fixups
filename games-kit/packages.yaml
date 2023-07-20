@@ -188,7 +188,6 @@ packages:
   - games-puzzle/zaz
   - games-puzzle/gtkballs
   - games-puzzle/icebreaker
-  - games-puzzle/tod
   - games-puzzle/lpairs
   - games-puzzle/gemdropx
   - games-puzzle/gnurobbo
@@ -365,7 +364,6 @@ packages:
   - games-rpg/costume-quest
   - games-rpg/daimonin-client
   - games-rpg/dear-esther
-  - games-rpg/kqlives
   - games-rpg/avadon
   - games-rpg/comi
   - games-rpg/pcgen
@@ -456,7 +454,6 @@ packages:
   - games-strategy/widelands
   - games-strategy/0ad-data
   - games-strategy/endless-sky
-  - games-strategy/liquidwar
   - games-strategy/mindrover-demo
   - games-strategy/freeorion
   - games-strategy/heroes3
@@ -531,7 +528,6 @@ packages:
   - games-arcade/digger
   - games-arcade/yarsrevenge
   - games-arcade/notpacman
-  - games-arcade/opensonic
   - games-arcade/kobodeluxe
   - games-arcade/bub-n-bros
   - games-arcade/sdb
@@ -592,22 +588,22 @@ packages:
   - games-arcade/whichwayisup
   - games-arcade/openmortal
   - games-arcade/pycadia
-  - games-simulation/singularity
-  - games-simulation/gl117
+  - games-simulation/singularity #sdl1
+  - games-simulation/gl117 #sdl1
   - games-simulation/openttd
-  - games-simulation/crashtest
-  - games-simulation/searchandrescue
-  - games-simulation/lincity-ng
-  - games-simulation/corsix-th
+  - games-simulation/crashtest #no ebuilds to satisfy ">=media-libs/plib-1.8.4".
+  - games-simulation/searchandrescue #sdl1
+  - games-simulation/lincity-ng #sdl1
+  - games-simulation/corsix-th #emake failed
   - games-simulation/flightgear-data
-  - games-simulation/cannonsmash
-  - games-simulation/bcs-demo
-  - games-simulation/lincity
-  - games-simulation/senken
-  - games-simulation/simutrans
-  - games-simulation/crrcsim
-  - games-simulation/micropolis
-  - games-simulation/flightgear
+  - games-simulation/cannonsmash #sdl1
+  - games-simulation/bcs-demo #multilib
+  - games-simulation/lincity #emake failed
+  - games-simulation/senken #sdl1
+  - games-simulation/simutrans #sdl1
+  - games-simulation/crrcsim #no ebuilds to satisfy "media-libs/plib".
+  - games-simulation/micropolis #sdl1
+  - games-simulation/flightgear #no ebuilds to satisfy "<dev-games/openscenegraph-3.5.6:=
   - games-simulation/pmars-sdl
   - games-simulation/openrct2
   - games-action/abuse
@@ -623,7 +619,6 @@ packages:
   - games-action/snipes
   - games-action/moon-buggy
   - games-action/minetest_game
-  - games-action/garden
   - games-action/accelerator3d
   - games-action/violetland
   - games-action/supermariowar
@@ -667,7 +662,6 @@ packages:
   - games-action/minetest
   - games-action/hotline-miami
   - games-action/noiz2sa
-  - games-action/atanks
   - games-action/luola
   - games-action/d1x-rebirth
   - games-action/koth
@@ -681,7 +675,6 @@ packages:
   - games-action/btanks
   - games-action/rrootage
   - games-action/trine2
-  - games-action/chickens
   - games-action/xbomber
   - games-action/bomberclone
   - games-action/openastromenace
@@ -707,7 +700,6 @@ packages:
   - games-emulation/vgba
   - games-emulation/libretro-info
   - games-emulation/emutos
-  - games-emulation/fakenes
   - games-emulation/yabause
   - games-emulation/mupen64plus-rsp-hle
   - games-emulation/stella

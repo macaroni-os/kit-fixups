@@ -1,0 +1,12 @@
+diff -ru a/src/mp4.c b/src/mp4.c
+--- a/src/mp4.c	2022-11-14 09:46:40.116606307 +0100
++++ b/src/mp4.c	2022-11-14 09:53:35.976872611 +0100
+@@ -255,7 +255,7 @@
+   }
+ 
+   if (file_offset > mp4->audio_offset + mp4->audio_size) {
+-    PerlIO_printf(PerlIO_stderr(), "find_frame: file offset out of range (%d > %lld)\n", file_offset, mp4->audio_offset + mp4->audio_size);
++    PerlIO_printf(PerlIO_stderr(), "find_frame: file offset out of range (%d > %llu)\n", file_offset, mp4->audio_offset + mp4->audio_size);
+     ret = -1;
+     goto out;
+   }

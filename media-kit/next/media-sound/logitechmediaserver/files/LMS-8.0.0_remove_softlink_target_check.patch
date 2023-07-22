@@ -1,0 +1,23 @@
+Don't try to translate softlinks to real paths
+
+
+diff -ru a/Slim/Utils/Misc.pm b/Slim/Utils/Misc.pm
+--- a/Slim/Utils/Misc.pm	2020-10-22 20:50:03.000000000 +0200
++++ b/Slim/Utils/Misc.pm	2020-12-10 12:26:48.794923956 +0100
+@@ -838,15 +838,6 @@
+ 	elsif ($validRE && -f _) {
+ 		return 0 if $item !~ $validRE;
+ 	}
+-	elsif ($validRE && -l _ && defined ($target = readlink($fullpath))) {
+-		# fix relative/absolute path
+-		$target = ($target =~ /^\// ? $target : catdir($dirname, $target));
+-
+-		if (-f $target) {
+-			return 0 if $target !~ $validRE;
+-		}
+-	}
+-
+ 	return 1;
+ }
+ 
+

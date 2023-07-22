@@ -1,0 +1,111 @@
+Opus: correct handling of large comment headers (e.g embedded images)
+
+A comment header may span multiple pages and in such situations we
+need to delay parsing until we have read all pages which belong to the
+comment header packet. The final page in the comment header packet is
+marked by setting "granule position" to zero.
+
+It's common to have comment headers spanning multiple pages when album
+art is embedded in an opus file. A single page can contain 65025 bytes
+so if tags + picture needs more space then additional pages are
+needed.
+
+
+
+diff --git a/Changes b/Changes
+index 2da6ab6..2a2bc19 100644
+--- a/Changes
++++ b/Changes
+@@ -2,6 +2,9 @@ Revision history for Audio::Scan
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
++1.06	2022-11-10
++	- opus: Fix parsing large comment headers (such as large embedded images)
++
+ 1.05    2021-09-10
+ 	- ID3: Fix v2.4 extended header handling.
+ 	- WavPack DSD: fix song_length_ms calculation (Kimmo Taskinen).
+diff --git a/lib/Audio/Scan.pm b/lib/Audio/Scan.pm
+index 4e615f5..b81c08f 100644
+--- a/lib/Audio/Scan.pm
++++ b/lib/Audio/Scan.pm
+@@ -2,7 +2,7 @@ package Audio::Scan;
+ 
+ use strict;
+ 
+-our $VERSION = '1.05';
++our $VERSION = '1.06';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+diff --git a/src/opus.c b/src/opus.c
+index cfbef38..953ef2c 100644
+--- a/src/opus.c
++++ b/src/opus.c
+@@ -194,7 +194,17 @@ _opus_parse(PerlIO *infile, char *file, HV *info, HV *tags, uint8_t seeking)
+     // Copy page into vorbis buffer
+     buffer_append( &vorbis_buf, buffer_ptr(&ogg_buf), pagelen );
+     DEBUG_TRACE("  Read %d into vorbis buffer\n", pagelen);
+-    
++
++    if ( granule_pos != 0 ) {
++      // RFC7845: The granule position MUST be zero for the ID header
++      //          page and the page where the comment header
++      //          completes.
++      //
++      // So, we need to read more pages
++      buffer_consume( &ogg_buf, pagelen );
++      continue;
++    }
++
+     // Process vorbis packet
+     TOC_byte = buffer_get_char(&vorbis_buf);
+     if ( TOC_byte == 'O' ) {
+diff --git a/t/opus.t b/t/opus.t
+index 1c902be..b9913d7 100644
+--- a/t/opus.t
++++ b/t/opus.t
+@@ -2,7 +2,7 @@ use strict;
+ 
+ use File::Spec::Functions;
+ use FindBin ();
+-use Test::More tests => 74;
++use Test::More tests => 88;
+ 
+ use Audio::Scan;
+ 
+@@ -47,6 +47,29 @@ eval {
+     is($info->{audio_md5}, 'bebb6f0f0a90ce4e4e90635a3c7408d0', 'Audio MD5 ok' );
+ }
+ 
++{
++    local $ENV{AUDIO_SCAN_NO_ARTWORK} = 1;
++    my $s = Audio::Scan->scan( _f('large_embedded_picture.opus'), { md5_size => 4096 } );
++
++    my $info = $s->{info};
++    is($info->{bitrate_average}, 72640, 'Bitrate ok');
++    is($info->{channels}, 1, 'Channels ok');
++    is($info->{file_size}, 205606, 'File size ok');
++    is($info->{stereo}, 0, 'Stereo ok');
++    is($info->{samplerate}, 48000, 'Sample Rate ok');
++    is($info->{input_samplerate}, 44100, 'Input Sample Rate ok');
++    is($info->{song_length_ms}, 100, 'Song length ok');
++    is($info->{audio_offset}, 204698, 'Audio offset ok');
++    is($info->{audio_size}, 908, 'Audio size ok');
++    is($info->{audio_md5}, 'c050e1584b6284c230708b8b0fb2f31e', 'Audio MD5 ok');
++
++    my $tags = $s->{tags};
++    is($tags->{ALLPICTURES}[0]{image_data}, 152291, 'Image size ok');
++    is($tags->{ALLPICTURES}[0]{width}, 500, 'Image width ok');
++    is($tags->{ALLPICTURES}[0]{height}, 500, 'Image height ok');
++    is($tags->{ALLPICTURES}[0]{mime_type}, 'image/png', 'Image type ok');
++}
++
+ ## A few of the official Opus test files from https://people.xiph.org/~greg/opus_testvectors/
+ 
+ {
+diff --git a/t/opus/large_embedded_picture.opus b/t/opus/large_embedded_picture.opus
+new file mode 100644
+index 0000000..91a1770
+Binary files /dev/null and b/t/opus/large_embedded_picture.opus differ

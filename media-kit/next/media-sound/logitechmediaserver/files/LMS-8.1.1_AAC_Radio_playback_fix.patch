@@ -1,0 +1,25 @@
+diff -ru a/Slim/Player/Song.pm b/Slim/Player/Song.pm
+--- a/Slim/Player/Song.pm	2022-11-18 11:02:43.178993212 +0100
++++ b/Slim/Player/Song.pm	2022-11-18 11:02:00.045378157 +0100
+@@ -341,7 +341,6 @@
+ # Some 'native' formats are streamed with a different format to their container
+ my %streamFormatMap = (
+ 	wav => 'pcm',
+-	mp4 => 'aac',
+ );
+ 
+ sub open {
+@@ -426,10 +425,9 @@
+ 	} else {
+ 		require Slim::Player::CapabilitiesHelper;
+ 
+-		# Set the correct format for WAV/AAC playback
+-		if ( exists $streamFormatMap{$format} ) {
+-			$format = $streamFormatMap{$format};
+-		}
++		# Set the correct format for WAV playback
++		$self->wantFormat($format);
++		$format = $streamFormatMap{$format} || $format;
+ 
+ 		# Is format supported by all players?
+ 		if (!grep {$_ eq $format} Slim::Player::CapabilitiesHelper::supportedFormats($client)) {

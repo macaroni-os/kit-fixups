@@ -1,0 +1,119 @@
+Quick and dirty fix for Opus duration bug. The buffer was not being cleared
+when seeking further back into the file. Needs more work to handle edge cases
+like a nonzero starting granule and multiple streams, and should be made into
+a common function that the Vorbis code can also use.
+
+diff --git a/Changes b/Changes
+index 305f04f..ca12dd7 100644
+--- a/Changes
++++ b/Changes
+@@ -2,6 +2,9 @@ Revision history for Audio::Scan
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
++1.02
++        - Opus: song_length_ms and bitrate_average were not always scanned properly
++
+ 1.01    2018-07-09
+         - Added Opus codec support. (Jeff Muizelaar)
+         - ADTS: RT #124525, fixed incorrect duration calcuation due to off-by-one error
+diff --git a/lib/Audio/Scan.pm b/lib/Audio/Scan.pm
+index 65fc429..b6b101b 100644
+--- a/lib/Audio/Scan.pm
++++ b/lib/Audio/Scan.pm
+@@ -2,7 +2,7 @@ package Audio::Scan;
+ 
+ use strict;
+ 
+-our $VERSION = '1.01';
++our $VERSION = '1.02';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+diff --git a/src/opus.c b/src/opus.c
+index 69ea517..cfbef38 100644
+--- a/src/opus.c
++++ b/src/opus.c
+@@ -250,9 +250,6 @@ _opus_parse(PerlIO *infile, char *file, HV *info, HV *tags, uint8_t seeking)
+     buffer_consume( &ogg_buf, pagelen );
+   }
+   
+-  buffer_clear(&ogg_buf);
+-  DEBUG_TRACE("Buffer clear");
+-  
+   // audio_offset is 28 less because we read the Ogg header
+   audio_offset -= 28;
+   
+@@ -263,8 +260,11 @@ _opus_parse(PerlIO *infile, char *file, HV *info, HV *tags, uint8_t seeking)
+   my_hv_store( info, "audio_size", newSVuv(audio_size) );
+   
+   my_hv_store( info, "serial_number", newSVuv(serialno) );
+-  DEBUG_TRACE("serial number\n");
++
++  // find the last Ogg page
++
+ #define BUF_SIZE 8500 // from vlc
++  
+   seek_position = file_size - BUF_SIZE;
+   while (1) {
+     if ( seek_position < audio_offset ) {
+@@ -275,21 +275,16 @@ _opus_parse(PerlIO *infile, char *file, HV *info, HV *tags, uint8_t seeking)
+     DEBUG_TRACE("Seeking to %d to calculate bitrate/duration\n", (int)seek_position);
+     PerlIO_seek(infile, seek_position, SEEK_SET);
+ 
+-    buf_size = PerlIO_read(infile, buffer_append_space(&ogg_buf, BUF_SIZE), BUF_SIZE);
+-    if ( buf_size == 0 ) {
+-      if ( PerlIO_error(infile) ) {
+-        PerlIO_printf(PerlIO_stderr(), "Error reading: %s\n", strerror(errno));
+-      }
+-      else {
+-        PerlIO_printf(PerlIO_stderr(), "File too small. Probably corrupted.\n");
+-      }
++    buffer_clear(&ogg_buf);
+ 
++    if ( !_check_buf(infile, &ogg_buf, OGG_HEADER_SIZE, BUF_SIZE) ) {
+       err = -1;
+       goto out;
+     }
+ 
+     // Find sync
+     bptr = (unsigned char *)buffer_ptr(&ogg_buf);
++    buf_size = buffer_len(&ogg_buf);
+     last_bptr = bptr;
+     // make sure we have room for at least the one ogg page header
+     while (buf_size >= OGG_HEADER_SIZE) {
+@@ -333,6 +328,7 @@ _opus_parse(PerlIO *infile, char *file, HV *info, HV *tags, uint8_t seeking)
+     // of page header we will include it in the next read
+     seek_position -= (BUF_SIZE - OGG_HEADER_SIZE);
+   }
++
+ out:
+   buffer_free(&ogg_buf);
+   buffer_free(&vorbis_buf);
+diff --git a/t/opus.t b/t/opus.t
+index f8b4114..1c902be 100644
+--- a/t/opus.t
++++ b/t/opus.t
+@@ -106,20 +106,19 @@ eval {
+   is($tags->{VENDOR}, 'Encoded with GStreamer Opusenc', 'vendor tag ok' );
+ }
+ 
+-# XXX bug: no bitrate/length
+ {
+   my $s = Audio::Scan->scan( _f('test-8-7.1.opus'), { md5_size => 4096 } );
+ 
+   my $info = $s->{info};
+   my $tags = $s->{tags};
+   
+-  is($info->{bitrate_average}, undef, 'Bitrate ok');
++  is($info->{bitrate_average}, 322280, 'Bitrate ok');
+   is($info->{channels}, 8, 'Channels ok');
+   is($info->{file_size}, 543119, 'File size ok' );
+   is($info->{stereo}, 0, 'Stereo ok');
+   is($info->{samplerate}, 48000, 'Sample Rate ok');
+   is($info->{input_samplerate}, 44100, 'Input Sample Rate ok');
+-  is($info->{song_length_ms}, undef, 'Song length ok');
++  is($info->{song_length_ms}, 13478, 'Song length ok');
+   is($info->{audio_offset}, 157, 'Audio offset ok');
+   is($info->{audio_size}, 542962, 'Audio size ok');
+   is($info->{audio_md5}, 'cc3f80137c82c2be7e83ef5bd33fae1e', 'Audio MD5 ok' );

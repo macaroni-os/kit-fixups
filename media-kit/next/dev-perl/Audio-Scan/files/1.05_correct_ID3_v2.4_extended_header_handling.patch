@@ -1,0 +1,181 @@
+ID3 extended headers need to treated differently in version 2.4
+
+In v2.3, the extended header size excludes itself.
+
+In v2.4, the extended header size includes itself, and is a synchsafe
+         integer.
+
+
+
+diff --git a/Changes b/Changes
+index 19c12fc..2da6ab6 100644
+--- a/Changes
++++ b/Changes
+@@ -2,9 +2,14 @@ Revision history for Audio::Scan
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
+-1.03   2021-08-09
++1.05    2021-09-10
++	- ID3: Fix v2.4 extended header handling.
++	- WavPack DSD: fix song_length_ms calculation (Kimmo Taskinen).
++
++1.04    2021-08-09
+         - MP4: Allow seek with sample rates > 65535 (32 bits)
+         - Fixed missing zlib reference in generated Makefile.
++	- Link zlib based on OS.
+ 
+ 1.02    2018-10-16
+         - Opus: song_length_ms and bitrate_average were not always scanned properly
+diff --git a/lib/Audio/Scan.pm b/lib/Audio/Scan.pm
+index 2523873..4e615f5 100644
+--- a/lib/Audio/Scan.pm
++++ b/lib/Audio/Scan.pm
+@@ -2,7 +2,7 @@ package Audio::Scan;
+ 
+ use strict;
+ 
+-our $VERSION = '1.04';
++our $VERSION = '1.05';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+diff --git a/src/id3.c b/src/id3.c
+index bdd2800..9593567 100644
+--- a/src/id3.c
++++ b/src/id3.c
+@@ -272,12 +272,27 @@ _id3_parse_v2(id3info *id3)
+       goto out;
+     }
+ 
+-    // tested with v2.3-ext-header.mp3
++    // tested with v2.3-ext-header.mp3 & v2.4-ext-header.mp3
+ 
+     // We don't care about the value of the extended flags or CRC, so just read the size and skip it
+-    ehsize = buffer_get_int(id3->buf);
+ 
+-    // ehsize may be invalid, tested with v2.3-ext-header-invalid.mp3
++    if (id3->version_major == 3) {
++      // v2.3: 'Extended header size' excludes itself
++      ehsize = buffer_get_int(id3->buf);
++    }
++    else {
++      // v2.4: 'Extended header size' includes itself, and is a synchsafe integer of 4 bytes
++      ehsize = buffer_get_syncsafe(id3->buf, 4);
++      // must be at least 4 bytes - tested with v2.4-ext-header-invalid-too-short.mp3
++      if (ehsize < 4 ) {
++        warn("Error: Invalid ID3 extended header - too short (%s)\n", id3->file);
++        ret = 0;
++        goto out;
++      }
++      ehsize -= 4; // adjust to v2.3 basis
++    }
++
++    // ehsize may be invalid, tested with v2.3-ext-header-invalid.mp3 & v2.4-ext-header-invalid.mp3
+     if (ehsize > id3->size_remain - 4) {
+       warn("Error: Invalid ID3 extended header size (%s)\n", id3->file);
+       ret = 0;
+diff --git a/src/wavpack.c b/src/wavpack.c
+index da8d59e..2313b92 100644
+--- a/src/wavpack.c
++++ b/src/wavpack.c
+@@ -264,11 +264,12 @@ _wavpack_parse_block(wvpinfo *wvp)
+     if (samplerate != NULL) {
+       uint32_t song_length_ms;
+ 
+-      if (wvp->header->flags & 0x80000000)
+-        wvp->header->total_samples *= 8; // DSD
+-
+       song_length_ms = ((wvp->header->total_samples * 1.0) / SvIV(*samplerate)) * 1000;
+ 
++      // flags bit 31: 0 = PCM audio; 1 = DSD audio (5.0+)
++      if (wvp->header->flags & 0x80000000)
++		  song_length_ms *= 8;
++
+       my_hv_store( wvp->info, "song_length_ms", newSVuv(song_length_ms) );
+       my_hv_store( wvp->info, "bitrate", newSVuv( _bitrate(wvp->file_size - wvp->audio_offset, song_length_ms) ) );
+       my_hv_store( wvp->info, "total_samples", newSVuv(wvp->header->total_samples) );
+diff --git a/t/mp3.t b/t/mp3.t
+index ed960ea..b6f860c 100644
+--- a/t/mp3.t
++++ b/t/mp3.t
+@@ -3,7 +3,7 @@ use strict;
+ use Digest::MD5 qw(md5_hex);
+ use File::Spec::Functions;
+ use FindBin ();
+-use Test::More tests => 396;
++use Test::More tests => 399;
+ use Test::Warn;
+ 
+ use Audio::Scan;
+@@ -1077,6 +1077,14 @@ eval {
+     is( $tags->{TCON}, 'Blues', 'v2.3 extended header ok' );
+ }
+ 
++# v2.4 extended header
++{
++    my $s = Audio::Scan->scan_tags( _f('v2.4-ext-header.mp3') );
++    my $tags = $s->{tags};
++
++    is( $tags->{TCON}, 'Blues', 'v2.4 extended header ok' );
++}
++
+ # MCDI frame
+ {
+     my $s = Audio::Scan->scan( _f('v2.3-mcdi.mp3') );
+@@ -1301,13 +1309,27 @@ eval {
+     is( $info->{vbr}, 1, 'Xing without LAME marked as VBR ok' );
+ }
+ 
+-# File with extended header bit set but no extended header
++# v2.3 file with extended header bit set but no extended header
+ {
+     warning_like { Audio::Scan->scan( _f('v2.3-ext-header-invalid.mp3') ); }
+         [ qr/Error: Invalid ID3 extended header size/ ],
+         'v2.3 invalid extended header ok';
+ }
+ 
++# v2.4 file with extended header bit set but invalid extended header size
++{
++    warning_like { Audio::Scan->scan( _f('v2.4-ext-header-invalid.mp3') ); }
++        [ qr/Error: Invalid ID3 extended header size/ ],
++        'v2.4 invalid extended header ok';
++}
++
++# v2.4 file with extended header bit set but extended header too short
++{
++    warning_like { Audio::Scan->scan( _f('v2.4-ext-header-invalid-too-short.mp3') ); }
++        [ qr/Error: Invalid ID3 extended header - too short/ ],
++        'v2.4 extended header too short ok';
++}
++
+ # Bug 15895, bad APE tag
+ {
+     my $s;
+diff --git a/t/mp3/v2.4-ext-header-invalid-too-short.mp3 b/t/mp3/v2.4-ext-header-invalid-too-short.mp3
+new file mode 100755
+index 0000000..516b235
+Binary files /dev/null and b/t/mp3/v2.4-ext-header-invalid-too-short.mp3 differ
+diff --git a/t/mp3/v2.4-ext-header-invalid.mp3 b/t/mp3/v2.4-ext-header-invalid.mp3
+new file mode 100755
+index 0000000..305ebb8
+Binary files /dev/null and b/t/mp3/v2.4-ext-header-invalid.mp3 differ
+diff --git a/t/mp3/v2.4-ext-header.mp3 b/t/mp3/v2.4-ext-header.mp3
+new file mode 100755
+index 0000000..8a3dd44
+Binary files /dev/null and b/t/mp3/v2.4-ext-header.mp3 differ
+diff --git a/t/wavpack.t b/t/wavpack.t
+index b29783f..0eb2661 100644
+--- a/t/wavpack.t
++++ b/t/wavpack.t
+@@ -153,8 +153,8 @@ use Audio::Scan;
+     is( $info->{encoder_version}, 0x410, 'v5-dsd encoder_version ok' );
+     is( $info->{file_size}, 690, 'v5-dsd file_size ok' );
+     is( $info->{samplerate}, 2822400, 'v5-dsd samplerate ok' );
+-    is( $info->{song_length_ms}, 1044491, 'v5-dsd song_length_ms ok' );
+-    is( $info->{total_samples}, 2947973120, 'v5-dsd total_samples ok' );
++    is( $info->{song_length_ms}, 1044488, 'v5-dsd song_length_ms ok' );
++    is( $info->{total_samples}, 368496640, 'v5-dsd total_samples ok' );
+ }
+ 
+ sub _f {

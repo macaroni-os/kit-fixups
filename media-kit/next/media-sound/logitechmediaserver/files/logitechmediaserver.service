@@ -1,0 +1,17 @@
+# unit file for media-sound/logitechmediaserver-bin
+#
+# Thanks to Caj Zell for the draft.
+
+[Unit]
+Description=Logitech Media Server Daemon
+After=network.target
+
+[Service]
+User=logitechmediaserver
+Group=logitechmediaserver
+WorkingDirectory=/opt/logitechmediaserver
+#EnvironmentFile=/etc/conf.d/logitechmediaserver
+ExecStart=/opt/logitechmediaserver/slimserver.pl --prefsdir=/var/lib/logitechmediaserver/preferences --cachedir=/var/lib/logitechmediaserver/cache --logfile=syslog $LMS_OPTS
+
+[Install]
+WantedBy=network.target

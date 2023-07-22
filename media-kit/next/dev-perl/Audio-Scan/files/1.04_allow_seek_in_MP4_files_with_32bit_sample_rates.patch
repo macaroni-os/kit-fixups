@@ -1,0 +1,76 @@
+Allow seek in MP4 files with sample rates > 65535 (32 bits)
+
+	
+diff --git a/Changes b/Changes
+index ca12dd7..19c12fc 100644
+--- a/Changes
++++ b/Changes
+@@ -2,7 +2,11 @@ Revision history for Audio::Scan
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
+-1.02
++1.03   2021-08-09
++        - MP4: Allow seek with sample rates > 65535 (32 bits)
++        - Fixed missing zlib reference in generated Makefile.
++
++1.02    2018-10-16
+         - Opus: song_length_ms and bitrate_average were not always scanned properly
+ 
+ 1.01    2018-07-09
+diff --git a/Makefile.PL b/Makefile.PL
+index bcb5d92..d4e1a21 100644
+--- a/Makefile.PL
++++ b/Makefile.PL
+@@ -7,7 +7,12 @@ use Getopt::Long;
+ my (@INC, @LIBS);
+ 
+ push @INC, '-Iinclude', '-Isrc';
++if( $^O eq 'MSWin32' ) {
++push @LIBS, '-Lwin32/ -lzlib';
++}
++else {
+ push @LIBS, '-lz';
++}
+ 
+ my $inc_files = join(' ', glob 'include/*.h');
+ my $src_files = join(' ', glob 'src/*.c');
+diff --git a/README.win32 b/README.win32
+index 71d0349..7640fdb 100644
+--- a/README.win32
++++ b/README.win32
+@@ -4,7 +4,7 @@ Tested with Visual Studio 2010 Express.
+ 
+ zlib
+ ----
+-Download zlib from http://zlib.net/zlib128.zip and extract
++Download zlib from https://zlib.net/zlib1211.zip and extract
+ Open command prompt using MS Visual Studio start menu entry or run the vcvars file,
+  for example C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat
+ nmake -f win32/Makefile.msc
+diff --git a/lib/Audio/Scan.pm b/lib/Audio/Scan.pm
+index b6b101b..2523873 100644
+--- a/lib/Audio/Scan.pm
++++ b/lib/Audio/Scan.pm
+@@ -2,7 +2,7 @@ package Audio::Scan;
+ 
+ use strict;
+ 
+-our $VERSION = '1.02';
++our $VERSION = '1.04';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+diff --git a/src/mp4.c b/src/mp4.c
+index 7b05eda..a1ea020 100644
+--- a/src/mp4.c
++++ b/src/mp4.c
+@@ -50,7 +50,7 @@ int
+ mp4_find_frame_return_info(PerlIO *infile, char *file, int offset, HV *info)
+ {
+   int ret = 1;
+-  uint16_t samplerate = 0;
++  uint32_t samplerate = 0;
+   uint32_t sound_sample_loc;
+   uint32_t i = 0;
+   uint32_t j = 0;

@@ -1,0 +1,12 @@
+diff -ru a/bidi.c b/bidi.c
+--- a/bidi.c	2020-12-09 15:33:17.580456970 +0100
++++ b/bidi.c	2020-12-09 15:30:38.082462132 +0100
+@@ -7,6 +7,7 @@
+ */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+ #define ASSERT(x) if (!(x)) { fprintf(stderr, "assert failed: %s\n", #x); exit(-1);} else ;
+ #define TCHAR   unsigned char
+

@@ -1,0 +1,50 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="Application that queries the user for a selection for printing"
+HOMEPAGE="https://github.com/naelstrof/slop"
+SRC_URI="{{ artifacts[0].src_uri }}"
+KEYWORDS="*"
+
+LICENSE="GPL-3"
+SLOT="0/${PV}"
+IUSE="opengl icu"
+
+RDEPEND="
+	icu? ( dev-libs/icu:= )
+	x11-libs/libX11
+	x11-libs/libXext
+	opengl? (
+		media-libs/glew:0=
+		media-libs/libglvnd
+		virtual/opengl
+		x11-libs/libXrender:=
+	)
+"
+BDEPEND="
+	${RDEPEND}
+	x11-base/xorg-proto
+"
+DEPEND="
+	${RDEPEND}
+	media-libs/glm
+"
+
+#PATCHES=( "${FILESDIR}/${PN}"-7.5-missing-header.patch )
+
+src_unpack() {
+	unpack "${A}"
+	mv {{ github_user }}-{{ github_repo }}-* "${S}"
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DSLOP_OPENGL=$(usex opengl)
+		-DSLOP_UNICODE=$(usex icu)
+	)
+	cmake_src_configure
+}
+

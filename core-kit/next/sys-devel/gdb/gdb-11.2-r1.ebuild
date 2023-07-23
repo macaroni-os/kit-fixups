@@ -73,6 +73,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-8.3.1-verbose-build.patch
+	"${FILESDIR}"/${PN}-12.1-readline-8.2-build.patch
 )
 
 pkg_setup() {

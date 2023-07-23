@@ -6,7 +6,7 @@ inherit toolchain-funcs
 
 DESCRIPTION="Libraries for standards-based RTP/RTCP/RTSP multimedia streaming"
 HOMEPAGE="http://www.live555.com/"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="LGPL-2.1"
 KEYWORDS="*"
@@ -33,30 +33,8 @@ SLOT="0/${LIVE_ABI_VERSION}"
 S="${WORKDIR}/live"
 
 src_prepare() {
+	cp "${FILESDIR}/config.funtoo" ${S}/ || die
 	default
-
-	cp "${FILESDIR}/config.gentoo-so-r3" "${S}/config.gentoo-so-r1" || die
-
-	# This is all legacy stuff which needs to be cleaned up
-	case ${CHOST} in
-		*-solaris*)
-			sed -i \
-				-e '/^COMPILE_OPTS /s/$/ -DSOLARIS -DXLOCALE_NOT_USED/' \
-				-e '/^LIBS_FOR_CONSOLE_APPLICATION /s/$/ -lsocket -lnsl/' \
-				live/config.gentoo-so-r1 \
-				|| die
-		;;
-		*-darwin*)
-			sed -i \
-				-e '/^COMPILE_OPTS /s/$/ -DBSD=1 -DHAVE_SOCKADDR_LEN=1/' \
-				-e '/^LINK /s/$/ /' \
-				-e '/^LIBRARY_LINK /s/=.*$/= $(CXX) -o /' \
-				-e '/^LIBRARY_LINK_OPTS /s:-shared.*$:-undefined suppress -flat_namespace -dynamiclib -install_name '"${EPREFIX}/usr/$(get_libdir)/"'$@:' \
-				-e '/^LIB_SUFFIX /s/so/dylib/' \
-				live/config.gentoo-so-r1 \
-				|| die
-		;;
-	esac
 }
 
 src_configure() {
@@ -64,14 +42,14 @@ src_configure() {
 	# We don't want to call ./configure or anything here.
 	# The only thing we can do is honour the user's SSL preference.
 	if use ssl ; then
-		sed -i 's/-DNO_OPENSSL=1//' "${S}/config.gentoo-so-r1" || die
+		sed -i 's/-DNO_OPENSSL=1//' "${S}/config.funtoo" || die
 	fi
 
 	# Bug 718912
 	tc-export CC CXX
 
 	# And defer to the scripts that upstream provide.
-	./genMakefiles gentoo-so-r1 || die
+	./genMakefiles funtoo || die
 }
 
 src_compile() {

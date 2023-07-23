@@ -4,7 +4,6 @@ import re
 
 
 async def generate(hub, **pkginfo):
-
 	html = await hub.pkgtools.fetch.get_page("http://www.live555.com/liveMedia/public/")
 	version = (re.search(f"live.([0-9.]*).tar.gz", html)).group(1)
 	live_abi = 9

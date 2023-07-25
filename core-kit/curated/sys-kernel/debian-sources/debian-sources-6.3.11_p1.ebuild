@@ -23,7 +23,7 @@ KERNEL_VERSION="6.3.11"
 DEB_PV="${KERNEL_VERSION}-${DEB_EXTRAVERSION}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm sign-modules zfs"
 RDEPEND="
 	|| (

@@ -39,7 +39,7 @@ async def generate(hub, **pkginfo):
 	dashboard_url = pkginfo["dashboard_url"] = dashboard_metadata["assets-url"]
 	dashboard_sha = pkginfo["dashboard_sha"] = dashboard_metadata["sha1"]
 
-	pkginfo["artifacts"]["dashboard"] = hub.pkgtools.ebuild.Artifact(
+	pkginfo["artifacts"]["mini_dashboard"] = hub.pkgtools.ebuild.Artifact(
 		url=dashboard_url,
 		final_name=f"{github_repo}-mini-dashboard-{dashboard_sha}.zip",
 	)

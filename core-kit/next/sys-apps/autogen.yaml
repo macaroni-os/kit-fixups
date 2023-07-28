@@ -32,5 +32,9 @@ simple_autogen_rule:
             - toml
             - xmltodict
             - colorama
-
+        body: |
+          src_configure() {
+            unset PYTHONPATH
+            default
+          }
 

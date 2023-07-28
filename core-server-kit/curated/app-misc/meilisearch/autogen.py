@@ -37,9 +37,9 @@ async def generate(hub, **pkginfo):
 	dashboard_metadata = meili_package_data["package"]["metadata"]["mini-dashboard"]
 
 	dashboard_url = pkginfo["dashboard_url"] = dashboard_metadata["assets-url"]
-	dashboard_sha = pkginfo["dashboard_sha"] = dashboard_metadata["sha1"]
+	dashboard_sha = dashboard_metadata["sha1"]
 
-	pkginfo["artifacts"]["mini_dashboard"] = hub.pkgtools.ebuild.Artifact(
+	pkginfo["artifacts"]["dashboard"] = hub.pkgtools.ebuild.Artifact(
 		url=dashboard_url,
 		final_name=f"{github_repo}-mini-dashboard-{dashboard_sha}.zip",
 	)

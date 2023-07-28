@@ -15,7 +15,7 @@ REQUIRED_USE="!gtk3? ( !markdown )"
 
 DEPEND="
 	dev-libs/glib:2
-	>=dev-util/geany-1.35[gtk3=]
+	>=app-editors/geany-1.35[gtk3=]
 	gtk3? ( x11-libs/gtk+:3 )
 	!gtk3? ( x11-libs/gtk+:2 )
 	ctags? ( dev-util/ctags )

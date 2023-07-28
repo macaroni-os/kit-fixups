@@ -69,6 +69,12 @@ pkg_setup() {
 	kernel_is -ge 3 10 || die "Linux 3.10 or newer required"
 }
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		 mv "${WORKDIR}"/* "${S}" || die
+	fi
+}
+
 src_prepare() {
 	default
 

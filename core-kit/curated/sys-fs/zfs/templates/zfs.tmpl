@@ -11,7 +11,7 @@ DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/openzfs/zfs"
 
 MY_P="${P/_rc/-rc}"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
 
 LICENSE="BSD-2 CDDL MIT"
@@ -89,6 +89,12 @@ pkg_setup() {
 				fi
 			fi
 		fi
+	fi
+}
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		 mv "${WORKDIR}"/* "${S}" || die
 	fi
 }
 

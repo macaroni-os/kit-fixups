@@ -27,12 +27,11 @@ RDEPEND=">=dev-libs/glib-2.32:2
 	gtk3? (
 		>=x11-libs/gtk+-3.0:3
 		vte? ( x11-libs/vte:2.91 )
-	)
-	plugins? ( app-editors/geany-plugins )"
-
+	)"
 DEPEND="${RDEPEND}
 	dev-util/intltool
 	sys-devel/gettext"
+PDEPEND="plugins? ( app-editors/geany-plugins )"
 
 pkg_setup() {
 	strip-linguas ${LANGS}

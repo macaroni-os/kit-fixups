@@ -6,15 +6,12 @@ inherit gnuconfig libtool multilib-minimal toolchain-funcs
 
 DESCRIPTION="Library for arbitrary-precision arithmetic on different type of numbers"
 HOMEPAGE="https://gmplib.org/"
-SRC_URI="{%- for flag, artifact in artifacts.items() %}
-	{% if flag %}{{ flag }}? ( {% endif %}{{ artifact.src_uri }}{% if flag %} ){% endif %}
-{%- endfor %}
-"
+SRC_URI="{{src_uri}}"
 LICENSE="|| ( LGPL-3+ GPL-2+ )"
 # The subslot reflects the C & C++ SONAMEs.
 SLOT="0/10.4"
 KEYWORDS="*"
-IUSE="+asm doc +cpudetection +cxx pic +static-libs"
+IUSE="+asm +cpudetection +cxx pic +static-libs"
 REQUIRED_USE="cpudetection? ( asm )"
 RESTRICT="!cpudetection? ( bindist )"
 
@@ -31,7 +28,6 @@ MULTILIB_WRAPPED_HEADERS=( /usr/include/gmp.h )
 PATCHES=(
 	"${FILESDIR}"/${PN}-6.1.0-noexecstack-detect.patch
 	"${FILESDIR}"/${PN}-6.2.1-no-zarch.patch
-	"${FILESDIR}"/${P}-CVE-2021-43618.patch
 )
 
 pkg_pretend() {
@@ -148,5 +144,4 @@ multilib_src_install() {
 
 multilib_src_install_all() {
 	einstalldocs
-	use doc && cp "${DISTDIR}"/gmp-man-${MANUAL_PV}.pdf "${ED}"/usr/share/doc/${PF}/
 }

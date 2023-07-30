@@ -1738,23 +1738,6 @@ testing_deps_rule:
             rm ${S}/tests/__init__.py || die
             default
           }
-    - pytest-salt-factories:
-        license: Apache-2.0
-        du_setuptools: rdepend
-        body: |
-          # submitted PR https://github.com/saltstack/pytest-salt-factories/pull/33
-          src_prepare() {
-            rm ${S}/tests/__init__.py || die
-            default
-          }
-        pydeps:
-          - pytest > 6.1.1
-          - attrs >= 19.2.0
-          - pytest-tempdir >= 2019.9.6
-          - psutil
-          - pyzmq
-          - msgpack 
-          - setuptools-declarative-requirements
     - pytest-asyncio:
         license: Apache-2.0
         pydeps:

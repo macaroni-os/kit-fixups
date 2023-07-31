@@ -126,7 +126,7 @@ DEPEND="
 	websocket? (
 		dev-cpp/asio
 		dev-cpp/nlohmann_json
-		dev-cpp/websocketpp
+		>=dev-cpp/websocketpp-0.8.2
 	)
 "
 RDEPEND="${DEPEND}"

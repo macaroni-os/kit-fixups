@@ -4,16 +4,8 @@ EAPI=7
 
 inherit linux-mod-r1 toolchain-funcs
 
-case ${PV} in
-9999)
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/umlaeute/v4l2loopback.git"
-	;;
-*)
-	KEYWORDS="~amd64 ~x86"
-	SRC_URI="https://github.com/umlaeute/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	;;
-esac
+KEYWORDS="amd64 x86"
+SRC_URI="{{src_uri}}"
 
 DESCRIPTION="v4l2 loopback device whose output is its own input"
 HOMEPAGE="https://github.com/umlaeute/v4l2loopback"
@@ -21,7 +13,7 @@ HOMEPAGE="https://github.com/umlaeute/v4l2loopback"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="examples"
-
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 CONFIG_CHECK="VIDEO_DEV"
 
 pkg_setup() {

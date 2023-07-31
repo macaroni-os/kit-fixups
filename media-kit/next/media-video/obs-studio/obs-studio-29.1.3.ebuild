@@ -13,27 +13,13 @@ OBS_BROWSER_COMMIT="594115a27d40f0916e55db97cb61f7c7130cbe28"
 OBS_WEBSOCKET_COMMIT="6fd18a7ef1ecb149e8444154af1daab61d4241a9"
 QR_COMMIT="8518684c0f33d004fa93971be2c6a8eca3167d1e"
 
-if [[ ${PV} == 9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/obsproject/obs-studio.git"
-	EGIT_SUBMODULES=(
-		plugins/obs-browser
-		plugins/obs-websocket
-		plugins/obs-websocket/deps/asio
-		plugins/obs-websocket/deps/json
-		plugins/obs-websocket/deps/qr
-		plugins/obs-websocket/deps/websocketpp
-	)
-else
-	SRC_URI="
-		https://github.com/obsproject/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
-		https://github.com/obsproject/obs-browser/archive/${OBS_BROWSER_COMMIT}.tar.gz -> obs-browser-${OBS_BROWSER_COMMIT}.tar.gz
-		https://github.com/nayuki/QR-Code-generator/archive/${QR_COMMIT}.tar.gz -> qr-${QR_COMMIT}.tar.gz
-		https://github.com/obsproject/obs-websocket/archive/${OBS_WEBSOCKET_COMMIT}.tar.gz -> obs-websocket-${OBS_WEBSOCKET_COMMIT}.tar.gz
-	"
-	KEYWORDS="*"
-fi
-SRC_URI+=" browser? ( https://cdn-fastly.obsproject.com/downloads/${CEF_DIR}.tar.bz2 )"
+SRC_URI="
+	https://github.com/obsproject/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
+	https://github.com/obsproject/obs-browser/archive/${OBS_BROWSER_COMMIT}.tar.gz -> obs-browser-${OBS_BROWSER_COMMIT}.tar.gz
+	https://github.com/nayuki/QR-Code-generator/archive/${QR_COMMIT}.tar.gz -> qr-${QR_COMMIT}.tar.gz
+	https://github.com/obsproject/obs-websocket/archive/${OBS_WEBSOCKET_COMMIT}.tar.gz -> obs-websocket-${OBS_WEBSOCKET_COMMIT}.tar.gz
+	browser? ( https://cdn-fastly.obsproject.com/downloads/${CEF_DIR}.tar.bz2 )"
+KEYWORDS="*"
 
 DESCRIPTION="Software for Recording and Streaming Live Video Content"
 HOMEPAGE="https://obsproject.com"
@@ -140,7 +126,7 @@ DEPEND="
 	websocket? (
 		dev-cpp/asio
 		dev-cpp/nlohmann_json
-		dev-cpp/websocketpp
+		>=dev-cpp/websocketpp-0.8.2
 	)
 "
 RDEPEND="${DEPEND}"
@@ -164,25 +150,20 @@ pkg_setup() {
 src_unpack() {
 	default
 
-	if [[ ${PV} == 9999 ]]; then
-		git-r3_src_unpack
-	else
-		rm -d ${P}/plugins/obs-browser || die
-		mv obs-browser-${OBS_BROWSER_COMMIT} ${P}/plugins/obs-browser || die
+	rm -d ${P}/plugins/obs-browser || die
+	mv obs-browser-${OBS_BROWSER_COMMIT} ${P}/plugins/obs-browser || die
 
-		rm -d ${P}/plugins/obs-websocket || die
-		mv obs-websocket-${OBS_WEBSOCKET_COMMIT} ${P}/plugins/obs-websocket || die
+	rm -d ${P}/plugins/obs-websocket || die
+	mv obs-websocket-${OBS_WEBSOCKET_COMMIT} ${P}/plugins/obs-websocket || die
 
-		rm -d ${P}/plugins/obs-websocket/deps/qr || die
-		mv QR-Code-generator-${QR_COMMIT} ${P}/plugins/obs-websocket/deps/qr || die
-	fi
+	rm -d ${P}/plugins/obs-websocket/deps/qr || die
+	mv QR-Code-generator-${QR_COMMIT} ${P}/plugins/obs-websocket/deps/qr || die
 }
 
 src_prepare() {
 	default
 
 	sed -i '/-Werror$/d' "${WORKDIR}"/${P}/cmake/Modules/CompilerConfig.cmake || die
-
 	cmake_src_prepare
 }
 
@@ -212,14 +193,8 @@ src_configure() {
 		-DOBS_MULTIARCH_SUFFIX=${libdir#lib}
 		-DQT_VERSION=$(usex qt6 6 5)
 		-DUNIX_STRUCTURE=1
+		-DOBS_VERSION_OVERRIDE=${PV}
 	)
-
-	if [[ ${PV} != 9999 ]]; then
-		mycmakeargs+=(
-			-DOBS_VERSION_OVERRIDE=${PV}
-		)
-	fi
-
 	if use lua || use python; then
 		mycmakeargs+=(
 			-DENABLE_SCRIPTING_LUA=$(usex lua)

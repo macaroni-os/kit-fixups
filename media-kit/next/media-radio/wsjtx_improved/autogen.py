@@ -21,12 +21,10 @@ async def generate_classic_wsjt(hub, **pkginfo):
     files = filter(lambda x: x.startswith("wsjtx-"),files)
     versions = { version.parse(re.search(r"\d+\.\d+(\.\d+)?", file).group()): file for file in files }
 
-
     target_version = max(versions.keys())
     target_name = versions[target_version]
 
-    src_url = f"https://downloads.sourceforge.net/wsjt/{target_name}/{target_name}.tgz"
-
+    src_url = f"https://gigenet.dl.sourceforge.net/wsjt/{target_name}/{target_name}.tgz"
 
     pkginfo["name"] = "wsjtx"
     pkginfo["template"] = "wsjtx.tmpl"
@@ -44,7 +42,6 @@ async def generate(hub, **pkginfo):
 
     project_name="wsjt-x-improved"
 
-
     sourceforge_url = f"https://sourceforge.net/projects/{project_name}/files"
     sourceforge_soup = BeautifulSoup(
             await hub.pkgtools.fetch.get_page(sourceforge_url), "lxml"
@@ -54,36 +51,24 @@ async def generate(hub, **pkginfo):
     files = (
             version_row.get("title") for version_row in files_list.tbody.find_all("tr")
             )
-    files = filter(lambda x: x.startswith("WSJT-X_"), files)
-
-
-
-    files = list(files)
+    files = list(filter(lambda x: x.startswith("WSJT-X_"), files))
     versions = { version.parse(re.search(r"\d+\.\d+(\.\d+)?", file).group()): file for file in files }
-
-
 
     target_version = max(versions.keys())
     target_dir = versions[target_version]
 
     # repeat with subprojects
     sourceforge_url = f"https://sourceforge.net/projects/{project_name}/files/{target_dir}/Source%20code/"
-
-
     sourceforge_soup = BeautifulSoup(
                 await hub.pkgtools.fetch.get_page(sourceforge_url), "lxml"
     )
 
     files_list = sourceforge_soup.find(id="files_list")
-
     files = [i.span.text for i in files_list.tbody.find_all("tr",{'class' : 'file'})]
-
     files = filter(lambda x: x.endswith(".tgz"), files) # filter upto source
 
     for target_file in files:
-       src_url = f"https://downloads.sourceforge.net/{project_name}/{target_dir}/Source%20code/{target_file}"
-
-
+       src_url = f"https://gigenet.dl.sourceforge.net/{project_name}/{target_dir}/Source%20code/{target_file}"
        suffix = target_file.split("_improved_");
 
        if len(suffix) > 1:
@@ -93,9 +78,6 @@ async def generate(hub, **pkginfo):
 
        pkginfo["name"] = "wsjtx_improved" + suffix
        pkginfo["template"] = "wsjtx_improved.tmpl"
-
-       #import pdb
-       #pdb.set_trace()
 
        ebuild = hub.pkgtools.ebuild.BreezyBuild(
             **pkginfo,

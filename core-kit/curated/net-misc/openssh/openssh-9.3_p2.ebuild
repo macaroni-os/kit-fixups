@@ -43,7 +43,7 @@ RDEPEND="
 	kerberos? ( virtual/krb5 )
 "
 DEPEND="${RDEPEND}
-	>=sys-kernel/linux-headers-5.1
+	sys-kernel/linux-headers
 	static? ( ${LIB_DEPEND} )
 "
 RDEPEND="${RDEPEND}

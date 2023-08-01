@@ -1,0 +1,17 @@
+tmux:
+  generator: github-1
+  packages:
+    # Generate official tmux releases:
+    - tmux:
+        github:
+          query: releases
+          # Match e.g. "3.3a", not "3.3" (against tag of release)
+          match: '([0-9.]+[a-z]?)'
+    # Generate 3.3a-r1 snapshot with FL-11278 fixes:
+    - tmux:
+        version: 3.3a
+        revision: 1
+        github:
+          query: snapshot
+          snapshot: fda393773485c7c9236e4cf0c18668ab809d2574
+

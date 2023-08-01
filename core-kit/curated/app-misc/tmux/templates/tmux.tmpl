@@ -6,7 +6,7 @@ inherit autotools flag-o-matic
 
 DESCRIPTION="Terminal multiplexer"
 HOMEPAGE="https://tmux.github.io/"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
 S="${WORKDIR}/${P/_/-}"
 
@@ -34,15 +34,18 @@ DOCS=( CHANGES README )
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.4-flags.patch"
-
-	# upstream fixes (can be removed with next version bump)
 )
+
+post_src_unpack() {
+	if [ ! -d "${WORKDIR}/${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}
 
 src_prepare() {
 	# bug 438558
 	# 1.7 segfaults when entering copy mode if compiled with -Os
 	replace-flags -Os -O2
-
 	default
 	eautoreconf
 }

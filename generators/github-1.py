@@ -31,6 +31,26 @@ def create_transform(transform_data):
 	return transform_lambda
 
 
+async def final_generate(hub, **pkginfo):
+
+	github_user = pkginfo["github_user"]
+	github_repo = pkginfo["github_repo"]
+
+	if "extensions" in pkginfo:
+		if "golang" in pkginfo["extensions"]:
+			await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts'][0])
+		if "rust" in pkginfo["extensions"]:
+			await hub.pkgtools.rust.add_crates_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts'][0])
+
+	if "description" not in pkginfo:
+		repo_metadata = await hub.pkgtools.fetch.get_page(
+			f"https://api.github.com/repos/{github_user}/{github_repo}", is_json=True
+		)
+		pkginfo["description"] = repo_metadata["description"]
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
+	ebuild.push()
+
+
 async def generate(hub, **pkginfo):
 	# migrate keys inside "github:" element to "github_foo":
 	if "github" not in pkginfo:
@@ -53,13 +73,23 @@ async def generate(hub, **pkginfo):
 			del pkginfo[key]
 
 	query = pkginfo["github"]["query"]
-	if query not in ["releases", "tags"]:
+	if query not in ["releases", "tags", "snapshot"]:
 		raise KeyError(
-			f"{pkginfo['cat']}/{pkginfo['name']} should specify GitHub query type of 'releases' or 'tags'."
+			f"{pkginfo['cat']}/{pkginfo['name']} should specify GitHub query type of 'releases', 'tags' or 'snapshot'."
 		)
 
 	github_user = pkginfo["github_user"]
 	github_repo = pkginfo["github_repo"]
+
+	# This special snapshot method short-circuits the regular logic:
+	if query == "snapshot":
+		snapshot = pkginfo["github"]["snapshot"]
+		url = f"https://github.com/{github_user}/{github_repo}/archive/{snapshot}.zip"
+		if "version" not in pkginfo:
+			raise ValueError("Please specify a version when using github-1 snapshot feature.")
+		pkginfo["artifacts"] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{pkginfo['version']}-{snapshot[:7]}.zip")]
+		await final_generate(hub, **pkginfo)
+		return
 
 	if "homepage" not in pkginfo:
 		pkginfo["homepage"] = f"https://github.com/{github_user}/{github_repo}"
@@ -122,18 +152,6 @@ async def generate(hub, **pkginfo):
 
 	pkginfo.update(github_result)
 
-	if "extensions" in pkginfo:
-		if "golang" in pkginfo["extensions"]:
-			await hub.pkgtools.golang.add_gosum_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts'][0])
-		if "rust" in pkginfo["extensions"]:
-			await hub.pkgtools.rust.add_crates_bundle(hub, pkginfo, src_artifact=pkginfo['artifacts'][0])
-
-	if "description" not in pkginfo:
-		repo_metadata = await hub.pkgtools.fetch.get_page(
-			f"https://api.github.com/repos/{github_user}/{github_repo}", is_json=True
-		)
-		pkginfo["description"] = repo_metadata["description"]
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
-	ebuild.push()
+	await final_generate(hub, **pkginfo)
 
 # vim: ts=4 sw=4 noet

@@ -1,0 +1,118 @@
+From 39d41d0810d4e8ae6ce8d27776dfbb96722d9319 Mon Sep 17 00:00:00 2001
+From: Nicholas Marriott <nicholas.marriott@gmail.com>
+Date: Fri, 28 Apr 2023 06:44:40 +0100
+Subject: [PATCH] Use ncurses' new tparm_s function (added in 6.4-20230424)
+ instead of tparm so it does not object to string arguments in capabilities it
+ doesn't already know.
+
+---
+ configure.ac |  4 ++++
+ tty-term.c   | 48 +++++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 43 insertions(+), 9 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 0f3c88d85..1ccd04812 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -350,6 +350,10 @@ else
+ 		AC_MSG_ERROR("curses not found")
+ 	fi
+ fi
++AC_CHECK_FUNCS([ \
++	tiparm \
++	tiparm_s \
++])
+ 
+ # Look for utempter.
+ AC_ARG_ENABLE(
+diff --git a/tty-term.c b/tty-term.c
+index 8f5d3a04d..98b7dd1a7 100644
+--- a/tty-term.c
++++ b/tty-term.c
+@@ -770,7 +770,13 @@ tty_term_string_i(struct tty_term *term, enum tty_code_code code, int a)
+ {
+ 	const char	*x = tty_term_string(term, code), *s;
+ 
+-	s = tparm((char *)x, a);
++#if defined(HAVE_TIPARM_S)
++	s = tiparm_s(1, 0, x, a);
++#elif defined(HAVE_TIPARM)
++	s = tiparm(x, a);
++#else
++	s = tparm((char *)x, a, 0, 0, 0, 0, 0, 0, 0, 0);
++#endif
+ 	if (s == NULL)
+ 		fatalx("could not expand %s", tty_term_codes[code].name);
+ 	return (s);
+@@ -781,19 +787,31 @@ tty_term_string_ii(struct tty_term *term, enum tty_code_code code, int a, int b)
+ {
+ 	const char	*x = tty_term_string(term, code), *s;
+ 
+-	s = tparm((char *)x, a, b);
++#if defined(HAVE_TIPARM_S)
++	s = tiparm_s(2, 0, x, a, b);
++#elif defined(HAVE_TIPARM)
++	s = tiparm(x, a, b);
++#else
++	s = tparm((char *)x, a, b, 0, 0, 0, 0, 0, 0, 0);
++#endif
+ 	if (s == NULL)
+ 		fatalx("could not expand %s", tty_term_codes[code].name);
+ 	return (s);
+ }
+ 
+ const char *
+-tty_term_string_iii(struct tty_term *term, enum tty_code_code code, int a, int b,
+-    int c)
++tty_term_string_iii(struct tty_term *term, enum tty_code_code code, int a,
++    int b, int c)
+ {
+ 	const char	*x = tty_term_string(term, code), *s;
+ 
+-	s = tparm((char *)x, a, b, c);
++#if defined(HAVE_TIPARM_S)
++	s = tiparm_s(3, 0, x, a, b, c);
++#elif defined(HAVE_TIPARM)
++	s = tiparm(x, a, b, c);
++#else
++	s = tparm((char *)x, a, b, c, 0, 0, 0, 0, 0, 0);
++#endif
+ 	if (s == NULL)
+ 		fatalx("could not expand %s", tty_term_codes[code].name);
+ 	return (s);
+@@ -804,19 +822,31 @@ tty_term_string_s(struct tty_term *term, enum tty_code_code code, const char *a)
+ {
+ 	const char	*x = tty_term_string(term, code), *s;
+ 
+-	s = tparm((char *)x, (long)a);
++#if defined(HAVE_TIPARM_S)
++	s = tiparm_s(1, 1, x, a);
++#elif defined(HAVE_TIPARM)
++	s = tiparm(x, a);
++#else
++	s = tparm((char *)x, (long)a, 0, 0, 0, 0, 0, 0, 0, 0);
++#endif
+ 	if (s == NULL)
+ 		fatalx("could not expand %s", tty_term_codes[code].name);
+ 	return (s);
+ }
+ 
+ const char *
+-tty_term_string_ss(struct tty_term *term, enum tty_code_code code, const char *a,
+-    const char *b)
++tty_term_string_ss(struct tty_term *term, enum tty_code_code code,
++    const char *a, const char *b)
+ {
+ 	const char	*x = tty_term_string(term, code), *s;
+ 
+-	s = tparm((char *)x, (long)a, (long)b);
++#if defined(HAVE_TIPARM_S)
++	s = tiparm_s(2, 3, x, a, b);
++#elif defined(HAVE_TIPARM)
++	s = tiparm(x, a, b);
++#else
++	s = tparm((char *)x, (long)a, b, 0, 0, 0, 0, 0, 0, 0);
++#endif
+ 	if (s == NULL)
+ 		fatalx("could not expand %s", tty_term_codes[code].name);
+ 	return (s);

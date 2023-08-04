@@ -56,11 +56,16 @@ all_ruby_prepare() {
 	if use test; then
 		rake update_manifest || die
 	fi
+	if [ -d "${S}/exe" ]; then
+		export BIN_EXE_DIR=exe
+	else
+		export BIN_EXE_DIR=bin
+	fi
 }
 
 each_ruby_compile() {
 	# Not really a build but...
-	sed -i -e 's:#!.*:#!'"${RUBY}"':' bin/gem
+	sed -i -e 's:#!.*:#!'"${RUBY}"':' $BIN_EXE_DIR/gem || die
 }
 
 each_ruby_test() {
@@ -87,8 +92,7 @@ each_ruby_install() {
 
 	local sld=$(ruby_rbconfig_value 'sitelibdir')
 	insinto "${sld#${EPREFIX}}"  # bug #320813
-
-	newbin bin/gem $(basename ${RUBY} | sed -e 's:ruby:gem:')
+	newbin $BIN_EXE_DIR/gem $(basename ${RUBY} | sed -e 's:ruby:gem:')
 }
 
 all_ruby_install() {

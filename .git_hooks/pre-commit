@@ -34,7 +34,7 @@ fi
 set -o pipefail
 echo -e "== ${cyan}Checking Python${norm}"
 for pyfile in $(find . -type f -name '*.py' | xargs git diff --cached --name-only $against); do
-	py_out="$(pylint -E $against:$pyfile | tail -n +2 | sed -e 's/^/!! /')"
+	py_out="$(git show :0:$pyfile | pylint -E --from-stdin $pyfile | tail -n +2 | sed -e 's/^/!! /')"
 	if [ $? -ne 0 ]; then
 		echo -e "${yuck}$py_out${norm}"
 		errors=$(( $errors + 1 ))
@@ -45,7 +45,7 @@ done
 
 echo -e "== ${cyan}Checking Ebuilds and Templates${norm}"
 for f in $(find . -type f \( -name "*.ebuild" -o -name "*.tmpl" \) | xargs git diff --cached --name-only $against); do
-	if [ -n "$( head -n1 $against:$f | grep '[Cc]opyright' )" ]; then
+	if [ -n "$( git show :0:$f | head -n1 | grep '[Cc]opyright' )" ]; then
 		echo -e "${yuck}!! $f${norm}"
 		echo -e "   Please remove initial copyright line."
 		errors=$(( $errors + 1 ))
@@ -56,7 +56,7 @@ done
 
 echo -e "== ${cyan}Checking YAML${norm}"
 for yf in $(find . -type f -name "*.yaml" | xargs git diff --cached --name-only $against); do
-	y_out=$($SCRIPT_DIR/tools/yamllint $yf)
+	y_out=$(git show :0:$yf | $SCRIPT_DIR/tools/yamllint)
 	if [ $? -ne 0 ]; then
 		echo -e "${yuck}!!" $yf${norm}
 		echo -e "$y_out"

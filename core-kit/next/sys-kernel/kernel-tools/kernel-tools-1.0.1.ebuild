@@ -21,7 +21,7 @@ COMMON_URI="mirror://funtoo/dmraid-${VERSION_DMRAID}.tar.bz2
 		mirror://funtoo/fuse-${VERSION_FUSE}.tar.gz
 		mirror://funtoo/unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.bz2
 		mirror://funtoo/gnupg-${VERSION_GPG}.tar.bz2"
-GIT_TAG="4858f0143e00715e3e3c1a852d1eafe52c61db40"
+GIT_TAG="81e80a81c3cb13fd9ee677b560c78b90e57a285c"
 SRC_URI="$COMMON_URI https://code.funtoo.org/bitbucket/rest/api/latest/projects/CORE/repos/kernel-tools/archive?at=${GIT_TAG}&format=tgz -> ${P}-${GIT_TAG}.tar.gz"
 KEYWORDS="*"
 S="${WORKDIR}"

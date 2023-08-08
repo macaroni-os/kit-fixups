@@ -4,7 +4,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3+ )
 
-inherit autotools bash-completion-r1 multilib python-r1
+inherit autotools bash-completion-r1 python-r1
 
 DESCRIPTION="library and tools for managing linux kernel modules"
 HOMEPAGE="https://git.kernel.org/?p=utils/kernel/kmod/kmod.git"
@@ -22,14 +22,12 @@ IUSE="debug doc +lzma +pkcs7 python static-libs +tools +zlib zstd"
 RESTRICT="test"
 
 # >=zlib-1.2.6 required because of bug #427130
-# Block systemd below 217 for -static-nodes-indicate-that-creation-of-static-nodes-.patch
 RDEPEND="!sys-apps/module-init-tools
 	!sys-apps/modutils
 	!<sys-apps/openrc-0.13.8
-	!<sys-apps/systemd-216-r3
 	lzma? ( >=app-arch/xz-utils-5.0.4-r1 )
 	python? ( ${PYTHON_DEPS} )
-	pkcs7? ( >=dev-libs/openssl-1.1.0:0= )
+	pkcs7? ( >=dev-libs/openssl-1.1.0:= )
 	zlib? ( >=sys-libs/zlib-1.2.6 )
 	zstd? ( >=app-arch/zstd-1.4.4 )"
 DEPEND="${RDEPEND}"
@@ -52,7 +50,7 @@ fi
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 
-DOCS=( NEWS README TODO )
+DOCS=( NEWS README.md TODO )
 
 src_prepare() {
 	default
@@ -110,7 +108,7 @@ src_compile() {
 	emake -C "${BUILD_DIR}"
 
 	if use python; then
-		local native_builddir=${BUILD_DIR}
+		local native_builddir="${BUILD_DIR}"
 
 		python_compile() {
 			emake -C "${BUILD_DIR}" -f Makefile -f - python \

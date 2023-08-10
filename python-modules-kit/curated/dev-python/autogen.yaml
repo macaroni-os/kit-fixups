@@ -2168,13 +2168,6 @@ sphinx_and_friends:
             - pygments
             - requests
             - snowballstemmer
-            - sphinxcontrib-applehelp
-            - sphinxcontrib-devhelp
-            - sphinxcontrib-jsmath
-            - sphinxcontrib-htmlhelp >= 2.0.0
-            - sphinxcontrib-serializinghtml >= 1.1.5
-            - sphinxcontrib-qthelp
-            - sphinx_rtd_theme
             - packaging
             - importlib_metadata >= 4.4
         body: |
@@ -2187,6 +2180,26 @@ sphinx_and_friends:
               HTML_DOCS=( "${BUILD_DIR}"/sphinx/html/. )
             fi
           }
+    - sphinx_rtd_theme
+
+sphinx_contrib:
+  generator: pypi-compat-1
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy
+    du_pep517: generator
+    pydeps:
+        py:all:
+          - sphinx
+          - namespace-sphinxcontrib
+  packages:
+    - sphinxcontrib-applehelp
+    - sphinxcontrib-devhelp
+    - sphinxcontrib-htmlhelp
+    - sphinxcontrib-jsmath
+    - sphinxcontrib-qthelp
+    - sphinxcontrib-serializinghtml
+
 
 pep517_compliance_rule:
   defaults:
@@ -2453,50 +2466,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - snowballstemmer:
         python_compat: python2+ pypy{,3}
-    - sphinx_rtd_theme:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-applehelp:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-asyncio:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-blockdiag:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-cheeseshop:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-devhelp:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-ditaa:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-documentedlist:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-doxylink:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-github-alt:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-googleanalytics:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-htmlhelp:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-httpdomain:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-issuetracker:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-jsmath:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-napoleon:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-newsfeed:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-programoutput:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-qthelp:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-serializinghtml:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-spelling:
-        python_compat: python3+ pypy3
-    - sphinxcontrib-websupport:
-        python_compat: python3+ pypy3
     - wcwidth:
         python_compat: python2+ pypy3
     - werkzeug:

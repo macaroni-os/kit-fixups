@@ -11,9 +11,9 @@
 # merged, which will jettison 2.7 support, but immediately afterwards, foo-compat will be merged if needed and
 # 2.7 compatibility will be back.
 
-import json
+import glob
 import os
-from collections import OrderedDict
+import toml
 
 GLOBAL_DEFAULTS = {"cat": "dev-python", "refresh_interval": None, "python_compat": "python3+"}
 
@@ -62,6 +62,12 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			local_pkginfo["version"] = json_dict["info"]["version"]
 
 		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=version_specified)
+	# fixup $S automatically -- this seems to follow the name in the archive:
+	under_name = pkginfo["name"].replace("-","_")
+	local_pkginfo["s_pkg_name"] = pkginfo["pypi_name"]
+	if not artifact_url.split("/")[-1].startswith(pkginfo["pypi_name"]):
+		if artifact_url.split("/")[-1].startswith(under_name):
+			local_pkginfo["s_pkg_name"] = under_name
 
 	assert (
 		artifact_url is not None
@@ -71,6 +77,46 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 	hub.pkgtools.pyhelper.pypi_normalize_version(local_pkginfo)
 
 	artifacts = [hub.pkgtools.ebuild.Artifact(url=artifact_url)]
+	if not compat_ebuild and "du_pep517" in local_pkginfo and local_pkginfo["du_pep517"] == "generator":
+		await artifacts[0].fetch()
+		artifacts[0].extract()
+		setup_path = glob.glob(os.path.join(artifacts[0].extract_path, "*", "setup.py"))
+		if len(setup_path):
+			has_setup = True
+		else:
+			has_setup = False
+		pyproject_path = glob.glob(os.path.join(artifacts[0].extract_path, "*", "pyproject.toml"))
+		if len(pyproject_path):
+			has_pyproject = True
+		else:
+			has_pyproject = False
+		if has_setup and not has_pyproject:
+			del local_pkginfo["du_pep517"]
+		elif not has_setup and has_pyproject:
+			with open(pyproject_path[0], "r") as f:
+				toml_data = toml.load(f)
+				if "build-system" not in toml_data:
+					raise ValueError("Cannot find build system in pyproject.toml data")
+				if "requires" not in toml_data["build-system"]:
+					raise ValueError("Cannot find build-system/requires in pyproject.toml data")
+
+				for req in toml_data["build-system"]["requires"]:
+					if req.startswith("flit_core"):
+						local_pkginfo["du_pep517"] = "flit"
+						break
+					elif req.startswith("hatchling"):
+						local_pkginfo["du_pep517"] = "hatchling"
+					elif req.startswith("setuptools_scm"):
+						local_pkginfo["du_pep517"] = "setuptools"
+						if "depend" not in local_pkginfo:
+							local_pkginfo["depend"] = ""
+						local_pkginfo["depend"] += 'dev-python/setuptools_scm[${PYTHON_USEDEP}]\n'
+					elif req.startswith("setuptools"):
+						local_pkginfo["du_pep517"] = "setuptools"
+				if local_pkginfo["du_pep517"] == "generator":
+					raise ValueError(f"{local_pkginfo['name']}: Could not auto-detect build system in pyproject.toml.")
+				else:
+					hub.pkgtools.model.log.info(f"{local_pkginfo['name']}: Auto-detected build system: {local_pkginfo['du_pep517']}")
 	if "cargo" in local_pkginfo["inherit"] and not compat_ebuild:
 		if "cargo_path" in local_pkginfo:
 			cargo_path = "*/"+local_pkginfo["cargo_path"]

@@ -94,7 +94,7 @@ PATCHES=(
 )
 
 {%- endif %}
-S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
+S="${WORKDIR}/{{s_pkg_name}}-{{pypi_version}}"
 
 {%- if body is defined %}
 {{indented(body,allow_empty=True)}}

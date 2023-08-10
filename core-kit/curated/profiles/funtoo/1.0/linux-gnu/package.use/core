@@ -1,3 +1,6 @@
+# for genkernel
+sys-apps/busybox -pam static
+
 # for use of openssl, this requires careful management
 net-misc/curl -curl_ssl_gnutls -curl_ssl_nss curl_ssl_openssl -gnutls nss
 net-libs/liboauth curl -nss

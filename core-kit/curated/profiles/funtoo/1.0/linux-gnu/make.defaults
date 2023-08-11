@@ -2,7 +2,7 @@ ELIBC="glibc"
 KERNEL="linux"
 USERLAND="GNU"
 LDFLAGS="-Wl,-O1 -Wl,--sort-common -Wl,--as-needed"
-USE="kernel_linux userland_GNU elibc_glibc glvnd"
+USE="kernel_linux userland_GNU elibc_glibc glvnd pam"
 
 ACCEPT_LICENSE="* -@EULA Oracle-BCLA-JavaSE"
 ACCEPT_PROPERTIES="* -reboot"

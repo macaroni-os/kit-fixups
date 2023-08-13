@@ -1,36 +1,30 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+import packaging
 import re
+from urllib.parse import urljoin
 
 
 async def generate(hub, **pkginfo):
-    project_name="graphicsmagick"
-    project_name = pkginfo.get("name")
+	project_name="graphicsmagick"
+	project_name = pkginfo.get("name")
 
-    sourceforge_url = f"https://sourceforge.net/projects/{project_name}/files/{project_name}"
-    sourceforge_soup = BeautifulSoup(
-            await hub.pkgtools.fetch.get_page(sourceforge_url), "lxml"
-            )
+	sourceforge_url = f"https://sourceforge.net/projects/{project_name}/files/{project_name}"
+	sourceforge_soup = BeautifulSoup(
+			await hub.pkgtools.fetch.get_page(sourceforge_url), "lxml"
+			)
 
-    files_list = sourceforge_soup.find(id="files_list")
-    files = (
-            version_row.get("title") for version_row in files_list.tbody.find_all("tr")
-            )
-    versions = { version.parse(re.search(r"\d+\.\d+(\.\d+)?", file).group()): file for file in files }
+	files_list = sourceforge_soup.find(id="files_list")
+	base_url = None
+	for link in files_list.tbody.find_all("a", href=True):
+		if "/files/" not in link["href"]:
+			continue
+		base_url = link["href"]
+		break
+	project_path = urljoin(sourceforge_url, base_url).rstrip("/")
+	version = pkginfo["version"] = project_path.split("/")[-1]
+	pkginfo["artifacts"] = [ hub.Artifact(url=f"{project_path}/GraphicsMagick-{version}.tar.xz") ]
+	hub.pkgtools.ebuild.BreezyBuild(**pkginfo).push()
 
-
-    target_version = max(versions.keys())
-    target_file = f"GraphicsMagick-{target_version}.tar.xz"
-
-    src_url = f"https://sourceforge.net/projects/{project_name}/files/{project_name}/{target_version}/{target_file}"
-
-
-    ebuild = hub.pkgtools.ebuild.BreezyBuild(
-            **pkginfo,
-            version=target_version,
-            artifacts=[hub.pkgtools.ebuild.Artifact(url=src_url)],
-            )
-    ebuild.push()
-
+# vim: ts=4 sw=4 noet

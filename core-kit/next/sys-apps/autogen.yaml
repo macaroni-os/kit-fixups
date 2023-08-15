@@ -37,4 +37,13 @@ simple_autogen_rule:
             unset PYTHONPATH
             default
           }
+    - ramdisk:
+        pypi_name: funtoo-ramdisk
+        rdepend: |
+          app-arch/xz
+          app-arch/zstd
+          app-misc/pax-utils
+          sys-apps/busybox[-pam,static]
+        pydeps:
+          - rich
 

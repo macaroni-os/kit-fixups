@@ -1,0 +1,35 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="{{ description }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+KEYWORDS="*"
+
+LICENSE="GPL-2.0"
+SLOT="0"
+
+IUSE=""
+
+RDEPEND="
+  x11-libs/gtk+
+	x11-misc/lightdm
+"
+
+DEPEND="
+    ${RDEPEND}
+"
+BDEPEND="virtual/pkgconfig"
+
+src_prepare() {
+  sed -i -e 's/-Werror//' Makefile.am || die
+	eapply_user
+	eautoreconf
+}
+
+post_src_unpack() {
+    if [ ! -d "${S}" ]; then
+        mv {{ github_user }}-{{ github_repo }}* "${S}"
+    fi
+}

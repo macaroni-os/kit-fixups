@@ -1970,6 +1970,10 @@ dev_python_simplified_rule:
               elog "For i18n support, please emerge dev-python/Babel."
             fi
           }
+    - j2cli:
+        pydeps:
+          - jinja
+          - pyyaml
     - markupsafe:
         compat: 1.1.1
         blocker: '!<dev-python/markupsafe-2.0.0'

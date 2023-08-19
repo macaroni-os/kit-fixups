@@ -24,15 +24,11 @@ post_src_unpack() {
 	fi
 }
 
-PATCHES=(
-	"${FILESDIR}/${PN}-1.1.0-fix_format_strings.patch"
-)
-
 src_compile() {
 	${S}/install.py
 }
 
-DOCS=( AUTHORS COPYING ChangeLog README.md )
+DOCS=( AUTHORS ChangeLog README.md )
 
 src_install() {
 	python_doexe ${S}/dool

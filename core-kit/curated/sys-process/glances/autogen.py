@@ -7,7 +7,7 @@ async def generate(hub, **pkginfo):
 	github_user = "nicolargo"
 	github_repo = "glances"
 	app = pkginfo["name"]
-	python_compat = "python2+"
+	python_compat = "python3+"
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases", is_json=True
 	)

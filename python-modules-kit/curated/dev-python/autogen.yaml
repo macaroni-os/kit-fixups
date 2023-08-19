@@ -5,6 +5,15 @@
 # pyxattr will still "advertise" python2 support. If python2 support is selected, the older
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
+#
+
+glances:
+  defaults:
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - pystache:
+        du_pep517: setuptools
 
 tensorflow:
   defaults:

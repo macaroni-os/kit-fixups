@@ -6,6 +6,21 @@
 # pyxattr-compat will be RDEPENDed upon so it will be installed to satisfy those packages who
 # need it.
 #
+sqlalchemy:
+  defaults:
+    python_compat: python2+
+  generator: pypi-compat-1
+  packages:
+    - sqlalchemy:
+        pypi_name: SQLAlchemy
+        du_pep517: setuptools
+        pydeps:
+          py:all:
+            - typing-extensions
+          py:all:build:
+            - cython
+        compat: 1.4.7
+        blocker: "!<dev-python/sqlalchemy-2.0.20"
 
 glances:
   defaults:

@@ -220,13 +220,7 @@ aiobotostuff:
           - botocore
           - wrapt
     - typing-extensions:
-        version: 3.7.4.3
-        body: |
-          src_unpack() {
-            unpack ${A}
-            # archive has "typing_extensions" dir with underscore. This fixes it:
-            mv "${WORKDIR}/typing_"* "${S}" || die
-          }
+        du_pep517: flit
     - wrapt
 
 stuff_orphaned_in_python2:

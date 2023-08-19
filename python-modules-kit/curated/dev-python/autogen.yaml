@@ -2164,7 +2164,6 @@ sphinx_and_friends:
           0.7.13: 1
         blocker: '!<=dev-python/alabaster-0.7.13'
     - sphinx:
-        version: 5.3.0
         pypi_name: Sphinx
         du_pep517: flit
         iuse: latex doc
@@ -2188,10 +2187,14 @@ sphinx_and_friends:
             - snowballstemmer
             - packaging
             - importlib_metadata >= 4.4
+            # Sphinx is weird and truly RDEPENDs on another namespace of sphinxcontrib packages to work:
+            - sphinxcontrib-applehelp
+            - sphinxcontrib-devhelp
+            - sphinxcontrib-htmlhelp
+            - sphinxcontrib-jsmath
+            - sphinxcontrib-qthelp
+            - sphinxcontrib-serializinghtml
         body: |
-          PATCHES=(
-            "$FILESDIR"/sphinx-4.2.0-highlight-toggle.patch
-          )
           python_compile_all() {
             if use doc; then
               esetup.py build_sphinx
@@ -2208,7 +2211,6 @@ sphinx_contrib:
     du_pep517: generator
     pydeps:
         py:all:
-          - sphinx
           - namespace-sphinxcontrib
   packages:
     - sphinxcontrib-applehelp

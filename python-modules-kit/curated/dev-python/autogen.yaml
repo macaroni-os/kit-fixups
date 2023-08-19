@@ -7,6 +7,20 @@
 # need it.
 #
 
+stuff_not_dev_python:
+  defaults:
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - python-gitlab:
+        cat: dev-vcs
+        pydeps:
+          py:all:
+            - requests
+            - requests-toolbelt
+          py:3.7:
+            - typing-extensions
+
 glances:
   defaults:
     python_compat: python3+

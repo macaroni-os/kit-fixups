@@ -117,6 +117,7 @@ src_configure() {
 		--with-privsep-path="${EPREFIX}"/var/empty
 		--with-privsep-user=sshd
 		--with-hardening
+		--without-zlib-version-check  # FL-11529
 		$(use_with audit audit linux)
 		$(use_with kerberos kerberos5 "${EPREFIX}"/usr)
 		$(use sctp && use_with sctp)

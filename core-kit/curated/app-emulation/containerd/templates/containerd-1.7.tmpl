@@ -9,7 +9,7 @@ SRC_URI="{{artifacts[0].src_uri}}"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 IUSE="apparmor btrfs device-mapper +cri hardened +seccomp selinux test"
 
 DEPEND="
@@ -20,7 +20,7 @@ DEPEND="
 # recommended version of runc is found at https://github.com/containerd/containerd/tree/release/1.5/script/setup
 RDEPEND="
 	${DEPEND}
-	~app-emulation/runc-1.1.5
+	~app-emulation/runc-1.1.8
 "
 
 BDEPEND="

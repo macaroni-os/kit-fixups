@@ -1,0 +1,23 @@
+docker :
+  generator: github-1
+  packages:
+    - docker:
+        github:
+          user: moby
+          repo: moby
+          query: releases
+        version: 24.0.5
+    - docker-cli:
+        github:
+          user: docker
+          repo: cli
+          query: tags
+        version: 24.0.5
+    - docker-compose:
+        extensions:
+          - golang
+        github:
+          user: docker
+          repo: compose
+          query: releases
+        version: 2.20.3

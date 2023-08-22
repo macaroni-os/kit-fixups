@@ -264,7 +264,7 @@ src_install() {
 		exeinto /usr/src/${LINUX_SRCDIR}/scripts
 		doexe ${WORKDIR}/build/scripts/sign-file
 	fi
-	/usr/bin/ramdisk --modules_root="${D}" --temp_root="${T}" ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
+	/usr/bin/ramdisk --fs_root="${D}" --temp_root="${T}" ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
 }
 
 pkg_postinst() {

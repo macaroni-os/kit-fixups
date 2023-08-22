@@ -4,12 +4,9 @@ EAPI=7
 
 inherit bash-completion-r1 go-module
 
-EGO_SUM=(
-{{ gosum }})
-
 go-module_set_globals
 
-DESCRIPTION="Multi-container orchestration for Docker"
+DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
 SRC_URI="{{ src_uri }}"
 

@@ -89,10 +89,7 @@ src_configure() {
 src_install() {
 	emake -C utils DESTDIR="${D}" install
 	emake -C contrib DESTDIR="${D}" install
-
-	dodoc README
-	newdoc utils/libv4l2util/TODO TODO.libv4l2util
-	newdoc utils/libmedia_dev/README README.libmedia_dev
-	newdoc utils/dvb/README README.dvb
-	newdoc utils/v4l2-compliance/fixme.txt fixme.txt.v4l2-compliance
+	cd ${S} && find . \( -name "TODO*" -o -name "README*" -o -name "fixme*" \) -print0 | tar cvf ${T}/docs.tar --null --files-from - || die "tarfail create"
+	dodir /usr/share/doc/${PF}
+	tar -C ${D}/usr/share/doc/${PF} --owner=root --group=root -xvf ${T}/docs.tar || die "tarfail"
 }

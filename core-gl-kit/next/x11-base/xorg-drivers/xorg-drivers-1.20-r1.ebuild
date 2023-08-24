@@ -93,7 +93,7 @@ PDEPEND="
 	video_cards_vc4?           ( >=x11-base/xorg-server-${PV}[-minimal] )
 	video_cards_vesa?          ( x11-drivers/xf86-video-vesa )
 	video_cards_via?           ( x11-drivers/xf86-video-openchrome )
-	video_cards_virtualbox?    ( x11-drivers/xf86-video-vboxvideo )
+	video_cards_virtualbox?    ( x11-drivers/xf86-video-vbox )
 	video_cards_vmware?        ( >=x11-drivers/xf86-video-vmware-13.3.0 )
 "
 

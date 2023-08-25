@@ -8,10 +8,8 @@ SLOT=$PF
 CKV=${PV}
 KV_FULL=${PN}-${PVR}
 DEB_EXTRAVERSION="1"
-# Account for version revisions
-[[ ${PR} != "r0" ]] && DEB_EXTRAVERSION+="-${PR}"
-# Debian version -1 becomes _p1 in Funtoo:
 EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
+[[ ${PR} != "r0" ]] && EXTRAVERSION+="-${PR}"
 
 # This sets the module dir in /lib/modules. This starts with the version (reversed from normal.)
 MODULE_EXT=${PVR}-${PN}
@@ -124,6 +122,7 @@ pkg_setup() {
 	else
 		die "Architecture not handled in ebuild"
 	fi
+	[[ ${PR} != "r0" ]] && KERN_SUFFIX+="-${PR}"
 }
 
 src_prepare() {
@@ -149,7 +148,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-keyboard-not-working-Asus-TUF-FA617NS-FL-11436.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-pinctrl-FL-11437-backport.patch || die
-
+	epatch "${FILESDIR}"/6.4.11/linux-rtw89-revert-recent-changes.patch || die
 	cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
 	chmod +x config-extract || die
 	./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die

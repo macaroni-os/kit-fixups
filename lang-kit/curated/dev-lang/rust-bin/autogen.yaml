@@ -15,27 +15,6 @@ rust-gen_rule:
       arm64:
         - pattern: aarch64*
           chost: aarch64-unknown-linux-gnu
-      mips:
-        - pattern: mips64*
-          chost: mips64-unknown-linux-gnuabi64
-        - pattern: mipsel*
-          chost: mipsel-unknown-linux-gnu
-        - pattern: mips*
-          chost: mips-unknown-linux-gnu
-      ppc:
-        - pattern: powerpc*
-          chost: powerpc-unknown-linux-gnu
-      ppc64:
-        - pattern: powerpc64le*
-          chost: powerpc64le-unknown-linux-gnu
-        - pattern: powerpc64*
-          chost: powerpc64-unknown-linux-gnu
-      s390:
-        - pattern: s390x*
-          chost: s390x-unknown-linux-gnu
-      abi_x86_32:
-        - pattern: i?86*
-          chost: i686-unknown-linux-gnu
       riscv64:
         - pattern: riscv64*
           chost: riscv64gc-unknown-linux-gnu

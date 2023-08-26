@@ -7,13 +7,14 @@ inherit cmake xdg-utils
 DESCRIPTION="Qt-based multitab terminal emulator"
 HOMEPAGE="https://lxqt.github.io/"
 
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
 
 LICENSE="GPL-2 GPL-2+"
 SLOT="0"
 
-BDEPEND="dev-util/lxqt-build-tools"
+BDEPEND="dev-util/lxqt-build-tools
+	dev-qt/qttest"
 DEPEND="
 	dev-qt/qtcore:5
 	dev-qt/qtdbus:5

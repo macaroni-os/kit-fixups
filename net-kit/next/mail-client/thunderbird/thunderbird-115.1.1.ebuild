@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-115-patches-04.tar.xz"
+FIREFOX_PATCHSET="firefox-115-patches-05.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -531,6 +531,10 @@ DISTRIBUTION.INI
 	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-bgo-908297-ppc64-profiler.patch
 	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1838655-arm-unified-build-missing-include.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-libaom-Use-NEON_FLAGS-instead-of-VPX_ASFLAGS-for-lib.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1840931-elfhack-pgo-fix.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1839023-arm-unified-build-missing-header.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1838323-disambiguate-skvx-when-building-with-different-arches.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild

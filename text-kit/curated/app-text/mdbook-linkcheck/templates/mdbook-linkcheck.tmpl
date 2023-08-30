@@ -1,0 +1,20 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cargo flag-o-matic
+
+DESCRIPTION="A backend for 'mdbook' which will check your links for you."
+HOMEPAGE="https://github.com/Michael-F-Bryan/mdbook-linkcheck"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD Boost-1.0 CC0-1.0 MIT MPL-2.0 Unlicense ZLIB"
+SLOT="0"
+KEYWORDS="*"
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+DEPEND=""
+RDEPEND="${DEPEND}"
+BDEPEND=""
+
+QA_FLAGS_IGNORED="usr/bin/${PN}"

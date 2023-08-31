@@ -15,6 +15,7 @@ KEYWORDS="*"
 
 DEPEND="
 	sys-libs/libxcrypt
+	app-crypt/libmd
 "
 RDEPEND="
 	${DEPEND}

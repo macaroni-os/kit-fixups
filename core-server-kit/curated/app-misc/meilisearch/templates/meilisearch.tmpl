@@ -9,6 +9,7 @@ HOMEPAGE="https://www.meilisearch.com/"
 SRC_URI="
 	{{ artifacts["src"].src_uri }}
 	{{ artifacts["crates_bundle"].src_uri }}
+	{{ artifacts["unidic"].src_uri }}
 	mini-dashboard? ( {{ artifacts["dashboard"].src_uri }} )
 "
 
@@ -34,6 +35,15 @@ pkg_setup() {
 
 src_prepare() {
 	default
+
+	# Patch lindera-unidic to use the unidic-mecab src downloaded by the ebuild
+	local lindera_unidic_build=$(find "${WORKDIR}"/cargo_home/gentoo/lindera-unidic-* -iname build.rs)
+
+	# Replace the input/unpacked folder with our version
+	sed -i 's|\(let input_dir =.*\)\("unidic-mecab.*"\)\(.*\)|\1"{{ artifacts["unidic"].final_name.rsplit(".", 1)[0] }}"\3|' "${lindera_unidic_build}"
+
+	# Replace the path to the source with the one downloaded by the ebuild
+	sed -i "s|\(let source_path_for_build =\).*$|\1 Path::new("'"'"${DISTDIR}/{{ artifacts["unidic"].final_name }}"'"'");|" "${lindera_unidic_build}"
 
 	if use mini-dashboard; then
 		# Inject path to downloaded mini-dashboard build

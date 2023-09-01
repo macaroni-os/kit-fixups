@@ -1,9 +1,8 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3+ )
+PYTHON_COMPAT=( {{ python_compat }} )
 PYTHON_REQ_USE=xml
 
 XORG_DOC=doc
@@ -12,14 +11,14 @@ inherit python-any-r1 xorg-3
 
 DESCRIPTION="X C-language Bindings library"
 HOMEPAGE="https://xcb.freedesktop.org/"
-SRC_URI="https://xcb.freedesktop.org/dist/${P}.tar.xz"
+SRC_URI="{{ src_uri }}"
 KEYWORDS="*"
 IUSE="doc selinux test +xkb"
 SLOT="0/1.12"
 
-RDEPEND=">=dev-libs/libpthread-stubs-0.3-r1[${MULTILIB_USEDEP}]
-	>=x11-libs/libXau-1.0.7-r1[${MULTILIB_USEDEP}]
-	>=x11-libs/libXdmcp-1.1.1-r1[${MULTILIB_USEDEP}]"
+RDEPEND="dev-libs/libpthread-stubs[${MULTILIB_USEDEP}]
+	x11-libs/libXau[${MULTILIB_USEDEP}]
+	x11-libs/libXdmcp[${MULTILIB_USEDEP}]"
 # Note: ${PYTHON_USEDEP} needs to go verbatim
 DEPEND="${RDEPEND}
 	test? ( dev-libs/check[${MULTILIB_USEDEP}] )
@@ -27,10 +26,10 @@ DEPEND="${RDEPEND}
 	dev-libs/libxslt
 	${PYTHON_DEPS}
 	$(python_gen_any_dep \
-		">=x11-base/xcb-proto-1.13[${MULTILIB_USEDEP},\${PYTHON_USEDEP}]")"
+		"x11-base/xcb-proto[${MULTILIB_USEDEP},\${PYTHON_USEDEP}]")"
 
 python_check_deps() {
-	has_version -b ">=x11-base/xcb-proto-1.13[${PYTHON_USEDEP}]"
+	has_version -b "x11-base/xcb-proto[${PYTHON_USEDEP}]"
 }
 
 pkg_setup() {

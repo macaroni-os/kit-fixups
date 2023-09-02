@@ -28,8 +28,5 @@ post_src_unpack() {
 }
 
 all_ruby_prepare() {
-	# Avoid tests that download live code using git
-	rm -r test/typeprof/{goodcheck,diff-lcs}_test.rb || die
-
 	sed -i -e "s:_relative ': './:" -e 's/git ls-files -z/find * -print0/' ${RUBY_FAKEGEM_GEMSPEC} || die
 }

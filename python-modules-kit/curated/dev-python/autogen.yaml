@@ -1740,10 +1740,16 @@ testing_deps_rule:
         blocker: '!<=dev-python/pluggy-1.0.0'
         revision:
           1.0.0: 1
+        version:
+          latest:
+            keywords: next
+          '1.2.0':
+            keywords: '*'
         license: MIT
         python_compat: python2+ pypy3
         pydeps:
-          - importlib_metadata
+          py:3.7:
+            - importlib_metadata
     - setuptools-declarative-requirements:
         license: Apache-2.0
         pydeps:
@@ -2256,10 +2262,17 @@ pep517_compliance_rule:
     - hatchling:
         du_pep517: standalone
         rdepend: '${DEPEND}'
+        version:
+          latest:
+            keywords: next
+          '1.17.1':
+            keywords: '*'
         pydeps:
           py:all:
             - editables
             - tomli
+          py:3.7:build:
+            - pluggy <= 1.2.0
           py:all:build:
             - pathspec
             - packaging

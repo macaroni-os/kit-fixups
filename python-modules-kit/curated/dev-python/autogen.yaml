@@ -2271,6 +2271,8 @@ pep517_compliance_rule:
           py:all:
             - editables
             - tomli
+          py:3.7:build:
+            - pluggy <= 1.2.0
           py:all:build:
             - pathspec
             - packaging

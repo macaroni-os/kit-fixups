@@ -4,6 +4,13 @@ import os
 import toml
 
 
+async def get_unidic_artifact(hub):
+	info_url = "https://formulae.brew.sh/api/formula/mecab-unidic.json"
+	info = await hub.pkgtools.fetch.get_page(info_url, is_json=True)
+
+	return hub.pkgtools.ebuild.Artifact(url=info["urls"]["stable"]["url"])
+
+
 async def generate(hub, **pkginfo):
 	github_user = github_repo = "meilisearch"
 
@@ -43,6 +50,8 @@ async def generate(hub, **pkginfo):
 		url=dashboard_url,
 		final_name=f"{github_repo}-mini-dashboard-{dashboard_sha}.zip",
 	)
+
+	pkginfo["artifacts"]["unidic"] = await get_unidic_artifact(hub)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild.push()

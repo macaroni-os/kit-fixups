@@ -21,3 +21,11 @@ docker :
           repo: compose
           query: releases
         version: 2.20.3
+    - docker-buildx:
+        extensions:
+          - golang
+        github:
+          user: docker
+          repo: buildx
+          query: releases
+        version: 0.11.2

@@ -20,7 +20,7 @@ DEPEND=">=sys-libs/ncurses-5.2:=
 	pam? ( sys-libs/pam )"
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-screen )"
-BDEPEND="sys-apps/texinfo"
+BDEPEND=">=sys-apps/texinfo-7"
 
 PATCHES=(
 	# Don't use utempter even if it is found on the system.

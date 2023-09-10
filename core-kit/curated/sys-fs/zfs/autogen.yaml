@@ -5,8 +5,14 @@ zfs_and_friends:
     github:
       user: openzfs
       repo: zfs
-      query: tags
-      match: '^zfs-([0-9.]+)$'
+      query: releases
+      match: zfs-(2\.2\.0_rc[0-9])
+      include:
+        - prerelease
+      transform:
+        - kind: string
+          match: '-rc'
+          replace: '_rc'
   packages:
     - zfs
     - zfs-kmod

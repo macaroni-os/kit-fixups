@@ -98,6 +98,9 @@ async def generate(hub, **pkginfo):
 	if "select" in pkginfo and "match" in pkginfo["github"]:
 		raise ValueError("Please use either 'select' or 'match' but not both.")
 
+	if "include" in pkginfo["github"]:
+		extra_args["include"] = pkginfo["github"]["include"]
+
 	# Extra args handling:
 
 	for arg in ["version"]:

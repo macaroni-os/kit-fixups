@@ -15,8 +15,9 @@ IUSE="hardened"
 
 RDEPEND="!<app-emulation/docker-20.10.1"
 BDEPEND="
-	>=dev-lang/go-1.16.6
+	>=dev-lang/go-1.19.0
 	dev-go/go-md2man"
+PDEPEND="app-emulation/docker-buildx"
 
 RESTRICT="installsources strip test"
 

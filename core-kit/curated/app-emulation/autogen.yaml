@@ -6,13 +6,13 @@ docker :
           user: moby
           repo: moby
           query: releases
-        version: 24.0.5
+        version: 24.0.6
     - docker-cli:
         github:
           user: docker
           repo: cli
           query: tags
-        version: 24.0.5
+        version: 24.0.6
     - docker-compose:
         extensions:
           - golang
@@ -20,7 +20,7 @@ docker :
           user: docker
           repo: compose
           query: releases
-        version: 2.20.3
+        version: 2.21.0
     - docker-buildx:
         extensions:
           - golang

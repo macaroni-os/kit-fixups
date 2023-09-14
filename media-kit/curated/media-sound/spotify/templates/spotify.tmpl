@@ -35,6 +35,7 @@ RDEPEND="
 	x11-libs/libXtst
 	x11-libs/libSM
 	x11-libs/libICE
+	dev-libs/libayatana-appindicator
 "
 	#sys-libs/glibc
 

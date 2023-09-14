@@ -6,6 +6,9 @@ from packaging import version
 from bs4 import BeautifulSoup
 
 
+revision = {"1.2.20.1210": "1"}
+
+
 def get_release(releases_data):
 	name_pattern = re.compile("(spotify-client_([\d\.]*)\..*_amd64.deb)")
 	matches = [name_pattern.match(x["href"]) for x in releases_data]
@@ -32,5 +35,6 @@ async def generate(hub, **pkginfo):
 				final_name=f"{repo}-{version}.deb",
 			)
 		],
+		revision=revision,
 	)
 	ebuild.push()

@@ -46,4 +46,8 @@ simple_autogen_rule:
           sys-apps/busybox[-pam,static]
         pydeps:
           - rich
+        body: |
+          python_install_all() {
+            doman ${S}/doc/ramdisk.8
+          }
 

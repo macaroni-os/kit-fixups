@@ -4,8 +4,8 @@ EAPI=6
 
 DESCRIPTION="General-purpose programming language for robust, optimal, and reusable software"
 SRC_URI="
-	{%- for arch, artifact in artifacts.items() %}
-	{{ arch }}? ( {{ artifact.src_uri }} )
+	{%- for arch in artifacts|sort %}
+	{{ arch }}? ( {{ artifacts[arch].src_uri }} )
 	{%- endfor %}"
 HOMEPAGE="https://ziglang.org/"
 

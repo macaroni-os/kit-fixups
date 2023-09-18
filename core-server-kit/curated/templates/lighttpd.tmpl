@@ -4,16 +4,16 @@ EAPI=7
 
 LUA_COMPAT=( lua5-{1..3} )
 
-inherit autotools flag-o-matic readme.gentoo-r1 systemd user
+inherit autotools flag-o-matic readme.gentoo-r1 user
 
-DESCRIPTION="Lightweight high-performance web server"
-HOMEPAGE="https://www.lighttpd.net https://github.com/lighttpd"
-SRC_URI="https://download.lighttpd.net/lighttpd/releases-1.4.x/${P}.tar.xz"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="bzip2 dbi doc fam gdbm geoip ipv6 kerberos ldap libev libressl lua minimal mmap memcached mysql pcre php postgres rrdtool sasl selinux ssl sqlite test webdav xattr zlib"
+IUSE="bzip2 dbi doc fam ipv6 kerberos ldap libev libressl lua minimal mmap mysql pcre php postgres rrdtool sasl selinux ssl sqlite test webdav xattr zlib"
 
 REQUIRED_USE="kerberos? ( ssl !libressl ) webdav? ( sqlite )"
 
@@ -24,12 +24,9 @@ COMMON_DEPEND="
 	bzip2?    ( app-arch/bzip2 )
 	dbi?	( dev-db/libdbi )
 	fam?    ( virtual/fam )
-	gdbm?   ( sys-libs/gdbm )
-	geoip?	( dev-libs/geoip )
 	ldap?   ( >=net-nds/openldap-2.1.26 )
 	libev?  ( >=dev-libs/libev-4.01 )
 	lua?    ( >=dev-lang/lua-5.1:= )
-	memcached? ( dev-libs/libmemcached )
 	mysql?  ( dev-db/mysql-connector-c:= )
 	pcre?   ( >=dev-libs/libpcre-3.1 )
 	php?      ( dev-lang/php:*[cgi] )
@@ -113,10 +110,14 @@ pkg_setup() {
 		http://redmine.lighttpd.net/projects/lighttpd/wiki/IPv6-Config"
 }
 
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
+
 src_prepare() {
 	default
-	use memcached && append-ldflags -pthread
-	#dev-python/docutils installs rst2html.py not rst2html
 	sed -i -e 's|\(rst2html\)|\1.py|g' doc/outdated/Makefile.am || \
 		die "sed doc/Makefile.am failed"
 	eautoreconf
@@ -139,13 +140,10 @@ src_configure() {
 		$(use_with bzip2) \
 		$(use_with dbi) \
 		$(use_with fam) \
-		$(use_with gdbm) \
-		$(use_with geoip ) \
 		$(use_with kerberos krb5) \
 		$(use_with ldap) \
 		$(use_with libev) \
 		$(use_with lua) \
-		$(use_with memcached) \
 		$(use_with mysql) \
 		$(use_with pcre) \
 		$(use_with postgres pgsql) \
@@ -219,9 +217,6 @@ src_install() {
 	rm -f "${D}"/usr/bin/spawn-fcgi "${D}"/usr/share/man/man1/spawn-fcgi.* || die
 
 	use minimal && remove_non_essential
-
-	systemd_dounit "${FILESDIR}/${PN}.service"
-	systemd_dotmpfilesd "${FILESDIR}/${PN}.tmpfiles.conf"
 }
 
 pkg_postinst () {
@@ -234,7 +229,7 @@ pkg_postinst () {
 	fi
 
 	if [[ -f ${ROOT}etc/lighttpd.conf ]] ; then
-		elog "Gentoo has a customized configuration,"
+		elog "Funtoo has a customized configuration,"
 		elog "which is now located in /etc/lighttpd.  Please migrate your"
 		elog "existing configuration."
 	fi

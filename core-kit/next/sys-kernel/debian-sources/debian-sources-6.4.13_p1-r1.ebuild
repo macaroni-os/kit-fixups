@@ -5,20 +5,21 @@ EAPI=5
 inherit check-reqs eutils ego
 
 SLOT=$PF
-CKV=${PV}
-KV_FULL=${PN}-${PVR}
-DEB_EXTRAVERSION="1"
-EXTRAVERSION="_p${DEB_EXTRAVERSION}-${PN}"
-[[ ${PR} != "r0" ]] && EXTRAVERSION+="-${PR}"
 
-# This sets the module dir in /lib/modules. This starts with the version (reversed from normal.)
-MODULE_EXT=${PVR}-${PN}
-
+DEB_PATCHLEVEL="1"
+KERNEL_TRIPLET="6.4.13"
+VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
+if [ ${PR} != "r0" ]; then
+	VERSION_SUFFIX+="-${PR}"
+fi
+EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
+MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
-KERNEL_VERSION="6.4.11"
-DEB_PV="${KERNEL_VERSION}-${DEB_EXTRAVERSION}"
+DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
+
+
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
@@ -28,7 +29,7 @@ RDEPEND="
 		<sys-apps/gawk-5.2.0
 		>=sys-apps/gawk-5.2.1
 	)
-	binary? ( >=sys-apps/ramdisk-1.0.7 )
+	binary? ( >=sys-apps/ramdisk-1.1.3 )
 "
 DEPEND="
 	virtual/libelf
@@ -47,8 +48,8 @@ zfs? ( binary )
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_VERSION}.orig.tar.xz -> linux_${KERNEL_VERSION}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz"
-S="$WORKDIR/linux-${KERNEL_VERSION}"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_TRIPLET}.orig.tar.xz -> linux_${KERNEL_TRIPLET}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz"
+S="$WORKDIR/linux-${KERNEL_TRIPLET}"
 
 get_patch_list() {
 	[[ -z "${1}" ]] && die "No patch series file specified"
@@ -146,6 +147,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
+	epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-keyboard-not-working-Asus-TUF-FA617NS-FL-11436.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-pinctrl-FL-11437-backport.patch || die
 	epatch "${FILESDIR}"/6.4.11/linux-rtw89-revert-recent-changes.patch || die
@@ -206,8 +208,12 @@ src_prepare() {
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 		if [ -n "$MARCH" ]; then
 			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
-			tweak_config .config CONFIG_GENERIC_CPU n && \
-				tweak_config .config "${CONFIG_MARCH}" y || die "Canna optimize this kernel anymore, captain!"
+			if [ -n "${CONFIG_MARCH}" ]; then
+				tweak_config .config CONFIG_GENERIC_CPU n
+				tweak_config .config "${CONFIG_MARCH}" y
+			else
+				ewarn "Could not find optimized settings for $MARCH, compiling generic kernel."
+			fi
 		fi
 	fi
 	# get config into good state:
@@ -266,7 +272,7 @@ src_install() {
 	/usr/bin/ramdisk \
 		--fs_root="${D}" \
 		--temp_root="${T}" \
-		--kernel=${PV}-${PN} \
+		--kernel=${MOD_DIR_NAME} \
 		${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
 }
 

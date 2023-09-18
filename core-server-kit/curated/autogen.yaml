@@ -329,3 +329,18 @@ pear-kit:
             user: pear
             repo: XML_Serializer
             query: tags
+
+lighttpd-rule:
+  generator: github-1
+  packages:
+    - lighttpd:
+        cat: www-servers
+        desc: Lightweight high-performance web server
+        homepage:
+          - https://www.lighttpd.net
+          - https://github.com/lighttpd/lighttpd1.4
+        github:
+            user: lighttpd
+            repo: lighttpd1.4
+            query: tags
+            match: 'lighttpd-(1.4.[0-9].+)$'

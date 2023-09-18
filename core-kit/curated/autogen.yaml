@@ -173,3 +173,15 @@ lpg_suite:
         dir:
           url: https://gnupg.org/ftp/gcrypt/libksba/
           format: tar.bz2
+
+libnml_rule:
+  generator: dirlisting
+  packages:
+    - libmnl:
+        cat: net-libs
+        desc: Minimalistic netlink library
+        homepage: https://netfilter.org/projects/libmnl/
+        dir:
+          url: https://www.netfilter.org/pub/libmnl/
+          format: tar.bz2
+          order: asc

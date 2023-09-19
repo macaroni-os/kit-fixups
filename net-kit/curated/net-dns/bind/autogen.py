@@ -18,8 +18,7 @@ async def generate(hub, **pkginfo):
 	url = src_url + f"{version}/bind-{version}.tar.xz"
 	revision = { "9.18.1" : "3" }
 	artifacts = [
-		hub.pkgtools.ebuild.Artifact(url=url),
-		hub.pkgtools.ebuild.Artifact(url="https://distfiles.gentoo.org/distfiles/dyndns-samples.tbz2")
+		hub.pkgtools.ebuild.Artifact(url=url)
 	]
 
 	bind = hub.pkgtools.ebuild.BreezyBuild(

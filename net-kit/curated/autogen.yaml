@@ -1,0 +1,20 @@
+nftables_rule:
+  generator: dirlisting
+  defaults:
+    dir:
+      format: tar.xz
+      order: asc
+  packages:
+    - nftables:
+        cat: net-firewall
+        homepage: https://netfilter.org/projects/nftables/
+        desc: Linux kernel (3.13+) firewall, NAT and packet mangling tools
+        dir:
+          url: https://www.netfilter.org/pub/nftables/
+    - libnftnl:
+        cat: net-libs
+        homepage: https://www.netfilter.org/projects/libnftnl/
+        desc: Netlink API to the in-kernel nf_tables subsystem
+        dir:
+          url: https://www.netfilter.org/pub/libnftnl/
+

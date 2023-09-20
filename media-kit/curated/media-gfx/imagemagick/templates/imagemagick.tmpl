@@ -2,7 +2,7 @@ EAPI="7"
 
 inherit flag-o-matic libtool perl-functions toolchain-funcs
 
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
 
 DESCRIPTION="A collection of tools and libraries for many image formats"
@@ -10,13 +10,12 @@ HOMEPAGE="https://www.imagemagick.org/"
 
 LICENSE="imagemagick"
 SLOT="0/${PV}"
-IUSE="bzip2 corefonts +cxx djvu fftw fontconfig fpx graphviz hdri heif jbig jpeg jpeg2k lcms lqr lzma opencl openexr openmp pango perl +png postscript q32 q8 raw static-libs svg test tiff truetype webp wmf X xml zip zlib"
+IUSE="bzip2 corefonts +cxx djvu fftw fontconfig fpx graphviz hdri heif jbig jpeg jpeg2k lcms lqr lzma opencl openexr openmp pango perl +png postscript q32 q8 raw static-libs svg tiff truetype webp wmf X xml zip zlib"
 
 REQUIRED_USE="corefonts? ( truetype )
-	svg? ( xml )
-	test? ( corefonts )"
+	svg? ( xml )"
 
-RESTRICT="!test? ( test )"
+RESTRICT="test"
 
 BDEPEND="virtual/pkgconfig"
 
@@ -73,44 +72,6 @@ post_src_unpack() {
 	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
 }
 
-src_prepare() {
-	default
-
-	# Apply hardening #664236
-	cp "${FILESDIR}"/policy-hardening.snippet "${S}" || die
-	sed -i -e '/^<policymap>$/ {
-			r policy-hardening.snippet
-			d
-		}' \
-		config/policy.xml || \
-		die "Failed to apply hardening of policy.xml"
-	einfo "policy.xml hardened"
-
-	elibtoolize # for Darwin modules
-
-	# For testsuite, see https://bugs.gentoo.org/show_bug.cgi?id=500580#c3
-	local ati_cards mesa_cards nvidia_cards render_cards
-	shopt -s nullglob
-	ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
-	if test -n "${ati_cards}"; then
-		addpredict "${ati_cards}"
-	fi
-	mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-	if test -n "${mesa_cards}"; then
-		addpredict "${mesa_cards}"
-	fi
-	nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
-	if test -n "${nvidia_cards}"; then
-		addpredict "${nvidia_cards}"
-	fi
-	render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
-	if test -n "${render_cards}"; then
-		addpredict "${render_cards}"
-	fi
-	shopt -u nullglob
-	addpredict /dev/nvidiactl
-}
-
 src_configure() {
 	local depth=16
 	use q8 && depth=8
@@ -124,6 +85,7 @@ src_configure() {
 	[[ ${CHOST} == *-solaris* ]] && append-ldflags -lnsl -lsocket
 
 	local myeconfargs=(
+		--with-security-policy=open
 		$(use_enable static-libs static)
 		$(use_enable hdri)
 		$(use_enable opencl)
@@ -172,30 +134,6 @@ src_configure() {
 	CONFIG_SHELL=$(type -P bash) econf "${myeconfargs[@]}"
 }
 
-src_test() {
-	# Install default (unrestricted) policy in $HOME for test suite #664238
-	local _im_local_config_home="${HOME}/.config/ImageMagick"
-	mkdir -p "${_im_local_config_home}" || \
-		die "Failed to create IM config dir in '${_im_local_config_home}'"
-	cp "${FILESDIR}"/policy.test.xml "${_im_local_config_home}/policy.xml" || \
-		die "Failed to install default blank policy.xml in '${_im_local_config_home}'"
-
-	local im_command= IM_COMMANDS=()
-	if [[ ${PV} == "9999" ]] ; then
-		IM_COMMANDS+=( "magick -version" ) # Show version we are using -- cannot verify because of live ebuild
-	else
-		IM_COMMANDS+=( "magick -version | grep -q -- \"${MY_PV}\"" ) # Verify that we are using version we just built
-	fi
-	IM_COMMANDS+=( "magick -list policy" ) # Verify that policy.xml is used
-	IM_COMMANDS+=( "emake check" ) # Run tests
-
-	for im_command in "${IM_COMMANDS[@]}"; do
-		eval "${S}"/magick.sh \
-			${im_command} || \
-			die "Failed to run \"${im_command}\""
-	done
-}
-
 src_install() {
 	# Ensure documentation installation files and paths with each release!
 	emake \
@@ -230,36 +168,4 @@ src_install() {
 
 	insinto /usr/share/${PN}
 	doins config/*icm
-}
-
-pkg_postinst() {
-	local _show_policy_xml_notice=
-
-	if [[ -z "${REPLACING_VERSIONS}" ]]; then
-		# This is a new installation
-		_show_policy_xml_notice=yes
-	else
-		local v
-		for v in ${REPLACING_VERSIONS}; do
-			if ! ver_test "${v}" -gt "7.0.8.10-r2"; then
-				# This is an upgrade
-				_show_policy_xml_notice=yes
-
-				# Show this elog only once
-				break
-			fi
-		done
-	fi
-
-	if [[ -n "${_show_policy_xml_notice}" ]]; then
-		elog "For security reasons, a policy.xml file was installed in /etc/ImageMagick-7"
-		elog "which will prevent the usage of the following coders by default:"
-		elog ""
-		elog "  - PS"
-		elog "  - PS2"
-		elog "  - PS3"
-		elog "  - EPS"
-		elog "  - PDF"
-		elog "  - XPS"
-	fi
 }

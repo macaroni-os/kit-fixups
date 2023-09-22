@@ -1,0 +1,97 @@
+001_hplip-3.17.11-fast-pp_1.patch
+002_hplip-3.12.6-fast-pp_2.patch
+Fix parallel port cpu usage.
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/750796
+
+003_hplip-3.14.10-process-events-for-systray.patch
+Make hp-systray compatible with kde5.
+Gentoo bug: https://bugs.gentoo.org/show_bug.cgi?id=525028
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1350038
+
+004_hplip-3.17.9-gzip-bytes-handling.patch
+Decode nickname returned from gzip.GzipFile as utf-8.
+Gentoo bug: https://bugs.gentoo.org/624458
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1704529
+
+005_hplip-3.21.4-remove-imageprocessor.patch
+Remove closed source imageprocessor code.
+Gentoo bug: https://bugs.gentoo.org/667162
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1785230
+
+006_hplip-3.18.3-locatedriver-install.patch
+Create /usr/bin before installing into it.
+This fixes the installation of the locatedriver tool.
+Gentoo bug: https://bugs.gentoo.org/647674
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1756953
+
+007_hplip-3.18.3-sixext.patch
+Fix UnicodeDecodeError.
+Gentoo bug: https://bugs.gentoo.org/651870
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1480152
+
+008_hplip-3.20.5-fix-configure-bashisms.patch
+Fix bashism in configure.in.
+Gentoo bug: https://bugs.gentoo.org/723312
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1881331
+
+009_hplip-3.20.5-qt5-check.patch
+Check for qt5 instead of qt4.
+Gentoo bug: 
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1881326
+
+010_hplip-3.20.6-distribution.patch
+Remove uninstall, upgrade and autoconfiguration code.
+Gentoo bug: https://bugs.gentoo.org/show_bug.cgi?id=434830
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1080353
+
+011_hplip-3.20.6-hpaio-fix-return-values.patch
+012_hplip-3.20.6-hppsfilter-fix-return-values.patch
+Fix build with clang.
+Gentoo bug: https://bugs.gentoo.org/741088
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1842132, https://bugs.launchpad.net/hplip/+bug/1840490
+
+013_hplip-3.20.9-missing-drivers.patch
+Revert removal of printer model variants.
+Gentoo bug: https://bugs.gentoo.org/727688
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1876490, https://bugs.launchpad.net/hplip/+bug/1843592
+
+014_hplip-3.20.9-missing-includes-and-definitions.patch
+Fix missing includes and definitions.
+Gentoo bug: 
+Upstream bug: 
+
+015_hplip-3.20.9-python-includes.patch
+Fix incorrect implementation of python includes.
+Gentoo bug: https://bugs.gentoo.org/739526, https://bugs.gentoo.org/701166
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1879445
+
+016_hplip-3.20.9-revert-plugins.patch
+Reverts many printer models being marked as not requiring the plugin.
+Gentoo bug: https://bugs.gentoo.org/740740
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1883898
+
+018_hplip-3.20.5-utils-symlink.patch
+Fix hp-check/hp-doctor runnning forever.
+Gentoo bug: https://bugs.gentoo.org/721018
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/755441
+
+019_hplip-3.20.9-hp-uiscan-desktop-file.patch
+Fix hp-uiscan desktop file
+Gentoo bug: https://bugs.gentoo.org/766653
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1833510
+
+020_hplip-3.20.11-binary-to-string.patch
+Gentoo bug: https://bugs.gentoo.org/771969
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1916407
+
+021_hplip-3.22.6-pserror.c-define-column-to-be-int-explicitly.patch
+Gentoo bug: https://bugs.gentoo.org/869785
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/1989798
+
+022_hplip-3.23.5-C99-compatibility-fixes.patch
+Gentoo bug: https://bugs.gentoo.org/882891, https://bugs.gentoo.org/https://bugs.gentoo.org/908736
+Upstream bug: https://bugs.launchpad.net/hplip/+bug/
+
+023_hplip-3.23.5-remove-deprecated-register-keyword.patch
+Gentoo bug: https://bugs.gentoo.org/909351
+Upstream bug:

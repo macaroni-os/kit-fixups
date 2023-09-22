@@ -9,8 +9,7 @@ inherit autotools linux-info python-single-r1 readme.gentoo-r1 udev
 
 DESCRIPTION="HP Linux Imaging and Printing - Print, scan, fax drivers and service tools"
 HOMEPAGE="https://developers.hp.com/hp-linux-imaging-and-printing"
-SRC_URI="mirror://sourceforge/hplip/${P}.tar.gz
-		https://dev.gentoo.org/~billie/distfiles/${PN}-3.22.6-patches-1.tar.xz"
+SRC_URI="{{ artifacts[0].src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -75,9 +74,7 @@ RDEPEND="
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-PATCHES=(
-	"${WORKDIR}/patches"
-)
+PATCHES=( "${FILESDIR}" )
 
 CONFIG_CHECK="~PARPORT ~PPDEV"
 ERROR_PARPORT="Please make sure kernel parallel port support is enabled (PARPORT and PPDEV)."

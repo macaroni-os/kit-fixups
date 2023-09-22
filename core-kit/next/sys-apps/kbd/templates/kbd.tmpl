@@ -3,11 +3,8 @@
 EAPI=7
 
 inherit autotools
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 
-MY_PV=${PV/_/-}
-MY_P=${PN}-${MY_PV}
-S=${WORKDIR}/${MY_P}
 DESCRIPTION="Keyboard and console utilities"
 HOMEPAGE="http://kbd-project.org/"
 
@@ -28,8 +25,10 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-src_unpack() {
-	default
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
 	# Rename conflicting keymaps to have unique names, bug #293228
 	cd "${S}"/data/keymaps/i386 || die
 	mv fgGIod/trf.map fgGIod/trf-fgGIod.map || die

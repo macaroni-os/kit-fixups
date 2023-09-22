@@ -16,7 +16,7 @@ IUSE="debug +cli doc +gmp json +modern_kernel python xtables"
 RDEPEND=">=net-libs/libmnl-1.0.3:0=
 	gmp? ( dev-libs/gmp:0= )
 	json? ( dev-libs/jansson )
-	cli? ( sys-libs/libedit:0= )
+	cli? ( dev-libs/libedit:0= )
 	>=net-libs/libnftnl-1.2.6:0="
 
 DEPEND="${RDEPEND}
@@ -25,8 +25,6 @@ DEPEND="${RDEPEND}
 	sys-devel/bison
 	sys-devel/flex
 	virtual/pkgconfig"
-
-#S="${WORKDIR}/v${PV}"
 
 pkg_setup() {
 	if kernel_is ge 3 13; then

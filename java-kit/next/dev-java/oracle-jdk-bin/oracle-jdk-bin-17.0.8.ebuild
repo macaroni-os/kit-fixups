@@ -75,7 +75,9 @@ src_install() {
 	dodir "${dest}"
 	cp -pPR * "${ddest}" || die
 	
-	dosym "${P}" "/opt/${PN}-${SLOT}"
+	if [ "${P}" != "${PN}-${SLOT}" ]; then
+	    dosym "${P}" "/opt/${PN}-${SLOT}"
+	fi
 	
 	dodir "${djavaconfig}" 
 

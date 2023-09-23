@@ -1,0 +1,48 @@
+sphinx_and_friends:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy
+  generator: pypi-compat-1
+  packages:
+    - sphinx:
+        pypi_name: Sphinx
+        version: 5.3.0
+        du_pep517: flit
+        iuse: latex doc
+        rdepend: |
+          latex? (
+            dev-texlive/texlive-latexextra
+            dev-texlive/texlive-luatex
+            app-text/dvipng
+          )
+        pydeps:
+          py:all:build:
+            - setuptools
+          py:all:
+            - alabaster < 0.8
+            - Babel
+            - docutils
+            - imagesize
+            - jinja
+            - pygments
+            - requests
+            - snowballstemmer
+            - packaging
+            - importlib_metadata >= 4.4
+            # Sphinx is weird and truly RDEPENDs on another namespace of sphinxcontrib packages to work:
+            - sphinxcontrib-applehelp
+            - sphinxcontrib-devhelp
+            - sphinxcontrib-htmlhelp
+            - sphinxcontrib-jsmath
+            - sphinxcontrib-qthelp
+            - sphinxcontrib-serializinghtml
+        body: |
+          python_compile_all() {
+            if use doc; then
+              esetup.py build_sphinx
+              HTML_DOCS=( "${BUILD_DIR}"/sphinx/html/. )
+            fi
+          }
+    - sphinx_rtd_theme
+
+

@@ -11,6 +11,9 @@ EXPORT_FUNCTIONS src_configure
 
 IUSE+="+memsaver"
 
+: "{MEMSAVER_FACTOR:=1750000}"
+
+
 memsaver_src_configure() {
 	if use memsaver; then
 		# set the default language so that we can parse the system properties consistently
@@ -18,11 +21,11 @@ memsaver_src_configure() {
 
 		# limit number of jobs based on available memory:
 		mem=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
-		jobs=$((mem/1750000))
+		jobs=$((mem/MEMSAVER_FACTOR))
 
 		# don't use more jobs than physical cores:
 		if [ -e /sys/devices/system/cpu/possible ]; then
-			# actual physical cores, without considering hyperthreading:
+			# actual physical cores, without considering hyper-threading:
 			max_parallelism="$( lscpu -p | grep -v '^#' | cut -f2 -d, | sort -u | wc -l )"
 			einfo "memsaver.eclass limiting max parallelism to ${max_parallelism}"
 		else

@@ -11,7 +11,7 @@ EXPORT_FUNCTIONS src_configure
 
 IUSE+="+memsaver"
 
-: "{MEMSAVER_FACTOR:=1750000}"
+: "${MEMSAVER_FACTOR:=1750000}"
 
 
 memsaver_src_configure() {

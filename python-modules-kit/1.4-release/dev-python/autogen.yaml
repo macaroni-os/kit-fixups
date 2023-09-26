@@ -1,3 +1,16 @@
+python:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy
+  generator: pypi-compat-1
+  packages:
+    - pycodestyle:
+        version: 2.10.0
+        python_compat: python2+
+        desc: Python style guide checker (fka pep8)
+        homepage: https://pypi.org/project/pycodestyle/
+        license: MIT
+
 sphinx_and_friends:
   defaults:
     cat: dev-python

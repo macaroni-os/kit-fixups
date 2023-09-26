@@ -1230,10 +1230,10 @@ simple_python_autogen_rule:
           - six
     - patch-ng
     - pycodestyle:
-        python_compat: python2+
-        desc: Python style guide checker (fka pep8)
-        homepage: https://pypi.org/project/pycodestyle/
-        license: MIT
+        compat: '2.10.0'
+        blocker: '!<dev-python/pycodestyle-2.11.0-r1'
+        revision:
+          2.11.0: 1
     - pyflakes:
         python_compat: python2+
         desc: Passive checker for Python programs

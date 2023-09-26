@@ -14,11 +14,6 @@ IUSE="build kernel_FreeBSD kernel_linux +split-usr"
 S="${WORKDIR}"/baselayout-2.6
 
 pkg_preinst() {
-	# This is written in src_install (so it's in CONTENTS), but punt all
-	# pending updates to avoid user having to do etc-update (and make the
-	# pkg_postinst logic simpler).
-	rm -f "${EROOT}"/etc/._cfg????_gentoo-release
-
 	if use build && [ $ROOT != "/" ]; then
 		if use split-usr ; then
 			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" layout
@@ -43,9 +38,6 @@ src_prepare() {
 		ldpaths+=":${EPREFIX}/usr/local/${libdir}"
 	done
 	echo "LDPATH='${ldpaths#:}'" >> etc/env.d/50baselayout
-
-	# rc-scripts version for testing of features that *should* be present
-	echo "Funtoo Linux 1.4" > etc/gentoo-release
 }
 
 src_install() {
@@ -99,11 +91,6 @@ pkg_postinst() {
 		[ -e "${EROOT}etc/${x}" ] && chmod o-rwx "${EROOT}etc/${x}"
 	done
 
-	# Take care of the etc-update for the user
-	if [ -e "${EROOT}"etc/._cfg0000_gentoo-release ] ; then
-		mv "${EROOT}"etc/._cfg0000_gentoo-release "${EROOT}"etc/gentoo-release
-	fi
-
 	# whine about users that lack passwords #193541
 	if [[ -e "${EROOT}"etc/shadow ]] ; then
 		local bad_users=$(sed -n '/^[^:]*::/s|^\([^:]*\)::.*|\1|p' "${EROOT}"/etc/shadow)
@@ -152,5 +139,9 @@ pkg_postinst() {
 			rm -fr "${EROOT}{,usr"
 		fi
 	done
+	if [ -e /usr/bin/ego ]; then
+		echo "Funtoo Linux $(/usr/bin/ego profile get build)" >${EROOT}etc/gentoo-release
+	fi
+
 }
 

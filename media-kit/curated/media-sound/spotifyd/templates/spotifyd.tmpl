@@ -2,15 +2,11 @@
 
 EAPI=7
 
-CRATES="
-{{ crates }}"
-
 inherit cargo
 
 DESCRIPTION="A spotify daemon"
 HOMEPAGE="https://github.com/Spotifyd/spotifyd"
-SRC_URI="{{ artifacts[0].src_uri }}
-	$(cargo_crate_uris ${CRATES})"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="Apache-2.0 BSD BSD-2 GPL-3 ISC MIT MPL-2.0 ZLIB"
 KEYWORDS="*"

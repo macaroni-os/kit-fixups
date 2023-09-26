@@ -1,0 +1,10 @@
+spotifyd:
+  generator: github-1
+  packages:
+    - spotifyd:
+        github:
+          user: Spotifyd
+          query: releases
+          select: ^v.*
+        extensions:
+          - rust

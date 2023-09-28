@@ -997,10 +997,6 @@ simple_python_autogen_rule:
         homepage: https://github.com/ousret/charset_normalizer
         license: MIT
         body: |
-          src_unpack() {
-            default
-            mv ${WORKDIR}/charset-normalizer-* ${S} || die
-          }
           src_prepare() {
             sed -i -e '/addopts/d' setup.cfg || die
             distutils-r1_src_prepare

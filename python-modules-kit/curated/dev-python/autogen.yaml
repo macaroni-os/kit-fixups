@@ -522,6 +522,28 @@ dev_python_compat_rule:
         compat: '4.3.0'
         blocker: '!<dev-python/more-itertools-8'
         homepage: 'https://pypi.org/project/more-itertools/'
+    - msgpack:
+        compat: '0.6.2'
+        blocker: '!dev-python/msgpack-1.0.7 !<=dev-python/msgpack-1.0.5'
+        revision:
+          1.0.5: 1
+          1.0.7: 1
+        iuse: native-extensions
+        version:
+          latest:
+            keywords: next
+          1.0.5:
+            keywords: '*'
+        body: |
+          python_prepare_all() {
+            # Remove pre-generated cython files
+            rm msgpack/{_packer,_unpacker,_cmsgpack}.pyx || die
+
+            if ! use native-extensions ; then
+              sed -i -e "/have_cython/s:True:False:" setup.py || die
+            fi
+            distutils-r1_python_prepare_all
+          }
     - mwparserfromhell:
         license: MIT
         compat: '0.5.4'
@@ -2477,12 +2499,6 @@ dev_python_autogen_rule:
         python_compat: python2_7
         template: pygments-old.tmpl
         pypi_name: pygments
-    - msgpack
-    - msgpack-compat:
-        version: 0.6.2
-        template: msgpack.tmpl
-        pypi_name: msgpack
-        python_compat: python2_7
     - multidict
     - numpy:
         # FL-9243: numpy >=1.22.0 only supports Python >=3.8

@@ -2245,7 +2245,11 @@ sphinx_and_friends:
               HTML_DOCS=( "${BUILD_DIR}"/sphinx/html/. )
             fi
           }
-    - sphinx_rtd_theme
+    - sphinx_rtd_theme:
+        pydeps:
+          - sphinxcontrib-jquery
+          - sphinx
+          - docutils
 
 sphinx_contrib:
   generator: pypi-compat-1
@@ -2263,6 +2267,7 @@ sphinx_contrib:
     - sphinxcontrib-jsmath
     - sphinxcontrib-qthelp
     - sphinxcontrib-serializinghtml
+    - sphinxcontrib-jquery
 
 
 pep517_compliance_rule:

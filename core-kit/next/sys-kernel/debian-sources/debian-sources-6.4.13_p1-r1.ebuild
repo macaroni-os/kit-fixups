@@ -121,7 +121,7 @@ pkg_setup() {
 		export DEB_SUBARCH="amd64"
 		export KERN_SUFFIX="${PN}-x86_64-${PV}"
 	else
-		die "Architecture not handled in ebuild"
+		die "Architecture '${ARCH}' not handled in ebuild"
 	fi
 	[[ ${PR} != "r0" ]] && KERN_SUFFIX+="-${PR}"
 }

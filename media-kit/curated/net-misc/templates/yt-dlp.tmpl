@@ -17,7 +17,10 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	>=dev-lang/python-3.7
-	app-text/pandoc
+	|| (
+		app-text/pandoc-bin
+		app-text/pandoc
+	)
 	brotli? ( app-arch/brotli )
 	certifi? ( dev-python/certifi )
 	ffmpeg? ( media-video/ffmpeg )

@@ -1,5 +1,5 @@
 shorewall_rule:
-  generator: dirlisting
+  generator: dirlisting-1
   packages:
     - shorewall:
         cat: net-firewall
@@ -25,7 +25,7 @@ shorewall_rule:
             - shorewall-docs-html
 
 nftables_rule:
-  generator: dirlisting
+  generator: dirlisting-1
   defaults:
     dir:
       format: tar.xz
@@ -43,3 +43,18 @@ nftables_rule:
         desc: Netlink API to the in-kernel nf_tables subsystem
         dir:
           url: https://www.netfilter.org/pub/libnftnl/
+
+procmail_github_rule:
+  generator: github-1
+  packages:
+    - procmail:
+        cat: mail-filter
+        desc: Mail delivery agent/filter
+        homepage: http://www.procmail.org/
+        patches:
+          disable-lazy-bindings: 3.24-disable-lazy-bindings.patch
+          default-home-maildir: 3.24-default-home-maildir.patch
+        github:
+          user: BuGlessRB
+          repo: procmail
+          query: releases

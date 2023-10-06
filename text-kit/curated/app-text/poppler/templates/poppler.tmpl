@@ -51,7 +51,6 @@ RDEPEND="${DEPEND}
 DOCS=( AUTHORS NEWS README.md README-XPDF )
 
 PATCHES=(
-	"${FILESDIR}/${PN}-20.12.1-qt5-deps.patch"
 	"${FILESDIR}/${PN}-21.09.0-respect-cflags.patch"
 	"${FILESDIR}/${PN}-0.57.0-disable-internal-jpx.patch"
 )
@@ -103,7 +102,9 @@ src_configure() {
 		$(cmake_use_find_package qt5 Qt5Core)
 		-DWITH_TIFF=$(usex tiff)
 		-DENABLE_UTILS=$(usex utils)
+		-DENABLE_QT5=$(usex qt5)
 		-DENABLE_QT6=OFF
+		-DENABLE_GPGME=OFF
 	)
 	use cairo && mycmakeargs+=( -DWITH_GObjectIntrospection=$(usex introspection) )
 

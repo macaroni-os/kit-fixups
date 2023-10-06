@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
+# Please report any problems with this generator.  It is expected to work well
+# for any web page serving as a directory listing.
+
+
 import re
+
 
 async def generate(hub, **pkginfo):
 

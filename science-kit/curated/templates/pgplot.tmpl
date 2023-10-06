@@ -4,13 +4,11 @@ EAPI=6
 
 inherit fortran-2 flag-o-matic toolchain-funcs
 
-MY_P="${PN}${PV//.}"
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
 
-DESCRIPTION="FORTRAN/C device-independent scientific graphic library"
-HOMEPAGE="https://www.astro.caltech.edu/~tjp/pgplot/"
-SRC_URI="ftp://ftp.astro.caltech.edu/pub/pgplot/${MY_P}.tar.gz"
-
-SLOT="0"
+SLOT="{{slot|default('0')}}"
 LICENSE="free-noncomm"
 KEYWORDS="*"
 IUSE="doc motif static-libs tk"
@@ -26,14 +24,13 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${PN}"
 
+{%- if patches %}
 PATCHES=(
-	"${FILESDIR}"/${PN}-drivers.patch
-	"${FILESDIR}"/${PN}-makemake.patch
-	"${FILESDIR}"/${PN}-compile-setup.patch
-	"${FILESDIR}"/${PN}-headers.patch
-	"${FILESDIR}"/${PN}-libpng15.patch
-	"${FILESDIR}"/${PN}-tk86.patch
+{%- for patch in patches %}
+	"${FILESDIR}"/"${PN}-{{ patch }}"
+{%- endfor %}
 )
+{%- endif %}
 
 src_prepare() {
 	default

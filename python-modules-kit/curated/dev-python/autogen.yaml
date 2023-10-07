@@ -2408,6 +2408,7 @@ pep517_compliance_rule:
             mv "${ED}"/usr/bin/{,python-}dotenv || die
           }
     - gpep517:
+        requires_python_override: ">=3.7"
         du_pep517: 'no'
         pydeps:
           - installer

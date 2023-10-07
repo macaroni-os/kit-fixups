@@ -29,7 +29,6 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 	local_pkginfo["compat_ebuild"] = compat_ebuild
 	hub.pkgtools.pyhelper.pypi_metadata_init(local_pkginfo, json_dict)
 	hub.pkgtools.pyhelper.expand_pydeps(local_pkginfo, compat_mode=True, compat_ebuild=compat_ebuild)
-
 	if compat_ebuild:
 		local_pkginfo["python_compat"] = "python2_7"
 		if isinstance(local_pkginfo["compat"], str):
@@ -42,7 +41,8 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		if "du_pep517" in local_pkginfo:
 			# It doesn't make sense to enable new PEP 517 support for python2.7-compat ebuilds:
 			del local_pkginfo["du_pep517"]
-		artifact_url = hub.pkgtools.pyhelper.sdist_artifact_url(json_dict["releases"], local_pkginfo["version"])
+		# TODO: this doesn't work if we want to filter to make sure we have a compatible version -- we can't directly pick it.
+		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, has_python="2.7")
 	else:
 		if has_compat_ebuild:
 			compat_split = local_pkginfo["python_compat"].split()
@@ -60,12 +60,20 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			version_specified = False
 			# get latest version
 			local_pkginfo["version"] = json_dict["info"]["version"]
-
-		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=version_specified)
+		if "requires_python" in local_pkginfo:
+			# Allow YAML to override bogus upstream pypi requires_python settings:
+			requires_python_override = local_pkginfo["requires_python"]
+		else:
+			# Use upstream values:
+			requires_python_override = None
+		python_kit = hub.release_yaml.get_primary_kit(name="python-kit")
+		has_python = python_kit.settings["has_python"]
+		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=version_specified, has_python=has_python,
+						requires_python_override=requires_python_override)
 	# fixup $S automatically -- this seems to follow the name in the archive:
 
-	under_name = pkginfo["name"].replace("-","_")
-	over_name = pkginfo["name"].replace("_","-")
+	under_name = pkginfo["name"].replace("-", "_")
+	over_name = pkginfo["name"].replace("_", "-")
 	local_pkginfo["s_pkg_name"] = pkginfo["pypi_name"]
 
 	hub.pkgtools.pyhelper.pypi_normalize_version(local_pkginfo)

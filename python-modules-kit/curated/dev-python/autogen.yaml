@@ -1915,8 +1915,13 @@ dev_python_simplified_rule:
         du_setuptools: rdepend
         pdepend: |
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
-        patches:
-          - setuptools_scm-7.0.2-importlib-metadata.patch
+        version:
+          7.1.0:
+            patches:
+              - setuptools_scm-7.0.2-importlib-metadata.patch
+          latest:
+            keywords: next
+            patches: {}
         pydeps:
           py:all:build:
             - packaging > 20

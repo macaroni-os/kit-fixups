@@ -60,9 +60,9 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			version_specified = False
 			# get latest version
 			local_pkginfo["version"] = json_dict["info"]["version"]
-		if "requires_python" in local_pkginfo:
+		if "requires_python_override" in local_pkginfo:
 			# Allow YAML to override bogus upstream pypi requires_python settings:
-			requires_python_override = local_pkginfo["requires_python"]
+			requires_python_override = local_pkginfo["requires_python_override"]
 		else:
 			# Use upstream values:
 			requires_python_override = None

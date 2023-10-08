@@ -166,6 +166,7 @@ XFAIL_TEST_LIST=(
 
 PATCHES=(
 	"${FILESDIR}/2.33/riscv-fix-flush-icache-linux-headers-4.patch"
+	"${FILESDIR}/2.33/CVE-2023-4911.patch"
 )
 
 #

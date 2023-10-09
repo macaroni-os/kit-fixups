@@ -1,7 +1,6 @@
 kitty_rule:
   generator: github-1
   defaults:
-    version: 0.29.0
     github:
       user: kovidgoyal
       repo: kitty
@@ -12,5 +11,7 @@ kitty_rule:
     - kitty:
         extensions:
           - golang
+        patches:
+          - kitty-0.30.1-no-sudo.patch
     - kitty-terminfo
     - kitty-shell-integration

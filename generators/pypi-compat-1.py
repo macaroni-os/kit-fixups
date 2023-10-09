@@ -33,6 +33,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		local_pkginfo["python_compat"] = "python2_7"
 		if isinstance(local_pkginfo["compat"], str):
 			# assume compat is just the compat version
+			hub.pkgtools.model.log.debug(f"For compat ebuild, setting version to {local_pkginfo['compat']}")
 			local_pkginfo["version"] = local_pkginfo["compat"]
 		else:
 			# assume we are overriding more things
@@ -42,7 +43,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			# It doesn't make sense to enable new PEP 517 support for python2.7-compat ebuilds:
 			del local_pkginfo["du_pep517"]
 		# TODO: this doesn't work if we want to filter to make sure we have a compatible version -- we can't directly pick it.
-		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, has_python="2.7")
+		artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, has_python="2.7", strict=True)
 	else:
 		if has_compat_ebuild:
 			compat_split = local_pkginfo["python_compat"].split()

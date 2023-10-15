@@ -48,7 +48,7 @@ zfs? ( binary )
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
-SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_TRIPLET}.orig.tar.xz -> linux_${KERNEL_TRIPLET}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz"
+SRC_URI="https://deb.debian.org/debian/pool/main/l/linux/linux_${KERNEL_TRIPLET}.orig.tar.xz -> linux_${KERNEL_TRIPLET}.orig.tar.xz https://deb.debian.org/debian/pool/main/l/linux/linux_${DEB_PV}.debian.tar.xz -> linux_${DEB_PV}.debian.tar.xz https://build.funtoo.org/distfiles/debian-sources/debian-sources-6.3.7_p1-rtw89-driver.tar.gz"
 S="$WORKDIR/linux-${KERNEL_TRIPLET}"
 
 get_patch_list() {
@@ -148,9 +148,10 @@ src_prepare() {
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
 	epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
-#	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-keyboard-not-working-Asus-TUF-FA617NS-FL-11436.patch || die
-#	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-pinctrl-FL-11437-backport.patch || die
-#	epatch "${FILESDIR}"/6.4.11/linux-rtw89-revert-recent-changes.patch || die
+	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
+	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
+	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
+	einfo "Using debian-sources-6.3.7_p1 Wi-Fi driver to avoid latency issues..."
 	cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
 	chmod +x config-extract || die
 	./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die

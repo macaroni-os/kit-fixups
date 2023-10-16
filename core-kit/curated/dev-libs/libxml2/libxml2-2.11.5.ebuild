@@ -4,7 +4,9 @@ EAPI=7
 
 # Note: Please bump in sync with dev-libs/libxslt
 
-inherit autotools flag-o-matic gnome.org libtool
+PYTHON_COMPAT=( python3+ )
+
+inherit autotools flag-o-matic gnome.org libtool python-single-r1
 
 XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
 XSTS_NAME_1="xmlschema2002-01-16"
@@ -15,7 +17,7 @@ XMLCONF_TARBALL="xmlts20130923.tar.gz"
 
 DESCRIPTION="XML C parser and toolkit"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home"
-KEYWORDS=""
+KEYWORDS="*"
 
 SRC_URI+="
 	test? (
@@ -36,12 +38,12 @@ RDEPEND="
 	>=sys-libs/zlib-1.2.8-r1:=
 	icu? ( >=dev-libs/icu-51.2-r1:= )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:= )
-	python? ( dev-python/libxml2-python )
 	readline? ( sys-libs/readline:= )
 "
-DEPEND="${RDEPEND}"
-BDEPEND="virtual/pkgconfig
-dev-util/gtk-doc-am"
+# This USE variable now triggers the install of bindings in a separate package:
+PDEPEND="python? ( dev-python/libxml2-python )"
+DEPEND="${RDEPEND} ${PYTHON_DEPS}"
+BDEPEND="virtual/pkgconfig dev-util/gtk-doc-am"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.5-CVE-2023-45322.patch
@@ -85,7 +87,21 @@ src_configure() {
 		$(use_enable static-libs static) \
 		$(use_with readline) \
 		$(use_with readline history) \
-		--without-python
+		--with-python
+}
+
+src_compile() {
+	# This generates libxml2.py which we need to exist in the python bindings:
+	( cd ${S}/python && make all-local ) || die
+
+	# No-op Makefile to disable python build. We just want this ^^
+	cat > ${S}/python/Makefile << EOF
+all :
+install :
+.PHONY : all
+EOF
+	# Peform the build, sans python:
+	default
 }
 
 src_test() {
@@ -105,6 +121,15 @@ src_install() {
 	rm -rf "${ED}"/usr/share/doc/${PN}-python-${PVR} || die
 
 	find "${ED}" -name '*.la' -delete || die
+
+	# Install a pre-configured python source distribution for python bindings.
+	# The libxml2-python ebuild will use this to build. These bindings have been
+	# specifically configured to "match" this libxml2.
+
+	dodir /usr/share/libxml2/bindings/
+	# This generates certain data files which the python build uses to bind to the API:
+	( cd ${S}/python && ./generator.py ) || die
+	tar czvf ${D}/usr/share/libxml2/bindings/libxml2-python-${PV}.tar.gz -C ${S} python || die
 }
 
 pkg_postinst() {

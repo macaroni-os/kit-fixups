@@ -7,7 +7,7 @@ async def generate_archive_from_git(hub, pkginfo):
 	my_archive, metadata = hub.Archive.find_by_name(final_name)
 	if my_archive is None:
 		my_archive = hub.Archive(final_name)
-		my_archive.initialize()
+		await my_archive.initialize()
 		cmd = f"( cd {my_archive.top_path}; git clone --depth 1 --branch {pkginfo['tag_name']} --recursive {url} {pkginfo['name']}-{pkginfo['tag_name']})"
 		hub.pkgtools.model.log.info(cmd)
 		retval = os.system(cmd)

@@ -6,11 +6,11 @@ inherit cmake-multilib
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="MIT"
 SLOT="0/2"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="hardened test"
 RESTRICT="!test? ( test )"
 

@@ -119,8 +119,9 @@ src_install() {
 
 	fowners -Rc root:${NETDATA_GROUP} /usr/share/${PN}
 
-	newinitd system/netdata-openrc ${PN}
-	systemd_dounit system/netdata.service
+	newinitd system/openrc/init.d/netdata ${PN}
+	newconfd system/openrc/conf.d/netdata ${PN}
+	systemd_dounit system/systemd/netdata.service
 	insinto /etc/netdata
 	doins system/netdata.conf
 }

@@ -1,0 +1,24 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="{{ description }}"
+HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="|| ( CC0-1.0 Apache-2.0 )"
+SLOT="0/0"
+KEYWORDS="*"
+S="${WORKDIR}/BLAKE3-${PV}/c"
+
+RDEPEND=""
+DEPEND="${RDEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mkdir -p "${S}"
+		mv "${WORKDIR}"/{{ github_user }}-*/c/* "${S}" || die
+	fi
+}

@@ -49,6 +49,11 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.5-CVE-2023-45322.patch
 )
 
+src_prepare() {
+	default
+	elibtoolize
+}
+
 src_unpack() {
 	local tarname=${P/_rc/-rc}.tar.xz
 
@@ -126,10 +131,10 @@ src_install() {
 	# The libxml2-python ebuild will use this to build. These bindings have been
 	# specifically configured to "match" this libxml2.
 
-	dodir /usr/share/libxml2/bindings/
+	dodir /usr/share/${PN}/bindings/
 	# This generates certain data files which the python build uses to bind to the API:
 	( cd ${S}/python && ./generator.py ) || die
-	tar czvf ${D}/usr/share/libxml2/bindings/libxml2-python-${PV}.tar.gz -C ${S} python || die
+	tar czf ${D}/usr/share/${PN}/bindings/${PN}-python-${PV}.tar.gz -C ${S} python || die
 }
 
 pkg_postinst() {

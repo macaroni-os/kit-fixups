@@ -21,6 +21,7 @@ RDEPEND="
 	python? ( ${PYTHON_DEPS} )
 "
 DEPEND="${RDEPEND} ${PYTHON_DEPS}"
+KEYWORDS="*"
 
 src_prepare() {
 	default

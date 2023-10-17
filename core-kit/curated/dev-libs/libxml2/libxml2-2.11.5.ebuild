@@ -30,7 +30,8 @@ S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
 SLOT="2"
-IUSE="debug examples +ftp icu lzma +python readline static-libs test"
+# TODO: keep default USE "+" vars in sync in future autogen
+IUSE="debug examples +ftp icu +lzma +python readline static-libs test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="

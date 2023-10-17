@@ -1,0 +1,11 @@
+--- composer-2.5.1a/src/bootstrap.php   2022-12-22 15:33:54.000000000 +0100
++++ composer-2.5.1/src/bootstrap.php    2023-02-19 23:15:40.433041600 +0100
+@@ -12,7 +12,7 @@
+ 
+ use Composer\Autoload\ClassLoader;
+ 
+-function includeIfExists(string $file): ?ClassLoader
++function includeIfExists(string $file)
+ {
+     return file_exists($file) ? include $file : null;
+ }

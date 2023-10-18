@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 	svn_ver = match.group(1)
 	version = f"{main_ver}.{svn_ver}"
 	urlbin = f"https://download.virtualbox.org/virtualbox/{main_ver}/{match.group(0)}"
-	urlext = f"https://download.virtualbox.org/virtualbox/{main_ver}/Oracle_VM_VirtualBox_Extension_Pack-{main_ver}-{svn_ver}.vbox-extpack"
+	urlext = f"https://download.virtualbox.org/virtualbox/{main_ver}/Oracle_VM_VirtualBox_Extension_Pack-{main_ver}.vbox-extpack"
 	urlsdk = f"https://download.virtualbox.org/virtualbox/{main_ver}/VirtualBoxSDK-{main_ver}-{svn_ver}.zip"
 	urladd = f"https://download.virtualbox.org/virtualbox/{main_ver}/VBoxGuestAdditions_{main_ver}.iso"
 	urlgst = f"https://download.virtualbox.org/virtualbox/{main_ver}/VirtualBox-{main_ver}.tar.bz2"

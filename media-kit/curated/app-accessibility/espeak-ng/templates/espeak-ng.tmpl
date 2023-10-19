@@ -6,7 +6,7 @@ inherit autotools
 
 DESCRIPTION="Software speech synthesizer for English, and some other languages"
 HOMEPAGE="https://github.com/espeak-ng/espeak-ng"
-SRC_URI="https://github.com/espeak-ng/espeak-ng/archive/${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-3+ unicode"
 SLOT="0"
@@ -27,6 +27,12 @@ BDEPEND="
 "
 
 DOCS=( CHANGELOG.md README.md docs )
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	fi
+}
 
 src_prepare() {
 	default
@@ -65,6 +71,7 @@ src_configure() {
 }
 
 src_compile() {
+	export LD_LIBRARY_PATH="$(pwd)/src/.libs"
 	emake
 }
 

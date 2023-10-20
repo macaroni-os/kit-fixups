@@ -8,25 +8,17 @@ PYTHON_COMPAT=( python3+ )
 
 inherit autotools flag-o-matic gnome.org libtool python-single-r1
 
-XSTS_HOME="http://www.w3.org/XML/2004/xml-schema-test-suite"
-XSTS_NAME_1="xmlschema2002-01-16"
-XSTS_NAME_2="xmlschema2004-01-14"
-XSTS_TARBALL_1="xsts-2002-01-16.tar.gz"
-XSTS_TARBALL_2="xsts-2004-01-14.tar.gz"
-XMLCONF_TARBALL="xmlts20130923.tar.gz"
-
 DESCRIPTION="XML C parser and toolkit"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home"
 KEYWORDS="*"
 
-SRC_URI+="
-	test? (
-		${XSTS_HOME}/${XSTS_NAME_1}/${XSTS_TARBALL_1}
-		${XSTS_HOME}/${XSTS_NAME_2}/${XSTS_TARBALL_2}
-		https://www.w3.org/XML/Test/${XMLCONF_TARBALL}
-	)
+SRC_URI="https://download.gnome.org/sources/libxml2/2.11/libxml2-2.11.5.tar.xz -> libxml2-2.11.5.tar.xz
+test? (
+	https://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2002-01-16/xsts-2002-01-16.tar.gz -> xsts-2002-01-16.tar.gz
+	https://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2004-01-14/xsts-2004-01-14.tar.gz -> xsts-2004-01-14.tar.gz
+	https://www.w3.org/XML/Test/xmlts20130923.tar.gz -> xmlts20130923.tar.gz
+)
 "
-S="${WORKDIR}/${PN}-${PV%_rc*}"
 
 LICENSE="MIT"
 SLOT="2"
@@ -56,7 +48,7 @@ src_prepare() {
 }
 
 src_unpack() {
-	local tarname=${P/_rc/-rc}.tar.xz
+	local tarname=${P}.tar.xz
 
 	# ${A} isn't used to avoid unpacking of test tarballs into ${WORKDIR},
 	# as they are needed as tarballs in ${S}/xstc instead and not unpacked

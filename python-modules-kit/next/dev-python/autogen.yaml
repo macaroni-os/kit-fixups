@@ -57,6 +57,11 @@ autogens:
             sed -i -r "s:('|\")pytest-runner('|\")(,|)::" setup.py || die
             distutils-r1_python_prepare_all
           }
+    - rsa:
+        compat: '4.4'
+        blocker: '!<dev-python/rsa-4.9'
+        pydeps:
+          - pyasn1
     - strict-rfc3339
     - scandir
     - setproctitle:

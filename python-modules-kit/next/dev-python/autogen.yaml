@@ -13,6 +13,21 @@
 #
 # Here are some things that we should autogen that are on stage3:
 
+bleach:
+  defaults:
+    python_compat: python2+ pypy3 pypy
+  generator: pypi-compat-1
+  packages:
+    - bleach:
+        pydeps:
+          - six >= 1.9.0
+          - webencodings
+          - tinycss2
+    - webencodings
+    - tinycss2:
+        pydeps:
+          - webencodings
+
 autogens:
   defaults:
     python_compat: python2+ pypy3 pypy

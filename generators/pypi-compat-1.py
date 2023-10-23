@@ -123,7 +123,11 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 	local_pkginfo["template_path"] = os.path.normpath(os.path.join(os.path.dirname(__file__), "templates"))
 	# fixup $S automatically -- this seems to follow the name in the archive:
 	artifacts = []
-	if "local-only" not in extensions:
+	if "local-only" in extensions:
+		# Allow pypi_name to allow renaming of the expected S dir, even if we are grabbing ebuild from a local archive.
+		if "pypi_name" in pkginfo:
+			local_pkginfo["s_pkg_name"] = pkginfo["pypi_name"]
+	else:
 		under_name = pkginfo["name"].replace("-", "_")
 		over_name = pkginfo["name"].replace("_", "-")
 		local_pkginfo["s_pkg_name"] = pkginfo["pypi_name"]

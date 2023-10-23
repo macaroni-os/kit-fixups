@@ -84,8 +84,12 @@ PATCHES=(
 )
 
 {%- endif %}
-{%- if artifacts|length and pypi_version is defined %}
+{%- if s_pkg_name is defined %}
+  {%- if pypi_version is defined %}
 S="${WORKDIR}/{{s_pkg_name}}-{{pypi_version}}"
+  {%- else %}
+S="${WORKDIR}/{{s_pkg_name}}-{{version}}"
+  {%- endif %}
 {%- endif %}
 {%- if body is defined %}
 {{indented(body,allow_empty=True)}}

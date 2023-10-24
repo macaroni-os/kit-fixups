@@ -20,7 +20,7 @@ libxml2-python:
         iuse:
           - +lzma
           - +icu
-        depend: '=dev-libs/libxml2-2.11.5=[lzma?,icu?]'
+        depend: '=dev-libs/libxml2-2.11.5:=[lzma?,icu?]'
         rdepend: '${DEPEND}'
         body: |
           S="$WORKDIR"/python

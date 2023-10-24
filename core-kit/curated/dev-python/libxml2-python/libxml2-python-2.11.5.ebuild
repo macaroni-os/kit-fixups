@@ -8,7 +8,7 @@ inherit distutils-r1
 DESCRIPTION=""
 HOMEPAGE=""
 
-DEPEND="=dev-libs/libxml2-2.11.5=[lzma?,icu?]"
+DEPEND="=dev-libs/libxml2-2.11.5:=[lzma?,icu?]"
 RDEPEND="${DEPEND}"
 IUSE="+icu +lzma"
 SLOT="0"

@@ -112,18 +112,6 @@ pkg_setup() {
 	export REAL_ARCH="$ARCH"
 	unset ARCH; unset LDFLAGS #will interfere with Makefile if set
 	export FEATURESET="standard"
-	if [ "${REAL_ARCH}" = x86 ]; then
-		export DEB_ARCH="i386"
-		export DEB_SUBARCH="686-pae"
-		export KERN_SUFFIX="${PN}-i686-${PV}"
-	elif [ "${REAL_ARCH}" = amd64 ]; then
-		export DEB_ARCH="amd64"
-		export DEB_SUBARCH="amd64"
-		export KERN_SUFFIX="${PN}-x86_64-${PV}"
-	else
-		die "Architecture '${REAL_ARCH}' not handled in ebuild"
-	fi
-	[[ ${PR} != "r0" ]] && KERN_SUFFIX+="-${PR}"
 }
 
 src_prepare() {
@@ -154,6 +142,21 @@ src_prepare() {
 	einfo "Using debian-sources-6.3.7_p1 Wi-Fi driver to avoid latency issues..."
 	cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
 	chmod +x config-extract || die
+
+	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
+	if [ "${REAL_ARCH}" = x86 ]; then
+		export DEB_ARCH="i386"
+		export DEB_SUBARCH="686-pae"
+		export KERN_SUFFIX="${PN}-i686-${PV}"
+	elif [ "${REAL_ARCH}" = amd64 ]; then
+		export DEB_ARCH="amd64"
+		export DEB_SUBARCH="amd64"
+		export KERN_SUFFIX="${PN}-x86_64-${PV}"
+	else
+		die "Architecture '${REAL_ARCH}' not handled in ebuild"
+	fi
+	[[ ${PR} != "r0" ]] && KERN_SUFFIX+="-${PR}"
+
 	./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die
 	setno_config .config CONFIG_DEBUG
 	if use acpi-ec; then

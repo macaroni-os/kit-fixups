@@ -34,22 +34,24 @@ def get_extensions(pkginfo):
 
 
 async def cargo_extension(hub, pkginfo, sdist_artifact):
-		if "cargo_path" in pkginfo:
-			cargo_path = "*/"+pkginfo["cargo_path"]
-		else:
-			cargo_path = "*"
-		cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(sdist_artifact, cargo_path)
-		pkginfo["crates"] = cargo_artifacts["crates"]
-		if "artifacts" not in pkginfo:
-			pkginfo["artifacts"] = []
-		# Adding an artifact to artifacts is a common use case, and a simplified API would be better:
-		# hub.add_artifact(), etc.
-		if isinstance(pkginfo["artifacts"], list):
-			pkginfo["artifacts"] += cargo_artifacts["crates_artifacts"]
-		elif isinstance(pkginfo["artifacts"], dict):
-			if "global" not in pkginfo["artifacts"]:
-				pkginfo["artifacts"]["global"] = []
-			pkginfo["artifacts"]["global"] += cargo_artifacts["crates_artifacts"]
+	if "cargo_path" in pkginfo:
+		cargo_path = "*/"+pkginfo["cargo_path"]
+	else:
+		cargo_path = "*"
+	cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(sdist_artifact, cargo_path)
+	pkginfo["crates"] = cargo_artifacts["crates"]
+	if "artifacts" not in pkginfo:
+		pkginfo["artifacts"] = []
+	# Adding an artifact to artifacts is a common use case, and a simplified API would be better:
+	# hub.add_artifact(), etc.
+	if isinstance(pkginfo["artifacts"], list):
+		pkginfo["artifacts"] += cargo_artifacts["crates_artifacts"]
+	elif isinstance(pkginfo["artifacts"], dict):
+		if "global" not in pkginfo["artifacts"]:
+			pkginfo["artifacts"]["global"] = []
+		pkginfo["artifacts"]["global"] += cargo_artifacts["crates_artifacts"]
+	else:
+		raise ValueError("Can't add crate artifacts.")
 
 
 async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild=False, **pkginfo):
@@ -192,7 +194,10 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			hub.pkgtools.model.log.info(f"{local_pkginfo['name']}: Auto-detected build system: {getattr(local_pkginfo, 'du_pep517', 'legacy setuptools')}")
 		if "cargo" in extensions or ("cargo" in pkginfo["inherit"] and not compat_ebuild):
 			await cargo_extension(hub, local_pkginfo, artifact)
-	local_pkginfo["artifacts"] = artifacts
+	if "artifacts" in local_pkginfo:
+		local_pkginfo["artifacts"] += artifacts
+	else:
+		local_pkginfo["artifacts"] = artifacts
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**local_pkginfo,
 		template="pypi-compat-1.tmpl"

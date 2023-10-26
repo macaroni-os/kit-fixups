@@ -251,8 +251,8 @@ src_install() {
 	dobin bundles/dynbinary-daemon/dockerd
 	dobin bundles/dynbinary-daemon/docker-proxy
 
-	newinitd {{ gen_path }}/files/${PN}/${PN}.initd ${PN}
-	newconfd {{ gen_path }}/files/${PN}/${PN}.confd ${PN}
+	newinitd {{ gen_path }}/files/${PN}.initd ${PN}
+	newconfd {{ gen_path }}/files/${PN}.confd ${PN}
 
 	systemd_dounit contrib/init/systemd/docker.{service,socket}
 

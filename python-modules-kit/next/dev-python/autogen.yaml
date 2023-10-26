@@ -43,7 +43,8 @@ bleach:
 
 autogens:
   defaults:
-    python_compat: python2+ pypy3 pypy
+    python_compat: python3+
+    du_pep517: generator
   generator: pypi-compat-1
   packages:
     - commonmark:
@@ -63,6 +64,8 @@ autogens:
                   ewarn "/usr/bin/cmark has been renamed to /usr/bin/cmark.py due file"
                   ewarn "collision with app-text/cmark (see bug #627034)"
           }
+    - cachetools
+    - cssselect
     - jsonpointer:
         pydeps:
           py:all:build:

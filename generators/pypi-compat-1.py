@@ -155,43 +155,45 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		), f"Artifact URL could not be found in {pkginfo['name']} {local_pkginfo['version']}. This can indicate a PyPi package without a 'source' distribution."
 
 		if not compat_ebuild and "du_pep517" in local_pkginfo and local_pkginfo["du_pep517"] == "generator":
-			print("PEPPY!")
+			del local_pkginfo["du_pep517"]
+			hub.pkgtools.model.log.debug("Auto-detecting du_pep517 setting...")
 			setup_path = glob.glob(os.path.join(artifact.extract_path, "*", "setup.py"))
 			if len(setup_path):
 				has_setup = True
 			else:
 				has_setup = False
 			pyproject_path = glob.glob(os.path.join(artifact.extract_path, "*", "pyproject.toml"))
+			found_build_system = None
 			if len(pyproject_path):
-				has_pyproject = True
-			else:
-				has_pyproject = False
-			if has_setup and not has_pyproject:
-				del local_pkginfo["du_pep517"]
-			elif has_pyproject:
 				with open(pyproject_path[0], "r") as f:
 					toml_data = toml.load(f)
 					if "build-system" not in toml_data:
-						del local_pkginfo["du_pep517"]
+						pass
 					elif "requires" not in toml_data["build-system"]:
-						del local_pkginfo["du_pep517"]
+						pass
 					else:
 						for req in toml_data["build-system"]["requires"]:
 							if req.startswith("flit_core"):
-								local_pkginfo["du_pep517"] = "flit"
+								found_build_system = "flit"
 								break
 							elif req.startswith("hatchling"):
-								local_pkginfo["du_pep517"] = "hatchling"
+								found_build_system = "hatchling"
 							elif req.startswith("setuptools_scm"):
-								local_pkginfo["du_pep517"] = "setuptools"
+								found_build_system = "setuptools"
 								if "depend" not in local_pkginfo:
 									local_pkginfo["depend"] = ""
 								local_pkginfo["depend"] += 'dev-python/setuptools_scm[${PYTHON_USEDEP}]\n'
 							elif req.startswith("setuptools"):
-								local_pkginfo["du_pep517"] = "setuptools"
-			if getattr(local_pkginfo, "du_pep517", None) == "generator":
-				raise ValueError(f"{local_pkginfo['name']}: Could not auto-detect build system in pyproject.toml.")
-			hub.pkgtools.model.log.info(f"{local_pkginfo['name']}: Auto-detected build system: {getattr(local_pkginfo, 'du_pep517', 'legacy setuptools')}")
+								found_build_system = "setuptools"
+							elif req.startswith("poetry"):
+								found_build_system = "poetry"
+			if found_build_system is None:
+				if has_setup:
+					hub.pkgtools.model.log.info("Falling back to legacy setuptools, due to no build-system defined in pyproject.toml.")
+				else:
+					raise ValueError(f"{local_pkginfo['name']}: Could not auto-detect build system in pyproject.toml.")
+			else:
+				local_pkginfo["du_pep517"] = found_build_system
 		if "cargo" in extensions or ("cargo" in pkginfo["inherit"] and not compat_ebuild):
 			await cargo_extension(hub, local_pkginfo, artifact)
 	if "artifacts" in local_pkginfo:

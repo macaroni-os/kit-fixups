@@ -33,7 +33,7 @@ post_src_unpack() {
 
 all_ruby_prepare() {
 	sed -e 's/git ls-files -z/find * -type f -print0/' \
-		-e "s:_relative ': './:" \
+		-e 's:_relative ": "./:' \
 		-i ${RUBY_FAKEGEM_GEMSPEC} || die
 }
 

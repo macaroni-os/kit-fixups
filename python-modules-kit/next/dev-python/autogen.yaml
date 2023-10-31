@@ -1,17 +1,12 @@
-# Note that the following packages are specific to Python 2.7, so we will not be porting these
-# to autogen, even though they are on stage3's with python2.7 enabled:
-#
-# python2 things that will go away:
-# - backports
-# - configparser
-# - contextlib2
-# - functools32
-# - future
-# - pathlib2
-#
-#
-#
-# Here are some things that we should autogen that are on stage3:
+namespaces:
+  generator: python-namespace-1
+  packages:
+    - namespace-google:
+        version: '1'
+    - namespace-sphinxcontrib:
+        version: '1.0'
+    - namespace-zope:
+        version: '1'
 
 python-github:
   defaults:

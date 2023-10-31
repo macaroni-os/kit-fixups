@@ -1,5 +1,7 @@
 virtuals:
     generator: python-virtual-1
+    defaults:
+      python_compat: python2+
     packages:
       - python-cffi:
           version: '0'
@@ -8,14 +10,17 @@ virtuals:
       - python-enum34:
             version: '2'
             pydeps:
-              - enum34
+              py:2:
+                - enum34
       - python-ipaddress:
             version: '1.0'
             revision: 1
             pydeps:
-              - ipaddress
+              py:2:
+                - ipaddress
       - python-typing:
             version: '0'
             revision: 1
             pydeps:
-              - typing
+              py:2:
+                - typing

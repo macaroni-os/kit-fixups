@@ -18,11 +18,11 @@ DISTUTILS_USE_SETUPTOOLS="{{du_setuptools|default('bdepend')}}"
 {%- if du_pep517 is defined %}
 DISTUTILS_USE_PEP517="{{du_pep517|default('setuptools')}}"
 {%- endif %}
-{%- if 'cargo' is in inherit and cargo_optional is defined %}
+{%- if 'cargo' in inherit and cargo_optional is defined %}
 CARGO_OPTIONAL="yes"
 {%- endif %}
 
-{%- if 'cargo' is in inherit and not compat_ebuild %}
+{%- if 'cargo' in inherit and not compat_ebuild %}
 CRATES="
 {{crates}}"
 
@@ -33,11 +33,12 @@ inherit {{inherit|reject('equalto','cargo')|sort|join(' ')}}
 
 DESCRIPTION="{{desc|default('')}}"
 HOMEPAGE="{{homepage|default('')}}"
-SRC_URI="{{artifacts[0].src_uri}}
-{%- if 'cargo' is in inherit and not compat_ebuild %}
+{%- if 'local-only' not in extensions %}
+SRC_URI="{{src_uri}}
+{%- if 'cargo' in inherit and not compat_ebuild %}
 {{indented('$(cargo_crate_uris ${CRATES})',2)}}
+{%- endif %}"
 {%- endif %}
-"
 
 DEPEND="{{indented(depend|default(''),1)}}"
 {%- if compat_ebuild %}
@@ -67,18 +68,7 @@ PDEPEND="{{indented(pdepend|default(''),1)}}"
 {%- if bdepend is defined %}
 BDEPEND="{{indented(bdepend|default(''),1)}}"
 {%- endif %}
-{%- if compat_ebuild %}
-IUSE="{{iuse|default('')}}"
-{%- elif compat is defined %}
-  {%- if iuse is defined %}
-    {%- set iuse = iuse + " python_targets_python2_7" %}
-  {%- else %}
-    {%- set iuse = "python_targets_python2_7" %}
-  {%- endif %}
-IUSE="{{iuse|default('')}}"
-{%- else %}
-IUSE="{{iuse|default('')}}"
-{%- endif %}
+IUSE="{{iuse|sort|join(' ')}}"
 {%- if restrict is defined %}
 RESTRICT="{{restrict|default('')}}"
 {%- endif %}
@@ -94,8 +84,13 @@ PATCHES=(
 )
 
 {%- endif %}
+{%- if s_pkg_name is defined %}
+  {%- if pypi_version is defined %}
 S="${WORKDIR}/{{s_pkg_name}}-{{pypi_version}}"
-
+  {%- else %}
+S="${WORKDIR}/{{s_pkg_name}}-{{version}}"
+  {%- endif %}
+{%- endif %}
 {%- if body is defined %}
 {{indented(body,allow_empty=True)}}
 {%- endif %}

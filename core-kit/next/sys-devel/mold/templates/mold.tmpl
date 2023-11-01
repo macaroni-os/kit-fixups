@@ -6,19 +6,20 @@ inherit cmake toolchain-funcs
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
-SRC_URI="{{ artifacts[0].src_uri }}"
-KEYWORDS="next"
+SRC_URI="{{ src_uri }}"
 
-# mold (AGPL-3)
+# mold (MIT)
 #  - xxhash (BSD-2)
-LICENSE="AGPL-3 BSD-2"
+LICENSE="MIT BSD-2"
 SLOT="0"
+KEYWORDS="*"
 IUSE="lto"
 
 RDEPEND="
 	app-arch/zstd:=
 	>=dev-cpp/tbb-2021.7.0:=
 	sys-libs/zlib
+	dev-libs/blake3:=
 	>=dev-libs/mimalloc-2:=
 	dev-libs/openssl:=
 	>=sys-devel/gcc-12.2.0

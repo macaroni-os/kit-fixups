@@ -24,7 +24,6 @@ async def generate(hub, **pkginfo):
 	latest_release = get_release(repo_soup.find_all("a", href=True))
 	if latest_release is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable release of {repo}")
-	print(latest_release)
 	filename, version = latest_release
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

@@ -1,0 +1,32 @@
+libxml2:
+  generator: simple
+  packages:
+    - libxml2:
+        version: 2.11.5
+        src_uri:
+          test:
+            - https://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2002-01-16/xsts-2002-01-16.tar.gz
+            - https://www.w3.org/XML/2004/xml-schema-test-suite/xmlschema2004-01-14/xsts-2004-01-14.tar.gz
+            - https://www.w3.org/XML/Test/xmlts20130923.tar.gz
+          global:
+            - https://download.gnome.org/sources/libxml2/2.11/libxml2-{version}.tar.xz
+
+libxml2-python:
+  generator: pypi-compat-1
+  packages:
+    - libxml2-python:
+        cat: dev-python
+        version: 2.11.5
+        iuse:
+          - +lzma
+          - +icu
+        depend: '=dev-libs/libxml2-2.11.5:=[lzma?,icu?]'
+        rdepend: '${DEPEND}'
+        body: |
+          S="$WORKDIR"/python
+
+          src_unpack() {
+            unpack ${ROOT}/usr/share/libxml2/bindings/libxml2-python-${PV}.tar.gz || die
+          }
+        extensions:
+          - local-only

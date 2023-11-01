@@ -1,21 +1,45 @@
-# Note that the following packages are specific to Python 2.7, so we will not be porting these
-# to autogen, even though they are on stage3's with python2.7 enabled:
-#
-# python2 things that will go away:
-# - backports
-# - configparser
-# - contextlib2
-# - functools32
-# - future
-# - pathlib2
-#
-#
-#
-# Here are some things that we should autogen that are on stage3:
+namespaces:
+  generator: python-namespace-1
+  packages:
+    - namespace-google:
+        version: '1'
+    - namespace-sphinxcontrib:
+        version: '1.0'
+    - namespace-zope:
+        version: '1'
+
+python-github:
+  defaults:
+    python_compat: python3+
+  generator: python-github-1
+  packages:
+    - subunit:
+        github:
+          user: testing-cabal
+          query: releases
+        pydeps:
+          - iso8601
+          - testtools
+
+bleach:
+  defaults:
+    python_compat: python2+ pypy3 pypy
+  generator: pypi-compat-1
+  packages:
+    - bleach:
+        pydeps:
+          - six >= 1.9.0
+          - webencodings
+          - tinycss2
+    - webencodings
+    - tinycss2:
+        pydeps:
+          - webencodings
 
 autogens:
   defaults:
-    python_compat: python2+ pypy3 pypy
+    python_compat: python3+
+    du_pep517: generator
   generator: pypi-compat-1
   packages:
     - commonmark:
@@ -35,6 +59,9 @@ autogens:
                   ewarn "/usr/bin/cmark has been renamed to /usr/bin/cmark.py due file"
                   ewarn "collision with app-text/cmark (see bug #627034)"
           }
+    - cachetools
+    - cssselect
+    - iso8601
     - jsonpointer:
         pydeps:
           py:all:build:
@@ -57,8 +84,17 @@ autogens:
             sed -i -r "s:('|\")pytest-runner('|\")(,|)::" setup.py || die
             distutils-r1_python_prepare_all
           }
+    - rsa:
+        compat: '4.4'
+        blocker: '!<dev-python/rsa-4.9'
+        pydeps:
+          - pyasn1
     - strict-rfc3339
     - scandir
+    - setproctitle:
+        du_pep517: generator
+        blocker: '!<dev-python/setproctitle-1.3.3'
+        compat: 1.1.9
     - typing-extensions:
         du_pep517: flit
     - webcolors:

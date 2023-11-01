@@ -967,7 +967,6 @@ simple_python_autogen_rule:
         pydeps:
           py:all:
             - soupsieve
-            - html5lib
             - lxml
         rdepend: |
           !dev-python/beautifulsoup:4
@@ -1911,7 +1910,6 @@ dev_python_simplified_rule:
         license: Apache-2.0
         python_compat: python2+ pypy{,3}
     - setuptools_scm:
-        version: 7.1.0
         revision:
           7.0.2: 2
         compat: '5.0.2'
@@ -1920,8 +1918,10 @@ dev_python_simplified_rule:
         du_setuptools: rdepend
         pdepend: |
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
-        patches:
-          - setuptools_scm-7.0.2-importlib-metadata.patch
+        version:
+          7.1.0:
+            patches:
+              - setuptools_scm-7.0.2-importlib-metadata.patch
         pydeps:
           py:all:build:
             - packaging > 20

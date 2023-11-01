@@ -58,3 +58,13 @@ procmail_github_rule:
           user: BuGlessRB
           repo: procmail
           query: releases
+mail_filter_rule:
+  generator: github-1
+  packages:
+    - postsrsd:
+        cat: mail-filter
+        github:
+          user: roehling
+          repo: postsrsd
+          query: releases
+        select: '1\.[0-9.]*'

@@ -23,18 +23,9 @@ PATCHES=(
 
 RESTRICT="test" # intended to be ran on the full kitty package
 
-src_compile() {
-	./build-terminfo || die 'failed to build terminfo'
-}
+src_compile() { :; }
 
 src_install() {
 	dodir /usr/share/terminfo
-
-	insinto /usr/share/terminfo
-	for directory in terminfo/*/; do
-		doins -r "${directory}"
-	done
-
-	insinto /usr/"$(get_libdir)"/kitty
-	doins -r terminfo
+	tic -xo "${ED}"/usr/share/terminfo terminfo/kitty.terminfo || die
 }

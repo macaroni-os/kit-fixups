@@ -1,0 +1,26 @@
+libxslt:
+  generator: simple
+  packages:
+    - libxslt:
+        version: 1.1.38
+        src_uri:
+          - https://download.gnome.org/sources/libxslt/1.1/libxslt-{version}.tar.xz
+
+libxslt-python:
+  generator: pypi-compat-1
+  packages:
+    - libxslt-python:
+        cat: dev-python
+        version: 1.1.38
+        iuse:
+          - +crypt
+        depend: '=dev-libs/libxslt-${PV}:=[crypt?]'
+        rdepend: '${DEPEND}'
+        body: |
+          S="$WORKDIR"/python
+
+          src_unpack() {
+            unpack ${ROOT}/usr/share/libxslt/bindings/libxslt-python-${PV}.tar.gz || die
+          }
+        extensions:
+          - local-only

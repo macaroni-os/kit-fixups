@@ -39,6 +39,7 @@ all_ruby_prepare() {
 	# the extension.
 	sed -i -e '/rake-compiler/ s:^:#:' -e '/extensiontask/ s:^:#:' Rakefile
 	sed -i -e '/ExtensionTask/,/^  end/ s:^:#:' Rakefile
+	sed -i -e "/require.*testtask/,\$d" Rakefile || die  # delete from testtask to end of line
 	# Which means we need to generate the parser file here
 	rake lib/racc/parser-text.rb || die
 

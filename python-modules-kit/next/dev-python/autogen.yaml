@@ -66,6 +66,10 @@ autogens:
         pydeps:
           py:all:build:
             - setuptools
+    - pyrfc3339:
+        pypi_name: pyRFC3339
+        pydeps:
+          - pytz
     - regex:
         compat: 2020.9.27
         blocker: '!<dev-python/regex-2018'
@@ -110,19 +114,7 @@ autogens:
           py:all:
             - toml
             - setuptools_scm
-
-pypi_simple_rule:
-  generator: pypi-simple-1
-  packages:
-    - pyicu:
-        pypi_name: PyICU
-        python_compat: python3+
-        patches:
-          - pyicu-2.10-fix_displayoptions.patch
-        rdepend: |
-          dev-libs/icu:=
-        body: |
-          DOCS=( CHANGES CREDITS README.md )
+    - ujson
 
 
 pypi_compat_rule:
@@ -200,8 +192,20 @@ pypi_compat_rule:
             use examples && dodoc -r examples
             distutils-r1_python_install_all
           }
+    - pyicu:
+        pypi_name: PyICU
+        python_compat: python3+
+        patches:
+          - pyicu-2.10-fix_displayoptions.patch
+        rdepend: |
+          dev-libs/icu:=
+        body: |
+          DOCS=( CHANGES CREDITS README.md )
+    - werkzeug:
+        pydeps:
+          - markupsafe
 
-github_pythons_actual:
+github_pythons:
   generator: python-github-1
   defaults:
     python_compat: python3+ pypy3

@@ -1,18 +1,9 @@
-deps_rule:
-  defaults:
-    cat: dev-python
-    python_compat: python3+
-  generator: pypi-simple-1
-  packages:
-    - josepy
-
-# These catpkgs are specified using ONLY json, using pypi-simple-1:
-
-simp_rule:
+certbot_and_deps:
   defaults:
     cat: app-crypt
     python_compat: python3+
     license: Apache-2.0
+    du_pep517: generator
   generator: pypi-simple-1
   packages:
     - acme:
@@ -49,6 +40,15 @@ simp_rule:
             - pytz
             - zope-component
             - zope-interface
+    - josepy:
+        cat: dev-python
+        revision:
+          1.14.0: 1
+        pydeps:
+          - cryptography >= 1.5
+          - pyopenssl
+          - sphinx
+          - sphinx-rtd-theme
 
 # These catpkgs are still using templates:
 

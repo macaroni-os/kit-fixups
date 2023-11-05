@@ -28,6 +28,11 @@ src_unpack() {
 	fix_src_dirs
 }
 
+src_prepare() {
+        default
+        sed -i '/#include "vglobal.h"/a #include <limits>' ${S}/src/vector/vrle.cpp || die "Sed failed!"
+}
+
 src_configure() {
 	local emesonargs=(
 		-D cache=true

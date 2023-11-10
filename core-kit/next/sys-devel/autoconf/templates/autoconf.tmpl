@@ -1,0 +1,59 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+SRC_URI="{{src_uri}}"
+KEYWORDS="*"
+inherit toolchain-autoconf
+
+DESCRIPTION="Used to create autoconfiguration files"
+HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
+
+LICENSE="GPL-3+"
+SLOT="$(ver_cut 1-2)"
+IUSE="emacs"
+
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+{%- endif %}
+
+BDEPEND="
+	>=dev-lang/perl-5.10
+	>=sys-devel/m4-1.4.16
+"
+RDEPEND="
+	${BDEPEND}
+	>=sys-devel/autoconf-wrapper-15
+	sys-devel/gnuconfig
+	!~sys-devel/${P}:2.5
+"
+
+PDEPEND="emacs? ( app-emacs/autoconf-mode )"
+
+src_prepare() {
+	# Save timestamp to avoid later makeinfo call
+	touch -r doc/{,old_}autoconf.texi || die
+
+	toolchain-autoconf_src_prepare
+
+	# Restore timestamp to avoid makeinfo call
+	# We already have an up to date autoconf.info page at this point.
+	touch -r doc/{old_,}autoconf.texi || die
+}
+
+src_test() {
+	emake check
+}
+
+src_install() {
+	toolchain-autoconf_src_install
+
+	local f
+	for f in config.{guess,sub} ; do
+		ln -fs ../../gnuconfig/${f} "${ED}"/usr/share/autoconf-*/build-aux/${f} || die
+	done
+}

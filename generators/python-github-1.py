@@ -17,23 +17,37 @@ async def generate(hub, **pkginfo):
 				pkginfo[f'github_{key}'] = pkginfo['github'][key]
 			else:
 				pkginfo[f'github_{key}'] = pkginfo['name']
-	query = pkginfo['github']['query']
-	if query not in ["releases", "tags"]:
-		raise KeyError(f"{pkginfo['cat']}/{pkginfo['name']} should specify GitHub query type of 'releases' or 'tags'.")
 
-	github_user = pkginfo['github_user']
-	github_repo = pkginfo['github_repo']
+	query = pkginfo["github"]["query"]
+	if query not in ["releases", "tags", "snapshot"]:
+		raise KeyError(
+			f"{pkginfo['cat']}/{pkginfo['name']} should specify GitHub query type of 'releases', 'tags' or 'snapshot'."
+		)
+
+	github_user = pkginfo["github_user"]
+	github_repo = pkginfo["github_repo"]
+
+	# This special snapshot method short-circuits the regular logic:
+	if query == "snapshot":
+		snapshot = pkginfo["github"]["snapshot"]
+		url = f"https://github.com/{github_user}/{github_repo}/archive/{snapshot}.zip"
+		if "version" not in pkginfo:
+			raise ValueError("Please specify a version when using github-1 snapshot feature.")
+		pkginfo["artifacts"] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{pkginfo['version']}-{snapshot[:7]}.zip")]
+		
 	if 'homepage' not in pkginfo:
 		pkginfo['homepage'] = f"https://github.com/{github_user}/{github_repo}"
 
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo)
-	else:
+	elif query == "releases":
 		github_result = await hub.pkgtools.github.release_gen(hub, github_user, github_repo, tarball=pkginfo.get('tarball', None))
+	else:
+		github_result = False
 	if github_result is None:
 		raise KeyError(f"Unable to find suitable GitHub release/tag for {pkginfo['cat']}/{pkginfo['name']}.")
-
-	pkginfo.update(github_result)
+	elif github_result is not False:
+		pkginfo.update(github_result)
 
 	if "inherit" in pkginfo and "cargo" in pkginfo["inherit"]:
 		cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(pkginfo['artifacts'][0], "*/src/rust")

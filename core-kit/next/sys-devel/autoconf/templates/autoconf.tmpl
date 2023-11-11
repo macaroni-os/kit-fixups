@@ -41,7 +41,7 @@ src_prepare() {
 	toolchain-autoconf_src_prepare
 
 	# Restore timestamp to avoid makeinfo call
-	# We already have an up to date autoconf.info page at this point.
+	# We already have an up-to-date autoconf.info page at this point.
 	touch -r doc/{old_,}autoconf.texi || die
 }
 

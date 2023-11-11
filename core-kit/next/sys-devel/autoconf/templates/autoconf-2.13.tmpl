@@ -1,0 +1,52 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+inherit toolchain-autoconf
+
+DESCRIPTION="Used to create autoconfiguration files"
+HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
+SRC_URI="{{src_uri}}"
+
+LICENSE="GPL-2"
+SLOT="2.1"
+KEYWORDS="*"
+IUSE="userland_BSD"
+
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+{%- endif %}
+
+DEPEND=">=sys-apps/texinfo-4.3
+	=sys-devel/m4-1.4*
+	dev-lang/perl"
+RDEPEND="${DEPEND}
+	>=sys-devel/autoconf-wrapper-13"
+
+src_configure() {
+	# make sure configure is newer than configure.in
+	touch configure || die
+
+	# need to include --exec-prefix and --bindir or our
+	# DESTDIR patch will trigger sandbox hate :(
+	#
+	# need to force locale to C to avoid bugs in the old
+	# configure script breaking the install paths #351982
+	#
+	# force to `awk` so that we don't encode another awk that
+	# happens to currently be installed, but might later be
+	# uninstalled (like mawk).  same for m4.
+	local prepend=""
+	use userland_BSD && prepend="g"
+	ac_cv_path_M4="${prepend}m4" \
+	ac_cv_prog_AWK="${prepend}awk" \
+	LC_ALL=C \
+	econf \
+		--exec-prefix="${EPREFIX}"/usr \
+		--bindir="${EPREFIX}"/usr/bin \
+		--program-suffix="-${PV}"
+}

@@ -11,4 +11,13 @@ autoconf:
               - autoconf-2.69-perl-5.26.patch
               - autoconf-2.69-fix-libtool-test.patch
               - autoconf-2.69-perl-5.26-2.patch
+          '2.13':
+            template: autoconf-2.13.tmpl
+            compression: gz
+            revision: 2
+            patches:
+              - autoconf-2.13-gentoo.patch
+              - autoconf-2.13-destdir.patch
+              - autoconf-2.13-test-fixes.patch #146592
+              - autoconf-2.13-perl-5.26.patch
 

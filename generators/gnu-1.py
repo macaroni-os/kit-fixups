@@ -3,12 +3,14 @@
 from bs4 import BeautifulSoup
 from packaging import version
 
+
 # This autogen has been updated to put any new GNU ebuilds in "next" KEYWORDS, if they are the latest and
 # greatest but not yet enabled in 1.4-release.
 
 def get_version_from_href(href, name, extension):
 	file = href.split("/")[-1]
-	return file[len(name)+1:-len(extension)]
+	return file[len(name) + 1:-len(extension)]
+
 
 def filter_valid_href(href, name, extension):
 	"""
@@ -22,6 +24,7 @@ def filter_valid_href(href, name, extension):
 	if not href.split("/")[-1].startswith(f"{name}-"):
 		return False
 	return True
+
 
 def filter_and_sort_hrefs(hrefs, name, extension):
 	"""
@@ -50,6 +53,7 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	sorted_list = sorted(unsorted_list, key=lambda tup: tup[2])
 	return list(sorted_list)
 
+
 async def generate(hub, **pkginfo):
 	app = pkginfo["name"]
 	extension = f".tar.{pkginfo['compression']}"
@@ -65,10 +69,9 @@ async def generate(hub, **pkginfo):
 
 	if not len(href_tuples):
 		raise hub.pkgtools.ebuild.BreezyError(f"No valid tarballs found for {app}.")
-
 	generate = []
 	if "version" not in pkginfo or pkginfo["version"] == "latest":
-		generate.append({ "keywords" : "*", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
+		generate.append({"keywords": "*", "href": href_tuples[-1][0], "version": href_tuples[-1][1]})
 	else:
 		found_version = list(filter(lambda tup: tup[1] == pkginfo["version"], href_tuples))
 		if not len(found_version):
@@ -78,15 +81,15 @@ async def generate(hub, **pkginfo):
 		found_version = found_version[0]
 		if found_version[1] == href_tuples[-1][1]:
 			# the specified version is the latest:
-			generate.append({ "keywords" : "*", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
+			generate.append({"keywords": "*", "href": href_tuples[-1][0], "version": href_tuples[-1][1]})
 		else:
 			# the specified version is not the latest version:
 			if "restrict" in pkginfo and pkginfo["restrict"] == "next":
 				pass
 			else:
-				generate.append({ "keywords" : "next", "href" : href_tuples[-1][0], "version" : href_tuples[-1][1]})
-			generate.append({ "keywords" : "*", "href" : found_version[0], "version" : found_version[1]})
-				
+				if not "version" in pkginfo:
+					generate.append({"keywords": "next", "href": href_tuples[-1][0], "version": href_tuples[-1][1]})
+			generate.append({"keywords": "*", "href": found_version[0], "version": found_version[1]})
 	for gen in generate:
 		pkginfo.update(gen)
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
@@ -94,6 +97,5 @@ async def generate(hub, **pkginfo):
 			artifacts=[hub.pkgtools.ebuild.Artifact(url=f"{src_url}{gen['href']}")],
 		)
 		ebuild.push()
-
 
 # vim: ts=4 sw=4 noet

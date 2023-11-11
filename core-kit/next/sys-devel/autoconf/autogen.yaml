@@ -5,13 +5,13 @@ autoconf:
         compression: xz
         version:
           latest: {}
-          '2.69':
+          2.69:
             revision: 5
             patches:
               - autoconf-2.69-perl-5.26.patch
               - autoconf-2.69-fix-libtool-test.patch
               - autoconf-2.69-perl-5.26-2.patch
-          '2.13':
+          2.13:
             template: autoconf-2.13.tmpl
             compression: gz
             revision: 2

@@ -34,7 +34,6 @@ async def generate(hub, **pkginfo):
 		if "version" not in pkginfo:
 			raise ValueError("Please specify a version when using github-1 snapshot feature.")
 		pkginfo["artifacts"] = [hub.pkgtools.ebuild.Artifact(url=url, final_name=f"{pkginfo['name']}-{pkginfo['version']}-{snapshot[:7]}.zip")]
-
 	if 'homepage' not in pkginfo:
 		pkginfo['homepage'] = f"https://github.com/{github_user}/{github_repo}"
 

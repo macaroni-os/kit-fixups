@@ -20,14 +20,15 @@ RESTRICT="( test )"
 RDEPEND="
 	>=dev-libs/imath-3.1.0:=
 	sys-libs/zlib
+	app-arch/libdeflate
 	!!media-libs/openexr:2
-    !!media-libs/ilmbase
+	!!media-libs/ilmbase
 "
 
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
-DOCS=( CHANGES.md GOVERNANCE.md PATENTS README.md SECURITY.md docs/SymbolVisibility.rst )
+DOCS=( CHANGES.md GOVERNANCE.md PATENTS README.md SECURITY.md website/SymbolVisibility.rst )
 
 post_src_unpack() {
 	mv "${WORKDIR}/"{{github_user}}-{{github_repo}}* "${S}" || die

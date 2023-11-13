@@ -1,0 +1,11 @@
+telegram-desktop-bin:
+  generator: github-1
+  packages:
+    - telegram-desktop-bin:
+        github:
+          user: telegramdesktop
+          repo: tdesktop
+          query: releases
+          assets:
+            src: tdesktop-{version}-full.tar.gz
+            bin: tsetup.{version}.tar.xz

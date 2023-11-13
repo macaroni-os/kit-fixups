@@ -1,10 +1,13 @@
 autoconf:
   generator: gnu-1
+  defaults:
+    generate_info: false
   packages:
     - autoconf:
         compression: xz
         version:
-          latest: {}
+          latest:
+            generate_info: true
           2.69:
             revision: 5
             patches:

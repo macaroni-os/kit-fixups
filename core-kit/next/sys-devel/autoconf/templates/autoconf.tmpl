@@ -4,7 +4,6 @@ EAPI=7
 
 SRC_URI="{{src_uri}}"
 KEYWORDS="*"
-inherit toolchain-autoconf
 
 DESCRIPTION="Used to create autoconfiguration files"
 HOMEPAGE="https://www.gnu.org/software/autoconf/autoconf.html"
@@ -22,6 +21,7 @@ PATCHES=(
 {%- endif %}
 
 BDEPEND="
+	sys-app/texinfo
 	>=dev-lang/perl-5.10
 	>=sys-devel/m4-1.4.16
 "
@@ -50,8 +50,10 @@ src_test() {
 }
 
 src_install() {
-	toolchain-autoconf_src_install
-
+	default
+	{%- if not generate_info %}
+	rm -rf ${D}/usr/share/info
+	{%- endif %}
 	local f
 	for f in config.{guess,sub} ; do
 		ln -fs ../../gnuconfig/${f} "${ED}"/usr/share/autoconf-*/build-aux/${f} || die

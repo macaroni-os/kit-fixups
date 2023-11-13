@@ -1,0 +1,31 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake
+
+DESCRIPTION="Heavily optimized DEFLATE/zlib/gzip (de)compression"
+HOMEPAGE="https://github.com/{{github_repo}}/{{github_user}}"
+SRC_URI="{{artifacts[0].src_uri}}"
+
+KEYWORDS="*"
+
+
+LICENSE="MIT"
+SLOT="0"
+IUSE="static-libs test"
+RESTRICT="!test? ( test )"
+
+post_src_unpack() {
+	cd ${WORKDIR} && mv {{github_user}}-{{github_repo}}-* {{name}}-{{version}}
+}
+
+src-configure() {
+	local mycmakeargs=(
+		-DBUILD_SHARED_LIBS=$(usex !static-libs)
+		-DBUILD_TESTING=OFF
+	)
+
+	cmake_src_configure
+}
+

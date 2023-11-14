@@ -1,0 +1,69 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools toolchain-funcs
+
+DESCRIPTION="Utility to convert raster images to EPS, PDF and many others"
+HOMEPAGE="https://github.com/pts/sam2p"
+SRC_URI="{{src_uri}}"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="*"
+IUSE="examples gif"
+RESTRICT="test"
+
+BDEPEND="dev-lang/perl"
+
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"${FILESDIR}/{{patch}}"
+{%- endfor %}
+)
+{%- endif %}
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}
+
+src_prepare() {
+	default
+
+	# configure.in files are deprecated
+	mv configure.{in,ac} || die
+
+	# missing include for memset
+	sed -i '1s;^;#include <string.h>\n;' pts_defl.c || die
+
+	# eautoreconf is still needed or you get bad warnings
+	eautoreconf
+}
+
+src_configure() {
+	tc-export CC CXX
+
+	econf \
+		--enable-lzw \
+		$(use_enable gif)
+}
+
+src_compile() {
+	emake GCC_STRIP=
+}
+
+src_install() {
+	dobin sam2p
+	einstalldocs
+
+	if use examples; then
+		# clear pre-compressed files
+		rm examples/*.gz || die
+
+		dodoc -r examples
+		docompress -x /usr/share/doc/${PF}/examples
+	fi
+}

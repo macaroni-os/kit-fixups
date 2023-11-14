@@ -1,0 +1,13 @@
+sam2p_needed_for_texlive:
+  generator: github-1
+  packages:
+    - sam2p:
+        github:
+          user: pts
+          query: snapshot
+          snapshot: f3e9cc0a2df1880a63f9f37c96e3595bca890cfa
+        version: 0.49.4_p20210504
+        patches:
+          - sam2p-build-fixes.patch
+          - sam2p-0.49.4_p20190718-fix-configure-clang.patch
+ 

@@ -38,7 +38,11 @@ src_install() {
 			telegram.png
 	done
 
-    sed -i '/SingleMainWindow=true/d' "${SOURCE_DIR}"/lib/xdg/org.telegram.desktop.desktop
+    sed -i \
+		-e '/SingleMainWindow=true/d' \
+		-e '/DBusActivatable=true/d' \
+		"${SOURCE_DIR}"/lib/xdg/org.telegram.desktop.desktop
+
 	domenu "${SOURCE_DIR}"/lib/xdg/org.telegram.desktop.desktop
 }
 

@@ -41,7 +41,7 @@ async def generate(hub, **pkginfo):
 	max_version = pkginfo["max_version"]
 	artifacts = []
 	if pkginfo["releases"]:
-		target_release = next(x for x in pkginfo["releases"] if x["ver"] >= target_version and x["ver"] < max_version)
+		target_release = next(x for x in pkginfo["releases"] if x["ver"] >= target_version and x["ver"] <= max_version)
 		target_version = target_release["ver"]
 		try:
 			if "assets" in target_release:

@@ -4,7 +4,7 @@ EAPI=7
 
 inherit toolchain-funcs user
 
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{src_uri}}"
 KEYWORDS="*"
 
 DESCRIPTION="A fully featured, yet light weight RFC2131 compliant DHCP client"
@@ -19,6 +19,15 @@ DEPEND="${COMMON_DEPEND}"
 RDEPEND="
 	${COMMON_DEPEND}
 "
+{%- if patches is defined %}
+  {%- if version in patches %}
+PATCHES=(
+{%- for patch in patches[version] %}
+        "${FILESDIR}"/{{patch}}
+{%- endfor %}
+)
+  {%- endif %}
+{%- endif %}
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then

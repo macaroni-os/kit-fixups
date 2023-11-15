@@ -5,3 +5,8 @@ dhcpcd:
         github:
           user: NetworkConfiguration
           query: releases
+        patches:
+          10.0.5:
+            - dhcpcd-10.0.5-fix-forking.patch
+        revision:
+          10.0.5: 1

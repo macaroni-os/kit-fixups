@@ -94,12 +94,13 @@ autogens:
         blocker: '!<dev-python/rsa-4.9'
         pydeps:
           - pyasn1
-    - strict-rfc3339
     - scandir
     - setproctitle:
         du_pep517: generator
         blocker: '!<dev-python/setproctitle-1.3.3'
         compat: 1.1.9
+    - simplejson
+    - strict-rfc3339
     - typing-extensions:
         du_pep517: flit
     - webcolors:

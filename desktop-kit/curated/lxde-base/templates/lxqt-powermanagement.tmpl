@@ -35,3 +35,9 @@ DEPEND="
 	sys-power/upower
 "
 RDEPEND="${DEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

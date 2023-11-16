@@ -1,38 +1,52 @@
 lxqt_single_rule:
   defaults:
     cat: lxqt-base
-    user: lxqt
-  generator: lxqt-single
+    github:
+      user: lxqt
+      query: releases
+  generator: github-1
   packages:
-    - liblxqt
+    - liblxqt:
+        version: 1.3.0
+    - qterminal:
+        cat: x11-terms
+        version: 1.3.0
     - libqtxdg:
         cat: dev-libs
+        version: 3.11.0
     - libsysstat
     - lximage-qt:
         cat: media-gfx
+        version: 1.3.0
     - lxqt-build-tools:
         cat: dev-util
     - obconf-qt:
         cat: x11-misc
     - pavucontrol-qt:
         cat: media-sound
+        version: 1.3.0
     - qps:
         cat: x11-misc
-    - qterminal:
-        cat: x11-terms
+        version: 2.7.0
     - qtermwidget:
         cat: x11-libs
+        version: 1.3.0
     - qtxdg-tools:
         cat: app-misc
+        version: 3.11.0
     - screengrab:
         cat: x11-misc
+        version: 2.6.0
 
 lxqt_group_rule:
   defaults:
     cat: lxqt-base
     user: lxqt
-    max_version: 1.4.0
-  generator: lxqt-group
+    version: 1.3.0
+    github:
+      user: lxqt
+      query: releases
+  generator: github-1
   packages:
     - libfm-qt:
         cat: x11-libs
@@ -41,7 +55,8 @@ lxqt_group_rule:
     - lxqt-config
     - lxqt-globalkeys
     - lxqt-meta:
-        repo_name: lxqt
+        github:
+          repo: lxqt
     - lxqt-notificationd
     - lxqt-openssh-askpass
     - lxqt-panel

@@ -41,3 +41,9 @@ pkg_postinst() {
 pkg_postrm() {
 	xdg_desktop_database_update
 }
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

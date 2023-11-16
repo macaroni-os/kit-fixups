@@ -14,3 +14,9 @@ LICENSE="LGPL-2.1+"
 SLOT="0"
 
 BDEPEND="dev-util/lxqt-build-tools"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

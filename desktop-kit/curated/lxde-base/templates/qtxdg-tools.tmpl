@@ -19,3 +19,9 @@ RDEPEND="
 	dev-qt/qtcore:5
 "
 DEPEND="${RDEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

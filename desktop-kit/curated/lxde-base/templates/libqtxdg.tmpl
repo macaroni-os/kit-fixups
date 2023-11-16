@@ -44,3 +44,9 @@ src_test() {
 	# Tests don't work with C
 	LC_ALL=en_US.utf8 virtx cmake_src_test
 }
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

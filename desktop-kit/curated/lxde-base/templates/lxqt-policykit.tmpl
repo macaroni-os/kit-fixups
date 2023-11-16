@@ -33,3 +33,9 @@ src_install() {
 	cmake_src_install
 	doman man/*.1
 }
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

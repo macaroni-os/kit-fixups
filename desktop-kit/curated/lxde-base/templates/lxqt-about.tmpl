@@ -22,3 +22,9 @@ DEPEND="
 	=lxqt-base/liblxqt-$(ver_cut 1-2)*
 "
 RDEPEND="${DEPEND}"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

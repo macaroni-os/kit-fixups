@@ -52,3 +52,9 @@ src_install() {
 		XDG_CONFIG_DIRS='${EPREFIX}/usr/share'
 	_EOF_
 }
+
+post_src_unpack() {
+	if [ ! -d "${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}

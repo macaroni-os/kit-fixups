@@ -186,6 +186,8 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 								found_build_system = "setuptools"
 								if "depend" not in local_pkginfo:
 									local_pkginfo["depend"] = ""
+								else:
+									local_pkginfo["depend"] += "\n"
 								local_pkginfo["depend"] += 'dev-python/setuptools_scm[${PYTHON_USEDEP}]\n'
 							elif req.startswith("setuptools"):
 								found_build_system = "setuptools"

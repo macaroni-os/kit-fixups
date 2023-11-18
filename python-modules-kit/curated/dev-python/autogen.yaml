@@ -1917,7 +1917,6 @@ dev_python_simplified_rule:
         compat: '5.0.2'
         blocker: "!<=dev-python/setuptools_scm-7.0.2"
         python_compat: python3+
-        du_setuptools: rdepend
         pdepend: |
           dev-python/importlib_metadata[${PYTHON_USEDEP}]
         version:
@@ -1999,7 +1998,6 @@ dev_python_simplified_rule:
         desc: A full-featured template engine for Python
         homepage: https://palletsprojects.com/p/jinja/ https://pypi.org/project/Jinja2/
         license: BSD
-        du_setuptools: rdepend
         iuse: examples
         restrict: test
         rdepend: '!dev-python/jinja:compat'
@@ -2050,7 +2048,6 @@ dev_python_simplified_rule:
             - pbr
     - tomli:
         version: 2.0.0
-        du_setuptools: autostub
         desc: "A lil' TOML parser"
         license: MIT
         body: |

@@ -1816,6 +1816,7 @@ dev_python_simplified_rule:
   defaults:
     cat: dev-python
     python_compat: python3+
+    du_pep517: generator
   generator: pypi-compat-1
   packages:
     - async-property:
@@ -1829,7 +1830,6 @@ dev_python_simplified_rule:
         desc: ANSI escape character sequences for colored terminal text & cursor positioning
         homepage: https://github.com/tartley/colorama https://pypi.org/project/colorama/
         license: BSD
-        du_pep517: hatchling
         compat: 0.4.4
         blocker: "!<dev-python/colorama-0.4.6-r1"
         revision:
@@ -1841,8 +1841,6 @@ dev_python_simplified_rule:
         pypi_name: dbus_next
     - packaging:
         version: '21.3'
-#       This is needed for newer packaging, but 21.3 still uses setuptools
-#       du_pep517: flit
         compat: '20.9'
         blocker: "!<=dev-python/packaging-18.0"
         python_compat: python3+
@@ -1859,7 +1857,11 @@ dev_python_simplified_rule:
         pydeps:
           use:kerberos:
             - pykerberos
-
+    - pygments:
+        compat: 2.5.2
+        blocker: '!<dev-python/pygments-2.17.0-r1'
+        revision:
+          2.17.0: 1
     - m2r:
         python_compat: python3+ pypy
         compat: '0.2.1'
@@ -2503,12 +2505,6 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - readme_renderer:
         python_compat: python2+ pypy3
-    - pygments
-    - pygments-compat:
-        version: 2.5.2
-        python_compat: python2_7
-        template: pygments-old.tmpl
-        pypi_name: pygments
     - multidict
     - numpy:
         # FL-9243: numpy >=1.22.0 only supports Python >=3.8

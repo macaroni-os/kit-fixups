@@ -22,7 +22,8 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 UPSTREAM_PATCHES=(
-	{% for patch in patches %}"${DISTDIR}"/{{ patch }}
+	{% for patch in patches %}
+		"${DISTDIR}"/{{ patch }}
 	{%- endfor %}
 )
 
@@ -33,6 +34,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.0-headers.patch
 )
 
+src_unpack() {
+	unpack {{artifacts[0].final_name}} || die
+}
 
 src_prepare() {
 	eapply -p0 "${UPSTREAM_PATCHES[@]}"

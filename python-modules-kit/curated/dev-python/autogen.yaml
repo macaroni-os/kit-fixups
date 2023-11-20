@@ -1763,10 +1763,12 @@ compat_testing_deps_rule:
           - pbr
           - six
           - testtools
+
 testing_deps_rule:
   defaults:
     cat: dev-python
     python_compat: python3+
+    du_pep517: generator
   generator: pypi-compat-1
   packages:
     - iniconfig:

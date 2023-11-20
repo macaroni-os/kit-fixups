@@ -182,7 +182,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 								break
 							elif req.startswith("hatchling"):
 								found_build_system = "hatchling"
-							elif req.startswith("setuptools_scm"):
+							elif req.startswith("setuptools-scm") or req.startswith("setuptools_scm"):
 								found_build_system = "setuptools"
 								if "depend" not in local_pkginfo:
 									local_pkginfo["depend"] = ""

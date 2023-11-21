@@ -19,6 +19,17 @@ oddball_core_deps:
         license: MIT
         body: |
           DOCS=( README.md )
+    - testtools:
+        compat: 2.4.0
+        blocker: '!<dev-python/testtools-2.5.0-r1'
+        revision:
+          2.5.0: 1
+        pydeps:
+          py:all:build:
+            - setuptools
+            - pbr
+          py:all:
+            - pbr
 
 sqlalchemy:
   defaults:
@@ -2048,17 +2059,6 @@ dev_python_simplified_rule:
         desc: Implements a XML/HTML/XHTML Markup safe string for Python
         homepage: https://pypi.org/project/MarkupSafe
         license: BSD
-    - testtools:
-        compat: 2.4.0
-        blocker: '!<dev-python/testtools-2.5.0-r1'
-        revision:
-          2.5.0: 1
-        pydeps:
-          py:all:build:
-            - setuptools
-            - pbr
-          py:all:
-            - pbr
     - mypy:
         pydeps:
           py:all:

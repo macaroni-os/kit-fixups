@@ -4,6 +4,7 @@ from packaging.version import Version as Version
 from bs4 import BeautifulSoup, Comment
 from csv import DictReader
 from io import StringIO
+from collections import defaultdict
 
 async def generate(hub, **pkginfo):
     homepage_url = "https://sqlite.org/"
@@ -13,24 +14,36 @@ async def generate(hub, **pkginfo):
     # The latest release info is embedded in the webpage's html as an html comment.
     # So we search for all the comments and select the onw that has the word "Download" in it
     comment = [c.strip() for c in soup.findAll(text=lambda text:isinstance(text, Comment)) if "Download" in c][0]
-
     # Convert the comment into a file-like object
     data = StringIO(comment)
     # Skip the first line in the comment as it is an explainer
     next(data)
-    asset_types = ['src', 'doc']
+    csv_data = DictReader(data)
 
-    # The rest of the comment is csv formatted string, so we find the urls' for the -src and -doc tar.gzs
-    assets = [row for row in DictReader(data) if any([asset in row['RELATIVE-URL'] for asset in asset_types])]
+    # More than one version can be listed, which makes this a bit complex. Make a dict of release versions, with
+    # sub-dict of asset type, containing a URL as a value:
 
-    # Store the artifacts as a dict like: {'src': src-tarball-url, 'doc': doc-tarball-url)
-    artifacts = dict((asset['RELATIVE-URL'].split('-')[1], hub.pkgtools.ebuild.Artifact(url=homepage_url + asset['RELATIVE-URL'])) for asset in assets)
+    releases = {}
+    for row in csv_data:
+        version = Version(row['VERSION'])
+        rel_url = row['RELATIVE-URL']
+        asset_type = rel_url.split('-')[1]
+        if version not in releases:
+            releases[version] = {}
+        releases[version][asset_type] = homepage_url + rel_url
 
+    # Get the latest release version:
+
+    latest = sorted(releases.keys())[-1]
+    artifacts = {
+        "global" : hub.Artifact(url=releases[latest]['src']),
+        "doc" : hub.Artifact(url=releases[latest]['doc'])
+    }
     ebuild = hub.pkgtools.ebuild.BreezyBuild(
         **pkginfo,
         artifacts=artifacts,
-        version=assets[0]['VERSION'],
-        full_version=assets[0]['RELATIVE-URL'].split('-')[2].split('.')[0]
-    )
+        version=latest,
+        full_version=releases[latest]['src'].split('/')[-1].split('-')[2].split('.')[0]
+        )
     ebuild.push()
 

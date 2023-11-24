@@ -14,9 +14,7 @@ HOMEPAGE="https://sqlite.org/"
 
 # On version updates, make sure to read the forum (https://sqlite.org/forum/forum)
 # for hints regarding test failures, backports, etc.
-SRC_URI="{% for key, value in artifacts.items() %}
-	{% if key == "src" %}{{ value.src_uri }}{% else %}{{ key }}? ( {{ value.src_uri }} ){% endif %}{% endfor %}
-"
+SRC_URI="{{src_uri}}"
 
 LICENSE="public-domain"
 SLOT="3"

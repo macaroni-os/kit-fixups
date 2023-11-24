@@ -1,0 +1,12 @@
+diff -urN mesa-23.1.9/src/gallium/frontends/va/surface.c mesa-23.1.9-fixed/src/gallium/frontends/va/surface.c
+--- mesa-23.1.9/src/gallium/frontends/va/surface.c	2023-10-04 09:53:02.000000000 -0400
++++ mesa-23.1.9-fixed/src/gallium/frontends/va/surface.c	2023-11-23 11:47:14.819710091 -0500
+@@ -147,7 +147,7 @@
+ 
+       mtx_unlock(&drv->mutex);
+       // Assume that the GPU has hung otherwise.
+-      return ret ? VA_STATUS_SUCCESS : VA_STATUS_ERROR_TIMEDOUT;
++      return ret ? VA_STATUS_SUCCESS : VA_STATUS_ERROR_INVALID_CONTEXT;
+    } else if (context->decoder->entrypoint == PIPE_VIDEO_ENTRYPOINT_ENCODE) {
+       if (!drv->pipe->screen->get_video_param(drv->pipe->screen,
+                               context->decoder->profile,

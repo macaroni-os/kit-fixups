@@ -256,23 +256,10 @@ aiobotostuff:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
-    - aioboto3:
-        license: Apache-2.0
-        pydeps:
-          - aiobotocore
-          # This is actually needed during regular install:
-          - pytest-runner
     - aioitertools:
         license: MIT
         pydeps:
           - typing-extensions
-    - aiobotocore:
-        license: Apache-2.0
-        pydeps:
-          - aiohttp
-          - aioitertools
-          - botocore
-          - wrapt
     - typing-extensions:
         version: 4.7.1
         du_pep517: flit
@@ -2452,8 +2439,6 @@ dev_python_autogen_rule:
     python_compat: python3+
   generator: pypi-1
   packages:
-    - aiohttp-socks:
-        python_compat: python3+ pypy3
     - async_timeout:
         python_compat: python3+ pypy3
     - authres:

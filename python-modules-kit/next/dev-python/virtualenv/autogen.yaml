@@ -1,0 +1,13 @@
+virtualenv_and_deps:
+  generator: pypi-simple-1
+  defaults:
+    du_pep517: generator
+  packages:
+    - distlib
+    - filelock
+    - platformdirs
+    - virtualenv:
+        pydeps:
+          - distlib < 1
+          - filelock < 4
+          - platformdirs < 5

@@ -1,3 +1,45 @@
+aiohttp_new_stuff:
+  defaults:
+    cat: dev-python
+    python_compat: python3+ pypy3
+  generator: pypi-simple-1
+  packages:
+    - aiodns:
+        pydeps:
+          py:all:
+            - pycares >= 3
+          py:all:build:
+            - setuptools
+    - aiosignal:
+        pydeps:
+          - frozenlist
+    - aiohttp:
+        desc: Async http client/server framework (asyncio)
+        pydeps:
+          py:all:
+            - async_timeout > 3
+            - attrs > 17.3.0
+            - multidict > 4.5.0
+            - yarl > 1
+            - idna-ssl
+            - typing-extensions
+            - aiosignal
+            - aiodns
+            - charset_normalizer
+            - frozenlist
+          py:all:build:
+            - setuptools
+            - cython
+        body: |
+          src_prepare() {
+            default
+            rm ${S}/examples/__init__.py
+
+            # Drop runtime dep to asynctest used for tests
+            sed -e '/^\tasynctest.*/d' -i ${S}/setup.cfg
+          }
+    - frozenlist
+
 python:
   defaults:
     cat: dev-python

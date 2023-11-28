@@ -1,8 +1,8 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=6
 
-inherit check-reqs eutils ego
+inherit check-reqs eutils ego savedconfig
 
 SLOT=$PF
 
@@ -23,7 +23,7 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm sign-modules zfs"
+IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm savedconfig sign-modules zfs"
 RDEPEND="
 	|| (
 		<sys-apps/gawk-5.2.0
@@ -115,6 +115,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	default
 	for debpatch in $( get_patch_list "${WORKDIR}/debian/patches/series" ); do
 		epatch -p1 "${WORKDIR}/debian/patches/${debpatch}"
 	done
@@ -140,9 +141,13 @@ src_prepare() {
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
 	einfo "Using debian-sources-6.3.7_p1 Wi-Fi driver to avoid latency issues..."
-	cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
-	chmod +x config-extract || die
-
+	if use savedconfig; then
+		einfo Restoring saved .config ...
+		restore_config .config
+	else
+		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
+		chmod +x config-extract || die
+	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
 	if [ "${REAL_ARCH}" = x86 ]; then
 		export DEB_ARCH="i386"
@@ -157,7 +162,9 @@ src_prepare() {
 	fi
 	[[ ${PR} != "r0" ]] && KERN_SUFFIX+="-${PR}"
 
-	./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die
+	if ! use savedconfig; then
+		./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die
+	fi
 	setno_config .config CONFIG_DEBUG
 	if use acpi-ec; then
 		# most fan control tools require this

@@ -12,7 +12,8 @@ LICENSE="LGPL-2"
 SLOT="0"
 KEYWORDS="*"
 
-RDEPEND=">=dev-libs/glib-2.56:2"
+RDEPEND=">=dev-libs/glib-2.56:2
+	dev-libs/gobject-introspection"
 DEPEND="${RDEPEND}"
 BDEPEND="
 	app-shells/bash-completion

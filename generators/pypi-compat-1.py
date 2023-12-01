@@ -142,7 +142,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			raise ValueError("Found more than one directory inside python module")
 		main_dir = main_dir[0]
 		main_base = os.path.basename(main_dir)
-		artifacts = [ artifact ]
+		artifacts = [artifact]
 		# deal with fact that "-" and "_" are treated as equivalent by pypi:
 		if not main_base.startswith(pkginfo["name"]):
 			if main_base.startswith(under_name):
@@ -164,6 +164,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 				has_setup = False
 			pyproject_path = glob.glob(os.path.join(artifact.extract_path, "*", "pyproject.toml"))
 			found_build_system = None
+			extra_bdeps = []
 			if len(pyproject_path):
 				with open(pyproject_path[0], "r") as f:
 					try:
@@ -176,12 +177,16 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 					elif "requires" not in toml_data["build-system"]:
 						pass
 					else:
+						# NOTE: detect 'hatch-vcs' and add it directly as a build dep rather than using the eclass.
+						#       We can do this more in the future to get rid of the eclass if we want.
 						for req in toml_data["build-system"]["requires"]:
 							if req.startswith("flit_core"):
 								found_build_system = "flit"
 								break
 							elif req.startswith("hatchling"):
 								found_build_system = "hatchling"
+							elif req.startswith("hatch-vcs"):
+								extra_bdeps.append('hatch-vcs')
 							elif req.startswith("setuptools-scm") or req.startswith("setuptools_scm"):
 								found_build_system = "setuptools"
 								if "depend" not in local_pkginfo:
@@ -200,6 +205,10 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 					raise ValueError(f"{local_pkginfo['name']}: Could not auto-detect build system in pyproject.toml.")
 			else:
 				local_pkginfo["du_pep517"] = found_build_system
+				if extra_bdeps:
+					if "depend" not in local_pkginfo:
+						local_pkginfo["depend"] = ""
+					local_pkginfo["depend"] += "\n".join(map(lambda x: hub.pkgtools.pyhelper.expand_pydep(local_pkginfo, x), extra_bdeps))
 		if "cargo" in extensions or ("cargo" in pkginfo["inherit"] and not compat_ebuild):
 			await cargo_extension(hub, local_pkginfo, artifact)
 	if "artifacts" in local_pkginfo:

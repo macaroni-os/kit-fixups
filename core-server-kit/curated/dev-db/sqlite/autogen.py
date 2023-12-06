@@ -25,8 +25,10 @@ async def generate(hub, **pkginfo):
 
     releases = {}
     for row in csv_data:
-        version = Version(row['VERSION'])
         rel_url = row['RELATIVE-URL']
+        if rel_url.startswith("snapshot"):
+            continue
+        version = Version(row['VERSION'])
         asset_type = rel_url.split('-')[1]
         if version not in releases:
             releases[version] = {}

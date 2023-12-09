@@ -1,0 +1,17 @@
+libs_for_pulsar_astro_rule:
+  generator: simple
+  defaults:
+    cat: sci-libs
+  packages:
+    - pgplot:
+        desc: FORTRAN/C device-independent scientific graphic library
+        homepage: https://www.astro.caltech.edu/~tjp/pgplot/
+        src_uri: https://ftp.osuosl.org/pub/gentoo/distfiles/c9/pgplot522.tar.gz
+        version: 5.2.2
+        patches:
+          - 5.2.2-compile-setup.patch
+          - 5.2.2-drivers.patch
+          - 5.2.2-headers.patch
+          - 5.2.2-libpng15.patch
+          - 5.2.2-makemake.patch
+          - 5.2.2-tk86.patch

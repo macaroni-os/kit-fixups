@@ -29,9 +29,7 @@ src_prepare() {
 }
 
 src_configure() {
-	# Change sysconfdir to install the template file as documentation
-	# rather than in /etc.
-	econf --sysconfdir="${EPREFIX}/usr/share/doc/${PF}"
+	default
 	# If the version didn't get set, fix it here.
 	# See: https://github.com/rsnapshot/rsnapshot/issues/321
 	sed -i "s/my \$VERSION = '@.*@'/my \$VERSION = '${PV}'/g" rsnapshot-program.pl || die
@@ -40,7 +38,15 @@ src_configure() {
 src_install() {
 	docompress -x "/usr/share/doc/${PF}/rsnapshot.conf.default"
 
-	emake install DESTDIR="${D}"
+	# Change sysconfdir to install the template file as documentation rather
+	# than in /etc.  Note:  Must do it here, rather than calling ./configure
+	# with the --sysconfdir option, as doing the latter will force rsnapshot
+	# to look for its config file in the sysconfdir if it is set by
+	# ./configure.  Setting it with the environment variable here installs the
+	# sample file in the desired location without changing where rsnapshot
+	# expects to find its config file, by default in /etc/rsnapshot.conf.
+	emake install DESTDIR="${D}" \
+		sysconfdir="${EPREFIX}/usr/share/doc/${PF}"
 
 	dodoc README.md AUTHORS ChangeLog \
 		docs/Upgrading_from_1.1

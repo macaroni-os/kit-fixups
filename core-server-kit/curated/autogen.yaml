@@ -344,3 +344,15 @@ lighttpd-rule:
             repo: lighttpd1.4
             query: tags
             match: 'lighttpd-(1.4.[0-9].+)$'
+
+rsnapshot-rule:
+  generator: github-1
+  packages:
+    - rsnapshot:
+        cat: app-backup
+        desc: A filesystem backup utility based on rsync
+        homepage: http://www.rsnapshot.org
+        github:
+          user: rsnapshot
+          repo: rsnapshot
+          query: releases

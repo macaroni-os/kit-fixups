@@ -185,3 +185,16 @@ libnml_rule:
           url: https://www.netfilter.org/pub/libmnl/
           format: tar.bz2
           order: asc
+
+
+parallel_rule:
+  generator: dirlisting-1
+  packages:
+    - parallel:
+        cat: sys-process
+        desc: A shell tool for executing jobs in parallel locally or on remote machines
+        homepage: https://www.gnu.org/software/parallel/
+        dir:
+          url: https://ftp.gnu.org/gnu/parallel/
+          order: asc
+          format: tar.bz2

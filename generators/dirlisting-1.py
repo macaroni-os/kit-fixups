@@ -27,7 +27,7 @@ async def generate(hub, **pkginfo):
 			#  - then zero or more instances of '.x' or '-abc_def123' etc.
 			#  - allow for alphanumeric ASCII characters after first '.'
 			# finally, the file extension
-			f'(?<=href=")(((?:({files})?-)?(\d+(?:[\.|-][a-zA-Z0-9_]+)+)+)'
+			f'(?<=href=")(((?:({files})?-)?(\d+(?:[\.|-][a-zA-Z0-9_]+)*)+)'
 			+ (
 				re.escape(pkginfo['dir']['format'])
 				if format in pkginfo['dir']

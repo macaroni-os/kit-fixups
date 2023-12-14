@@ -68,3 +68,16 @@ mail_filter_rule:
           repo: postsrsd
           query: releases
         select: '1\.[0-9.]*'
+
+openvpn_rule:
+  generator: github-1
+  packages:
+    - openvpn:
+        cat: net-vpn
+        desc: Robust and highly flexible tunneling application compatible with many OSes
+        homepage: https://openvpn.net/
+        github:
+          user: OpenVPN
+          repo: openvpn
+          query: releases
+

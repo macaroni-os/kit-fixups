@@ -2,19 +2,21 @@
 
 EAPI=7
 
-inherit autotools flag-o-matic user systemd linux-info tmpfiles
+inherit autotools flag-o-matic user linux-info tmpfiles
 
-DESCRIPTION="Robust and highly flexible tunneling application compatible with many OSes"
+DESCRIPTION="{{ desc }}"
 
-SRC_URI="{{artifacts[0].src_uri}}"
-HOMEPAGE="https://openvpn.net/"
+SRC_URI="{{ src_uri }}"
+HOMEPAGE="{{ homepage }}"
+
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
 
 IUSE="down-root examples inotify iproute2 +openssl +lz4 +lzo mbedtls pam"
-IUSE+=" pkcs11 +plugins selinux static systemd test userland_BSD"
+IUSE+=" pkcs11 +plugins selinux static test userland_BSD"
 
 REQUIRED_USE="static? ( !plugins !pkcs11 )
 	pkcs11? ( !mbedtls )
@@ -32,7 +34,6 @@ CDEPEND="
 	openssl? ( >=dev-libs/openssl-0.9.8:0= )
 	pam? ( sys-libs/pam )
 	pkcs11? ( >=dev-libs/pkcs11-helper-1.11 )
-	systemd? ( sys-apps/systemd )
 	dev-python/docutils
 "
 
@@ -50,11 +51,6 @@ CONFIG_CHECK="~TUN"
 
 pkg_setup()  {
 	linux-info_pkg_setup
-}
-
-src_unpack() {
-    default
-    mv "{{name}}-{{commit_sha1}}" "${S}" || die
 }
 
 src_prepare() {
@@ -80,11 +76,9 @@ src_configure() {
         $(use_enable iproute2)
         $(use_enable pam plugin-auth-pam)
         $(use_enable down-root plugin-down-root)
-        $(use_enable systemd)
     )
 
-    SYSTEMD_UNIT_DIR=$(systemd_get_systemunitdir) \
-        TMPFILES_DIR="/usr/lib/tmpfiles.d" \
+    TMPFILES_DIR="/usr/lib/tmpfiles.d" \
         IPROUTE=$(usex iproute2 '/bin/ip' '') \
         econf "${myeconfargs[@]}"
 }
@@ -104,7 +98,7 @@ src_install() {
 	find "${ED}/usr" -name '*.la' -delete || die
 
 	# install documentation
-	dodoc AUTHORS ChangeLog PORTS README README.IPv6
+	dodoc AUTHORS ChangeLog PORTS README
 
 	# Install some helper scripts
 	keepdir /etc/openvpn

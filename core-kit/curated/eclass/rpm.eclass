@@ -8,7 +8,7 @@
 
 inherit eutils
 
-DEPEND=">=app-arch/rpm"
+DEPEND="app-arch/rpm"
 
 # @FUNCTION: rpm_unpack
 # @USAGE: <rpms>

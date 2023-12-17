@@ -47,16 +47,25 @@ src_install() {
 	local BUILD_DIR="$(dirname $(find target/release -name ripgrep-stamp -print -quit))"
 
 	if use man ; then
-	    doman "${BUILD_DIR}"/rg.1
+		newman - rg.1 <<-EOF
+		$(target/$(usex debug debug release)/rg --generate man)
+		EOF
 	fi
 
-	newbashcomp "${BUILD_DIR}"/rg.bash rg
+	newbashcomp - rg <<-EOF
+	$(target/$(usex debug debug release)/rg --generate complete-bash)
+	EOF
 
 	insinto /usr/share/fish/vendor_completions.d
-	doins "${BUILD_DIR}"/rg.fish
+	newins - rg.fish <<-EOF
+	$(target/$(usex debug debug release)/rg --generate complete-fish)
+	EOF
 
 	insinto /usr/share/zsh/site-functions
-	doins complete/_rg
+	newins - _rg <<-EOF
+	$(target/$(usex debug debug release)/rg --generate complete-zsh)
+	EOF
+
 
 	dodoc CHANGELOG.md FAQ.md GUIDE.md README.md
 }

@@ -79,7 +79,6 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.31-pragma.patch
 	"${FILESDIR}"/${PN}-6.01-gentoo.patch
-	"${FILESDIR}"/${PN}-5.45-gcc.patch
 	"${FILESDIR}"/${PN}-6.01-configure.ac-sandbox.patch
 	"${FILESDIR}"/${PN}-6.01-without-gl-makefile.patch
 	"${FILESDIR}"/${PN}-6.01-non-gtk-install.patch
@@ -114,6 +113,9 @@ src_prepare() {
 
 	sed -i -e 's/Screensaver;//g' driver/xscreensaver-settings.desktop.in || die
 	sed -i -e 's/Screensaver;//g' driver/xscreensaver.desktop.in || die
+
+    sed -i 's@AC_CACHE_CHECK([whether gcc accepts [$2]],@AC_CACHE_CHECK([whether [$CC] accepts [$2]],@' configure{,.ac} || die
+    sed -i 's@if ( ( gcc -c [$2] conftest.$ac_ext -o/dev/null >/dev/null )@if ( ( $CC -c [$2] conftest.$ac_ext -o/dev/null >/dev/null )@' configure{,.ac} || die
 
 	config_rpath_update "${S}"/config.rpath
 
@@ -196,8 +198,7 @@ src_install() {
 
 		font_xfont_config
 	else
-		rm -v "${ED}${FONTDIR}"/*.{ttf,otf} || die
-		rmdir -v "${ED}${FONTDIR}" || die #812473
+		rm -rfv "${ED}${FONTDIR}" || die #812473
 	fi
 
 	einstalldocs

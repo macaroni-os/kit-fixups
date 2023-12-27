@@ -6,7 +6,7 @@ inherit user
 
 MY_PN=${PN/-bin/}
 MY_PV=${PV/_beta/-beta}
-S=${WORKDIR}/${MY_PN}-${MY_PV}
+S=${WORKDIR}/${MY_PN}-v${MY_PV}
 
 DESCRIPTION="The open and composable observability and data visualization platform"
 HOMEPAGE="https://grafana.org https://github.com/grafana/grafana"

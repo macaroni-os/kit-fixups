@@ -1,0 +1,28 @@
+# Group which owns the shared socket
+INCUSD_OPTIONS+="--group incus-admin"
+
+# Use lxcfs specific path (1) or the same of LXC (0)
+# NOTE: Using 1 need set of INCUS_LXC_TEMPLATE_CONFIG env
+#       with a different hooks path.
+#INCUSD_USE_INCUSLXCFS=0
+
+# Enable cpu profiling into the specified file
+#INCUSD_OPTIONS+=" --cpuprofile /tmp/lxc_cpu_profile"
+
+# Enable memory profiling into the specified file
+#INCUSD_OPTIONS+=" --memprofile /tmp/lxc_mem_profile"
+
+# Enable debug mode
+#INCUSD_OPTIONS+=" --debug"
+
+# For debugging, print a complete stack trace every n seconds
+#INCUSD_OPTIONS+=" --print-goroutines-every 5"
+
+# Enable verbose mode
+#INCUSD_OPTIONS+=" -v"
+
+# Logfile to log to
+#INCUSD_OPTIONS+=" --logfile /var/log/incus/incusd.log"
+
+# Enable syslog logging
+#INCUSD_OPTIONS+=" --syslog"

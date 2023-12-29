@@ -198,3 +198,16 @@ parallel_rule:
           url: https://ftp.gnu.org/gnu/parallel/
           order: asc
           format: tar.bz2
+
+
+corenetwork_rule:
+  generator: github-1
+  packages:
+    - corenetwork:
+        cat: sys-apps
+        desc: Funtoo's networking scripts.
+        homepage: http://www.funtoo.org/Networking
+        github:
+          user: funtoo
+          repo: corenetwork
+          query: tags

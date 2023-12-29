@@ -2,24 +2,24 @@
 
 EAPI=6
 
-DESCRIPTION="Funtoo's networking scripts."
-HOMEPAGE="http://www.funtoo.org/Networking"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
 
 LICENSE="BSD-2"
 SLOT="0"
 KEYWORDS="*"
 
-GITHUB_USER="funtoo"
-
-SRC_URI="https://www.github.com/${GITHUB_USER}/${PN}/tarball/${PVR} -> corenetwork-${PVR}.tar.gz"
+SRC_URI="{{ src_uri }}"
 
 RDEPEND="sys-apps/openrc !<=sys-apps/openrc-0.12.4-r4"
 
-src_unpack() {
-	unpack $A
-	local old="${WORKDIR}/${GITHUB_USER}-corenetwork-*"
-	mv $old "${WORKDIR}/corenetwork-${PV}" || die
-}
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+#src_unpack() {
+#	unpack $A
+#	local old="${WORKDIR}/${GITHUB_USER}-corenetwork-*"
+#	mv $old "${WORKDIR}/corenetwork-${PV}" || die
+#}
 
 src_install() {
 	exeinto /etc/init.d || die
@@ -29,3 +29,4 @@ src_install() {
 	chmod 0755 ${D}/etc/netif.d || die
 	chmod -R 0644 ${D}/etc/netif.d/* || die
 }
+# vim: syn=ebuild noet:

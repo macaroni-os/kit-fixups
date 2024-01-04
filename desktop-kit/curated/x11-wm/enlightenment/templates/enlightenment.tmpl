@@ -15,12 +15,10 @@ IUSE="acpi bluetooth connman doc exif geolocation nls pam policykit udisks wayla
 
 REQUIRED_USE="xwayland? ( wayland )"
 
-RDEPEND=">=dev-libs/efl-1.26.1[eet,fontconfig,X]
+RDEPEND=">=dev-libs/efl-1.27.0[eet,fontconfig,sound,X]
 	virtual/udev
-	dev-libs/libinput
 	x11-libs/libXext
 	x11-libs/libxcb
-	x11-libs/libxkbcommon
 	x11-libs/xcb-util-keysyms
 	x11-misc/xkeyboard-config
 	acpi? ( sys-power/acpid )
@@ -54,10 +52,13 @@ src_unpack() {
 src_configure() {
 	local emesonargs=(
 		-D device-udev=true
+		-D elput=true
 		-D install-enlightenment-menu=true
+
 		-D install-sysactions=true
 		-D install-system=true
 		-D mount-eeze=false
+
 		-D packagekit=false
 		-D systemd=false
 		
@@ -105,6 +106,7 @@ pkg_postinst() {
 	einfo "Office file thumbnails - app-office/libreoffice app-office/libreoffice-bin"
 	einfo "An EFL-based IDE - dev-util/edi"
 	einfo "Image viewer - media-gfx/ephoto"
+	einfo "A media player media-video/rage"
 	einfo "ConnMan user interface for Enlightenment - net-misc/econnman"
 	einfo "System and process monitor - sys-process/evisum"
 	einfo "Feature rich terminal emulator - x11-terms/terminology"

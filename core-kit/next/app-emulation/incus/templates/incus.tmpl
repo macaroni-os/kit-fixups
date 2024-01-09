@@ -4,7 +4,7 @@ EAPI=7
 
 inherit autotools golang-base bash-completion-r1 linux-info user systemd
 
-DESCRIPTION="Powerful system container and virtual machine manager"
+DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
 SRC_URI="{{ src_uri }}"
 
@@ -61,6 +61,7 @@ QA_PREBUILT="/usr/lib/incus/libcowsql.so.0.0.1
 	/usr/bin/incus-user
 	/usr/sbin/incusd"
 
+S="${WORKDIR}/incus-{{ tar_version }}"
 RESTRICT="test"
 VDIR="${S}/vendor"
 

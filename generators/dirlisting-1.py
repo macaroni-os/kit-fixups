@@ -29,10 +29,11 @@ async def generate(hub, **pkginfo):
 			# finally, the file extension
 			f'(?<=href=")(((?:({files})?-)?(\d+(?:[\.|-][a-zA-Z0-9_]+)*)+)'
 			+ (
-				re.escape(pkginfo['dir']['format'])
-				if format in pkginfo['dir']
-				else f'(\.tar\.gz|\.tar\.bz2|\.tar\.xz|\.zip)+)"'
-			),
+				f"\.({re.escape(pkginfo['dir']['format'])})+"
+				if 'format' in pkginfo['dir']
+				else f'\.(tar\.gz|tar\.bz2|tar\.xz|zip)+'
+			)
+			+ ')"',
 		release_data
 		)
 	]
@@ -104,3 +105,4 @@ async def generate(hub, **pkginfo):
 
 
 # vim: :et sw=4 ts=4 noet
+

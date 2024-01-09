@@ -8,7 +8,6 @@ import re
 
 
 async def generate(hub, **pkginfo):
-
 	release_data = await hub.pkgtools.fetch.get_page(
 		pkginfo['dir']['url'], is_json=False
 	)
@@ -40,17 +39,17 @@ async def generate(hub, **pkginfo):
 	if not releases:
 		raise KeyError(
 			f"Unable to find a suitable version for {pkginfo['cat']}"
-			+ f"-{pkginfo['name']}."
+			+ f"/{pkginfo['name']}."
 		)
 
 	# if a specific version is requested, check that it actually exists
 	if 'version' in pkginfo:
 		# latest always matches
-		if 'latest' in pkginfo['version']:
+		if pkginfo['version'] == 'latest':
 			pass
 		elif not any(pkginfo['version'] == ver for ver, release in releases):
 			raise KeyError(
-				f"Requested version {pkginfo['cat']}-{pkginfo['name']}"
+				f"Requested version {pkginfo['cat']}/{pkginfo['name']}"
 				+ f"-{pkginfo['version']} not found!"
 			)
 
@@ -77,7 +76,10 @@ async def generate(hub, **pkginfo):
 			and 'asc' in pkginfo['dir']['order']
 		else versions_l[0]
 	)
-	pkginfo['version'] = ver
+	if not 'version' in pkginfo or (
+		'version' in pkginfo and pkginfo['version'] == 'latest'
+	):
+		pkginfo['version'] = ver
 
 # if no 'files' key defined in YAML, just add 'name' to the list of files.
 	files_l = []

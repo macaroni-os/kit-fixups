@@ -13,10 +13,12 @@ async def generate(hub, **pkginfo):
 
     debs = [a.get('href') for a in soup if a.has_attr('href') and a.get('href').endswith('deb')]
     latest_release = max([(Version(re.findall(regex, a)[0]), a) for a in debs])
+    revision = { "7.3.6": "1" }
 
     ebuild = hub.pkgtools.ebuild.BreezyBuild(
         **pkginfo,
         version=latest_release[0],
+        revision=revision,
         artifacts=[hub.pkgtools.ebuild.Artifact(url=latest_release[1])],
     )
     ebuild.push()

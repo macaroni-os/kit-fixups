@@ -44,11 +44,11 @@ async def generate(hub, **pkginfo):
 		if not len(src_data):
 			hub.pkgtools.model.log.error(f"Can't find openjdk release data for release {release}")
 			continue
-		elif "source" not in src_data[0]:
+		elif "source" not in src_data[1]:
 			hub.pkgtools.model.log.error(f"Can't find 'source' in release data for release {release}")
 			continue
-		src_artifact = src_data[0]["source"]["link"]
-		src_path = src_data[0]["release_name"]
+		src_artifact = src_data[1]["source"]["link"]
+		src_path = src_data[1]["release_name"]
 		for suffix in [ "", "-bin", "-jre-bin"]:
 			local_pkginfo["name"] = pkginfo["name"] + suffix
 			template = local_pkginfo["name"]
@@ -59,7 +59,7 @@ async def generate(hub, **pkginfo):
 				template = template + "-8"
 			local_pkginfo["template"] = template + ".tmpl"
 			if "-bin" in suffix:
-				artifacts = generate_bin_artifacts(hub,src_data[0]["binaries"],**local_pkginfo)
+				artifacts = generate_bin_artifacts(hub,src_data[1]["binaries"],**local_pkginfo)
 			if len(artifacts) == 0:
 				continue
 			ebuild = hub.pkgtools.ebuild.BreezyBuild(
@@ -71,4 +71,4 @@ async def generate(hub, **pkginfo):
 			ebuild.push()
 
 
-# vim: ts=4 sw=4 noet
+# vim: syn=python ts=4 sw=4 noet

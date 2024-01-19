@@ -81,3 +81,14 @@ openvpn_rule:
           repo: openvpn
           query: releases
 
+torproject_rule:
+  generator: dirlisting-1
+  packages:
+    - tor:
+        cat: net-vpn
+        desc: Test
+        homepage: https://torproject.org
+        dir:
+          url: https://dist.torproject.org/
+          order: asc
+          format: tar.gz

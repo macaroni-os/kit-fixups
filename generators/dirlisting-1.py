@@ -4,6 +4,7 @@
 # for any web page serving as a directory listing.
 
 
+from distutils.version import LooseVersion
 import re
 
 
@@ -63,7 +64,7 @@ async def generate(hub, **pkginfo):
 			}
 		]
 		# restrict so that only unique versions are included
-		for ver in sorted(list(set(h for h,k in releases)))
+		for ver in sorted(list(set(h for h,k in releases)), key=LooseVersion)
 	]
 
 	# Highest version is assumed to be either the first or last entry.

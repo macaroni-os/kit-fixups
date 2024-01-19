@@ -211,3 +211,19 @@ corenetwork_rule:
           user: funtoo
           repo: corenetwork
           query: tags
+
+daemontools_rule:
+  generator: github-1
+  packages:
+    - daemontools-encore:
+        cat: sys-process
+        desc: Collection of tools for managing UNIX services
+        homepage: https://untroubled.org/daemontools-encore/
+        github:
+          user: bruceg
+          repo: daemontools-encore
+          query: tags
+        patches:
+          - 1.11-implicit-func-decl-clang16.patch
+          - 1.11-use-posix-complaint-functions.patch
+

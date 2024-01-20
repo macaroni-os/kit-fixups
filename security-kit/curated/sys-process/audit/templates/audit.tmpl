@@ -44,6 +44,11 @@ src_prepare() {
 	# Disable installing sample rules so they can be installed as docs.
 	echo -e '%:\n\t:' | tee rules/Makefile.{am,in} >/dev/null || die
 
+	# Fix audit-4.0
+	sed -i \
+		-e "/^#include <sys\/types.h>/a #ifndef __attr_dealloc\n# define __attr_dealloc(dealloc, argno)\n# define __attr_dealloc_free\n#endif\n#ifndef __attribute_malloc__\n#  define __attribute_malloc__\n#endif" \
+		audisp/plugins/remote/queue.h || die
+
 	default
 	eautoreconf
 }

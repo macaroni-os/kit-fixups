@@ -1,0 +1,10 @@
+lxd:
+  generator: github-1
+  packages:
+    - lxd:
+        github:
+          user: canonical
+          repo: lxd
+          query: releases
+          tarball: lxd-{version}.tar.gz
+        version: "5.6"

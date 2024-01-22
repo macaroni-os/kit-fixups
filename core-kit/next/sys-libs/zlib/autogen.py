@@ -1,28 +1,23 @@
-#!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
 import re
 
 async def generate(hub, **pkginfo):
-	regex = r'(\d+(?:\.\d+)+)'
-	download_url = "https://zlib.net/current/"
+	download_url = "https://zlib.net"
 	html = await hub.pkgtools.fetch.get_page(download_url)
 	soup = BeautifulSoup(html, "html.parser").find_all("a")
 
-	tarball = max([(
-			Version(re.findall(regex, a.contents[0])[0]),
-			a.get('href'))
-		for a in soup if re.findall(regex, a.contents[0])
-	])
+	for link in soup:
+		href = link['href']
+		match = re.match('zlib-([0-9.]+).tar.xz$', href)
+		if match:
+			pkginfo['version'] = match.groups()[0]
+			print(pkginfo['version'])
+			tarball_url = download_url + '/' + href
+			break
 
-	artifacts = hub.pkgtools.ebuild.Artifact(url=download_url + tarball[1])
-
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**pkginfo,
-		version=tarball[0],
-		artifacts=[artifacts],
-	)
+	pkginfo['artifacts'] = [hub.Artifact(url=tarball_url)]
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
 	ebuild.push()
 
 

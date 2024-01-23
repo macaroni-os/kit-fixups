@@ -7,6 +7,34 @@
 # This ebuild requires perl[ithread], and after doing this, you will need to do a perl-cleaner --reallyall
 # to rebuild all perl modules.
 
+# I had issues with Transporter and FLAC using Tidal, where some Tidal songs would sometimes be choppy. 
+# I believe this was an issue with the FLAC encoding used by Tidal being too "high" or non-standard for
+# the Transporter. Symptoms are the spectrum analyzer getting "choppy", probably due to too much CPU
+# being used on the player.
+#
+# To fix this, I did various things, some or all are required:
+# 1. Emerged media-sound/flac which was missing, and is used by /opt/logitechmediaserver/convert.conf.
+# 2. As per https://forums.slimdevices.com/forum/user-forums/logitech-media-server/1631018-24-96-from-local-source-stuttering-24-96-radio-stream-plays-just-fine?p=1631212#post1631212 --
+#    I added the following to /opt/logitechmediaserver/convert.conf:
+#    flc flc * 00:04:20:xx:xx:xx
+# FT:{START=--skip=%t}U:{END=--until=%v}
+# [flac] -cs1 $START$ $END$ -- $FILE$
+# 3. In Server/File types, I unchecked "prefer native format", which I think is causing FLAC to go to PCM. 
+# 4. Under Player Settings -> Extra Player Settings -> Streaming Method, I changed to "Proxied Streaming."
+#
+# Now, when I stream FLAC from Tidal, the spectrum analyzer is always super-fast and it looks like the FLAC
+# is being converted to PCM directly using this line from convert.conf:
+# 
+# flc pcm * *
+#     IFT:{START=--skip=%t}U:{END=--until=%v}
+#     [flac] -dcs --force-raw-format --endian=little --sign=signed $START$ $END$ -- $FILE$
+
+# I don't know if this means we are getting resampling when we don't want. I grepped for "endian=little" which I
+# momentarily saw in the htop output when /usr/bin/flac was now being called directly.
+# But sox is not installed, so this pipeline seems to immediately fail. Hmmm. Maybe emerging flac did it,
+# or maybe the initial line did it. No, that's a mac address and I pasted it as-is, I think, so it wouldn't
+# actually apply.
+
 EAPI="7"
 
 inherit user
@@ -23,7 +51,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${PN}"
 RESTRICT="mirror"
 SLOT="0"
-IUSE="mp3 alac wavpack flac ogg aac mac freetype"
+IUSE="+mp3 +alac +wavpack +flac +ogg +aac mac freetype"
 
 PATCHES=(
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"

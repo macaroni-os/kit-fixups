@@ -530,12 +530,25 @@ item.4.link=https://bugs.funtoo.org/
 DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 
-	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-Don-t-use-build-id.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-847568-Support-system-harfbuzz.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-847568-Support-system-graphite2.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1862601-system-icu-74.patch
+    if use lto; then
+		rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch || die
+	fi
+
+	if ! use ppc64; then
+		rm -v "${WORKDIR}"/firefox-patches/*ppc64*.patch || die
+	fi
+
+	# Workaround for bgo#917599
+	if has_version ">=dev-libs/icu-74.1" && use system-icu ; then
+		eapply "${WORKDIR}"/firefox-patches/0026-bmo-1862601-system-icu-74.patch
+	fi
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1862601-system-icu-74.patch || die
+
+	# Workaround for bgo#915651 on musl
+	if use elibc_glibc ; then
+		rm -v "${WORKDIR}"/firefox-patches/*bgo-748849-RUST_TARGET_override.patch || die
+	fi
+
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Add fixes for riscv64

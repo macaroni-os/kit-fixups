@@ -1875,6 +1875,15 @@ dev_python_simplified_rule:
         blocker: '!<dev-python/pygments-2.17.0-r1'
         revision:
           2.17.0: 1
+
+    - pykerberos:
+        depend: "app-crypt/mit-krb5"
+        rdepend: '${DEPEND}'
+        du_pep517: setuptools
+        pydeps:
+          py:all:build:
+            - setuptools
+
     - m2r:
         python_compat: python3+ pypy
         compat: '0.2.1'

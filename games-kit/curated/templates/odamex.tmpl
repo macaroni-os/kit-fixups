@@ -1,0 +1,103 @@
+# Copyright 1999-2018 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+WX_GTK_VER="3.0"
+inherit cmake desktop gnome2-utils readme.gentoo-r1 wxwidgets
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="*"
+IUSE="+client master +odalaunch server upnp"
+
+RDEPEND="
+	media-libs/libpng:0=
+	media-libs/libsdl2[X,sound,joystick,video]
+	media-libs/sdl2-mixer[midi]
+	media-libs/libpng:0
+	net-misc/curl
+	sys-libs/zlib
+	odalaunch? ( x11-libs/wxGTK:${WX_GTK_VER}[X] )
+	upnp? ( >=net-libs/miniupnpc-1.8:0= )"
+DEPEND="${RDEPEND}
+	games-util/deutex"
+BDEPEND=">=dev-util/cmake-3.13"
+
+DOC_CONTENTS="
+	This is just the engine, you will need doom resource files in order to play.
+	Check: http://odamex.net/wiki/FAQ#What_data_files_are_required.3F
+"
+
+S="${WORKDIR}/${PN}-src-${PV}"
+
+src_prepare() {
+	cmake_src_prepare
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DUSE_INTREE_PORTMIDI=OFF
+		-DCMAKE_INSTALL_BINDIR="/usr/bin"
+		-DCMAKE_INSTALL_DATADIR="/usr/share"
+		-DBUILD_MASTER=$(usex master)
+		-DCMAKE_BUILD_TYPE=Release
+		-DENABLE_UPNP=$(usex upnp)
+	)
+
+	if ! use client ; then
+		if use server ; then
+			mycmakeargs+=(
+				-DBUILD_CLIENT=OFF
+				-DBUILD_ODALAUNCH=OFF
+				-DBUILD_SERVER=ON
+			)
+		else die "need to define either client or server!"
+		fi
+	elif use client ; then
+		mycmakeargs+=(
+			-DBUILD_CLIENT=ON
+			-DBUILD_ODALAUNCH=$(usex odalaunch)
+			-DBUILD_SERVER=$(usex server)
+		)
+	fi
+
+	append-cxxflags -std=c++11
+
+	cmake_src_configure
+}
+
+src_compile() {
+	cmake_src_compile
+}
+
+src_install() {
+	cmake_src_install
+	readme.gentoo_create_doc
+
+	use server && dodoc -r config-samples
+
+	if use client ; then
+		newicon -s 128 "${S}/media/icon_${PN}_128.png" "${PN}.png"
+		make_desktop_entry ${PN}
+
+		if use odalaunch ; then
+			newicon -s 128 "${S}/media/icon_odalaunch_128.png" "odalaunch.png"
+			make_desktop_entry odalaunch "Odamex Launcher" odalaunch
+		fi
+	fi
+}
+
+pkg_postinst() {
+	gnome2_icon_cache_update
+	readme.gentoo_print_elog
+}
+
+pkg_postrm() {
+	gnome2_icon_cache_update
+}
+# vim: ts=4 noet syn=ebuild

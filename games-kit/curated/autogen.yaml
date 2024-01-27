@@ -1,3 +1,4 @@
+doom_github_rule:
 freeciv_rule:
   generator: dirlisting-1
   packages:
@@ -29,3 +30,79 @@ gzdoom_rule:
           user: ZDoom
           repo: ZMusic
           query: releases
+    - doomrunner:
+        cat: games-util
+        desc: Preset-oriented graphical launcher of various ported Doom engines (an alternative to ZDL)
+        homepage: https://github.com/Youda008/DoomRunner
+        github:
+          user: Youda008
+          repo: DoomRunner
+          query: releases
+    - deutex:
+        cat: games-util
+        desc: A wad composer for Doom, Heretic, Hexen and Strife
+        homepage: http://www.teaser.fr/~amajorel/deutex/
+        github:
+          user: Doom-Utils
+          repo: deutex
+          query: releases
+    - odamex:
+        cat: games-engines
+        desc: Online multiplayer, free software engine for Doom and Doom II
+        homepage: https://odamex.net/
+        tarball: odamex-src-{version}.tar.xz
+        github:
+          user: odamex
+          repo: odamex
+          query: releases
+    - freedoom:
+        cat: games-fps
+        desc: A complete free-content single-player focused game based on the Doom engine
+        homepage: https://freedoom.github.io
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+    - freedoom-data:
+        cat: games-fps
+        desc: 'Game resources for Freedoom: Phase 1+2'
+        homepage: https://freedoom.github.io
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+    - freedm:
+        cat: games-fps
+        desc: A 32-level game designed for competitive deathmatch play.
+        homepage: https://freedoom.github.io
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+    - freedm-data:
+        cat: games-fps
+        desc: Game resources for FreeDM
+        homepage: https://freedoom.github.io
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+
+
+doom_wads_rule:
+  generator: simple
+  defaults:
+    cat: games-fps
+  packages:
+    - eviternity:
+        desc: Eviternity is a megawad comprised of six 5-map episodes (called Chapters) plus two secret maps, created as a 25th birthday gift to Doom.
+        homepage: https://www.doomworld.com/idgames/levels/doom2/Ports/megawads/eviternity
+        src_uri: https://youfailit.net/pub/idgames/levels/doom2/Ports/megawads/eviternity.zip
+        version: 1.0
+        wad: Eviternity.wad
+    - eviternity-ii:
+        desc: Eviternity II is a full 36-map megawad sequel to Eviternity; comprised of six 5-map Chapters, each with an additional secret level; it was created as a 30th birthday gift to Doom.
+        homepage: https://eviternity.dfdoom.com/
+        src_uri: https://eviternity-dl-us.dfdoom.com/Eviternity-II.zip
+        version: 1.0_rc5
+        wad: 'Eviternity II RC5.wad'

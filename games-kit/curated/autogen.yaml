@@ -105,3 +105,39 @@ doom_wads_rule:
         src_uri: https://eviternity-dl-us.dfdoom.com/Eviternity-II.zip
         version: 1.0_rc5
         wad: 'Eviternity II RC5.wad'
+
+mumethings_rule:
+  generator: github-1
+  defaults:
+    cat: games-mud
+  packages:
+    - mmapper:
+        desc: 🧙‍♂️ MMapper is a graphical MUD client for the game MUME (Multi-Users in Middle-earth)
+        homepage: https://mume.github.io/MMapper/
+        github:
+          user: MUME
+          repo: MMapper
+          query: releases
+    - powwow:
+        desc: PowWow Console MUD Client
+        homepage: https://www.hoopajoo.net/projects/powwow.html
+        patches:
+          - 1.2.22-linking.patch
+        github:
+          user: MUME
+          repo: powwow
+          query: releases
+    - mudlet:
+        desc:  ⚔️ A cross-platform, open source, and super fast MUD client with scripting in Lua
+        homepage: https://www.mudlet.org https://github.com/Mudlet/Mudlet
+        github:
+          user: Mudlet
+          repo: Mudlet
+          query: releases
+    - tintin:
+        desc: (T)he k(I)cki(N) (T)ickin d(I)kumud clie(N)t
+        homepage: https://tintin.mudhalla.net
+        github:
+          user: scandum
+          repo: tintin
+          query: releases

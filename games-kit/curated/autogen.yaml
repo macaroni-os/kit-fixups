@@ -10,6 +10,21 @@ freeciv_rule:
           format: tar.xz
           order: asc
 
+endless-sky_rule:
+  generator: github-1
+  packages:
+    - endless-sky:
+        cat: games-strategy
+        desc: Space exploration, trading & combat in the tradition of Terminal Velocity
+        homepage: https://endless-sky.github.io
+        github:
+          user: endless-sky
+          repo: endless-sky
+          query: releases
+        patches:
+          - 0.9.16.1-respect-cflags.patch
+          - 0.9.14-no-games-path.patch
+
 doom_github_rule:
   generator: github-1
   packages:

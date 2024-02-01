@@ -1,4 +1,3 @@
-# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,25 +12,46 @@ SRC_URI="{{ src_uri }}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+client master +odalaunch server upnp"
+IUSE="+client hidpi master +odalaunch server upnp X"
+REQUIRED_USE="|| ( client master server )"
+
+# protobuf is still bundled. Unfortunately an old version is required for C++98
+# compatibility. We could use C++11, but upstream is concerned about using a
+# completely different protobuf version on a multiplayer-focused engine.
 
 RDEPEND="
-	media-libs/libpng:0=
-	media-libs/libsdl2[X,sound,joystick,video]
-	media-libs/sdl2-mixer[midi]
-	media-libs/libpng:0
 	net-misc/curl
 	sys-libs/zlib
+	client? (
+		media-libs/libpng:0=
+		media-libs/libsdl2[joystick,sound,video]
+		media-libs/sdl2-mixer[midi,timidity]
+		net-misc/curl
+		!hidpi? ( x11-libs/fltk:1 )
+		X? ( x11-libs/libX11 )
+	)
 	odalaunch? ( x11-libs/wxGTK:${WX_GTK_VER}[X] )
-	upnp? ( >=net-libs/miniupnpc-1.8:0= )"
-DEPEND="${RDEPEND}
+	server? (
+		dev-libs/jsoncpp:=
+		upnp? ( net-libs/miniupnpc:= )
+	)"
+DEPEND="${RDEPEND}"
+BDEPEND="
+	>=dev-util/cmake-3.13
 	games-util/deutex"
-BDEPEND=">=dev-util/cmake-3.13"
 
 DOC_CONTENTS="
 	This is just the engine, you will need doom resource files in order to play.
 	Check: http://odamex.net/wiki/FAQ#What_data_files_are_required.3F
 "
+
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"${FILESDIR}"/"${PN}-{{ patch }}"
+{%- endfor %}
+)
+{%- endif %}
 
 S="${WORKDIR}/${PN}-src-${PV}"
 
@@ -41,30 +61,18 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
-		-DUSE_INTREE_PORTMIDI=OFF
-		-DCMAKE_INSTALL_BINDIR="/usr/bin"
-		-DCMAKE_INSTALL_DATADIR="/usr/share"
+		-DUSE_INTERNAL_FLTK=$(usex hidpi)
+		-DUSE_INTERNAL_JSONCPP=0
+		-DUSE_INTERNAL_LIBS=0
+		-DUSE_INTERNAL_MINIUPNP=0
+		-DBUILD_CLIENT=$(usex client)
+		-DBUILD_LAUNCHER=$(usex odalaunch)
 		-DBUILD_MASTER=$(usex master)
-		-DCMAKE_BUILD_TYPE=Release
-		-DENABLE_UPNP=$(usex upnp)
+		-DBUILD_SERVER=$(usex server)
+		-DBUILD_OR_FAIL=1
+		-DENABLE_PORTMIDI=NO
+		-DUSE_MINIUPNP=$(usex upnp)
 	)
-
-	if ! use client ; then
-		if use server ; then
-			mycmakeargs+=(
-				-DBUILD_CLIENT=OFF
-				-DBUILD_ODALAUNCH=OFF
-				-DBUILD_SERVER=ON
-			)
-		else die "need to define either client or server!"
-		fi
-	elif use client ; then
-		mycmakeargs+=(
-			-DBUILD_CLIENT=ON
-			-DBUILD_ODALAUNCH=$(usex odalaunch)
-			-DBUILD_SERVER=$(usex server)
-		)
-	fi
 
 	append-cxxflags -std=c++11
 
@@ -79,14 +87,16 @@ src_install() {
 	cmake_src_install
 	readme.gentoo_create_doc
 
-	use server && dodoc -r config-samples
-
 	if use client ; then
-		newicon -s 128 "${S}/media/icon_${PN}_128.png" "${PN}.png"
-		make_desktop_entry ${PN}
+		for size in 96 128 256 512; do
+			newicon -s ${size} "${S}/media/icon_${PN}_${size}.png" "${PN}.png"
+		done
+		make_desktop_entry "${PN}" "Odamex"
 
 		if use odalaunch ; then
-			newicon -s 128 "${S}/media/icon_odalaunch_128.png" "odalaunch.png"
+			for size in 96 128 256 512; do
+				newicon -s ${size} "${S}/media/icon_odalaunch_${size}.png" "odalaunch.png"
+			done
 			make_desktop_entry odalaunch "Odamex Launcher" odalaunch
 		fi
 	fi

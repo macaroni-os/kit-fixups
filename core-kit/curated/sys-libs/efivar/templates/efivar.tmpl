@@ -32,12 +32,7 @@ post_src_unpack() {
 }
 
 src_prepare() {
-	local PATCHES=(
-		"${FILESDIR}"/efivar-38-ia64-relro.patch
-		"${FILESDIR}"/efivar-38-march-native.patch
-		"${FILESDIR}"/efivar-38-Makefile-dep.patch
-		"${FILESDIR}"/efivar-38-binutils-2.36.patch
-	)
+	sed -i 's@-DEFIVAR_BUILD_ENVIRONMENT $(HOST_MARCH)@-DEFIVAR_BUILD_ENVIRONMENT@' src/include/defaults.mk  || die
 	default
 }
 

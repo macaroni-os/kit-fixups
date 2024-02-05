@@ -5,8 +5,10 @@ import json
 
 async def generate(hub, **pkginfo):
 	supported_branches = [
+		"2.9",
+		"2.8",
+		"2.7",
 		"2.6",
-		"2.5",
 		"2.4",
 	]
 

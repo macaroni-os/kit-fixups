@@ -42,6 +42,7 @@ CDEPEND="
 DEPEND="
 	${CDEPEND}
 	dev-python/docutils
+	dev-libs/libnl:3=
 "
 
 RDEPEND="${CDEPEND}
@@ -161,3 +162,5 @@ pkg_postinst() {
 		einfo "plugins have been installed into /usr/$(get_libdir)/${PN}/plugins"
 	fi
 }
+
+# vim: noet ts=4 syn=ebuild

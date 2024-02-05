@@ -2549,6 +2549,7 @@ dev_python_autogen_rule:
         pypi_name: Cycler
     - kiwisolver
 
+
 stuff_from_next:
   defaults:
     python_compat: python2+ pypy3 pypy
@@ -2572,3 +2573,38 @@ stuff_from_next:
 
             distutils-r1_src_prepare
           }
+
+dev_python_pillow_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - pillow:
+        python_compat: python3+
+        desc: Python Imaging Library (fork)
+        homepage: https://python-pillow.org/
+        license: HPND
+        iuse: 'examples imagequant +jpeg jpeg2k lcms test tiff tk truetype webp xcb zlib'
+        depend: |
+          imagequant? ( media-gfx/libimagequant )
+          jpeg? ( media-libs/libjpeg-turbo )
+          jpeg2k? ( media-libs/openjpeg )
+          lcms? ( media-libs/lcms )
+          tiff? ( media-libs/tiff )
+          truetype? ( media-libs/freetype )
+          webp? ( media-libs/libwebp )
+          xcb? ( x11-libs/libxcb )
+          zlib? ( sys-libs/zlib )
+        pydeps:
+          py:all:
+            - olefile
+    - olefile:
+        python_compat: python3+
+        desc: Python package to parse, read and write Microsoft OLE2 files
+        homepage: |
+          https://www.decalage.info/olefile/
+          https://github.com/decalage2/olefile/
+          https://pypi.org/project/olefile/
+        license: BSD-2
+

@@ -35,14 +35,12 @@ CDEPEND="
 	pam? ( sys-libs/pam )
 	pkcs11? ( >=dev-libs/pkcs11-helper-1.11 )
 	dev-python/docutils
+	dev-libs/libnl:3=
 "
-
-
 
 DEPEND="
 	${CDEPEND}
 	dev-python/docutils
-	dev-libs/libnl:3=
 "
 
 RDEPEND="${CDEPEND}

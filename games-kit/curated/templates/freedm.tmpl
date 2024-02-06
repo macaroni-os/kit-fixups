@@ -12,7 +12,7 @@ KEYWORDS="*"
 RDEPEND="
 	=games-fps/freedm-data-${PV}
 	|| (
-		games-fps/gzdoom
+		games-engines/gzdoom
 		games-engines/odamex
 		games-fps/doomsday
 	)

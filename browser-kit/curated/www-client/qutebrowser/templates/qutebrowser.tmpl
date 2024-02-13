@@ -50,7 +50,7 @@ python_compile_all() {
 python_install_all() {
 	doman doc/${PN}.1
 	domenu misc/org.${PN}.${PN}.desktop
-	doicon -s scalable icons/${PN}.svg
+	doicon -s scalable qutebrowser/icons/${PN}.svg
 
 	if use scripts; then
 		insinto /usr/share/qutebrowser/userscripts/

@@ -1397,7 +1397,7 @@ simple_python_autogen_rule:
           }
     - m2crypto:
         pypi_name: M2Crypto
-        python_compat: python2+ pypy3
+        python_compat: python3+ pypy3
         inherit:
           - toolchain-funcs
         desc: A Python crypto and SSL toolkit
@@ -1430,7 +1430,7 @@ simple_python_autogen_rule:
             # https://bugs.gentoo.org/674112
             swig_define __ARM_PCS_VFP
 
-            distutils-r1_python_compile --openssl="${ESYSROOT}"/usr
+            distutils-r1_python_compile
           }
           python_test() {
             esetup.py test

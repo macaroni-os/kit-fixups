@@ -14,6 +14,10 @@
 # private_token = <YOUR-TOKEN>
 # api_version = 4
 #
+# Attention: It seems that the name of the server must be equal to existing
+#            domain to work correctly. So, for Freedesktop:
+#            [gitlab.freedesktop.org]
+#
 # The YAML syntax is pretty similar to github generator with the additional
 # definition of the server to use.
 #
@@ -24,10 +28,10 @@
 #  packages:
 #    - solarus:
 #         gitlab:
-#         user: solarus-games
-#         repo: solarus
-#         server: "gitlab.com"
-#         query: tags
+#           user: solarus-games
+#           repo: solarus
+#           server: "gitlab.com"
+#           query: tags
 #
 # Additional options.
 # - query_parameters: through this param could be defined additional dictionary
@@ -37,6 +41,13 @@
 #                       per_page: 200
 # - sources_format: Define the format of the sources to use. Default is .tar.bz2.
 #                   This field is used on releases to retrieve the source url by format.
+#
+# - tag_prefix: In order to remove string prefix from tag name and retrieve the
+#               version, it's possible to define a prefix string used to drop a specific
+#               prefix. For example: tag xorg-server-21.1.11 could be sanitized with
+#
+#               gitlab:
+#                 tag_prefix: "xorg-server-"
 #
 # TODO:
 # - for binaries packages could be good to uses the assets.links with the different packages
@@ -99,6 +110,21 @@ def create_transform(transform_data):
 		return tag
 	return transform_lambda
 
+async def sanitize_version(tag_version, gitlab_repo, gitlab_tagprefix):
+	# We need drop the repo name from the version.
+	# For example the tags of the xorg-server are in the format
+	# xorg-server-<version>.
+	if tag_version.startswith(gitlab_repo):
+		tag_version = tag_version[len(gitlab_repo):]
+	if gitlab_tagprefix and tag_version.startswith(gitlab_tagprefix):
+		tag_version = tag_version[len(gitlab_tagprefix):]
+
+	if tag_version.startswith("v"):
+		version = tag_version[1:]
+	else:
+		version = tag_version
+
+	return version
 
 async def final_generate(project, hub, **pkginfo):
 	if "extensions" in pkginfo:
@@ -122,7 +148,7 @@ async def release_gen(project, hub, extra_args, **pkginfo):
 	if "query_parameters" in pkginfo["gitlab"]:
 		qparams = pkginfo["gitlab"]["query_parameters"]
 
-	releases = project.releases.list(query_parameters=qparams)
+	releases = project.releases.list(query_parameters=qparams, iterator=True)
 
 	# NOTE: the releases by default are returned in desc order
 
@@ -151,13 +177,11 @@ async def release_gen(project, hub, extra_args, **pkginfo):
 		gitlab_user = pkginfo["gitlab_user"]
 		gitlab_repo = pkginfo["gitlab_repo"]
 		gitlab_server = pkginfo["gitlab_server"]
+		gitlab_tagprefix = pkginfo["gitlab_tag_prefix"] if "gitlab_tag_prefix" in pkginfo else None
 
 		# TODO: The version parsing must be reviewed to support filters.
 		release_version = found_version.name
-		if release_version.startswith("v"):
-			version = found_version.name[1:]
-		else:
-			version = found_version.name
+		version = await sanitize_version(release_version, gitlab_repo, gitlab_tagprefix)
 
 		sha = found_version.commit["id"]
 
@@ -198,17 +222,16 @@ async def tag_gen(project, hub, extra_args, **pkginfo):
 	if "query_parameters" in pkginfo["gitlab"]:
 		qparams = pkginfo["gitlab"]["query_parameters"]
 	
-	tags = project.tags.list(query_parameters=qparams)
+	tags = project.tags.list(query_parameters=qparams, iterator=True)
 
 	# NOTE: the tags by default are returned in desc order
 
 	found_version = None
-
 	for tag in tags:
 		if "matcher" in extra_args:
 
 			match = extra_args["matcher"].match(
-				tag["name"],
+				tag.name,
 				select=pkginfo["gitlab"]["select"] if "select" in pkginfo["gitlab"] else None,
 				filter=pkginfo["gitlab"]["filter"] if "filter" in pkginfo["gitlab"] else None
 			)
@@ -227,25 +250,22 @@ async def tag_gen(project, hub, extra_args, **pkginfo):
 		gitlab_user = pkginfo["gitlab_user"]
 		gitlab_repo = pkginfo["gitlab_repo"]
 		gitlab_server = pkginfo["gitlab_server"]
+		gitlab_tagprefix = pkginfo["gitlab_tag_prefix"] if "gitlab_tag_prefix" in pkginfo else None
 		project_id = project.id
 		sha = found_version.target
 
 		# TODO: The version parsing must be reviewed to support filters.
-		tag_version = found_version.name
-		if tag_version.startswith("v"):
-			version = found_version.name[1:]
-		else:
-			version = found_version.name
+		version = await sanitize_version(found_version.name, gitlab_repo, gitlab_tagprefix)
 
 		# Alternative way
-		# url = f"https://{gitlab_server}/{gitlab_user}/{gitlab_rep}/-/archive/{tag_version}/{gitlab_repo}-{tag_version}.tar.bz2"
+		# url = f"https://{gitlab_server}/{gitlab_user}/{gitlab_repo}/-/archive/{tag_version}/{gitlab_repo}-{tag_version}.tar.bz2"
 		url = f"https://{gitlab_server}/api/v4/projects/{project_id}/repository/archive.tar.bz2?sha={sha}"
 		return {
 			"version": version,
 			"artifacts": [hub.pkgtools.ebuild.Artifact(
 					url=url, final_name=f'{gitlab_repo}-{version}-{sha[:7]}.tar.bz2')],
 			"sha": sha,
-			"tag": tag_version,
+			"tag": found_version.name,
 		}
 
 	else:
@@ -255,7 +275,7 @@ async def generate(hub, **pkginfo):
 	# migrate keys inside "gitlab:" element to "gitlab_foo":
 	if "gitlab" not in pkginfo:
 		pkginfo["gitlab"] = {}
-	for key in ["user", "repo", "server"]:
+	for key in ["user", "repo", "server", "tag_prefix"]:
 		if f"gitlab_{key}" not in pkginfo:
 			if "gitlab" in pkginfo and key in pkginfo["gitlab"]:
 				pkginfo[f"gitlab_{key}"] = pkginfo["gitlab"][key]

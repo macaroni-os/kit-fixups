@@ -1,0 +1,11 @@
+dbench_rule:
+  generator: dirlisting-1
+  packages:
+    - dbench:
+        cat: app-benchmarks
+        desc: Popular filesystem benchmark
+        homepage: https://dbench.samba.org/web/index.html https://www.samba.org/ftp/tridge/dbench/
+        dir:
+          url: https://www.samba.org/ftp/tridge/dbench/
+          order: asc
+          format: tar.gz

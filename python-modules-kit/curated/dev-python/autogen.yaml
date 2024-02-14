@@ -2387,6 +2387,18 @@ pep517_compliance_rule:
               sys.exit(main())
             EOF
           }
+    - pycups:
+        du_pep517: setuptools
+        iuse: examples
+        rdepend: 'net-print/cups'
+        body: |
+          python_install_all() {
+            distutils-r1_python_install_all
+            if use examples; then
+              dodoc -r examples
+              docompress -x /usr/share/doc/${PF}
+            fi
+          }
     # This is a hard-coded ebuild for now... See FL-10181:
     # - installer:
     - maturin:

@@ -1273,6 +1273,17 @@ simple_python_autogen_rule:
           https://github.com/PyCQA/pyflakes
           https://pypi.org/project/pyflakes/
         license: MIT
+    - pysol_cards:
+        python_compat: python3+
+        desc: Deal PySol FreeCell cards
+        homepage: |
+          https://github.com/shlomif/pysol_cards/
+          https://pypi.org/project/pysol-cards/
+        license: MIT
+        pydeps:
+          py:all:
+            - random2
+            - six
     - pylint:
         desc: Python code static checker
         license: GPL-2

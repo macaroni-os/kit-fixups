@@ -50,6 +50,11 @@ PDEPEND="x11-misc/xsel"
 
 RESTRICT="!test? ( test )"
 
+PATCHES=(
+	# https://bazaar.launchpad.net/~keepassxc-team/keepassxc/2.8/revision/2387
+	"${FILESDIR}/2387_2386.diff"
+)
+
 src_prepare() {
 	use test || sed -e "/^find_package(Qt5Test/d" -i CMakeLists.txt || die
 	cmake_src_prepare

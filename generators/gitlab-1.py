@@ -114,10 +114,13 @@ async def sanitize_version(tag_version, gitlab_repo, gitlab_tagprefix):
 	# We need drop the repo name from the version.
 	# For example the tags of the xorg-server are in the format
 	# xorg-server-<version>.
-	if tag_version.startswith(gitlab_repo):
-		tag_version = tag_version[len(gitlab_repo):]
 	if gitlab_tagprefix and tag_version.startswith(gitlab_tagprefix):
 		tag_version = tag_version[len(gitlab_tagprefix):]
+	if tag_version.startswith(gitlab_repo):
+		if tag_version.startswith(gitlab_repo+"-"):
+			tag_version = tag_version[len(gitlab_repo)+1:]
+		else:
+			tag_version = tag_version[len(gitlab_repo):]
 
 	if tag_version.startswith("v"):
 		version = tag_version[1:]
@@ -187,9 +190,11 @@ async def release_gen(project, hub, extra_args, **pkginfo):
 
 		assets = found_version.assets
 
-		gitlab_sources_format = pkginfo["sources_format"] if "sources_format" in pkginfo else "tar.bz2"
+		gitlab_sources_format = pkginfo["gitlab"]["sources_format"] if "sources_format" in pkginfo["gitlab"] else "tar.bz2"
 
 		sources = None
+		# TODO: The downloads urls are also under found_version["assets"]["links"]
+		#       we can define a property for this.
 		for u in assets["sources"]:
 			if u["format"] == gitlab_sources_format:
 				sources = u["url"]
@@ -280,7 +285,8 @@ async def generate(hub, **pkginfo):
 			if "gitlab" in pkginfo and key in pkginfo["gitlab"]:
 				pkginfo[f"gitlab_{key}"] = pkginfo["gitlab"][key]
 			else:
-				pkginfo[f"gitlab_{key}"] = pkginfo["name"]
+				if key == "user" or key == "repo":
+					pkginfo[f"gitlab_{key}"] = pkginfo["name"]
 
 	# promote "match" and "select" in pkginfo into github element, so we support both inside and outside
 	# this element for these keys:

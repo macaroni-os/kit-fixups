@@ -123,10 +123,13 @@ src_install() {
 	use postgres && dodoc doc/pgsql-*.sql
 	use sqlite && dodoc doc/sqlite3.table
 
+	# change the default config to one that works
+	# install upstream's config as a sample
+	mv ${PN}.conf{,.example}
 	insinto /etc
-	doins ${PN}.conf
-	fowners root:ulogd /etc/${PN}.conf
-	fperms 640 /etc/${PN}.conf
+	doins ${FILESDIR}/${PN}.conf ${PN}.conf.example
+	fowners root:ulogd /etc/${PN}.conf{,.example}
+	fperms 640 /etc/${PN}.conf{,.example}
 
 	newinitd "${FILESDIR}/${PN}.init" ${PN}
 

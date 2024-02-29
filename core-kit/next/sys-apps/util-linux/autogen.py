@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-
+import re
 
 async def generate(hub, **pkginfo):
 	python_compat="python3+"
@@ -11,9 +11,8 @@ async def generate(hub, **pkginfo):
 	best_archive = None
 	for link in soup.find_all("a"):
 		href = link.get("href")
-		if "-rc" in href:
-			continue
-		if href.endswith(".tar.gz"):
+		fn = href.split("/")[-1]
+		if re.match('util-linux-[0-9.]+\.tar', fn):
 			best_archive = href
 			break
 	version = best_archive.split(".tar")[0].split("-")[-1]

@@ -491,6 +491,11 @@ dev_python_compat_rule:
           - webcolors >= 1.11
           - strict-rfc3339
           - importlib_resources
+    - oauthlib:
+        pydeps:
+          - pyjwt
+          - blinker
+          - cryptography
     - openpyxl:
         compat: '2.6.4'
         blocker: '!<dev-python/openpyxl-3'

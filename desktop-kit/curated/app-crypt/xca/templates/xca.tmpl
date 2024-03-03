@@ -18,6 +18,7 @@ RDEPEND="
 	dev-qt/qthelp:5
 	dev-qt/qtgui:5
 	dev-qt/qtsql:5[sqlite]
+	dev-qt/qttest:5
 	dev-qt/qtwidgets:5
 	>=dev-libs/openssl-1.1.0:=
 	doc? ( app-text/linuxdoc-tools )"

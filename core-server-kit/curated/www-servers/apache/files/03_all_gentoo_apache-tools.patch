@@ -1,0 +1,37 @@
+diff -r 9f2b4ed7b436 support/Makefile.in
+--- a/support/Makefile.in	Mon Mar 05 10:48:08 2012 +0200
++++ b/support/Makefile.in	Mon Mar 05 11:11:50 2012 +0200
+@@ -1,5 +1,5 @@
+ DISTCLEAN_TARGETS = apxs apachectl dbmmanage log_server_status \
+-	logresolve.pl phf_abuse_log.cgi split-logfile envvars-std
++	logresolve.pl phf_abuse_log.cgi split-logfile 
+ 
+ CLEAN_TARGETS = suexec
+ 
+@@ -16,25 +16,12 @@
+ 	@test -d $(DESTDIR)$(bindir) || $(MKINSTALLDIRS) $(DESTDIR)$(bindir)
+ 	@test -d $(DESTDIR)$(sbindir) || $(MKINSTALLDIRS) $(DESTDIR)$(sbindir)
+ 	@test -d $(DESTDIR)$(libexecdir) || $(MKINSTALLDIRS) $(DESTDIR)$(libexecdir)
+-	@cp -p $(top_builddir)/server/httpd.exp $(DESTDIR)$(libexecdir)
+-	@for i in apxs dbmmanage; do \
+-	    if test -f "$(builddir)/$$i"; then \
+-	        cp -p $$i $(DESTDIR)$(bindir); \
+-	        chmod 755 $(DESTDIR)$(bindir)/$$i; \
+-	    fi ; \
+-	done
+-	@for i in apachectl; do \
++	@for i in ; do \
+ 	    if test -f "$(builddir)/$$i"; then \
+ 	        cp -p $$i $(DESTDIR)$(sbindir); \
+ 	        chmod 755 $(DESTDIR)$(sbindir)/$$i; \
+ 	    fi ; \
+ 	done
+-	@if test -f "$(builddir)/envvars-std"; then \
+-	    cp -p envvars-std $(DESTDIR)$(sbindir); \
+-	    if test ! -f $(DESTDIR)$(sbindir)/envvars; then \
+-	        cp -p envvars-std $(DESTDIR)$(sbindir)/envvars ; \
+-	    fi ; \
+-	fi
+ 
+ htpasswd_OBJECTS = htpasswd.lo
+ htpasswd: $(htpasswd_OBJECTS)

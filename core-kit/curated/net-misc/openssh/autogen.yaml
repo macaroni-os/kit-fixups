@@ -1,0 +1,23 @@
+openssh:
+  generator: github-1
+  packages:
+    - openssh:
+        github:
+          user: openssh
+          repo: openssh-portable
+          query: tags
+          transform:
+            - kind: string
+              match: 'P'
+              replace: 'p'
+            - kind: string
+              match: 'V_'
+              replace: ''
+            - kind: string
+              match: '_'
+              replace: '.'
+            - kind: string
+              match: '.p'
+              replace: '_p'
+          select: '\d+\.\d+(?:\.\d+)?_p\d+'
+

@@ -10,8 +10,8 @@ PARCH=${P/_}
 
 DESCRIPTION="Port of OpenBSD's free SSH release"
 HOMEPAGE="https://www.openssh.com/"
-SRC_URI="https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/${PARCH}.tar.gz"
-S="${WORKDIR}/${PARCH}"
+SRC_URI="{{ src_uri }}"
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 LICENSE="BSD GPL-2"
 SLOT="0"
@@ -56,16 +56,6 @@ BDEPEND="
 	sys-devel/autoconf
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-9.3_p1-GSSAPI-dns.patch" #165444 integrated into gsskex
-	"${FILESDIR}/${PN}-9.3_p1-openssl-ignore-status.patch"
-	"${FILESDIR}/${PN}-9.3_p1-disable-conch-interop-tests.patch"
-	"${FILESDIR}/${PN}-9.3_p1-fix-putty-tests.patch"
-	"${FILESDIR}/${PN}-9.3_p1-deny-shmget-shmat-shmdt-in-preauth-privsep-child.patch"
-	"${FILESDIR}/${PN}-9.3_p1-gss-use-HOST_NAME_MAX.patch" #834044
-	"${FILESDIR}/${PN}-9.3_p1-openssl-version-compat-check.patch"
-)
-
 src_prepare() {
 	sed -i \
 		-e "/_PATH_XAUTH/s:/usr/X11R6/bin/xauth:${EPREFIX}/usr/bin/xauth:" \
@@ -73,8 +63,6 @@ src_prepare() {
 
 	# don't break .ssh/authorized_keys2 for fun
 	sed -i '/^AuthorizedKeysFile/s:^:#:' sshd_config || die
-
-	eapply -- "${PATCHES[@]}"
 
 	[[ -d ${WORKDIR}/patches ]] && eapply "${WORKDIR}"/patches
 
@@ -90,12 +78,6 @@ src_prepare() {
 		# Disable fortify flags ... our gcc does this for us
 		-e 's:-D_FORTIFY_SOURCE=2::'
 	)
-
-	# _XOPEN_SOURCE causes header conflicts on Solaris
-	[[ ${CHOST} == *-solaris* ]] && sed_args+=(
-		-e 's/-D_XOPEN_SOURCE//'
-	)
-	sed -i "${sed_args[@]}" configure{.ac,} || die
 
 	eautoreconf
 }
@@ -223,7 +205,7 @@ src_install() {
 	tweak_ssh_configs
 
 	doman contrib/ssh-copy-id.1
-	dodoc ChangeLog CREDITS OVERVIEW README* TODO sshd_config
+	dodoc CREDITS OVERVIEW README* TODO sshd_config
 
 	diropts -m 0700
 	dodir /etc/skel/.ssh

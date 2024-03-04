@@ -1,2 +1,7 @@
 # Required by media-gfx/gimp
 media-libs/gegl cairo
+app-text/poppler cairo
+
+# Required by media-sound/cantata, to ease conflict with default
+# inherited from mediadevice-base mix-in
+media-sound/cantata -cdda -cddb -cdio

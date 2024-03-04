@@ -491,6 +491,11 @@ dev_python_compat_rule:
           - webcolors >= 1.11
           - strict-rfc3339
           - importlib_resources
+    - oauthlib:
+        pydeps:
+          - pyjwt
+          - blinker
+          - cryptography
     - openpyxl:
         compat: '2.6.4'
         blocker: '!<dev-python/openpyxl-3'
@@ -1273,6 +1278,17 @@ simple_python_autogen_rule:
           https://github.com/PyCQA/pyflakes
           https://pypi.org/project/pyflakes/
         license: MIT
+    - pysol_cards:
+        python_compat: python3+
+        desc: Deal PySol FreeCell cards
+        homepage: |
+          https://github.com/shlomif/pysol_cards/
+          https://pypi.org/project/pysol-cards/
+        license: MIT
+        pydeps:
+          py:all:
+            - random2
+            - six
     - pylint:
         desc: Python code static checker
         license: GPL-2
@@ -1397,7 +1413,7 @@ simple_python_autogen_rule:
           }
     - m2crypto:
         pypi_name: M2Crypto
-        python_compat: python2+ pypy3
+        python_compat: python3+ pypy3
         inherit:
           - toolchain-funcs
         desc: A Python crypto and SSL toolkit
@@ -1430,7 +1446,7 @@ simple_python_autogen_rule:
             # https://bugs.gentoo.org/674112
             swig_define __ARM_PCS_VFP
 
-            distutils-r1_python_compile --openssl="${ESYSROOT}"/usr
+            distutils-r1_python_compile
           }
           python_test() {
             esetup.py test
@@ -2167,10 +2183,11 @@ sphinx_and_friends:
   generator: pypi-compat-1
   packages:
     - alabaster:
-        du_setuptools: rdepend
+        du_pep517: flit
         compat: 0.7.9
         revision:
           0.7.13: 1
+          0.7.16: 1
         blocker: '!<=dev-python/alabaster-0.7.13'
     - sphinx:
         du_pep517: flit
@@ -2387,6 +2404,18 @@ pep517_compliance_rule:
               sys.exit(main())
             EOF
           }
+    - pycups:
+        du_pep517: setuptools
+        iuse: examples
+        rdepend: 'net-print/cups'
+        body: |
+          python_install_all() {
+            distutils-r1_python_install_all
+            if use examples; then
+              dodoc -r examples
+              docompress -x /usr/share/doc/${PF}
+            fi
+          }
     # This is a hard-coded ebuild for now... See FL-10181:
     # - installer:
     - maturin:
@@ -2399,6 +2428,30 @@ pep517_compliance_rule:
           py:all:build:
             setuptools-rust
 
+
+replace_old_stuff_rule:
+  generator: pypi-compat-1
+  packages:
+    - asgiref:
+        pydeps:
+          - typing-extensions >= 4
+    - blinker
+    - click 
+    - flask:
+        pydeps:
+          py:all:
+            - werkzeug >= 3.0.0
+            - jinja2 > 3.1.2
+            - itsdangerous >= 2.1.2
+            - click >= 8.1.3
+            - blinker >= 1.6.2
+            - asgiref >= 3.2
+            - python-dotenv
+          py:3.9:
+            - importlib-metadata >= 3.6.0
+    - werkzeug:
+        pydeps:
+          - markupsafe >= 2.1.1
 
 dev_python_autogen_rule:
   defaults:
@@ -2417,12 +2470,8 @@ dev_python_autogen_rule:
         pypi_name: backports.functools-lru-cache
     - bitarray:
         python_compat: python2+ pypy3
-    - blinker:
-        python_compat: python2+ pypy3
     - cffi:
         python_compat: python2+ pypy{,3}
-    - click:
-        python_compat: python3+ pypy3
     - cloudflare
     - daemonize:
         python_compat: python2+ pypy3
@@ -2431,8 +2480,6 @@ dev_python_autogen_rule:
     - dns-lexicon
     - feedgenerator:
         python_compat: python2+ pypy{,3}
-    - flask:
-        python_comapt: python2+ pypy3
     - flask-jwt:
         python_compat: python2+ pypy{,3}
     - h5py:
@@ -2498,9 +2545,6 @@ dev_python_autogen_rule:
         python_compat: python2+ pypy{,3}
     - wcwidth:
         python_compat: python2+ pypy3
-    - werkzeug:
-        version: 2.2.3
-        python_compat: python3+ pypy3
     - wstools:
         python_compat: python2+
     - yarl
@@ -2549,6 +2593,7 @@ dev_python_autogen_rule:
         pypi_name: Cycler
     - kiwisolver
 
+
 stuff_from_next:
   defaults:
     python_compat: python2+ pypy3 pypy
@@ -2572,3 +2617,38 @@ stuff_from_next:
 
             distutils-r1_src_prepare
           }
+
+dev_python_pillow_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-compat-1
+  packages:
+    - pillow:
+        python_compat: python3+
+        desc: Python Imaging Library (fork)
+        homepage: https://python-pillow.org/
+        license: HPND
+        iuse: 'examples imagequant +jpeg jpeg2k lcms test tiff tk truetype webp xcb zlib'
+        depend: |
+          imagequant? ( media-gfx/libimagequant )
+          jpeg? ( media-libs/libjpeg-turbo )
+          jpeg2k? ( media-libs/openjpeg )
+          lcms? ( media-libs/lcms )
+          tiff? ( media-libs/tiff )
+          truetype? ( media-libs/freetype )
+          webp? ( media-libs/libwebp )
+          xcb? ( x11-libs/libxcb )
+          zlib? ( sys-libs/zlib )
+        pydeps:
+          py:all:
+            - olefile
+    - olefile:
+        python_compat: python3+
+        desc: Python package to parse, read and write Microsoft OLE2 files
+        homepage: |
+          https://www.decalage.info/olefile/
+          https://github.com/decalage2/olefile/
+          https://pypi.org/project/olefile/
+        license: BSD-2
+

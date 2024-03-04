@@ -35,9 +35,8 @@ CDEPEND="
 	pam? ( sys-libs/pam )
 	pkcs11? ( >=dev-libs/pkcs11-helper-1.11 )
 	dev-python/docutils
+	dev-libs/libnl:3=
 "
-
-
 
 DEPEND="
 	${CDEPEND}
@@ -161,3 +160,5 @@ pkg_postinst() {
 		einfo "plugins have been installed into /usr/$(get_libdir)/${PN}/plugins"
 	fi
 }
+
+# vim: noet ts=4 syn=ebuild

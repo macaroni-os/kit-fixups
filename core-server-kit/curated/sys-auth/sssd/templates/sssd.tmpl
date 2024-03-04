@@ -1,213 +1,222 @@
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
+PLOCALES="ca de es fr ja ko pt_BR ru sv tr uk"
+PLOCALES_BIN="${PLOCALES} bg cs eu fi hu id it ka nb nl pl pt tg zh_TW zh_CN"
+PLOCALE_BACKUP="sv"
 PYTHON_COMPAT=( python3+ )
 
-inherit autotools flag-o-matic linux-info multilib-minimal pam python-r1 toolchain-funcs
+inherit autotools flag-o-matic linux-info optfeature plocale \
+	python-single-r1 pam toolchain-funcs
 
-DESCRIPTION="System Security Services Daemon provides access to identity and authentication"
-HOMEPAGE="https://pagure.io/SSSD/sssd"
-SRC_URI="{{artifacts[0].src_uri}}"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
 KEYWORDS="*"
-
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="acl autofs +locator +netlink nfsv4 nls +manpages python samba selinux sudo ssh test"
 
-COMMON_DEP="
-	>=virtual/pam-0-r1[${MULTILIB_USEDEP}]
-	>=dev-libs/popt-1.16
-	dev-libs/glib:2
+IUSE="acl doc +netlink nfsv4 nls +man python samba selinux subid sudo systemtap test"
+
+REQUIRED_USE="
+	python? ( ${PYTHON_REQUIRED_USE} )
+	test? ( sudo )"
+RESTRICT="!test? ( test )"
+
+DEPEND="
+	>=app-crypt/mit-krb5-1.19.1
+	app-crypt/p11-kit
 	>=dev-libs/ding-libs-0.2
+	>=dev-libs/cyrus-sasl-2.1.25-r3[kerberos]
+	dev-libs/jansson:=
+	dev-libs/libpcre2:=
+	dev-libs/libunistring:=
+	>=dev-libs/popt-1.16
+	>=dev-libs/openssl-1.0.2:=
+	>=net-dns/bind-tools-9.9[gssapi]
+	>=net-dns/c-ares-1.10.0-r1:=
+	>=net-nds/openldap-2.4.30:=[sasl,experimental]
+	>=sys-apps/dbus-1.6
+	>=sys-apps/keyutils-1.5:=
+	>=sys-libs/pam-0-r1
 	>=sys-libs/talloc-2.0.7
 	>=sys-libs/tdb-1.2.9
 	>=sys-libs/tevent-0.9.16
 	>=sys-libs/ldb-1.1.17-r1:=
-	>=net-nds/openldap-2.4.30[sasl]
-	net-libs/http-parser
-	>=dev-libs/libpcre-8.30
-	>=app-crypt/mit-krb5-1.10.3
-	dev-libs/jansson
-	>=net-misc/curl-7.65.0
-	locator? (
-		>=app-crypt/mit-krb5-1.12.2[${MULTILIB_USEDEP}]
-		>=net-dns/c-ares-1.10.0-r1[${MULTILIB_USEDEP}]
-	)
-	>=sys-apps/keyutils-1.5
-	>=net-dns/c-ares-1.7.4
-	>=dev-libs/nss-3.12.9
+	virtual/libintl
+	acl? ( net-fs/cifs-utils[acl] )
+	netlink? ( dev-libs/libnl:3 )
+	nfsv4? ( >=net-fs/nfs-utils-2.3.1-r2 )
+	nls? ( >=sys-devel/gettext-0.18 )
+	python? ( ${PYTHON_DEPS} )
+	samba? ( >=net-fs/samba-4.10.2[winbind] )
 	selinux? (
 		>=sys-libs/libselinux-2.1.9
 		>=sys-libs/libsemanage-2.1
 	)
-	>=net-dns/bind-tools-9.9[gssapi]
-	>=dev-libs/cyrus-sasl-2.1.25-r3[kerberos]
-	>=sys-apps/dbus-1.6
-	acl? ( net-fs/cifs-utils[acl] )
-	nfsv4? ( || ( >=net-fs/nfs-utils-2.3.1-r2 net-libs/libnfsidmap ) )
-	nls? ( >=sys-devel/gettext-0.18 )
-	virtual/libintl
-	netlink? ( dev-libs/libnl:3 )
-	samba? ( >=net-fs/samba-4.10.2[winbind] )
-	"
-
-RDEPEND="${COMMON_DEP}
-	>=sys-libs/glibc-2.17[nscd]
-	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )
-	"
-DEPEND="${COMMON_DEP}
-	test? ( dev-libs/check )
-	manpages? (
-		>=dev-libs/libxslt-1.1.26
+	subid? ( >=sys-apps/shadow-4.9 )
+	systemtap? ( dev-debug/systemtap )"
+RDEPEND="${DEPEND}
+	selinux? ( >=sec-policy/selinux-sssd-2.20120725-r9 )"
+BDEPEND="
+	virtual/pkgconfig
+	${PYTHON_DEPS}
+	doc? ( app-text/doxygen )
+	man? (
 		app-text/docbook-xml-dtd:4.4
-		)"
-
+		>=dev-libs/libxslt-1.1.26
+		nls? ( app-text/po4a )
+	)
+	nls? ( sys-devel/gettext )
+	test? (
+		dev-libs/check
+		dev-libs/softhsm:2
+		dev-util/cmocka
+		net-libs/gnutls[pkcs11,tools]
+		sys-libs/libfaketime
+		sys-libs/nss_wrapper
+		sys-libs/pam_wrapper
+		sys-libs/uid_wrapper
+	)
+"
 CONFIG_CHECK="~KEYS"
 
-MULTILIB_WRAPPED_HEADERS=(
-	/usr/include/ipa_hbac.h
-	/usr/include/sss_idmap.h
-	/usr/include/sss_nss_idmap.h
-	/usr/include/wbclient_sssd.h
-	# --with-ifp
-	/usr/include/sss_sifp.h
-	/usr/include/sss_sifp_dbus.h
-	# from 1.15.3
-	/usr/include/sss_certmap.h
+{%- if patches %}
+PATCHES=(
+{%- for patch in patches %}
+	"${FILESDIR}"/"${PN}-{{ patch }}"
+{%- endfor %}
 )
+{%- endif %}
 
-pkg_setup(){
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+
+pkg_setup() {
 	linux-info_pkg_setup
+	python-single-r1_pkg_setup
 }
 
 src_prepare() {
-	sed -i 's:#!/sbin/runscript:#!/sbin/openrc-run:' \
-		"${S}"/src/sysv/gentoo/sssd.in || die "sed sssd.in"
-
 	default
+
+	plocale_get_locales > src/man/po/LINGUAS || die
+
+	sed -i \
+		-e "/_langs]/ s/ .*//" \
+		src/man/po/po4a.cfg \
+		|| die
+	enable_locale() {
+		local locale=${1}
+
+		sed -i \
+			-e "/_langs]/ s/$/ ${locale}/" \
+			src/man/po/po4a.cfg \
+			|| die
+	}
+
+	plocale_for_each_locale enable_locale
+
+	PLOCALES="${PLOCALES_BIN}"
+	plocale_get_locales > po/LINGUAS || die
+
+	sed -i \
+		-e 's:/var/run:/run:' \
+		src/examples/logrotate \
+		|| die
+
+	# disable flaky test, see https://github.com/SSSD/sssd/issues/5631
+	sed -i \
+		-e '/^\s*pam-srv-tests[ \\]*$/d' \
+		Makefile.am \
+		|| die
+
 	eautoreconf
-	multilib_copy_sources
 }
 
 src_configure() {
-	local native_dbus_cflags=$($(tc-getPKG_CONFIG) --cflags dbus-1)
-
-	multilib-minimal_src_configure
-}
-
-multilib_src_configure() {
+	local native_dbus_cflags=$($(tc-getPKG_CONFIG) --cflags dbus-1 || die)
 	local myconf=()
-	if [[ "${PYTHON_TARGETS}" == *python2* ]]; then
-		myconf+=($(multilib_native_use_with python python2-bindings))
-	fi
-	if [[ "${PYTHON_TARGETS}" == *python3* ]]; then
-		myconf+=($(multilib_native_use_with python python3-bindings))
-	fi
-	#Work around linker dependency problem.
-	append-ldflags "-Wl,--allow-shlib-undefined"
 
 	myconf+=(
+		--libexecdir="${EPREFIX}"/usr/libexec
 		--localstatedir="${EPREFIX}"/var
-		--enable-nsslibdir="${EPREFIX}"/$(get_libdir)
+		--runstatedir="${EPREFIX}"/run
+		--sbindir="${EPREFIX}"/usr/sbin
+		--with-pid-path="${EPREFIX}"/run
 		--with-plugin-path="${EPREFIX}"/usr/$(get_libdir)/sssd
 		--enable-pammoddir="${EPREFIX}"/$(getpam_mod_dir)
 		--with-ldb-lib-dir="${EPREFIX}"/usr/$(get_libdir)/samba/ldb
+		--with-db-path="${EPREFIX}"/var/lib/sss/db
+		--with-gpo-cache-path="${EPREFIX}"/var/lib/sss/gpo_cache
+		--with-pubconf-path="${EPREFIX}"/var/lib/sss/pubconf
+		--with-pipe-path="${EPREFIX}"/var/lib/sss/pipes
+		--with-mcache-path="${EPREFIX}"/var/lib/sss/mc
+		--with-secrets-db-path="${EPREFIX}"/var/lib/sss/secrets
+		--with-log-path="${EPREFIX}"/var/log/sssd
+		--with-kcm
+		--enable-kcm-renewal
 		--with-os=gentoo
-		--with-nscd
-		--with-unicode-lib="glib2"
 		--disable-rpath
-		--disable-silent-rules
-		--sbindir=/usr/sbin
-		--without-kcm
-		$(use_with samba libwbclient)
-		--with-secrets
-		$(multilib_native_use_with samba)
-		$(multilib_native_use_enable acl cifs-idmap-plugin)
-		$(multilib_native_use_with selinux)
-		$(multilib_native_use_with selinux semanage)
-		$(use_enable locator krb5-locator-plugin)
-		$(multilib_native_use_with nfsv4 nfsv4-idmapd-plugin)
-		$(use_enable nls )
-		$(multilib_native_use_with netlink libnl)
-		$(multilib_native_use_with manpages)
-		$(multilib_native_use_with sudo)
-		$(multilib_native_use_with autofs)
-		$(multilib_native_use_with ssh)
-		--with-crypto="nss"
-		--with-initscript="sysv"
-
-		KRB5_CONFIG=/usr/bin/${CHOST}-krb5-config
+		--disable-static
+		# Valgrind is only used for tests
+		--disable-valgrind
+		$(use_with samba)
+		--with-smb-idmap-interface-version=6
+		$(use_enable acl cifs-idmap-plugin)
+		$(use_with selinux)
+		$(use_with selinux semanage)
+		--enable-krb5-locator-plugin
+		$(use_enable samba pac-responder)
+		$(use_with nfsv4 nfsv4-idmapd-plugin)
+		$(use_enable nls)
+		$(use_with netlink libnl)
+		$(use_with man manpages)
+		$(use_with sudo)
+		--with-autofs
+		--with-ssh
+		--without-oidc-child
+		--without-passkey
+		$(use_with subid)
+		$(use_enable systemtap)
+		--without-python2-bindings
+		$(use_with python python3-bindings)
+		--with-initscript=sysv
 	)
-
-	if ! multilib_is_native_abi; then
-		# work-around all the libraries that are used for CLI and server
-		myconf+=(
-			{POPT,TALLOC,TDB,TEVENT,LDB}_{CFLAGS,LIBS}=' '
-			# ldb headers are fine since native needs it
-			# ldb lib fails... but it does not seem to bother
-			{DHASH,COLLECTION,INI_CONFIG_V{0,1,1_1}}_{CFLAGS,LIBS}=' '
-			{PCRE,CARES,SYSTEMD_LOGIN,SASL,GLIB2,DBUS,CRYPTO}_{CFLAGS,LIBS}=' '
-
-			# use native include path for dbus (needed for build)
-			DBUS_CFLAGS="${native_dbus_cflags}"
-
-			# non-pkgconfig checks
-			ac_cv_lib_ldap_ldap_search=yes
-			--without-secrets
-			--without-libwbclient
-			--without-kcm
-			--with-crypto=""
-		)
-
-		use locator || myconf+=(
-				KRB5_CONFIG=/bin/true
-		)
-	fi
 
 	econf "${myconf[@]}"
 }
 
-multilib_src_compile() {
-	if multilib_is_native_abi; then
-		default
-	else
-		emake libnss_sss.la pam_sss.la
-		use locator && emake sssd_krb5_locator_plugin.la
-	fi
+src_compile() {
+	default
+	use doc && emake docs
 }
 
-multilib_src_install() {
-	if multilib_is_native_abi; then
-		emake -j1 DESTDIR="${D}" "${_at_args[@]}" install
-	else
-		# easier than playing with automake...
-		dopammod .libs/pam_sss.so
-
-		into /
-		dolib.so .libs/libnss_sss.so*
-
-		if use locator; then
-			exeinto /usr/$(get_libdir)/krb5/plugins/libkrb5
-			doexe .libs/sssd_krb5_locator_plugin.so
-		fi
-	fi
+src_test() {
+	local -x CK_TIMEOUT_MULTIPLIER=10
+	emake check VERBOSE=yes
 }
 
-multilib_src_install_all() {
+
+src_install() {
+	emake -j1 DESTDIR="${D}" install
+	if use python; then
+		python_fix_shebang "${ED}"
+		python_optimize
+	fi
 	einstalldocs
-	find "${ED}" -type f -name '*.la' -delete || die
 
 	insinto /etc/sssd
 	insopts -m600
-	doins "${S}"/src/examples/sssd-example.conf
+	doins src/examples/sssd-example.conf
 
 	insinto /etc/logrotate.d
 	insopts -m644
-	newins "${S}"/src/examples/logrotate sssd
+	newins src/examples/logrotate sssd
 
 	newconfd "${FILESDIR}"/sssd.conf sssd
-	newinitd "${FILESDIR}"/sssd sssd
 
 	keepdir /var/lib/sss/db
 	keepdir /var/lib/sss/deskprofile
@@ -218,14 +227,22 @@ multilib_src_install_all() {
 	keepdir /var/lib/sss/pubconf/krb5.include.d
 	keepdir /var/lib/sss/secrets
 	keepdir /var/log/sssd
+
+	# strip empty dirs
+	if ! use doc; then
+		rm -r "${ED}"/usr/share/doc/"${PF}"/doc || die
+		rm -r "${ED}"/usr/share/doc/"${PF}"/{hbac,idmap,nss_idmap}_doc || die
+	fi
+
+	rm -r "${ED}"/run || die
+	find "${ED}" -type f -name '*.la' -delete || die
 }
 
-multilib_src_test() {
-	default
-}
-
-pkg_postinst(){
+pkg_postinst() {
 	elog "You must set up sssd.conf (default installed into /etc/sssd)"
 	elog "and (optionally) configuration in /etc/pam.d in order to use SSSD"
-	elog "features. Please see howto in	https://docs.pagure.org/SSSD.sssd/design_pages/smartcard_authentication_require.html"
+	elog "features."
+	optfeature "Kerberos keytab renew (see krb5_renew_interval)" app-crypt/adcli
 }
+
+# vim: noet ts=4 syn=ebuild

@@ -10,7 +10,11 @@ SRC_URI="{{src_uri}}"
 LICENSE="GPL-2 GPL-2+ GPL-3 BSD MIT MPL-1.1 linux-fw-redistributable BSD-2 BSD-4 ISC no-source-code"
 SLOT="0"
 IUSE="initramfs"
+{%- if masked %}
+KEYWORDS="" # {{mask_reason}}
+{%- else %}
 KEYWORDS="*"
+{%- endif %}
 RESTRICT="strip test"
 QA_PREBUILT="*"
 

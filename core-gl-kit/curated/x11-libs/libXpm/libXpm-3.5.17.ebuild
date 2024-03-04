@@ -1,13 +1,13 @@
 # Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 XORG_MULTILIB=yes
-inherit xorg-2
+inherit xorg-3
 
 DESCRIPTION="X.Org Xpm library"
-
+SRC_URI="https://www.x.org/releases/individual/lib/${P}.tar.xz"
 KEYWORDS="*"
 IUSE=""
 
@@ -23,5 +23,5 @@ src_configure() {
 	# gettext being in libintl, whereas Solaris has gettext by default
 	# resulting in libintl not being added to LIBS
 	[[ ${CHOST} == *-solaris* ]] && export ac_cv_search_gettext=-lintl
-	xorg-2_src_configure
+	xorg-3_src_configure
 }

@@ -88,6 +88,20 @@ async def generate(hub, **pkginfo):
 
 	template_args = dict(
 		**pkginfo,
+		version="2023.2",
+		GITLAB_GROUP="xorg/proto",
+		GITLAB_PROJ="xorgproto",
+		GITLAB_TAG="766967322209f2dcb72e6a8edea0c651f586201d",
+	)
+	cpvr = "{cat}/{name}-{version}".format(**template_args)
+	url = "https://gitlab.freedesktop.org/{GITLAB_GROUP}/{GITLAB_PROJ}/-/archive/{GITLAB_TAG}/{GITLAB_PROJ}-{GITLAB_TAG}.tar.gz".format(**template_args)
+	final_name = "{name}-{version}.tar.gz".format(**template_args)
+	artifact = hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
+
+	xorgproto_implementations.append((template_args, cpvr, artifact))
+
+	template_args = dict(
+		**pkginfo,
 		version="2019.2",
 		GITLAB_GROUP="xorg/proto",
 		GITLAB_PROJ="xorgproto",

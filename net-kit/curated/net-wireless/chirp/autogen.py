@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import re
-
+from bs4 import BeautifulSoup
 
 async def generate(hub, **pkginfo):
 
@@ -9,20 +9,22 @@ async def generate(hub, **pkginfo):
 	pkginfo["description"] = "A free, open-source tool for programming your radio."
 	pkginfo["python_compat"] = "python3+" # As of v.20230319 needs to by <=3.10.
 
-	dnl_page = await hub.pkgtools.fetch.get_url_from_redirect("https://trac.chirp.danplanet.com/download?stream=next")
+	dnl_page = await hub.pkgtools.fetch.get_page("https://trac.chirp.danplanet.com/download?stream=next")
 	hub.pkgtools.model.log.debug(f"Download page URL: {dnl_page}")
 
-	match = re.search("\d{8}$", dnl_page)
-	if not match:
-		raise KeyError("Could not find a suitable version.")
-	
-	pkginfo["version"] = match[0]
+	for a in BeautifulSoup(dnl_page, features="html.parser").find_all("a", href=True):
+		print(a)
+		v = re.search("(?<=chirp-)\d+(?=\.tar\.gz)", a["href"])
+		if v is not None:
+			version = v.group(0)
+			href = a["href"]
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, 
-		artifacts=[hub.pkgtools.ebuild.Artifact(
-			url=f'https://trac.chirp.danplanet.com/chirp_next/next-{pkginfo["version"]}/chirp-{pkginfo["version"]}.tar.gz'
-			)
-		]
+	pkginfo["version"] = version
+	url=f'https://archive.chirpmyradio.com/chirp_next/next-{pkginfo["version"]}/chirp-{pkginfo["version"]}.tar.gz'
+
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+		**pkginfo,
+		artifacts=[hub.pkgtools.ebuild.Artifact(url=url)]
 	)
 	ebuild.push()
 

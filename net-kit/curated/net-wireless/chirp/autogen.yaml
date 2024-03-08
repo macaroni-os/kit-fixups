@@ -1,0 +1,36 @@
+chirp:
+  generator: github-1
+  packages:
+    - chirp:
+        github:
+          user: kk7ds
+          repo: chirp
+          query: tags
+          transform:
+            - kind: string
+              match: 'release_'
+              replace: ''
+            - kind: string
+              match: '_'
+              replace: '.'
+pyserial:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - pyserial:
+        pydeps:
+          py:3:build:
+            - setuptools
+
+pathlib2:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+  generator: pypi-simple-1
+  packages:
+    - pathlib2:
+        pydeps:
+          py:3:build:
+            - setuptools

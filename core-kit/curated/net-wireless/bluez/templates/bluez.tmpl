@@ -115,11 +115,6 @@ src_prepare() {
 	# Skip test failing due to fixes for https://github.com/bluez/bluez/issues/220
 	sed -i -e 's:unit_tests += unit/test-hog::' Makefile.am || die
 
-	# http://www.spinics.net/lists/linux-bluetooth/msg38490.html
-	if ! use systemd; then
-		eapply "${FILESDIR}"/0001-Allow-using-obexd-without-systemd-in-the-user-session-r2.patch
-	fi
-
 	eautoreconf
 
 	if use cups; then

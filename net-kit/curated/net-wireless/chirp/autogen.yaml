@@ -1,18 +1,8 @@
 chirp:
-  generator: github-1
+  generator: chirp
   packages:
-    - chirp:
-        github:
-          user: kk7ds
-          repo: chirp
-          query: tags
-          transform:
-            - kind: string
-              match: 'release_'
-              replace: ''
-            - kind: string
-              match: '_'
-              replace: '.'
+    - chirp
+
 pyserial:
   defaults:
     cat: dev-python

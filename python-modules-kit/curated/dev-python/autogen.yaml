@@ -382,6 +382,7 @@ dev_python_compat_rule:
     - dnspython:
         python_compat: python3+ pypy3
         compat: '1.16.0'
+        license: 'ISC'
         revision:
           2.2.1: 1
         blocker: '!<=dev-python/dnspython-2.2.1'
@@ -395,6 +396,11 @@ dev_python_compat_rule:
           py:2:build:
             - pycryptodome
             - ecdsa
+        body: |
+          src_prepare() {
+            sed -i -e 's|^license =.*|license = {text = "ISC"}|g' pyproject.toml
+            distutils-r1_src_prepare
+          }
 
     - entrypoints:
         version: '0.3'

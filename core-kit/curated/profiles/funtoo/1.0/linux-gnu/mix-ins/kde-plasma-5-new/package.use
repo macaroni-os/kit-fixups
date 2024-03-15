@@ -125,3 +125,6 @@ net-analyzer/wireshark -qt4
 >=dev-qt/qtgui-5.15.2-r1 egl
 >=media-libs/mesa-20.2.4-r2 wayland
 media-sound/jack2 -ieee1394
+
+# required by media-sound/pulseaudio-16.1::gnome-kit[alsa-plugin,alsa]
+media-plugins/alsa-plugins pulseaudio

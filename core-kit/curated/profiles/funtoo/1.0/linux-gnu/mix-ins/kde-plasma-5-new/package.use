@@ -91,7 +91,8 @@ media-libs/mesa egl
 net-libs/libproxy -kde
 
 # Required by kde-apps/kdenlive
->=media-libs/mlt-0.9.8-r2 kdenlive melt
+>=media-libs/mlt-0.9.8-r2 kdenlive melt sdl
+>=media-video/ffmpeg-4.3.1-r2 sdl
 
 # Allow certain KDE 4 components to be coinstalled with Plasma 5
 kde-apps/solid-runtime -bluetooth
@@ -124,3 +125,6 @@ net-analyzer/wireshark -qt4
 >=dev-qt/qtgui-5.15.2-r1 egl
 >=media-libs/mesa-20.2.4-r2 wayland
 media-sound/jack2 -ieee1394
+
+# required by media-sound/pulseaudio-16.1::gnome-kit[alsa-plugin,alsa]
+media-plugins/alsa-plugins pulseaudio

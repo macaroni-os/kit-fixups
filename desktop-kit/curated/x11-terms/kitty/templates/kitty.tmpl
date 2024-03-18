@@ -51,6 +51,8 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	media-libs/mesa[X]
 	sys-libs/ncurses
+	amd64? ( dev-libs/simde )
+	arm64? ( dev-libs/simde )
 "
 
 BDEPEND="
@@ -92,6 +94,9 @@ src_prepare() {
 }
 
 src_compile() {
+	# workaround simde bug with -mxop (Gentoo Bug: https://bugs.gentoo.org/926959)
+	append-cppflags -DSIMDE_X86_XOP_NO_NATIVE=1
+
 	"${EPYTHON}" setup.py \
 		--verbose $(usex debug --debug "") \
 		--libdir-name $(get_libdir) \

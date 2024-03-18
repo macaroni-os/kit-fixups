@@ -1,0 +1,34 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit meson
+
+DESCRIPTION="Header-only library provides fast, portable implementations of SIMD intrinsics"
+HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="amd64 arm64"
+IUSE="test"
+RESTRICT="!test? ( test )"
+
+post_src_unpack() {
+	if [ ! -d "${S}" ] ; then
+		mv "${WORKDIR}"/{{ github_user }}-* "${S}" || die
+	fi
+}
+
+src_configure() {
+	# *FLAGS are only used for tests (nothing that is installed), and
+	# upstream tests with specific *FLAGS and is otherwise flaky with
+	# -march=native, -mno-*, and such -- unset to be spared headaches.
+	unset {C,CPP,CXX,LD}FLAGS
+
+	local emesonargs=(
+		$(meson_use test tests)
+	)
+
+	meson_src_configure
+}

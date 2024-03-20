@@ -3,13 +3,13 @@ adcli_rule:
   # received from gitlab.com have had all their html entities replaced by
   # their string equivalents.  The latest version is only available from the
   # gitlab.freedesktop.org releases page.  
-  generator: gitlab-1
   packages:
     - adcli:
         cat: app-crypt
         desc: Tool for performing actions on an Active Directory domain
         homepage: https://www.freedesktop.org/software/realmd/adcli/adcli.html
         gitlab:
+          project_id: 1196
           server: "gitlab.freedesktop.org"
           user: realmd
           repo: adcli

@@ -22,12 +22,14 @@ async def generate(hub, **pkginfo):
 		for x in re.findall(
 			# start searching at 'href="'
 			# find exactly one instance of a file name followed by a '-'
+			#   (a '.' also can be accepted instead)
+			#   # TODO:  custom delimiter defined in yaml
 			# then exactly one instance of a version numbering scheme
 			#  - one or more integers
 			#  - then zero or more instances of '.x' or '-abc_def123' etc.
 			#  - allow for alphanumeric ASCII characters after first '.'
 			# finally, the file extension
-			f'(?<=href=")(((?:({files})?-)?(\d+(?:[\.|-][a-zA-Z0-9_]+)*)+)'
+			f'(?<=href=")(((?:({files})?[\.|-])?(\d+(?:[\.|-][a-zA-Z0-9_]+)*)+)'
 			+ (
 				f"\.({re.escape(pkginfo['dir']['format'])})+"
 				if 'format' in pkginfo['dir']

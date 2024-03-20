@@ -1,0 +1,17 @@
+lvm2_rule:
+  generator: dirlisting-1
+  packages:
+    - lvm2:
+        cat: sys-fs
+        desc: test
+        homepage: https://sourceware.org/lvm2/
+        dir:
+          url: https://mirrors.kernel.org/sourceware/lvm2/
+          order: asc
+          format: tgz
+          files:
+            - LVM2
+        patches:
+          - 2.03.20-dm_lvm_rules_no_systemd.patch
+          - 2.03.20-example.conf.in.patch
+          - 2.03.22-autoconf-2.72-egrep.patch

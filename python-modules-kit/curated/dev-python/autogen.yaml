@@ -2658,13 +2658,17 @@ dev_python_pillow_rule:
           https://pypi.org/project/olefile/
         license: BSD-2
 
-httplib2_rule:
+ansible_deps_rule:
   generator: pypi-compat-1
   defaults:
     cat: dev-python
-    python_compat: python2_7 python3+
+    python_compat: python2+
+    du_pep517: generator
   packages:
     - httplib2:
-        du_pep517: generator
         pydeps:
           - pyparsing
+    - netaddr
+    - pynacl:
+        body: |
+          S="${WORKDIR}/PyNaCl-${PV}"

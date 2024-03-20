@@ -220,6 +220,7 @@ src_prepare() {
 		if [ -n "$MARCH" ]; then
 			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
 			if [ -n "${CONFIG_MARCH}" ]; then
+				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n
 				tweak_config .config "${CONFIG_MARCH}" y
 			else

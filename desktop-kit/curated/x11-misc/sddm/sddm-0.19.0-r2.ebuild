@@ -16,7 +16,7 @@ IUSE="consolekit elogind +pam systemd test"
 
 REQUIRED_USE="?? ( elogind systemd )"
 
-RDEPEND="
+COMMON_DEPEND="
 	>=dev-qt/qtcore-5.9.4:5
 	>=dev-qt/qtdbus-5.9.4:5
 	>=dev-qt/qtdeclarative-5.9.4:5
@@ -30,7 +30,10 @@ RDEPEND="
 	systemd? ( sys-apps/systemd:= )
 	!systemd? ( sys-power/upower )"
 
-DEPEND="${RDEPEND}
+RDEPEND="${COMMON_DEPEND}
+	x11-misc/xcb"
+
+DEPEND="${COMMON_DEPEND}
 	dev-python/docutils
 	>=dev-qt/linguist-tools-5.9.4:5
 	kde-frameworks/extra-cmake-modules

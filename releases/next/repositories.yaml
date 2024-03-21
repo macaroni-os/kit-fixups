@@ -63,9 +63,9 @@ release:
   # Have all of our remote configurations defined in one place for ease of maintenance
   remotes:
     dev:
-      url: repos@alakaline-dev-1:funtoo/tree/{repo}
+      url: https://code.funtoo.org/bitbucket/scm/auto/{repo}
     prod:
-      url: repos@alkaline-dev-1:funtoo/tree/{repo}
+      url: ssh://git@code.funtoo.org:7999/auto/{repo}
       mirrors:
         - ssh://git@github.com/funtoo/{repo}
   kit-definitions:

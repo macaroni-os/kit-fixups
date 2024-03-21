@@ -27,10 +27,6 @@ DEPEND="
 
 RDEPEND="!<sys-apps/fwupd-1.6.0"
 
-PATCHES=(
-	"${FILESDIR}"/fwupd-efi-1.4-efi_ld_override.patch
-)
-
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
 		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
@@ -44,7 +40,6 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		-Defi-ld="$(tc-getLD)"
 		-Defi-libdir="${EPREFIX}"/usr/$(get_libdir)
 		-Defi_sbat_distro_id="funtoo"
 		-Defi_sbat_distro_summary="Funtoo GNU/Linux"

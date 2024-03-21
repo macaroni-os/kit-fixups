@@ -30,7 +30,7 @@ RDEPEND="
 # This USE variable now triggers the install of bindings in a separate package:
 PDEPEND="python? ( dev-python/libxml2-python )"
 DEPEND="${RDEPEND} ${PYTHON_DEPS}"
-BDEPEND="virtual/pkgconfig dev-util/gtk-doc-am"
+BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.11.5-CVE-2023-45322.patch

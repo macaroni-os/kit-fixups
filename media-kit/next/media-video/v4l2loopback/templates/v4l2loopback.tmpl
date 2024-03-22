@@ -30,8 +30,8 @@ src_compile() {
 	local modlist=(
 		v4l2loopback=video:
 	)
-
 	linux-mod-r1_src_compile
+	( cd ${S}/utils && emake ) || die
 	if use examples; then
 		emake CC="$(tc-getCC)" -C examples
 	fi

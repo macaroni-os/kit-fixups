@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from metatools.generator.transform import create_transform
+from metatools.generator.transform import create_transform, RegexMatcher, VersionMatch
 
 
 def get_key(name, pkginfo):
@@ -106,10 +106,10 @@ async def generate(hub, **pkginfo):
 
 	if "match" in pkginfo["github"]:
 		# explicit match from YAML:
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=pkginfo["github"]["match"])
+		extra_args["matcher"] = RegexMatcher(regex=pkginfo["github"]["match"])
 	elif "select" in extra_args:
 		# If a user specifies "select", they probably want the classic grabby matcher and are using "select" to filter undesireables:
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.VersionMatch.GRABBY)
+		extra_args["matcher"] = RegexMatcher(regex=VersionMatch.GRABBY)
 
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)

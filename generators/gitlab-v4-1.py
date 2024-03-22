@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from funtoo.pkgtools.github import iter_tag_versions, TagRegexMatcher
-from packaging.version import Version
 from metatools.generator.transform import create_transform
 
 async def generate(hub, **pkginfo):

@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+from metatools.generator.transform import create_transform
+
+
 def get_key(name, pkginfo):
 	"""
 	This function looks first in github block, and then in the main block for a specific key.
@@ -13,22 +16,6 @@ def get_key(name, pkginfo):
 		return pkginfo[name]
 	else:
 		return None
-
-
-def create_transform(transform_data):
-	def transform_lambda(tag):
-		for trans_dict in transform_data:
-			if "kind" not in trans_dict:
-				raise ValueError("Please specify 'kind' for github transform: element.")
-			kind = trans_dict['kind']
-			if kind == "string":
-				match = trans_dict['match']
-				replace = trans_dict['replace']
-				tag = tag.replace(match, replace)
-			else:
-				raise ValueError(f"Unknown 'kind' for github transform: {kind}")
-		return tag
-	return transform_lambda
 
 
 async def final_generate(hub, **pkginfo):

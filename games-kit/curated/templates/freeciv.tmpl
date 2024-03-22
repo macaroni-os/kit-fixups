@@ -115,7 +115,7 @@ src_configure() {
 		myclient=( no )
 		myeconfargs+=(
 			--enable-server
-			--enable-freeciv-manual=html
+			--enable-freeciv-manual=yes
 		)
 	else
 		if use !sdl && use !gtk && ! use qt5 ; then
@@ -125,13 +125,16 @@ src_configure() {
 			use sdl && myclient+=( sdl2 )
 			use gtk && myclient+=( gtk3 )
 			if use qt5 ; then
+				myeconfargs+=(
+					--with-qtver=qt5
+				)
 				local -x MOCCMD=$(qt5_get_bindir)/moc
 				myclient+=( qt )
 			fi
 		fi
 		myeconfargs+=(
 			$(use_enable server)
-			$(use_enable server freeciv-manual html )
+			$(use_enable server freeciv-manual yes )
 		)
 	fi
 
@@ -168,7 +171,7 @@ src_install() {
 			# Note: to have it localized, it should be ran from _postinst, or
 			# something like that, but then it's a PITA to avoid orphan files...
 			# freeciv-manual only supports one ruleset argument at a time.
-			for RULESET in alien civ1 civ2 civ2civ3 classic experimental multiplayer sandbox
+			for RULESET in alien civ1 civ2 civ2civ3 classic multiplayer sandbox
 			do
 				./tools/freeciv-manual -r ${RULESET} || die
 				docinto html/rulesets/${RULESET}

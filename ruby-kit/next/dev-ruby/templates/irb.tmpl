@@ -19,6 +19,7 @@ SLOT="0"
 IUSE=""
 
 ruby_add_bdepend "test? ( dev-ruby/test-unit )"
+ruby_add_rdepend "dev-ruby/reline"
 
 post_src_unpack() {
 	if [ ! -d "${S}/all/${P}" ] ; then

@@ -11,14 +11,14 @@ ansible_pypi_rule:
         homepage: https://ansible.com/
         license: GPL-3
         pydeps:
-          - paramiko
-          - jinja
-          - pyyaml
           - cryptography
           - httplib2
-          - six
+          - jinja
           - netaddr
+          - paramiko
           - pexpect
+          - pyyaml
+          - six
         rdepend: |
           net-misc/sshpass
           virtual/ssh
@@ -27,14 +27,15 @@ ansible_pypi_rule:
     - ansible:
         license: GPL-3+
         pydeps:
-          - paramiko
-          - jinja
-          - pyyaml
           - cryptography
           - httplib2
-          - six
+          - importlib_resources
+          - jinja
           - netaddr
+          - paramiko
           - pexpect
+          - pyyaml
+          - six
         rdepend: |
           net-misc/sshpass
           virtual/ssh

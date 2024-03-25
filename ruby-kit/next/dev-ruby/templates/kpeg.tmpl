@@ -15,8 +15,6 @@ LICENSE="MIT"
 SLOT="1"
 IUSE="test"
 
-PATCHES=( "{{ gen_path }}/files/${PN}/kpeg-1.1.0-utf8.patch" )
-
 ruby_add_bdepend "test? ( dev-ruby/minitest:5 )"
 
 each_ruby_test() {

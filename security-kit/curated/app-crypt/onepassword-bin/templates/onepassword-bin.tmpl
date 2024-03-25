@@ -112,8 +112,6 @@ src_install() {
 	fperms +x /opt/1Password/1password
 	fperms +x /opt/1Password/chrome_crashpad_handler
 	fperms 4755 /opt/1Password/chrome-sandbox || die
-	fowners root:${GROUP_NAME} /opt/1Password/1Password-KeyringHelper
-	fperms 6755 /opt/1Password/1Password-KeyringHelper || die
 	fowners root:${GROUP_NAME} /opt/1Password/1Password-BrowserSupport
 	fperms 2755 /opt/1Password/1Password-BrowserSupport || die
 	dosym ../../opt/1Password/1password /usr/bin/1password

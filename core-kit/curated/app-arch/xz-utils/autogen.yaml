@@ -1,9 +1,19 @@
-xz-utils:
-  generator: github-1
+# Github has disabled the repository...
+#xz-utils:
+#  generator: github-1
+#  packages:
+#    - xz-utils:
+#        github:
+#          user: tukaani-project
+#          repo: xz
+#          query: releases
+#          tarball: xz-{version}.tar.gz
+#        version: '5.4.6'
+
+# ... but we can get the sources from Debian.
+xz-utils_simple:
+  generator: simple
   packages:
     - xz-utils:
-        github:
-          user: tukaani-project
-          repo: xz
-          query: releases
-          tarball: xz-{version}.tar.gz
+        src_uri: https://deb.debian.org/debian/pool/main/x/xz-utils/xz-utils_5.4.4.orig.tar.xz
+        version: '5.4.4'

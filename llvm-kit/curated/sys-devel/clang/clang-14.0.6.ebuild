@@ -9,13 +9,6 @@ inherit cmake llvm llvm.org multilib multilib-minimal \
 DESCRIPTION="C language family frontend for LLVM"
 HOMEPAGE="https://llvm.org/"
 
-# Keep in sync with sys-devel/llvm
-ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC CSKY VE )
-ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
-	NVPTX PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore
-	"${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}" )
-ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
-
 # MSVCSetupApi.h: MIT
 # sorttable.js: MIT
 
@@ -23,28 +16,26 @@ LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="$(ver_cut 1)"
 KEYWORDS="next"
 IUSE="debug default-compiler-rt default-libcxx default-lld tinfo
-	doc llvm-libunwind +static-analyzer test xml kernel_FreeBSD ${ALL_LLVM_TARGETS[*]}"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	|| ( ${ALL_LLVM_TARGETS[*]} )"
+	doc llvm-libunwind +pie +static-analyzer test xml kernel_FreeBSD"
+REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
 
-RDEPEND="
+DEPEND="
 	~sys-devel/llvm-${PV}:${SLOT}=[debug=,${MULTILIB_USEDEP}]
 	static-analyzer? ( dev-lang/perl:* )
 	xml? ( dev-libs/libxml2:2= )
-	${PYTHON_DEPS}"
-for x in "${ALL_LLVM_TARGETS[@]}"; do
-	RDEPEND+="
-		${x}? ( ~sys-devel/llvm-${PV}:${SLOT}[${x}] )"
-done
-unset x
+"
 
-DEPEND="${RDEPEND}"
+RDEPEND="
+	${PYTHON_DEPS}
+	${DEPEND}
+"
 BDEPEND="
+	${PYTHON_DEPS}
 	>=dev-util/cmake-3.16
-	doc? ( dev-python/sphinx )
+	doc? ( dev-python/recommonmark dev-python/sphinx )
 	xml? ( virtual/pkgconfig )
-	${PYTHON_DEPS}"
+"
 PDEPEND="
 	sys-devel/clang-common
 	~sys-devel/clang-runtime-${PV}
@@ -54,16 +45,21 @@ PDEPEND="
 		!llvm-libunwind? ( sys-libs/libunwind )
 	)
 	default-libcxx? ( >=sys-libs/libcxx-${PV} )
-	default-lld? ( sys-devel/lld )"
+	default-lld? ( sys-devel/lld )
+"
 
-LLVM_COMPONENTS=( clang clang-tools-extra )
+LLVM_COMPONENTS=(
+	clang clang-tools-extra cmake
+	llvm/lib/Transforms/Hello
+)
 LLVM_MANPAGES=pregenerated
 LLVM_TEST_COMPONENTS=(
 	llvm/lib/Testing/Support
 	llvm/utils/{lit,llvm-lit,unittest}
 	llvm/utils/{UpdateTestChecks,update_cc_test_checks.py}
 )
-LLVM_PATCHSET=12.0.1
+LLVM_PATCHSET=${PV}-r2
+LLVM_USE_TARGETS=llvm
 llvm.org_set_globals
 
 # Multilib notes:
@@ -91,7 +87,7 @@ src_prepare() {
 
 	# add Gentoo Portage Prefix for Darwin (see prefix-dirs.patch)
 	eprefixify \
-		lib/Frontend/InitHeaderSearch.cpp \
+		lib/Lex/InitHeaderSearch.cpp \
 		lib/Driver/ToolChains/Darwin.cpp || die
 }
 
@@ -108,10 +104,6 @@ check_distribution_components() {
 				case ${l} in
 					# meta-targets
 					clang-libraries|distribution)
-						continue
-						;;
-					# headers for clang-tidy static library
-					clang-tidy-headers)
 						continue
 						;;
 					# tools
@@ -184,6 +176,7 @@ get_distribution_components() {
 			clang-offload-bundler
 			clang-offload-wrapper
 			clang-refactor
+			clang-repl
 			clang-rename
 			clang-scan-deps
 			diagtool
@@ -198,6 +191,7 @@ get_distribution_components() {
 			clang-query
 			clang-reorder-fields
 			clang-tidy
+			clang-tidy-headers
 			clangd
 			find-all-symbols
 			modularize
@@ -221,6 +215,7 @@ get_distribution_components() {
 			clang-check
 			clang-extdef-mapping
 			scan-build
+			scan-build-py
 			scan-view
 		)
 	fi
@@ -262,6 +257,7 @@ multilib_src_configure() {
 		-DCLANG_DEFAULT_CXX_STDLIB=$(usex default-libcxx libc++ "")
 		-DCLANG_DEFAULT_RTLIB=$(usex default-compiler-rt compiler-rt "")
 		-DCLANG_DEFAULT_LINKER=$(usex default-lld lld "")
+		-DCLANG_DEFAULT_PIE_ON_LINUX=$(usex pie)
 		-DCLANG_DEFAULT_UNWINDLIB=$(usex default-compiler-rt libunwind "")
 
 		-DCLANG_ENABLE_ARCMT=$(usex static-analyzer)
@@ -271,6 +267,7 @@ multilib_src_configure() {
 	)
 	use test && mycmakeargs+=(
 		-DLLVM_MAIN_SRC_DIR="${WORKDIR}/llvm"
+		-DLLVM_EXTERNAL_LIT="${BUILD_DIR}/bin/llvm-lit"
 		-DLLVM_LIT_ARGS="$(get_lit_flags)"
 	)
 
@@ -355,6 +352,7 @@ src_install() {
 	# Move runtime headers to /usr/lib/clang, where they belong
 	mv "${ED}"/usr/include/clangrt "${ED}"/usr/lib/clang || die
 	# move (remaining) wrapped headers back
+	mv "${T}"/clang-tidy "${ED}"/usr/include/ || die
 	mv "${ED}"/usr/include "${ED}"/usr/lib/llvm/${SLOT}/include || die
 
 	# Apply CHOST and version suffix to clang tools
@@ -405,6 +403,11 @@ multilib_src_install() {
 	rm -rf "${ED}"/usr/include || die
 	mv "${ED}"/usr/lib/llvm/${SLOT}/include "${ED}"/usr/include || die
 	mv "${ED}"/usr/lib/llvm/${SLOT}/$(get_libdir)/clang "${ED}"/usr/include/clangrt || die
+	if multilib_is_native_abi; then
+		# don't wrap clang-tidy headers, the list is too long
+		# (they're fine for non-native ABI but enabling the targets is problematic)
+		mv "${ED}"/usr/include/clang-tidy "${T}/" || die
+	fi
 }
 
 multilib_src_install_all() {

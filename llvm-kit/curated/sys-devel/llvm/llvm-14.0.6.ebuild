@@ -8,17 +8,6 @@ inherit cmake llvm.org multilib-minimal pax-utils python-any-r1 \
 
 DESCRIPTION="Low Level Virtual Machine"
 HOMEPAGE="https://llvm.org/"
-LLVM_COMPONENTS=( llvm )
-LLVM_MANPAGES=pregenerated
-llvm.org_set_globals
-
-# Those are in lib/Targets, without explicit CMakeLists.txt mention
-ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC VE )
-# Keep in sync with CMakeLists.txt
-ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
-	NVPTX PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore
-	"${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}" )
-ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 
 # Additional licenses:
 # 1. OpenBSD regex: Henry Spencer's license ('rc' in Gentoo) + BSD.
@@ -27,15 +16,14 @@ ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 # 4. ConvertUTF.h: TODO.
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc"
-SLOT="$(ver_cut 1)"
-KEYWORDS="*"
+SLOT="14"
+KEYWORDS="next"
 IUSE="debug doc exegesis gold libedit +libffi ncurses test xar xml z3
-	kernel_Darwin ${ALL_LLVM_TARGETS[*]}"
-REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )"
+	kernel_Darwin"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	sys-libs/zlib:0=[${MULTILIB_USEDEP}]
+	sys-libs/zlib:=
 	exegesis? ( dev-libs/libpfm:= )
 	gold? ( >=sys-devel/binutils-2.31.1-r4:*[plugins] )
 	libedit? ( dev-libs/libedit:0=[${MULTILIB_USEDEP}] )
@@ -67,11 +55,11 @@ RDEPEND="${RDEPEND}
 PDEPEND="sys-devel/llvm-common
 	gold? ( >=sys-devel/llvmgold-${SLOT} )"
 
-PATCHES=(
-	# backport tensorflow finding fix (avoids broken automagic dep)
-	# https://bugs.gentoo.org/748444
-	"${FILESDIR}"/11.0.0/0001-backport-D88371-guard-find_library-tensorflow_c_api.patch
-)
+LLVM_COMPONENTS=( llvm cmake third-party )
+LLVM_MANPAGES=pregenerated
+LLVM_PATCHSET=${PV}-r2
+LLVM_USE_TARGETS=provide
+llvm.org_set_globals
 
 python_check_deps() {
 	use doc || return 0
@@ -95,8 +83,6 @@ check_live_ebuild() {
 	for i in "${all_targets[@]}"; do
 		has "${i}" "${prod_targets[@]}" || exp_targets+=( "${i}" )
 	done
-	# reorder
-	all_targets=( "${prod_targets[@]}" "${exp_targets[@]}" )
 
 	if [[ ${exp_targets[*]} != ${ALL_LLVM_EXPERIMENTAL_TARGETS[*]} ]]; then
 		eqawarn "ALL_LLVM_EXPERIMENTAL_TARGETS is outdated!"
@@ -105,10 +91,10 @@ check_live_ebuild() {
 		eqawarn
 	fi
 
-	if [[ ${all_targets[*]} != ${ALL_LLVM_TARGETS[*]#llvm_targets_} ]]; then
-		eqawarn "ALL_LLVM_TARGETS is outdated!"
-		eqawarn "    Have: ${ALL_LLVM_TARGETS[*]#llvm_targets_}"
-		eqawarn "Expected: ${all_targets[*]}"
+	if [[ ${prod_targets[*]} != ${ALL_LLVM_PRODUCTION_TARGETS[*]} ]]; then
+		eqawarn "ALL_LLVM_PRODUCTION_TARGETS is outdated!"
+		eqawarn "    Have: ${ALL_LLVM_PRODUCTION_TARGETS[*]}"
+		eqawarn "Expected: ${prod_targets[*]}"
 	fi
 }
 
@@ -173,10 +159,6 @@ check_distribution_components() {
 }
 
 src_prepare() {
-	# Fix llvm-config for shared linking and sane flags
-	# https://bugs.gentoo.org/show_bug.cgi?id=565358
-	eapply "${FILESDIR}"/9999/0007-llvm-config-Clean-up-exported-values-update-for-shar.patch
-
 	# disable use of SDK on OSX, bug #568758
 	sed -i -e 's/xcrun/false/' utils/lit/lit/util.py || die
 
@@ -187,6 +169,10 @@ src_prepare() {
 	check_live_ebuild
 
 	llvm.org_src_prepare
+
+	# remove regressing test
+	# https://github.com/llvm/llvm-project/issues/55761
+	rm test/Other/ChangePrinters/DotCfg/print-changed-dot-cfg.ll || die
 }
 
 # Is LLVM being linked against libc++?
@@ -243,6 +229,7 @@ get_distribution_components() {
 			llvm-ar
 			llvm-as
 			llvm-bcanalyzer
+			llvm-bitcode-strip
 			llvm-c-test
 			llvm-cat
 			llvm-cfi-verify
@@ -252,19 +239,21 @@ get_distribution_components() {
 			llvm-cxxdump
 			llvm-cxxfilt
 			llvm-cxxmap
+			llvm-debuginfod-find
 			llvm-diff
 			llvm-dis
 			llvm-dlltool
 			llvm-dwarfdump
 			llvm-dwp
-			llvm-elfabi
 			llvm-exegesis
 			llvm-extract
 			llvm-gsymutil
 			llvm-ifs
 			llvm-install-name-tool
 			llvm-jitlink
+			llvm-jitlink-executor
 			llvm-lib
+			llvm-libtool-darwin
 			llvm-link
 			llvm-lipo
 			llvm-lto
@@ -278,26 +267,33 @@ get_distribution_components() {
 			llvm-objcopy
 			llvm-objdump
 			llvm-opt-report
+			llvm-otool
 			llvm-pdbutil
 			llvm-profdata
+			llvm-profgen
 			llvm-ranlib
 			llvm-rc
 			llvm-readelf
 			llvm-readobj
 			llvm-reduce
 			llvm-rtdyld
+			llvm-sim
 			llvm-size
 			llvm-split
 			llvm-stress
 			llvm-strings
 			llvm-strip
 			llvm-symbolizer
+			llvm-tapi-diff
+			llvm-tli-checker
 			llvm-undname
+			llvm-windres
 			llvm-xray
 			obj2yaml
 			opt
 			sancov
 			sanstats
+			split-file
 			verify-uselistorder
 			yaml2obj
 
@@ -366,7 +362,7 @@ multilib_src_configure() {
 		-DFFI_INCLUDE_DIR="${ffi_cflags#-I}"
 		-DFFI_LIBRARY_DIR="${ffi_ldflags#-L}"
 		# used only for llvm-objdump tool
-		-DHAVE_LIBXAR=$(multilib_native_usex xar 1 0)
+		-DLLVM_HAVE_LIBXAR=$(multilib_native_usex xar 1 0)
 
 		-DPython3_EXECUTABLE="${PYTHON}"
 
@@ -380,6 +376,7 @@ multilib_src_configure() {
 		# libraries with libstdc++ clang, and the other way around.
 		mycmakeargs+=(
 			-DLLVM_VERSION_SUFFIX="libcxx"
+			-DLLVM_ENABLE_LIBCXX=ON
 		)
 	fi
 

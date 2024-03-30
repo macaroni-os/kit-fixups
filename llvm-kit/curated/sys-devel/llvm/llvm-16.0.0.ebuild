@@ -8,17 +8,6 @@ inherit cmake llvm.org multilib-minimal pax-utils python-any-r1 \
 
 DESCRIPTION="Low Level Virtual Machine"
 HOMEPAGE="https://llvm.org/"
-LLVM_COMPONENTS=( llvm )
-LLVM_MANPAGES=pregenerated
-llvm.org_set_globals
-
-# Those are in lib/Targets, without explicit CMakeLists.txt mention
-ALL_LLVM_EXPERIMENTAL_TARGETS=( ARC VE )
-# Keep in sync with CMakeLists.txt
-ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
-	NVPTX PowerPC RISCV Sparc SystemZ WebAssembly X86 XCore
-	"${ALL_LLVM_EXPERIMENTAL_TARGETS[@]}" )
-ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 
 # Additional licenses:
 # 1. OpenBSD regex: Henry Spencer's license ('rc' in Gentoo) + BSD.
@@ -27,15 +16,14 @@ ALL_LLVM_TARGETS=( "${ALL_LLVM_TARGETS[@]/#/llvm_targets_}" )
 # 4. ConvertUTF.h: TODO.
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc"
-SLOT="$(ver_cut 1)"
-KEYWORDS="*"
-IUSE="debug doc exegesis gold libedit +libffi ncurses test xar xml z3
-	kernel_Darwin ${ALL_LLVM_TARGETS[*]}"
-REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )"
+SLOT="16"
+KEYWORDS="next"
+IUSE="debug doc exegesis gold libedit +libffi ncurses test xar xml z3 zstd
+	kernel_Darwin"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	sys-libs/zlib:0=[${MULTILIB_USEDEP}]
+	sys-libs/zlib:=
 	exegesis? ( dev-libs/libpfm:= )
 	gold? ( >=sys-devel/binutils-2.31.1-r4:*[plugins] )
 	libedit? ( dev-libs/libedit:0=[${MULTILIB_USEDEP}] )
@@ -43,7 +31,9 @@ RDEPEND="
 	ncurses? ( >=sys-libs/ncurses-5.9-r3:0=[${MULTILIB_USEDEP}] )
 	xar? ( app-arch/xar )
 	xml? ( dev-libs/libxml2:2= )
-	z3? ( >=sci-mathematics/z3-4.7.1:0=[${MULTILIB_USEDEP}] )"
+	z3? ( >=sci-mathematics/z3-4.7.1:0=[${MULTILIB_USEDEP}] )
+	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )
+"
 DEPEND="${RDEPEND}
 	gold? ( sys-libs/binutils-libs )"
 BDEPEND="
@@ -67,11 +57,10 @@ RDEPEND="${RDEPEND}
 PDEPEND="sys-devel/llvm-common
 	gold? ( >=sys-devel/llvmgold-${SLOT} )"
 
-PATCHES=(
-	# backport tensorflow finding fix (avoids broken automagic dep)
-	# https://bugs.gentoo.org/748444
-	"${FILESDIR}"/11.0.0/0001-backport-D88371-guard-find_library-tensorflow_c_api.patch
-)
+LLVM_COMPONENTS=( llvm cmake )
+LLVM_MANPAGES=pregenerated
+LLVM_USE_TARGETS=provide
+llvm.org_set_globals
 
 python_check_deps() {
 	use doc || return 0
@@ -95,8 +84,6 @@ check_live_ebuild() {
 	for i in "${all_targets[@]}"; do
 		has "${i}" "${prod_targets[@]}" || exp_targets+=( "${i}" )
 	done
-	# reorder
-	all_targets=( "${prod_targets[@]}" "${exp_targets[@]}" )
 
 	if [[ ${exp_targets[*]} != ${ALL_LLVM_EXPERIMENTAL_TARGETS[*]} ]]; then
 		eqawarn "ALL_LLVM_EXPERIMENTAL_TARGETS is outdated!"
@@ -105,10 +92,10 @@ check_live_ebuild() {
 		eqawarn
 	fi
 
-	if [[ ${all_targets[*]} != ${ALL_LLVM_TARGETS[*]#llvm_targets_} ]]; then
-		eqawarn "ALL_LLVM_TARGETS is outdated!"
-		eqawarn "    Have: ${ALL_LLVM_TARGETS[*]#llvm_targets_}"
-		eqawarn "Expected: ${all_targets[*]}"
+	if [[ ${prod_targets[*]} != ${ALL_LLVM_PRODUCTION_TARGETS[*]} ]]; then
+		eqawarn "ALL_LLVM_PRODUCTION_TARGETS is outdated!"
+		eqawarn "    Have: ${ALL_LLVM_PRODUCTION_TARGETS[*]}"
+		eqawarn "Expected: ${prod_targets[*]}"
 	fi
 }
 
@@ -173,10 +160,6 @@ check_distribution_components() {
 }
 
 src_prepare() {
-	# Fix llvm-config for shared linking and sane flags
-	# https://bugs.gentoo.org/show_bug.cgi?id=565358
-	eapply "${FILESDIR}"/9999/0007-llvm-config-Clean-up-exported-values-update-for-shar.patch
-
 	# disable use of SDK on OSX, bug #568758
 	sed -i -e 's/xcrun/false/' utils/lit/lit/util.py || die
 
@@ -232,6 +215,7 @@ get_distribution_components() {
 			count
 			not
 			yaml-bench
+			UnicodeNameMappingGenerator
 
 			# tools
 			bugpoint
@@ -243,6 +227,7 @@ get_distribution_components() {
 			llvm-ar
 			llvm-as
 			llvm-bcanalyzer
+			llvm-bitcode-strip
 			llvm-c-test
 			llvm-cat
 			llvm-cfi-verify
@@ -252,19 +237,24 @@ get_distribution_components() {
 			llvm-cxxdump
 			llvm-cxxfilt
 			llvm-cxxmap
+			llvm-debuginfo-analyzer
+			llvm-debuginfod
+			llvm-debuginfod-find
 			llvm-diff
 			llvm-dis
 			llvm-dlltool
 			llvm-dwarfdump
+			llvm-dwarfutil
 			llvm-dwp
-			llvm-elfabi
 			llvm-exegesis
 			llvm-extract
 			llvm-gsymutil
 			llvm-ifs
 			llvm-install-name-tool
 			llvm-jitlink
+			llvm-jitlink-executor
 			llvm-lib
+			llvm-libtool-darwin
 			llvm-link
 			llvm-lipo
 			llvm-lto
@@ -278,26 +268,35 @@ get_distribution_components() {
 			llvm-objcopy
 			llvm-objdump
 			llvm-opt-report
+			llvm-otool
 			llvm-pdbutil
 			llvm-profdata
+			llvm-profgen
 			llvm-ranlib
 			llvm-rc
 			llvm-readelf
 			llvm-readobj
 			llvm-reduce
+			llvm-remark-size-diff
+			llvm-remarkutil
 			llvm-rtdyld
+			llvm-sim
 			llvm-size
 			llvm-split
 			llvm-stress
 			llvm-strings
 			llvm-strip
 			llvm-symbolizer
+			llvm-tapi-diff
+			llvm-tli-checker
 			llvm-undname
+			llvm-windres
 			llvm-xray
 			obj2yaml
 			opt
 			sancov
 			sanstats
+			split-file
 			verify-uselistorder
 			yaml2obj
 
@@ -349,6 +348,8 @@ multilib_src_configure() {
 		# is that the former list is explicitly verified at cmake time
 		-DLLVM_TARGETS_TO_BUILD=""
 		-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="${LLVM_TARGETS// /;}"
+		-DLLVM_INCLUDE_BENCHMARKS=OFF
+		-DLLVM_INCLUDE_TESTS=$(usex test)
 		-DLLVM_BUILD_TESTS=$(usex test)
 
 		-DLLVM_ENABLE_FFI=$(usex libffi)
@@ -360,13 +361,14 @@ multilib_src_configure() {
 		-DLLVM_ENABLE_EH=ON
 		-DLLVM_ENABLE_RTTI=ON
 		-DLLVM_ENABLE_Z3_SOLVER=$(usex z3)
+		-DLLVM_ENABLE_ZSTD=$(usex zstd)
 
 		-DLLVM_HOST_TRIPLE="${CHOST}"
 
 		-DFFI_INCLUDE_DIR="${ffi_cflags#-I}"
 		-DFFI_LIBRARY_DIR="${ffi_ldflags#-L}"
 		# used only for llvm-objdump tool
-		-DHAVE_LIBXAR=$(multilib_native_usex xar 1 0)
+		-DLLVM_HAVE_LIBXAR=$(multilib_native_usex xar 1 0)
 
 		-DPython3_EXECUTABLE="${PYTHON}"
 
@@ -380,16 +382,9 @@ multilib_src_configure() {
 		# libraries with libstdc++ clang, and the other way around.
 		mycmakeargs+=(
 			-DLLVM_VERSION_SUFFIX="libcxx"
+			-DLLVM_ENABLE_LIBCXX=ON
 		)
 	fi
-
-#	Note: go bindings have no CMake rules at the moment
-#	but let's kill the check in case they are introduced
-#	if ! multilib_is_native_abi || ! use go; then
-		mycmakeargs+=(
-			-DGO_EXECUTABLE=GO_EXECUTABLE-NOTFOUND
-		)
-#	fi
 
 	use test && mycmakeargs+=(
 		-DLLVM_LIT_ARGS="$(get_lit_flags)"
@@ -418,16 +413,6 @@ multilib_src_configure() {
 		)
 	fi
 
-	if tc-is-cross-compiler; then
-		local tblgen="${EPREFIX}/usr/lib/llvm/${SLOT}/bin/llvm-tblgen"
-		[[ -x "${tblgen}" ]] \
-			|| die "${tblgen} not found or usable"
-		mycmakeargs+=(
-			-DCMAKE_CROSSCOMPILING=ON
-			-DLLVM_TABLEGEN="${tblgen}"
-		)
-	fi
-
 	# workaround BMI bug in gcc-7 (fixed in 7.4)
 	# https://bugs.gentoo.org/649880
 	# apply only to x86, https://bugs.gentoo.org/650506
@@ -450,7 +435,7 @@ multilib_src_configure() {
 }
 
 multilib_src_compile() {
-	cmake_build distribution
+	tc-env_build cmake_build distribution
 
 	pax-mark m "${BUILD_DIR}"/bin/llvm-rtdyld
 	pax-mark m "${BUILD_DIR}"/bin/lli

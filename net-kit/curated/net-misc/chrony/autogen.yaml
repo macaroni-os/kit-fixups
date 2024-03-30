@@ -1,0 +1,15 @@
+chrony_rule:
+  generator: github-1
+  packages:
+    - chrony:
+        cat: net-misc
+        desc: NTP client and server programs
+        homepage: https://chrony-project.org/
+        github:
+          user: mlichvar
+          repo: chrony
+          query: tags
+        # be careful with "latest" on this package;
+        # some versions are like "chrony-4.5-pre1"
+        # Also ensure the version is a string!
+        version: '4.5'

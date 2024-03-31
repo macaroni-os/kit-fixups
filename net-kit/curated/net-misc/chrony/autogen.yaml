@@ -13,3 +13,5 @@ chrony_rule:
         # some versions are like "chrony-4.5-pre1"
         # Also ensure the version is a string!
         version: '4.5'
+        patches:
+          - 4.5-no-installing-docs.patch

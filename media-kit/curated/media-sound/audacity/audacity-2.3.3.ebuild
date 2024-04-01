@@ -84,7 +84,7 @@ src_configure() {
 		--with-libsoxr
 		--with-mod-script-pipe
 		--with-mod-nyq-bench
-		--with-portaudio
+		--with-portaudio=local
 		--with-widgetextra=local
 		--with-wx-version=${WX_GTK_VER}
 		$(use_enable cpu_flags_x86_sse sse)

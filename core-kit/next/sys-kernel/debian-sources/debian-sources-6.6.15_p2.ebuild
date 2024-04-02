@@ -145,7 +145,7 @@ src_prepare() {
 		einfo Restoring saved .config ...
 		restore_config .config
 	else
-		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
+		cp "${FILESDIR}"/config-extract-6.6 ./config-extract || die
 		chmod +x config-extract || die
 	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:

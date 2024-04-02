@@ -15,7 +15,10 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="static-libs"
 
-RDEPEND="virtual/libusb:1"
+RDEPEND="
+    virtual/libusb:1
+    dev-libs/glib:2
+"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 

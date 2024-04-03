@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 from bs4 import BeautifulSoup
 import re
 
@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 	valid_matches = (match.groups() for match in link_matches if match)
 
 	parsed_versions = (
-		(filename, version.parse(ver)) for (filename, ver) in valid_matches if ver
+		(filename, generic.parse(ver)) for (filename, ver) in valid_matches if ver
 	)
 
 	target_filename, target_version = max(

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from metatools.version import generic
 from packaging import version
 import subprocess
 
@@ -26,7 +27,7 @@ def get_latest_version(hub):
 			continue
 
 		if rtt[2].startswith("v") and not rtt[2].endswith("^{}"):
-			v = version.parse(rtt[2])
+			v = generic.parse(rtt[2])
 			if v.is_prerelease or isinstance(v, version.LegacyVersion):
 				continue
 			tags.append(v)

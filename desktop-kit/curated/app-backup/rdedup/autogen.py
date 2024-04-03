@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 
 
 def get_release(releases_data):
 	for release in releases_data:
 		# Some of the tags have this prefix, so we need to strip it first
 		release["name"] = release["name"].lstrip("rdedup-")
-	return None if not releases_data else sorted(releases_data, key=lambda x: version.parse(x["name"])).pop()
+	return None if not releases_data else sorted(releases_data, key=lambda x: generic.parse(x["name"])).pop()
 
 
 async def generate(hub, **pkginfo):

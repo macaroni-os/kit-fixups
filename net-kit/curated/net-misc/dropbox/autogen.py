@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 from bs4 import BeautifulSoup
 
 
 def get_release(releases_data):
 	matches = [x for x in releases_data if x.startswith("nautilus-dropbox")]
-	releases = sorted((x for x in matches if x), key=lambda x: version.parse(x[0]))
+	releases = sorted((x for x in matches if x), key=lambda x: generic.parse(x[0]))
 	return releases.pop() if releases else None
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 
@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 		if href.endswith(".tar.xz"):
 			vers.append( href.split(pkg_name)[1].split(".tar")[0].split("-")[1])
 
-	latest_version = sorted(vers, key=lambda v: version.parse(v)).pop().lstrip("v")
+	latest_version = sorted(vers, key=lambda v: generic.parse(v)).pop().lstrip("v")
 	final_name = f"{pkg_name}-v{latest_version}.tar.xz"
 	url = f"{url}{final_name}"
 

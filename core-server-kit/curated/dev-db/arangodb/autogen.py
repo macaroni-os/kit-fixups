@@ -1,4 +1,4 @@
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
     github_repo = github_user = "arangodb"
@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
     # filter out versions that are words (e.g. "devel") and prereleases
     releases = list(filter(
         lambda v: not v.is_prerelease,
-        [Version(rel['name'][1:]) for rel in json_list if rel['name'][1:][0].isnumeric()]
+        [generic.parse(rel['name'][1:]) for rel in json_list if rel['name'][1:][0].isnumeric()]
     ))
     supported_releases = set([v.minor for v in releases])
     handled_releases = []

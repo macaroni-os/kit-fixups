@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
 import re
 
 # NOTE: this is a simple autogen that *should* be replaceable with an autogen.yaml instead

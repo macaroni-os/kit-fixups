@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
-
 async def generate(hub, **pkginfo):
 	github_user = pkginfo['name']
 	github_repo = pkginfo['name']

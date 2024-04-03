@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 regex = r'(\d+(?:[\.-]\d+)+)'
@@ -14,7 +14,7 @@ async def generate(hub, **pkginfo):
 
     releases = [a for a in soup if 'ncurses' in a.contents[0] and not a.contents[0].endswith('asc')]
     latest = max([(
-            Version(re.findall(regex, a.contents[0])[0]),
+            generic.parse(re.findall(regex, a.contents[0])[0]),
             a.get('href'))
         for a in releases if re.findall(regex, a.contents[0])
     ])
@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
 
     # Ignore the first patch, as that one is to upgrade from the previous major.minor version to this one
-    patches = [(Version(re.findall(regex, a.get('href'))[0]), a.get('href')) for a in soup if re.findall(regex, a.contents[0]) and not 'asc' in a.get('href')][1:]
+    patches = [(generic.parse(re.findall(regex, a.get('href'))[0]), a.get('href')) for a in soup if re.findall(regex, a.contents[0]) and not 'asc' in a.get('href')][1:]
 
     # Find the newest patch
     newest = max(patches)[0]

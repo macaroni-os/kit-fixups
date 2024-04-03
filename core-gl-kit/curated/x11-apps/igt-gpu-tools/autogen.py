@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
 from bs4 import BeautifulSoup
 import re
 
@@ -14,8 +13,6 @@ async def generate(hub, **pkginfo):
 	latest_release = releases[-1]
 
 	version = latest_release.rsplit("-")[-1].split(".tar")[0]
-
-	print(version)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

@@ -6,7 +6,7 @@ inherit autotools systemd udev
 
 DESCRIPTION="USB multiplex daemon for use with Apple iPhone/iPod Touch devices"
 HOMEPAGE="https://libimobiledevice.org/"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 
 # src/utils.h is LGPL-2.1+, rest is found in COPYING*
 LICENSE="GPL-2 GPL-3 LGPL-2.1+"
@@ -29,12 +29,13 @@ BDEPEND="
 "
 
 post_src_unpack() {
-	if [ ! -d "${S}" ]; then
-		mv {{ github_user }}-{{ github_repo }}* "${S}" || die
+	if [ ! -d "${WORKDIR}/${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
 	fi
 }
 
 src_prepare() {
 	default
+	echo "${PVR}" > .tarball-version
 	eautoreconf
 }

@@ -14,7 +14,7 @@ KEYWORDS="*"
 IUSE="+gtk ios +udev"
 
 RDEPEND="
-	>=app-pda/libplist-1.0:=
+	>=app-pda/libplist-2.0:=
 	>=dev-db/sqlite-3:3
 	>=dev-libs/glib-2.16:2
 	dev-libs/libxml2:2
@@ -44,6 +44,9 @@ PATCHES=(
 src_prepare() {
 	default
 	eautoreconf
+
+	# support libplist 2
+	sed -e 's|plist_dict_insert_item|plist_dict_set_item|' -i tools/ipod-lockdown.c
 }
 
 src_configure() {

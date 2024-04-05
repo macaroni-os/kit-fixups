@@ -23,14 +23,23 @@ RDEPEND="${DEPEND}
 	mysql? ( virtual/mysql )
 	odbc? ( dev-db/libiodbc )
 	postgres? ( dev-db/postgresql )
+	x11-libs/xcb-util
+	x11-libs/xcb-util-wm
+	x11-libs/xcb-util-renderutil
+	x11-libs/xcb-util-keysyms
+	x11-libs/xcb-util-image
+	x11-libs/libxkbcommon
 "
+# FL-12208: all these x11-libs/... needed for @preserved-rebuild
+
 # This app depends on Qt6 at this time.  Please re-add these runtime dependencies when that is out
-#    dev-qt/qtcore
+#	dev-qt/qtcore
 #	dev-qt/qtdeclarative
 #	dev-qt/qtmultimedia
 #	dev-qt/qtsvg
 #	dev-qt/qtquickcontrols
 #	dev-qt/qtquickcontrols2
+
 BDEPEND=""
 
 S=${WORKDIR}/usr

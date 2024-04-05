@@ -35,16 +35,9 @@ DEPEND="
 	virtual/libelf
 	btrfs? ( sys-fs/btrfs-progs )
 	zfs? ( sys-fs/zfs )
-	luks? ( sys-fs/cryptsetup )"
-REQUIRED_USE="
-btrfs? ( binary )
-custom-cflags? ( binary )
-logo? ( binary )
-luks? ( binary )
-lvm? ( binary )
-sign-modules? ( binary )
-zfs? ( binary )
+	luks? ( sys-fs/cryptsetup )
 "
+
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
@@ -87,10 +80,10 @@ pkg_pretend() {
 	if use binary ; then
 		CHECKREQS_DISK_BUILD="6G"
 		check-reqs_pkg_setup
+		for unsupported in btrfs luks lvm zfs; do
+			use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
+		done
 	fi
-	for unsupported in btrfs luks lvm zfs; do
-		use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
-	done
 }
 
 get_certs_dir() {

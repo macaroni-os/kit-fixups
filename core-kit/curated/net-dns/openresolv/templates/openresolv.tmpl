@@ -1,0 +1,45 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="BSD-2"
+SLOT="0"
+KEYWORDS="*"
+IUSE="selinux"
+
+RDEPEND="selinux? ( sec-policy/selinux-resolvconf )"
+
+S="${WORKDIR}"/{{github_user}}-{{github_repo}}-{{sha[:7]}}
+
+src_configure() {
+	local myeconfargs=(
+		--prefix="${EPREFIX}"
+		--rundir="${EPREFIX}"/run
+		--libexecdir="${EPREFIX}"/lib/resolvconf
+	)
+	econf "${myeconfargs[@]}"
+}
+
+pkg_config() {
+	if [[ -n ${ROOT} ]]; then
+		eerror "We cannot configure unless \$ROOT is empty"
+		return 1
+	fi
+
+	if [[ -n "$(resolvconf -l)" ]]; then
+		einfo "${PN} already has DNS information"
+	else
+		ebegin "Copying /etc/resolv.conf to resolvconf -a dummy"
+		resolvconf -a dummy </etc/resolv.conf
+		eend $? || return $?
+		einfo "The dummy interface will disappear when you next reboot"
+	fi
+}
+
+DOCS=( LICENSE README.md )
+
+#! vim: noet ts=4 syn=ebuild

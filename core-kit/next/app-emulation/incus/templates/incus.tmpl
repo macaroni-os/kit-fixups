@@ -2,7 +2,7 @@
 
 EAPI=7
 
-inherit autotools golang-base bash-completion-r1 linux-info user systemd
+inherit autotools golang-base bash-completion-r1 linux-info user
 
 DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
@@ -12,7 +12,7 @@ SRC_URI="{{ src_uri }}"
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="apparmor ipv6 nls systemd"
+IUSE="apparmor ipv6 nls"
 
 DEPEND="app-arch/xz-utils
 	app-arch/lz4
@@ -169,24 +169,15 @@ src_install() {
 	rm -r "${ED}"/usr/lib/incus/*.a || die
 	rm -r "${ED}"/usr/lib/incus/pkgconfig || die
 
-	newbashcomp scripts/bash/incus incus
+	newbashcomp "${FILESDIR}"/incus.bashcomp-0.7.0 incus
 
 	exeinto /usr/sbin/
 	doexe "${FILESDIR}"/incus-startup
 
-	if use systemd ; then
-		systemd_newunit "${FILESDIR}"/incus.service incus.service || die
-		systemd_newunit "${FILESDIR}"/incus-startup.service incus-startup.service || die
-		systemd_newunit "${FILESDIR}"/incus-lxcfs.service incus-lxcfs.service || die
-		systemd_newunit "${FILESDIR}"/incus-user.service incus-user.service || die
-		systemd_newunit "${FILESDIR}"/incus-startup.service incus-startup.service || die
-		systemd_newunit "${FILESDIR}"/incus.socket incus.socket || die
-		systemd_newunit "${FILESDIR}"/incus-user.socket incus-user.socket || die
-	else
-		newinitd "${FILESDIR}"/incus.initd incus || die
-		newinitd "${FILESDIR}"/incus-user.initd incus-user || die
-		newinitd "${FILESDIR}"/incus-lxcfs.initd incus-lxcfs || die
-	fi
+	newinitd "${FILESDIR}"/incus.initd incus || die
+	newinitd "${FILESDIR}"/incus-user.initd incus-user || die
+	newinitd "${FILESDIR}"/incus-lxcfs.initd incus-lxcfs || die
+
 	newconfd "${FILESDIR}"/incus.confd incus || die
 	newconfd "${FILESDIR}"/incus-user.confd incus-user || die
 	newconfd "${FILESDIR}"/incus-lxcfs.confd incus-lxcfs || die
@@ -237,3 +228,5 @@ pkg_postinst() {
 	elog
 	elog "Be sure to add your local user to the incus group."
 }
+
+# vim: noet ts=4 syn=ebuild

@@ -1874,14 +1874,6 @@ dev_python_simplified_rule:
           1.2.1: 1
     - dbus-next:
         pypi_name: dbus_next
-    - packaging:
-        version: '21.3'
-        compat: '20.9'
-        blocker: "!<=dev-python/packaging-18.0"
-        python_compat: python3+
-        pydeps:
-          py:all:
-            - pyparsing < 3
     - pymongo:
         revision:
           4.0: 1

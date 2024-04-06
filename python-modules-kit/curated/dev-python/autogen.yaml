@@ -1662,7 +1662,14 @@ metatools:
           - sniffio
           - idna
           - h2
-    - rich
+    - rich:
+        pydeps:
+          - pygments
+          - markdown-it-py
+    - markdown-it-py:
+        pydeps:
+          - mdurl
+    - mdurl
     - sniffio:
         license: '|| ( Apache-2.0 MIT )'
 

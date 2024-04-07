@@ -2503,8 +2503,6 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - pyxdg:
         python_compat: python2+ pypy3
-    - python-dateutil:
-        python_compat: python2+
     - toml:
         python_compat: python2+ pypy3
     - testresources:
@@ -2672,3 +2670,12 @@ yq_deps_rule:
     du_pep517: generator
   packages:
     - argcomplete
+
+python-dateutil_rule:
+  generator: pypi-compat-1
+  defaults:
+    cat: dev-python
+    python_compat: python2+
+    du_pep517: generator
+  packages:
+    - python-dateutil

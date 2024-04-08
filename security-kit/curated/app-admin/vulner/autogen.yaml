@@ -1,0 +1,11 @@
+vulner:
+  generator: github-1
+  packages:
+    - vulner:
+        github:
+          user: mrl5
+          repo: vulner
+          query: releases
+          tarball: vulner-{tag}.tar.gz
+        extensions:
+          - rust

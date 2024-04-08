@@ -13,7 +13,7 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="cdb"
 
-DEPEND="app-alternatives/awk
+DEPEND="virtual/awk
 	cdb? (
 		|| (
 			dev-db/tinycdb

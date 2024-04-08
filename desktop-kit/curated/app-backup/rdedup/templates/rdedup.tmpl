@@ -2,15 +2,11 @@
 
 EAPI=7
 
-CRATES="
-{{crates}}"
-
 inherit cargo
 
-DESCRIPTION="data deduplication with compression and public key encryption"
-HOMEPAGE="https://github.com/dpc/rdedup"
-SRC_URI="{{artifacts[0].src_uri}}
-	$(cargo_crate_uris ${CRATES})"
+DESCRIPTION="{{description}}"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="Apache-2.0 BSD ISC MIT MPL-2.0 Unlicense"
 SLOT="0"
@@ -18,6 +14,7 @@ KEYWORDS="*"
 
 RDEPEND=">=dev-libs/libsodium-1.0.11:="
 DEPEND="${RDEPEND}"
+BDEPEND="virtual/rust"
 
 src_unpack() {
 	cargo_src_unpack

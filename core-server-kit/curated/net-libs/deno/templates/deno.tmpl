@@ -2,15 +2,11 @@
 
 EAPI=7
 
-CRATES="
-{{crates}}"
-
 inherit cargo
 
-DESCRIPTION="Deno is a simple, modern and secure runtime for JavaScript and TypeScript"
-HOMEPAGE="https://github.com/denoland/deno"
-SRC_URI="{{artifacts[0].src_uri}}
-	$(cargo_crate_uris ${CRATES})"
+DESCRIPTION="{{description}}"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="MIT"
 SLOT="0"
@@ -21,6 +17,7 @@ BDEPEND="
 	sys-devel/clang:*
 	sys-devel/lld:*
 	dev-util/gn
+	virtual/rust
 "
 
 src_unpack() {

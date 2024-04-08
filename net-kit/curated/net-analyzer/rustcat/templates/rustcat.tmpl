@@ -4,17 +4,17 @@ EAPI=7
 
 inherit cargo
 
-CRATES="
-{{crates}}"
+DESCRIPTION="{{description}}"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{src_uri}}"
 
-DESCRIPTION="Modern port listener & Reverse Shell"
-HOMEPAGE="https://github.com/robiot/rustcat"
-SRC_URI="{{artifacts[0].src_uri}}
-	$(cargo_crate_uris ${CRATES})"
-LICENSE="MIT"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
-IUSE=""
+
+DOCS=( README.md )
+
+QA_FLAGS_IGNORED="/usr/bin/rcat"
 
 post_src_unpack() {
 	rm -rf "${S}"

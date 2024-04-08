@@ -1662,7 +1662,14 @@ metatools:
           - sniffio
           - idna
           - h2
-    - rich
+    - rich:
+        pydeps:
+          - pygments
+          - markdown-it-py
+    - markdown-it-py:
+        pydeps:
+          - mdurl
+    - mdurl
     - sniffio:
         license: '|| ( Apache-2.0 MIT )'
 
@@ -2496,8 +2503,6 @@ dev_python_autogen_rule:
         python_compat: python3+ pypy3
     - pyxdg:
         python_compat: python2+ pypy3
-    - python-dateutil:
-        python_compat: python2+
     - toml:
         python_compat: python2+ pypy3
     - testresources:
@@ -2603,18 +2608,8 @@ stuff_from_next:
         blocker: '!<dev-python/wheel-0.38.2-r1'
         revision:
           0.38.2: 1
+          0.43.0: 1
         desc: reference implementation of the Python wheel packaging standard, as defined in PEP 427
-        pydeps:
-          - packaging
-        body: |
-          src_prepare() {
-            # unbundle packaging
-            rm -r src/wheel/vendored || die
-            sed -i -e 's:\.vendored\.::' src/wheel/*.py || die
-            sed -i -e 's:wheel\.vendored\.::' tests/*.py || die
-
-            distutils-r1_src_prepare
-          }
 
 dev_python_pillow_rule:
   defaults:
@@ -2675,3 +2670,12 @@ yq_deps_rule:
     du_pep517: generator
   packages:
     - argcomplete
+
+python-dateutil_rule:
+  generator: pypi-compat-1
+  defaults:
+    cat: dev-python
+    python_compat: python2+
+    du_pep517: generator
+  packages:
+    - python-dateutil

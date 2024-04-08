@@ -1,0 +1,11 @@
+wezterm:
+  generator: github-1
+  packages:
+    - wezterm:
+        github:
+          user: wez
+          repo: wezterm
+          query: releases
+          tarball: wezterm-{tag}-src.tar.gz
+        extensions:
+          - rust

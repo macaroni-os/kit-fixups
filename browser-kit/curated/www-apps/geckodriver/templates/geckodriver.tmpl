@@ -2,34 +2,20 @@
 
 EAPI=7
 
-CRATES="
-{{crates}}"
-
 inherit cargo
 
-DESCRIPTION="Proxy for using WebDriver clients to interact with Gecko-based browsers."
-HOMEPAGE="https://hg.mozilla.org/mozilla-central/file/tip/testing/geckodriver"
-SRC_URI="{{artifacts[0].src_uri}}
-	$(cargo_crate_uris ${CRATES})"
+DESCRIPTION="Proxy for using W3C WebDriver compatible clients to interact with Gecko-based browsers."
+HOMEPAGE="https://hg.mozilla.org/mozilla-central/file/tip/testing/geckodriver https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
 
-DOCS=(
-	"README.md"
-	"CHANGES.md"
-	"CONTRIBUTING.md"
-	"doc/TraceLogs.md"
-)
+DOCS=( README.md )
 
 src_unpack() {
 	cargo_src_unpack
 	rm -rf ${S}
 	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
-}
-
-src_install() {
-	cargo_src_install
-	einstalldocs
 }

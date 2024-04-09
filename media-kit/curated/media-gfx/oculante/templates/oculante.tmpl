@@ -1,0 +1,61 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cargo
+
+DESCRIPTION="{{description}}"
+HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
+SRC_URI="{{src_uri}}"
+
+LICENSE="MIT"
+SLOT="0"
+KEYWORDS="*"
+
+ASM_DEP=">=dev-lang/nasm-2.15"
+DEPEND="
+	app-arch/bzip2
+	app-arch/brotli
+	dev-libs/atk
+	dev-libs/expat
+	dev-libs/glib
+	dev-libs/libffi
+	media-libs/freetype
+	media-libs/fontconfig
+	media-libs/harfbuzz
+	media-libs/libglvnd
+	media-libs/libpng
+	media-gfx/graphite2
+	sys-apps/dbus
+	sys-libs/zlib
+	x11-libs/cairo
+	x11-libs/gtk+
+	x11-libs/pango
+	x11-libs/libxcb
+	x11-libs/libX11
+	x11-libs/libXau
+	x11-libs/libXcursor
+	x11-libs/libXdmcp
+	x11-libs/libXfixes
+"
+RDEPEND="${DEPEND}"
+BDEPEND="
+	amd64? ( ${ASM_DEP} )
+	dev-util/cmake
+	virtual/rust
+"
+
+DOCS=( README.md CHANGELOG.md )
+
+QA_FLAGS_IGNORED="/usr/bin/{{github_repo}}"
+
+src_unpack() {
+	cargo_src_unpack
+	rm -rf ${S}
+	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
+}
+
+src_install() {
+	cargo_src_install
+	einstalldocs
+}

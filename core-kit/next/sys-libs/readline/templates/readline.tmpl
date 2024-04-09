@@ -21,11 +21,13 @@ RDEPEND=">=sys-libs/ncurses-5.9-r3:=[static-libs?,${MULTILIB_USEDEP}]"
 DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
+{%- if patches %}
 UPSTREAM_PATCHES=(
 	{% for patch in patches %}
 		"${DISTDIR}"/{{ patch }}
 	{%- endfor %}
 )
+{%- endif %}
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.0-no_rpath.patch
@@ -39,8 +41,9 @@ src_unpack() {
 }
 
 src_prepare() {
+	{%- if patches %}
 	eapply -p0 "${UPSTREAM_PATCHES[@]}"
-
+	{%- endif %}
 	default
 
 	# Force ncurses linking. #71420

@@ -20,6 +20,13 @@ ibus-ims:
           user: rime
           repo: librime
           query: releases
+    - ibus:
+        github:
+          user: ibus
+          repo: ibus
+          query: releases
+          select: '^\d+\.\d+\.\d+$'
+          tarball: "ibus-{version}.tar.gz"
     - ibus-m17n:
         github:
           user: ibus

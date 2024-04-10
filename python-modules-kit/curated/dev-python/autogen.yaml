@@ -373,12 +373,11 @@ dev_python_compat_rule:
         blocker: '!<dev-python/configargparse-1.7.0'
         pypi_name: ConfigArgParse
     - docutils:
+        du_pep517: generator
         compat: '0.18.1'
         blocker: '!<dev-python/docutils-0.19-r1'
         revision:
           '0.19': 1
-        pydeps:
-          - setuptools
     - dnspython:
         python_compat: python3+ pypy3
         compat: '1.16.0'

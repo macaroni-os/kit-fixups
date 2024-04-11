@@ -34,7 +34,7 @@ DEPEND="
 	sys-apps/dbus[X?]
 	X? (
 		x11-libs/libX11
-		>=x11-libs/libXfixes-6.0.0
+		>=x11-libs/libXfixes-5.0.3
 	)
 	appindicator? ( dev-libs/libdbusmenu[gtk3?] )
 	gtk2? ( x11-libs/gtk+:2 )

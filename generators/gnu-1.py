@@ -92,7 +92,7 @@ async def generate(hub, **pkginfo):
 				if not "version" in pkginfo:
 					generate.append({"keywords": "next", "href": href_tuples[-1][0], "version": href_tuples[-1][1]})
 			generate.append({"keywords": "*", "href": found_version[0], "version": found_version[1]})
-	common_artifacts = pkginfo["artifacts"] if "artifacts" in pkginfo else []
+	common_artifacts = pkginfo["artifacts"] if "artifacts" in pkginfo else {}
 	if "artifacts" in pkginfo:
 		del pkginfo["artifacts"]
 	for gen in generate:

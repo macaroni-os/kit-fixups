@@ -1,0 +1,11 @@
+tinygo-bin:
+  generator: github-1
+  packages:
+    - tinygo-bin:
+        assets:
+          amd64: tinygo{version}.linux-amd64.tar.gz
+          arm64: tinygo{version}.linux-arm64.tar.gz
+        github:
+          user: tinygo-org
+          repo: tinygo
+          query: releases

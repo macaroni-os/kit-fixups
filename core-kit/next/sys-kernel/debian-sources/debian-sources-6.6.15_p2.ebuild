@@ -29,7 +29,7 @@ RDEPEND="
 		<sys-apps/gawk-5.2.0
 		>=sys-apps/gawk-5.2.1
 	)
-	binary? ( >=sys-apps/ramdisk-1.1.3 )
+	binary? ( >=sys-apps/ramdisk-1.1.9 )
 "
 DEPEND="
 	virtual/libelf
@@ -281,6 +281,7 @@ src_install() {
 		--fs_root="${D}" \
 		--temp_root="${T}" \
 		--kernel=${MOD_DIR_NAME} \
+		--keep \
 		${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
 }
 

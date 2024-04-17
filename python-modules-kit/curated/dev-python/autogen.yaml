@@ -663,6 +663,7 @@ dev_python_compat_rule:
           }
 
     - pyzmq:
+        version: '25.1.2'
         compat: '19.0.2'
         blocker: '!<=dev-python/pyzmq-19.0.2'
         python_compat: python3+ pypy{,3}

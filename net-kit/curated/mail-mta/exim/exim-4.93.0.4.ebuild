@@ -13,7 +13,6 @@ REQUIRED_USE="
 	gnutls? ( ssl )
 	pkcs11? ( ssl )
 	spf? ( exiscan-acl )
-	srs? ( exiscan-acl )
 "
 # NOTE on USE="gnutls dane", gnutls[dane] is masked in base, unmasked
 # for x86 and amd64 only, due to this, repoman won't allow depending on

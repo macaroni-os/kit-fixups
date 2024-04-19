@@ -23,7 +23,6 @@ packages:
   - mail-client/clawsker
   - mail-client/cone
   - mail-client/etpan-ng
-  - mail-client/hap
   - mail-client/mail-notification
   - mail-client/mailx-support
   - mail-client/novell-groupwise-client
@@ -33,12 +32,10 @@ packages:
   - mail-filter/afew
   - mail-filter/amavisd-milter
   - mail-filter/amavisd-new
-  - mail-filter/anubis
   - mail-filter/ask
   - mail-filter/bmf
   - mail-filter/clamassassin
   - mail-filter/clamsmtp
-  - mail-filter/couriersrs
   - mail-filter/dcc
   - mail-filter/disspam
   - mail-filter/dkimproxy
@@ -49,9 +46,6 @@ packages:
   - mail-filter/gld
   - mail-filter/imapfilter
   - mail-filter/libsieve
-  - mail-filter/libspf2
-  - mail-filter/libsrs2
-  - mail-filter/libsrs_alt
   - mail-filter/maildrop
   - mail-filter/mailfilter
   - mail-filter/mapson
@@ -92,7 +86,6 @@ packages:
   - mail-mta/qmail-ldap
   - mail-mta/qpsmtpd
   - mail-mta/sendmail
-  - mail-mta/ssmtp
   - net-analyzer/2ping
   - net-analyzer/alive
   - net-analyzer/amap
@@ -169,7 +162,6 @@ packages:
   - net-analyzer/icinga-web
   - net-analyzer/icinga2
   - net-analyzer/ifmetric
-  - net-analyzer/ifstat
   - net-analyzer/ifstatus
   - net-analyzer/ike-scan
   - net-analyzer/ipaudit
@@ -207,7 +199,6 @@ packages:
   - net-analyzer/munin
   - net-analyzer/munin-plugins-zfs
   - net-analyzer/nagios
-  - net-analyzer/nagios-check_dnssec
   - net-analyzer/nagios-check_fail2ban
   - net-analyzer/nagios-check_glsa2
   - net-analyzer/nagios-check_ipmi_sensor
@@ -222,7 +213,6 @@ packages:
   - net-analyzer/nagios-plugin-check_raid
   - net-analyzer/nagios-plugins
   - net-analyzer/nagios-plugins-flameeyes
-  - net-analyzer/nagios-plugins-snmp
   - net-analyzer/nagircbot
   - net-analyzer/nagtrap
   - net-analyzer/namebench
@@ -277,7 +267,6 @@ packages:
   - net-analyzer/pathload
   - net-analyzer/pbgpp
   - net-analyzer/pbnj
-  - net-analyzer/pchar
   - net-analyzer/pinger
   - net-analyzer/pktstat
   - net-analyzer/pmacct
@@ -291,7 +280,6 @@ packages:
   - net-analyzer/prettyping
   - net-analyzer/pypacker
   - net-analyzer/quidscor
-  - net-analyzer/raddump
   - net-analyzer/rain
   - net-analyzer/ripe-atlas-tools
   - net-analyzer/rrdcollect
@@ -335,7 +323,6 @@ packages:
   - net-analyzer/tcpreen
   - net-analyzer/tcpreplay
   - net-analyzer/tcpslice
-  - net-analyzer/tcpstat
   - net-analyzer/tcptrace
   - net-analyzer/tcptraceroute
   - net-analyzer/tcptrack
@@ -343,7 +330,6 @@ packages:
   - net-analyzer/testssl
   - net-analyzer/thc-ipv6
   - net-analyzer/thcrut
-  - net-analyzer/thrulay
   - net-analyzer/tleds
   - net-analyzer/tptest
   - net-analyzer/tracebox
@@ -493,7 +479,6 @@ packages:
   - net-ftp/lftp
   - net-ftp/linksys-tftp
   - net-ftp/ncftp
-  - net-ftp/oftpd
   - net-ftp/profxp
   - net-ftp/pure-ftpd
   - net-ftp/pureadmin
@@ -539,7 +524,6 @@ packages:
   - net-im/spectrum2
   - net-im/swift
   - net-im/telepathy-connection-managers
-  - net-im/tkabber
   - net-im/toxic
   - net-im/transwhat
   - net-im/turses
@@ -553,7 +537,6 @@ packages:
   - net-irc/dccserver
   - net-irc/dircproxy
   - net-irc/eggdrop
-  - net-irc/eiwic
   - net-irc/emech
   - net-irc/epic5
   - net-irc/ii
@@ -595,7 +578,6 @@ packages:
   - net-libs/c-client
   - net-libs/canlock
   - net-libs/ccnet
-  - net-libs/courier-authlib
   - net-libs/courier-unicode
   - net-libs/cppzmq
   - net-libs/cvm
@@ -619,7 +601,6 @@ packages:
   - net-libs/libcorkipset
   - net-libs/libcrafter
   - net-libs/libdmapsharing
-  - net-libs/libecap
   - net-libs/libesmtp
   - net-libs/libetpan
   - net-libs/libgadu
@@ -638,7 +619,6 @@ packages:
   - net-libs/libmrss
   - net-libs/libnatpmp
   - net-libs/libndp
-  - net-libs/libnet
   - net-libs/libnetfilter_acct
   - net-libs/libnetfilter_conntrack
   - net-libs/libnetfilter_cthelper
@@ -646,7 +626,6 @@ packages:
   - net-libs/libnetfilter_log
   - net-libs/libnetfilter_queue
   - net-libs/libnfnetlink
-  - net-libs/libnfsidmap
   - net-libs/libnftnl
   - net-libs/libnids
   - net-libs/libnipper
@@ -751,7 +730,6 @@ packages:
   - net-mail/mswatch
   - net-mail/mu
   - net-mail/muchsync
-  - net-mail/nmzmail
   - net-mail/notmuch
   - net-mail/offlineimap
   - net-mail/pflogsumm
@@ -768,7 +746,6 @@ packages:
   - net-mail/qmail-notify
   - net-mail/qmail-qfilter
   - net-mail/qmail-qsanity
-  - net-mail/qmailadmin
   - net-mail/qmailanalog
   - net-mail/qmhandle
   - net-mail/qmrtg
@@ -786,16 +763,12 @@ packages:
   - net-mail/sendEmail
   - net-mail/serialmail
   - net-mail/signify
-  - net-mail/smtptools
   - net-mail/spamcup
   - net-mail/swaks
   - net-mail/t-prot
   - net-mail/tnef
-  - net-mail/tpop3d
   - net-mail/vacation
   - net-mail/vchkuser
-  - net-mail/vpopmail
-  - net-mail/vqadmin
   - net-mail/yosucker
   - net-mail/ytnef
   - net-misc/adjtimex
@@ -883,7 +856,6 @@ packages:
   - net-misc/gofish
   - net-misc/grdesktop
   - net-misc/grive
-  - net-misc/gsasl
   - net-misc/gsutil
   - net-misc/gupnp-tools
   - net-misc/gvrpcd
@@ -894,7 +866,6 @@ packages:
   - net-misc/hath
   - net-misc/hblink
   - net-misc/hlfl
-  - net-misc/hsc
   - net-misc/htbinit
   - net-misc/htpdate
   - net-misc/httpie
@@ -923,14 +894,12 @@ packages:
   - net-misc/kafkacat
   - net-misc/kea
   - net-misc/knock
-  - net-misc/l7-filter-userspace
   - net-misc/l7-protocols
   - net-misc/lambdamoo
   - net-misc/lanmap
   - net-misc/lcr
   - net-misc/libss7
   - net-misc/libteam
-  - net-misc/linux-eoip
   - net-misc/linuxptp
   - net-misc/liveice
   - net-misc/lksctp-tools
@@ -969,7 +938,6 @@ packages:
   - net-misc/netstat-nat
   - net-misc/ng-utils
   - net-misc/nicstat
-  - net-misc/npapi-sdk
   - net-misc/ntpclient
   - net-misc/ntpsec
   - net-misc/nxplayer
@@ -979,7 +947,6 @@ packages:
   - net-misc/omniORB
   - net-misc/omnisync
   - net-misc/openr2
-  - net-misc/openrdate
   - net-misc/openssh-blacklist
   - net-misc/owncloud-client
   - net-misc/packETH
@@ -1023,7 +990,6 @@ packages:
   - net-misc/secpanel
   - net-misc/selfdhcp
   - net-misc/sendfile
-  - net-misc/ser2net
   - net-misc/sgopherd
   - net-misc/shigofumi
   - net-misc/shmux
@@ -1057,7 +1023,6 @@ packages:
   - net-misc/suite3270
   - net-misc/switzerland
   - net-misc/taptap
-  - net-misc/taylor-uucp
   - net-misc/tcpsound
   - net-misc/teamviewer
   - net-misc/telnet-bsd
@@ -1080,7 +1045,6 @@ packages:
   - net-misc/vconfig
   - net-misc/vde
   - net-misc/vmnet
-  - net-misc/vmpsd
   - net-misc/vncrec
   - net-misc/vncsnapshot
   - net-misc/vrrpd
@@ -1097,7 +1061,6 @@ packages:
   - net-misc/zssh
   - net-misc/zsync
   - net-nds/389-ds-base
-  - net-nds/adtool
   - net-nds/gssproxy
   - net-nds/jxplorer
   - net-nds/ldapvi
@@ -1107,7 +1070,6 @@ packages:
   - net-nds/rpcbind
   - net-nds/shelldap
   - net-nds/smbldap-tools
-  - net-nds/tac_plus
   - net-nds/yp-tools
   - net-news/amphetadesk
   - net-news/canto-curses
@@ -1139,7 +1101,6 @@ packages:
   - net-p2p/bittornado
   - net-p2p/classified-ads
   - net-p2p/cpuminer-opt
-  - net-p2p/createtorrent
   - net-p2p/ctcs
   - net-p2p/ctorrent
   - net-p2p/dbhub
@@ -1210,7 +1171,6 @@ packages:
   - net-voip/yate
   - net-vpn/6tunnel
   - net-vpn/badvpn
-  - net-vpn/corkscrew
   - net-vpn/httptunnel
   - net-vpn/i2p
   - net-vpn/i2pd
@@ -1417,7 +1377,6 @@ packages:
   - www-misc/htdig
   - www-misc/litmus
   - www-misc/log-toolkit
-  - www-misc/mergelog
   - www-misc/monitorix
   - www-misc/multisort
   - www-misc/nx_util

@@ -181,7 +181,6 @@ src_configure() {
 
 		$(use_with lto)
 		$(use_enable pgo optimizations)
-		$(use_with readline readline "$(usex libedit editline readline)")
 	)
 
 	# disable implicit optimization/debugging flags

@@ -297,6 +297,40 @@ dev_python_namespaces_rule:
         python_compat: python2+ pypy3
         namespace: zope
 
+dev_python_setuptools_rule:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: setuptools
+    pydeps:
+      # Note: using du_pep517: setuptools
+      #       automatically add setuptools as BDEPEND.
+      #       But this just adds it to DEPEND which
+      #       seems better in some conditions to help the solver.
+      py:all:build:
+        - setuptools
+  generator: pypi-simple-1
+  packages:
+    - python-dateutil:
+        license: BSD
+        desc: "Extensions to the standard Python datetime module"
+        rdepend: 'sys-libs/timezone-data'
+        patches:
+          - 0001-zoneinfo-Get-timezone-data-from-system-tzdata.patch
+        pydeps:
+          py:all:build:
+            - six
+            - setuptools_scm
+          py:all:runtime:
+            - six
+        body: |
+          python_prepare_all() {
+            # don't install zoneinfo tarball
+            sed -i '/package_data=/d' setup.py || die
+
+            distutils-r1_python_prepare_all
+          }
+
 dev_python_compat_rule:
   defaults:
     cat: dev-python

@@ -47,15 +47,14 @@ async def fetch_soup(hub, url, name):
 
 async def fetch_patches(hub, package_url, name, version):
 	url = f"{package_url}/{name}-{version}-patches/"
+	name = f"{name}{version.public.replace('.','')}"
+
+	patches = await fetch_soup(hub, url, name)
+	patch_artifacts = [hub.pkgtools.ebuild.Artifact(url=url + p.get('href')) for p in patches]
 	try:
-		name = f"{name}{version.public.replace('.','')}"
-
-		patches = await fetch_soup(hub, url, name)
-		patch_artifacts = [hub.pkgtools.ebuild.Artifact(url=url + p.get('href')) for p in patches]
-		plevel = max([Version(p.contents[0].split('-')[1]) for p in patches]).public
-	except:
+		plevel = max([generic.parse(p.contents[0].split('-')[1]) for p in patches]).public
+		return plevel, patch_artifacts
+	except ValueError:
 		return 0, []
-
-	return plevel, patch_artifacts
 
 # vim: ts=4 sw=4 noet

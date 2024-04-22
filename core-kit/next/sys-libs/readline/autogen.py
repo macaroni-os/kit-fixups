@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 	package_url = base_url + name
 
 	tarballs = [t for t in await fetch_soup(hub, package_url, '.tar.') if  not '-doc' in t.contents[0]]
-	versions = [(Version(re.findall(regex, a.contents[0])[0]), a.get('href')) for a in tarballs if re.findall(regex, a.contents[0])]
+	versions = [(Version(re.findall(regex, a.contents[0])[0]), a.get('href')) for a in tarballs if re.findall(stable_regex, a.contents[0])]
 	latest = max([v for v in versions if not v[0].is_prerelease])
 	#latest = max([v for v in versions if v[0] < mask_above and not v[0].is_prerelease])
 

@@ -1,0 +1,13 @@
+libGLw_rule:
+  generator: dirlisting-1
+  packages:
+    - libGLw:
+        cat: x11-libs
+        desc: Mesa GLw library
+        homepage: http://mesa3d.sourceforge.net/
+        dir:
+          url: https://archive.mesa3d.org/glw/
+          order: asc
+          format: tar.bz2
+          files:
+            - glw

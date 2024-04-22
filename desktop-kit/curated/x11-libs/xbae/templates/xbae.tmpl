@@ -1,0 +1,55 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools
+
+DESCRIPTION="Motif-based widget to display a grid of cells as a spreadsheet"
+HOMEPAGE="http://xbae.sourceforge.net/"
+SRC_URI="{{src_uri}}"
+
+LICENSE="BSD"
+KEYWORDS="*"
+SLOT="0"
+IUSE="doc examples static-libs"
+
+RDEPEND="
+	x11-libs/motif:0
+	x11-libs/libXau
+	x11-libs/libXdmcp
+	x11-libs/libXext
+	x11-libs/libXmu
+	x11-libs/libXpm
+	x11-libs/libXt"
+
+DEPEND="${RDEPEND}"
+
+# tests need X display
+# and are interactive so virtualx will not help
+RESTRICT=test
+
+src_configure() {
+	local myeconfargs=( --enable-production )
+	econf ${myeconfargs[@]}
+}
+
+src_test() {
+	cd ${AUTOTOOLS_BUILD_DIR}/examples
+	emake
+	"${S}"/examples/testall
+	emake clean
+}
+
+src_install() {
+	insinto /usr/share/aclocal
+	doins ac_find_xbae.m4
+
+	 use doc && dohtml -r doc/*
+
+	if use examples; then
+		find examples -name '*akefile*' -delete || die
+		rm examples/{testall,extest} || die
+		insinto /usr/share/doc/${PF}
+		doins -r examples
+	fi
+}

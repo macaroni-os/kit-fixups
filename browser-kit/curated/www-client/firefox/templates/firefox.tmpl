@@ -530,8 +530,6 @@ item.4.link=https://bugs.funtoo.org/
 DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 
-    rm -v "${WORKDIR}"/firefox-patches/*-Enable-FLAC-on-platforms-without-ffvpx-via-ffmpeg.patch
-    rm -v "${WORKDIR}"/firefox-patches/*-bmo-1881123-musl-use-res_query.patch
     rm -v "${WORKDIR}"/firefox-patches/*-dont-use-build-id.patch
 
     if use lto; then

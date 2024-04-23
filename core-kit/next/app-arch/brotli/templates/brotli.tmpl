@@ -34,5 +34,5 @@ src_compile() {
 src_install() {
 	cmake_src_install
 	insinto /usr/share/${PN}/bindings
-	newins ${S}/dist/Brotli-${PV}.tar.gz brotli-python-${PV}.tar.gz
+	newins ${S}/dist/brotli-${PV}.tar.gz brotli-python-${PV}.tar.gz
 }

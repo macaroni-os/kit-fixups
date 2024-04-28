@@ -55,9 +55,7 @@ DEPEND="
 		dev-libs/wayland
 		x11-libs/libxkbcommon
 	)"
-# Funtoo-specific: ibus-ime-backends is only available on Funtoo. It installs desired IME backends depending on the user's ime-backend-* profile
 RDEPEND="${DEPEND}
-	app-i18n/ibus-ime-backends
 	python? (
 		gui? (
 			x11-libs/gtk+:3[introspection]
@@ -75,6 +73,8 @@ BDEPEND="
 	)
 	nls? ( sys-devel/gettext )
 	unicode? ( app-i18n/unicode-data )"
+# Funtoo-specific: ibus-ime-backends is only available on Funtoo. It installs desired IME backends depending on the user's ime-backend-* profile
+PDEPEND="app-i18n/ibus-ime-backends"
 
 src_prepare() {
 	vala_src_prepare --ignore-use

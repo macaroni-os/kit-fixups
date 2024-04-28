@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import json
+import re
 from packaging import version
 
 def find_release(json_dict):
+	pattern = re.compile("^v[0-9]+\.[0-9]+\.[0-9]+$")
 	releases = filter(
-		lambda x: x["prerelease"] is False,
+		lambda x: x["prerelease"] is False and pattern.match(x["tag_name"]),
 		json_dict,
 	)
 	releases = list(releases)

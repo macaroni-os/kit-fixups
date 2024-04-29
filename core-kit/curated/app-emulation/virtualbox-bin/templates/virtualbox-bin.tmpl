@@ -16,13 +16,13 @@ SLOT="0"
 KEYWORDS="*"
 IUSE="+additions doc headless python vboxwebsrv rdesktop-vrdp sdk"
 
-
 DEPEND="app-arch/unzip
 	${PYTHON_DEPS}"
 
 RDEPEND="!app-emulation/virtualbox-additions
 	~app-emulation/virtualbox-modules-{{main_ver}}
 	!headless? (
+		app-crypt/mit-krb5
 		dev-libs/glib
 		media-libs/fontconfig
 		media-libs/freetype

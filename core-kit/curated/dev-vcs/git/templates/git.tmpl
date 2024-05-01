@@ -382,7 +382,6 @@ src_install() {
 	local contrib_objects=(
 		buildsystems
 		fast-import
-		hg-to-git
 		hooks
 		remotes2config.sh
 		rerere-train.sh

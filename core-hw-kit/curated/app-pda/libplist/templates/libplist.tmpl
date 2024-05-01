@@ -102,6 +102,4 @@ src_install() {
 	# https://github.com/libimobiledevice/libplist/issues/163
 	# upstream commit 137716df3f197a7184c1fba88fcb30480dafd6e0
 	dosym ./libplist-2.0.pc /usr/$(get_libdir)/pkgconfig/libplist.pc
-	dosym ./libplist++-2.0.so.3.3.0 /usr/$(get_libdir)/libplist++.so
-	dosym ./libplist-2.0.so.3.3.0 /usr/$(get_libdir)/libplist.so
 }

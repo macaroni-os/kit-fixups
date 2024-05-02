@@ -1,6 +1,6 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 inherit eutils
 
@@ -15,6 +15,10 @@ SLOT="0"
 KEYWORDS="*"
 
 S="${WORKDIR}/${PN}"
+
+post_src_unpack() {
+    eapply -p1 "${FILESDIR}"/bmake-ld-soname.patch
+}
 
 src_configure() {
 	econf \

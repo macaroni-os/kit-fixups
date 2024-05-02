@@ -20,6 +20,10 @@ KEYWORDS="*"
 IUSE=""
 S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
+RDEPEND="app-emulation/libnvidia-container"
+
+DEPEND="${RDEPEND}"
+
 BDEPEND="dev-lang/go"
 
 src_compile() {

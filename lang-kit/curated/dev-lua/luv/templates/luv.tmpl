@@ -29,6 +29,18 @@ DEPEND="
 RDEPEND="${DEPEND}"
 
 S="${WORKDIR}/${MY_P}"
+lua_compat_dir="${WORKDIR}/lua-compat-5.3-${LUA_COMPAT_PV}"
+
+src_unpack() {
+	default
+	if [[ ! -d ${S} ]]; then
+		mv -v "${WORKDIR}"/*-luv-* "${S}" || die
+	fi
+	if [[ ! -d ${lua_compat_dir} ]]; then
+		mv -v "${WORKDIR}"/*-lua-compat-* "${lua_compat_dir}" || die
+	fi
+}
+
 
 src_prepare() {
 	# Fix libdir
@@ -38,7 +50,6 @@ src_prepare() {
 }
 
 src_configure() {
-	lua_compat_dir="${WORKDIR}/lua-compat-5.3-${LUA_COMPAT_PV}"
 	local mycmakeargs=(
 		-DBUILD_MODULE=OFF
 		-DLUA_BUILD_TYPE=System

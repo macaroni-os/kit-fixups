@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from packaging.version import Version
-
+import glob
+import re
+import os.path
 
 async def generate(hub, **pkginfo):
     user = pkginfo["name"]
@@ -40,16 +41,25 @@ async def generate(hub, **pkginfo):
         info_url, is_json=True
     )
 
-    for version in get_versions(pkginfo, tags_dict):
+    for version in await get_versions(pkginfo, tags_dict):
+        package = f"{user}-{repo}-{version}"
+
+        artifact = hub.pkgtools.ebuild.Artifact(
+            url=f"https://gitlab.freedesktop.org/{user}/{repo}/-/archive/{repo}-{version}/{package}.tar.bz2")
+
+        subslot = await get_subslot(artifact, package)
+
         ebuild = hub.pkgtools.ebuild.BreezyBuild(
             **pkginfo,
-            version=Version(version),
-            artifacts=[hub.pkgtools.ebuild.Artifact(
-                url=f"https://gitlab.freedesktop.org/{user}/{repo}/-/archive/{repo}-{version}/{user}-{repo}-{version}.tar.bz2")],
+            version=version,
+            gitlab_user=user,
+            gitlab_repo=repo,
+            subslot=subslot,
+            artifacts=[artifact]
         )
         ebuild.push()
 
-def get_versions(pkginfo, tags_dict):
+async def get_versions(pkginfo, tags_dict):
     if "gitlab_versions" in pkginfo:
         package_versions = pkginfo["gitlab_versions"]
         versions = [package_version for package_version in package_versions]
@@ -63,5 +73,18 @@ def get_versions(pkginfo, tags_dict):
     else:
         versions = [tag["name"].split('-')[1] for tag in tags_dict]
     return versions
+
+async def get_subslot(artifact, package):
+    await artifact.fetch()
+    artifact.extract()
+    cmake_file = open(
+        glob.glob(os.path.join(artifact.extract_path, package, "CMakeLists.txt"))[0]
+    ).read()
+    soversion = re.search("SOVERSION ([0-9]+)", cmake_file)
+    if not soversion:
+        soversion = re.search("SOVERSION_NUMBER \"([0-9]+)\"", cmake_file)
+    subslot = soversion.group(1)
+    artifact.cleanup()
+    return subslot
 
 # vim: ts=4 sw=4 noet

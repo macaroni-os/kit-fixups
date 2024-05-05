@@ -3,6 +3,8 @@
 from metatools.generator.common import common_init
 from bs4 import BeautifulSoup
 from packaging import version
+import re
+from urllib.parse import urljoin, urlsplit
 
 
 # This autogen has been updated to put any new GNU ebuilds in "next" KEYWORDS, if they are the latest and
@@ -13,38 +15,14 @@ def get_version_from_href(href, name, extension):
 	return file[len(name) + 1:-len(extension)]
 
 
-def filter_valid_href(href, name, extension):
-	"""
-	Assuming ``name`` is "gzip" and ``extension`` is ".tar.gz", this will look at ``href``, a URL or file, and
-	return True if it points to a file starting with "gzip-" and ending with ".tar.gz". This is used on
-	directory listings to validate that the URLs we are looking at appear to be pointing to the tarball
-	we care about. This function is to be used with ``filter()``.
-	"""
-	if not href.endswith(extension):
-		return False
-	if not href.split("/")[-1].startswith(f"{name}-"):
-		return False
-	return True
-
-
-def filter_and_sort_hrefs(hrefs, name, extension):
-	"""
-	Given a list of URLs or files from a directory listing (``hrefs``), this function will return a list of tuples.
-	The tuples will consist of the original URL/file string, along with the extracted version, and the list will be
-	sorted (from least to greatest) by version using version.parse. For example::
-
-	  [ ( "gzip-1.0.tar.gz", "1.0" ), ( "gzip-2.0.tar.gz" , "2.0" ) ]
-	
-	Note that any bogus files or URLS -- those not starting with ``name`` or ending with ``extension`` -- thus pointing
-	to things we don't care about -- will be removed from the output.
-	"""
-	valid_list = filter(lambda href: filter_valid_href(href, name, extension), hrefs)
-	tuple_list = map(lambda href: (href, get_version_from_href(href, name, extension)), valid_list)
-
+def sort_url_and_vstr_tuples(tuple_list):
 	# Do NOT use sorted() below. We need to catch individual exceptions below:
 	unsorted_list = []
 	for url, v_str in tuple_list:
 		try:
+			# initial sanity check to skip anything more complicated than 1.2.3 ( 1.2.3-rc1, for example):
+			if not re.fullmatch('[\d.]+', v_str):
+				raise version.InvalidVersion(f"skipping {v_str}")
 			v_obj = version.parse(v_str)
 			if v_obj.__class__.__name__ == "LegacyVersion":
 				continue
@@ -55,19 +33,67 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	return list(sorted_list)
 
 
+async def expand_url_path(hub, pkginfo):
+	if "base_url" not in pkginfo:
+		base_url = f"https://ftp.gnu.org/gnu/{pkginfo['name']}/"
+	else:
+		base_url = pkginfo["base_url"]
+	if not base_url.endswith("/"):
+		base_url += "/"
+	cur_url = base_url
+	dir_paths = []
+	if "dir_paths" in pkginfo:
+		dir_paths = pkginfo["dir_paths"]
+	
+	for dir_path_regex in dir_paths:
+		src_data = await hub.pkgtools.fetch.get_page(base_url)
+		soup = BeautifulSoup(src_data, "html.parser")
+		url_and_vstr_tuples = []
+		for link in soup.find_all("a"):
+			full_url = urljoin(cur_url, link.get("href"))
+			last_pathpart = urlsplit(full_url).path.rstrip('/').split('/')[-1]
+			is_match = re.fullmatch(dir_path_regex, last_pathpart)
+			if is_match:
+				url_and_vstr_tuples.append((full_url, is_match.groups()[0]))
+			else:
+				hub.pkgtools.model.log.debug(f"Skipping path part {last_pathpart}")
+		sorted_list = sort_url_and_vstr_tuples(url_and_vstr_tuples)
+		if not len(sorted_list):
+			raise IndexError(f"Could not find subpath matching regex '{dir_path_regex}' at {base_url}")
+		else:
+			base_url, vstr, vobj = sorted_list[-1]
+	return base_url
+
+
 async def generate(hub, **pkginfo):
 	common_init(hub, pkginfo)
 	app = pkginfo["name"]
 	extension = f".tar.{pkginfo['compression']}"
-	src_url = f"https://ftp.gnu.org/gnu/{app}/"
-	src_data = await hub.pkgtools.fetch.get_page(src_url)
+
+	base_url = await expand_url_path(hub, pkginfo)
+	src_data = await hub.pkgtools.fetch.get_page(base_url)
 	soup = BeautifulSoup(src_data, "html.parser")
 
 	hrefs = []
 
 	for link in soup.find_all("a"):
-		hrefs.append(link.get("href"))
-	href_tuples = filter_and_sort_hrefs(hrefs, app, extension)
+		href = link.get('href')
+		if href.endswith('/'):
+			# we are looking for files, not paths:
+			continue
+		else:
+			full_url = urljoin(base_url, href)
+			last_pathpart = urlsplit(full_url).path.rstrip('/').split('/')[-1]
+			if not last_pathpart.endswith(extension):
+				hub.pkgtools.model.log.debug(f"Skipping {last_pathpart} (wrong extension)")
+			elif not last_pathpart.startswith(f'{app}-'):
+				hub.pkgtools.model.log.debug(f"Skipping {last_pathpart} (wrong name)")
+			else:
+				hub.pkgtools.model.log.debug(f"Processing {last_pathpart} (potentially good!)")
+				hrefs.append(full_url)
+
+	tuple_list = map(lambda href: (href, get_version_from_href(href, app, extension)), hrefs)
+	href_tuples = sort_url_and_vstr_tuples(tuple_list)
 
 	if not len(href_tuples):
 		raise hub.pkgtools.ebuild.BreezyError(f"No valid tarballs found for {app}.")
@@ -98,7 +124,7 @@ async def generate(hub, **pkginfo):
 	for gen in generate:
 		pkginfo.update(gen)
 		local_artifacts = common_artifacts.copy()
-		local_artifacts["global"] = hub.Artifact(url=f"{src_url}{gen['href']}")
+		local_artifacts["global"] = hub.Artifact(url=gen['href'])
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
 			artifacts=local_artifacts

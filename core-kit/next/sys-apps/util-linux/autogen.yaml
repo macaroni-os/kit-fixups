@@ -1,0 +1,9 @@
+util-linux:
+  generator: gnu-1
+  packages:
+    - util-linux:
+        base_url: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux
+        dir_paths:
+          - 'v([\d.]+)'
+        compression: xz
+

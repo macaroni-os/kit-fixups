@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-115-patches-05.tar.xz"
+FIREFOX_PATCHSET="firefox-125-patches-03.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -216,7 +216,7 @@ llvm_check_deps() {
 MOZ_LANGS=(
 	af ar ast be bg br ca cak cs cy da de dsb
 	el en-CA en-GB en-US es-AR es-ES et eu
-	fi fr fy-NL ga-IE gd gl he hr hsb hu
+	fi fr fy-NL gd gl he hr hsb hu
 	id is it ja ka kab kk ko lt lv ms nb-NO nl nn-NO
 	pa-IN pl pt-BR pt-PT rm ro ru
 	sk sl sq sr sv-SE th tr uk uz vi zh-CN zh-TW
@@ -225,7 +225,7 @@ MOZ_LANGS=(
 mozilla_set_globals() {
 	# https://bugs.gentoo.org/587334
 	local MOZ_TOO_REGIONALIZED_FOR_L10N=(
-		fy-NL ga-IE gu-IN hi-IN hy-AM nb-NO ne-NP nn-NO pa-IN sv-SE
+		fy-NL gu-IN hi-IN hy-AM nb-NO ne-NP nn-NO pa-IN sv-SE
 	)
 
 	local lang xflag
@@ -527,14 +527,7 @@ DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-disable_audio_thread_priority_default_features.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1559213-fix-system-av1-libs.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bgo-908297-ppc64-profiler.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1838655-arm-unified-build-missing-include.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-libaom-Use-NEON_FLAGS-instead-of-VPX_ASFLAGS-for-lib.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1840931-elfhack-pgo-fix.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1839023-arm-unified-build-missing-header.patch
-	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1838323-disambiguate-skvx-when-building-with-different-arches.patch
+	rm -v "${WORKDIR}"/firefox-patches/*-bmo-1862601-system-icu-74.patch
 	eapply "${WORKDIR}/firefox-patches"
 
 	# Allow user to apply any additional patches without modifing ebuild
@@ -677,9 +670,11 @@ src_configure() {
 	[[ -n ${MOZ_ESR} ]] && update_channel=esr
 	mozconfig_add_options_ac '' --update-channel=${update_channel}
 
-	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
-		mozconfig_add_options_ac '' --enable-rust-simd
-	fi
+#	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+#		mozconfig_add_options_ac '' --enable-rust-simd
+#	fi
+    mozconfig_add_options_ac '' --disable-rust-simd
+
 
 	if [[ -s "${S}/api-google.key" ]] ; then
 		local key_origin="Gentoo default"

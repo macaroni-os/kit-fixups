@@ -1,0 +1,81 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+DAEMON=/usr/sbin/incusd
+PIDFILE=/run/incusd.pid
+
+if [ -n "${INCUSD_HTTP_PROXY}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env http_proxy=${INCUSD_HTTP_PROXY}"
+fi
+if [ -n "${INCUSD_HTTPS_PROXY}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env https_proxy=${INCUSD_HTTPS_PROXY}"
+fi
+if [ -n "${INCUSD_NO_PROXY}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env no_proxy=${INCUSD_NO_PROXY}"
+fi
+if [ -n "${INCUSD_INSECURE_TLS}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env INCUS_INSECURE_TLS=${INCUSD_INSECURE_TLS}"
+fi
+if [ -n "${INCUSD_OVMF_PATH}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env INCUS_OVMF_PATH=${INCUSD_OVMF_PATH}"
+fi
+if [ -n "${INCUSD_LXC_HOOK}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env INCUS_LXC_HOOK=${INCUSD_LXC_HOOK}"
+fi
+if [ -n "${INCUSD_LXC_TEMPLATE_CONFIG}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env INCUS_LXC_TEMPLATE_CONFIG=${INCUSD_LXC_TEMPLATE_CONFIG}"
+fi
+
+INCUSD_USE_INCUSLXCFS=${INCUSD_USE_INCUSLXCFS:-0}
+
+depend() {
+	need net
+	if [ "${INCUSD_LXCFS_ISOLATED}" = "1" ] ; then
+		need incus-lxcfs
+	else
+		need lxcfs
+	fi
+}
+
+start() {
+	ebegin "Starting incusd service"
+
+	modprobe -f loop > /dev/null 2>&1
+
+	# fix permissions on /var/lib/incus and make sure it exists
+	install -d /var/lib/incus --group incus-admin --owner root --mode 0775
+	start-stop-daemon --start \
+		--pidfile ${PIDFILE} \
+		--exec ${DAEMON} \
+		--background \
+		--make-pidfile \
+		-- \
+		${INCUSD_OPTIONS}
+	eend ${?}
+}
+
+stop() {
+	if [ "${RC_CMD}" = restart ]; then
+		ebegin "Stopping incusd service (but not containers)"
+		# start-stop-daemon sends SIGTERM with a timeout of 5s by default.
+		# SIGTERM indicates to Incus that it will be stopped temporarily.
+		# Instances will keep running.
+		start-stop-daemon --stop --quiet -p "${PIDFILE}"
+		eend ${?}
+	else
+		ebegin "Stopping incusd service and containers, waiting 40s"
+		# SIGPWR indicates to Incus that the host is going down.
+		# Incus will do a clean shutdown of all instances.
+		# After 30s all remaining instances will be killed.
+		# We wait up to 40s for Incus.
+		start-stop-daemon --stop --quiet -R SIGPWR/40 -p "${PIDFILE}"
+		eend ${?}
+	fi
+}

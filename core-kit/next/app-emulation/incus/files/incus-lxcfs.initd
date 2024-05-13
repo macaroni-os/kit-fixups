@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+DAEMON=/usr/bin/lxcfs
+PIDFILE=/run/incus-lxcfs.pid
+
+start() {
+	ebegin "Starting incus-lxcfs."
+	/sbin/modprobe -q fuse
+	install -d /var/lib/incus-lxcfs/
+	start-stop-daemon --start \
+			--pidfile ${PIDFILE} \
+			--exec ${DAEMON} \
+			--background \
+			--make-pidfile \
+			-- ${INCUS_LXCFS_OPTS} \
+			--pidfile ${PIDFILE} \
+			/var/lib/incus-lxcfs
+	eend ${?}
+}
+
+stop() {
+	ebegin "Stopping incus-lxcfs."
+	start-stop-daemon --stop --quiet -R TERM/45 -p ${PIDFILE}
+	eend ${?}
+}

@@ -110,6 +110,7 @@ src_configure() {
 
 	local myeconfargs=(
 		"${commonargs[@]}"
+		--disable-liblastlog2
 		--with-bashcompletiondir="$(get_bashcompdir)"
 		--without-python
 		$(use_enable suid makeinstall-chown)

@@ -1,0 +1,15 @@
+smartmontools:
+  generator: github-1
+  packages:
+    - smartmontools:
+        github:
+          user: smartmontools
+          repo: smartmontools
+          query: releases
+          transform:
+            - kind: string
+              match: 'RELEASE_'
+              replace: ''
+            - kind: string
+              match: '_'
+              replace: '.'

@@ -2,7 +2,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python{2_7,3_4,3_5,3_6,3_7} )
+PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="xml"
 
 inherit python-single-r1
@@ -30,5 +30,6 @@ pkg_setup() {
 
 src_prepare() {
 	python_fix_shebang "${WORKDIR}"
+	eapply "${FILESDIR}"/issue_36.patch
 	eapply_user
 }

@@ -1,0 +1,11 @@
+--- a/itstool.in        2024-05-16 08:47:11.809163361 -0600
++++ b/itstool.in        2024-05-16 08:49:27.717744408 -0600
+@@ -1079,6 +1079,8 @@
+                         child.replaceNode(newnode)
+                     else:
+                         repl = self.get_translated(ph_node, translations, strict=strict, lang=lang)
++                        if repl == ph_node:
++                            repl = repl.copyNode(1)
+                         child.replaceNode(repl)
+                 scan_node(child)
+         try:

@@ -41,10 +41,10 @@ inherit java-utils-2 multilib
 # @DEFAULT_UNSET
 # @DESCRIPTION:
 # Setting this variable non-empty before inheriting java-ant-2 disables adding
-# dev-java/ant-core into DEPEND.
+# dev-java/ant-bin into DEPEND.
 if [[ -z "${JAVA_ANT_DISABLE_ANT_CORE_DEP}" ]]; then
-	JAVA_ANT_E_DEPEND+=" >=dev-java/ant-core-1.8.2"
-	[[ "${EAPI:-0}" != 0 ]] && JAVA_ANT_E_DEPEND+=":0"
+	JAVA_ANT_E_DEPEND+=" >=dev-java/ant-bin-1.10.0"
+	[[ "${EAPI:-0}" != 0 ]] && JAVA_ANT_E_DEPEND+=":1.10"
 fi
 
 # add ant tasks specified in WANT_ANT_TASKS to DEPEND

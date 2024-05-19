@@ -16,13 +16,20 @@ shorewall_rule:
           url: https://shorewall.org/pub/shorewall/5.2/shorewall-5.2.8/
           format: tar.bz2
           files:
-            - shorewall-core
-            - shorewall
-            - shorewall6
-            - shorewall-lite
-            - shorewall6-lite
-            - shorewall-init
-            - shorewall-docs-html
+            global:
+              - shorewall-core
+            ipv4:
+              - shorewall
+            ipv6:
+              - shorewall6
+            lite4:
+              - shorewall-lite
+            lite6:
+              - shorewall6-lite
+            init:
+              - shorewall-init
+            doc:
+              - shorewall-docs-html
 
 nftables_rule:
   generator: dirlisting-1

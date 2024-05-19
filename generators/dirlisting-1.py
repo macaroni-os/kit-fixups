@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from collections import defaultdict
 # Please report any problems with this generator.  It is expected to work well
 # for any web page serving as a directory listing.
 
@@ -8,13 +8,59 @@ from distutils.version import LooseVersion
 import re
 
 
+def get_file_values(d):
+	"""
+	This gets values from a dictionary/list and also handles dictionaries nested on level deep.
+	For example: { "foo" : { "bar" : "oni" }} as a parameter would return [ "oni" ].
+	"""
+	keys = []
+	if isinstance(d, list):
+		for item in d:
+			keys.append(item)
+	else:
+		for k, v in d.items():
+			keys += v
+	return keys
+
+
+def get_file_keys(d):
+	"""
+	This gets the proper conditional USE keys for all files.
+	"""
+	file_keys = {}
+	if isinstance(d, list):
+		for item in d:
+			file_keys[item] = 'global'
+	else:
+		for k, v in d.items():
+			for vv in v:
+				file_keys[vv] = k
+	return file_keys
+
+
+def files_to_artifacts(hub, pkginfo, files_l, file_keys, release):
+	"""
+	This converts YAML files: data to artifacts= data, respecting conditional USE.
+	d is the files dictionary to convert.
+	"""
+	base_url = pkginfo['dir']['url']
+	artifacts = {'global': []}
+
+	for f, fn in release.items():
+		if f in files_l:
+			artifacts[file_keys[f]] = hub.Artifact(url=f"{base_url}{fn}")
+	return artifacts
+
+
 async def generate(hub, **pkginfo):
 	release_data = await hub.pkgtools.fetch.get_page(
 		pkginfo['dir']['url'], is_json=False
 	)
 	files = pkginfo['name']
-	# a logical OR list of files from YAML; regex satisfied if matches any.
-	files += '|' + '|'.join(pkginfo["dir"]["files"]) if 'files' in pkginfo['dir'] else ''
+	if 'files' in pkginfo['dir']:
+		all_files = get_file_values(pkginfo['dir']['files'])
+		# a logical OR list of files from YAML; regex satisfied if matches any.
+		files += '|' + '|'.join(all_files)
 	# ordered by appearance order on the page
 	releases = [
 		[x[3], dict(zip(['filename', 'name-ver', 'name', 'ver'], x))]
@@ -87,15 +133,14 @@ async def generate(hub, **pkginfo):
 	# if no 'files' key defined in YAML, just add 'name' to the list of files.
 	files_l = []
 	if 'files' in pkginfo['dir']:
-		files_l = [f for f in pkginfo['dir']['files']]
+		files_l = get_file_values(pkginfo['dir']['files'])
+		file_keys = get_file_keys(pkginfo['dir']['files'])
 	else:
 		files_l.append(pkginfo['name'])
+		file_keys = { pkginfo['name'] : 'global'}
 
 	# iterate over list of files in the chosen release
-	artifacts = { "global" : []}
-	for f, fn in release.items():
-		if f in files_l:
-			artifacts["global"].append(hub.Artifact(url=f"{pkginfo['dir']['url']}{fn}"))
+	artifacts = files_to_artifacts(hub, pkginfo, files_l, file_keys, release)
 
 	if 'additional_artifacts' in pkginfo:
 		for key, url in pkginfo['additional_artifacts'].items():

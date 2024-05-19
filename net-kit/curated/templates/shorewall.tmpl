@@ -68,15 +68,7 @@ else
 	KEYWORDS="~alpha amd64 ~hppa ppc ppc64 sparc x86"
 fi
 
-SRC_URI="
-	{{ artifacts['shorewall-core'].src_uri }}
-	ipv4? ( {{ artifacts['shorewall'].src_uri }} )
-	ipv6? ( {{ artifacts['shorewall6'].src_uri }} )
-	lite4? ( {{ artifacts['shorewall-lite'].src_uri }} )
-	lite6? ( {{ artifacts['shorewall6-lite'].src_uri }} )
-	init? ( {{ artifacts['shorewall-init'].src_uri }} )
-	doc? ( {{ artifacts['shorewall-docs-html'].src_uri }} )
-"
+SRC_URI="{{src_uri}}"
 
 # - Shorewall6 requires Shorewall
 # - Installing Shorewall-init or just the documentation doesn't make any sense,

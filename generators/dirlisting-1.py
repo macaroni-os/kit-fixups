@@ -14,10 +14,10 @@ async def generate(hub, **pkginfo):
 	)
 	files = pkginfo['name']
 	# a logical OR list of files from YAML; regex satisfied if matches any.
-	files += '|'+'|'.join(pkginfo["dir"]["files"]) if 'files' in pkginfo['dir'] else ''
+	files += '|' + '|'.join(pkginfo["dir"]["files"]) if 'files' in pkginfo['dir'] else ''
 	# ordered by appearance order on the page
 	releases = [
-		[ x[3] , dict(zip(['filename', 'name-ver', 'name', 'ver'], x)) ]
+		[x[3], dict(zip(['filename', 'name-ver', 'name', 'ver'], x))]
 		# returns ('file-version.extension', 'file-version, 'version') triples
 		for x in re.findall(
 			# start searching at 'href="'
@@ -36,7 +36,7 @@ async def generate(hub, **pkginfo):
 				else f'\.(tar\.gz|tar\.bz2|tar\.xz|zip)+'
 			)
 			+ ')"',
-		release_data
+			release_data
 		)
 	]
 	if not releases:
@@ -60,13 +60,13 @@ async def generate(hub, **pkginfo):
 	versions_l = [
 		[
 			ver, {
-				z['name'] : z['filename']
-				# iterate over the files in a version
-				for q,z in releases if q == ver
-			}
+			z['name']: z['filename']
+			# iterate over the files in a version
+			for q, z in releases if q == ver
+		}
 		]
 		# restrict so that only unique versions are included
-		for ver in sorted(list(set(h for h,k in releases)), key=LooseVersion)
+		for ver in sorted(list(set(h for h, k in releases)), key=LooseVersion)
 	]
 
 	# Highest version is assumed to be either the first or last entry.
@@ -76,31 +76,30 @@ async def generate(hub, **pkginfo):
 	ver, release = (
 		versions_l[-1]
 		if 'order' in pkginfo['dir']
-			and 'asc' in pkginfo['dir']['order']
+		   and 'asc' in pkginfo['dir']['order']
 		else versions_l[0]
 	)
 	if not 'version' in pkginfo or (
-		'version' in pkginfo and pkginfo['version'] == 'latest'
+			'version' in pkginfo and pkginfo['version'] == 'latest'
 	):
 		pkginfo['version'] = ver
 
-# if no 'files' key defined in YAML, just add 'name' to the list of files.
+	# if no 'files' key defined in YAML, just add 'name' to the list of files.
 	files_l = []
 	if 'files' in pkginfo['dir']:
 		files_l = [f for f in pkginfo['dir']['files']]
 	else:
 		files_l.append(pkginfo['name'])
 
-# iterate over list of files in the chosen release
-	artifacts = {
-		f : hub.pkgtools.ebuild.Artifact(
-			url = f"{pkginfo['dir']['url']}{fn}"
-		) for f, fn in release.items() if f in files_l
-	}
+	# iterate over list of files in the chosen release
+	artifacts = { "global" : []}
+	for f, fn in release.items():
+		if f in files_l:
+			artifacts["global"].append(hub.Artifact(url=f"{pkginfo['dir']['url']}{fn}"))
 
 	if 'additional_artifacts' in pkginfo:
 		for key, url in pkginfo['additional_artifacts'].items():
-			artifacts[key] = hub.pkgtools.ebuild.Artifact(url)
+			artifacts['globals'][key] = hub.pkgtools.ebuild.Artifact(url)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
@@ -108,6 +107,4 @@ async def generate(hub, **pkginfo):
 	)
 	ebuild.push()
 
-
 # vim: :et sw=4 ts=4 noet
-

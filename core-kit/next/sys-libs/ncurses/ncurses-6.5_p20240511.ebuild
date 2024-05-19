@@ -8,13 +8,15 @@ MY_PV="${PV:0:3}"
 MY_P="${PN}-${MY_PV}"
 DESCRIPTION="console display library"
 HOMEPAGE="https://www.gnu.org/software/ncurses/ https://invisible-island.net/ncurses/"
-SRC_URI="{% for artifact in artifacts %}
-	{{ artifact.src_uri }}{% endfor %}
+SRC_URI="
+	https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz -> ncurses-6.5.tar.gz
+	https://invisible-mirror.net/archives/ncurses/6.5/ncurses-6.5-20240504.patch.gz -> ncurses-6.5-20240504.patch.gz
+	https://invisible-mirror.net/archives/ncurses/6.5/ncurses-6.5-20240511.patch.gz -> ncurses-6.5-20240511.patch.gz
 "
 
 LICENSE="MIT"
-SLOT="0/{{ soname }}" # The subslot reflects the SONAME.
-KEYWORDS="{% if stable %}*{% else %}next{% endif %}"
+SLOT="0/6" # The subslot reflects the SONAME.
+KEYWORDS="next"
 IUSE="ada +cxx debug doc gpm minimal profile static-libs test tinfo trace unicode"
 RESTRICT="!test? ( test )"
 
@@ -29,8 +31,9 @@ RDEPEND="${DEPEND}
 S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
-	{% for patch in patches %}"${WORKDIR}"/{{ patch }}
-	{% endfor %}
+	"${WORKDIR}"/ncurses-6.5-20240504.patch
+	"${WORKDIR}"/ncurses-6.5-20240511.patch
+	
 	"${FILESDIR}/${PN}-5.7-nongnu.patch"
 	"${FILESDIR}/${PN}-6.0-rxvt-unicode-9.15.patch" #192083 #383871
 	"${FILESDIR}/${PN}-6.0-pkg-config.patch"

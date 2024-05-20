@@ -4,13 +4,9 @@ EAPI=7
 
 inherit go-module
 
-EGO_SUM=(
-{{ gosum }}
-)
-
 go-module_set_globals
 
-DESCRIPTION="CoreDNS is a DNS server/forwarder, written in Go, that chains plugins"
+DESCRIPTION="{{description}}"
 HOMEPAGE="https://coredns.io/ https://github.com/{{github_user}}/{{github_repo}}"
 SRC_URI="{{src_uri}}"
 
@@ -20,8 +16,13 @@ KEYWORDS="*"
 
 DEPEND=""
 RDEPEND="${DEPEND}"
-BDEPEND=">=dev-lang/go-1.17"
+BDEPEND=">=dev-lang/go-1.21"
 S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
+
+src_compile() {
+	FORCE_HOST_GO=yes
+	emake
+}
 
 src_install() {
 	dobin ${PN}

@@ -2,10 +2,14 @@ opencl_stuff:
   generator: github-1
   packages:
     - opencl-headers:
-        version: 2020.12.18
         github:
           user: KhronosGroup
           repo: OpenCL-Headers
+          query: tags
+    - opencl-icd-loader:
+        github:
+          user: KhronosGroup
+          repo: OpenCL-ICD-Loader
           query: tags
     - opencl-clhpp:
         # Note: upstream now has GitHub JSON tag_name with timestamp and name with release version in it.
@@ -32,7 +36,6 @@ opencl_stuff:
         # "select:" whereas tags allow you to use the simpler "version:" to lock a version. I should
         # open a bug for this and fix this.
         #
-        select: v2.0.16
         github:
           user: KhronosGroup
           repo: OpenCL-CLHPP

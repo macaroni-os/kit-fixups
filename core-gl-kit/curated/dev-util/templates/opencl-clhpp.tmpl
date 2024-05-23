@@ -37,6 +37,7 @@ src_configure() {
 		-DBUILD_EXAMPLES=OFF
 		-DBUILD_TESTS=OFF
 		-DOPENCL_INCLUDE_DIR=${EPREFIX}/usr/include/CL
+		-DBUILD_TESTING=OFF
 	)
 
 	cmake-utils_src_configure

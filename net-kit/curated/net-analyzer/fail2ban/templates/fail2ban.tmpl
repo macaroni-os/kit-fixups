@@ -45,7 +45,6 @@ python_prepare_all() {
 }
 
 python_compile() {
-	./fail2ban-2to3 || die
 	distutils-r1_python_compile
 }
 
@@ -93,7 +92,7 @@ pkg_preinst() {
 pkg_postinst() {
 	tmpfiles_process ${PN}-tmpfiles.conf
 
-	if [[ ${previous_less_than_0_7} = 0 ]] ; then
+	if [[ ${previous_less_than_0_7} == 0 ]] ; then
 		elog
 		elog "Configuration files are now in /etc/fail2ban/"
 		elog "You probably have to manually update your configuration"

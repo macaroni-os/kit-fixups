@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re 
 
 arches = {
 	"x64": "amd64",
@@ -62,11 +63,24 @@ async def generate(hub, **pkginfo):
 				artifacts = generate_bin_artifacts(hub,src_data[1]["binaries"],**local_pkginfo)
 			if len(artifacts) == 0:
 				continue
+			# FL-12236: Some openjdk versions may have a "_p7.1" version which is invalid for ebuilds.
+			# This code adapts "_p7.1" to be "_p7-r1" (using revision) which should allow Portage to
+			# find latest version properly and is also a proper ebuild version. "baddy" is used to
+			# detect this condition:
+			baddy = re.match('(.*)_p([0-9]+)[.]([0-9]+)', version)
+			if baddy:
+				revision = baddy.groups()[2]
+				version = baddy.groups()[0] + '_p' + baddy.groups()[1]
+				# src_path needs a small fixup too:
+				src_path = src_path[:src_path.rfind('.')]
+			else:
+				revision = 0
 			ebuild = hub.pkgtools.ebuild.BreezyBuild(
 				**local_pkginfo,
 				version=version,
 				src_path=src_path,
 				artifacts=artifacts,
+				revision=revision
 			)
 			ebuild.push()
 

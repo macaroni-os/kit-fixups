@@ -73,6 +73,9 @@ pkg_setup() {
 }
 
 src_prepare() {
+	if [[ ${PV} == 6.8.1 ]]; then
+		eapply "${FILESDIR}"/btrfs-progs_convert.patch
+	fi
 	default
 }
 

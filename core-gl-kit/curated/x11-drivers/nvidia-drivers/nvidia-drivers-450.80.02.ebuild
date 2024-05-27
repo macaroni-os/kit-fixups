@@ -49,7 +49,7 @@ IUSE="${IUSE} ${IUSE_KERNELS} ${IUSE_NV_PKG} ${IUSE_DUMMY}"
 
 COMMON="
 	opencl? (
-		dev-libs/ocl-icd
+		dev-util/opencl-icd-loader
 	)
 	kernel_linux? ( >=sys-libs/glibc-2.6.1 )
 	X? ( app-misc/pax-utils )

@@ -28,7 +28,7 @@ IUSE="${IUSE_DUMMY} +X +opencl +cuda +tools +egl +glvnd +uvm +wayland"
 
 COMMON="
 	opencl? (
-		dev-libs/ocl-icd
+		dev-util/opencl-icd-loader
 	)
 	>=sys-libs/glibc-2.6.1
 	X? ( app-misc/pax-utils

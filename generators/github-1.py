@@ -17,7 +17,6 @@ def get_key(name, pkginfo):
 	else:
 		return None
 
-
 async def final_generate(hub, **pkginfo):
 
 	github_user = pkginfo["github_user"]

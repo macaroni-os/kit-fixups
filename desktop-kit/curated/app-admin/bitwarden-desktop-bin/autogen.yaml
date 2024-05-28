@@ -4,6 +4,7 @@ bitwarden:
     - bitwarden-desktop-bin:
         github:
           user: bitwarden
-          repo: desktop
+          repo: clients
           query: releases
           tarball: "Bitwarden-{version}-amd64.deb"
+          match: 'desktop-v(.*)'

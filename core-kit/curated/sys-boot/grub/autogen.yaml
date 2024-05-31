@@ -1,0 +1,25 @@
+grub_rule:
+  generator: gnu-1
+  defaults:
+    compression: gz
+  packages:
+    - grub:
+        cat: sys-boot
+        desc: GNU GRUB boot loader
+        homepage: https://www.gnu.org/software/grub/
+#        version: 2.12
+        patches:
+          - gfxpayload.patch
+          - 2.02_beta2-KERNEL_GLOBS.patch
+          - 2.06-test-words.patch
+          - 2.06-binutils-2.36.patch
+        src_uri:
+          fonts:
+            - https://ftp.gnu.org/pub/gnu/unifont/unifont-15.0.06/unifont-15.0.06.pcf.gz
+          themes:
+            - https://download.sourceforge.net/dejavu/dejavu-sans-ttf-2.37.zip
+        # this is a bit of a hack to work around a metatools bug:
+        # doit uses jinja2 templates that treat {# ... } as a comment
+        # and it fails to generate the ebuild because it's not a comment.
+        # if we put it here, everything works!
+        len_multibuild_variants: '${#MULTIBUILD_VARIANTS[@]}'

@@ -1,0 +1,12 @@
+openresolv_github_rule:
+  generator: github-1
+  packages:
+    - openresolv:
+        cat: net-dns
+        desc: A framework for managing DNS information
+        homepage: https://roy.marples.name/projects/openresolv
+        github:
+          user: NetworkConfiguration
+          repo: openresolv
+          query: tags
+          select: 'v3.13.\d'

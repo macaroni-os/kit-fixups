@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 from pathlib import Path
 import re
 
 
 def get_release(release_data):
-	return sorted(release_data, key=lambda x: version.parse(x["ref"])).pop()
+	return sorted(release_data, key=lambda x: generic.parse(x["ref"])).pop()
 
 
 async def generate(hub, **pkginfo):

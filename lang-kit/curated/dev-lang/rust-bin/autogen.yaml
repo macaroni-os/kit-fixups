@@ -33,3 +33,11 @@ rust-gen_rule:
           wasm:
             name: rust-std
             chost: wasm32-unknown-unknown
+          # https://blog.rust-lang.org/2024/04/09/updates-to-rusts-wasi-targets.html
+          # Starting in Rust 1.78 (May 2nd, 2024) a new wasm32-wasip1 target will become available.
+          # Starting Rust 1.81 (September 5th, 2024) we will begin warning existing users of wasm32-wasi to migrate to wasm32-wasip1
+          # And finally in Rust 1.84 (January 9th, 2025) the wasm32-wasi target will no longer be shipped on the stable release channel
+          # After the Rust 1.78.0 release, we can replace wasm32-wasi with wasm32-wasip1
+          wasm-wasi:
+            name: rust-std
+            chost: wasm32-wasi

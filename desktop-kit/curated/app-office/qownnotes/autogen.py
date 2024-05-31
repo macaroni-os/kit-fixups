@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 from bs4 import BeautifulSoup
 import re
 
@@ -18,7 +18,7 @@ async def generate(hub, **pkginfo):
 	valid_matches = (match.groups() for match in link_matches if match)
 
 	target_filename, target_version = max(
-		valid_matches, key=lambda match: version.parse(match[1])
+		valid_matches, key=lambda match: generic.parse(match[1])
 	)
 	src_url = f"{tuxfamily_url}/{target_filename}"
 

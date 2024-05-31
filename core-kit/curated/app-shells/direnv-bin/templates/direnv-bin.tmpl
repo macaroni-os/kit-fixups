@@ -4,10 +4,7 @@ EAPI=7
 
 DESCRIPTION="Direnv is an environment switcher for the shell"
 HOMEPAGE="https://direnv.net"
-SRC_URI="
-	{%- for arch, artifact in artifacts.items() %}
-	{{ arch }}? ( {{ artifact.src_uri }} )
-	{%- endfor %}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="MIT"
 SLOT="0"

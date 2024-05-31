@@ -18,8 +18,16 @@ RDEPEND="
 {%- endfor %}"
 
 post_src_unpack() {
+	shadir="${WORKDIR}"/{{ GITLAB_PROJ }}-{{ GITLAB_TAG }}
+	shortdir="${WORKDIR}"/{{ GITLAB_PROJ }}-{{ version }}
+
 	if [ ! -d "${S}" ]; then
-		mv {{ GITLAB_PROJ }}-{{ GITLAB_TAG }} "${S}" || die
+		if [ -d "${shadir}" ]; then
+			mv "${shadir}" "${S}" || die
+		else if [ -d "${shortdir}" ]; then
+			mv "${shortdir}" "${S}" || die
+		fi
+		fi
 	fi
 }
 

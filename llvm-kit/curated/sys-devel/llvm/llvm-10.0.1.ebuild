@@ -42,7 +42,7 @@ RDEPEND="
 	libffi? ( >=dev-libs/libffi-3.0.13-r1:0=[${MULTILIB_USEDEP}] )
 	ncurses? ( >=sys-libs/ncurses-5.9-r3:0=[${MULTILIB_USEDEP}] )
 	xar? ( app-arch/xar )
-	xml? ( dev-libs/libxml2:2=[${MULTILIB_USEDEP}] )
+	xml? ( dev-libs/libxml2:2= )
 	z3? ( >=sci-mathematics/z3-4.7.1:0=[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}
 	gold? ( sys-libs/binutils-libs )"

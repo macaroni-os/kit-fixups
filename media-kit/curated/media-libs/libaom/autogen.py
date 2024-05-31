@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+from metatools.version import generic
 
 # We are going to parse the release tags directly from the website since they don't 
 # appear to have a usable rest api.
@@ -20,7 +20,7 @@ async def get_version(hub):
 				tag_list.append(tag_text)
 				
 	# Sort the list and return the first one which should be the latest version
-	return None if not tag_list else  sorted(tag_list, key=lambda x: version.parse(x)).pop()
+	return None if not tag_list else  sorted(tag_list, key=lambda x: generic.parse(x)).pop()
 	
 	
 

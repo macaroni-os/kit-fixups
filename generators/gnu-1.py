@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from metatools.generator.common import common_init
 from bs4 import BeautifulSoup
 from packaging import version
 import re
@@ -65,6 +66,7 @@ async def expand_url_path(hub, pkginfo):
 
 
 async def generate(hub, **pkginfo):
+	common_init(hub, pkginfo)
 	app = pkginfo["name"]
 	extension = f".tar.{pkginfo['compression']}"
 
@@ -116,11 +118,16 @@ async def generate(hub, **pkginfo):
 				if not "version" in pkginfo:
 					generate.append({"keywords": "next", "href": href_tuples[-1][0], "version": href_tuples[-1][1]})
 			generate.append({"keywords": "*", "href": found_version[0], "version": found_version[1]})
+	common_artifacts = pkginfo["artifacts"] if "artifacts" in pkginfo else {}
+	if "artifacts" in pkginfo:
+		del pkginfo["artifacts"]
 	for gen in generate:
 		pkginfo.update(gen)
+		local_artifacts = common_artifacts.copy()
+		local_artifacts["global"] = hub.Artifact(url=gen['href'])
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,
-			artifacts=[hub.pkgtools.ebuild.Artifact(url=gen['href'])],
+			artifacts=local_artifacts
 		)
 		ebuild.push()
 

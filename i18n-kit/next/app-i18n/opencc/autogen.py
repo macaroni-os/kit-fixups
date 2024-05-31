@@ -1,6 +1,6 @@
 #!/usr/bin.env python3
 # OpenCC uses a format of ver.X.Y.Z for some reason so here we go with a python autogen
-from packaging import version
+from metatools.version import generic
 
 def get_release(releases_data):
     releases = list(
@@ -9,7 +9,7 @@ def get_release(releases_data):
     return (
         None
         if not releases
-        else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
+        else sorted(releases, key=lambda x: generic.parse(x["tag_name"])).pop()
     )
 
 async def generate(hub, **pkginfo):

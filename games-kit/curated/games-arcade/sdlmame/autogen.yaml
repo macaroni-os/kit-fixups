@@ -1,0 +1,12 @@
+sdlmame:
+  generator: github-1
+  packages:
+    - sdlmame:
+        github:
+          user: mamedev
+          repo: mame
+          query: releases
+          transform:
+            - kind: string
+              match: 'MAME '
+              replace: ''

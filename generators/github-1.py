@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+from metatools.generator.transform import create_transform, RegexMatcher, VersionMatch
+
+
 def get_key(name, pkginfo):
 	"""
 	This function looks first in github block, and then in the main block for a specific key.
@@ -13,23 +16,6 @@ def get_key(name, pkginfo):
 		return pkginfo[name]
 	else:
 		return None
-
-
-def create_transform(transform_data):
-	def transform_lambda(tag):
-		for trans_dict in transform_data:
-			if "kind" not in trans_dict:
-				raise ValueError("Please specify 'kind' for github transform: element.")
-			kind = trans_dict['kind']
-			if kind == "string":
-				match = trans_dict['match']
-				replace = trans_dict['replace']
-				tag = tag.replace(match, replace)
-			else:
-				raise ValueError(f"Unknown 'kind' for github transform: {kind}")
-		return tag
-	return transform_lambda
-
 
 async def final_generate(hub, **pkginfo):
 
@@ -119,10 +105,10 @@ async def generate(hub, **pkginfo):
 
 	if "match" in pkginfo["github"]:
 		# explicit match from YAML:
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=pkginfo["github"]["match"])
+		extra_args["matcher"] = RegexMatcher(regex=pkginfo["github"]["match"])
 	elif "select" in extra_args:
 		# If a user specifies "select", they probably want the classic grabby matcher and are using "select" to filter undesireables:
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.VersionMatch.GRABBY)
+		extra_args["matcher"] = RegexMatcher(regex=VersionMatch.GRABBY)
 
 	if query == "tags":
 		github_result = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)

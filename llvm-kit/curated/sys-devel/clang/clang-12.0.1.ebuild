@@ -31,7 +31,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	~sys-devel/llvm-${PV}:${SLOT}=[debug=,${MULTILIB_USEDEP}]
 	static-analyzer? ( dev-lang/perl:* )
-	xml? ( dev-libs/libxml2:2=[${MULTILIB_USEDEP}] )
+	xml? ( dev-libs/libxml2:2= )
 	${PYTHON_DEPS}"
 for x in "${ALL_LLVM_TARGETS[@]}"; do
 	RDEPEND+="

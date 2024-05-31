@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from packaging import version
+from metatools.version import generic
 from datetime import date
 
 
@@ -49,7 +49,7 @@ async def generate(hub, **pkginfo):
     latest_release_by_major = {}
 
     async for release in release_generator(hub, github_user, github_repo):
-        release_version = release["version"] = version.parse(release["tag_name"])
+        release_version = release["version"] = generic.parse(release["tag_name"])
 
         release_major = str(release_version.major)
         latest_release = latest_release_by_major.get(release_major)

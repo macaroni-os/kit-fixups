@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+from metatools.version import generic
 
 
 # We are going to parse the versions from their available downloads since they don't 
@@ -28,7 +28,7 @@ async def get_version(hub, url, pkgname):
 		version_list.append(ver_num)
 
 	# Sort the list and return the first one which should be the latest version
-	return None if not version_list else  sorted(version_list, key=lambda x: version.parse(x)).pop()
+	return None if not version_list else  sorted(version_list, key=lambda x: generic.parse(x)).pop()
 
 
 async def generate(hub, **pkginfo):

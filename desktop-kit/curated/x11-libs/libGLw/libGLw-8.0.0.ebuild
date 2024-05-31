@@ -2,11 +2,12 @@
 
 EAPI=7
 
-inherit autotools-utils
+inherit autotools
 
 DESCRIPTION="Mesa GLw library"
 HOMEPAGE="http://mesa3d.sourceforge.net/"
-SRC_URI="https://archive.mesa3d.org/glw/glw-8.0.0.tar.bz2 -> glw-8.0.0.tar.bz2"
+SRC_URI="https://archive.mesa3d.org/glw/glw-8.0.0.tar.bz2 -> glw-8.0.0.tar.bz2
+"
 
 SLOT="0"
 LICENSE="MIT"
@@ -22,9 +23,15 @@ RDEPEND="
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
+post_src_unpack() {
+	if [ ! -d "${WORKDIR}/${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}
+
 src_configure() {
 	local myeconfargs=(
 		--enable-motif
 		)
-	autotools-utils_src_configure
+	econf ${myeconfargs[@]}
 }

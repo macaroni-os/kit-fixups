@@ -9,10 +9,7 @@ MY_P=${MY_PN}-${PV}
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
-SRC_URI="
-	{%- for arch, artifact in artifacts.items() %}
-	{{ arch }}? ( {{ artifact.src_uri }} )
-	{%- endfor %}"
+SRC_URI="{{ src_uri }}"
 
 KEYWORDS="-* {{artifacts.keys()|sort|join(' ')}}"
 LICENSE="Apache-2.0"

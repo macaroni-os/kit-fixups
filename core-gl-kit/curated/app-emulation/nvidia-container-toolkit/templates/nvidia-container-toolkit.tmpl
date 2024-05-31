@@ -1,0 +1,51 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module
+
+DESCRIPTION="NVIDIA container runtime toolkit"
+HOMEPAGE="https://github.com/NVIDIA/nvidia-container-toolkit"
+
+EGO_SUM=(
+{{ gosum }})
+
+go-module_set_globals
+
+SRC_URI="{{ src_uri }}"
+
+LICENSE="Apache-2.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
+
+RDEPEND="app-emulation/libnvidia-container"
+
+DEPEND="${RDEPEND}"
+
+BDEPEND="dev-lang/go"
+
+src_compile() {
+	emake binaries || die
+}
+
+src_install() {
+	dobin "nvidia-container-runtime"
+	dobin "nvidia-container-runtime-hook"
+	dobin "nvidia-container-runtime.cdi"
+	dobin "nvidia-container-runtime.legacy"
+	dobin "nvidia-ctk"
+	into "/usr/bin"
+	insinto "/etc/nvidia-container-runtime"
+	doins "${FILESDIR}/config.toml"
+}
+
+pkg_postinst() {
+	elog "Your docker service must restart after install this package."
+	elog "OpenRC: sudo rc-service docker restart"
+	elog "You may need to edit your /etc/nvidia-container-runtime/config.toml"
+	elog "file before running ${PN} for the first time."
+	elog "For details, please see the NVIDIA docker manual page."
+}
+

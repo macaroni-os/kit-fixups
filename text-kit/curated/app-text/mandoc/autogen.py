@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+from metatools.version import generic
 
 def get_version_from_href(href, name, extension):
 	file = href.split("/")[-1]
@@ -24,7 +24,7 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	"""
 	Given a list of URLs or files from a directory listing (``hrefs``), this function will return a list of tuples.
 	The tuples will consist of the original URL/file string, along with the extracted version, and the list will be
-	sorted (from least to greatest) by version using version.parse. For example::
+	sorted (from least to greatest) by version using generic.parse. For example::
 
 	  [ ( "gzip-1.0.tar.gz", "1.0" ), ( "gzip-2.0.tar.gz" , "2.0" ) ]
 
@@ -33,7 +33,7 @@ def filter_and_sort_hrefs(hrefs, name, extension):
 	"""
 	valid_list = filter(lambda href: filter_valid_href(href, name, extension), hrefs)
 	tuple_list = map(lambda href: (href, get_version_from_href(href, name, extension)), valid_list)
-	sorted_list = sorted(tuple_list, key=lambda tup: version.parse(tup[1]))
+	sorted_list = sorted(tuple_list, key=lambda tup: generic.parse(tup[1]))
 	return list(sorted_list)
 
 async def generate(hub, **pkginfo):

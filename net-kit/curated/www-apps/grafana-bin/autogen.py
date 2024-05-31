@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import json
 import re
-from packaging import version
+from metatools.version import generic
 
 def find_release(json_dict):
 	pattern = re.compile("^v[0-9]+\.[0-9]+\.[0-9]+$")
@@ -13,7 +12,7 @@ def find_release(json_dict):
 	releases = list(releases)
 	if not len(releases):
 		return None
-	return sorted(releases, key=lambda x: version.parse(x["tag_name"]))[-1]
+	return sorted(releases, key=lambda x: generic.parse(x["tag_name"]))[-1]
 
 def find_release_tarball(release_version, release_arch):
 	upstream_url = "https://dl.grafana.com/oss/release/grafana-"
@@ -27,8 +26,8 @@ async def generate(hub, **pkginfo):
 	if release is None:
 		raise hub.pkgtools.ebuild.BreezyError("Can't find a suitable release of Grafana.")
 	version = release["tag_name"][1:]
-	src_artifact_amd64 = hub.pkgtools.ebuild.Artifact(url=find_release_tarball(version, "linux-amd64"))
-	src_artifact_arm64 = hub.pkgtools.ebuild.Artifact(url=find_release_tarball(version, "linux-arm64"))
+	src_artifact_amd64 = hub.Artifact(url=find_release_tarball(version, "linux-amd64"))
+	src_artifact_arm64 = hub.Artifact(url=find_release_tarball(version, "linux-arm64"))
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
 		version=version,

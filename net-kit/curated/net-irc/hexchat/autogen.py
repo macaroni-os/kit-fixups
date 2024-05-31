@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import re
-from packaging import version as pversion
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 
@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 		fixup_fn = lambda x: x.groups()[0]
     )
 
-	versions.sort( key=lambda x: pversion.parse(x), reverse=True )
+	versions.sort( key=lambda x: generic.parse(x), reverse=True )
 	version = versions[0]
 	hub.pkgtools.model.log.debug(f"Versions found: {versions}")
 	hub.pkgtools.model.log.debug(f"Latest: {version}")

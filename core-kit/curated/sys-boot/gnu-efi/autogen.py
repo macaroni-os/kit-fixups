@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging import version
+from metatools.version import generic
 import re
 
 
@@ -18,7 +18,7 @@ async def generate(hub, **pkginfo):
     files = (
             version_row.get("title") for version_row in files_list.tbody.find_all("tr")
             )
-    versions = { version.parse(re.search(r"\d+\.\d+(\.\d+)?", file).group()): file for file in files }
+    versions = { generic.parse(re.search(r"\d+\.\d+(\.\d+)?", file).group()): file for file in files }
 
 
     target_version = max(versions.keys())

@@ -2,7 +2,7 @@
 
 import re
 from collections import OrderedDict
-from packaging.version import Version
+from metatools.version import generic
 
 ebuilds_to_generate = [ 'dev-lang/zig', 'dev-lang/zig-bin', 'virtual/zig', ]
 
@@ -50,7 +50,7 @@ async def generate_ebuild(hub, spec, artifacts='', **pkginfo):
 async def generate(hub, **pkginfo):
     versions = await hub.pkgtools.fetch.get_page('https://ziglang.org/download/index.json', is_json=True)
 
-    releases = [Version(k) for k in versions.keys() if k != 'master']
+    releases = [generic.parse(k) for k in versions.keys() if k != 'master']
     last_release = (max(releases)).public # .public provides the version as a string instead of Version()
     versions[last_release]['version'] = last_release
 

@@ -4,7 +4,7 @@ import glob
 import re
 import os.path
 from packaging.version import Version
-
+from metatools.generator.transform import RegexMatcher, VersionMatch
 
 async def generate(hub, **pkginfo):
 	github_user = pkginfo["github"]["user"]
@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
 	extra_args = {}
 	if "select" in pkginfo["github"]:
 		extra_args["select"] = pkginfo["github"]["select"]
-		extra_args["matcher"] = hub.pkgtools.github.RegexMatcher(regex=hub.pkgtools.github.VersionMatch.GRABBY)
+		extra_args["matcher"] = RegexMatcher(regex=VersionMatch.GRABBY)
 
 	newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, **extra_args)
 	pkginfo.update(newpkginfo)

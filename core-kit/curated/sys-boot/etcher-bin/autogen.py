@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging import version
+from metatools.version import generic
 
 
 def get_release(releases_data):
@@ -8,7 +8,7 @@ def get_release(releases_data):
 	releases = list(
 		release for release in stable_releases for assets in release["assets"] if "_amd64.deb" in assets["name"]
 	)
-	return None if not releases else sorted(releases, key=lambda x: version.parse(x["tag_name"])).pop()
+	return None if not releases else sorted(releases, key=lambda x: generic.parse(x["tag_name"])).pop()
 
 
 async def generate(hub, **pkginfo):

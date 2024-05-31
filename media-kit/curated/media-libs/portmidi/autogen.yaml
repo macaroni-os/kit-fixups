@@ -1,0 +1,12 @@
+portmidi:
+  generator: github-1
+  packages:
+    - portmidi:
+        github:
+          user: PortMidi
+          repo: portmidi
+          query: releases
+          transform:
+            - kind: string
+              match: 'PortMidi '
+              replace: ''

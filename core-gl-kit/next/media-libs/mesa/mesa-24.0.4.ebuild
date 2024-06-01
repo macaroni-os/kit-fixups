@@ -84,7 +84,7 @@ RDEPEND="
 		virtual/libelf:0=
 	)
 	vaapi? (
-		>=media-libs/libva-1.7.3:=
+		>=x11-libs/libva-1.7.3:=
 	)
 	vdpau? ( >=x11-libs/libvdpau-1.4:= )
 	video_cards_radeonsi? ( virtual/libelf:0= )
@@ -128,8 +128,8 @@ BDEPEND="
 		>=dev-util/bindgen-0.58.0
 		>=dev-build/meson-1.3.1
 	)
-    sys-devel/bison
-    sys-devel/flex
+	sys-devel/bison
+	sys-devel/flex
 	virtual/pkgconfig
 	$(python_gen_any_dep ">=dev-python/mako-0.8.0[\${PYTHON_USEDEP}]")
 	vulkan? (

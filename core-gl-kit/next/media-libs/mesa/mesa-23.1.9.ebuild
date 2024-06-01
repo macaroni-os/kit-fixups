@@ -77,7 +77,7 @@ RDEPEND="
 		virtual/libelf:0=
 	)
 	vaapi? (
-		>=media-libs/libva-1.7.3:=
+		>=x11-libs/libva-1.7.3:=
 	)
 	vdpau? ( >=x11-libs/libvdpau-1.1:= )
 	vulkan? (

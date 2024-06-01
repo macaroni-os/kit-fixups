@@ -17,7 +17,3 @@ fcron_github_rule:
               replace: '.'
         patches:
           - 3.1.1-noreadline.patch
-        # FIXME: really should not hard-code this!
-        # better here than in the ebuild template.
-        # Need to figure this out automatically.
-        dirty_hack_for_docs: /usr/share/sgml/docbook/dsssl-stylesheets-1.79

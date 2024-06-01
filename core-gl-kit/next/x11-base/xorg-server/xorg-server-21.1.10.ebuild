@@ -67,6 +67,7 @@ DEPEND="
 "
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-xserver )
+	xorg? ( x11-base/xorg-drivers )
 "
 
 src_configure() {

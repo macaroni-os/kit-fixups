@@ -28,6 +28,8 @@ BDEPEND="
 
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
+	# enable long file name support for getcwd(). FL-12407.
+	export gl_cv_func_getcwd_path_max=yes
 }
 
 src_prepare() {

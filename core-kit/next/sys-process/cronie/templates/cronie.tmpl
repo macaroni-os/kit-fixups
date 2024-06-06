@@ -48,6 +48,7 @@ src_configure() {
                 --enable-syscrontab
                 --with-daemon_username=cron
                 --with-daemon_groupname=cron
+                --runstatedir=/run
         )
 
         if use anacron; then

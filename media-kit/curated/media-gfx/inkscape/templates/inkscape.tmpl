@@ -6,7 +6,6 @@ PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="xml(+)"
 inherit cmake flag-o-matic xdg toolchain-funcs python-single-r1
 
-
 DESCRIPTION="SVG based generic vector-drawing program"
 HOMEPAGE="https://inkscape.org/ https://gitlab.com/inkscape/inkscape/"
 SRC_URI="{{src_uri}}"
@@ -52,10 +51,12 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	x11-libs/gtk+:3[X?]
 	X? ( x11-libs/libX11 )
 	$(python_gen_cond_dep '
+		dev-python/appdirs[${PYTHON_USEDEP}]
 		dev-python/cachecontrol[${PYTHON_USEDEP}]
 		dev-python/cssselect[${PYTHON_USEDEP}]
-		dev-python/lockfile[${PYTHON_USEDEP}]
+		dev-python/filelock[${PYTHON_USEDEP}]
 		dev-python/lxml[${PYTHON_USEDEP}]
+		dev-python/pygobject[${PYTHON_USEDEP}]
 		media-gfx/scour[${PYTHON_USEDEP}]
 	')
 	cdr? (
@@ -99,7 +100,6 @@ RESTRICT="!test? ( test )"
 PATCHES=(
 	"${FILESDIR}"/inkscape-1.3.2-poppler-24.03.patch
 )
-
 
 pkg_pretend() {
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp

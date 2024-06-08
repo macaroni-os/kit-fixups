@@ -1,0 +1,14 @@
+diff -Nuar glibc-2.33/resolv/res_query.c glibc-2.33-fixed/resolv/res_query.c
+--- glibc-2.33/resolv/res_query.c	2021-02-01 17:15:33.000000000 +0000
++++ glibc-2.33-fixed/resolv/res_query.c	2024-04-05 18:51:41.354947251 +0000
+@@ -588,7 +588,9 @@
+ 			RES_SET_H_ERRNO(statp, NO_RECOVERY);
+ 			return (-1);
+ 		}
+-		sprintf(nbuf, "%s.%s", name, domain);
++               char *p = __stpcpy (nbuf, name);
++               *p++ = '.';
++               strcpy (p, domain);
+ 	}
+ 	return __res_context_query (ctx, longname, class, type, answer,
+ 				    anslen, answerp, answerp2, nanswerp2,

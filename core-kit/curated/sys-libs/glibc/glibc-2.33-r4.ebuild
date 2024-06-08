@@ -765,6 +765,15 @@ src_prepare() {
 		einfo "Done."
 	fi
 
+	# riscv glibc patches
+	if use riscv64 ; then
+		eapply "${FILESDIR}"/2.33/riscv/ftw.patch
+		eapply "${FILESDIR}"/2.33/riscv/localealias.patch
+		eapply "${FILESDIR}"/2.33/riscv/memmove_call.patch
+		eapply "${FILESDIR}"/2.33/riscv/res_query.patch
+		eapply "${FILESDIR}"/2.33/riscv/riscv_jumptarget.patch
+	fi
+
 	default
 
 	gnuconfig_update

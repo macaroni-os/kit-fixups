@@ -1,0 +1,33 @@
+diff -Nuar glibc-2.33/sysdeps/riscv/setjmp.S glibc-2.33-fixed/sysdeps/riscv/setjmp.S
+--- glibc-2.33/sysdeps/riscv/setjmp.S	2021-02-01 10:15:33.000000000 -0700
++++ glibc-2.33-fixed/sysdeps/riscv/setjmp.S	2024-05-04 10:45:50.616384532 -0600
+@@ -21,7 +21,7 @@
+ 
+ ENTRY (_setjmp)
+   li	a1, 0
+-  j	__sigsetjmp
++  j    HIDDEN_JUMPTARGET (__sigsetjmp)
+ END (_setjmp)
+ ENTRY (setjmp)
+   li	a1, 1
+diff -Nuar glibc-2.33/sysdeps/unix/sysv/linux/riscv/setcontext.S glibc-2.33-fixed/sysdeps/unix/sysv/linux/riscv/setcontext.S
+--- glibc-2.33/sysdeps/unix/sysv/linux/riscv/setcontext.S	2021-02-01 10:15:33.000000000 -0700
++++ glibc-2.33-fixed/sysdeps/unix/sysv/linux/riscv/setcontext.S	2024-05-04 10:48:40.477114051 -0600
+@@ -95,6 +95,7 @@
+ 99:	j	__syscall_error
+ 
+ END (__setcontext)
++libc_hidden_def (__setcontext)
+ weak_alias (__setcontext, setcontext)
+ 
+ LEAF (__start_context)
+@@ -108,7 +109,7 @@
+ 	/* Invoke subsequent context if present, else exit(0).  */
+ 	mv	a0, s2
+ 	beqz	s2, 1f
+-	jal	__setcontext
+-1:	j	exit
++	jal     HIDDEN_JUMPTARGET (__setcontext)
++1:	j       HIDDEN_JUMPTARGET (exit)
+ 
+ END (__start_context)

@@ -1,0 +1,30 @@
+diff -Nuar glibc-2.33/intl/localealias.c glibc-2.33-fixed/intl/localealias.c
+--- glibc-2.33/intl/localealias.c	2021-02-01 17:15:33.000000000 +0000
++++ glibc-2.33-fixed/intl/localealias.c	2024-04-05 16:27:33.059330997 +0000
+@@ -318,7 +318,16 @@
+ 
+ 		  if (string_space_act + alias_len + value_len > string_space_max)
+ 		    {
+-		      /* Increase size of memory pool.  */
++
++#pragma GCC diagnostic push
++
++#if defined __GNUC__ && __GNUC__ >= 12
++  /* Suppress the valid GCC 12 warning until the code below is changed
++     to avoid using pointers to the reallocated block.  */
++#  pragma GCC diagnostic ignored "-Wuse-after-free"
++#endif
++
++                   /* Increase size of memory pool.  */
+ 		      size_t new_size = (string_space_max
+ 					 + (alias_len + value_len > 1024
+ 					    ? alias_len + value_len : 1024));
+@@ -351,6 +360,8 @@
+ 					   value, value_len);
+ 		  string_space_act += value_len;
+ 
++#pragma GCC diagnostic pop
++
+ 		  ++nmap;
+ 		  ++added;
+ 		}

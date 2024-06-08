@@ -1,0 +1,15 @@
+diff -Nuar glibc-2.33/io/ftw.c glibc-2.33-fixed/io/ftw.c
+--- glibc-2.33/io/ftw.c	2021-02-01 17:15:33.000000000 +0000
++++ glibc-2.33-fixed/io/ftw.c	2024-04-05 18:18:50.848084224 +0000
+@@ -310,8 +310,9 @@
+ 	  buf[actsize++] = '\0';
+ 
+ 	  /* Shrink the buffer to what we actually need.  */
+-	  data->dirstreams[data->actdir]->content = realloc (buf, actsize);
+-	  if (data->dirstreams[data->actdir]->content == NULL)
++	  void *content = realloc (buf, actsize);
++         data->dirstreams[data->actdir]->content = content;
++         if (content == NULL)
+ 	    {
+ 	      int save_err = errno;
+ 	      free (buf);

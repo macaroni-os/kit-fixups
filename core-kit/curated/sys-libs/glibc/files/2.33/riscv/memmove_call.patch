@@ -1,0 +1,13 @@
+diff -Nuar glibc-2.33/stdio-common/vfprintf-internal.c glibc-2.33-fixed/stdio-common/vfprintf-internal.c
+--- glibc-2.33/stdio-common/vfprintf-internal.c	2021-02-01 17:15:33.000000000 +0000
++++ glibc-2.33-fixed/stdio-common/vfprintf-internal.c	2024-04-05 17:48:58.325428332 +0000
+@@ -2154,7 +2154,8 @@
+ 	    copy_rest:
+ 	      /* No further grouping to be done.  Copy the rest of the
+ 		 number.  */
+-	      memmove (w, s, (front_ptr -s) * sizeof (CHAR_T));
++             w -= s - front_ptr;
++             memmove (w, front_ptr, (s - front_ptr) * sizeof (CHAR_T));
+ 	      break;
+ 	    }
+ 	  else if (*grouping != '\0')

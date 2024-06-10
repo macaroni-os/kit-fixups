@@ -172,6 +172,10 @@ src_prepare() {
 	DOC_CONTENTS="To modify system network connections without needing to enter the
 		root password, add your user account to the 'plugdev' group."
 
+	# add patch for non-systemd systems to fix linking failure due to unconditional call of systemd's directive.
+	# when/if upstream fixes, patch must be dropped.
+	eapply "${FILESDIR}"/${P}-dhcp.patch
+
 	default
 	use vala && vala_src_prepare
 

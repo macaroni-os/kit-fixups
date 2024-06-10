@@ -82,8 +82,8 @@ src_install() {
 	emake "${myemakeargs[@]}" install
 
 	insinto /usr/share/zsh/site-functions
-	newins contrib/_dunst.zshcomp _dunst
-	newins contrib/_dunstctl.zshcomp _dunstctl
+	newins completions/_dunst.zshcomp _dunst
+	newins completions/_dunstctl.zshcomp _dunstctl
 
 	systemd_newuserunit dunst.systemd.service.in dunst.service
 }

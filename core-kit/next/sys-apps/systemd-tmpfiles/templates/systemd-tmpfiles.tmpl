@@ -69,9 +69,10 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
+		-Dauto_features=disabled
 		{{ disable_boolean_build_options }}
 		-Drootprefix="${EPREFIX:-/}"
-		-Dacl=true
+		-Dacl=enabled
 		-Db_staticpic=true
 		-Dtmpfiles=true
 		-Dstandalone-binaries=true # this and below option does the magic

@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-125-patches-03.tar.xz"
+FIREFOX_PATCHSET="firefox-127-patches-02.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -670,11 +670,9 @@ src_configure() {
 	[[ -n ${MOZ_ESR} ]] && update_channel=esr
 	mozconfig_add_options_ac '' --update-channel=${update_channel}
 
-#	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
-#		mozconfig_add_options_ac '' --enable-rust-simd
-#	fi
-    mozconfig_add_options_ac '' --disable-rust-simd
-
+	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+		mozconfig_add_options_ac '' --enable-rust-simd
+	fi
 
 	if [[ -s "${S}/api-google.key" ]] ; then
 		local key_origin="Gentoo default"

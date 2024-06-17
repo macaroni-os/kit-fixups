@@ -5,6 +5,7 @@ inherit meson
 
 EGIT_REPO_URI="https://anongit.freedesktop.org/git/pixman.git"
 DESCRIPTION="Low-level pixel manipulation routines"
+SLOT="0"
 KEYWORDS="*"
 IUSE="cpu_flags_x86_mmxext cpu_flags_x86_sse2 cpu_flags_x86_ssse3 cpu_flags_ppc_altivec cpu_flags_arm_neon cpu_flags_arm_iwmmxt loongson2f"
 SRC_URI="https://www.x.org/releases/individual/lib/pixman-0.43.4.tar.xz"

@@ -19,8 +19,6 @@ BDEPEND="virtual/pkgconfig"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.0.0-gentoo.patch
-	"${FILESDIR}"/${PN}-7.0.0-fix-clang16-build.patch
-	"${FILESDIR}"/${PN}-7.0.0-fix-lto-type-mismatch.patch
 )
 
 post_src_unpack() {

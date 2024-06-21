@@ -1,0 +1,53 @@
+diff -bBpur orig/src/parse_config.h pinfo-0.6.13/src/parse_config.h
+--- orig/src/parse_config.h	2019-02-16 12:23:32.000000000 -0800
++++ pinfo-0.6.13/src/parse_config.h	2024-06-15 21:07:06.912421539 -0700
+@@ -85,8 +85,6 @@ typedef struct colours
+ colours;
+ #endif /* HAVE_CURSES_COLOR */
+ 
+-int use_manual;
+-
+ int parse_config (void);
+ int parse_line (char *line);
+ char *str_toupper (char *s);
+diff -bBpur orig/src/utils.c pinfo-0.6.13/src/utils.c
+--- orig/src/utils.c	2019-02-16 12:23:32.000000000 -0800
++++ pinfo-0.6.13/src/utils.c	2024-06-15 21:09:02.560419066 -0700
+@@ -848,7 +848,6 @@ char *
+ make_tempfile()
+ {
+ 	char *filename;
+-	size_t len;
+ 
+ 	/* TODO: fix hardcoded /tmp */
+ 	char tmpfile_template[] = "/tmp/pinfo.XXXXXX";
+@@ -864,10 +863,10 @@ make_tempfile()
+ 	}
+ 
+ 	/* allocate a new string and copy the filename there */
+-	len = strlen(tmpfile_template)+1;
+-	filename = xmalloc(len+1); /* guarenteerd to be set to \0's */
+-	strncpy(filename, tmpfile_template, len);
+-
++#define _FNAME_MAX 20
++	filename = xmalloc(_FNAME_MAX); /* guarenteerd to be set to \0's */
++	strncpy(filename, tmpfile_template, _FNAME_MAX);
++#undef _FNAME_MAX
+ 	/* close the file */
+ 	close(fd);
+ 
+diff -bBpur orig/src/video.c pinfo-0.6.13/src/video.c
+--- orig/src/video.c	2019-02-16 12:23:32.000000000 -0800
++++ pinfo-0.6.13/src/video.c	2024-06-15 21:09:45.392418151 -0700
+@@ -109,9 +109,9 @@ showscreen(char **message, unsigned long
+ 	mymvhline(maxy - 1, 0, ' ', maxx);
+ 	move(maxy - 1, 0);
+ 	if ((pos < lines - 1) &&(lines > pos + maxy - 2))
+-		printw(_("Viewing line %d/%d, %d%%"), pos + maxy - 2, lines,((pos + maxy - 2) * 100) / lines);
++		printw(_("Viewing line %d/%d, %d%%"), (int)(pos + maxy - 2), (int)lines, (int)(((pos + maxy - 2) * 100) / lines));
+ 	else
+-		printw(_("Viewing line %d/%d, 100%%"), lines, lines);
++		printw(_("Viewing line %d/%d, 100%%"), (int)lines, (int)lines);
+ 	info_add_highlights(pos, cursor, lines, column, message);
+ 	attrset(normal);
+ 	move(0, 0);

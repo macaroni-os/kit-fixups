@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
 		ver=tag["name"].split(".").pop()
 		if ver != "0":
 			continue
-		version = tag["name"]
+		version = "1.22.0" #tag["name"] see FL-12465
 		break
 	artifact = hub.pkgtools.ebuild.Artifact(url=f"https://gitlab.freedesktop.org/{user}/{repo}/-/archive/{version}/{repo}-{version}.tar.bz2")
 

@@ -2,10 +2,6 @@
 
 EAPI=6
 
-#mogilefs
-#push
-#upstream_check
-
 GENTOO_DEPEND_ON_PERL="no"
 
 declare -A mod{_a,_pn,_pv,_lic,_sha,_p,_uri,_wd,_doc}
@@ -16,9 +12,9 @@ declare -A mods
 
 # Nginx Development Kit (NDK) (https://github.com/simpl/ngx_devel_kit)
 # Must be behind encrypted_session
-mod_a["ndk"]="simpl"
+mod_a["ndk"]="vision5"
 mod_pn["ndk"]="ngx_devel_kit"
-mod_pv["ndk"]="0.3.1"
+mod_pv["ndk"]="0.3.3"
 mod_lic["ndk"]="BSD"
 mod_p["ndk"]="${mod_pn["ndk"]}-${mod_pv["ndk"]}"
 mod_uri["ndk"]="https://github.com/${mod_a["ndk"]}/${mod_pn["ndk"]}/archive/v${mod_pv["ndk"]}.tar.gz"
@@ -28,98 +24,33 @@ mod_doc["ndk"]="README.md README_AUTO_LIB.md"
 # # ngx_brotli (https://github.com/eustas/ngx_brotli, BSD-2)
 mod_a["brotli"]="google"
 mod_pn["brotli"]="ngx_brotli"
-mod_pv["brotli"]="25f86f0bac1101b6512135eac5f93c49c63609e3"
+mod_pv["brotli"]="1.0.0rc"
 mod_lic["brotli"]="BSD-2"
 mod_p["brotli"]="${mod_pn["brotli"]}-${mod_pv["brotli"]}"
-mod_uri["brotli"]="https://github.com/${mod_a["brotli"]}/${mod_pn["brotli"]}/archive/${mod_pv["brotli"]}.tar.gz"
+mod_uri["brotli"]="https://github.com/${mod_a["brotli"]}/${mod_pn["brotli"]}/archive/v${mod_pv["brotli"]}.tar.gz"
 mod_wd["brotli"]="${WORKDIR}/${mod_p["brotli"]}"
 mod_doc["brotli"]="README.md"
-
-# Dav Ext (https://github.com/arut/nginx-dav-ext-module)
-mod_a["dav_ext"]="arut"
-mod_pn["dav_ext"]="nginx-dav-ext-module"
-mod_pv["dav_ext"]="3.0.0"
-mod_lic["dav_ext"]="BSD-2"
-mod_p["dav_ext"]="${mod_pn["dav_ext"]}-${mod_pv["dav_ext"]}"
-mod_uri["dav_ext"]="https://github.com/${mod_a["dav_ext"]}/${mod_pn["dav_ext"]}/archive/v${mod_pv["dav_ext"]}.tar.gz"
-mod_wd["dav_ext"]="${WORKDIR}/${mod_p["dav_ext"]}"
-mod_doc["dav_ext"]="README.rst"
-
-# Encrypted Session (https://github.com/openresty/encrypted-session-nginx-module)
-mod_a["encrypted_session"]="openresty"
-mod_pn["encrypted_session"]="encrypted-session-nginx-module"
-mod_pv["encrypted_session"]="0.08"
-mod_sha["encrypted_session"]="a42c37118588833723935aa460b2dc2e3234f0b0"
-mod_lic["encrypted_session"]="BSD-2"
-mod_p["encrypted_session"]="${mod_pn["encrypted_session"]}-${mod_sha["encrypted_session"]}"
-mod_uri["encrypted_session"]="https://github.com/${mod_a["encrypted_session"]}/${mod_pn["encrypted_session"]}/archive/${mod_sha["encrypted_session"]}.tar.gz"
-mod_wd["encrypted_session"]="${WORKDIR}/${mod_p["encrypted_session"]}"
-#mod_doc["encrypted_session"]="README"
-
-# Fancy Index (https://github.com/aperezdc/ngx-fancyindex)
-mod_a["fancyindex"]="aperezdc"
-mod_pn["fancyindex"]="ngx-fancyindex"
-mod_pv["fancyindex"]="0.4.4"
-mod_lic["fancyindex"]="BSD-2"
-mod_p["fancyindex"]="${mod_pn["fancyindex"]}-${mod_pv["fancyindex"]}"
-mod_uri["fancyindex"]="https://github.com/${mod_a["fancyindex"]}/${mod_pn["fancyindex"]}/archive/v${mod_pv["fancyindex"]}.tar.gz"
-mod_wd["fancyindex"]="${WORKDIR}/${mod_p["fancyindex"]}"
-mod_doc["fancyindex"]="README.rst HACKING.md CHANGELOG.md"
-
-# MogileFS Client (http://www.grid.net.ru/nginx/mogilefs.en.html)
-mod_a["mogilefs"]="vkholodkov"
-mod_pn["mogilefs"]="nginx-mogilefs-module"
-mod_pv["mogilefs"]="1.0.4"
-# mod_sha["mogilefs"]="020937ff4624fc31928adb51a5c43753bf256b34"
-mod_lic["mogilefs"]="BSD"
-mod_p["mogilefs"]="${mod_pn["mogilefs"]}-${mod_pv["mogilefs"]}"
-mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_pv["mogilefs"]}.tar.gz"
-mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_sha["mogilefs"]}.tar.gz"
-mod_wd["mogilefs"]="${WORKDIR}/${mod_p["mogilefs"]}"
-mod_doc["mogilefs"]="README Changelog"
-
-# Phusion Passenger (https://github.com/phusion/passenger)
-#mod_a["passenger"]="phusion"
-#mod_pn["passenger"]="passenger"
-#mod_pv["passenger"]="5.0.6"
-#mod_lic["passenger"]="MIT"
-#mod_p["passenger"]="${mod_pn["passenger"]}-release-${mod_pv["passenger"]}"
-#mod_uri["passenger"]="https://github.com/${mod_a["passenger"]}/${mod_pn["passenger"]}/archive/release-${mod_pv["passenger"]}.tar.gz"
-#mod_wd["passenger"]="${WORKDIR}/${mod_p["passenger"]}/ext/nginx"
-# mod_doc["passenger"]="README.md CHANGELOG"
 
 # Upload Progress (https://github.com/masterzen/nginx-upload-progress-module)
 mod_a["upload_progress"]="masterzen"
 mod_pn["upload_progress"]="nginx-upload-progress-module"
 mod_pv["upload_progress"]="0.9.2"
+mod_sha["upload_progress"]="cfbbbf8e2b64395a1b7799037319c9c87b0607d6"
 mod_lic["upload_progress"]="BSD-2"
 mod_p["upload_progress"]="${mod_pn["upload_progress"]}-${mod_pv["upload_progress"]}"
 mod_uri["upload_progress"]="https://github.com/${mod_a["upload_progress"]}/${mod_pn["upload_progress"]}/archive/v${mod_pv["upload_progress"]}.tar.gz"
 mod_wd["upload_progress"]="${WORKDIR}/${mod_p["upload_progress"]}"
 mod_doc["upload_progress"]="README CHANGES"
 
-# Headers More (http://github.com/agentzh/headers-more-nginx-module)
-mod_a["headers_more"]="agentzh"
+# http_headers_more (https://github.com/openresty/headers-more-nginx-module, BSD license)
+mod_a["headers_more"]="openresty"
 mod_pn["headers_more"]="headers-more-nginx-module"
-mod_pv["headers_more"]="0.33"
+mod_pv["headers_more"]="0.37"
 mod_lic["headers_more"]="BSD"
 mod_p["headers_more"]="${mod_pn["headers_more"]}-${mod_pv["headers_more"]}"
 mod_uri["headers_more"]="https://github.com/${mod_a["headers_more"]}/${mod_pn["headers_more"]}/archive/v${mod_pv["headers_more"]}.tar.gz"
 mod_wd["headers_more"]="${WORKDIR}/${mod_p["headers_more"]}"
 #mod_doc["headers_more"]="README.markdown"
-
-# Push (http://pushmodule.slact.net)
-mod_a["push"]="slact"
-mod_pn["push"]="nchan"
-#mod_pv["push"]="0.731"
-mod_pv["push"]="v1.2.5"
-mod_sha["push"]="2f6f22e54f16416457d0050574a657fa24b3739f"
-mod_lic["push"]="MIT"
-mod_p["push"]="${mod_pn["push"]}-${mod_sha["push"]}"
-# mod_uri["push"]="https://github.com/${mod_a["push"]}/${mod_pn["push"]}/archive/${mod_pv["push"]}.tar.gz"
-mod_uri["push"]="https://github.com/${mod_a["push"]}/${mod_pn["push"]}/archive/${mod_sha["push"]}.tar.gz"
-mod_wd["push"]="${WORKDIR}/${mod_p["push"]}"
-mod_doc["push"]="README.md changelog.txt"
 
 # Cache Purge (http://labs.frickle.com/nginx_ngx_cache_purge)
 mod_a["cache_purge"]="FRiCKLE"
@@ -141,11 +72,75 @@ mod_uri["slowfs_cache"]="https://github.com/${mod_a["slowfs_cache"]}/${mod_pn["s
 mod_wd["slowfs_cache"]="${WORKDIR}/${mod_p["slowfs_cache"]}"
 mod_doc["slowfs_cache"]="README.md CHANGES"
 
+# Dav Ext (https://github.com/arut/nginx-dav-ext-module)
+mod_a["dav_ext"]="arut"
+mod_pn["dav_ext"]="nginx-dav-ext-module"
+mod_pv["dav_ext"]="3.0.0"
+mod_lic["dav_ext"]="BSD-2"
+mod_p["dav_ext"]="${mod_pn["dav_ext"]}-${mod_pv["dav_ext"]}"
+mod_uri["dav_ext"]="https://github.com/${mod_a["dav_ext"]}/${mod_pn["dav_ext"]}/archive/v${mod_pv["dav_ext"]}.tar.gz"
+mod_wd["dav_ext"]="${WORKDIR}/${mod_p["dav_ext"]}"
+mod_doc["dav_ext"]="README.rst"
+
+# Encrypted Session (https://github.com/openresty/encrypted-session-nginx-module)
+mod_a["encrypted_session"]="openresty"
+mod_pn["encrypted_session"]="encrypted-session-nginx-module"
+mod_pv["encrypted_session"]="0.09"
+mod_sha["encrypted_session"]="5ab56cebe8771081942b85066ebad05c2017a6f3"
+mod_lic["encrypted_session"]="BSD-2"
+mod_p["encrypted_session"]="${mod_pn["encrypted_session"]}-${mod_sha["encrypted_session"]}"
+mod_uri["encrypted_session"]="https://github.com/${mod_a["encrypted_session"]}/${mod_pn["encrypted_session"]}/archive/${mod_sha["encrypted_session"]}.tar.gz"
+mod_wd["encrypted_session"]="${WORKDIR}/${mod_p["encrypted_session"]}"
+#mod_doc["encrypted_session"]="README"
+
+# Fancy Index (https://github.com/aperezdc/ngx-fancyindex)
+mod_a["fancyindex"]="aperezdc"
+mod_pn["fancyindex"]="ngx-fancyindex"
+mod_pv["fancyindex"]="0.5.2"
+mod_lic["fancyindex"]="BSD-2"
+mod_p["fancyindex"]="${mod_pn["fancyindex"]}-${mod_pv["fancyindex"]}"
+mod_uri["fancyindex"]="https://github.com/${mod_a["fancyindex"]}/${mod_pn["fancyindex"]}/archive/v${mod_pv["fancyindex"]}.tar.gz"
+mod_wd["fancyindex"]="${WORKDIR}/${mod_p["fancyindex"]}"
+mod_doc["fancyindex"]="README.rst HACKING.md CHANGELOG.md"
+
+# MogileFS Client (http://www.grid.net.ru/nginx/mogilefs.en.html)
+mod_a["mogilefs"]="vkholodkov"
+mod_pn["mogilefs"]="nginx-mogilefs-module"
+mod_pv["mogilefs"]="1.0.4"
+# mod_sha["mogilefs"]="020937ff4624fc31928adb51a5c43753bf256b34"
+mod_lic["mogilefs"]="BSD"
+mod_p["mogilefs"]="${mod_pn["mogilefs"]}-${mod_pv["mogilefs"]}"
+mod_uri["mogilefs"]="https://github.com/${mod_a["mogilefs"]}/${mod_pn["mogilefs"]}/archive/${mod_pv["mogilefs"]}.tar.gz"
+mod_wd["mogilefs"]="${WORKDIR}/${mod_p["mogilefs"]}"
+mod_doc["mogilefs"]="README Changelog"
+
+# Phusion Passenger (https://github.com/phusion/passenger)
+#mod_a["passenger"]="phusion"
+#mod_pn["passenger"]="passenger"
+#mod_pv["passenger"]="5.0.6"
+#mod_lic["passenger"]="MIT"
+#mod_p["passenger"]="${mod_pn["passenger"]}-release-${mod_pv["passenger"]}"
+#mod_uri["passenger"]="https://github.com/${mod_a["passenger"]}/${mod_pn["passenger"]}/archive/release-${mod_pv["passenger"]}.tar.gz"
+#mod_wd["passenger"]="${WORKDIR}/${mod_p["passenger"]}/ext/nginx"
+# mod_doc["passenger"]="README.md CHANGELOG"
+
+# Push (https://nchan.io/)
+mod_a["push"]="slact"
+mod_pn["push"]="nchan"
+mod_pv["push"]="v1.3.6"
+mod_sha["push"]="b95f64c0f49223ebcaddb18609ac5644d41fca14"
+mod_lic["push"]="MIT"
+mod_p["push"]="${mod_pn["push"]}-${mod_sha["push"]}"
+# mod_uri["push"]="https://github.com/${mod_a["push"]}/${mod_pn["push"]}/archive/${mod_pv["push"]}.tar.gz"
+mod_uri["push"]="https://github.com/${mod_a["push"]}/${mod_pn["push"]}/archive/${mod_sha["push"]}.tar.gz"
+mod_wd["push"]="${WORKDIR}/${mod_p["push"]}"
+mod_doc["push"]="README.md changelog.txt"
+
 # Lua (https://github.com/openresty/lua-nginx-module)
 mod_a["lua"]="openresty"
 mod_pn["lua"]="lua-nginx-module"
-mod_pv["lua"]="v0.10.15"
-mod_sha["lua"]="28cf5ce3b6ec8e7ab44eadac9cc1c3b6f5c387ba"
+mod_pv["lua"]="v0.10.26"
+# mod_sha["lua"]="28cf5ce3b6ec8e7ab44eadac9cc1c3b6f5c387ba"
 mod_lic["lua"]="BSD-2"
 mod_p["lua"]="${mod_pn["lua"]}-${mod_pv["lua"]/v/}"
 mod_uri["lua"]="https://github.com/${mod_a["lua"]}/${mod_pn["lua"]}/archive/${mod_pv["lua"]}.tar.gz"
@@ -155,7 +150,7 @@ mod_doc["lua"]="README.markdown doc/HttpLuaModule.wiki"
 # Auth PAM (https://github.com/sto/ngx_http_auth_pam_module)
 mod_a["auth_pam"]="stogh"
 mod_pn["auth_pam"]="ngx_http_auth_pam_module"
-mod_pv["auth_pam"]="1.5.3"
+mod_pv["auth_pam"]="1.5.5"
 # mod_sha["auth_pam"]="f5d706ac299dc3c517fef644873739e975556e6b"
 mod_lic["auth_pam"]="BSD-2"
 mod_p["auth_pam"]="${mod_pn["auth_pam"]}-${mod_pv["auth_pam"]}"
@@ -166,16 +161,16 @@ mod_doc["auth_pam"]="README.md ChangeLog"
 # Upstream Check (https://github.com/yaoweibin/nginx_upstream_check_module)
 mod_a["upstream_check"]="yaoweibin"
 mod_pn["upstream_check"]="nginx_upstream_check_module"
-mod_pv["upstream_check"]="0.3.0"
-mod_sha["upstream_check"]="9aecf15ec379fe98f62355c57b60c0bc83296f04"
+mod_pv["upstream_check"]="0.4.0"
+mod_sha["upstream_check"]="87bfa66ddf16c17053ba7bbae72400c9939ecf6d"
 mod_lic["upstream_check"]="BSD-2"
 mod_p["upstream_check"]="${mod_pn["upstream_check"]}-${mod_sha["upstream_check"]}"
 mod_uri["upstream_check"]="https://github.com/${mod_a["upstream_check"]}/${mod_pn["upstream_check"]}/archive/${mod_sha["upstream_check"]}.tar.gz"
 mod_wd["upstream_check"]="${WORKDIR}/${mod_p["upstream_check"]}"
 mod_doc["upstream_check"]="README CHANGES"
 
-# Metrics (https://github.com/zenops/ngx_metrics)
-mod_a["metrics"]="zenops"
+# Metrics (https://github.com/liquidm/ngx_metrics)
+mod_a["metrics"]="liquidm"
 mod_pn["metrics"]="ngx_metrics"
 mod_pv["metrics"]="0.1.1"
 mod_lic["metrics"]="BSD-2"
@@ -184,11 +179,21 @@ mod_uri["metrics"]="https://github.com/${mod_a["metrics"]}/${mod_pn["metrics"]}/
 mod_wd["metrics"]="${WORKDIR}/${mod_p["metrics"]}"
 mod_doc["metrics"]="README.md"
 
-# NAXSI (https://github.com/nbs-system/naxsi)
-mod_a["naxsi"]="nbs-system"
+# http_vhost_traffic_status (https://github.com/vozlt/nginx-module-vts, BSD license)
+mod_a["vhost_traffic_status"]="vozlt"
+mod_pn["vhost_traffic_status"]="nginx-module-vts"
+mod_pv["vhost_traffic_status"]="0.2.2"
+mod_lic["vhost_traffic_status"]="BSD"
+mod_p["vhost_traffic_status"]="${mod_pn["vhost_traffic_status"]}-${mod_pv["vhost_traffic_status"]}"
+mod_uri["vhost_traffic_status"]="https://github.com/${mod_a["vhost_traffic_status"]}/${mod_pn["vhost_traffic_status"]}/archive/v${mod_pv["vhost_traffic_status"]}.tar.gz"
+mod_wd["vhost_traffic_status"]="${WORKDIR}/${mod_p["vhost_traffic_status"]}"
+mod_doc["vhost_traffic_status"]="README.md"
+
+# NAXSI (https://github.com/wargio/naxsi)
+mod_a["naxsi"]="wargio"
 mod_pn["naxsi"]="naxsi"
-mod_pv["naxsi"]="1.3"
-mod_lic["naxsi"]="GPL-2+"
+mod_pv["naxsi"]="1.6"
+mod_lic["naxsi"]="GPL-3+"
 mod_p["naxsi"]="${mod_pn["naxsi"]}-${mod_pv["naxsi"]}"
 mod_uri["naxsi"]="https://github.com/${mod_a["naxsi"]}/${mod_pn["naxsi"]}/archive/${mod_pv["naxsi"]}.tar.gz"
 mod_wd["naxsi"]="${WORKDIR}/${mod_p["naxsi"]}/naxsi_src"
@@ -197,7 +202,7 @@ mod_doc["naxsi"]="README.md"
 # RTMP (http://github.com/arut/nginx-rtmp-module)
 mod_a["rtmp"]="arut"
 mod_pn["rtmp"]="nginx-rtmp-module"
-mod_pv["rtmp"]="1.2.1"
+mod_pv["rtmp"]="1.2.2"
 mod_lic["rtmp"]="BSD-2"
 mod_p["rtmp"]="${mod_pn["rtmp"]}-${mod_pv["rtmp"]}"
 mod_uri["rtmp"]="https://github.com/${mod_a["rtmp"]}/${mod_pn["rtmp"]}/archive/v${mod_pv["rtmp"]}.tar.gz"
@@ -228,7 +233,7 @@ mod_doc["concat"]="README.md"
 # Echo (https://github.com/openresty/echo-nginx-module)
 mod_a["echo"]="openresty"
 mod_pn["echo"]="echo-nginx-module"
-mod_pv["echo"]="v0.62"
+mod_pv["echo"]="v0.63"
 #mod_sha["echo"]="0525d0c2db1f2a5c19a141687cd055e09b5cded1"
 mod_lic["echo"]="BSD-2"
 mod_p["echo"]="${mod_pn["echo"]}-${mod_pv["echo"]/v/}"
@@ -236,47 +241,58 @@ mod_uri["echo"]="https://github.com/${mod_a["echo"]}/${mod_pn["echo"]}/archive/$
 mod_wd["echo"]="${WORKDIR}/${mod_p["echo"]}"
 #mod_doc["echo"]="README.markdown"
 
-# ModSecurity (https://www.modsecurity.org/download.html)
-mod_a["modsecurity"]="modsecurity"
-mod_pn["modsecurity"]="modsecurity"
-mod_pv["modsecurity"]="2.9.3"
+# modsecurity for nginx (https://github.com/SpiderLabs/ModSecurity-nginx, https://github.com/SpiderLabs/ModSecurity, Apache-2.0)
+mod_a["modsecurity"]="owasp-modsecurity"
+mod_pn["modsecurity"]="ModSecurity-nginx"
+mod_pv["modsecurity"]="1.0.3"
 mod_lic["modsecurity"]="Apache-2.0"
 mod_p["modsecurity"]="${mod_pn["modsecurity"]}-${mod_pv["modsecurity"]}"
-mod_uri["modsecurity"]="https://www.modsecurity.org/tarball/${mod_pv[modsecurity]}/${mod_p["modsecurity"]}.tar.gz"
-mod_wd["modsecurity"]="${WORKDIR}/${mod_p["modsecurity"]}/nginx/${mod_pn["modsecurity"]}"
-mod_doc["modsecurity"]="README.md CHANGES NOTICE"
+mod_uri["modsecurity"]="https://github.com/${mod_a["modsecurity"]}/${mod_pn["modsecurity"]}/archive/v${mod_pv["modsecurity"]}.tar.gz"
+mod_wd["modsecurity"]="${WORKDIR}/${mod_p["modsecurity"]}"
+mod_doc["modsecurity"]="README.md CHANGES"
 
 # Push Stream (https://github.com/wandenberg/nginx-push-stream-module)
 mod_a["push_stream"]="wandenberg"
 mod_pn["push_stream"]="nginx-push-stream-module"
-mod_pv["push_stream"]="0.5.4"
+mod_pv["push_stream"]="0.5.5-2-gf858fc01"
+mod_sha["push_stream"]="f858fc01e809bc87cc667e1cdd38fc35492cd2f5"
 mod_lic["push_stream"]="GPL-3"
 mod_p["push_stream"]="${mod_pn["push_stream"]}-${mod_pv["push_stream"]}"
-mod_uri["push_stream"]="https://github.com/${mod_a["push_stream"]}/${mod_pn["push_stream"]}/archive/${mod_pv["push_stream"]}.tar.gz"
-mod_wd["push_stream"]="${WORKDIR}/${mod_p["push_stream"]}"
+mod_uri["push_stream"]="https://github.com/${mod_a["push_stream"]}/${mod_pn["push_stream"]}/archive/${mod_sha["push_stream"]}.tar.gz"
+mod_wd["push_stream"]="${WORKDIR}/${mod_pn["push_stream"]}-${mod_sha["push_stream"]}"
 mod_doc["push_stream"]="README.textile CHANGELOG.textile AUTHORS"
 
 # Sticky (https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng)
 mod_a["sticky"]="nginx-goodies"
 mod_pn["sticky"]="nginx-sticky-module-ng"
-mod_pv["sticky"]="1.2.6"
+mod_pv["sticky"]="1.2.6-10-g08a395c66e42"
 mod_sha["sticky"]="08a395c66e425540982c00482f55034e1fee67b6"
 mod_lic["sticky"]="BSD-2"
 mod_p["sticky"]="${mod_a["sticky"]}-${mod_pn["sticky"]}-08a395c66e42"
-mod_uri["sticky"]="http://bitbucket.org/${mod_a["sticky"]}/${mod_pn["sticky"]}/get/${mod_sha["sticky"]}.tar.gz"
+mod_uri["sticky"]="http://bitbucket.org/${mod_a["sticky"]}/${mod_pn["sticky"]}/get/${mod_pv["sticky"]}.tar.gz"
 mod_wd["sticky"]="${WORKDIR}/${mod_p["sticky"]}"
 mod_doc["sticky"]="README.md Changelog.txt"
 
 # AJP (https://github.com/dvershinin/nginx_ajp_module)
 mod_a["ajp"]="dvershinin"
 mod_pn["ajp"]="nginx_ajp_module"
-mod_pv["ajp"]="0.3.2"
-mod_sha["ajp"]="f93b0c13bbd57cc75926d437296a9f5b500d9c6c"
+mod_pv["ajp"]="0.3.3"
+# mod_sha["ajp"]="fcbb2ccca4901d317ecd7a9dabb3fec9378ff40f"
 mod_lic["ajp"]="BSD-2"
-mod_p["ajp"]="${mod_pn["ajp"]}-${mod_sha["ajp"]}"
-mod_uri["ajp"]="https://github.com/${mod_a["ajp"]}/${mod_pn["ajp"]}/archive/${mod_sha["ajp"]}.tar.gz"
+mod_p["ajp"]="${mod_pn["ajp"]}-${mod_pv["ajp"]}"
+mod_uri["ajp"]="https://github.com/${mod_a["ajp"]}/${mod_pn["ajp"]}/archive/v${mod_pv["ajp"]}.tar.gz"
 mod_wd["ajp"]="${WORKDIR}/${mod_p["ajp"]}"
 mod_doc["ajp"]="README"
+
+# njs-module (https://github.com/nginx/njs, as-is)
+mod_a["njs"]="nginx"
+mod_pn["njs"]="njs"
+mod_pv["njs"]="0.8.4"
+mod_lic["njs"]="as-is"
+mod_p["njs"]="${mod_pn["njs"]}-${mod_pv["njs"]}"
+mod_uri["njs"]="https://github.com/${mod_a["njs"]}/${mod_pn["njs"]}/archive/${mod_pv["njs"]}.tar.gz"
+mod_wd["njs"]="${WORKDIR}/${mod_p["njs"]}"
+mod_doc["njs"]="README"
 
 inherit autotools eutils ssl-cert toolchain-funcs perl-module flag-o-matic user versionator pax-utils
 
@@ -297,7 +313,7 @@ for m in ${!mod_a[@]} ; do
 done
 
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS=""
 
 # Package doesn't provide a real test suite
 RESTRICT="test"
@@ -382,13 +398,7 @@ RDEPEND="
 	nginx_modules_external_auth_pam? ( virtual/pam )
 	nginx_modules_external_metrics? ( dev-libs/yajl )
 	nginx_modules_external_dav_ext? ( dev-libs/libxml2 )
-	nginx_modules_external_modsecurity? (
-		dev-libs/apr
-		dev-libs/apr-util
-		dev-libs/libxml2
-		net-misc/curl
-		www-servers/apache
-	)
+	nginx_modules_external_modsecurity? ( dev-libs/modsecurity )
 	nginx_modules_stream_geoip? ( dev-libs/geoip )
 	"
 	# 	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )
@@ -538,56 +548,50 @@ src_prepare() {
 	if use nginx_modules_external_upstream_check; then
 		epatch "${FILESDIR}/patches/upstream-check-plus-stream.patch"
 	fi
-	
-	if use nginx_modules_external_naxsi; then
-		cd "${WORKDIR}/${mod_p[naxsi]}"
-		
-		epatch "${FILESDIR}/patches/naxsi_1.21_pcre2.patch"
 
+	if use nginx_modules_external_njs; then
+		cd "${mod_wd[njs]}" || die
+		sed -e 's/-Werror//g' -i auto/cc || die
 		cd "${S}" || die
-
 	fi
 
-	if use nginx_modules_external_modsecurity; then
-		cd "${WORKDIR}/${mod_p[modsecurity]}"
-
-		eautoreconf
-
-		if use luajit ; then
-			sed -i -e 's|^\(LUA_PKGNAMES\)=.*|\1="luajit"|' configure || die
-		fi
-
+	if use nginx_modules_external_naxsi; then
+		cd "${WORKDIR}/${mod_p[naxsi]}"
+		epatch "${FILESDIR}/patches/naxsi_1.21_pcre2.patch"
 		cd "${S}" || die
 	fi
 
 	if use nginx_modules_external_brotli; then
 		cd "${WORKDIR}/${mod_p[brotli]}"
-
 		epatch "${FILESDIR}/patches/http_brotli-detect-brotli-r3.patch"
-
 		cd "${S}" || die
 	fi
 
 	if use nginx_modules_external_cache_purge; then
-
-                cd "${WORKDIR}/${mod_p[cache_purge]}"
-
-                epatch "${FILESDIR}/patches/http_cache_purge-1.11.6+.patch"
-
-                cd "${S}" || die
-
-	fi
-	
-	if use nginx_modules_external_upload_progress; then  
-
-                cd "${WORKDIR}/${mod_p[upload_progress]}"
-
-                epatch "${FILESDIR}/patches/http_uploadprogress-issue_50-r1.patch"
-
-                cd "${S}" || die
+		cd "${WORKDIR}/${mod_p[cache_purge]}"
+		epatch "${FILESDIR}/patches/http_cache_purge-1.11.6+.patch"
+		cd "${S}" || die
 
 	fi
 
+	if use nginx_modules_external_upload_progress; then
+		cd "${WORKDIR}/${mod_p[upload_progress]}"
+		epatch "${FILESDIR}/patches/http_uploadprogress-issue_50-r1.patch"
+		cd "${S}" || die
+
+	fi
+
+	if use nginx_modules_external_sticky; then
+		cd "${WORKDIR}/${mod_p[sticky]}"
+		eapply "${FILESDIR}"/patches/http_sticky-nginx-1.23.0.patch
+		cd "${S}" || die
+	fi
+
+	if use nginx_modules_external_upload_progress; then
+		cd "${WORKDIR}/${mod_p[upload_progress]}"
+		eapply "${FILESDIR}"/patches/http_uploadprogress-nginx-1.23.0.patch
+		cd "${S}" || die
+	fi
 
 	find auto/ -type f -print0 | xargs -0 sed -i 's:\&\& make:\&\& \\$(MAKE):' || die
 	# We have config protection, don't rename etc files
@@ -608,18 +612,6 @@ src_prepare() {
 }
 
 src_configure() {
-	# modsecurity needs to generate nginx/modsecurity/config before including it
-	if use nginx_modules_external_modsecurity; then
-		cd "${WORKDIR}/${mod_p[modsecurity]}"
-
-		./configure \
-			--enable-standalone-module \
-			--disable-mlogc \
-			--with-ssdeep=no \
-			$(use_enable pcre-jit) \
-			$(use_with nginx_modules_external_lua lua) || die "configure failed for modsecurity"
-	fi
-
 	cd "${S}"
 
 	local nginx_configure= http_enabled= mail_enabled= stream_enabled= WITHOUT_IPV6=
@@ -684,8 +676,11 @@ src_configure() {
 
 	for m in ${!mod_a[@]} ; do
 		[[ $m == "ndk" ]] && continue
+		[[ $m == "njs" ]] && continue
 		use nginx_modules_external_${m} && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd[$m]}"
 	done
+
+	use nginx_modules_external_njs && http_enabled=1 && nginx_configure+=" --add-module=${mod_wd['njs']}/nginx"
 
 	if use nginx_modules_external_lua ; then
 		http_enabled=1
@@ -768,8 +763,6 @@ post_src_unpack() {
 }
 
 src_compile() {
-	use nginx_modules_external_modsecurity && emake -C "${WORKDIR}/${mod_p[modsecurity]}"
-
 	# https://bugs.gentoo.org/286772
 	export LANG=C LC_ALL=C
 	emake LINK="${CC} ${LDFLAGS}" OTHERLDFLAGS="${LDFLAGS}"
@@ -782,10 +775,12 @@ src_install() {
 	doins "${FILESDIR}/${PN}.conf"
 
 	newinitd "${FILESDIR}/${PN}.initd" "${PN}"
+	newconfd "${FILESDIR}"/${PN}.confd "${PN}"
 
 	keepdir "${EROOT}etc/${PN}"/sites-{available,enabled}
 	insinto "${EROOT}etc/${PN}/sites-available"
 	doins "${FILESDIR}/sites-available/localhost"
+
 	dodir "${EROOT}usr/share/nginx/html"
 	insinto "${EROOT}usr/share/nginx/html"
 	doins "${FILESDIR}/example/index.html"
@@ -794,9 +789,9 @@ src_install() {
 
 	keepdir "${EROOT}etc/${PN}"/conf.d
 	insinto "${EROOT}etc/${PN}/conf.d"
-	doins "${FILESDIR}/conf.d/cis.conf"      
+	doins "${FILESDIR}/conf.d/cis.conf"
 	doins "${FILESDIR}/conf.d/default.conf"
-	
+
 	doman "${S}/docs/man/nginx.8"
 
 	# just keepdir. do not copy the default htdocs files (bug #449136)
@@ -844,7 +839,7 @@ src_install() {
 	if use nginx_modules_external_${m} ; then
 		docinto "${mod_p[$m]}"
 		for d in ${mod_doc[$m]} ; do
-			dodoc ${WORKDIR}/${mod_p[$m]}/${d} ; done
+			dodoc ${mod_wd[$m]}/${d} ; done
 	fi
 	done
 }

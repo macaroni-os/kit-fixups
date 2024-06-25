@@ -130,7 +130,7 @@ fi
 # Set up autotools shared dependencies
 # Remember that all versions here MUST be stable
 EAUTORECONF_DEPEND+="
-	>=dev-build/libtool-2.2.6a
+	>=sys-devel/libtool-2.2.6a
 	sys-devel/m4"
 if [[ ${PN} != util-macros ]] ; then
 	EAUTORECONF_DEPEND+=" >=x11-misc/util-macros-1.18"
@@ -200,7 +200,6 @@ if [[ ${PN} == xf86-video-* || ${PN} == xf86-input-* ]]; then
 	COMMON_DEPEND+=" >=x11-base/xorg-server-1.20[xorg]"
 	[[ ${PN} == xf86-video-* ]] && COMMON_DEPEND+=" >=x11-libs/libpciaccess-0.14"
 fi
-
 
 # @ECLASS_VARIABLE: XORG_DOC
 # @PRE_INHERIT

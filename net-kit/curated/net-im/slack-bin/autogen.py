@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 async def generate(hub, **pkginfo):
 	html = await hub.pkgtools.fetch.get_page("https://slack.com/downloads/linux")
-	url = "https://downloads.slack-edge.com/releases/linux/{version}/prod/x64/slack-desktop-{version}-amd64.deb"
+	url = "https://downloads.slack-edge.com/desktop-releases/linux/x64/{version}/slack-desktop-{version}-amd64.deb"
 	soup = BeautifulSoup(html, "html.parser")
 	link = soup.select_one(".page-downloads__hero__meta-text__version")
 	try:

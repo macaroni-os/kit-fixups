@@ -1923,13 +1923,17 @@ dev_python_simplified_rule:
     - dbus-next:
         pypi_name: dbus_next
     - pymongo:
+        du_pep517: hatchling
         revision:
           4.0: 1
+          4.8.0: 1
         python_compat: python2+
         compat: '3.12.1'
         blocker: "!<dev-python/pymongo-4.0" #block all older versions
         iuse: kerberos
         pydeps:
+          py:all:
+            - hatch-requirements-txt
           use:kerberos:
             - pykerberos
     - pygments:
@@ -2349,6 +2353,8 @@ pep517_compliance_rule:
             - pluggy
             - installer
             - trove-classifiers
+    - hatch-requirements-txt:
+        du_pep517: hatchling
     - trove-classifiers:
         pydeps:
           py:all:build:

@@ -118,7 +118,7 @@ src_prepare() {
 src_configure() {
 	local myeconfargs=(
 		--enable-mpris2
-		--enable-qt
+		--enable-qt5
 		--enable-qtaudio
 		--enable-songchange
 		--disable-adplug # not packaged

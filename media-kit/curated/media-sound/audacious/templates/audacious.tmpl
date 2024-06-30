@@ -58,7 +58,7 @@ src_configure() {
 		--disable-libarchive
 		--disable-gtk
 		--enable-dbus
-		--enable-qt
+		--enable-qt5
 		$(use_enable nls)
 	)
 	econf "${myeconfargs[@]}"

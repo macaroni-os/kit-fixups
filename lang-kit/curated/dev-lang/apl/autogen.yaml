@@ -1,0 +1,13 @@
+gnu-apl_rule:
+  generator: gnu-1
+  defaults:
+    cat: dev-lang
+    compression: 'gz'
+    depends: |
+      sys-libs/ncurses
+  packages:
+    - apl:
+        description: A free implementation of APL/2 (ISO 13751) w/extensions
+        base_url: https://ftp.gnu.org/gnu/apl
+        homepage: https://www.gnu.org/software/apl/
+        version: '1.9'

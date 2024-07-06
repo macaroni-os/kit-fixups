@@ -107,29 +107,23 @@ src_configure() {
 	# Not an autotools generated script
 	local myconf=(
 		$(use_enable seccomp scfilter)
-
-		$(usev !caps '--disable-linuxcaps')
-		$(usev !cmdmon '--disable-cmdmon')
-		$(usev debug '--enable-debug')
-
-		# USE=readline here means "readline-like functionality"
-		# chrony only supports libedit in terms of the library providing
-		# it.
-		$(usev !readline '--without-editline --disable-readline')
-
-		$(usev !libtomcrypt '--without-tomcrypt')
-		$(usev !nettle '--without-nettle')
-		$(usev !nss '--without-nss')
-		$(usev !ntp '--disable-ntp')
-		$(usev !nts '--disable-nts')
-		$(usev !nts '--without-gnutls')
-		$(usev !phc '--disable-phc')
-		$(usev !pps '--disable-pps')
-		$(usev !refclock '--disable-refclock')
-		$(usev !rtc '--disable-rtc')
-		$(usev samba '--enable-ntp-signd')
-		$(usev !sechash '--disable-sechash')
-
+		$(usex caps '' '--disable-linuxcaps')
+		$(usex cmdmon '' '--disable-cmdmon')
+		$(usex debug '--enable-debug' '')
+		$(usex libedit '' '--without-editline')
+		$(usex libtomcrypt '' '--without-tomcrypt')
+		$(usex nettle '' '--without-nettle')
+		$(usex nss '' '--without-nss')
+		$(usex ntp '' '--disable-ntp')
+		$(usex nts '' '--disable-nts')
+		$(usex nts '' '--without-gnutls')
+		$(usex phc '' '--disable-phc')
+		$(usex pps '' '--disable-pps')
+		$(usex readline '' '--without-editline --disable-readline')
+		$(usex refclock '' '--disable-refclock')
+		$(usex rtc '' '--disable-rtc')
+		$(usex samba '--enable-ntp-signd' '')
+		$(usex sechash '' '--disable-sechash')
 		--chronysockdir="${EPREFIX}/run/chrony"
 		--docdir="${EPREFIX}/usr/share/doc/${PF}"
 		--mandir="${EPREFIX}/usr/share/man"
@@ -163,7 +157,7 @@ src_install() {
 
 	insinto /etc/${PN}
 	newins examples/chrony.conf.example1 chrony.conf
-	
+
 	# Compatibility with other distributions who install to /etc/chrony.conf (bug #835461)
 	dosym /etc/chrony/chrony.conf /etc/chrony.conf
 

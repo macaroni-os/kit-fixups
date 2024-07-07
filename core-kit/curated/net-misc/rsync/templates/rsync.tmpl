@@ -15,25 +15,21 @@ S="${WORKDIR}/${P/_/}"
 LICENSE="GPL-3"
 SLOT="0"
 IUSE_CPU_FLAGS_X86=" sse2"
-IUSE="acl examples iconv ipv6 libressl lz4 ssl static stunnel system-zlib xattr xxhash zstd"
+IUSE="acl examples iconv ipv6 libressl lz4 ssl stunnel system-zlib xattr xxhash zstd"
 IUSE+=" ${IUSE_CPU_FLAGS_X86// / cpu_flags_x86_}"
 
-LIB_DEPEND="acl? ( virtual/acl[static-libs(+)] )
-	lz4? ( app-arch/lz4[static-libs(+)] )
-	ssl? (
-		!libressl? ( dev-libs/openssl:0=[static-libs(+)] )
-		libressl? ( dev-libs/libressl:0=[static-libs(+)] )
-	)
-	system-zlib? ( sys-libs/zlib[static-libs(+)] )
-	xattr? ( kernel_linux? ( sys-apps/attr[static-libs(+)] ) )
-	xxhash? ( dev-libs/xxhash[static-libs(+)] )
-	zstd? ( app-arch/zstd[static-libs(+)] )
-	>=dev-libs/popt-1.5[static-libs(+)]"
-RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )
+RDEPEND="
+	>=dev-libs/popt-1.5
+	acl? ( virtual/acl )
+	lz4? ( app-arch/lz4 )
+	ssl? ( dev-libs/openssl:0= )
+	system-zlib? ( sys-libs/zlib )
+	xattr? ( kernel_linux? ( sys-apps/attr ) )
+	xxhash? ( dev-libs/xxhash )
+	zstd? ( app-arch/zstd )
 	iconv? ( virtual/libiconv )"
 DEPEND="${RDEPEND}
-	dev-python/commonmark
-	static? ( ${LIB_DEPEND} )"
+	dev-python/commonmark"
 
 src_compile() {
 	rm -f proto.h-tstamp
@@ -54,10 +50,10 @@ src_prepare() {
 }
 
 src_configure() {
-	use static && append-ldflags -static
 	local myeconfargs=(
 		--with-rsyncd-conf="${EPREFIX}"/etc/rsyncd.conf
 		--without-included-popt
+		--without-rrsync
 		$(use_enable acl acl-support)
 		$(use_enable iconv)
 		$(use_enable ipv6)
@@ -69,16 +65,7 @@ src_configure() {
 		$(use_enable zstd)
 	)
 
-	if use elibc_glibc && [[ "${ARCH}" == "amd64" ]] ; then
-		# SIMD is only available for x86_64 right now
-		# and only on glibc (#728868)
-		myeconfargs+=( $(use_enable cpu_flags_x86_sse2 simd) )
-	else
-		myeconfargs+=( --disable-simd )
-	fi
-
 	econf "${myeconfargs[@]}"
-	touch proto.h-tstamp #421625
 }
 
 src_install() {
@@ -127,15 +114,5 @@ pkg_postinst() {
 		einfo
 		einfo "You maybe have to update the certificates configured in"
 		einfo "${EROOT}/etc/stunnel/rsync.conf"
-	fi
-	if use system-zlib ; then
-		ewarn "Using system-zlib is incompatible with <rsync-3.1.1 when"
-		ewarn "using the --compress option."
-		ewarn
-		ewarn "When syncing with >=rsync-3.1.1 built with bundled zlib,"
-		ewarn "and the --compress option, add --new-compress (-zz)."
-		ewarn
-		ewarn "For syncing the portage tree, add:"
-		ewarn "PORTAGE_RSYNC_EXTRA_OPTS=\"--new-compress\" to make.conf"
 	fi
 }

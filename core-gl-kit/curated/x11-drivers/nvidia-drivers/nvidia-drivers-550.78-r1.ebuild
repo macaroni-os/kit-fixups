@@ -401,6 +401,9 @@ src_install() {
 	# Support link for Bumblebee
 	dosym "${NV_NATIVE_LIBDIR}" "${EPREFIX}/usr/lib/nvidia"
 
+	# https://bugs.funtoo.org/browse/FL-12304
+	dosym "${NV_ROOT}/lib64/libnvidia-ngx.so.${PV}" "${NV_ROOT}/lib64/libnvidia-ngx.so.1"
+
 	# Setup an env.d file with appropriate lib paths.
 	ldpath="${NV_NATIVE_LIBDIR}:${NV_NATIVE_LIBDIR}/tls"
 	printf -- "LDPATH=\"${ldpath}\"\n" > "${T}/09nvidia"

@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-127-patches-02.tar.xz"
+FIREFOX_PATCHSET="firefox-128-patches-01.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -13,7 +13,7 @@ WANT_AUTOCONF="2.1"
 
 VIRTUALX_REQUIRED="pgo"
 
-MOZ_ESR=
+MOZ_ESR=yes
 
 MOZ_PV=${PV}
 MOZ_PV_SUFFIX=

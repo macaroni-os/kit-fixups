@@ -1,0 +1,10 @@
+minimodem:
+  generator: github-1
+  packages:
+    - minimodem:
+        github:
+          user: kamalmostafa
+          query: releases
+          repo: minimodem
+          query: tags
+          select: '^minimodem-\d+(\.\d+)-\d*$'

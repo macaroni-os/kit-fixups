@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: gstreamer-meson.eclass
@@ -171,7 +171,6 @@ fi
 # Major and minor numbers of the version number.
 : ${GST_ORG_PVP:=$(ver_cut 1-2)}
 
-
 DESCRIPTION="${BUILD_GST_PLUGINS} plugin for gstreamer"
 HOMEPAGE="https://gstreamer.freedesktop.org/"
 SRC_URI="https://gstreamer.freedesktop.org/src/${GST_ORG_MODULE}/${GST_ORG_MODULE}-${PV}.tar.${GST_TARBALL_SUFFIX}"
@@ -338,7 +337,6 @@ gstreamer_multilib_src_configure() {
 	meson_src_configure "${gst_conf[@]}"
 }
 
-
 # @FUNCTION: _gstreamer_get_target_filename
 # @INTERNAL
 # @DESCRIPTION:
@@ -352,7 +350,7 @@ use utf8;
 use JSON::PP;
 
 open(my $targets_file, '<:encoding(UTF-8)', 'meson-info/intro-targets.json') || die $!;
-my $data = decode_json <$targets_file>;
+my $data = decode_json (join '', <$targets_file>);
 close($targets_file) || die $!;
 
 if(!$ARGV[0]) {

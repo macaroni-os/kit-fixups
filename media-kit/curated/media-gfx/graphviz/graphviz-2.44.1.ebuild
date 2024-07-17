@@ -13,7 +13,7 @@ SRC_URI="https://www2.graphviz.org/Packages/stable/portable_source/${P}.tar.gz"
 LICENSE="CPL-1.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+cairo devil doc examples gdk-pixbuf gtk gts guile java lasi nls pdf perl postscript python qt5 ruby static-libs svg tcl X elibc_FreeBSD"
+IUSE="+cairo devil doc examples gdk-pixbuf gtk gts guile java lasi nls pdf perl postscript python qt5 ruby static-libs tcl X elibc_FreeBSD"
 
 REQUIRED_USE="
 	!cairo? ( !X !gtk !postscript !lasi )
@@ -52,7 +52,6 @@ COMMON_DEPEND="
 		dev-qt/qtwidgets:5
 	)
 	ruby?	( dev-lang/ruby:* )
-	svg?	( gnome-base/librsvg )
 	tcl?	( >=dev-lang/tcl-8.3:0= )
 	X? (
 		x11-libs/libX11
@@ -196,7 +195,6 @@ src_configure() {
 		$(use_with pdf poppler)
 		$(use_with postscript ghostscript)
 		$(use_enable static-libs static)
-		$(use_with svg rsvg)
 		$(use_with X x)
 		$(use_with X xaw)
 		$(use_with X lefty)
@@ -207,6 +205,7 @@ src_configure() {
 		--with-libgd
 		--with-sfdp
 		--without-ming
+		--without-rsvg
 		# new/experimental features, to be tested, disable for now
 		--with-cgraph
 		--without-glitz

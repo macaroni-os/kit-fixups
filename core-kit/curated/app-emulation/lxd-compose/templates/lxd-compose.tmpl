@@ -4,11 +4,13 @@ EAPI=7
 
 DESCRIPTION="Deploy a complex environment to an LXD Cluster or LXD standalone installation"
 HOMEPAGE="https://github.com/MottainaiCI/lxd-compose https://mottainaici.github.io/lxd-compose-docs"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
+
+DEPEND=">=dev-lang/go-1.22"
 
 S="${WORKDIR}"
 

@@ -2474,13 +2474,15 @@ pep517_compliance_rule:
     # - installer:
     - maturin:
         cat: dev-util
+        extensions:
+          - rust
         inherit:
           - cargo
         pydeps:
           py:all:
             - tomli
           py:all:build:
-            setuptools-rust
+            - setuptools-rust
 
 
 replace_old_stuff_rule:

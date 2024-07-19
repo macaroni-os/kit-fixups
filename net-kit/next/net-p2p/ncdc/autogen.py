@@ -7,27 +7,25 @@ import re
 regex = r'(\d+(?:[\.-]\d+)+)'
 
 async def generate(hub, **pkginfo):
-    name = pkginfo['name']
-    download_url="https://dev.yorhel.nl/download/"
-    html = await hub.pkgtools.fetch.get_page(download_url)
-    soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
+	name = pkginfo['name']
+	base_url="https://dev.yorhel.nl"
+	html = await hub.pkgtools.fetch.get_page(base_url + "/download")
+	soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
+
+	releases = [a for a in soup if name in a.contents[0] and not 'linux' in a.contents[0] and a.contents[0].endswith('gz')]
+	latest = max([(
+			Version(re.findall(regex, a.contents[0])[0]),
+			a.get('href'))
+		for a in releases if re.findall(regex, a.contents[0])
+	])
+	artifact = hub.pkgtools.ebuild.Artifact(url=base_url + latest[1])
+
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(
+		**pkginfo,
+		version=latest[0],
+		artifacts=[artifact]
+	)
+	ebuild.push()
 
 
-    releases = [a for a in soup if name in a.contents[0] and not 'linux' in a.contents[0] and a.contents[0].endswith('gz')]
-    latest = max([(
-            Version(re.findall(regex, a.contents[0])[0]),
-            a.get('href'))
-        for a in releases if re.findall(regex, a.contents[0])
-    ])
-
-    artifact = hub.pkgtools.ebuild.Artifact(url=download_url + latest[1])
-
-    ebuild = hub.pkgtools.ebuild.BreezyBuild(
-        **pkginfo,
-        version=latest[0],
-        artifacts=[artifact]
-    )
-    ebuild.push()
-
-
-#vim: ts=4 sw=4 noet
+# vim: ts=4 sw=4 noet

@@ -7,31 +7,30 @@ import re
 
 async def generate(hub, **pkginfo):
 	download_url = "https://dev.yorhel.nl/download"
-	src_pattern = re.compile(f"^({pkginfo.get('name')}-([\\d.]+)\\.tar\\.gz)$")
+	src_pattern = re.compile(f"^.*/({pkginfo.get('name')}-([\\d.]+)\\.tar\\.gz)$")
 
 	download_soup = BeautifulSoup(
 		await hub.pkgtools.fetch.get_page(download_url), "lxml"
 	)
-
 	link_matches = (
 		src_pattern.match(link.get("href")) for link in download_soup.find_all("a")
 	)
-	valid_matches = (match.groups() for match in link_matches if match)
 
-	parsed_versions = (
-		(filename, generic.parse(ver)) for (filename, ver) in valid_matches if ver
-	)
+	valid_matches = list(match.groups() for match in link_matches if match)
+	max_tup = None
 
-	target_filename, target_version = max(
-		parsed_versions,
-		key=lambda match: match[1],
-	)
+	for tup in valid_matches:
+		ver = generic.parse(tup[1])
+		if max_tup is None or ver > max_tup[2]:
+			max_tup = ( tup[0], tup[1], ver)
+
+	target_filename, pkginfo['version'], v_obj = max_tup
 	src_url = f"{download_url}/{target_filename}"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=target_version,
 		artifacts=[hub.pkgtools.ebuild.Artifact(url=src_url)],
 	)
 	ebuild.push()
 
+# vim: ts=4 sw=4 noet

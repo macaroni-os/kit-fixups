@@ -22,7 +22,7 @@ async def generate(hub, **pkginfo):
 
 	src_artifact = pkginfo["artifacts"][0]
 	pkginfo["artifacts"] = {
-		"src": src_artifact,
+		"global": [src_artifact],
 	}
 
 	await src_artifact.ensure_fetched()
@@ -46,12 +46,16 @@ async def generate(hub, **pkginfo):
 	dashboard_url = pkginfo["dashboard_url"] = dashboard_metadata["assets-url"]
 	dashboard_sha = dashboard_metadata["sha1"]
 
-	pkginfo["artifacts"]["dashboard"] = hub.pkgtools.ebuild.Artifact(
+	pkginfo["artifacts"]["mini-dashboard"] = [hub.pkgtools.ebuild.Artifact(
 		url=dashboard_url,
 		final_name=f"{github_repo}-mini-dashboard-{dashboard_sha}.zip",
 	)
+	]
+	unidic = await get_unidic_artifact(hub)
 
-	pkginfo["artifacts"]["unidic"] = await get_unidic_artifact(hub)
+	pkginfo["artifacts"]["global"].append(unidic)
 
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo)
+	ebuild = hub.pkgtools.ebuild.BreezyBuild(**pkginfo, unidic=unidic)
 	ebuild.push()
+
+# vim: ts=4 sw=4 noet

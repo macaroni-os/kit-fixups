@@ -6,12 +6,7 @@ inherit cargo user
 
 DESCRIPTION="A lightning-fast search engine that fits effortlessly into your apps, websites, and workflow"
 HOMEPAGE="https://www.meilisearch.com/"
-SRC_URI="
-	{{ artifacts["src"].src_uri }}
-	{{ artifacts["crates_bundle"].src_uri }}
-	{{ artifacts["unidic"].src_uri }}
-	mini-dashboard? ( {{ artifacts["dashboard"].src_uri }} )
-"
+SRC_URI="{{src_uri}}"
 
 LICENSE="MIT"
 SLOT="0"
@@ -40,14 +35,14 @@ src_prepare() {
 	local lindera_unidic_build=$(find "${WORKDIR}"/cargo_home/gentoo/lindera-unidic-* -iname build.rs)
 
 	# Replace the input/unpacked folder with our version
-	sed -i 's|\(let input_dir =.*\)\("unidic-mecab.*"\)\(.*\)|\1"{{ artifacts["unidic"].final_name.rsplit(".", 1)[0] }}"\3|' "${lindera_unidic_build}"
+	sed -i 's|\(let input_dir =.*\)\("unidic-mecab.*"\)\(.*\)|\1"{{ unidic.final_name.rsplit(".", 1)[0] }}"\3|' "${lindera_unidic_build}"
 
 	# Replace the path to the source with the one downloaded by the ebuild
-	sed -i "s|\(let source_path_for_build =\).*$|\1 Path::new("'"'"${DISTDIR}/{{ artifacts["unidic"].final_name }}"'"'");|" "${lindera_unidic_build}"
+	sed -i "s|\(let source_path_for_build =\).*$|\1 Path::new("'"'"${DISTDIR}/{{ unidic.final_name }}"'"'");|" "${lindera_unidic_build}"
 
 	if use mini-dashboard; then
 		# Inject path to downloaded mini-dashboard build
-		sed -i "s|{{ dashboard_url }}|${DISTDIR}/{{ artifacts["dashboard"].final_name }}|g" "${S}"/meilisearch/Cargo.toml
+		sed -i "s|{{ dashboard_url }}|${DISTDIR}/{{ artifacts["mini-dashboard"][0].final_name }}|g" "${S}"/meilisearch/Cargo.toml
 
 		# Replace HTTP fetch with direct file read
 		sed -i -r 's|(let dashboard_assets_bytes =)(.*)$|\1 std::fs::read(url)?;|' "${S}"/meilisearch/build.rs

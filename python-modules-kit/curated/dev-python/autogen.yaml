@@ -2039,14 +2039,14 @@ dev_python_simplified_rule:
             - toml
             - typing-extensions
     - cryptography:
-        version: '42.0.8'
-        compat: '3.3.2'
+        du_pep517: maturin
         revision:
           '40.0.2': '1'
+        extensions:
+          - rust
         blocker: "!<dev-python/cryptography-3.4.2"
         inherit:
           - cargo
-        cargo_optional: yes
         cargo_path: src/rust
         iuse: cpu_flags_x86_sse2 libressl idna
         license: "|| ( Apache-2.0 BSD )"

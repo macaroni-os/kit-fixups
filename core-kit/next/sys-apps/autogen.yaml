@@ -5,6 +5,10 @@ simple_autogen_rule:
     license: Apache-2.0
   generator: pypi-simple-1
   packages:
+    - packaging-legacy:
+        cat: dev-python
+        pydeps:
+          - packaging
     - subpop:
         cat: dev-python
         pydeps:
@@ -24,6 +28,7 @@ simple_autogen_rule:
             - httpx >= 0.24.0
             - jinja >= 3
             - packaging
+            - packaging-legacy
             - psutil
             - pymongo
             - pyyaml

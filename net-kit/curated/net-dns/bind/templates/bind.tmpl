@@ -19,7 +19,7 @@ SRC_URI="{{src_uri}}"
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+caps dnstap dnsrps doc doh fixed-rrset geoip gssapi idn lmdb selinux test urandom xml"
+IUSE="dnstap dnsrps doc doh fixed-rrset geoip gssapi idn lmdb selinux test urandom xml"
 
 DEPEND="
 	=net-dns/bind-tools-${PV}*
@@ -27,8 +27,8 @@ DEPEND="
 	dev-libs/json-c:=
 	dev-libs/libuv:=
 	dev-libs/openssl:=[-bindist(-)]
+	sys-libs/libcap
 	sys-libs/zlib
-	caps? ( >=sys-libs/libcap-2.1.0 )
 	doh? ( net-libs/nghttp2 )
 	geoip? ( dev-libs/libmaxminddb )
 	gssapi? ( virtual/krb5 )
@@ -88,7 +88,6 @@ src_configure() {
 		--with-jemalloc
 		--with-json-c
 		--with-zlib
-		$(use_enable caps linux-caps)
 		$(use_enable dnstap)
 		$(use_enable dnsrps)
 		$(use_enable dnsrps dnsrps-dl)
@@ -143,9 +142,9 @@ src_install() {
 	newenvd "${FILESDIR}"/10bind.env 10bind
 
 	# Let's get rid of those tools and their manpages since they're provided by bind-tools
-	rm -f "${ED}"/usr/share/man/man1/{dig,host,mdig,nslookup,delv,nsupdate}.1* || die
+	rm -f "${ED}"/usr/share/man/man1/{dig,dnssec-ksr,host,mdig,nslookup,delv,nsupdate}.1* || die
 	rm -f "${ED}"/usr/share/man/man8/nsupdate.8* || die
-	rm -f "${ED}"/usr/bin/{dig,delv,host,mdig,nslookup,nsupdate} || die
+	rm -f "${ED}"/usr/bin/{dig,delv,dnssec-ksr,host,mdig,nslookup,nsupdate} || die
 	rm -f "${ED}"/usr/sbin/{dig,delv,host,mdig,nslookup,nsupdate} || die
 	rm -r "${ED}"/usr/lib* || die
 	for tool in cds dsfromkey importkey keyfromlabel keygen \
@@ -167,8 +166,8 @@ src_install() {
 	keepdir /var/bind/{pri,sec,dyn} /var/log/named
 
 	fowners root:named /{etc,var}/bind /var/log/named /var/bind/{sec,pri,dyn}
-	fowners root:named /var/bind/named.cache /var/bind/pri/localhost.zone /etc/bind/{bind.keys,named.conf}
-	fperms 0640 /var/bind/named.cache /var/bind/pri/localhost.zone /etc/bind/{bind.keys,named.conf}
+	fowners root:named /var/bind/named.cache /var/bind/pri/localhost.zone /etc/bind/named.conf
+	fperms 0640 /var/bind/named.cache /var/bind/pri/localhost.zone /etc/bind/named.conf
 	fperms 0750 /etc/bind /var/bind/pri
 	fperms 0770 /var/log/named /var/bind/{,sec,dyn}
 

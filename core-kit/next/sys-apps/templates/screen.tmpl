@@ -28,9 +28,11 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.6.2-utmp-exit.patch
 )
 
-src_prepare() {
+pkg_setup() {
 	enewgroup utmp
+}
 
+src_prepare() {
 	default
 
 	# sched.h is a system header and causes problems with some C libraries

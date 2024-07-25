@@ -16,13 +16,14 @@ SRC_URI="{{src_uri}}"
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="+caps doc gssapi idn ipv6 libedit readline xml"
+IUSE="doc gssapi idn ipv6 libedit readline xml"
 # no PKCS11 currently as it requires OpenSSL to be patched, also see bug 409687
 
 COMMON_DEPEND="
 	dev-libs/libuv:=
-	caps? ( sys-libs/libcap )
 	dev-libs/openssl:=
+	dev-libs/userspace-rcu
+	sys-libs/libcap
 	xml? ( dev-libs/libxml2 )
 	idn? ( net-dns/libidn2:= )
 	gssapi? ( virtual/krb5 )
@@ -74,7 +75,6 @@ src_configure() {
 		$(use_with idn libidn2 "${ESYSROOT}"/usr)
 		$(use_with xml libxml2)
 		$(use_with gssapi)
-		$(use_enable caps linux-caps)
 		AR="$(type -P $(tc-getAR))"
 	)
 
@@ -108,5 +108,4 @@ src_install() {
 	rm -r "${D}"/usr/{include,sbin} || die
 	rm -r "${D}"/usr/share/man/man*/{arpaname,named,nsec3hash}* || die
 	rm -r "${D}"/usr/share/man/man{5,8} || die
-	rm -r "${D}"/etc || die
 }

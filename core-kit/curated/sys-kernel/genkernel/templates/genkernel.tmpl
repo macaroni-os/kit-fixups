@@ -185,6 +185,7 @@ src_install() {
 	insinto /etc
 	doins "${S}"/genkernel.conf
 
+	# in later versions, this file moves to build/
 	doman genkernel.8
 	dodoc AUTHORS README TODO
 	dobin genkernel

@@ -14,23 +14,23 @@ release:
           | Copyright 2013-{{cur_year}} Federico Moro (https://github.com/fmoro) and GitHub repository contributors.
         url: https://github.com/fmoro/faustoo.git
     - flora:
-        url: https://code.funtoo.org/bitbucket/scm/co/flora.git
+        url: https://github.com/macaroni-os/flora.git
     - gentoo-staging:
-        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        url: https://github.com/macaroni-os/gentoo-staging.git
     - gentoo-staging-Sep-2020:
-        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        url: https://github.com/macaroni-os/gentoo-staging.git
         src_sha1: a6ffd56a61af60a69aee87a7b59d7382ec71df21
         notes: '17 Sep 2020'
     - gentoo-staging-late-2020:
-        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        url: https://github.com/macaroni-os/gentoo-staging.git
         src_sha1: 2e49e96c41bf524a74ee347c49438612d7d8d392
         notes: '31 Dec 2020'
     - gentoo-staging-nov-2021:
-        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        url: https://github.com/macaroni-os/gentoo-staging.git
         src_sha1: a15a64f48741a493e49dfee7d4280a3dc10cd21d
         notes: '9 Nov 2021'
     - gentoo-staging-jan-2023:
-        url: https://code.funtoo.org/bitbucket/scm/auto/gentoo-staging.git
+        url: https://github.com/macaroni-os/gentoo-staging.git
         src_sha1: daf496b9bfdbcb0b07d782ec1532623f0a3dd2c5
         note: '26 Jan 2023'
   source-collections:
@@ -63,11 +63,11 @@ release:
   # Have all of our remote configurations defined in one place for ease of maintenance
   remotes:
     dev:
-      url: https://code.funtoo.org/bitbucket/scm/auto/{repo}
+      url: https://github.com/macaroni-os/{repo}
     prod:
-      url: ssh://git@code.funtoo.org:7999/auto/{repo}
+      url: ssh://git@github.com/macaroni-os/{repo}
       mirrors:
-        - ssh://git@github.com/funtoo/{repo}
+        - ssh://git@github.com/macaroni-os/{repo}
   kit-definitions:
     defaults:
       masters:
@@ -129,37 +129,37 @@ release:
       - perl-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/perl-kit-sources.git
+            url: https://github.com/macaroni-os/perl-kit-sources.git
             branch: 5.32-release
           branch: next
       - kde-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/kde-kit-sources.git
+            url: https://github.com/macaroni-os/kde-kit-sources.git
             branch: 5.27-release
           branch: next/5.27-release
       - gnome-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/gnome-kit-sources.git
+            url: https://github.com/macaroni-os/gnome-kit-sources.git
             branch: 3.36-prime
           branch: next-3.36-prime
       - xfce-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/xfce-kit-sources.git
+            url: https://github.com/macaroni-os/xfce-kit-sources.git
             branch: 4.16-release
           branch: next-4.16-release
       - qt-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/qt-kit-sources.git
+            url: https://github.com/macaroni-os/qt-kit-sources.git
             branch: 5.15.2-release
           branch: next-5.15.2-release
       - mate-kit:
           kind: sourced
           source:
-            url: https://code.funtoo.org/bitbucket/scm/core/mate-kit-sources.git
+            url: https://github.com/macaroni-os/mate-kit-sources.git
             branch: 1.26-prime
           branch: next/1.26-prime
       - ruby-kit:

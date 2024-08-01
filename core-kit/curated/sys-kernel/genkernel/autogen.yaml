@@ -1,0 +1,11 @@
+genkernel_rule:
+  generator: github-1
+  packages:
+    - genkernel:
+        cat: sys-kernel
+        desc: Gentoo's kernel and initrd generator
+        homepage: https://wiki.gentoo.org/wiki/Genkernel https://gitweb.gentoo.org/proj/genkernel.git/
+        github:
+          user: gentoo
+          repo: genkernel
+          query: tags

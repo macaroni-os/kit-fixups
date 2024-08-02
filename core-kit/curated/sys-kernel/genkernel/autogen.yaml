@@ -20,7 +20,7 @@ genkernel_rule:
           # orig at: ... has newer crypto than we support
           # http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-1.0.0.rc16-3.tar.bz2
           # But!  Genkernel expects the tarball to be bzipped.
-          dmraid-1.0.0.rc16-3.tar.bz2: https://deb.debian.org/debian/pool/main/d/dmraid/dmraid_1.0.0.rc16.orig.tar.gz
+          dmraid-1.0.0.rc16-3.tar.gz: https://deb.debian.org/debian/pool/main/d/dmraid/dmraid_1.0.0.rc16.orig.tar.gz
           dropbear-2022.83.tar.bz2: https://matt.ucc.asn.au/dropbear/releases/dropbear-2022.83.tar.bz2
           eudev-3.2.10.tar.gz: https://dev.gentoo.org/~blueness/eudev/eudev-3.2.10.tar.gz
           expat-2.5.0.tar.xz: https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.xz

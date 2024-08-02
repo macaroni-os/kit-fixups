@@ -144,7 +144,14 @@ async def generate(hub, **pkginfo):
 
 	if 'additional_artifacts' in pkginfo:
 		for key, url in pkginfo['additional_artifacts'].items():
-			artifacts['globals'][key] = hub.pkgtools.ebuild.Artifact(url)
+			#artifacts['globals'][key] = hub.pkgtools.ebuild.Artifact(url)
+			artifacts += files_to_artifacts(
+				hub,
+				pkginfo,
+				additional_artifacts.values(),
+				additional_artifacts.keys(),
+				release
+		)
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,

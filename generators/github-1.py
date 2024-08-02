@@ -17,6 +17,7 @@ def get_key(name, pkginfo):
 	else:
 		return None
 
+
 async def final_generate(hub, **pkginfo):
 
 	github_user = pkginfo["github_user"]
@@ -140,6 +141,17 @@ async def generate(hub, **pkginfo):
 		)
 
 	pkginfo.update(github_result)
+	
+	# Include additional artifacts
+	if 'additional_artifacts' in pkginfo:
+			#artifacts['globals'][key] = hub.pkgtools.ebuild.Artifact(url)
+		for filename, url in pkginfo['additional_artifacts'].items():
+			pkginfo['artifacts'].append(
+				hub.pkgtools.ebuild.Artifact(
+					url=url,
+					final_name=filename
+				)
+			)
 
 	await final_generate(hub, **pkginfo)
 

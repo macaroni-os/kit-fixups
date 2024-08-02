@@ -32,7 +32,7 @@ VERSION_LIBXCRYPT="4.4.36"
 VERSION_LVM="2.02.188"
 VERSION_LZO="2.10"
 VERSION_MDADM="4.1"
-VERSION_POPT="1.18"
+VERSION_POPT="1.19"
 VERSION_STRACE="6.4"
 VERSION_THIN_PROVISIONING_TOOLS="0.9.0"
 VERSION_UNIONFS_FUSE="2.0"
@@ -40,50 +40,12 @@ VERSION_USERSPACE_RCU="0.14.0"
 VERSION_UTIL_LINUX="2.38.1"
 VERSION_XFSPROGS="6.3.0"
 VERSION_XZ="5.4.3"
-VERSION_ZLIB="1.2.13"
+#VERSION_ZLIB="1.2.13"
+VERSION_ZLIB="1.3.1"
 VERSION_ZSTD="1.5.5"
 VERSION_KEYUTILS="1.6.3"
 
-COMMON_URI="
-	https://github.com/g2p/bcache-tools/archive/399021549984ad27bf4a13ae85e458833fe003d7.tar.gz -> bcache-tools-${VERSION_BCACHE_TOOLS}.tar.gz
-	https://boostorg.jfrog.io/artifactory/main/release/${VERSION_BOOST}/source/boost_${VERSION_BOOST//./_}.tar.bz2
-	https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v${VERSION_BTRFS_PROGS}.tar.xz
-	https://www.busybox.net/downloads/busybox-${VERSION_BUSYBOX}.tar.bz2
-	mirror://gnu/coreutils/coreutils-${VERSION_COREUTILS}.tar.xz
-	https://www.kernel.org/pub/linux/utils/cryptsetup/v$(ver_cut 1-2 ${VERSION_CRYPTSETUP})/cryptsetup-${VERSION_CRYPTSETUP}.tar.xz
-	https://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-${VERSION_DMRAID}.tar.bz2
-	https://matt.ucc.asn.au/dropbear/releases/dropbear-${VERSION_DROPBEAR}.tar.bz2
-	https://dev.gentoo.org/~blueness/eudev/eudev-${VERSION_EUDEV}.tar.gz
-	https://github.com/libexpat/libexpat/releases/download/R_${VERSION_EXPAT//\./_}/expat-${VERSION_EXPAT}.tar.xz
-	https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${VERSION_E2FSPROGS}/e2fsprogs-${VERSION_E2FSPROGS}.tar.xz
-	https://github.com/libfuse/libfuse/releases/download/fuse-${VERSION_FUSE}/fuse-${VERSION_FUSE}.tar.gz
-	mirror://gnupg/gnupg/gnupg-${VERSION_GPG}.tar.bz2
-	https://github.com/gentoo/hwids/archive/hwids-${VERSION_HWIDS}.tar.gz
-	https://github.com/open-iscsi/open-iscsi/archive/${VERSION_ISCSI}.tar.gz -> open-iscsi-${VERSION_ISCSI}.tar.gz
-	https://s3.amazonaws.com/json-c_releases/releases/json-c-${VERSION_JSON_C}.tar.gz
-	https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-${VERSION_KMOD}.tar.xz
-	https://releases.pagure.org/libaio/libaio-${VERSION_LIBAIO}.tar.gz
-	mirror://gnupg/libgcrypt/libgcrypt-${VERSION_LIBGCRYPT}.tar.bz2
-	mirror://gnupg/libgpg-error/libgpg-error-${VERSION_LIBGPGERROR}.tar.bz2
-	https://github.com/besser82/libxcrypt/releases/download/v${VERSION_LIBXCRYPT}/libxcrypt-${VERSION_LIBXCRYPT}.tar.xz
-	https://mirrors.kernel.org/sourceware/lvm2/LVM2.${VERSION_LVM}.tgz
-	https://www.oberhumer.com/opensource/lzo/download/lzo-${VERSION_LZO}.tar.gz
-	https://www.kernel.org/pub/linux/utils/raid/mdadm/mdadm-${VERSION_MDADM}.tar.xz
-	http://ftp.rpm.org/popt/releases/popt-1.x/popt-${VERSION_POPT}.tar.gz
-	https://github.com/strace/strace/releases/download/v${VERSION_STRACE}/strace-${VERSION_STRACE}.tar.xz
-	https://github.com/jthornber/thin-provisioning-tools/archive/v${VERSION_THIN_PROVISIONING_TOOLS}.tar.gz -> thin-provisioning-tools-${VERSION_THIN_PROVISIONING_TOOLS}.tar.gz
-	https://github.com/rpodgorny/unionfs-fuse/archive/v${VERSION_UNIONFS_FUSE}.tar.gz -> unionfs-fuse-${VERSION_UNIONFS_FUSE}.tar.gz
-	https://lttng.org/files/urcu/userspace-rcu-${VERSION_USERSPACE_RCU}.tar.bz2
-	https://www.kernel.org/pub/linux/utils/util-linux/v${VERSION_UTIL_LINUX:0:4}/util-linux-${VERSION_UTIL_LINUX}.tar.xz
-	https://www.kernel.org/pub/linux/utils/fs/xfs/xfsprogs/xfsprogs-${VERSION_XFSPROGS}.tar.xz
-	https://tukaani.org/xz/xz-${VERSION_XZ}.tar.gz
-	https://zlib.net/zlib-${VERSION_ZLIB}.tar.gz
-	https://github.com/facebook/zstd/archive/v${VERSION_ZSTD}.tar.gz -> zstd-${VERSION_ZSTD}.tar.gz
-	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-${VERSION_KEYUTILS}.tar.gz
-"
-
-SRC_URI="{{ src_uri }}
-	${COMMON_URI}"
+SRC_URI="{{ src_uri }}"
 KEYWORDS="*"
 
 DESCRIPTION="{{ desc }}"

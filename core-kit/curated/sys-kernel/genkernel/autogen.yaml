@@ -19,7 +19,8 @@ genkernel_rule:
           cryptsetup-2.6.1.tar.xz: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.6/cryptsetup-2.6.1.tar.xz
           # orig at: ... has newer crypto than we support
           # http://people.redhat.com/~heinzm/sw/dmraid/src/dmraid-1.0.0.rc16-3.tar.bz2
-          dmraid-1.0.0.rc16-3.tar.gz: https://deb.debian.org/debian/pool/main/d/dmraid/dmraid_1.0.0.rc16.orig.tar.gz
+          # But!  Genkernel expects the tarball to be bzipped.
+          dmraid-1.0.0.rc16-3.tar.bz2: https://deb.debian.org/debian/pool/main/d/dmraid/dmraid_1.0.0.rc16.orig.tar.gz
           dropbear-2022.83.tar.bz2: https://matt.ucc.asn.au/dropbear/releases/dropbear-2022.83.tar.bz2
           eudev-3.2.10.tar.gz: https://dev.gentoo.org/~blueness/eudev/eudev-3.2.10.tar.gz
           expat-2.5.0.tar.xz: https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.xz
@@ -31,7 +32,7 @@ genkernel_rule:
           json-c-0.13.1.tar.gz: https://s3.amazonaws.com/json-c_releases/releases/json-c-0.13.1.tar.gz
           kmod-30.tar.xz: https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-30.tar.xz
           libaio-0.3.113.tar.gz: https://releases.pagure.org/libaio/libaio-0.3.113.tar.gz
-          libcrypt-1.9.4.tar.bz2: https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.9.4.tar.bz2
+          libgcrypt-1.9.4.tar.bz2: https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.9.4.tar.bz2
           libgpg-error-1.43.tar.bz2: https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-1.43.tar.bz2
           libxcrypt-4.4.36.tar.xz: https://github.com/besser82/libxcrypt/releases/download/v4.4.36/libxcrypt-4.4.36.tar.xz
           LVM2.2.02.188.tgz: https://mirrors.kernel.org/sourceware/lvm2/LVM2.2.02.188.tgz

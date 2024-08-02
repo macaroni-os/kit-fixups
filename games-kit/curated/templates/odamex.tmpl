@@ -5,16 +5,17 @@ EAPI=7
 WX_GTK_VER="3.0"
 inherit cmake desktop gnome2-utils readme.gentoo-r1 wxwidgets
 
-if [ "{{ github['snapshot'] }}" ]; then
-	EGIT_REPO_URI="https://github.com/{{ github_user }}/{{ github_repo }}"
-	EGIT_COMMIT="{{ github['snapshot'] }}"
-	inherit git-r3
-	echo alkdjsflasdfjawdjsfkladsfkjadwbfkajsdfjakldjsfklajdsfkjawdjfs
-fi
+{%- if github['snapshot'] is defined %}
+EGIT_REPO_URI="https://github.com/{{ github_user }}/{{ github_repo }}"
+EGIT_COMMIT="{{ github['snapshot'] }}"
+inherit git-r3
+{%- endif %}
 
 DESCRIPTION="{{ desc }}"
 HOMEPAGE="{{ homepage }}"
+{%- if github['snapshot'] is not defined %}
 SRC_URI="{{ src_uri }}"
+{%- endif %}
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -62,14 +63,14 @@ PATCHES=(
 )
 {%- endif %}
 
+{% if github['snapshot'] is defined %}
 src_unpack() {
 	default
-	if [ "{{ github['snapshot'] }}" ] ; then
-		rm "${PN}-{{ github['snapshot'] }}" -r
-		mkdir "${PN}-${PV}" && cd "${PN}-${PV}"
-		git-r3_checkout
-	fi
+	rm "${PN}-{{ github['snapshot'] }}" -r
+	mkdir "${PN}-${PV}" && cd "${PN}-${PV}"
+	git-r3_checkout
 }
+{% endif %}
 
 src_prepare() {
 	cmake_src_prepare

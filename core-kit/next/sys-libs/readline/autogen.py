@@ -23,10 +23,15 @@ async def generate(hub, **pkginfo):
 	tarball_artifact = [hub.pkgtools.ebuild.Artifact(url=f"{package_url}/{latest[1]}")]
 
 	# get patches for versions that don't have a micro (e.g. 8.1 or 8.2, but not 8.1.2 or 8.2.1)
-	patch_level, patch_artifacts = await fetch_patches(hub, package_url, name, latest[0])
 	version = f"{latest[0].public}"
-	if patch_level:
-		version += f"_p{patch_level}"
+	patch_artifacts = []
+	if not latest[0].micro:
+		patch_version = f'{latest[0].major}.{latest[0].minor}'
+		patch_level, patch_artifacts = await fetch_patches(
+			hub, package_url, name, patch_version
+		)
+		if patch_level:
+			version += f"_p{patch_level}"
 
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
@@ -47,7 +52,7 @@ async def fetch_soup(hub, url, name):
 
 async def fetch_patches(hub, package_url, name, version):
 	url = f"{package_url}/{name}-{version}-patches/"
-	name = f"{name}{version.public.replace('.','')}"
+	name = f"{name}{version.replace('.','')}"
 
 	patches = await fetch_soup(hub, url, name)
 	patch_artifacts = [hub.pkgtools.ebuild.Artifact(url=url + p.get('href')) for p in patches]

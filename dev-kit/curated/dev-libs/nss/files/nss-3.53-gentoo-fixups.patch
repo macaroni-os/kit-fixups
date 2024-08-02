@@ -40,23 +40,7 @@ index eb4ed1a..f979d90 100644
  	$(MAKE) clobber
  
  NSPR_CONFIG_STATUS = $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)/config.status
-@@ -138,16 +137,6 @@ $(NSPR_CONFIG_STATUS): $(NSPR_CONFIGURE)
- 	--prefix='$(NSS_GYP_PREFIX)'
- endif
- 
--build_nspr: $(NSPR_CONFIG_STATUS)
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME)/pr/tests
--
--install_nspr: build_nspr
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) install
--
--clobber_nspr: $(NSPR_CONFIG_STATUS)
--	$(MAKE) -C $(CORE_DEPTH)/../nspr/$(OBJDIR_NAME) clobber
--
- build_docs:
- 	$(MAKE) -C $(CORE_DEPTH)/doc
- 
+
 diff --git a/config/Makefile b/config/Makefile
 new file mode 100644
 index 0000000..aaf1991

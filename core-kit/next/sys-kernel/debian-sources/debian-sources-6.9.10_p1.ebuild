@@ -6,8 +6,10 @@ inherit check-reqs eutils ego savedconfig
 
 SLOT=$PF
 
+# NOTE: When updating: use the version from Debian testing (currently trixie)
+# https://packages.debian.org/trixie/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.5.10"
+KERNEL_TRIPLET="6.9.10"
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
@@ -18,6 +20,7 @@ MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # install sources to /usr/src/$LINUX_SRCDIR
 LINUX_SRCDIR=linux-${PF}
 DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
+
 
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
@@ -36,14 +39,17 @@ DEPEND="
 	zfs? ( sys-fs/zfs )
 	luks? ( sys-fs/cryptsetup )"
 REQUIRED_USE="
-btrfs? ( binary )
-custom-cflags? ( binary )
-logo? ( binary )
-luks? ( binary )
-lvm? ( binary )
-sign-modules? ( binary )
-zfs? ( binary )
 "
+
+# Removed from REQUIRED_USE
+#btrfs? ( binary )
+#custom-cflags? ( binary )
+#logo? ( binary )
+#luks? ( binary )
+#lvm? ( binary )
+#sign-modules? ( binary )
+#zfs? ( binary )
+
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
 HOMEPAGE="https://packages.debian.org/unstable/kernel/"
@@ -86,10 +92,10 @@ pkg_pretend() {
 	if use binary ; then
 		CHECKREQS_DISK_BUILD="6G"
 		check-reqs_pkg_setup
+		for unsupported in btrfs luks lvm zfs; do
+			use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
+		done
 	fi
-	for unsupported in btrfs luks lvm zfs; do
-		use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
-	done
 }
 
 get_certs_dir() {
@@ -135,7 +141,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch || die
+	epatch "${FILESDIR}"/latest/more-uarches-for-kernel-6.8-rc4+.patch || die
 	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
@@ -144,7 +150,7 @@ src_prepare() {
 		einfo Restoring saved .config ...
 		restore_config .config
 	else
-		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
+		cp "${FILESDIR}"/config-extract-6.6 ./config-extract || die
 		chmod +x config-extract || die
 	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
@@ -217,7 +223,7 @@ src_prepare() {
 	if use custom-cflags; then
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 		if [ -n "$MARCH" ]; then
-			CONFIG_MARCH="$(grep -E -m 1 -e "${MARCH}($|[[:space:]])" arch/x86/Makefile | grep -o "CONFIG_[^)]*")"
+			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
 			if [ -n "${CONFIG_MARCH}" ]; then
 				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n

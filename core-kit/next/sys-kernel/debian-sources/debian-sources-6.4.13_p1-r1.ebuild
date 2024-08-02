@@ -21,7 +21,7 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm sign-modules zfs"
 RDEPEND="
 	|| (
@@ -146,7 +146,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
+	epatch "${FILESDIR}"/6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-keyboard-not-working-Asus-TUF-FA617NS-FL-11436.patch || die
 #	epatch "${FILESDIR}"/6.4.4/linux-6.4.4-pinctrl-FL-11437-backport.patch || die
 	epatch "${FILESDIR}"/6.4.11/linux-rtw89-revert-recent-changes.patch || die

@@ -9,7 +9,7 @@ SLOT=$PF
 # NOTE: When updating: use the version from Debian testing (currently trixie)
 # https://packages.debian.org/trixie/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.9.8"
+KERNEL_TRIPLET="6.8.12"
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
@@ -141,7 +141,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/latest/extra_cpu_optimizations.patch || die
+	epatch "${FILESDIR}"/latest/more-uarches-for-kernel-6.8-rc4+.patch || die
 	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die

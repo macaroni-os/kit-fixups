@@ -5,13 +5,20 @@ EAPI=7
 WX_GTK_VER="3.0"
 inherit cmake desktop gnome2-utils readme.gentoo-r1 wxwidgets
 
+if [ "{{ github['snapshot'] }}" ]; then
+	EGIT_REPO_URI="https://github.com/{{ github_user }}/{{ github_repo }}"
+	EGIT_COMMIT="{{ github['snapshot'] }}"
+	inherit git-r3
+	echo alkdjsflasdfjawdjsfkladsfkjadwbfkajsdfjakldjsfklajdsfkjawdjfs
+fi
+
 DESCRIPTION="{{ desc }}"
 HOMEPAGE="{{ homepage }}"
 SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="*"
+KEYWORDS="{{ keywords }}"
 IUSE="+client hidpi master +odalaunch server upnp X"
 REQUIRED_USE="|| ( client master server )"
 
@@ -45,6 +52,8 @@ DOC_CONTENTS="
 	Check: http://odamex.net/wiki/FAQ#What_data_files_are_required.3F
 "
 
+S="${WORKDIR}/${PN}-${PV}"
+
 {%- if patches %}
 PATCHES=(
 {%- for patch in patches %}
@@ -53,7 +62,14 @@ PATCHES=(
 )
 {%- endif %}
 
-S="${WORKDIR}/${PN}-src-${PV}"
+src_unpack() {
+	default
+	if [ "{{ github['snapshot'] }}" ] ; then
+		rm "${PN}-{{ github['snapshot'] }}" -r
+		mkdir "${PN}-${PV}" && cd "${PN}-${PV}"
+		git-r3_checkout
+	fi
+}
 
 src_prepare() {
 	cmake_src_prepare

@@ -310,7 +310,7 @@ src_install() {
 			$(use btrfs && echo --btrfs) \
 			$(use ssh && echo --ssh) \
 			--logfile=$WORKDIR/genkernel.log \
-			--kerneldir=/usr/src/${LINUX_SRCDIR} \
+			--kerneldir="${D}/usr/src/${LINUX_SRCDIR}" \
 			--bootdir=${D}/boot \
 			--cachedir=${WORKDIR}/genkernel-cache \
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \

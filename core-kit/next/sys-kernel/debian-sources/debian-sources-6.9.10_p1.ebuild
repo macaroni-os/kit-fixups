@@ -312,7 +312,7 @@ src_install() {
 			--logfile=$WORKDIR/genkernel.log \
 			--kerneldir="${D}/usr/src/${LINUX_SRCDIR}" \
 			--bootdir=${D}/boot \
-			--cachedir=${WORKDIR}/genkernel-cache \
+			--cachedir=${D}/var/cache/genkernel \
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
 				die "genkernel failed:  $?" \
 	)

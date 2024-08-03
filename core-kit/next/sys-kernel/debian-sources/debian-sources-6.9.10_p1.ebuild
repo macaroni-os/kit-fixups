@@ -32,7 +32,7 @@ RDEPEND="
 		>=sys-apps/gawk-5.2.1
 	)
 	ramdisk? ( >=sys-apps/ramdisk-1.1.3 )
-	genkernel? ( >=sys-kernel/genkernel-3.4.10 )
+	genkernel? ( >=sys-kernel/genkernel-4.3.10-r1 )
 "
 DEPEND="
 	virtual/libelf
@@ -240,6 +240,10 @@ src_prepare() {
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
+
+	# copy Genkernel cache from host into WORKDIR
+	use genkernel && mkdir "${WORKDIR}/genkernel-cache" &&
+		cp -av /var/cache/genkernel/* "${WORKDIR}/genkernel-cache"
 }
 
 src_compile() {
@@ -317,6 +321,12 @@ src_install() {
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
 				die "genkernel failed:  $?" \
 	)
+
+	# copy the fresh Genkernel cache into the image
+	if use genkernel; then
+		dodir /var/cache/genkernel
+		cp "${WORKDIR}/genkernel-cache/*" "${D}/var/cache/genkernel/" || die
+	fi
 }
 
 pkg_postinst() {

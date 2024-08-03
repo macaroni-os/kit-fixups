@@ -25,30 +25,32 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm savedconfig sign-modules zfs"
+IUSE="acpi-ec binary btrfs custom-cflags ec2 genkernel +logo luks lvm mdadm ramdisk savedconfig ssh sign-modules zfs"
 RDEPEND="
 	|| (
 		<sys-apps/gawk-5.2.0
 		>=sys-apps/gawk-5.2.1
 	)
-	binary? ( >=sys-apps/ramdisk-1.1.3 )
+	ramdisk? ( >=sys-apps/ramdisk-1.1.3 )
+	genkernel? ( >=sys-kernel/genkernel-3.4.10 )
 "
 DEPEND="
 	virtual/libelf
 	btrfs? ( sys-fs/btrfs-progs )
 	zfs? ( sys-fs/zfs )
-	luks? ( sys-fs/cryptsetup )"
+	luks? ( sys-fs/cryptsetup )
+	lvm? ( sys-fs/lvm2 )"
 REQUIRED_USE="
+	binary? (
+		^^ ( ramdisk genkernel )
+		btrfs? ( genkernel )
+		mdadm? ( genkernel )
+		luks? ( genkernel )
+		lvm? ( genkernel )
+		ssh? ( genkernel )
+	)
+	ramdisk? ( !genkernel )
 "
-
-# Removed from REQUIRED_USE
-#btrfs? ( binary )
-#custom-cflags? ( binary )
-#logo? ( binary )
-#luks? ( binary )
-#lvm? ( binary )
-#sign-modules? ( binary )
-#zfs? ( binary )
 
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
@@ -92,9 +94,7 @@ pkg_pretend() {
 	if use binary ; then
 		CHECKREQS_DISK_BUILD="6G"
 		check-reqs_pkg_setup
-		for unsupported in btrfs luks lvm zfs; do
-			use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
-		done
+		echo "binary"
 	fi
 }
 
@@ -289,11 +289,33 @@ src_install() {
 		exeinto /usr/src/${LINUX_SRCDIR}/scripts
 		doexe ${WORKDIR}/build/scripts/sign-file
 	fi
-	/usr/bin/ramdisk \
-		--fs_root="${D}" \
-		--temp_root="${T}" \
-		--kernel=${MOD_DIR_NAME} \
-		${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
+	use ramdisk && ! use genkernel && ( \
+		/usr/bin/ramdisk \
+			--fs_root="${D}" \
+			--temp_root="${T}" \
+			--kernel=${MOD_DIR_NAME} \
+			--keep \
+			 ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || \
+				die "ramdisk failed: $?" \
+	)
+	! use ramdisk && use genkernel && ( \
+		/usr/bin/genkernel initramfs \
+			--no-mrproper \
+			--no-clean \
+			--no-sandbox \
+			--no-mountboot \
+			$(use lvm && echo --lvm) \
+			$(use luks && echo --luks) \
+			$(use mdadm && echo --mdadm) \
+			$(use btrfs && echo --btrfs) \
+			$(use ssh && echo --ssh) \
+			--logfile=$WORKDIR/genkernel.log \
+			--kerneldir=/usr/src/${LINUX_SRCDIR} \
+			--bootdir=${D}/boot \
+			--cachedir=${WORKDIR}/genkernel-cache \
+			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
+				die "genkernel failed:  $?" \
+	)
 }
 
 pkg_postinst() {

@@ -172,14 +172,15 @@ src_install() {
 	insinto /etc
 	doins "${FILESDIR}"/initramfs.mounts
 
-	pushd "${DISTDIR}" &>/dev/null || die
-	insinto /usr/share/genkernel/distfiles
-	doins ${A/${P}.tar.xz/}
 	# Bug: extract gz and recompress as bz2
 	# Necessary because debian mirror serves gz, but genkernel expects bz2
 	# Won't be necessary when FDO SSL works again
 	zcat dmraid-${VERSION_DMRAID}.tar.gz | bzip2 - -c > dmraid-${VERSION_DMRAID}.tar.bz2
 	rm dmraid-${VERSION_DMRAID}.tar.gz
+
+	pushd "${DISTDIR}" &>/dev/null || die
+	insinto /usr/share/genkernel/distfiles
+	doins ${A/${P}.tar.xz/}
 
 	popd &>/dev/null || die
 }

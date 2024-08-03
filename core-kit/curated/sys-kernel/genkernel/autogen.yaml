@@ -6,6 +6,9 @@ genkernel_rule:
         desc: Gentoo's kernel and initrd generator
         homepage: https://wiki.gentoo.org/wiki/Genkernel https://gitweb.gentoo.org/proj/genkernel.git/
         version: 4.3.10
+        # so that people get the dmraid gz -> bz2 fix
+        revision:
+          '4.3.10': '1'
         github:
           user: gentoo
           repo: genkernel

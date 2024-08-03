@@ -250,30 +250,3 @@ github_pythons:
             use doc && doinfo doc/info/*.info
             distutils-r1_python_install_all
           }
-
-
-setuptools_pythons:
-  generator: pypi-simple-1
-  defaults:
-    python_compat: python3+
-
-  packages:
-    - setuptools_scm:
-        rdepend: |
-          !dev-python/setuptools_scm_git_archive
-        bdepend: |
-          !!<dev-python/setuptools_scm-8.0.0
-
-        du_pep517: standalone
-        iuse: test
-
-        pydeps:
-          py:all:
-            - packaging
-            - setuptools
-            - tomli
-          py:all:build:
-            - setuptools
-          use:test:
-            - build
-            - typing_extensions

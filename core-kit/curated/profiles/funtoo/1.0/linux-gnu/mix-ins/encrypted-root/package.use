@@ -1,12 +1,3 @@
-# This is all stuff required to make cryptsetup use static libs.
-sys-kernel/genkernel cryptsetup
-app-crypt/argon2  static-libs 
-dev-libs/openssl static-libs
-dev-libs/json-c static-libs
-dev-libs/popt  static-libs
-dev-libs/libgpg-error static-libs
-sys-fs/lvm2 static-libs
-sys-fs/cryptsetup static
-sys-kernel/debian-sources binary luks
-sys-kernel/debian-sources-lts binary luks
-
+# Static libs are no longer necessary.
+sys-kernel/debian-sources luks
+sys-kernel/debian-sources-lts luks

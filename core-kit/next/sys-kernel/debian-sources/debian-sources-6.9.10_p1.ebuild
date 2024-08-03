@@ -313,6 +313,7 @@ src_install() {
 			--kerneldir=${S} \
 			--bootdir=${D}/boot \
 			--cachedir=${D}/var/cache/genkernel \
+			--kernel-modules-prefix=${D} \
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
 				die "genkernel failed:  $?" \
 	)

@@ -25,7 +25,7 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="acpi-ec binary btrfs custom-cflags ec2 genkernel +logo luks lvm mdadm ramdisk savedconfig ssh sign-modules zfs"
+IUSE="acpi-ec binary btrfs custom-cflags ec2 genkernel +logo luks lvm mdadm ramdisk savedconfig sshd sign-modules zfs"
 RDEPEND="
 	|| (
 		<sys-apps/gawk-5.2.0
@@ -47,7 +47,7 @@ REQUIRED_USE="
 		mdadm? ( genkernel )
 		luks? ( genkernel )
 		lvm? ( genkernel )
-		ssh? ( genkernel )
+		sshd? ( genkernel )
 	)
 	ramdisk? ( !genkernel )
 "
@@ -308,7 +308,7 @@ src_install() {
 			$(use luks && echo --luks) \
 			$(use mdadm && echo --mdadm) \
 			$(use btrfs && echo --btrfs) \
-			$(use ssh && echo --ssh) \
+			$(use sshd && echo --ssh) \
 			--logfile=$WORKDIR/genkernel.log \
 			--kerneldir=${S} \
 			--bootdir=${D}/boot \

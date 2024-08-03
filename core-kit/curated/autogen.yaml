@@ -27,6 +27,14 @@ github_rule:
           user: mpartel
           repo: bindfs
           query: tags
+    - thin-provisioning-tools:
+        cat: sys-block
+        github:
+          user: jthornber
+          repo: thin-provisioning-tools
+          query: tags
+        extensions:
+          - rust
 
 
 debian_rule:

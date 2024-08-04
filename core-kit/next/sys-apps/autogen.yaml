@@ -39,6 +39,8 @@ simple_autogen_rule:
           }
     - ramdisk:
         pypi_name: funtoo_ramdisk
+        revision:
+          1.1.16: 1
         rdepend: |
           app-arch/xz-utils
           app-arch/zstd
@@ -47,6 +49,12 @@ simple_autogen_rule:
         pydeps:
           - rich
         body: |
+          src_prepare() {
+            default
+            sed -i -e '/linear/d' ${S}/funtoo_ramdisk/support/module_configs/full/modules.autoload
+            sed -i -e '/multipath/d' ${S}/funtoo_ramdisk/support/module_configs/full/modules.autoload
+          }
+          
           python_install_all() {
             doman ${S}/doc/ramdisk.8
           }

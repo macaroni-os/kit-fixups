@@ -77,13 +77,8 @@ prefix_src_archives() {
 	done
 }
 
-TARBALL_PV=${PV}
-SRC_URI="mirror://gentoo/${PN}-${TARBALL_PV}.tar.bz2
-	$(prefix_src_archives ${PN}-${TARBALL_PV}.tar.bz2)"
-
 pkg_pretend() {
 	local CONFIG_CHECK="~IPC_NS ~PID_NS ~NET_NS ~UTS_NS"
-
 	check_extra_config
 }
 
@@ -109,23 +104,13 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.0.14-allow-matches-in-package-updates.patch"
 	"${FILESDIR}/${PN}-3.0.14-track-and-deny-keywords-r1.patch"
 	"${FILESDIR}/${PN}-3.0.14-aliases-name-check.patch"
+	"${FILESDIR}/${PN}-3.0.14-cdn-feature-ignore-mirror.patch"
+	"${FILESDIR}/${PN}-3.0.14-fixed_obsolete_egrep_warning.patch"
 )
-
 python_prepare_all() {
 	distutils-r1_python_prepare_all
 
 	sed -e "s:^VERSION = \"HEAD\"$:VERSION = \"${PV}\":" -i lib/portage/__init__.py || die
-
-	if use gentoo-dev; then
-		einfo "Disabling --dynamic-deps by default for gentoo-dev..."
-		sed -e 's:\("--dynamic-deps", \)\("y"\):\1"n":' \
-			-i lib/_emerge/create_depgraph_params.py || \
-			die "failed to patch create_depgraph_params.py"
-
-		einfo "Enabling additional FEATURES for gentoo-dev..."
-		echo 'FEATURES="${FEATURES} strict-keepdir"' \
-			>> cnf/make.globals || die
-	fi
 
 	if use native-extensions; then
 		printf "[build_ext]\nportage-ext-modules=true\n" >> \
@@ -135,7 +120,6 @@ python_prepare_all() {
 	if ! use ipc ; then
 		einfo "Disabling ipc..."
 		sed -e "s:_enable_ipc_daemon = True:_enable_ipc_daemon = False:" \
-			-i lib/_emerge/AbstractEbuildProcess.py || \
 			die "failed to patch AbstractEbuildProcess.py"
 	fi
 
@@ -151,8 +135,8 @@ python_prepare_all() {
 			-i cnf/repos.conf || die "sed failed"
 	fi
 
-	echo "Enabling fastpull-us..."
-	sed -e "s|^GENTOO_MIRRORS=.*$|GENTOO_MIRRORS=https://fastpull-us.funtoo.org|" -i cnf/make.globals || die "sed failed"
+	echo "Enabling distfiles.macaronios.org..."
+	sed -e "s|^GENTOO_MIRRORS=.*$|GENTOO_MIRRORS=https://distfiles.macaronios.org|" -i cnf/make.globals || die "sed failed"
 
 	if [[ -n ${EPREFIX} ]] ; then
 		einfo "Setting portage.const.EPREFIX ..."

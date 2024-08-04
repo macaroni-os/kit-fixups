@@ -19,7 +19,7 @@ post_src_unpack() {
 src_compile() {
 	anise_ldflags=(
 		"-X \"github.com/geaaru/luet/pkg/config.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
-		"-X github.com/geaaru/luet/pkg/config.BuildCommit={{ hash }}"
+		"-X github.com/geaaru/luet/pkg/config.BuildCommit={{ sha }}"
 		"-X github.com/geaaru/luet/pkg/config.BuildGoVersion=$(go env GOVERSION)"
 	)
 

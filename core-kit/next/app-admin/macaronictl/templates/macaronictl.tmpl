@@ -2,8 +2,8 @@
 
 EAPI=7
 
-DESCRIPTION="Macaroni OS Whip tool"
-HOMEPAGE="https://github.com/macaroni-os/whip"
+DESCRIPTION="Macaroni OS Knife"
+HOMEPAGE="https://github.com/macaroni-os/macaronictl"
 SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-3"
@@ -18,8 +18,8 @@ post_src_unpack() {
 
 src_compile() {
 	golang_ldflags=(
-		"-X \"github.com/macaroni-os/whip/pkg/converter.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
-		"-X github.com/macaroni-os/whip/pkg/converter.BuildCommit={{ sha }}"
+		"-X \"github.com/macaroni-os/macaronictl/pkg/converter.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
+		"-X github.com/macaroni-os/macaronictl/pkg/converter.BuildCommit={{ sha }}"
 	)
 
 	CGO_ENABLED=0 go build \
@@ -30,9 +30,6 @@ src_compile() {
 src_install() {
 	dobin "${PN}"
 	dodoc README.md
-
-	insinto /etc
-	doins "${FILESDIR}"/whip.yml
 }
 
 # vim: filetype=ebuild

@@ -23,7 +23,7 @@ post_src_unpack() {
 src_compile() {
 	golang_ldflags=(
 		"-X \"github.com/macaroni-os/gpu-configurator/pkg/converter.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
-		"-X github.com/macaroni-os/gpu-configurator/pkg/converter.BuildCommit={{ hash }}"
+		"-X github.com/macaroni-os/gpu-configurator/pkg/converter.BuildCommit={{ sha }}"
 	)
 
 	CGO_ENABLED=0 go build \

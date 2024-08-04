@@ -240,10 +240,6 @@ src_prepare() {
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
-
-	# copy Genkernel cache from host into WORKDIR
-	use genkernel && mkdir "${WORKDIR}/genkernel-cache" &&
-		cp -av /var/cache/genkernel/* "${WORKDIR}/genkernel-cache"
 }
 
 src_compile() {
@@ -321,12 +317,6 @@ src_install() {
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
 				die "genkernel failed:  $?" \
 	)
-
-	# copy the fresh Genkernel cache into the image
-	if use genkernel; then
-		dodir /var/cache/genkernel
-		cp "${WORKDIR}/genkernel-cache/*" "${D}/var/cache/genkernel/" || die
-	fi
 }
 
 pkg_postinst() {

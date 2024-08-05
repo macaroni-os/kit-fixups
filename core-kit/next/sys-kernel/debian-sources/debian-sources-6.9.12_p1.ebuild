@@ -9,7 +9,7 @@ SLOT=$PF
 # NOTE: When updating: use the version from Debian testing (currently trixie)
 # https://packages.debian.org/trixie/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.9.10"
+KERNEL_TRIPLET="6.9.12"
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"

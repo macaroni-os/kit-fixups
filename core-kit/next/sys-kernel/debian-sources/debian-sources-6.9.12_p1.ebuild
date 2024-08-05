@@ -243,7 +243,7 @@ src_prepare() {
 
 	# copy Genkernel cache from host into WORKDIR
 	use genkernel && mkdir "${WORKDIR}/genkernel-cache" &&
-		cp -av /var/cache/genkernel/* "${WORKDIR}/genkernel-cache"
+		cp -r /var/cache/genkernel/4.3.10 "${WORKDIR}/genkernel-cache"
 }
 
 src_compile() {
@@ -316,7 +316,7 @@ src_install() {
 			--logfile=$WORKDIR/genkernel.log \
 			--kerneldir=${D}/usr/src/${LINUX_SRCDIR}/ \
 			--bootdir=${D}/boot \
-			--cachedir=${WORKDIR}/genkernel-cache \
+			--cachedir=${WORKDIR}/genkernel-cache/4.3.10 \
 			--no-clear-cachedir \
 			--kernel-modules-prefix=${D} \
 			--ramdisk-modules \
@@ -327,7 +327,7 @@ src_install() {
 	# copy the fresh Genkernel cache into the image
 	if use genkernel; then
 		dodir /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/4.3.10" || die
 	fi
 }
 

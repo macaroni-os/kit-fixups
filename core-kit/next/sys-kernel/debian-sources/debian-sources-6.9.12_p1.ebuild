@@ -314,7 +314,7 @@ src_install() {
 			$(use btrfs && echo --btrfs) \
 			$(use sshd && echo --ssh) \
 			--logfile=$WORKDIR/genkernel.log \
-			--kerneldir=${S} \
+			--kerneldir=${D}/usr/src/${LINUX_SRCDIR}/ \
 			--bootdir=${D}/boot \
 			--cachedir=${WORKDIR}/genkernel-cache \
 			--no-clear-cachedir \

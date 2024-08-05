@@ -32,7 +32,7 @@ RDEPEND="
 		>=sys-apps/gawk-5.2.1
 	)
 	ramdisk? ( >=sys-apps/ramdisk-1.1.3 )
-	genkernel? ( >=sys-kernel/genkernel-4.3.10-r1 )
+	genkernel? ( >=sys-kernel/genkernel-4.3.10-r3 )
 "
 DEPEND="
 	virtual/libelf
@@ -317,7 +317,9 @@ src_install() {
 			--kerneldir=${S} \
 			--bootdir=${D}/boot \
 			--cachedir=${WORKDIR}/genkernel-cache \
+			--no-clear-cachedir \
 			--kernel-modules-prefix=${D} \
+			--ramdisk-modules \
 			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
 				die "genkernel failed:  $?" \
 	)
@@ -325,7 +327,7 @@ src_install() {
 	# copy the fresh Genkernel cache into the image
 	if use genkernel; then
 		dodir /var/cache/genkernel
-		cp "${WORKDIR}/genkernel-cache/*" "${D}/var/cache/genkernel/" || die
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
 	fi
 }
 

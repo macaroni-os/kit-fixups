@@ -2,6 +2,11 @@ openssh:
   generator: github-1
   packages:
     - openssh:
+        versions:
+          9.8_p1:
+            template: openssh.tmpl
+            keywords: "*"
+
         github:
           user: openssh
           repo: openssh-portable

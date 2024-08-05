@@ -32,7 +32,7 @@ RDEPEND="
 		>=sys-apps/gawk-5.2.1
 	)
 	ramdisk? ( >=sys-apps/ramdisk-1.1.3 )
-	genkernel? ( >=sys-kernel/genkernel-4.3.10-r2 )
+	genkernel? ( >=sys-kernel/genkernel-4.3.10-r3 )
 "
 DEPEND="
 	virtual/libelf

@@ -82,8 +82,13 @@ RDEPEND="${PYTHON_DEPS}
 	firmware? ( sys-kernel/linux-firmware )"
 BDEPEND="app-text/asciidoc"
 
+{%- if patches %}
 PATCHES=(
+{%- for patch in patches %}
+	"${FILESDIR}"/"${PN}-{{ patch }}"
+{%- endfor %}
 )
+{%- endif %}
 
 S="${WORKDIR}"/{{github_user}}-{{github_repo}}-{{sha[:7]}}
 

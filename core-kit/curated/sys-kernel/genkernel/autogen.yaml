@@ -9,6 +9,8 @@ genkernel_rule:
         # so that people get the dmraid gz -> bz2 fix
         revision:
           '4.3.10': '3'
+        patches:
+          - 4.3.10-fix-modinfo-error.patch
         github:
           user: gentoo
           repo: genkernel

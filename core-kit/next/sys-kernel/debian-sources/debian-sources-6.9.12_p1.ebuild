@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit check-reqs eutils ego savedconfig
+inherit check-reqs eutils ego mount-boot savedconfig
 
 SLOT=$PF
 
@@ -302,7 +302,6 @@ src_install() {
 			 ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || \
 				die "ramdisk failed: $?" \
 	)
-			#--no-mountboot \
 	! use ramdisk && use genkernel && ( \
 		/usr/bin/genkernel initramfs \
 			--no-mrproper \

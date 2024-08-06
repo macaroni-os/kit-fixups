@@ -302,7 +302,6 @@ src_install() {
 			 ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || \
 				die "ramdisk failed: $?" \
 	)
-			#--no-mountboot \
 	! use ramdisk && use genkernel && ( \
 		/usr/bin/genkernel initramfs \
 			--no-mrproper \

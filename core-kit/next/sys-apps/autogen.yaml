@@ -9,6 +9,34 @@ simple_autogen_rule:
         cat: dev-python
         pydeps:
           - pyyaml
+    - metatools:
+        pypi_name: funtoo_metatools
+        desc: "Funtoo's metatools -- autogeneration framework."
+        rdepend: |
+          app-arch/unzip
+          >=dev-util/meson-1.2.0
+        pydeps:
+          py:all:build:
+            - subpop >= 2.0.0
+          py:all:
+            - beautifulsoup
+            - dict-toolbox
+            - httpx >= 0.24.0
+            - jinja >= 3
+            - packaging
+            - psutil
+            - pymongo
+            - pyyaml
+            - pyzmq
+            - rich
+            - toml
+            - xmltodict
+            - colorama
+        body: |
+          src_configure() {
+            unset PYTHONPATH
+            default
+          }
     - ramdisk:
         pypi_name: funtoo_ramdisk
         rdepend: |

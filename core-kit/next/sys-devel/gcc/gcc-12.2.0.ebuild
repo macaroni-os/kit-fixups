@@ -452,7 +452,7 @@ src_configure() {
 
 	use libssp || export gcc_cv_libc_provides_ssp=yes
 
-	local branding="Funtoo ${PVR}"
+	local branding="MacaroniOS ${PVR}"
 
 	confgcc+=" --with-python-dir=${DATAPATH/$PREFIX/}/python"
 	use nls && confgcc+=" --enable-nls --with-included-gettext" || confgcc+=" --disable-nls"

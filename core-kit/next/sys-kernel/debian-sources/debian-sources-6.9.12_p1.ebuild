@@ -174,7 +174,7 @@ src_prepare() {
 	if use acpi-ec; then
 		# most fan control tools require this
 		tweak_config .config CONFIG_ACPI_EC_DEBUGFS m
-		tweak_config .config CONFIG_DEBUG_FS Y
+		tweak_config .config CONFIG_DEBUG_FS y
 	fi
 	if use ec2; then
 		setyes_config .config CONFIG_BLK_DEV_NVME

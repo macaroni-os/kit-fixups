@@ -2,7 +2,7 @@
 
 EAPI=6
 
-inherit check-reqs eutils ego mount-boot savedconfig
+inherit check-reqs eutils ego savedconfig
 
 SLOT=$PF
 

@@ -21,6 +21,7 @@ S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 src_compile() {
 	FORCE_HOST_GO=yes
+	echo "$(go env GOVERSION | sed 's/go//g')" > .go-version
 	emake
 }
 

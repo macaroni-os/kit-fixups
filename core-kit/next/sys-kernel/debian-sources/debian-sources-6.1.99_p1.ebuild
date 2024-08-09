@@ -4,12 +4,14 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=$PF
+SLOT=bookworm/$PVR
 
-# NOTE: When updating: use the version from Debian testing (currently trixie)
-# https://packages.debian.org/trixie/linux-source
+# NOTE: When updating: use the version from Debiam stable (bookworm):
+# https://packages.debian.org/bookworm/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.8.12"
+KERNEL_TRIPLET="6.1.99"
+
+
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
@@ -25,30 +27,32 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
 KEYWORDS="*"
-IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm savedconfig sign-modules zfs"
+IUSE="acpi-ec binary btrfs custom-cflags ec2 genkernel +logo luks lvm mdadm ramdisk savedconfig sshd sign-modules zfs"
 RDEPEND="
 	|| (
 		<sys-apps/gawk-5.2.0
 		>=sys-apps/gawk-5.2.1
 	)
-	binary? ( >=sys-apps/ramdisk-1.1.3 )
+	ramdisk? ( >=sys-apps/ramdisk-1.1.3 )
+	genkernel? ( >=sys-kernel/genkernel-4.3.10-r3 )
 "
 DEPEND="
 	virtual/libelf
 	btrfs? ( sys-fs/btrfs-progs )
 	zfs? ( sys-fs/zfs )
-	luks? ( sys-fs/cryptsetup )"
+	luks? ( sys-fs/cryptsetup )
+	lvm? ( sys-fs/lvm2 )"
 REQUIRED_USE="
+	binary? (
+		^^ ( ramdisk genkernel )
+		btrfs? ( genkernel )
+		mdadm? ( genkernel )
+		luks? ( genkernel )
+		lvm? ( genkernel )
+		sshd? ( genkernel )
+	)
+	ramdisk? ( !genkernel )
 "
-
-# Removed from REQUIRED_USE
-#btrfs? ( binary )
-#custom-cflags? ( binary )
-#logo? ( binary )
-#luks? ( binary )
-#lvm? ( binary )
-#sign-modules? ( binary )
-#zfs? ( binary )
 
 DESCRIPTION="Debian Sources (and optional binary kernel)"
 DEB_UPSTREAM="http://http.debian.net/debian/pool/main/l/linux"
@@ -92,9 +96,7 @@ pkg_pretend() {
 	if use binary ; then
 		CHECKREQS_DISK_BUILD="6G"
 		check-reqs_pkg_setup
-		for unsupported in btrfs luks lvm zfs; do
-			use $unsupported && die "Currently, $unsupported is unsupported in our binary kernel/initramfs."
-		done
+		echo "binary"
 	fi
 }
 
@@ -141,7 +143,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/latest/more-uarches-for-kernel-6.8-rc4+.patch || die
+	epatch "${FILESDIR}"/6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch || die
 	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
@@ -150,7 +152,7 @@ src_prepare() {
 		einfo Restoring saved .config ...
 		restore_config .config
 	else
-		cp "${FILESDIR}"/config-extract-6.6 ./config-extract || die
+		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
 		chmod +x config-extract || die
 	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
@@ -174,6 +176,7 @@ src_prepare() {
 	if use acpi-ec; then
 		# most fan control tools require this
 		tweak_config .config CONFIG_ACPI_EC_DEBUGFS m
+		tweak_config .config CONFIG_DEBUG_FS y
 	fi
 	if use ec2; then
 		setyes_config .config CONFIG_BLK_DEV_NVME
@@ -240,6 +243,13 @@ src_prepare() {
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
+
+	mkdir "${WORKDIR}/genkernel-cache" || die
+	# copy Genkernel cache from host into WORKDIR if it exists
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Using pre-existing genkernel cache at /var/cache/genkernel/4.3.10."
+		cp -r /var/cache/genkernel/4.3.10 "${WORKDIR}/genkernel-cache/" || die
+	fi
 }
 
 src_compile() {
@@ -289,11 +299,45 @@ src_install() {
 		exeinto /usr/src/${LINUX_SRCDIR}/scripts
 		doexe ${WORKDIR}/build/scripts/sign-file
 	fi
-	/usr/bin/ramdisk \
-		--fs_root="${D}" \
-		--temp_root="${T}" \
-		--kernel=${MOD_DIR_NAME} \
-		${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || die "failcakes $?"
+	use ramdisk && ! use genkernel && ( \
+		/usr/bin/ramdisk \
+			--fs_root="${D}" \
+			--temp_root="${T}" \
+			--kernel=${MOD_DIR_NAME} \
+			--keep \
+			 ${D}/boot/initramfs-${KERN_SUFFIX} --debug --backtrace || \
+				die "ramdisk failed: $?" \
+	)
+	! use ramdisk && use genkernel && ( \
+		/usr/bin/genkernel initramfs \
+			--no-mrproper \
+			--no-clean \
+			--no-sandbox \
+			$(use lvm && echo --lvm) \
+			$(use luks && echo --luks) \
+			$(use mdadm && echo --mdadm) \
+			$(use btrfs && echo --btrfs) \
+			$(use sshd && echo --ssh) \
+			--logfile=$WORKDIR/genkernel.log \
+			--kerneldir=${D}/usr/src/${LINUX_SRCDIR}/ \
+			--bootdir=${D}/boot \
+			--cachedir=${WORKDIR}/genkernel-cache \
+			--no-clear-cachedir \
+			--kernel-modules-prefix=${D} \
+			--ramdisk-modules \
+			--initramfs-filename=initramfs-${KERN_SUFFIX} || \
+				die "genkernel failed:  $?" \
+	)
+
+	# copy the fresh Genkernel cache into the image, but
+	# only if the host doesn't have a cache already existing.
+	addread /var/cache/genkernel/4.3.10
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	else
+		dodir /var/cache/genkernel
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
+	fi
 }
 
 pkg_postinst() {

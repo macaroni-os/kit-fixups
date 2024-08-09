@@ -31,7 +31,11 @@ SLOT="0"
 LICENSE="{{ license }}"
 KEYWORDS="*"
 SRC_URI="{{ src_uri }}"
-S="${WORKDIR}/metatools-${PV}"
+{%- if github['snapshot'] is defined %}
+S="${WORKDIR}/funtoo-metatools-{{ github['snapshot'] }}"
+{% else %}
+S="${WORKDIR}/metatools-$PV"
+{% endif %}
 
 src_configure() {
 	# Create setup.py

@@ -4,7 +4,7 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=trixie/$PF
+SLOT=trixie/$PVR
 
 # NOTE: When updating: use the version from Debian testing (trixie)
 # https://packages.debian.org/trixie/linux-source

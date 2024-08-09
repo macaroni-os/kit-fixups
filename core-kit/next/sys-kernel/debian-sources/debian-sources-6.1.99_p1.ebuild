@@ -4,7 +4,7 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=bookworm/$PF
+SLOT=bookworm/$PVR
 
 # NOTE: When updating: use the version from Debiam stable (bookworm):
 # https://packages.debian.org/bookworm/linux-source

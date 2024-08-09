@@ -244,9 +244,14 @@ src_prepare() {
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
 
-	# copy Genkernel cache from host into WORKDIR
-	use genkernel && mkdir "${WORKDIR}/genkernel-cache" &&
-		cp -r /var/cache/genkernel/4.3.10 "${WORKDIR}/genkernel-cache/"
+	# copy Genkernel cache from host into WORKDIR if it exists
+	addread /var/cache/genkernel/4.3.10
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	else
+		mkdir "${WORKDIR}/genkernel-cache" || die
+		cp -r /var/cache/genkernel/4.3.10 "${WORKDIR}/genkernel-cache/" || die
+	fi
 }
 
 src_compile() {
@@ -326,8 +331,9 @@ src_install() {
 				die "genkernel failed:  $?" \
 	)
 
-	# copy the fresh Genkernel cache into the image
-	if use genkernel; then
+	# copy the fresh Genkernel cache into the image, but
+	# only if the host doesn't have a cache already existing.
+	if use genkernel && [[ -d /var/cache/genkernel ]]; then
 		dodir /var/cache/genkernel
 		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
 	fi

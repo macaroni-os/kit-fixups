@@ -4,7 +4,7 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=$PF
+SLOT=funtoo/$PVR
 
 DEB_PATCHLEVEL="1"
 KERNEL_TRIPLET="6.5.10"
@@ -21,7 +21,7 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 
 RESTRICT="binchecks strip"
 LICENSE="GPL-2"
-KEYWORDS="*"
+KEYWORDS=""
 IUSE="acpi-ec binary btrfs custom-cflags ec2 +logo luks lvm savedconfig sign-modules zfs"
 RDEPEND="
 	|| (

@@ -121,7 +121,7 @@ src_install() {
 	set_arch_to_kernel
 
 	myemakeargs+=(
-		DEPMOD=:
+		DEPMOD=/bin/true
 		DESTDIR="${D}"
 	)
 

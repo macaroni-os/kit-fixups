@@ -16,7 +16,7 @@ VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
 fi
-# like "6.9.12_p1-r1-debian-sources"
+# like "6.1.99_p1-r1-debian-sources"
 EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
 MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
@@ -95,6 +95,7 @@ zap_config() {
 get_vendor() {
 	vendor_string=$(grep vendor /proc/cpuinfo | uniq | cut -d ':' -f 2)
 	vendor=$([[ ${vendor_string^^} =~ (INTEL)|(AMD) ]] && echo ${BASH_REMATCH[0]})
+	echo $vendor
 }
 
 pkg_pretend() {
@@ -233,12 +234,13 @@ src_prepare() {
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 
 		if [ -n "$MARCH" ]; then
-			if [[ $MARCH =~ (native) ]] ; then
+			if [[ $MARCH =~ (native) ]] && [[ -n $(get_vendor) ]]; then
 				einfo "Detected -march=native on $(get_vendor)"
 				CONFIG_MARCH=CONFIG_MNATIVE_$(get_vendor)
 			else
 				CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
 			fi
+
 			if [ -n "${CONFIG_MARCH}" ]; then
 				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n
@@ -347,15 +349,6 @@ src_install() {
 				die "genkernel failed:  $?" \
 	)
 
-	# copy the fresh Genkernel cache into the image, but
-	# only if the host doesn't have a cache already existing.
-	addread /var/cache/genkernel/4.3.10
-	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
-		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
-	else
-		dodir /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
-	fi
 }
 
 pkg_postinst() {
@@ -374,6 +367,17 @@ pkg_postinst() {
 
 	if [ -e ${ROOT}lib/modules ]; then
 		depmod -a $MOD_DIR_NAME
+	fi
+
+	# copy the fresh Genkernel cache into the image, but
+	# only if the host doesn't have a cache already existing.
+	# addread /var/cache/genkernel/4.3.10
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	else
+		einfo "Copying genkernel cache into /var/cache/genkernel/."
+		mkdir -p /var/cache/genkernel
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
 	fi
 
 	ego_pkg_postinst

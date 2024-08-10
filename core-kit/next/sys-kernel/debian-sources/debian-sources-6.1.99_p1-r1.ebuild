@@ -16,6 +16,7 @@ VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
 fi
+# like "6.1.99_p1-r1-debian-sources"
 EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
 MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
@@ -371,7 +372,7 @@ pkg_postinst() {
 	fi
 
 	if [ -e ${ROOT}lib/modules ]; then
-		depmod -a ${PV}-${PN}
+		depmod -a $MOD_DIR_NAME
 	fi
 
 	ego_pkg_postinst

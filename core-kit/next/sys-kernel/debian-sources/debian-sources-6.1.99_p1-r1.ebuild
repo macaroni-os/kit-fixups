@@ -4,18 +4,19 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=trixie/$PVR
+SLOT=bookworm/$PVR
 
-# NOTE: When updating: use the version from Debian testing (trixie)
-# https://packages.debian.org/trixie/linux-source
+# NOTE: When updating: use the version from Debiam stable (bookworm):
+# https://packages.debian.org/bookworm/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.9.12"
+KERNEL_TRIPLET="6.1.99"
 
 
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
 fi
+# like "6.1.99_p1-r1-debian-sources"
 EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
 MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
@@ -91,6 +92,11 @@ zap_config() {
 	sed -i -e "/$2/d" $1
 }
 
+get_vendor() {
+	vendor_string=$(grep vendor /proc/cpuinfo | uniq | cut -d ':' -f 2)
+	vendor=$([[ ${vendor_string^^} =~ (INTEL)|(AMD) ]] && echo ${BASH_REMATCH[0]})
+}
+
 pkg_pretend() {
 	# Ensure we have enough disk space to compile
 	if use binary ; then
@@ -143,7 +149,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/6.8+/more-uarches-for-kernel-6.8-rc4+.patch || die
+	epatch "${FILESDIR}"/6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch || die
 	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
@@ -152,7 +158,7 @@ src_prepare() {
 		einfo Restoring saved .config ...
 		restore_config .config
 	else
-		cp "${FILESDIR}"/config-extract-6.6 ./config-extract || die
+		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
 		chmod +x config-extract || die
 	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
@@ -225,8 +231,13 @@ src_prepare() {
 	fi
 	if use custom-cflags; then
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
+
 		if [ -n "$MARCH" ]; then
-			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
+			if [[ $march =~ (native) ]] ; then
+				CONFIG_MARCH=CONFIG_MNATIVE_$(get_vendor)
+			else
+				CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
+			fi
 			if [ -n "${CONFIG_MARCH}" ]; then
 				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n
@@ -239,6 +250,11 @@ src_prepare() {
 	# build generic CRC32C module into kernel, to defeat FL-11913
 	# (cannot mount ext4 filesystem in initramfs if created with recent e2fsprogs version)
 	tweak_config .config CONFIG_CRYPTO_CRC32C y
+
+	# disable module compression until the initramfs plays nicely with it
+	tweak_config .config CONFIG_MODULE_COMPRESS_XZ n
+	tweak_config .config CONFIG_MODULE_COMPRESS_NONE y
+
 	# get config into good state:
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
@@ -294,6 +310,7 @@ src_install() {
 	cp "${WORKDIR}/build/System.map" "${D}/usr/src/${LINUX_SRCDIR}/" || die
 	cp "${WORKDIR}/build/Module.symvers" "${D}/usr/src/${LINUX_SRCDIR}/" || die
 	if use sign-modules; then
+		# TODO FIXME: check for compressed modules.
 		find "${D}"/lib/modules -iname *.ko -exec ${WORKDIR}/build/scripts/sign-file sha512 $certs_dir/signing_key.pem $certs_dir/signing_key.x509 {} \; || die
 		# install the sign-file executable for future use.
 		exeinto /usr/src/${LINUX_SRCDIR}/scripts
@@ -355,7 +372,7 @@ pkg_postinst() {
 	fi
 
 	if [ -e ${ROOT}lib/modules ]; then
-		depmod -a ${PV}-${PN}
+		depmod -a $MOD_DIR_NAME
 	fi
 
 	ego_pkg_postinst

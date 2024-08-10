@@ -95,6 +95,7 @@ zap_config() {
 get_vendor() {
 	vendor_string=$(grep vendor /proc/cpuinfo | uniq | cut -d ':' -f 2)
 	vendor=$([[ ${vendor_string^^} =~ (INTEL)|(AMD) ]] && echo ${BASH_REMATCH[0]})
+	echo $vendor
 }
 
 pkg_pretend() {
@@ -233,12 +234,13 @@ src_prepare() {
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 
 		if [ -n "$MARCH" ]; then
-			if [[ $MARCH =~ (native) ]] ; then
+			if [[ $MARCH =~ (native) ]] && [[ -n $(get_vendor) ]]; then
 				einfo "Detected -march=native on $(get_vendor)"
 				CONFIG_MARCH=CONFIG_MNATIVE_$(get_vendor)
 			else
 				CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
 			fi
+
 			if [ -n "${CONFIG_MARCH}" ]; then
 				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n
@@ -373,8 +375,9 @@ pkg_postinst() {
 	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
 		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
 	else
-		dodir /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
+		einfo "Copying genkernel cache into /var/cache/genkernel/."
+		mkdir -p /var/cache/genkernel
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
 	fi
 
 	ego_pkg_postinst

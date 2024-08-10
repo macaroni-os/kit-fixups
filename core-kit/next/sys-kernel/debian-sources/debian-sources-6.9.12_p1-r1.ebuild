@@ -16,7 +16,7 @@ VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
 fi
-# like "6.9.12_p1-r1-debian-sources"
+# like "6.1.99_p1-r1-debian-sources"
 EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
 MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
@@ -347,15 +347,6 @@ src_install() {
 				die "genkernel failed:  $?" \
 	)
 
-	# copy the fresh Genkernel cache into the image, but
-	# only if the host doesn't have a cache already existing.
-	addread /var/cache/genkernel/4.3.10
-	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
-		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
-	else
-		dodir /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
-	fi
 }
 
 pkg_postinst() {
@@ -374,6 +365,16 @@ pkg_postinst() {
 
 	if [ -e ${ROOT}lib/modules ]; then
 		depmod -a $MOD_DIR_NAME
+	fi
+
+	# copy the fresh Genkernel cache into the image, but
+	# only if the host doesn't have a cache already existing.
+	# addread /var/cache/genkernel/4.3.10
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	else
+		dodir /var/cache/genkernel
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
 	fi
 
 	ego_pkg_postinst

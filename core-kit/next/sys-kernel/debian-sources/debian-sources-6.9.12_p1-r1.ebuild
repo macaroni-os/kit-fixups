@@ -233,7 +233,8 @@ src_prepare() {
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
 
 		if [ -n "$MARCH" ]; then
-			if [[ $march =~ (native) ]] ; then
+			if [[ $MARCH =~ (native) ]] ; then
+				einfo "Detected -march=native on $(get_vendor)"
 				CONFIG_MARCH=CONFIG_MNATIVE_$(get_vendor)
 			else
 				CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"

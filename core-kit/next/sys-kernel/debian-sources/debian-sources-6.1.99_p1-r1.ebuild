@@ -16,6 +16,7 @@ VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
 if [ ${PR} != "r0" ]; then
 	VERSION_SUFFIX+="-${PR}"
 fi
+# like "6.1.99_p1-r1-debian-sources"
 EXTRAVERSION="${VERSION_SUFFIX}-${PN}"
 MOD_DIR_NAME="${KERNEL_TRIPLET}${EXTRAVERSION}"
 # Tracking: https://packages.debian.org/sid/linux-image-amd64
@@ -89,6 +90,12 @@ setyes_config() {
 zap_config() {
 	einfo "Removing *$2* from kernel config."
 	sed -i -e "/$2/d" $1
+}
+
+get_vendor() {
+	vendor_string=$(grep vendor /proc/cpuinfo | uniq | cut -d ':' -f 2)
+	vendor=$([[ ${vendor_string^^} =~ (INTEL)|(AMD) ]] && echo ${BASH_REMATCH[0]})
+	echo $vendor
 }
 
 pkg_pretend() {
@@ -225,8 +232,15 @@ src_prepare() {
 	fi
 	if use custom-cflags; then
 		MARCH="$(python3 -c "import portage; print(portage.settings[\"CFLAGS\"])" | sed 's/ /\n/g' | grep "march")"
+
 		if [ -n "$MARCH" ]; then
-			CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
+			if [[ $MARCH =~ (native) ]] && [[ -n $(get_vendor) ]]; then
+				einfo "Detected -march=native on $(get_vendor)"
+				CONFIG_MARCH=CONFIG_MNATIVE_$(get_vendor)
+			else
+				CONFIG_MARCH="$(grep -m 1 -e "${MARCH}" -B 1 arch/x86/Makefile | sort -r | grep -m 1 -o CONFIG_\[^\)\]* )"
+			fi
+
 			if [ -n "${CONFIG_MARCH}" ]; then
 				einfo "Optimizing kernel for ${CONFIG_MARCH}"
 				tweak_config .config CONFIG_GENERIC_CPU n
@@ -239,6 +253,11 @@ src_prepare() {
 	# build generic CRC32C module into kernel, to defeat FL-11913
 	# (cannot mount ext4 filesystem in initramfs if created with recent e2fsprogs version)
 	tweak_config .config CONFIG_CRYPTO_CRC32C y
+
+	# disable module compression until the initramfs plays nicely with it
+	tweak_config .config CONFIG_MODULE_COMPRESS_XZ n
+	tweak_config .config CONFIG_MODULE_COMPRESS_NONE y
+
 	# get config into good state:
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
@@ -294,6 +313,7 @@ src_install() {
 	cp "${WORKDIR}/build/System.map" "${D}/usr/src/${LINUX_SRCDIR}/" || die
 	cp "${WORKDIR}/build/Module.symvers" "${D}/usr/src/${LINUX_SRCDIR}/" || die
 	if use sign-modules; then
+		# TODO FIXME: check for compressed modules.
 		find "${D}"/lib/modules -iname *.ko -exec ${WORKDIR}/build/scripts/sign-file sha512 $certs_dir/signing_key.pem $certs_dir/signing_key.x509 {} \; || die
 		# install the sign-file executable for future use.
 		exeinto /usr/src/${LINUX_SRCDIR}/scripts
@@ -329,15 +349,6 @@ src_install() {
 				die "genkernel failed:  $?" \
 	)
 
-	# copy the fresh Genkernel cache into the image, but
-	# only if the host doesn't have a cache already existing.
-	addread /var/cache/genkernel/4.3.10
-	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
-		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
-	else
-		dodir /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" "${D}/var/cache/genkernel/" || die
-	fi
 }
 
 pkg_postinst() {
@@ -355,7 +366,18 @@ pkg_postinst() {
 	fi
 
 	if [ -e ${ROOT}lib/modules ]; then
-		depmod -a ${PV}-${PN}
+		depmod -a $MOD_DIR_NAME
+	fi
+
+	# copy the fresh Genkernel cache into the image, but
+	# only if the host doesn't have a cache already existing.
+	# addread /var/cache/genkernel/4.3.10
+	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	else
+		einfo "Copying genkernel cache into /var/cache/genkernel/."
+		mkdir -p /var/cache/genkernel
+		cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
 	fi
 
 	ego_pkg_postinst

@@ -1,4 +1,5 @@
 release:
+
   metadata:
     version: 11
     required:
@@ -70,6 +71,8 @@ release:
       mirrors:
         - ssh://git@github.com/macaroni-os/{repo}
   kit-definitions:
+    # Default release name is used.
+    meta-repo-branch: "mark-testing"
     defaults:
       masters:
         - core-kit

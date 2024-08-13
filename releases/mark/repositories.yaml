@@ -4,7 +4,8 @@ release:
     required:
       - ego: '2.7.2'
   copyright: |
-    | Copyright 2008-{{cur_year}} Funtoo Solutions, Inc.
+    | Copyright {{cur_year}} Macaroni OS
+    | Copyright 2008-2024 Funtoo Solutions, Inc.
     | Copyright 1999-{{cur_year}} Gentoo Foundation, Gentoo Authors, and
     | many independent contributors/authors as documented in the source code commit history.
     | Copyright 2017-{{cur_year}} Sony Interactive Entertainment, Inc.
@@ -75,7 +76,7 @@ release:
         - llvm-kit
       source: funtoo_next
       stability: prime
-      branch: next
+      branch: mark-testing
       priority: 500
     kits:
       - core-kit:
@@ -131,39 +132,39 @@ release:
           source:
             url: https://github.com/macaroni-os/perl-kit-sources.git
             branch: 5.32-release
-          branch: next
+          branch: mark-testing
       - kde-kit:
           kind: sourced
           source:
             url: https://github.com/macaroni-os/kde-kit-sources.git
             branch: 5.27-release
-          branch: next/5.27-release
+          branch: mark-testing
       - gnome-kit:
           kind: sourced
           source:
             url: https://github.com/macaroni-os/gnome-kit-sources.git
             branch: 3.36-prime
-          branch: next-3.36-prime
+          branch: mark-testing
       - xfce-kit:
           kind: sourced
           source:
             url: https://github.com/macaroni-os/xfce-kit-sources.git
             branch: 4.16-release
-          branch: next-4.16-release
+          branch: mark-testing
       - qt-kit:
           kind: sourced
           source:
             url: https://github.com/macaroni-os/qt-kit-sources.git
             branch: 5.15.2-release
-          branch: next-5.15.2-release
+          branch: mark-testing
       - mate-kit:
           kind: sourced
           source:
             url: https://github.com/macaroni-os/mate-kit-sources.git
             branch: 1.26-prime
-          branch: next/1.26-prime
+          branch: mark-testing
       - ruby-kit:
-          branch: next
+          branch: mark-testing
           source: funtoo_late_2020
       - python-kit:
           settings:

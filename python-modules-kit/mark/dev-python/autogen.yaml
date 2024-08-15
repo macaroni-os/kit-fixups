@@ -250,3 +250,37 @@ github_pythons:
             use doc && doinfo doc/info/*.info
             distutils-r1_python_install_all
           }
+
+setuptools_pythons:
+  generator: pypi-simple-1
+  defaults:
+    python_compat: python3+
+
+  packages:
+    - setuptools_scm:
+        body : |
+          src_configure() {
+            if has_version "<dev-python/setuptools_scm-8"; then # only happens when setuptools_scm-7 is installed (main cause is duplicated entry points in similar fashion as in https://github.com/pypa/setuptools/issues/3649)
+              # it could be done better, but only side effect is two aditional internal unused api files added
+              # tested with python 3.12 - the duplicated entries where gone and update worked correctly without any quick fixes
+              ewarn "adding /src/setuptools_scm/{file_finder_git.py,file_hinder_hg.py} which point to _file_finders.{git,hg} modules due to build tools interaction"
+              echo "from ._file_finders.git import *" > ${S}/src/setuptools_scm/file_finder_git.py
+              echo "from ._file_finders.hg import *" >  ${S}/src/setuptools_scm/file_finder_hg.py
+            fi
+            distutils-r1_src_configure
+          }
+
+        du_pep517: standalone
+        iuse: test
+
+        pydeps:
+          py:all:
+            - packaging
+            - setuptools
+            - tomli
+          py:all:build:
+            - setuptools
+          use:test:
+            - build
+            - typing_extensions
+

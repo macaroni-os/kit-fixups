@@ -992,7 +992,7 @@ toolchain_gcc_src_configure() {
 
 	_run_function_if_exists toolchain_gcc_conf_for_${TARGET_LIBC}
 
-	local branding="Funtoo"
+	local branding="MacaroniOS"
 	if use_if_iuse hardened; then
 		branding="$branding Hardened ${PVR}"
 	else
@@ -1023,7 +1023,7 @@ toolchain_gcc_src_configure() {
 		--enable-clocale=gnu
 		--disable-werror
 		$(in_iuse lto && use_enable lto)
-		--with-bugurl="http://bugs.funtoo.org"
+		--with-bugurl="https://github.com/macaroni-os/mark-issues"
 		--with-pkgversion="${branding}"
 	)
 	

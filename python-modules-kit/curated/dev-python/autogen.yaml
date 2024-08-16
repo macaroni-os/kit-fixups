@@ -31,6 +31,21 @@ oddball_core_deps:
           py:all:
             - pbr
 
+setuptools_builds:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: setuptools
+    pydeps:
+      py:all:build:
+        - setuptools
+  generator: pypi-simple-1
+  packages:
+    - cython:
+        pypi_name: Cython
+        desc: 'A Python to C compiler'
+        license: Apache-2.0
+
 sqlalchemy:
   defaults:
     python_compat: python2+
@@ -2210,10 +2225,6 @@ better_autogens_without_templates:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
-    - cython:
-        pypi_name: Cython
-        version: 0.29.36
-        python_compat: python2+
     - py:
         python_compat: python2+ pypy{,3}
         revision:
@@ -2380,9 +2391,12 @@ pep517_compliance_rule:
     - tomlkit
     - meson-python:
         du_pep517: standalone
-        rdepend: 'dev-util/patchelf'
+        rdepend: |-
+          dev-util/patchelf
+          dev-util/meson
+        depend:
+          dev-util/meson
         pydeps:
-          - meson
           - pyproject-metadata
           - tomli
     - pyproject-metadata:
@@ -2479,6 +2493,15 @@ pep517_compliance_rule:
           py:all:build:
             setuptools-rust
 
+meono_python_builds:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: meson-python
+  generator: pypi-compat-1
+  packages:
+    - numpy:
+        template: numpy.tmpl
 
 replace_old_stuff_rule:
   generator: pypi-compat-1
@@ -2558,9 +2581,6 @@ dev_python_autogen_rule:
     - readme_renderer:
         python_compat: python2+ pypy3
     - multidict
-    - numpy:
-        # FL-9243: numpy >=1.22.0 only supports Python >=3.8
-        version: 1.21.5
     - flake8-polyfill:
         python_compat: python2+
     - PySocks:

@@ -2380,9 +2380,12 @@ pep517_compliance_rule:
     - tomlkit
     - meson-python:
         du_pep517: standalone
-        rdepend: 'dev-util/patchelf'
+        rdepend: |-
+          dev-util/patchelf
+          dev-util/meson
+        depend:
+          dev-util/meson
         pydeps:
-          - meson
           - pyproject-metadata
           - tomli
     - pyproject-metadata:

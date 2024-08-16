@@ -2482,6 +2482,15 @@ pep517_compliance_rule:
           py:all:build:
             setuptools-rust
 
+meono_python_builds:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: meson-python
+  generator: pypi-compat-1
+  packages:
+    - numpy:
+        template: numpy.tmpl
 
 replace_old_stuff_rule:
   generator: pypi-compat-1
@@ -2561,9 +2570,6 @@ dev_python_autogen_rule:
     - readme_renderer:
         python_compat: python2+ pypy3
     - multidict
-    - numpy:
-        # FL-9243: numpy >=1.22.0 only supports Python >=3.8
-        version: 1.21.5
     - flake8-polyfill:
         python_compat: python2+
     - PySocks:

@@ -31,6 +31,21 @@ oddball_core_deps:
           py:all:
             - pbr
 
+setuptools_builds:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: setuptools
+    pydeps:
+      py:all:build:
+        - setuptools
+  generator: pypi-simple-1
+  packages:
+    - cython:
+        pypi_name: Cython
+        desc: 'A Python to C compiler'
+        license: Apache-2.0
+
 sqlalchemy:
   defaults:
     python_compat: python2+
@@ -2210,10 +2225,6 @@ better_autogens_without_templates:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
-    - cython:
-        pypi_name: Cython
-        version: 0.29.36
-        python_compat: python2+
     - py:
         python_compat: python2+ pypy{,3}
         revision:

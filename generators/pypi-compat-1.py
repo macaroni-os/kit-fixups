@@ -122,7 +122,6 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		if "local-only" not in extensions:
 			artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=version_specified, has_python=has_python,
 							requires_python_override=requires_python_override)
-	local_pkginfo["template_path"] = os.path.normpath(os.path.join(os.path.dirname(__file__), "templates"))
 	# fixup $S automatically -- this seems to follow the name in the archive:
 	artifacts = []
 	if "local-only" in extensions:
@@ -211,14 +210,23 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 					local_pkginfo["depend"] += "\n".join(map(lambda x: hub.pkgtools.pyhelper.expand_pydep(local_pkginfo, x), extra_bdeps))
 		if "cargo" in extensions or ("cargo" in pkginfo["inherit"] and not compat_ebuild):
 			await cargo_extension(hub, local_pkginfo, artifact)
+
 	if "artifacts" in local_pkginfo:
 		local_pkginfo["artifacts"] += artifacts
 	else:
 		local_pkginfo["artifacts"] = artifacts
-	ebuild = hub.pkgtools.ebuild.BreezyBuild(
-		**local_pkginfo,
-		template="pypi-compat-1.tmpl"
-	)
+
+	if "template" in pkginfo:
+		ebuild = hub.pkgtools.ebuild.BreezyBuild(
+			**local_pkginfo,
+		)
+	else:
+		local_pkginfo["template_path"] = os.path.normpath(os.path.join(os.path.dirname(__file__), "templates"))
+		ebuild = hub.pkgtools.ebuild.BreezyBuild(
+			**local_pkginfo,
+			template="pypi-compat-1.tmpl"
+		)
+
 	ebuild.push()
 
 

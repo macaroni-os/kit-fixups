@@ -3,7 +3,9 @@ networkmanager_rule:
     gitlab_user: NetworkManager
     gitlab_repo: NetworkManager
   packages:
-    - networkmanager
+    - networkmanager:
+        # Pin here at 1.48.6 until we have >=linux-headers-6.8.
+        version: '1.48.6'
 
 modemmanager_rule:
   defaults:

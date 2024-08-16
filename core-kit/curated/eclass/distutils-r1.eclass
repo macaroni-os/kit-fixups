@@ -183,6 +183,10 @@ if [[ ! ${_DISTUTILS_R1} ]]; then
 [[ ${EAPI} == [56] ]] && inherit eutils xdg-utils
 inherit multibuild multiprocessing toolchain-funcs
 
+if [[ ${DISTUTILS_USE_PEP517} == meson-python ]]; then
+	inherit ninja-utils meson
+fi
+
 if [[ ! ${DISTUTILS_SINGLE_IMPL} ]]; then
 	inherit python-r1
 else
@@ -1328,6 +1332,26 @@ distutils_pep517_install() {
 	local config_settings=
 	if [[ -n ${DISTUTILS_ARGS[@]} ]]; then
 		case ${DISTUTILS_USE_PEP517} in
+			meson-python)
+				meson_src_configure "${DISTUTILS_ARGS[@]}"
+
+				local -x NINJAOPTS=$(get_NINJAOPTS)
+				config_settings=$(
+					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die
+						import json
+						import os
+						import shlex
+						import sys
+
+						ninjaopts = shlex.split(os.environ["NINJAOPTS"])
+						print(json.dumps({
+							"builddir": "${BUILD_DIR}",
+							"setup-args": sys.argv[1:],
+							"compile-args": ["-v"] + ninjaopts,
+						}))
+					EOF
+				)
+				;;
 			setuptools)
 				config_settings=$(
 					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die

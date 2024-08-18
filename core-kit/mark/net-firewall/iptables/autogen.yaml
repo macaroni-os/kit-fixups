@@ -1,0 +1,11 @@
+iptables_rule:
+  generator: dirlisting-1
+  packages:
+    - iptables:
+        cat: net-firewall
+        desc: Linux kernel (2.4+) firewall, NAT and packet mangling tools
+        homepage: https://netfilter.org/projects/iptables/
+        dir:
+          url: https://www.netfilter.org/pub/iptables/
+          format: tar.xz
+          order: asc

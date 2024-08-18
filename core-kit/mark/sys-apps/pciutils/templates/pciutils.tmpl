@@ -1,13 +1,13 @@
-# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 inherit multilib toolchain-funcs multilib-minimal flag-o-matic
 
 DESCRIPTION="Various utilities dealing with the PCI bus"
 HOMEPAGE="http://mj.ucw.cz/sw/pciutils/ https://git.kernel.org/?p=utils/pciutils/pciutils.git"
-SRC_URI="ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci/${P}.tar.gz"
+SRC_URI="{{ src_uri }}"
+S="${WORKDIR}/${P/_/}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -16,14 +16,13 @@ IUSE="dns +kmod static-libs +udev zlib"
 
 # Have the sub-libs in RDEPEND with [static-libs] since, logically,
 # our libpci.a depends on libz.a/etc... at runtime.
-LIB_DEPEND="
-	zlib? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+),${MULTILIB_USEDEP}] )
-	udev? ( >=virtual/libudev-208[static-libs(+),${MULTILIB_USEDEP}] )
-"
+LIB_DEPEND="zlib? ( >=sys-libs/zlib-1.2.8-r1[static-libs(+),${MULTILIB_USEDEP}] )"
+
 DEPEND="
 	kmod? ( sys-apps/kmod )
 	static-libs? ( ${LIB_DEPEND} )
 	!static-libs? ( ${LIB_DEPEND//static-libs(+),} )
+	udev? ( >=virtual/libudev-208[${MULTILIB_USEDEP}] )
 "
 RDEPEND="
 	${DEPEND}
@@ -34,10 +33,6 @@ DEPEND="
 	kmod? ( virtual/pkgconfig )
 "
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.1.9-static-pc.patch
-)
-
 MULTILIB_WRAPPED_HEADERS=( /usr/include/pci/config.h )
 
 switch_config() {
@@ -46,6 +41,11 @@ switch_config() {
 
 	sed "s@^\(${opt}=\).*\$@\1${val}@" -i Makefile || die
 	return 0
+}
+
+src_unpack() {
+	unpack "${A}"
+	mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "$S" || die
 }
 
 src_prepare() {
@@ -110,9 +110,6 @@ multilib_src_install_all() {
 
 	newinitd "${FILESDIR}"/init.d-pciparm pciparm
 	newconfd "${FILESDIR}"/conf.d-pciparm pciparm
-
-	# symlink for regular users, it's handy for them too (and some things (anydesk, likely others) expect it to be in user path)
-	dosym ../sbin/lspci /usr/bin/lspci
 }
 
 pkg_postinst() {

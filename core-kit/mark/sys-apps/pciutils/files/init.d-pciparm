@@ -68,7 +68,7 @@ start() {
 	fi
 
 	checkconfig || return 1
-	
+
 	# We do not exit after any errors presently, because it might be a
 	# stability-related fix after a failure.
 	[ -n "$PCIPARM_ALL" ] && \

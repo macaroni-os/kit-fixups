@@ -2040,10 +2040,6 @@ dev_python_simplified_rule:
             - typing-extensions
     - cryptography:
         version: '42.0.8'
-        compat: '3.3.2'
-        revision:
-          '40.0.2': '1'
-        blocker: "!<dev-python/cryptography-3.4.2"
         inherit:
           - cargo
         cargo_optional: yes

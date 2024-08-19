@@ -36,6 +36,18 @@ pkg_setup() {
 	linux-info_pkg_setup
 }
 
+python_prepare_all() {
+	# Remove duplicate entries of a prebuilt doc build and
+	# ensure install of the file glances.conf in /etc/${PN}
+	sed \
+		-e '/share\/doc\/glances/d' \
+		-e "s/'CONTRIBUTING.md',//" \
+		-e "s:'conf/glances.conf':('${EPREFIX}/etc/glances', ['conf/glances.conf':g" \
+		-i setup.py || die
+	sed -i "s/, 'irq']/]/" unitest.py || die
+	distutils-r1_python_prepare_all
+}
+
 python_install_all() {
 	# add an intended file from original data set from setup.py to DOCS
 	local DOCS=( README.rst CONTRIBUTING.md conf/glances.conf )

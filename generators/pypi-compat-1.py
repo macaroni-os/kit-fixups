@@ -21,8 +21,7 @@ def get_extensions(pkginfo):
 	es = []
 	valid_extensions = {
 		"local-only" : "We have the sources locally -- don't query pypi -- don't create a SRC_URI.",
-		"rust": "Modern rust support",
-		"golang": "Go language support"
+		"cargo": "Enable cargo support."
 	}
 	ext_set = set()
 	if "extensions" in pkginfo:
@@ -32,6 +31,27 @@ def get_extensions(pkginfo):
 				raise ValueError(f"'{e}' is not a valid extension for the pypi-compat-1 generator.")
 			ext_set.add(e)
 	return ext_set
+
+
+async def cargo_extension(hub, pkginfo, sdist_artifact):
+	if "cargo_path" in pkginfo:
+		cargo_path = "*/"+pkginfo["cargo_path"]
+	else:
+		cargo_path = "*"
+	cargo_artifacts = await hub.pkgtools.rust.generate_crates_from_artifact(sdist_artifact, cargo_path)
+	pkginfo["crates"] = cargo_artifacts["crates"]
+	if "artifacts" not in pkginfo:
+		pkginfo["artifacts"] = []
+	# Adding an artifact to artifacts is a common use case, and a simplified API would be better:
+	# hub.add_artifact(), etc.
+	if isinstance(pkginfo["artifacts"], list):
+		pkginfo["artifacts"] += cargo_artifacts["crates_artifacts"]
+	elif isinstance(pkginfo["artifacts"], dict):
+		if "global" not in pkginfo["artifacts"]:
+			pkginfo["artifacts"]["global"] = []
+		pkginfo["artifacts"]["global"] += cargo_artifacts["crates_artifacts"]
+	else:
+		raise ValueError("Can't add crate artifacts.")
 
 
 async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild=False, **pkginfo):
@@ -103,6 +123,7 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 			artifact_url = hub.pkgtools.pyhelper.pypi_get_artifact_url(local_pkginfo, json_dict, strict=version_specified, has_python=has_python,
 							requires_python_override=requires_python_override)
 	# fixup $S automatically -- this seems to follow the name in the archive:
+	artifacts = []
 	if "local-only" in extensions:
 		# Allow pypi_name to allow renaming of the expected S dir, even if we are grabbing ebuild from a local archive.
 		if "pypi_name" in pkginfo:
@@ -112,23 +133,15 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		over_name = pkginfo["name"].replace("_", "-")
 		local_pkginfo["s_pkg_name"] = pkginfo["pypi_name"]
 		hub.pkgtools.pyhelper.pypi_normalize_version(local_pkginfo)
-		src_artifact = hub.pkgtools.ebuild.Artifact(url=artifact_url)
-		local_pkginfo["artifacts"] = { "global" : [ src_artifact ] }
-		if "golang" in extensions:
-			await hub.pkgtools.golang.add_gosum_bundle(hub, local_pkginfo, src_artifact=src_artifact)
-		if "rust" in extensions:
-			if "cargo_path" in local_pkginfo:
-				cargo_path = local_pkginfo["cargo_path"]
-			else:
-				cargo_path = None
-			await hub.pkgtools.rust.add_crates_bundle(hub, local_pkginfo, src_artifact=src_artifact, cargo_lock_path=cargo_path)
-		await src_artifact.fetch()
-		src_artifact.extract()
-		main_dir = glob.glob(os.path.join(src_artifact.extract_path, "*"))
+		artifact = hub.pkgtools.ebuild.Artifact(url=artifact_url)
+		await artifact.fetch()
+		artifact.extract()
+		main_dir = glob.glob(os.path.join(artifact.extract_path, "*"))
 		if len(main_dir) != 1:
 			raise ValueError("Found more than one directory inside python module")
 		main_dir = main_dir[0]
 		main_base = os.path.basename(main_dir)
+		artifacts = [artifact]
 		# deal with fact that "-" and "_" are treated as equivalent by pypi:
 		if not main_base.startswith(pkginfo["name"]):
 			if main_base.startswith(under_name):
@@ -143,12 +156,12 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 		if not compat_ebuild and "du_pep517" in local_pkginfo and local_pkginfo["du_pep517"] == "generator":
 			del local_pkginfo["du_pep517"]
 			hub.pkgtools.model.log.debug("Auto-detecting du_pep517 setting...")
-			setup_path = glob.glob(os.path.join(src_artifact.extract_path, "*", "setup.py"))
+			setup_path = glob.glob(os.path.join(artifact.extract_path, "*", "setup.py"))
 			if len(setup_path):
 				has_setup = True
 			else:
 				has_setup = False
-			pyproject_path = glob.glob(os.path.join(src_artifact.extract_path, "*", "pyproject.toml"))
+			pyproject_path = glob.glob(os.path.join(artifact.extract_path, "*", "pyproject.toml"))
 			found_build_system = None
 			extra_bdeps = []
 			if len(pyproject_path):
@@ -195,6 +208,13 @@ async def add_ebuild(hub, json_dict=None, compat_ebuild=False, has_compat_ebuild
 					if "depend" not in local_pkginfo:
 						local_pkginfo["depend"] = ""
 					local_pkginfo["depend"] += "\n".join(map(lambda x: hub.pkgtools.pyhelper.expand_pydep(local_pkginfo, x), extra_bdeps))
+		if "cargo" in extensions or ("cargo" in pkginfo["inherit"] and not compat_ebuild):
+			await cargo_extension(hub, local_pkginfo, artifact)
+
+	if "artifacts" in local_pkginfo:
+		local_pkginfo["artifacts"] += artifacts
+	else:
+		local_pkginfo["artifacts"] = artifacts
 
 	if "template" in pkginfo:
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(

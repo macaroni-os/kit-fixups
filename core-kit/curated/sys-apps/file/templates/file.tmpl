@@ -26,7 +26,6 @@ DEPEND="
 	)
 	zlib? ( >=sys-libs/zlib-1.2.8-r1 )"
 RDEPEND="${DEPEND}
-	python? ( !dev-python/python-magic )
 	seccomp? ( sys-libs/libseccomp )"
 BDEPEND="sys-apps/grep"
 

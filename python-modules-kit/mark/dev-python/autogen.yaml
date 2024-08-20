@@ -251,7 +251,7 @@ github_pythons:
             distutils-r1_python_install_all
           }
 
-setuptools_pythons:
+setuptools_standalone_pythons:
   generator: pypi-simple-1
   defaults:
     python_compat: python3+
@@ -284,3 +284,28 @@ setuptools_pythons:
             - build
             - typing_extensions
 
+
+setuptools_builds:
+  defaults:
+    cat: dev-python
+    python_compat: python3+
+    du_pep517: setuptools
+    pydeps:
+      py:all:build:
+        - setuptools
+  generator: pypi-simple-1
+  packages:
+    - python-magic:
+        license: BSD-2 MIT
+        desc: "Access the libmagic file type identification library"
+        rdepend: 'sys-apps/file'
+        body: |
+          src_prepare() {
+            mv magic python_magic || die "error on rename magic directory"
+            sed -i -e "s|'magic'|'python_magic'|g" \
+              setup.py || die "error on sed setup.py"
+            sed -i -e 's|from magic import|from python_magic import|g' \
+              python_magic/__init__.py || die "error on sed __init__.py"
+
+            distutils-r1_src_prepare
+          }

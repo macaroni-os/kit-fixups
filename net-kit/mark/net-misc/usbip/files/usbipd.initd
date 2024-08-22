@@ -179,7 +179,7 @@ start()
   ebegin "Starting usbipd service"
 
   start-stop-daemon --start \
-    --pidfile "${pidfile}"
+    --pidfile "${pidfile}" \
     --exec $USBIP_EXEC_DAEMON -- ${USBIP_OPTS}
   eend $?
 

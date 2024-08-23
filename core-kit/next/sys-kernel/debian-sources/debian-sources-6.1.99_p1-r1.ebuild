@@ -372,12 +372,12 @@ pkg_postinst() {
 	# copy the fresh Genkernel cache into the image, but
 	# only if the host doesn't have a cache already existing.
 	# addread /var/cache/genkernel/4.3.10
-	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
-		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
+	if use genkernel && [[ -d "${ROOT}"cache/genkernel/4.3.10 ]]; then
+		einfo "Leaving pre-existing genkernel cache at ${ROOT}var/cache/genkernel/4.3.10 alone."
 	else
-		einfo "Copying genkernel cache into /var/cache/genkernel/."
-		mkdir -p /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
+		einfo "Copying genkernel cache into ${ROOT}var/cache/genkernel/."
+		[[ ! -d "${ROOT}"var/cache/genkernel ]] && ( mkdir -p "${ROOT}"var/cache/genkernel || die )
+		rsync -a "${WORKDIR}"/genkernel-cache/ "${ROOT}"var/cache/genkernel/ || die
 	fi
 
 	ego_pkg_postinst

@@ -313,7 +313,7 @@ for m in ${!mod_a[@]} ; do
 done
 
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="*"
 
 # Package doesn't provide a real test suite
 RESTRICT="test"

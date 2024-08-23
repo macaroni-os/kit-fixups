@@ -9,10 +9,9 @@ inherit autotools eutils gnome3-utils python-single-r1 gnome3
 
 DESCRIPTION="Dropbox command-line client and Funtoo-optimized installer with GUI setup"
 HOMEPAGE="http://dropbox.com/"
-SRC_URI="{{artifacts[3].src_uri}}
-	x86? ( {{artifacts[1].src_uri}} )
+SRC_URI="{{artifacts[2].src_uri}}
 	amd64? ( {{artifacts[0].src_uri}} )
-	gnome? ( {{artifacts[2].src_uri}} )"
+	gnome? ( {{artifacts[1].src_uri}} )"
 
 LICENSE="CC-BY-ND-3.0 FTL MIT LGPL-2 openssl dropbox"
 SLOT="0"
@@ -22,7 +21,7 @@ IUSE="gnome"
 pkg_setup() {
 	# tweak S depending on whether we are building nautilus-dropbox or not:
 	if use gnome; then
-		S="$WORKDIR/{{artifacts[2].final_name.split(".tar")[0]}}"
+		S="$WORKDIR/{{artifacts[1].final_name.split(".tar")[0]}}"
 	else
 		S="$WORKDIR"
 	fi
@@ -48,9 +47,9 @@ DEPEND="${RDEPEND} gnome? (
 
 src_unpack() {
 	if use gnome; then
-		unpack {{artifacts[2].final_name}}
+		unpack {{artifacts[1].final_name}}
 	fi
-	unpack {{artifacts[3].final_name}}
+	unpack {{artifacts[2].final_name}}
 }
 
 src_prepare() {
@@ -76,11 +75,7 @@ src_install () {
 		gnome3_src_install
 	fi
 	insinto /usr/share/dropbox
-	if [ "$ARCH" == "amd64" ]; then
-		newins ${DISTDIR}/dropbox-lnx.x86_64-${PV}.tar.gz dropbox-dist.tar.gz
-	else
-		newins ${DISTDIR}/dropbox-lnx.x86-${PV}.tar.gz dropbox-dist.tar.gz
-	fi
+	newins ${DISTDIR}/dropbox-lnx.x86_64-${PV}.tar.gz dropbox-dist.tar.gz
 	newbin "${WORKDIR}"/{{github_user}}-{{github_repo}}-???????/dropbox.py dropbox || die
 }
 
@@ -90,3 +85,5 @@ pkg_postinst () {
 	fi
 	einfo "Type 'dropbox start -i' as the user you wish to enable dropbox to initialize dropbox."
 }
+
+# vim: filetype=ebuild

@@ -4,12 +4,12 @@ EAPI=6
 
 inherit check-reqs eutils ego savedconfig
 
-SLOT=bookworm/$PVR
+SLOT=trixie/$PVR
 
-# NOTE: When updating: use the version from Debiam stable (bookworm):
-# https://packages.debian.org/bookworm/linux-source
+# NOTE: When updating: use the version from Debian testing (trixie)
+# https://packages.debian.org/trixie/linux-source
 DEB_PATCHLEVEL="1"
-KERNEL_TRIPLET="6.1.99"
+KERNEL_TRIPLET="6.10.4"
 
 
 VERSION_SUFFIX="_p${DEB_PATCHLEVEL}"
@@ -150,7 +150,7 @@ src_prepare() {
 	cp -aR "${WORKDIR}"/debian "${S}"/debian
 	epatch "${FILESDIR}"/latest/ikconfig.patch || die
 	epatch "${FILESDIR}"/latest/mcelog.patch || die
-	epatch "${FILESDIR}"/6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch || die
+	epatch "${FILESDIR}"/6.8+/more-uarches-for-kernel-6.8-rc4+.patch || die
 	# revert recent changes to the rtw89 driver that cause problems for Wi-Fi:
 	rm -rf "${S}"/drivers/net/wireless/rtw89 || die
 	tar xzf "${DISTDIR}"/debian-sources-6.3.7_p1-rtw89-driver.tar.gz -C "${S}"/drivers/net/wireless/ || die
@@ -159,7 +159,7 @@ src_prepare() {
 		einfo Restoring saved .config ...
 		restore_config .config
 	else
-		cp "${FILESDIR}"/config-extract-6.1 ./config-extract || die
+		cp "${FILESDIR}"/config-extract-6.6 ./config-extract || die
 		chmod +x config-extract || die
 	fi
 	# Set up arch-specific variables and this will fail if run in pkg_setup() since ARCH can be unset there:
@@ -262,13 +262,6 @@ src_prepare() {
 	yes "" | make oldconfig >/dev/null 2>&1 || die
 	cp .config "${T}"/config || die
 	make -s mrproper || die "make mrproper failed"
-
-	mkdir "${WORKDIR}/genkernel-cache" || die
-	# copy Genkernel cache from host into WORKDIR if it exists
-	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
-		einfo "Using pre-existing genkernel cache at /var/cache/genkernel/4.3.10."
-		cp -r /var/cache/genkernel/4.3.10 "${WORKDIR}/genkernel-cache/" || die
-	fi
 }
 
 src_compile() {
@@ -329,6 +322,8 @@ src_install() {
 				die "ramdisk failed: $?" \
 	)
 	! use ramdisk && use genkernel && ( \
+		addread /var/cache/genkernel;
+		addwrite /var/cache/genkernel;
 		/usr/bin/genkernel initramfs \
 			--no-mrproper \
 			--no-clean \
@@ -341,7 +336,6 @@ src_install() {
 			--logfile=$WORKDIR/genkernel.log \
 			--kerneldir=${D}/usr/src/${LINUX_SRCDIR}/ \
 			--bootdir=${D}/boot \
-			--cachedir=${WORKDIR}/genkernel-cache \
 			--no-clear-cachedir \
 			--kernel-modules-prefix=${D} \
 			--ramdisk-modules \
@@ -367,17 +361,6 @@ pkg_postinst() {
 
 	if [ -e ${ROOT}lib/modules ]; then
 		depmod -a $MOD_DIR_NAME
-	fi
-
-	# copy the fresh Genkernel cache into the image, but
-	# only if the host doesn't have a cache already existing.
-	# addread /var/cache/genkernel/4.3.10
-	if use genkernel && [[ -d "${ROOT}"cache/genkernel/4.3.10 ]]; then
-		einfo "Leaving pre-existing genkernel cache at ${ROOT}var/cache/genkernel/4.3.10 alone."
-	else
-		einfo "Copying genkernel cache into ${ROOT}var/cache/genkernel/."
-		[[ ! -d "${ROOT}"var/cache/genkernel ]] && ( mkdir -p "${ROOT}"var/cache/genkernel || die )
-		rsync -a "${WORKDIR}"/genkernel-cache/ "${ROOT}"var/cache/genkernel/ || die
 	fi
 
 	ego_pkg_postinst

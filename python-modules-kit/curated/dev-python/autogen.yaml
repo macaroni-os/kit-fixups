@@ -2315,12 +2315,14 @@ pep517_compliance_rule:
         du_pep517: standalone
         desc: Simplified packaging of Python modules (core module)
     - sip:
-        version: 6.8.3
-        du_pep517: generator
         license: SIP
         pydeps:
-          - packaging
-          - toml
+          py:all:build:
+            - setuptools
+            - packaging
+            - tomli
+            - setuptools_scm >= 7
+
     - pep517:
         du_pep517: flit
         pydeps:

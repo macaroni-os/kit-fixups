@@ -5,17 +5,14 @@ PYTHON_COMPAT=( python3+ )
 
 inherit python-single-r1
 
-DESCRIPTION="Funtoo's configuration tool: ego, epro, edoc, boot-update"
-HOMEPAGE="http://www.funtoo.org/Package:Ego"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
 
-LICENSE="GPL-2"
+LICENSE="{{ license }}"
 SLOT="0"
 KEYWORDS="*"
 IUSE="zsh-completion"
-GITHUB_REPO="$PN"
-GITHUB_USER="funtoo"
-GITHUB_TAG="${PVR}"
-SRC_URI="https://www.github.com/${GITHUB_USER}/${GITHUB_REPO}/tarball/${GITHUB_TAG} -> ${PN}-${GITHUB_TAG}.tar.gz"
+SRC_URI="{{ src_uri }}"
 
 DEPEND=""
 RDEPEND="$PYTHON_DEPS !sys-boot/boot-update !<sys-kernel/linux-firmware-20220209-r1"
@@ -25,7 +22,7 @@ dev-python/requests[${PYTHON_USEDEP}]"
 
 src_unpack() {
 	unpack ${A}
-	mv "${WORKDIR}/${GITHUB_USER}-${PN}"-??????? "${S}" || die
+	mv "${WORKDIR}/${PN}"-* "${S}" || die
 }
 
 src_install() {

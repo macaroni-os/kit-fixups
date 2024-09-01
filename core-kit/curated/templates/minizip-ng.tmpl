@@ -6,7 +6,7 @@ inherit cmake
 
 DESCRIPTION="{{ description }}"
 HOMEPAGE="https://github.com/{{ github_user }}/{{ github_repo }}"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="ZLIB"
 SLOT="0"
@@ -29,10 +29,6 @@ DEPEND="
 	${RDEPEND}
 	test? ( dev-cpp/gtest )
 "
-
-PATCHES=(
-	{{ gen_path }}/files/${PN}-3.0.7-system-gtest.patch
-)
 
 post_src_unpack() {
 	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die

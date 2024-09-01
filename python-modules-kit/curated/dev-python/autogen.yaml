@@ -686,11 +686,6 @@ dev_python_compat_rule:
           libyaml? ( dev-libs/libyaml )
         rdepend: |
           libyaml? ( dev-libs/libyaml )
-        pydeps:
-          use:libyaml:build:
-            - cython < 3
-          use:libyaml:
-            - cython < 3
         body: |
           python_configure_all() {
             mydistutilsargs=( $(use_with libyaml) )

@@ -11,7 +11,7 @@ HOMEPAGE="https://github.com/llvm-mirror/libunwind"
 
 LICENSE="Apache-2.0-with-LLVM-exceptions || ( UoI-NCSA MIT )"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="debug static-libs test"
 RESTRICT="!test? ( test )"
 

@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0/6" # The subslot reflects the SONAME.
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="ada +cxx debug doc gpm minimal profile static-libs test tinfo trace unicode"
 RESTRICT="!test? ( test )"
 

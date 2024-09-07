@@ -10,7 +10,7 @@ SRC_URI="https://code.videolan.org/videolan/dav1d/-/archive/${PV}/${P}.tar.bz2"
 
 LICENSE="BSD-2"
 SLOT="0/4"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="+8bit +10bit +asm"
 
 ASM_DEPEND=">=dev-lang/nasm-2.14.02"

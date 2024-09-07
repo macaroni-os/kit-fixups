@@ -454,15 +454,11 @@ dev_python_compat_rule:
     - pyjwt:
         inherit:
           - eutils
-        pypi_name: PyJWT
+        pypi_name: pyjwt
         python_compat: python3+
-        compat: '1.7.1'
         pydeps:
           py:all:build:
             - setuptools
-        blocker: '!<dev-python/pyjwt-2.3.0-r1'
-        revision:
-          2.3.0: 1
         body: |
           pkg_postinst() {
             elog "Available optional features:"

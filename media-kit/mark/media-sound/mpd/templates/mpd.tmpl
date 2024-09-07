@@ -6,7 +6,7 @@ inherit flag-o-matic linux-info meson xdg-utils user
 
 DESCRIPTION="The Music Player Daemon (mpd)"
 HOMEPAGE="https://www.musicpd.org https://github.com/MusicPlayerDaemon/MPD"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -106,6 +106,11 @@ DEPEND="${RDEPEND}
 
 BDEPEND=">=dev-util/meson-0.49.2
 	virtual/pkgconfig"
+
+PATCHES=(
+	"${FILESDIR}"/040-lib-fmt-support-build-with-libfmt-11.0.0.patch
+	"${FILESDIR}"/mpd-fmt11_e380ae9.patch
+)
 
 post_src_unpack() {
 	if [ ! -d "${S}" ]; then
@@ -300,3 +305,5 @@ pkg_postinst() {
 pkg_postrm() {
 	xdg_icon_cache_update
 }
+
+# vim: filetype=ebuild

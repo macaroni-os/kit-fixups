@@ -14,7 +14,7 @@ HOMEPAGE="https://llvm.org/"
 
 LICENSE="Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT"
 SLOT="$(ver_cut 1)"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="debug default-compiler-rt default-libcxx default-lld tinfo
 	doc llvm-libunwind +static-analyzer test xml kernel_FreeBSD"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"

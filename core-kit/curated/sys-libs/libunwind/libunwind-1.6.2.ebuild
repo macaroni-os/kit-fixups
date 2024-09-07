@@ -13,7 +13,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="MIT"
 SLOT="0/8" # libunwind.so.8
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="debug debug-frame doc libatomic lzma static-libs zlib"
 
 # We just use the header from libatomic.

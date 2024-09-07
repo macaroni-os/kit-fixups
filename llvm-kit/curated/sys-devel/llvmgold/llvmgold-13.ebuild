@@ -8,7 +8,7 @@ SRC_URI=""
 
 LICENSE="public-domain"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 
 RDEPEND="sys-devel/llvm:${PV}[gold]
 	!sys-devel/llvm:0"

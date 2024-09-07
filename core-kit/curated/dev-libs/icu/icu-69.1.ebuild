@@ -13,7 +13,7 @@ LICENSE="BSD"
 
 SLOT="0/${PV}"
 
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="debug doc examples static-libs"
 
 BDEPEND="${PYTHON_DEPS}

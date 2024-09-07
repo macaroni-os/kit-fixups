@@ -14,7 +14,7 @@ SRC_URI="${KERNEL_URI}
 	${PATCH_VER:+https://dev.gentoo.org/~sam/distfiles/sys-kernel/linux-headers/gentoo-headers-${PATCH_PV}-${PATCH_VER}.tar.xz}
 "
 
-KEYWORDS="next"
+KEYWORDS="*"
 
 DEPEND="app-arch/xz-utils
 	dev-lang/perl"

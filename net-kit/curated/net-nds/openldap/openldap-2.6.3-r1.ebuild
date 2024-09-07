@@ -21,7 +21,7 @@ S="${WORKDIR}"/${PN}-OPENLDAP_REL_ENG_${MY_PV}
 LICENSE="OPENLDAP GPL-2"
 # Subslot added for bug #835654
 SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="next"
+KEYWORDS="*"
 
 IUSE_DAEMON="argon2 +cleartext crypt experimental minimal samba tcpd"
 IUSE_OVERLAY="overlays perl autoca"

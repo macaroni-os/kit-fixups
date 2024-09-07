@@ -12,7 +12,7 @@ SRC_URI="http://downloads.webmproject.org/releases/webp/${MY_P}.tar.gz"
 LICENSE="BSD"
 SLOT="0/7" # subslot = libwebp soname version
 [[ "${PV}" = *_rc* ]] || \
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="cpu_flags_arm_neon cpu_flags_x86_sse2 cpu_flags_x86_sse4_1 gif +jpeg opengl +png static-libs swap-16bit-csp tiff"
 
 # TODO: dev-lang/swig bindings in swig/ subdirectory

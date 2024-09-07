@@ -10,7 +10,7 @@ SRC_URI=""
 
 LICENSE="metapackage"
 SLOT="$(ver_cut 1-3)"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE="+compiler-rt libcxx openmp +sanitize"
 REQUIRED_USE="sanitize? ( compiler-rt )"
 

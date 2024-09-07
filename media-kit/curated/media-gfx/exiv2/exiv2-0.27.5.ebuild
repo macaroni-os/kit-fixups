@@ -3,7 +3,7 @@
 EAPI=7
 
 SRC_URI="https://github.com/Exiv2/exiv2/releases/download/v${PV}/${P}-Source.tar.gz"
-KEYWORDS="next"
+KEYWORDS="*"
 S="${WORKDIR}/${P}-Source"
 
 CMAKE_ECLASS=cmake

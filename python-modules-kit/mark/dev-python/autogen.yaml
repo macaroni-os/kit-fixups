@@ -23,7 +23,7 @@ python-github:
 
 bleach:
   defaults:
-    python_compat: python2+ pypy3 pypy
+    python_compat: python3+ pypy3 pypy
   generator: pypi-compat-1
   packages:
     - bleach:
@@ -71,9 +71,7 @@ autogens:
         pypi_name: pyRFC3339
         pydeps:
           - pytz
-    - regex:
-        compat: 2020.9.27
-        blocker: '!<dev-python/regex-2018'
+    - regex
     - rfc3339-validator:
         pypi_name: rfc3339_validator
         pydeps:
@@ -90,7 +88,6 @@ autogens:
             distutils-r1_python_prepare_all
           }
     - rsa:
-        compat: '4.4'
         blocker: '!<dev-python/rsa-4.9'
         pydeps:
           - pyasn1
@@ -98,17 +95,14 @@ autogens:
     - setproctitle:
         du_pep517: generator
         blocker: '!<dev-python/setproctitle-1.3.3'
-        compat: 1.1.9
     - simplejson
     - strict-rfc3339
     - typing-extensions:
         du_pep517: flit
     - webcolors:
-        compat: '1.9'
         blocker: '!<dev-python/webcolors-1.9'
     - zipp:
         python_compat: python3+ pypy3
-        compat: '1.2.0'
         blocker: '!<=dev-python/zipp-2'
         homepage: https://github.com/jaraco/zipp
         license: MIT

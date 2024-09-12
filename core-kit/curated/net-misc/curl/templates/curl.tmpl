@@ -67,7 +67,7 @@ BDEPEND="dev-lang/perl
 		sys-apps/diffutils
 	)"
 
-DOCS=( CHANGES README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
+DOCS=( CHANGES.md README docs/{FEATURES.md,INTERNALS.md,FAQ,BUGS.md,CONTRIBUTE.md} )
 
 MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/curl/curlbuild.h

@@ -75,11 +75,12 @@ doom_github_rule:
               query: releases
             tarball: odamex-src-{version}.tar.xz
             keywords: '*'
-          '10.5.0_p20240801':
-            github:
-              query: snapshot
-              snapshot: '2e3e8dd36e2a596fec0bf2049b4daaeaf8e4139e'
-            keywords: '~'
+          # An example of a snapshot version:
+          #'10.5.0_p20240801':
+          #  github:
+          #    query: snapshot
+          #    snapshot: '2e3e8dd36e2a596fec0bf2049b4daaeaf8e4139e'
+          #  keywords: '~'
     - freedoom:
         cat: games-fps
         desc: A complete free-content single-player focused game based on the Doom engine

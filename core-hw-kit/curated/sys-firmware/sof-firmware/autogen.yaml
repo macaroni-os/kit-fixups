@@ -1,0 +1,9 @@
+sof-firmware:
+  generator: github-1
+  packages:
+    - sof-firmware:
+        github:
+          user: thesofproject
+          repo: sof-bin
+          query: releases
+          tarball: sof-bin-{version}.tar.gz

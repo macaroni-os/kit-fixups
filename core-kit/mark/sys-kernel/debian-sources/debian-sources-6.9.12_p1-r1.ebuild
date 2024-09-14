@@ -375,9 +375,11 @@ pkg_postinst() {
 	if use genkernel && [[ -d /var/cache/genkernel/4.3.10 ]]; then
 		einfo "Leaving pre-existing genkernel cache at /var/cache/genkernel/4.3.10 alone."
 	else
-		einfo "Copying genkernel cache into /var/cache/genkernel/."
-		mkdir -p /var/cache/genkernel
-		cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
+		if use genkernel ; then
+			einfo "Copying genkernel cache into /var/cache/genkernel/."
+			mkdir -p /var/cache/genkernel
+			cp -r "${WORKDIR}/genkernel-cache/4.3.10" /var/cache/genkernel/ || die
+		fi
 	fi
 
 	ego_pkg_postinst

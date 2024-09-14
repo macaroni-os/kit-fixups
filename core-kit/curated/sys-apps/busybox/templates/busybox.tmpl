@@ -8,7 +8,7 @@ inherit flag-o-matic savedconfig toolchain-funcs
 
 DESCRIPTION="Utilities for rescue and embedded systems"
 HOMEPAGE="https://www.busybox.net/"
-SRC_URI="{{ artifacts[0].src_uri }}"
+SRC_URI="{{ src_uri }}"
 KEYWORDS="*"
 
 LICENSE="GPL-2" # GPL-2 only
@@ -62,7 +62,7 @@ busybox_config_enabled() {
 # patches go here!
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.26.2-bb.patch
-	# "${FILESDIR}"/${P}-*.patch
+	"${FILESDIR}"/${PN}-1.36.1-no-cbq.patch
 )
 
 src_prepare() {
@@ -327,3 +327,5 @@ pkg_postinst() {
 		elog "     init=/ginit bb"
 	fi
 }
+
+# vim: filetype=ebuild

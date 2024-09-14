@@ -1288,7 +1288,8 @@ glibc_do_src_install() {
 		)
 		;;
 	esac
-	if [[ ! -e ${ED}/$(alt_prefix)/lib ]] ; then
+	if [[ "${SYMLINK_LIB}" == "yes" ]] && \
+		[[ ! -e ${ED}/$(alt_prefix)/lib ]] ; then
 		dosym $(get_abi_LIBDIR ${DEFAULT_ABI}) $(alt_prefix)/lib
 	fi
 	for (( i = 0; i < ${#ldso_abi_list[@]}; i += 2 )) ; do

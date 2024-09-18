@@ -174,8 +174,8 @@ src_install() {
 	dosym ../VBoxXPCOM.so /opt/VirtualBox/components/VBoxXPCOM.so
 
 	local each
-	#for each in VBox{Manage,SVC,XPCOMIPCD,Tunctl,TestOGL,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
-	for each in VBox{Manage,SVC,XPCOMIPCD,TestOGL,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
+	#for each in VBox{Manage,SVC,Tunctl,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
+	for each in VBox{Manage,SVC,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
 		fowners root:vboxusers /opt/VirtualBox/${each}
 		fperms 0750 /opt/VirtualBox/${each}
 		pax-mark -m "${ED%/}"/opt/VirtualBox/${each}

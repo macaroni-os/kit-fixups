@@ -4,10 +4,8 @@ from bs4 import BeautifulSoup
 import re
 
 async def generate(hub, **pkginfo):
-	html_data = await hub.pkgtools.fetch.get_page(
-		f"https://www.rstudio.com/products/rstudio/download/"
-		)
-	soup = BeautifulSoup(html_data, "html.parser")
+	html_data = await hub.pkgtools.fetch.get_page(f"https://posit.co/download/rstudio-desktop/")
+	soup: BeautifulSoup = BeautifulSoup(html_data, "html.parser")
 	best_archive = None
 	for link in soup.find_all("a"):
 		href = link.get("href")

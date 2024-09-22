@@ -107,7 +107,7 @@ src_prepare() {
 		-i plugins/meson.build || die #753521
 
 	sed -e "/install_dir.*'doc'/s/fwupd/${PF}/" \
-		-i data/builder/meson.build || die
+		-i data/meson.build || die
 
 	vala_src_prepare
 }
@@ -115,8 +115,6 @@ src_prepare() {
 src_configure() {
 	local plugins=(
 		-Dplugin_gpio="true"
-		$(meson_use amt plugin_amt)
-		$(meson_use dell plugin_dell)
 		$(meson_use fastboot plugin_fastboot)
 		$(meson_use flashrom plugin_flashrom)
 		$(meson_use gusb plugin_uf2)
@@ -127,7 +125,6 @@ src_configure() {
 		$(meson_use spi plugin_intel_spi)
 		$(meson_use synaptics plugin_synaptics_mst)
 		$(meson_use synaptics plugin_synaptics_rmi)
-		$(meson_use thunderbolt plugin_thunderbolt)
 		$(meson_use tpm plugin_tpm)
 		$(meson_use uefi plugin_uefi_capsule)
 		$(meson_use uefi plugin_uefi_capsule_splash)
@@ -172,6 +169,6 @@ src_install() {
 
 		# Don't timeout when fwupd is running (#673140)
 		sed '/^IdleTimeout=/s@=[[:digit:]]\+@=0@' \
-			-i "${ED}"/etc/${PN}/daemon.conf || die
+			-i "${ED}"/etc/${PN}/fwupd.conf || die
 	fi
 }

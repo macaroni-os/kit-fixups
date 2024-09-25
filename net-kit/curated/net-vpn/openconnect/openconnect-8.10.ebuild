@@ -5,7 +5,7 @@ EAPI=7
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="xml"
 
-inherit linux-info python-any-r1
+inherit python-any-r1
 
 ARCHIVE_URI="ftp://ftp.infradead.org/pub/${PN}/${P}.tar.gz"
 KEYWORDS="amd64 arm arm64 ppc64 x86"
@@ -55,10 +55,6 @@ BDEPEND="
 "
 
 CONFIG_CHECK="~TUN"
-
-pkg_pretend() {
-	check_extra_config
-}
 
 pkg_setup() {
 	:

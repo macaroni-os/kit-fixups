@@ -12,7 +12,8 @@ async def generate(hub, **pkginfo):
 		if href is not None and href.endswith(".tar.gz"):
 			# currently the first release is the newest ubuntu/debian based one
 			best_archive = href
-			break
+			if "jammy" in href:
+				break
 	version = re.search(r"rstudio-.*-amd64",best_archive).group(0)[8:-6]
 	# comes in form YYYY.MM.DD-NUM and we need to make it YYYY.MM.DD.NUM
 	version = version.replace("-",".")

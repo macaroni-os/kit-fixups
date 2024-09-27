@@ -6,7 +6,8 @@ inherit meson
 
 DESCRIPTION="Compatibility X server to run under Wayland"
 HOMEPAGE="https://wayland.freedesktop.org/xserver.html"
-SRC_URI="https://www.x.org/releases/individual/xserver/${P}.tar.xz"
+# SRC_URI="https://www.x.org/releases/individual/xserver/${P}.tar.xz"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="MIT"
 SLOT="0"
@@ -44,6 +45,10 @@ RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-xserver )
 	!<=x11-base/xorg-server-1.20.11
 "
+
+post_src_unpack() {
+	mv xserver-* "${S}"
+}
 
 src_configure() {
 	local emesonargs=(

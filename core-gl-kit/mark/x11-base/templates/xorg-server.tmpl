@@ -6,13 +6,14 @@ inherit meson
 
 DESCRIPTION="x.org X server"
 HOMEPAGE="https://www.x.org/wiki"
-SRC_URI="https://www.x.org/releases/individual/xserver/${P}.tar.xz"
+# SRC_URI="https://www.x.org/releases/individual/xserver/${P}.tar.xz"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="MIT"
 SLOT="0/${PV}"
 KEYWORDS="*"
 IUSE_SERVERS="kdrive xephyr xnest xorg xvfb"
-IUSE="${IUSE_SERVERS} debug +elogind minimal selinux +suid test +udev unwind xcsecurity"
+IUSE="${IUSE_SERVERS} debug +elogind minimal selinux +suid test +udev unwind xcsecurity systemd"
 
 DEPEND="
 	dev-libs/libbsd
@@ -34,7 +35,6 @@ DEPEND="
 	elogind? (
 		sys-apps/dbus
 		sys-auth/elogind[pam]
-		sys-libs/pam[elogind]
 	)
 	kdrive? (
 		>=x11-libs/libXext-1.0.99.4
@@ -64,11 +64,22 @@ DEPEND="
 		>=media-libs/mesa-18[X(+),egl(+),gbm(+)]
 		>=media-libs/libepoxy-1.5.4[X,egl(+)]
 	)
+	systemd? (
+		sys-apps/dbus
+		sys-apps/systemd
+	)
 "
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-xserver )
-	xorg? ( x11-base/xorg-drivers )
 "
+
+PATCHES=(
+	"${FILESDIR}"/xorg-server-dri2-crash.patch
+)
+
+post_src_unpack() {
+	mv xserver-* "${S}"
+}
 
 src_configure() {
 	local emesonargs=(
@@ -141,3 +152,4 @@ pkg_postrm() {
 	fi
 }
 
+# vim: filetype=ebuild

@@ -1,0 +1,41 @@
+--- a/hw/xfree86/dri2/dri2.c.orig 2023-02-07 02:16:51.000000000 +0100
++++ b/hw/xfree86/dri2/dri2.c      2023-03-19 10:51:44.963378663 +0100
+@@ -356,9 +361,14 @@ DRI2InvalidateProcPtr invalidate, void *priv,
+                     XID *dri2_id_out)
+ {
+     DRI2DrawablePtr pPriv;
+-    DRI2ClientPtr dri2_client = dri2ClientPrivate(client);
++    DRI2ClientPtr dri2_client;
+     XID dri2_id;
+     int rc;
+ 
++    if (!dixPrivateKeyRegistered(dri2ScreenPrivateKey))
++        return BadValue;
++
++    dri2_client = dri2ClientPrivate(client);
++
+     pPriv = DRI2GetDrawable(pDraw);
+     if (pPriv == NULL)
+         pPriv = DRI2AllocateDrawable(pDraw);
+
+
+
+--- a/hw/xfree86/dri2/dri2.c.orig 2023-02-07 02:16:51.000000000 +0100
++++ b/hw/xfree86/dri2/dri2.c      2023-03-19 10:51:44.963378663 +0100
+@@ -1362,9 +1367,14 @@ Bool
+ DRI2Authenticate(ClientPtr client, ScreenPtr pScreen, uint32_t magic)
+ {
+     DRI2ScreenPtr ds;
+-    DRI2ClientPtr dri2_client = dri2ClientPrivate(client);
++    DRI2ClientPtr dri2_client;
+     ScreenPtr primescreen;
+ 
++    if (!dixPrivateKeyRegistered(dri2ScreenPrivateKey))
++        return FALSE;
++
++    dri2_client = dri2ClientPrivate(client);
++
+     ds = DRI2GetScreenPrime(pScreen, dri2_client->prime_id);
+     if (ds == NULL)
+         return FALSE;
+

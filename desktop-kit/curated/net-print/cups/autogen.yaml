@@ -1,0 +1,11 @@
+cups_rule:
+  generator: github-1
+  packages:
+    - cups:
+        desc: CUPS - Common Unix Printing System
+        homepage: https://wiki.linuxfoundation.org/openprinting/cups
+        github:
+          user: OpenPrinting
+          repo: cups
+          query: releases
+          tarball: cups-{version}-source.tar.gz

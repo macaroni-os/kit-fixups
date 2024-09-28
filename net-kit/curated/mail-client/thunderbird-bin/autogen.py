@@ -42,7 +42,7 @@ async def generate(hub, **pkginfo):
 	lang_data = await get_lang_artifacts(hub, version)
 	ebuild = hub.pkgtools.ebuild.BreezyBuild(
 		**pkginfo,
-		version=version,
+		version=re.sub('esr','', version),
 		lang_codes=" ".join(sorted(lang_data["lang_codes"])),
 		artifacts=[get_artifact(hub, version, "amd64"), get_artifact(hub, version, "x86"), *lang_data["artifacts"]],
 	)

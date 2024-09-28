@@ -171,7 +171,7 @@ src_configure() {
 }
 
 src_compile() {
-	emake libs
+	default
 }
 
 src_test() {

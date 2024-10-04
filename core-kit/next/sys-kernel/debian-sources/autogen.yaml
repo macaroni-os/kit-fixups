@@ -1,0 +1,32 @@
+debian-sources_rule:
+  packages:
+    - debian-sources:
+        cat: sys-kernel
+        desc: Debian Sources (and optional binary kernel)
+        homepage: https://packages.debian.org/unstable/kernel/
+        branches:
+          unstable:
+            name: sid
+            track_openzfs: False
+            patches:
+              uarches: 6.8+/more-uarches-for-kernel-6.8-rc4+.patch
+            config-extract: 6.6
+          testing:
+            name: trixie
+            track_openzfs: True
+            patches:
+              uarches: 6.8+/more-uarches-for-kernel-6.8-rc4+.patch
+            config-extract: 6.6
+          stable:
+            name: bookworm
+            track_openzfs: True
+            patches:
+              uarches: 6.1-6.7/more-uarches-for-kernel-6.1.79-6.8-rc3.patch
+            config-extract: 6.1
+        revisions:
+          6.1.99_p1: 3
+        additional_artifacts:
+          rtw89-driver: 'https://build.funtoo.org/distfiles/debian-sources/debian-sources-6.3.7_p1-rtw89-driver.tar.gz'
+        patches:
+          - ikconfig.patch
+          - mcelog.patch

@@ -144,7 +144,7 @@ if mode == "run":
 		subarch = args[2]
 	elif len(args) == 2:
 		featureset = args[1]
-	if featureset == "standard":
+	if featureset in ["standard", "none", "None"]:
 		featureset = None
 
 # print out optimized list of available kernel configurations:

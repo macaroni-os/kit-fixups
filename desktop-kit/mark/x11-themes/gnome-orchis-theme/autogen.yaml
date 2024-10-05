@@ -1,0 +1,12 @@
+systemd:
+  generator: github-1
+  packages:
+    - gnome-orchis-theme:
+        github:
+          user: vinceliuice
+          repo: Orchis-theme
+          query: releases
+          transform:
+            - kind: string
+              match: '-'
+              replace: ''

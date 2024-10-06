@@ -1,0 +1,29 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit gnome3-utils xdg
+
+DESCRIPTION="Pixel perfect icon theme for Linux"
+HOMEPAGE="https://github.com/PapirusDevelopmentTeam/papirus-icon-theme"
+SRC_URI="{{ src_uri }}"
+
+LICENSE="GPL-3"
+SLOT="0"
+KEYWORDS="*"
+
+post_src_unpack() {
+	mv {{ github_user }}-{{ github_repo }}-* "${S}"
+}
+
+src_compile() { :; }
+
+src_install() {
+	insinto /usr/share/icons
+	doins -r ePapirus{,-Dark} Papirus{,-Dark,-Light}
+}
+
+pkg_postinst() { xdg_pkg_postinst; gnome3_gdk_pixbuf_update; }
+pkg_postrm() { xdg_pkg_postrm; }
+
+# vim: filetype=ebuild

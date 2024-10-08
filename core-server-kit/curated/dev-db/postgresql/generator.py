@@ -15,11 +15,7 @@ async def generate(hub, **pkginfo):
     for version in supported_versions:
         pkginfo_local = pkginfo.copy()
         pkginfo_local['slot'] = slot = version.major
-        # Keywords are "next" for all except the minimum major version, which is "*"
-        if version > min(supported_versions):
-            keywords = "next"
-        else:
-            keywords="*"
+        keywords="*"
         if slot in pkginfo['slots']:
             pkginfo_local.update(pkginfo['slots'][slot])
 

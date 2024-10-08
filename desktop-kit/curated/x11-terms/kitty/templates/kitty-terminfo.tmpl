@@ -9,7 +9,7 @@ S="${WORKDIR}/kitty-${PV}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 IUSE=""
 
 BDEPEND="sys-libs/ncurses"

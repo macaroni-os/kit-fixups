@@ -22,7 +22,7 @@ async def generate(hub, **pkginfo):
     for pv in handled_releases:
         url=f"https://github.com/{github_repo}/{github_user}/archive/v{pv}.tar.gz"
         fname=f"{github_repo}-v{pv}.tar.gz"
-        keywords="next"
+        keywords="*"
         if pv == min(handled_releases): keywords="*"
 
         # 3.10 series dynamically tries to fetch 3rd party modules via git

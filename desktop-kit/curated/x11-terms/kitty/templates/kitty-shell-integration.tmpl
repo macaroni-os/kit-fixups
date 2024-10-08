@@ -9,7 +9,7 @@ S="${WORKDIR}/kitty-${PV}"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="next"
+KEYWORDS="*"
 RESTRICT="test" # intended to be ran on the full kitty package
 
 PATCHES=(

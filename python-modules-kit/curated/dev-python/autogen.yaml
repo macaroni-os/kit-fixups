@@ -566,7 +566,7 @@ dev_python_compat_rule:
         iuse: native-extensions
         version:
           latest:
-            keywords: next
+            keywords: '*'
           1.0.5:
             keywords: '*'
         body: |
@@ -1779,7 +1779,7 @@ testing_deps_rule:
           1.0.0: 1
         version:
           latest:
-            keywords: next
+            keywords: '*'
           '1.2.0':
             keywords: '*'
         license: MIT
@@ -2230,7 +2230,7 @@ pep517_compliance_rule:
         rdepend: '${DEPEND}'
         version:
           latest:
-            keywords: next
+            keywords: '*'
           '1.17.1':
             keywords: '*'
         pydeps:
@@ -2309,7 +2309,7 @@ pep517_compliance_rule:
         version:
           latest:
             # py3.8+
-            keywords: next
+            keywords: '*'
           '1.6.1':
             # py3.7
             keywords: '*'

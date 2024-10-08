@@ -136,7 +136,7 @@ python_prepare_all() {
 	fi
 
 	echo "Enabling distfiles.macaronios.org..."
-	sed -e "s|^GENTOO_MIRRORS=.*$|GENTOO_MIRRORS=https://distfiles.macaronios.org|" -i cnf/make.globals || die "sed failed"
+	sed -e "s|^GENTOO_MIRRORS=.*$|GENTOO_MIRRORS=\"https://distfiles.macaronios.org https://distfiles-flat.macaronios.org\"|" -i cnf/make.globals || die "sed failed"
 
 	if [[ -n ${EPREFIX} ]] ; then
 		einfo "Setting portage.const.EPREFIX ..."

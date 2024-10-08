@@ -1,0 +1,11 @@
+lksctp-tools:
+  generator: github-1
+  defaults:
+    cat: net-misc
+  packages:
+    - lksctp-tools:
+       github:
+         user: sctp
+         repo: lksctp-tools
+         query: tags
+         select: 'v[0-9].*'

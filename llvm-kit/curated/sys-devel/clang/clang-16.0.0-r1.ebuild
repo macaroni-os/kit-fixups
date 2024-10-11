@@ -74,8 +74,8 @@ llvm.org_set_globals
 
 pkg_pretend() {
     if [[ (-d "/usr/lib/clang/16" && -d "/usr/lib/clang/16.0.0") && (! -L "/usr/lib/clang/16.0.0") ]]; then
-      eerror "Please run: emerge -C =sys-libs/compiler-rt-sanitizers-16.0.0"
-      die "Please run: emerge -C =sys-libs/compiler-rt-sanitizers-16.0.0"
+      eerror "Please run: emerge -C =sys-libs/compiler-rt-sanitizers-16.0.0 =sys-libs/compiler-rt-16.0.0"
+      die "Please run: emerge -C =sys-libs/compiler-rt-sanitizers-16.0.0 =sys-libs/compiler-rt-16.0.0"
     fi
 }
 

@@ -14,7 +14,7 @@ DESCRIPTION="OpenGL-like graphic library for Linux"
 HOMEPAGE="https://www.mesa3d.org/ https://mesa.freedesktop.org/"
 
 SRC_URI="https://archive.mesa3d.org/${MY_P}.tar.xz"
-KEYWORDS="next"
+KEYWORDS="*"
 
 S="${WORKDIR}/${MY_P}"
 

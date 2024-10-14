@@ -1,0 +1,33 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit cmake-utils
+
+
+DESCRIPTION="Meta loader for Vulkan API"
+HOMEPAGE="https://github.com/zeux/volk"
+SRC_URI="{{ src_uri }}"
+KEYWORDS="*"
+
+LICENSE="MIT"
+SLOT="0"
+IUSE="test"
+RESTRICT="!test? ( test )"
+
+RDEPEND="~media-libs/vulkan-loader-${PV}:="
+DEPEND="${RDEPEND}
+	~dev-util/vulkan-headers-${PV}
+"
+
+src_unpack() {
+	unpack "${A}"
+	mv "${WORKDIR}"/{{github_user}}-{{github_repo}}-* "${S}" || die
+}
+
+src_configure() {
+	local mycmakeargs=(
+		-DVOLK_INSTALL=on
+	)
+	cmake-utils_src_configure
+}

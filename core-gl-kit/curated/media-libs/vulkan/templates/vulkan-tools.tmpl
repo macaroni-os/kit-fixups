@@ -31,6 +31,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}
 	>=dev-util/vulkan-headers-$(ver_cut 1-3)
+	>=dev-util/volk-$(ver_cut 1-3)
 "
 
 src_unpack() {

@@ -15,13 +15,18 @@ SLOT="0"
 KEYWORDS="*"
 
 RDEPEND="!<media-libs/shaderc-2020.1"
-BDEPEND="${PYTHON_DEPS}"
+DEPEND="dev-util/spirv-tools"
+BDEPEND="${PYTHON_DEPS}
+         dev-util/spirv-tools"
 
 # Bug 698850
 RESTRICT="test"
 
-post_src_unpack() {
-	mv "${WORKDIR}"/*{{github_repo}}-* "${S}" || die
+src_configure() {
+	local mycmakeargs=(
+		-DALLOW_EXTERNAL_SPIRV_TOOLS=1
+	)
+	cmake-utils_src_configure
 }
 
 # Override the src_install to add additonal libraries
@@ -30,4 +35,8 @@ src_install() {
 	cmake-utils_src_install
 	mv ${WORKDIR}/*glslang-*_build/OGLCompilersDLL/libOGLCompiler.a ${ED}/usr/lib64
 	mv ${WORKDIR}/*glslang-*_build/glslang/OSDependent/Unix/libOSDependent.a ${ED}/usr/lib64
+}
+
+post_src_unpack() {
+	mv "${WORKDIR}"/*{{github_repo}}-* "${S}" || die
 }

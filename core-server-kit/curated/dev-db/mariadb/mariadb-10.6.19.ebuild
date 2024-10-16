@@ -227,7 +227,7 @@ src_prepare() {
 	eapply "${FILESDIR}/10.6/0002-libmariadb-fix-mysql_st-API-regression.patch"
 	eapply "${FILESDIR}/10.6/0003-libmariadb-cmake-find-GSSAPI-via-pkg-config.patch"
 	eapply "${FILESDIR}/10.6/0004-cmake-don-t-install-mysql-d-.service-symlinks.patch"
-	eapply "${FILESDIR}/10.6/0005-libmariadb-plugins-auth-CMakeLists-txt.patch"
+	#eapply "${FILESDIR}/10.6/0005-libmariadb-plugins-auth-CMakeLists-txt.patch"
 
 	eapply_user
 
@@ -1337,3 +1337,4 @@ pkg_config() {
 
 	einfo "${PN} data directory at '${MY_DATADIR}' successfully initialized!"
 }
+

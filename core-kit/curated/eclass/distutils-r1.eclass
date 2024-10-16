@@ -1333,8 +1333,6 @@ distutils_pep517_install() {
 	if [[ -n ${DISTUTILS_ARGS[@]} ]]; then
 		case ${DISTUTILS_USE_PEP517} in
 			meson-python)
-				meson_src_configure "${DISTUTILS_ARGS[@]}"
-
 				local -x NINJAOPTS=$(get_NINJAOPTS)
 				config_settings=$(
 					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die

@@ -1,0 +1,15 @@
+volk_rule:
+  generator: github-1
+  packages:
+    - volk:
+        version: "1.3.290"
+        github:
+          user: zeux
+          query: tags
+          transform:
+            - kind: string
+              match: "vulkan-sdk-"
+              replace: ""
+            - kind: string
+              match: ".0"
+              replace: ""

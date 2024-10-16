@@ -33,7 +33,8 @@ in `kit-fixups`_ as well as `metatools`_ itself.
 Copyright
 =========
 
-| Copyright 2008-2022 Funtoo Solutions, Inc.
+| Copyright 2024 Macaroni OS org
+| Copyright 2008-2024 Funtoo Solutions, Inc.
 | Copyright 1999-2022 Gentoo Foundation, Gentoo Authors, and
 | many independent contributors/authors as documented in the source code commit history.
 | Copyright 2017-2022 Sony Interactive Entertainment, Inc.

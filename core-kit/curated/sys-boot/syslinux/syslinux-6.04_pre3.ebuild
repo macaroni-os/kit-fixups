@@ -21,7 +21,10 @@ RESTRICT="test"
 BDEPEND="
 	dev-lang/perl
 	bios? (
-		app-arch/upx
+		|| (
+			app-arch/upx
+			app-arch/upx-bin
+		)
 		app-text/asciidoc
 		dev-lang/nasm
 	)

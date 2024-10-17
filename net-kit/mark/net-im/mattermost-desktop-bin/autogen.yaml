@@ -1,0 +1,11 @@
+mattermost:
+  generator: github-1
+  packages:
+    - mattermost-desktop-bin:
+        github:
+          user: mattermost
+          repo: desktop
+          query: releases
+        assets:
+          amd64: mattermost-desktop-{version}-linux-x64.tar.gz
+          arm64: mattermost-desktop-{version}-linux-arm64.tar.gz

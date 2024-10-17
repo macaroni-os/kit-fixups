@@ -203,13 +203,11 @@ SEABIOS_VERSION="1.16.0"
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
 		~sys-firmware/edk2-ovmf-bin-${EDK2_OVMF_VERSION}
-		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
 		>=sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}
-		sys-firmware/ipxe[qemu]
 		>=sys-firmware/seabios-${SEABIOS_VERSION}[seavgabios]
 			>=sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		sys-firmware/sgabios
@@ -250,6 +248,7 @@ CDEPEND="
 	qemu_softmmu_targets_ppc64? ( ${PPC_FIRMWARE_DEPEND} )
 "
 DEPEND="${CDEPEND}
+	sys-firmware/ipxe[qemu]
 	kernel_linux? ( >=sys-kernel/linux-headers-2.6.35 )
 	static? (
 		${ALL_DEPEND}

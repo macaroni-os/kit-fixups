@@ -4,19 +4,19 @@ import re
 from pathlib import Path
 
 
-async def generate_for(hub, pkg_name, release_channel, stable, **pkginfo):
+async def generate_for(hub, pkg_name, release_channel, stable, version, **pkginfo):
 
     # get version from .deb file:
+    # url_template = f"https://code.visualstudio.com/sha/download?build={release_channel}&os="
+    # redirect_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-deb-x64")
+    # deb_filename = redirect_url.split("/")[-1]
+    # filename_pattern = re.compile(f"^{pkg_name}_([\d.]+)-(\d+)_amd64\.deb$")
+    # version, revision = filename_pattern.match(deb_filename).groups()
+    # if not stable:
+    #     version += "_p" + revision
+    # src_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-x64")
 
-    url_template = f"https://code.visualstudio.com/sha/download?build={release_channel}&os="
-    redirect_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-deb-x64")
-    deb_filename = redirect_url.split("/")[-1]
-    filename_pattern = re.compile(f"^{pkg_name}_([\d.]+)-(\d+)_amd64\.deb$")
-    version, revision = filename_pattern.match(deb_filename).groups()
-    if not stable:
-        version += "_p" + revision
-    src_url = await hub.pkgtools.fetch.get_url_from_redirect(url_template + "linux-x64")
-
+    src_url = f"https://update.code.visualstudio.com/{version}/linux-x64/{release_channel}"
     # get .tar.gz, but use version we got from deb:
 
     artifact = hub.pkgtools.ebuild.Artifact(url=src_url, final_name=f"{pkginfo['name']}-{version}.tar.gz")
@@ -43,6 +43,6 @@ async def generate_for(hub, pkg_name, release_channel, stable, **pkginfo):
 
 
 async def generate(hub, **pkginfo):
-    await generate_for(hub, "code", "stable", True, **pkginfo)
+    await generate_for(hub, "code", "stable", True, "1.94.2", **pkginfo)
 
 # vim: ts=4 sw=4 noet

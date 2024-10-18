@@ -1,0 +1,12 @@
+Index: ssmtp-2.64/ssmtp.c
+===================================================================
+--- ssmtp-2.64.orig/ssmtp.c
++++ ssmtp-2.64/ssmtp.c
+@@ -13,6 +13,7 @@
+ #define VERSION "2.64"
+ #define _GNU_SOURCE
+ 
++#include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <sys/param.h>

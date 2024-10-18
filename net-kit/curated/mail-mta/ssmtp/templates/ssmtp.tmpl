@@ -10,8 +10,7 @@ inherit eutils autotools user
 
 DESCRIPTION="Extremely simple MTA to get mail off the system to a Mailhub"
 HOMEPAGE="ftp://ftp.debian.org/debian/pool/main/s/ssmtp/"
-SRC_URI="{{src_uri}}
-	https://dev.gentoo.org/~pinkbyte/distfiles/patches/${P}-patches-${PATCHSET}.tar.xz"
+SRC_URI="{{src_uri}}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -54,19 +53,19 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	eapply "${WORKDIR}"/patches/0010_all_maxsysuid.patch
-	eapply "${WORKDIR}"/patches/0020_all_from-format-fix.patch
-	eapply "${WORKDIR}"/patches/0030_all_authpass.patch
-	eapply "${WORKDIR}"/patches/0040_all_darwin7.patch
-	eapply "${WORKDIR}"/patches/0050_all_strndup.patch
-	eapply "${WORKDIR}"/patches/0060_all_opessl_crypto.patch
-	eapply "${WORKDIR}"/patches/0070_all_solaris-basename.patch
-	eapply "${WORKDIR}"/patches/0080_all_gnutls.patch
-	eapply "${WORKDIR}"/patches/0090_all_debian-remote-addr.patch
-	eapply "${WORKDIR}"/patches/0100_all_ldflags.patch
-	eapply "${WORKDIR}"/patches/0110_all_stdint.patch
-	eapply "${WORKDIR}"/patches/0120_all_aliases.patch
-	eapply -p0 "${WORKDIR}"/patches/0130_all_garbage-writes.patch
+	eapply "${FILESDIR}"/patches/0010_all_maxsysuid.patch
+	eapply "${FILESDIR}"/patches/0020_all_from-format-fix.patch
+	eapply "${FILESDIR}"/patches/0030_all_authpass.patch
+	eapply "${FILESDIR}"/patches/0040_all_darwin7.patch
+	eapply "${FILESDIR}"/patches/0050_all_strndup.patch
+	eapply "${FILESDIR}"/patches/0060_all_opessl_crypto.patch
+	eapply "${FILESDIR}"/patches/0070_all_solaris-basename.patch
+	eapply "${FILESDIR}"/patches/0080_all_gnutls.patch
+	eapply "${FILESDIR}"/patches/0090_all_debian-remote-addr.patch
+	eapply "${FILESDIR}"/patches/0100_all_ldflags.patch
+	eapply "${FILESDIR}"/patches/0110_all_stdint.patch
+	eapply "${FILESDIR}"/patches/0120_all_aliases.patch
+	eapply -p0 "${FILESDIR}"/patches/0130_all_garbage-writes.patch
 
 	eautoconf
 }

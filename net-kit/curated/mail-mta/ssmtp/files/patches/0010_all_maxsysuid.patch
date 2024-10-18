@@ -1,0 +1,60 @@
+Allow to specify the last used system user id, bug #231866
+
+Index: ssmtp-2.64/ssmtp.c
+===================================================================
+--- ssmtp-2.64.orig/ssmtp.c
++++ ssmtp-2.64/ssmtp.c
+@@ -78,6 +78,7 @@ int log_level = 1;
+ #else
+ int log_level = 0;
+ #endif
++int minuserid = MAXSYSUID+1;
+ int port = 25;
+ #ifdef INET6
+ int p_family = PF_UNSPEC;		/* Protocol family used in SMTP connection */
+@@ -649,7 +650,7 @@ char *rcpt_remap(char *str)
+ {
+ 	struct passwd *pw;
+ 	if((root==NULL) || strlen(root)==0 || strchr(str, '@') ||
+-		((pw = getpwnam(str)) == NULL) || (pw->pw_uid > MAXSYSUID)) {
++		((pw = getpwnam(str)) == NULL) || (pw->pw_uid >= minuserid)) {
+ 		return(append_domain(str));	/* It's not a local systems-level user */
+ 	}
+ 	else {
+@@ -898,6 +899,17 @@ bool_t read_config()
+ 					log_event(LOG_INFO, "Set Root=\"%s\"\n", root);
+ 				}
+ 			}
++			else if(strcasecmp(p, "MinUserId") == 0) {
++				if((r = strdup(q)) == (char *)NULL) {
++					die("parse_config() -- strdup() failed");
++				}
++
++				minuserid = atoi(r);
++
++				if(log_level > 0) {
++					log_event(LOG_INFO, "Set MinUserId=\"%d\"\n", minuserid);
++				}
++			}
+ 			else if(strcasecmp(p, "MailHub") == 0) {
+ 				if((r = strchr(q, ':')) != NULL) {
+ 					*r++ = '\0';
+Index: ssmtp-2.64/ssmtp.conf
+===================================================================
+--- ssmtp-2.64.orig/ssmtp.conf
++++ ssmtp-2.64/ssmtp.conf
+@@ -2,10 +2,13 @@
+ # /etc/ssmtp.conf -- a config file for sSMTP sendmail.
+ #
+ 
+-# The person who gets all mail for userids < 1000
++# The person who gets all mail for userids < MinUserId
+ # Make this empty to disable rewriting.
+ root=postmaster
+ 
++# All mail delivered to userid >= MinUserId goes to user, not root.
++#MinUserId=1000
++
+ # The place where the mail goes. The actual machine name is required
+ # no MX records are consulted. Commonly mailhosts are named mail.domain.com
+ # The example will fit if you are in domain.com and your mailhub is so named.

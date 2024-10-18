@@ -1,0 +1,40 @@
+This function overshadows the one from libc on Solaris, and guess what,
+is hence never called.  Since the original one has an entirely different
+contract, it results in unconditional segfaults lateron, so always use
+the internal copy as it's small enough not to care.
+
+Index: ssmtp-2.64/ssmtp.c
+===================================================================
+--- ssmtp-2.64.orig/ssmtp.c
++++ ssmtp-2.64/ssmtp.c
+@@ -224,11 +224,10 @@ void die(char *format, ...)
+ 	exit(1);
+ }
+ 
+-#ifndef _GNU_SOURCE
+ /*
+-basename() -- Return last element of path
++xbasename() -- Return last element of path
+ */
+-char *basename(char *str)
++char *xbasename(char *str)
+ {
+ 	char *p;
+ 
+@@ -239,7 +238,6 @@ char *basename(char *str)
+ 
+ 	return(strdup(p));
+ }
+-#endif /* _GNU_SOURCE */
+ 
+ /*
+ strip_pre_ws() -- Return pointer to first non-whitespace character
+@@ -2089,7 +2087,7 @@ int main(int argc, char **argv)
+ 	(void)signal(SIGTTOU, SIG_IGN);
+ 
+ 	/* Set the globals */
+-	prog = basename(argv[0]);
++	prog = xbasename(argv[0]);
+ 
+ 	hostname = xgethostname();
+ 

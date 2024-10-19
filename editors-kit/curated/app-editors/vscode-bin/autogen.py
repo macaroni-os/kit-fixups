@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 
-import re
 from pathlib import Path
 
-from sphinx.util import requests
+import requests
 
 
 async def generate_for(hub, pkg_name, release_channel, stable, **pkginfo):
-
-    url = f"https://code.visualstudio.com/sha/download?build={release_channel}&os=linux-deb-x64"
+    url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
     headers = {
         'User-Agent': 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0',
-        'Connection' : 'keep-alive',
+        'Connection': 'keep-alive',
     }
     response = requests.get(url, headers=headers)
     version = extract_version_from_header(response.headers)
@@ -39,6 +37,10 @@ async def generate_for(hub, pkg_name, release_channel, stable, **pkginfo):
         src_path_name=src_path.name,
     )
     ebuild.push()
+
+
+import re
+
 
 def extract_version_from_header(response_headers):
     """
@@ -73,6 +75,7 @@ def extract_version_from_header(response_headers):
         return version_match.group(1)  # Return the matched version
     else:
         return None  # No version found in the filename
+
 
 async def generate(hub, **pkginfo):
     await generate_for(hub, "code", "stable", True, **pkginfo)

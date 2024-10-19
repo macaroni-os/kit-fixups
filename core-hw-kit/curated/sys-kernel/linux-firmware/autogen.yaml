@@ -1,0 +1,10 @@
+linux-firmware_rule:
+  generator: dirlisting-1
+  packages:
+    - linux-firmware:
+        dir:
+          url: https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/
+          format: tar.gz
+          order: asc
+          files:
+            - linux-firmware

@@ -21,6 +21,11 @@ QA_PREBUILT="*"
 BDEPEND="initramfs? ( app-arch/cpio ) app-misc/rdfind"
 RDEPEND="initramfs? ( !<=app-admin/ego-2.8.5 )"
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-check-whence.patch
+	"${FILESDIR}"/${PN}-copy-firmware.patch
+)
+
 src_prepare() {
 	default
 

@@ -69,10 +69,6 @@ src_install() {
 		GENTOO_CPPFLAGS="${CPPFLAGS}" \
 		install
 
-	rmdir "${ED}"/usr/include
-	rmdir "${ED}"/usr/share
-	mv "${ED}"/include "${ED}"/usr/include || die
-	mv "${ED}"/share "${ED}"/usr/share || die
 	einstalldocs
 
 	newinitd "${FILESDIR}"/multipathd-r1.rc multipathd

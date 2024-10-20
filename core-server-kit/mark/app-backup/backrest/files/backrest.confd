@@ -1,0 +1,18 @@
+# Configuration file for Backrest
+BACKREST_PORT="127.0.0.1:9898"
+
+# Define the path of the restic tool.
+# If not present or not define backrest try to
+# download the restic binary automatically.
+BACKREST_RESTIC_COMMAND=/usr/bin/restic
+
+BACKREST_DATA=/var/lib/backrest/data
+
+# Override the path of the backrest config file
+# BACKREST_CONFIG=
+
+# Define additional command line args.
+# backrest_args=
+
+# backrest_user=backrest
+# backrest_group=backrest

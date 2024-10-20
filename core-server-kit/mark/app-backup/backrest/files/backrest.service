@@ -1,0 +1,13 @@
+[Unit]
+Description=Backrest Service
+After=network.target
+
+[Service]
+Type=simple
+User=backrest
+Group=backrest
+EnvironmentFile=/etc/conf.d/backrest
+ExecStart=/usr/bin/backrest
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,60 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit go-module systemd user
+
+EGO_SKIP_TIDY=1
+EGO_SUM=(
+{{gosum}})
+
+DESCRIPTION="Backrest is a web UI and orchestrator for restic backup"
+HOMEPAGE="https://github.com/garethgeorge/backrest"
+SRC_URI="{{ src_uri }}"
+# Uses npm to download packages
+RESTRICT="network-sandbox"
+LICENSE="GPL-3.0"
+SLOT="0"
+KEYWORDS="*"
+IUSE="systemd"
+
+RDEPEND="app-backup/restic"
+DEPEND="${RDEPEND}
+	net-libs/nodejs
+"
+
+pkg_setup() {
+	ebegin "Ensuring backrest group and user exist"
+	enewgroup backrest
+	enewuser backrest -1 -1 /var/lib/backrest backrest
+	eend $?
+}
+
+post_src_unpack() {
+	mv ${WORKDIR}/garethgeorge-backrest-* ${S}
+}
+
+src_compile() {
+	GOOS=linux BACKREST_BUILD_VERSION={{version}} \
+		go generate ./...
+
+	CGO_ENABLED=0 \
+		go build \
+		-asmflags "-trimpath=${S}" \
+		-gcflags "-trimpath=${S}" \
+		-o backrest ./cmd/backrest
+}
+
+src_install() {
+	dobin backrest
+	diropts -m0750 -o backrest -g backrest
+	dodir /var/lib/backrest/
+	fowners backrest:backrest /var/lib/backrest
+	keepdir /var/lib/backrest
+	if use systemd ; then
+		systemd_newunit "${FILESDIR}"/backrest.service backrest.service || die
+	else
+		newinitd "${FILESDIR}"/backrest.initd backrest
+	fi
+	newconfd "${FILESDIR}"/backrest.confd backrest
+}

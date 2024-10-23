@@ -2,21 +2,17 @@
 
 EAPI=7
 
-inherit autotools golang-base go-module bash-completion-r1 linux-info user
+inherit autotools golang-base bash-completion-r1 linux-info user systemd
 
-DESCRIPTION="Powerful system container and virtual machine manager"
+DESCRIPTION="Fast, dense and secure container management"
 HOMEPAGE="https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus"
 SRC_URI="{{ src_uri }}"
 
 # Needs to include licenses for all bundled programs and libraries.
 LICENSE="Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0"
 SLOT="0"
-{%- if unmasked %}
 KEYWORDS="*"
-{%- else %}
-KEYWORDS=""
-{%- endif %}
-IUSE="apparmor ipv6 nls"
+IUSE="apparmor ipv6 nls systemd"
 
 DEPEND="app-arch/xz-utils
 	app-arch/lz4
@@ -34,7 +30,7 @@ RDEPEND="${DEPEND}
 	sys-fs/lxcfs
 	sys-fs/squashfs-tools[lzma]
 	virtual/acl"
-BDEPEND=">=dev-lang/go-1.21
+BDEPEND=">=dev-lang/go-1.20
 	>=sys-kernel/linux-headers-4.15
 	nls? ( sys-devel/gettext )"
 
@@ -65,13 +61,9 @@ QA_PREBUILT="/usr/lib/incus/libcowsql.so.0.0.1
 	/usr/bin/incus-user
 	/usr/sbin/incusd"
 
-S="${WORKDIR}/incus-${PV}"
+S="${WORKDIR}/incus-{{ version }}"
 RESTRICT="test"
 VDIR="${S}/vendor"
-
-post_src_unpack() {
-	mv "${WORKDIR}"/${PN}-* "${S}" || die
-}
 
 pkg_setup() {
 	ebegin "Ensuring incus and incus-admin groups exist"
@@ -177,15 +169,28 @@ src_install() {
 	rm -r "${ED}"/usr/lib/incus/*.a || die
 	rm -r "${ED}"/usr/lib/incus/pkgconfig || die
 
-	newbashcomp "${FILESDIR}"/incus.bashcomp-0.7.0 incus
+	# Generate and install shell completion files.
+	mkdir -p "${D}"/usr/share/{bash-completion/completions/,fish/vendor_completions.d/,zsh/site-functions/} || die
+	"${D}"/usr/bin/incus completion bash > "${D}"/usr/share/bash-completion/completions/incus || die
+	"${D}"/usr/bin/incus completion fish > "${D}"/usr/share/fish/vendor_completions.d/incus.fish || die
+	"${D}"/usr/bin/incus completion zsh > "${D}"/usr/share/zsh/site-functions/_incus || die
 
 	exeinto /usr/sbin/
 	doexe "${FILESDIR}"/incus-startup
 
-	newinitd "${FILESDIR}"/incus.initd incus || die
-	newinitd "${FILESDIR}"/incus-user.initd incus-user || die
-	newinitd "${FILESDIR}"/incus-lxcfs.initd incus-lxcfs || die
-
+	if use systemd ; then
+		systemd_newunit "${FILESDIR}"/incus.service incus.service || die
+		systemd_newunit "${FILESDIR}"/incus-startup.service incus-startup.service || die
+		systemd_newunit "${FILESDIR}"/incus-lxcfs.service incus-lxcfs.service || die
+		systemd_newunit "${FILESDIR}"/incus-user.service incus-user.service || die
+		systemd_newunit "${FILESDIR}"/incus-startup.service incus-startup.service || die
+		systemd_newunit "${FILESDIR}"/incus.socket incus.socket || die
+		systemd_newunit "${FILESDIR}"/incus-user.socket incus-user.socket || die
+	else
+		newinitd "${FILESDIR}"/incus.initd incus || die
+		newinitd "${FILESDIR}"/incus-user.initd incus-user || die
+		newinitd "${FILESDIR}"/incus-lxcfs.initd incus-lxcfs || die
+	fi
 	newconfd "${FILESDIR}"/incus.confd incus || die
 	newconfd "${FILESDIR}"/incus-user.confd incus-user || die
 	newconfd "${FILESDIR}"/incus-lxcfs.confd incus-lxcfs || die

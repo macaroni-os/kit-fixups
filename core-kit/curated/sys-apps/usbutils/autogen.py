@@ -8,7 +8,8 @@ async def generate(hub, **pkginfo):
 		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
 	for release in json_list:
-		version = release["name"].lstrip("v")
+#		version = release["name"].lstrip("v")
+		version = "017"
 		url = release["tarball_url"]
 		break
 	final_name = f'{pkginfo["name"]}-{version}.tar.gz'

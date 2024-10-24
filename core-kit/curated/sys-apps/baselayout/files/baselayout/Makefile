@@ -5,7 +5,7 @@
 #
 # Based on the Gentoo baselayout work..
 
-PV = 2.6
+PV = 3.0
 PKG = baselayout-$(PV)
 DISTFILE = $(PKG).tar.bz2
 

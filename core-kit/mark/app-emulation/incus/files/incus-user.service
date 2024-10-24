@@ -4,8 +4,8 @@ After=incus-user.socket incusd.service
 Requires=incus-user.socket
 
 [Service]
-EnvironmentFile=-/etc/conf.d/incus-user --group incus $INCUS_USER_OPTIONS
-ExecStart=/usr/sbin/incus-user
+EnvironmentFile=-/etc/conf.d/incus-user
+ExecStart=/usr/sbin/incus-user --group incus $INCUS_USER_OPTIONS
 Restart=on-failure
 
 [Install]

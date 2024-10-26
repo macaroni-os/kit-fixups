@@ -30,6 +30,7 @@ src_configure() {
 src_compile() {
 	myemakeargs=(
 		VERSION=${PV}
+		libdir="/usr/$(get_libdir)"
 	)
 
 	cd tools/power/cpupower || die
@@ -48,3 +49,5 @@ src_install() {
 	systemd_dounit "${FILESDIR}"/cpupower-frequency-set.service
 	systemd_install_serviced "${FILESDIR}"/cpupower-frequency-set.service.conf
 }
+
+# vim: filetype=ebuild

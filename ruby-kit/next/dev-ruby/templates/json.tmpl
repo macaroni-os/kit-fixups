@@ -49,7 +49,7 @@ all_ruby_prepare() {
 		-e '/^unless/,/^end/ s:^:#:' ext/json/ext/*/extconf.rb || die
 
 	# Avoid setting gem since it will not be available yet when installing
-	sed -i -e '/gem/ s:^:#:' tests/test_helper.rb || die
+	sed -i -e '/gem/ s:^:#:' test/json/test_helper.rb || die
 }
 
 #each_ruby_compile() {

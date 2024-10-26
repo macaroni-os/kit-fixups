@@ -2,13 +2,13 @@ dev_python_autogen_rule:
   defaults:
     cat: app-backup
     python_compat: python3+
+    du_pep517: setuptools
   generator: pypi-simple-1
   packages:
     - borgbackup:
-        iuse: libressl
         pydeps:
           py:all:
-            - llfuse
+            - pyfuse3
             - packaging
           py:all:build:
             - setuptools_scm
@@ -17,8 +17,8 @@ dev_python_autogen_rule:
           !!app-office/borg
           app-arch/lz4
           virtual/acl
-          !libressl? ( dev-libs/openssl:0= )
-          libressl? ( dev-libs/libressl:0= )
+          dev-libs/xxhash
+          dev-libs/openssl:0=
         rdepend: |
           ${DEPEND}
         body: |
@@ -29,9 +29,19 @@ dev_python_autogen_rule:
           }
 
           src_compile() {
-            BORG_OPENSSL_PREFIX=/usr distutils-r1_src_compile
+            BORG_LIBLZ4_PREFIX=/usr \
+            BORG_OPENSSL_PREFIX=/usr \
+            BORG_LIBZSTD_PREFIX=/usr \
+            BORG_LIBXXHASH_PREFIX=/usr \
+            BORG_LIBACL_PREFIX=/usr \
+            distutils-r1_src_compile
           }
 
           src_install() {
-            BORG_OPENSSL_PREFIX=/usr distutils-r1_src_install
+            BORG_LIBLZ4_PREFIX=/usr \
+            BORG_LIBZSTD_PREFIX=/usr \
+            BORG_OPENSSL_PREFIX=/usr \
+            BORG_LIBXXHASH_PREFIX=/usr \
+            BORG_LIBACL_PREFIX=/usr \
+            distutils-r1_src_install
           }

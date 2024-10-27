@@ -26,8 +26,6 @@ DEPEND="${RDEPEND}
 	dev-qt/linguist-tools:5"
 
 PATCHES=(
-	"${FILESDIR}/${PN}-1.0.0-desktop.patch"
-	"${FILESDIR}/${PN}-2.4.0-man-page.patch"
 )
 
 src_configure() {

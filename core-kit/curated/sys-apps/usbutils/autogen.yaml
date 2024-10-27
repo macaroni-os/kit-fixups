@@ -1,0 +1,11 @@
+usbutils_rule:
+  generator: github-1
+  packages:
+    - usbutils:
+        github:
+          user: gregkh
+          query: tags
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''

@@ -1879,6 +1879,8 @@ dev_python_simplified_rule:
         rdepend: |
           !<dev-python/pymongo-4.1
         pydeps:
+          py:all:build:
+            - hatch-requirements-txt
           py:all:
             - pymongo >= 4.1
     - pyparsing:

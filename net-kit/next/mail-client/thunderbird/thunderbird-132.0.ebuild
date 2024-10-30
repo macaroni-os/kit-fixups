@@ -2,9 +2,9 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-131-patches-01.tar.xz"
+FIREFOX_PATCHSET="firefox-132-patches-01.tar.xz"
 
-LLVM_MAX_SLOT=13
+LLVM_MAX_SLOT=16
 
 PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"

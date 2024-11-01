@@ -19,9 +19,9 @@ src_unpack() {
 pkg_preinst() {
 	if use build && [ $ROOT != "/" ]; then
 		if use split-usr ; then
-			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" layout
+			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}/" layout
 		else
-			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}" layout-usrmerge
+			emake -C "${ED}/usr/share/${PN}" DESTDIR="${EROOT}/" layout-usrmerge
 		fi
 	fi
 	rm -f "${ED}"/usr/share/${PN}/Makefile
@@ -70,18 +70,18 @@ pkg_postinst() {
 	# (3) accidentally packaging up personal files with quickpkg
 	# If they don't exist then we install them
 	for x in master.passwd passwd shadow group fstab ; do
-		[ -e "${EROOT}etc/${x}" ] && continue
-		[ -e "${EROOT}usr/share/baselayout/${x}" ] || continue
-		cp -p "${EROOT}usr/share/baselayout/${x}" "${EROOT}"etc
+		[ -e "${EROOT}/etc/${x}" ] && continue
+		[ -e "${EROOT}/usr/share/baselayout/${x}" ] || continue
+		cp -p "${EROOT}/usr/share/baselayout/${x}" "${EROOT}"/etc
 	done
 
 	# Force shadow permissions to not be world-readable #260993
 	for x in shadow ; do
-		[ -e "${EROOT}etc/${x}" ] && chmod o-rwx "${EROOT}etc/${x}"
+		[ -e "${EROOT}/etc/${x}" ] && chmod o-rwx "${EROOT}/etc/${x}"
 	done
 
 	# whine about users that lack passwords #193541
-	if [[ -e "${EROOT}"etc/shadow ]] ; then
+	if [[ -e "${EROOT}"/etc/shadow ]] ; then
 		local bad_users=$(sed -n '/^[^:]*::/s|^\([^:]*\)::.*|\1|p' "${EROOT}"/etc/shadow)
 		if [[ -n ${bad_users} ]] ; then
 			echo
@@ -91,8 +91,8 @@ pkg_postinst() {
 	fi
 
 	# whine about users with invalid shells #215698
-	if [[ -e "${EROOT}"etc/passwd ]] ; then
-		local bad_shells=$(awk -F: 'system("test -e " $7) { print $1 " - " $7}' "${EROOT}"etc/passwd | sort)
+	if [[ -e "${EROOT}"/etc/passwd ]] ; then
+		local bad_shells=$(awk -F: 'system("test -e " $7) { print $1 " - " $7}' "${EROOT}"/etc/passwd | sort)
 		if [[ -n ${bad_shells} ]] ; then
 			echo
 			ewarn "The following users have non-existent shells!"
@@ -101,18 +101,18 @@ pkg_postinst() {
 	fi
 
 	if use kernel_linux; then
-		mkdir -p "${EROOT}"run
+		mkdir -p "${EROOT}"/run
 
 		local found fstype mountpoint
 		while read -r _ mountpoint fstype _; do
 		[[ ${mountpoint} = /run ]] && [[ ${fstype} = tmpfs ]] && found=1
-		done < "${ROOT}"proc/mounts
+		done < "${EROOT}"/proc/mounts
 		[[ -z ${found} ]] &&
 			ewarn "You should reboot now to get /run mounted with tmpfs!"
 	fi
 
 	if [ -e /usr/bin/ego ]; then
-		echo "Macaroni OS Linux $(/usr/bin/ego profile get build)" >${EROOT}etc/mark-release
+		echo "Macaroni OS Linux $(/usr/bin/ego profile get build)" >${EROOT}/etc/mark-release
 	fi
 }
 

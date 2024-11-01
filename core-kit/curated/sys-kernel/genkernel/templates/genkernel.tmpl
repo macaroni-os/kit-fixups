@@ -11,7 +11,7 @@ inherit bash-completion-r1 python-single-r1
 VERSION_BCACHE_TOOLS="1.0.8_p20141204"
 VERSION_BOOST="1.79.0"
 VERSION_BTRFS_PROGS="6.3.2"
-VERSION_BUSYBOX="1.36.1"
+VERSION_BUSYBOX="1.37.0"
 VERSION_COREUTILS="9.4"
 VERSION_CRYPTSETUP="2.6.1"
 VERSION_DMRAID="1.0.0.rc16-3"
@@ -190,6 +190,9 @@ src_install() {
 		bzip2 - -c > dmraid-${VERSION_DMRAID}.tar.bz2 && \
 		rm dmraid-${VERSION_DMRAID}.tar.gz
 	popd &>/dev/null || die
+
+	insinto /usr/share/genkernel/patches/busybox/1.37.0
+	doins "${FILESDIR}"/share/patches/busybox/1.37.0/*.patch
 }
 
 pkg_postinst() {

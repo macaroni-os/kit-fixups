@@ -8,7 +8,7 @@ genkernel_rule:
         version: 4.3.10
         # so that people get the dmraid gz -> bz2 fix
         revision:
-          '4.3.10': '3'
+          '4.3.10': '4'
         patches:
           - 4.3.10-fix-modinfo-error.patch
         github:
@@ -19,7 +19,7 @@ genkernel_rule:
           bcache-tools-1.0.8_p20141204.tar.gz: https://github.com/g2p/bcache-tools/archive/399021549984ad27bf4a13ae85e458833fe003d7.tar.gz
           boost_1_79_0.tar.bz2: https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.bz2
           btrfs-progs-v6.3.2.tar.xz: https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v6.3.2.tar.xz
-          busybox-1.36.1.tar.bz2: https://www.busybox.net/downloads/busybox-1.36.1.tar.bz2
+          busybox-1.37.0.tar.bz2: https://www.busybox.net/downloads/busybox-1.37.0.tar.bz2
           coreutils-9.4.tar.xz:  https://ftpmirror.gnu.org/coreutils/coreutils-9.4.tar.xz
           cryptsetup-2.6.1.tar.xz: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.6/cryptsetup-2.6.1.tar.xz
           # orig at: ... has newer crypto than we support

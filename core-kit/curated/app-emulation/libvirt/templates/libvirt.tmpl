@@ -80,7 +80,7 @@ RDEPEND="
 	policykit? ( >=sys-auth/polkit-0.9 )
 	qemu? (
 		>=app-emulation/qemu-4.2
-		dev-libs/yajl
+		dev-libs/json-c
 	)
 	rbd? ( sys-cluster/ceph )
 	sasl? ( dev-libs/cyrus-sasl )
@@ -249,7 +249,7 @@ src_configure() {
 		$(meson_feature pcap libpcap)
 		$(meson_feature policykit polkit)
 		$(meson_feature qemu driver_qemu)
-		$(meson_feature qemu yajl)
+		$(meson_feature qemu json_c)
 		$(meson_feature rbd storage_rbd)
 		$(meson_feature sasl)
 		$(meson_feature selinux)
@@ -325,3 +325,5 @@ pkg_postinst() {
 
 	readme.gentoo_print_elog
 }
+
+# vim: filetype=ebuild

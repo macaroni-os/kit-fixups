@@ -19,7 +19,8 @@ SRC_URI="{{ src_uri }}"
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
-IUSE="lapack"
+# As described on macaroni-os/mark-issues#189 we need lapack for building.
+IUSE="+lapack"
 
 RDEPEND="
 	lapack? (

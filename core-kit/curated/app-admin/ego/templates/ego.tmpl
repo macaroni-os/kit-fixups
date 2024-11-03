@@ -61,4 +61,7 @@ pkg_postinst() {
 	if [ "$ROOT" = "/" ]; then
 		/usr/bin/ego sync --in-place
 	fi
+	einfo "Install dev-python/mwparserfromhell to use 'ego kit'!"
 }
+
+# vim: filetype=ebuild

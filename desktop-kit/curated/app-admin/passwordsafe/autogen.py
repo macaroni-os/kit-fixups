@@ -9,7 +9,7 @@ async def generate(hub, **pkginfo):
 	for release in json_list:
 		if release["prerelease"] or release["draft"]:
 			continue
-		if "Linux" not in release["name"]:
+		if "Linux" not in release["body"]:
 			continue
 		version = release["tag_name"]
 		url = f"https://github.com/pwsafe/pwsafe/archive/{version}.tar.gz"

@@ -1,0 +1,12 @@
+mtr_rule:
+  generator: github-1
+  packages:
+    - mtr:
+        github:
+          user: traviscross
+          query: tags
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''
+

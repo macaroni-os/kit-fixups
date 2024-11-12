@@ -287,6 +287,12 @@ setuptools_builds:
         - setuptools
   generator: pypi-simple-1
   packages:
+    - license-expression:
+        pydeps:
+          py:all:
+            - boolean-py
+          py:all:build:
+            - setuptools_scm
     - webcolors:
         blocker: '!<dev-python/webcolors-1.9'
     - python-magic:

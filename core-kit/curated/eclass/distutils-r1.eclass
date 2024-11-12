@@ -252,8 +252,13 @@ _distutils_set_globals() {
 				'
 				;;
 			pdm|pdm-backend)
+				# the pdm-pep517 package is been renamed in
+				# pdm-backend. I will inject the old and new
+				# version until the old packages will be
+				# updated.
 				bdep+='
-					>=dev-python/pdm-pep517-1.0.0[${PYTHON_USEDEP}]
+					>=dev-python/pdm-pep517[${PYTHON_USEDEP}]
+					>=dev-python/pdm-backend[${PYTHON_USEDEP}]
 				'
 				;;
 			poetry)

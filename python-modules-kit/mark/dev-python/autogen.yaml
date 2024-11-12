@@ -99,8 +99,6 @@ autogens:
     - strict-rfc3339
     - typing-extensions:
         du_pep517: flit
-    - webcolors:
-        blocker: '!<dev-python/webcolors-1.9'
     - zipp:
         python_compat: python3+ pypy3
         blocker: '!<=dev-python/zipp-2'
@@ -266,6 +264,8 @@ setuptools_builds:
         - setuptools
   generator: pypi-simple-1
   packages:
+    - webcolors:
+        blocker: '!<dev-python/webcolors-1.9'
     - python-magic:
         license: BSD-2 MIT
         desc: "Access the libmagic file type identification library"

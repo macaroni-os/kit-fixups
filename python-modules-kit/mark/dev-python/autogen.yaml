@@ -99,8 +99,6 @@ autogens:
     - strict-rfc3339
     - typing-extensions:
         du_pep517: flit
-    - webcolors:
-        blocker: '!<dev-python/webcolors-1.9'
     - zipp:
         python_compat: python3+ pypy3
         blocker: '!<=dev-python/zipp-2'
@@ -225,9 +223,33 @@ github_pythons:
 setuptools_standalone_pythons:
   generator: pypi-simple-1
   defaults:
+    du_pep517: standalone
     python_compat: python3+
 
   packages:
+    - pdm-backend:
+        body: |
+          src_prepare() {
+              rm -r src/pdm/backend/_vendor || die
+              find -name '*.py' -exec sed \
+                  -e 's:from pdm\.backend\._vendor\.:from :' \
+                  -e 's:from pdm\.backend\._vendor ::' \
+                  -e 's:import pdm\.backend\._vendor\.:import :' \
+                  -i {} + || die
+              distutils-r1_src_prepare
+          }
+        pydeps:
+          py:all:build:
+            - editables
+            - packaging >= 24.0
+            - pyproject-metadata
+            - tomli
+          py:all:runtime:
+            - editables
+            - packaging >= 24.0
+            - pyproject-metadata
+            - tomli
+
     - setuptools_scm:
         body : |
           src_configure() {
@@ -241,7 +263,6 @@ setuptools_standalone_pythons:
             distutils-r1_src_configure
           }
 
-        du_pep517: standalone
         iuse: test
 
         pydeps:
@@ -266,6 +287,8 @@ setuptools_builds:
         - setuptools
   generator: pypi-simple-1
   packages:
+    - webcolors:
+        blocker: '!<dev-python/webcolors-1.9'
     - python-magic:
         license: BSD-2 MIT
         desc: "Access the libmagic file type identification library"

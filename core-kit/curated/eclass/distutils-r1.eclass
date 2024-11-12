@@ -251,7 +251,7 @@ _distutils_set_globals() {
 					>=dev-python/pbr-5.8.0-r1[${PYTHON_USEDEP}]
 				'
 				;;
-			pdm)
+			pdm|pdm-backend)
 				bdep+='
 					>=dev-python/pdm-pep517-1.0.0[${PYTHON_USEDEP}]
 				'
@@ -1183,8 +1183,8 @@ _distutils-r1_backend_to_key() {
 		pbr.build)
 			echo pbr
 			;;
-		pdm.pep517.api)
-			echo pdm
+		pdm.backend|pdm.pep517.api)
+			echo pdm-backend
 			;;
 		poetry.core.masonry.api|poetry.masonry.api)
 			echo poetry

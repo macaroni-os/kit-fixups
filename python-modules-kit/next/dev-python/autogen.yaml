@@ -223,9 +223,33 @@ github_pythons:
 setuptools_standalone_pythons:
   generator: pypi-simple-1
   defaults:
+    du_pep517: standalone
     python_compat: python3+
 
   packages:
+    - pdm-backend:
+        body: |
+          src_prepare() {
+              rm -r src/pdm/backend/_vendor || die
+              find -name '*.py' -exec sed \
+                  -e 's:from pdm\.backend\._vendor\.:from :' \
+                  -e 's:from pdm\.backend\._vendor ::' \
+                  -e 's:import pdm\.backend\._vendor\.:import :' \
+                  -i {} + || die
+              distutils-r1_src_prepare
+          }
+        pydeps:
+          py:all:build:
+            - editables
+            - packaging >= 24.0
+            - pyproject-metadata
+            - tomli
+          py:all:runtime:
+            - editables
+            - packaging >= 24.0
+            - pyproject-metadata
+            - tomli
+
     - setuptools_scm:
         body : |
           src_configure() {
@@ -239,7 +263,6 @@ setuptools_standalone_pythons:
             distutils-r1_src_configure
           }
 
-        du_pep517: standalone
         iuse: test
 
         pydeps:

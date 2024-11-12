@@ -23,7 +23,7 @@ python-github:
 
 bleach:
   defaults:
-    python_compat: python2+ pypy3 pypy
+    python_compat: python3+ pypy3 pypy
   generator: pypi-compat-1
   packages:
     - bleach:
@@ -71,9 +71,7 @@ autogens:
         pypi_name: pyRFC3339
         pydeps:
           - pytz
-    - regex:
-        compat: 2020.9.27
-        blocker: '!<dev-python/regex-2018'
+    - regex
     - rfc3339-validator:
         pypi_name: rfc3339_validator
         pydeps:
@@ -90,7 +88,6 @@ autogens:
             distutils-r1_python_prepare_all
           }
     - rsa:
-        compat: '4.4'
         blocker: '!<dev-python/rsa-4.9'
         pydeps:
           - pyasn1
@@ -98,17 +95,12 @@ autogens:
     - setproctitle:
         du_pep517: generator
         blocker: '!<dev-python/setproctitle-1.3.3'
-        compat: 1.1.9
     - simplejson
     - strict-rfc3339
     - typing-extensions:
         du_pep517: flit
-    - webcolors:
-        compat: '1.9'
-        blocker: '!<dev-python/webcolors-1.9'
     - zipp:
         python_compat: python3+ pypy3
-        compat: '1.2.0'
         blocker: '!<=dev-python/zipp-2'
         homepage: https://github.com/jaraco/zipp
         license: MIT
@@ -174,29 +166,6 @@ pypi_compat_rule:
 
             py.test -v _test/test_*.py || die
           }
-    - llfuse:
-        desc: Python bindings for the low level FUSE API
-        iuse: doc examples test
-        pydeps:
-          use:test:
-            - pytest
-          py:all:build:
-            - setuptools
-        rdepend: |
-            sys-fs/fuse
-        depend: |
-            sys-apps/attr
-            virtual/pkgconfig
-        body: |
-          python_test() {
-            py.test -v || die "Tests failed under ${EPYTHON}"
-          }
-
-          python_install_all() {
-            use doc && local HTML_DOCS=( doc/html/. )
-            use examples && dodoc -r examples
-            distutils-r1_python_install_all
-          }
     - pyicu:
         pypi_name: PyICU
         python_compat: python3+
@@ -251,6 +220,40 @@ github_pythons:
             distutils-r1_python_install_all
           }
 
+setuptools_standalone_pythons:
+  generator: pypi-simple-1
+  defaults:
+    python_compat: python3+
+
+  packages:
+    - setuptools_scm:
+        body : |
+          src_configure() {
+            if has_version "<dev-python/setuptools_scm-8"; then # only happens when setuptools_scm-7 is installed (main cause is duplicated entry points in similar fashion as in https://github.com/pypa/setuptools/issues/3649)
+              # it could be done better, but only side effect is two aditional internal unused api files added
+              # tested with python 3.12 - the duplicated entries where gone and update worked correctly without any quick fixes
+              ewarn "adding /src/setuptools_scm/{file_finder_git.py,file_hinder_hg.py} which point to _file_finders.{git,hg} modules due to build tools interaction"
+              echo "from ._file_finders.git import *" > ${S}/src/setuptools_scm/file_finder_git.py
+              echo "from ._file_finders.hg import *" >  ${S}/src/setuptools_scm/file_finder_hg.py
+            fi
+            distutils-r1_src_configure
+          }
+
+        du_pep517: standalone
+        iuse: test
+
+        pydeps:
+          py:all:
+            - packaging
+            - setuptools
+            - tomli
+          py:all:build:
+            - setuptools
+          use:test:
+            - build
+            - typing_extensions
+
+
 setuptools_builds:
   defaults:
     cat: dev-python
@@ -261,6 +264,8 @@ setuptools_builds:
         - setuptools
   generator: pypi-simple-1
   packages:
+    - webcolors:
+        blocker: '!<dev-python/webcolors-1.9'
     - python-magic:
         license: BSD-2 MIT
         desc: "Access the libmagic file type identification library"

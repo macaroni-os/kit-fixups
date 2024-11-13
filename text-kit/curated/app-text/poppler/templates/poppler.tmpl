@@ -25,6 +25,7 @@ BDEPEND="
 DEPEND="
 	media-libs/fontconfig
 	media-libs/freetype
+	dev-libs/nss
 	sys-libs/zlib
 	cairo? (
 		dev-libs/glib:2

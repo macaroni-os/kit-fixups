@@ -39,16 +39,11 @@ DEPEND="${RDEPEND}"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.10_beta1-string.patch
-	"${FILESDIR}"/${PN}-5.21-python.patch
-	"${FILESDIR}"/${PN}-6.46-uninstaller.patch
 	"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
 	"${FILESDIR}"/${PN}-7.25-CXXFLAGS.patch
-	"${FILESDIR}"/${PN}-7.25-libpcre.patch
 	"${FILESDIR}"/${PN}-7.31-libnl.patch
 	"${FILESDIR}"/${PN}-7.80-ac-config-subdirs.patch
 	"${FILESDIR}"/${PN}-7.91-no-FORTIFY_SOURCE.patch
-	"${FILESDIR}"/${P}-ncat-proxy.patch
-	"${FILESDIR}"/${P}-ncat-unix-sockets.patch
 )
 
 pkg_setup() {

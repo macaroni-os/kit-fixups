@@ -16,6 +16,13 @@ packages:
   - sys-fs/mdev
   - sys-fs/smdev
 - gentoo-staging:
+  - app-admin/supervisor
+  - app-admin/syslog-ng
+  - app-admin/chrpath
+  - app-admin/durep
+  - app-admin/eclean-kernel
+  - app-admin/mcelog
+  - app-arch/arj
   - net-misc/whois
   - net-misc/mobile-broadband-provider-info
   - net-misc/bridge-utils
@@ -29,11 +36,56 @@ packages:
   - app-doc/doxygen
   - app-arch/zip
   - app-arch/rpm2targz
-  - app-arch/lz4
-  - app-arch/pax
+  - app-arch/brotli
+  - app-arch/cabextract
   - app-arch/cpio
+  - app-arch/dpkg
+  - app-arch/lbzip2
+  - app-arch/lz4
+  - app-arch/lziprecover
+  - app-arch/pax
+  - app-arch/pbzip2
+  - app-arch/pigz
+  - app-arch/pxz
+  - app-arch/rar
+  - app-arch/rpm2targz
   - app-arch/sharutils
+  - app-arch/snappy
+  - app-arch/unace
+  - app-arch/unarj
+  - app-arch/unrar
+  - app-arch/xarchiver
   - app-arch/xz-utils
+  - app-arch/zip
+  - app-arch/zoo
+  - app-arch/zopfli
+  - app-arch/zstd
+  - app-crypt/argon2
+  - app-crypt/paperkey
+  - app-doc/doxygen
+  - app-emulation/aqemu
+  - app-emulation/conmon
+  - app-emulation/containers-storage
+  - app-emulation/docker-bench-security
+  - app-emulation/docker-gc
+  - app-emulation/docker-machine
+  - app-emulation/docker-registry
+  - app-emulation/docker-swarm
+  - app-emulation/fuse
+  - app-emulation/fuse-utils
+  - app-emulation/libcacard
+  - app-emulation/libpod
+  - app-emulation/libspectrum
+  - app-emulation/qemu-guest-agent
+  - app-emulation/slirp4netns
+  - app-emulation/spice
+  - app-emulation/spice-protocol
+  - app-emulation/vice
+  - app-emulation/virtio-win
+  - app-eselect/eselect-audicle
+  - app-eselect/eselect-awk
+  - app-eselect/eselect-blas
+  - app-eselect/eselect-cblas
   - sys-devel/libtool
   - sys-devel/gnuconfig
   - sys-devel/bison
@@ -44,12 +96,172 @@ packages:
   - sys-devel/flex
   - sys-auth/skey
   - sys-auth/nss-mdns
+  - app-eselect/eselect-cdparanoia
+  - app-eselect/eselect-chuck
+  - app-eselect/eselect-ctags
+  - app-eselect/eselect-electron
+  - app-eselect/eselect-emacs
+  - app-eselect/eselect-fontconfig
+  - app-eselect/eselect-gnome-shell-extensions
+  - app-eselect/eselect-infinality
+  - app-eselect/eselect-lapack
+  - app-eselect/eselect-lcdfilter
+  - app-eselect/eselect-lib-bin-symlink
+  - app-eselect/eselect-lua
+  - app-eselect/eselect-metasploit
+  - app-eselect/eselect-miniaudicle
+  - app-eselect/eselect-mpg123
+  - app-eselect/eselect-mpost
+  - app-eselect/eselect-notify-send
+  - app-eselect/eselect-oodict
+  - app-eselect/eselect-opencascade
+  - app-eselect/eselect-package-manager
+  - app-eselect/eselect-pdftex
+  - app-eselect/eselect-php
+  - app-eselect/eselect-postgresql
+  - app-eselect/eselect-rails
+  - app-eselect/eselect-renpy
+  - app-eselect/eselect-repository
+  - app-eselect/eselect-rust
+  - app-eselect/eselect-scala
+  - app-eselect/eselect-sh
+  - app-eselect/eselect-sndpeek
+  - app-eselect/eselect-timezone
+  - app-eselect/eselect-timidity
+  - app-eselect/eselect-unison
+  - app-eselect/eselect-vdr
+  - app-eselect/eselect-vi
+  - app-eselect/eselect-wine
+  - app-eselect/eselect-wxwidgets
+  - app-eselect/eselect-xvmc
+  - app-misc/byobu
+  - app-misc/editor-wrapper
+  - app-misc/mime-types
+  - app-misc/realpath
+  - app-misc/vlock
+  - app-portage/cfg-update
+  - app-portage/cpuid2cpuflags
+  - app-portage/elogv
+  - app-portage/elogviewer
+  - app-portage/elt-patches
+  - app-portage/euses
+  - app-portage/genlop
+  - app-portage/mirrorselect
+  - app-portage/ufed
+  - app-shells/bash
+  - app-shells/bash-completion
+  - app-shells/fzf
+  - app-shells/gentoo-zsh-completions
+  - app-shells/mpv-bash-completion
+  - app-shells/push
+  - app-shells/quoter
+  - app-shells/tmux-bash-completion
+  - app-text/build-docbook-catalog
+  - app-text/docbook-xml-dtd
+  - app-text/docbook-xsl-stylesheets
+  - app-text/manpager
+  - app-text/openjade
+  - app-text/opensp
+  - app-text/sgml-common
+  - app-text/wgetpaste
+  - dev-libs/check
+  - dev-libs/elfutils
+  - dev-libs/jansson
+  - dev-libs/json-c
+  - dev-libs/jsoncpp
+  - dev-libs/libaio
+  - dev-libs/libbsd
+  - dev-libs/libffi
+  - dev-libs/libintl
+  - dev-libs/libltdl
+  - dev-libs/libnl
+  - dev-libs/libpcre
+  - dev-libs/libpcre2
+  - dev-libs/libpipeline
+  - dev-libs/libtasn1
+  - dev-libs/libunistring
+  - dev-libs/libusb
+  - dev-libs/libusb-compat
+  - dev-libs/libxslt
+  - dev-libs/libyaml
+  - dev-libs/popt
+  - dev-util/ccache
+  - dev-util/cmake
+  - dev-util/ctags
+  - dev-util/gperf
+  - dev-util/gtk-doc-am
+  - dev-util/intltool
+  - dev-util/ninja
+  - dev-util/pkgconf
+  - dev-util/re2c
+  - net-dialup/ppp
+  - net-dialup/ppp-scripts
+  - net-dns/openresolv
+  - net-firewall/ebtables
+  - net-firewall/iptables
+  - net-firewall/nftables
+  - net-libs/libmnl
+  - net-libs/libnsl
+  - net-libs/neon
+  - net-libs/rpcsvc-proto
+  - net-mail/mailbase
+  - net-misc/bridge-utils
+  - net-misc/ifenslave
+  - net-misc/mobile-broadband-provider-info
+  - net-misc/mosh
+  - net-misc/netkit-fingerd
+  - net-misc/openntpd
+  - net-misc/pps-tools
+  - net-misc/whois
   - net-wireless/wireless-regdb
+  - sys-apps/acl
+  - sys-apps/attr
+  - sys-apps/busybox
+  - sys-apps/dbus
+  - sys-apps/debianutils
+  - sys-apps/ed
+  - sys-apps/etckeeper
+  - sys-apps/fbset
+  - sys-apps/gentoo-functions
+  - sys-apps/gptfdisk
+  - sys-apps/groff
+  - sys-apps/haveged
+  - sys-apps/install-xattr
+  - sys-apps/kbd
+  - sys-apps/kmod
+  - sys-apps/less
+  - sys-apps/net-tools
+  - sys-apps/pacman
+  - sys-apps/paxctl
+  - sys-apps/pcsc-lite
+  - sys-apps/pcsc-tools
+  - sys-apps/progress
+  - sys-apps/pv
+  - sys-apps/usbutils
+  - sys-apps/usermode-utilities
+  - sys-apps/which
+  - sys-auth/consolekit
+  - sys-auth/nss-mdns
+  - sys-auth/pam_fprint
+  - sys-auth/realtime-base
+  - sys-auth/skey
+  - sys-block/parted
+  - sys-block/thin-provisioning-tools
+  - sys-boot/aboot
+  - sys-boot/arcload
   - sys-boot/bootcreator
+  - sys-boot/colo
+  - sys-boot/cromwell
+  - sys-boot/cromwell-bin
   - sys-boot/lilo
   - sys-boot/grub
   - sys-boot/netboot
+  - sys-boot/efibootmgr
+  - sys-boot/elilo
   - sys-boot/gnu-efi
+  - sys-boot/grub
+  - sys-boot/lilo
+  - sys-boot/makebootfat
   - sys-boot/mbr
   - sys-boot/nettrom
   - sys-boot/systemrescuecd-x86-grub
@@ -57,11 +269,20 @@ packages:
   - sys-boot/psoload
   - sys-boot/plymouth
   - sys-boot/milo
+  - sys-boot/mokutil
+  - sys-boot/netboot
+  - sys-boot/nettrom
   - sys-boot/raspberrypi-mkimage
   - sys-boot/tboot
   - sys-boot/os-prober
   - sys-boot/vboot-utils
+  - sys-boot/palo
+  - sys-boot/plymouth
   - sys-boot/plymouth-openrc-plugin
+  - sys-boot/psoload
+  - sys-boot/raincoat
+  - sys-boot/raspberrypi-firmware
+  - sys-boot/raspberrypi-mkimage
   - sys-boot/refind
   - sys-boot/colo
   - sys-boot/yaboot-static
@@ -77,10 +298,37 @@ packages:
   - sys-boot/mokutil
   - sys-boot/shim
   - sys-boot/systemd-boot
+  - sys-boot/shlilo-lantank
+  - sys-boot/silo
   - sys-boot/syslinux
   - sys-boot/palo
+  - sys-boot/systemd-boot
+  - sys-boot/systemrescuecd-x86-grub
+  - sys-boot/tboot
+  - sys-boot/udk
+  - sys-boot/unetbootin
+  - sys-boot/vboot-utils
   - sys-boot/woeusb
   - sys-boot/yaboot
+  - sys-boot/yaboot-static
+  - sys-cluster/galera
+  - sys-cluster/ploop
+  - sys-cluster/vzctl
+  - sys-devel/autogen
+  - sys-devel/automake-wrapper
+  - sys-devel/bc
+  - sys-devel/bin86
+  - sys-devel/bison
+  - sys-devel/boost-m4
+  - sys-devel/crossdev
+  - sys-devel/flex
+  - sys-devel/gdb
+  - sys-devel/gnuconfig
+  - sys-devel/libtool
+  - sys-devel/m4
+  - sys-devel/ucpp
+  - sys-fs/android-file-transfer-linux
+  - sys-fs/archivemount
   - sys-boot/raspberrypi-firmware
   - sys-boot/cromwell-bin
   - sys-boot/silo
@@ -178,6 +426,8 @@ packages:
   - sys-fs/rarfs
   - sys-fs/loop-aes
   - sys-fs/arm-fdisk
+  - sys-fs/atari-fdisk
+  - sys-fs/aufs-headers
   - sys-fs/traydevice
   - sys-fs/fragview
   - sys-fs/safecopy
@@ -190,10 +440,23 @@ packages:
   - sys-fs/ctmg
   - sys-fs/aufs-util
   - sys-fs/nilfs-utils
+  - sys-fs/autorun
+  - sys-fs/avfs
+  - sys-fs/bashmount
+  - sys-fs/bees
+  - sys-fs/btrfsmaintenance
+  - sys-fs/cachefilesd
+  - sys-fs/clamfs
+  - sys-fs/copyfs
   - sys-fs/cramfs
+  - sys-fs/cryfs
+  - sys-fs/cryptmount
+  - sys-fs/cryptsetup
+  - sys-fs/ctmg
+  - sys-fs/davl
+  - sys-fs/dd-rescue
   - sys-fs/pytagsfs
   - sys-fs/exfat-utils
-  - sys-fs/dd-rescue
   - sys-fs/quota
   - sys-fs/fuse-common
   - sys-fs/lsscsi
@@ -203,15 +466,23 @@ packages:
   - sys-fs/reiserfs-defrag
   - sys-fs/vhba
   - sys-fs/dfc
+  - sys-fs/dislocker
+  - sys-fs/dmg2img
+  - sys-fs/dmraid
   - sys-fs/snapraid
   - sys-fs/xwmfs
   - sys-fs/fatcat
   - sys-fs/duperemove
+  - sys-fs/e2fsprogs
+  - sys-fs/e2tools
+  - sys-fs/e4rat
+  - sys-fs/encfs
   - sys-fs/reiser4progs
   - sys-fs/fatresize
   - sys-fs/mp3fs
   - sys-fs/clamfs
   - sys-fs/etcd-fs
+  - sys-fs/exfat-utils
   - sys-fs/autorun
   - sys-fs/libeatmydata
   - sys-fs/avfs
@@ -222,6 +493,14 @@ packages:
   - sys-fs/shake
   - sys-fs/aufs-headers
   - sys-fs/ext3grep
+  - sys-fs/ext4magic
+  - sys-fs/extundelete
+  - sys-fs/f2fs-tools
+  - sys-fs/fatcat
+  - sys-fs/fatresize
+  - sys-fs/fatsort
+  - sys-fs/fragview
+  - sys-fs/fuse-common
   - sys-fs/progsreiserfs
   - sys-fs/simple-mtpfs
   - sys-fs/lde
@@ -232,6 +511,7 @@ packages:
   - sys-fs/fuseiso
   - sys-fs/cryfs
   - sys-fs/fuse-convmvfs
+  - sys-fs/fuse-exfat
   - sys-fs/cachefilesd
   - sys-fs/zerofree
   - sys-fs/android-file-transfer-linux
@@ -242,8 +522,16 @@ packages:
   - sys-fs/unionfs-fuse
   - sys-fs/owfs
   - sys-fs/ddrescue
+  - sys-fs/fuse4bsd
+  - sys-fs/fuse4bsd
+  - sys-fs/fuseiso
+  - sys-fs/genext2fs
+  - sys-fs/fuseiso
+  - sys-fs/genext2fs
   - sys-fs/fuse-zip
   - sys-fs/go-mtpfs
+  - sys-fs/growpart
+  - sys-fs/gt5
   - sys-fs/mac-fdisk
   - sys-fs/encfs
   - sys-fs/hfsutils
@@ -252,12 +540,64 @@ packages:
   - sys-fs/atari-fdisk
   - sys-fs/fuse-exfat
   - sys-fs/hfsplusutils
+  - sys-fs/hfsutils
   - sys-fs/inotify-tools
+  - sys-fs/iprutils
+  - sys-fs/jdiskreport-bin
+  - sys-fs/jmtpfs
   - sys-fs/reiserfsprogs
   - sys-fs/archivemount
   - sys-fs/ldapfuse
+  - sys-fs/lde
+  - sys-fs/lessfs
+  - sys-fs/libeatmydata
+  - sys-fs/libfat
+  - sys-fs/loop-aes
+  - sys-fs/lsscsi
   - sys-fs/mdadm
   - sys-fs/genext2fs
+  - sys-fs/mac-fdisk
+  - sys-fs/mdadm
+  - sys-fs/mhddfs
+  - sys-fs/mp3fs
+  - sys-fs/mtd-utils
+  - sys-fs/mtools
+  - sys-fs/mtpfs
+  - sys-fs/nilfs-utils
+  - sys-fs/owfs
+  - sys-fs/progsreiserfs
+  - sys-fs/pysize
+  - sys-fs/pytagsfs
+  - sys-fs/quota
+  - sys-fs/quotatool
+  - sys-fs/rar2fs
+  - sys-fs/rarfs
+  - sys-fs/reiser4progs
+  - sys-fs/reiserfs-defrag
+  - sys-fs/reiserfsprogs
+  - sys-fs/safecopy
+  - sys-fs/scan-ffs
+  - sys-fs/shake
+  - sys-fs/simple-mtpfs
+  - sys-fs/snapraid
+  - sys-fs/squashfuse
+  - sys-fs/static-dev
+  - sys-fs/sysfsutils
+  - sys-fs/tmsu
+  - sys-fs/traydevice
+  - sys-fs/treesize
+  - sys-fs/udev
+  - sys-fs/udev-init-scripts
+  - sys-fs/udftools
+  - sys-fs/udiskie
+  - sys-fs/ufsutils
+  - sys-fs/unionfs-fuse
+  - sys-fs/vhba
+  - sys-fs/vzquota
+  - sys-fs/wpflash
+  - sys-fs/xfsdump
+  - sys-fs/xfsprogs
+  - sys-fs/xwmfs
   - sys-fs/lufis
   - sys-fs/davl
   - sys-fs/btrfsmaintenance
@@ -274,6 +614,68 @@ packages:
   - sys-fs/gt5
   - sys-fs/bashmount
   - sys-fs/yaffs2utils
+  - sys-fs/zerofree
+  - sys-kernel/cryptodev
+  - sys-kernel/dracut
+  - sys-kernel/dracut-crypt-ssh
+  - sys-kernel/genkernel-next
+  - sys-kernel/kergen
+  - sys-kernel/kpatch
+  - sys-kernel/linux-docs
+  - sys-kernel/raspberrypi-image
+  - sys-kernel/spl
+  - sys-libs/argp-standalone
+  - sys-libs/cracklib
+  - sys-libs/cygwin-crypt
+  - sys-libs/e2fsprogs-libs
+  - sys-libs/freeipmi
+  - sys-libs/fts-standalone
+  - sys-libs/gdbm
+  - sys-libs/gwenhywfar
+  - sys-libs/kpmcore
+  - sys-libs/lib-compat
+  - sys-libs/lib-compat-loki
+  - sys-libs/libaal
+  - sys-libs/libblockdev
+  - sys-libs/libcap-ng
+  - sys-libs/libchipcard
+  - sys-libs/libfaketime
+  - sys-libs/libhx
+  - sys-libs/libieee1284
+  - sys-libs/librtas
+  - sys-libs/libstdc++-v3
+  - sys-libs/libstdc++-v3-bin
+  - sys-libs/libtermcap-compat
+  - sys-libs/libudev-compat
+  - sys-libs/libunwind
+  - sys-libs/libutempter
+  - sys-libs/libxcrypt
+  - sys-libs/mtdev
+  - sys-libs/musl
+  - sys-libs/native-uuid
+  - sys-libs/ncurses
+  - sys-libs/nss_wrapper
+  - sys-libs/obstack-standalone
+  - sys-libs/openipmi
+  - sys-libs/queue-standalone
+  - sys-libs/readline
+  - sys-libs/rpmatch-standalone
+  - sys-libs/slang
+  - sys-libs/uclibc-ng
+  - sys-libs/uid_wrapper
+  - sys-power/pm-quirks
+  - sys-power/pm-utils
+  - sys-process/at
+  - sys-process/cronbase
+  - sys-process/dcron
+  - sys-process/fcron
+  - sys-process/glances
+  - sys-process/lsof
+  - sys-process/numactl
+  - sys-process/parallel
+  - sys-process/psmisc
+  - sys-process/runit
+  - sys-process/vixie-cron
   - sys-fs/static-dev
   - sys-fs/mhddfs
   - sys-fs/jmtpfs
@@ -314,8 +716,12 @@ packages:
   - virtual/checkpassword
   - virtual/shadow
   - virtual/awk
+  - virtual/checkpassword
+  - virtual/cron
   - virtual/pager
   - virtual/daemontools
+  - virtual/dev-manager
+  - virtual/eject
   - virtual/fortran
   - virtual/man
   - virtual/libudev
@@ -324,9 +730,22 @@ packages:
   - virtual/libc
   - virtual/libusb
   - virtual/libelf
+  - virtual/libffi
   - virtual/libiconv
+  - virtual/libintl
+  - virtual/libstdc++
+  - virtual/libudev
+  - virtual/libusb
   - virtual/logger
+  - virtual/man
+  - virtual/modutils
+  - virtual/mta
+  - virtual/os-headers
   - virtual/package-manager
+  - virtual/pager
+  - virtual/shadow
+  - virtual/ssh
+  - virtual/udev
   - virtual/cron
   - virtual/libffi
   - virtual/yacc

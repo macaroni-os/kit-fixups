@@ -10,9 +10,9 @@ PYTHON_REQ_USE="sqlite,xml"
 
 inherit autotools flag-o-matic lua-single python-single-r1 toolchain-funcs
 
-DESCRIPTION="Network exploration tool and security / port scanner"
-HOMEPAGE="https://nmap.org/"
-SRC_URI="https://nmap.org/dist/${P}.tar.bz2"
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
 
 LICENSE="|| ( NPSL GPL-2 )"
 SLOT="0"
@@ -37,14 +37,13 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
+{%- if patches %}
 PATCHES=(
-	"${FILESDIR}"/${PN}-5.10_beta1-string.patch
-	"${FILESDIR}"/${PN}-6.25-liblua-ar.patch
-	"${FILESDIR}"/${PN}-7.25-CXXFLAGS.patch
-	"${FILESDIR}"/${PN}-7.31-libnl.patch
-	"${FILESDIR}"/${PN}-7.80-ac-config-subdirs.patch
-	"${FILESDIR}"/${PN}-7.91-no-FORTIFY_SOURCE.patch
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
 )
+{%- endif %}
 
 pkg_setup() {
 	use system-lua && lua-single_pkg_setup

@@ -1,0 +1,13 @@
+nmap_rule:
+  generator: dirlisting-1
+  packages:
+    - nmap:
+        cat: net-analyzer
+        desc: Network exploration tool and security / port scanner
+        homepage: https://nmap.org/
+        dir:
+          url: https://nmap.org/dist/
+          order: asc
+          format: tar.bz2
+        patches:
+          - nmap-liblua-ar.patch

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 def generate_artifact(soup, download_url, tar):
@@ -20,7 +20,7 @@ async def generate(hub, **pkginfo):
 	pkg = pkginfo.get('tar_name') or name
 
 	pkginfo['version'], url_end = max([
-		(Version(re.findall(regex, a.contents[0])[0]), a.contents[0]) for a in soup if pkg in a.contents[0]
+		(generic.parse(re.findall(regex, a.contents[0])[0]), a.contents[0]) for a in soup if pkg in a.contents[0]
 	])
 	# workaround for metatools not doing the revisions properly on a version number like '3.10'
 	# see https://bugs.funtoo.org/browse/FL-9547
@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
 	revision_info = pkginfo.get('revision')
 	if isinstance(revision_info, dict):
 		for vers, rev in revision_info.items():
-			vers = Version(vers)
+			vers = generic.parse(vers)
 			if vers != pkginfo['version']:
 				continue
 			pkginfo['revision'] = rev

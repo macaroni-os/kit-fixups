@@ -2,7 +2,7 @@
 
 import re
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
     regex = r'(\d+(?:\.\d+)+)'
@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
 
     downloads = [a.get('href') for a in soup if a.get('href').endswith('.tar.bz2') and 'latest' not in a.get('href')]
 
-    tarballs = [(Version(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
+    tarballs = [(generic.parse(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
 
     latest = max(tarballs)
 

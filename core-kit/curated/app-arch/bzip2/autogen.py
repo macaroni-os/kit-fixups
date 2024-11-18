@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import os
 import re
 
@@ -14,7 +14,7 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, features='html.parser').find_all('a', href=True)
 
     tarballs = [a.get('href') for a in soup if '.tar.' in a.contents[0] and not a.contents[0].endswith('sig')]
-    versions = [(Version(re.findall(regex, a)[0]), a) for a in tarballs if re.findall(regex, a)]
+    versions = [(generic.parse(re.findall(regex, a)[0]), a) for a in tarballs if re.findall(regex, a)]
     latest = max(versions)
 
     artifact = hub.pkgtools.ebuild.Artifact(url=download_url+latest[1])

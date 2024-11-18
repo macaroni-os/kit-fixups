@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 regex = r'(\d+(?:[\.-]\d+)+)'
@@ -14,7 +14,7 @@ async def generate(hub, **pkginfo):
     compression = '.bz2'
 
     releases = [a for a in soup if name in a.contents[0] and a.contents[0].endswith(compression)]
-    versions = [(Version(a.contents[0].split('lynx')[1].split('.tar')[0].replace('rel', 'post')), a.get('href')) for a in releases if re.findall(regex, a.contents[0])]
+    versions = [(generic.parse(a.contents[0].split('lynx')[1].split('.tar')[0].replace('rel', 'post')), a.get('href')) for a in releases if re.findall(regex, a.contents[0])]
     latest = max(versions)
     print(latest[0])
 

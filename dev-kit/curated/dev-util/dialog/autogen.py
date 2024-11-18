@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 regex = r'(\d+(?:[\.-]\d+)+)'
@@ -16,7 +16,7 @@ async def generate(hub, **pkginfo):
 
     releases = [a for a in soup if name in a.contents[0] and a.contents[0].endswith(compression)]
     latest = max([(
-            Version(re.findall(regex, a.contents[0])[0]),
+            generic.parse(re.findall(regex, a.contents[0])[0]),
             a.get('href'))
         for a in releases if re.findall(regex, a.contents[0])
     ])

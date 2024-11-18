@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 async def generate(hub, **pkginfo):
@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, features="html.parser").find_all("a", class_="download-link")
 
     downloads = [a.get('href') for a in soup if 'linux' in a.get('href')]
-    tarballs = [(Version(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
+    tarballs = [(generic.parse(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
     latest_version = max(tarballs)[0]
 
     name = pkginfo["name"]

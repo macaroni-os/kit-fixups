@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 regex = r'(\d+(?:\.\d+)+)'
-target_version = Version('4.18.1')
-target_major = Version('4.18')
+target_version = generic.parse('4.18.1')
+target_major = generic.parse('4.18')
 
 async def generate(hub, **pkginfo):
 	base_url = "http://ftp.rpm.org/releases/"
@@ -15,7 +15,7 @@ async def generate(hub, **pkginfo):
 	for a in soup:
 		if not a.get('href').startswith(pkginfo['name']):
 			continue
-		found_version = Version(re.findall(regex, a.get('href'))[0])
+		found_version = generic.parse(re.findall(regex, a.get('href'))[0])
 		if str(found_version) == str(target_major):
 			download_url = base_url + a.get('href')
 			break
@@ -26,7 +26,7 @@ async def generate(hub, **pkginfo):
 	for a in soup:
 		if '.tar.' not in a.get('href'):
 			continue
-		found_version = Version(re.findall(regex, a.get('href'))[0])
+		found_version = generic.parse(re.findall(regex, a.get('href'))[0])
 		if str(found_version) == str(target_version):
 			pkginfo['version'] = str(found_version)
 			url = f"{download_url}{a.get('href')}"

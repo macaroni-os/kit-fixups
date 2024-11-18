@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from metatools.generator.common import common_init
+from metatools.version import generic
 from bs4 import BeautifulSoup
 from packaging import version
 import re
@@ -23,9 +24,7 @@ def sort_url_and_vstr_tuples(tuple_list):
 			# initial sanity check to skip anything more complicated than 1.2.3 ( 1.2.3-rc1, for example):
 			if not re.fullmatch('[\d.]+', v_str):
 				raise version.InvalidVersion(f"skipping {v_str}")
-			v_obj = version.parse(v_str)
-			if v_obj.__class__.__name__ == "LegacyVersion":
-				continue
+			v_obj = generic.parse(v_str)
 		except version.InvalidVersion:
 			continue
 		unsorted_list.append((url, v_str, v_obj))

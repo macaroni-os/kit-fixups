@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 async def generate(hub, **pkginfo):
@@ -47,7 +47,7 @@ async def find_supported_versions(hub):
     # Convert each row of the table into a dict, using the above keys
     data = [dict(list(zip(keys, row_data(line, "td")))) for line in table]
 
-    return [Version(item['Current minor']) for item in data if item['Supported'] == 'Yes']
+    return [generic.parse(item['Current minor']) for item in data if item['Supported'] == 'Yes']
 
 
 def row_data(row, data_element):

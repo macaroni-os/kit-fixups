@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
     github_user = "CGAL"
@@ -9,7 +9,7 @@ async def generate(hub, **pkginfo):
     artifacts = {}
 
     newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
-    version = Version(newpkginfo["version"])
+    version = generic.parse(newpkginfo["version"])
     artifacts[''] = newpkginfo["artifacts"][0]
 
     download_url = f"https://github.com/CGAL/cgal/releases/download/v{version}/"

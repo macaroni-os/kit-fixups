@@ -2,20 +2,21 @@
 
 import json
 import os
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 	python_compat = "python3+"
 	github_user = "haasn"
 	github_repo = "libplacebo"
 	# Version 5.264.0 and up requires meson-0.63, which is not supported in Funtoo yet
-	version_limit = Version("5.250")
+	#version_limit = generic.parse("5.250")
 	json_list = await hub.pkgtools.fetch.get_page(
 		f"https://api.github.com/repos/{github_user}/{github_repo}/tags", is_json=True
 	)
 	for tag in json_list:
-		v = Version(tag["name"].lstrip("v"))
-		if v.is_prerelease or v > version_limit:
+		v = generic.parse(tag["name"].lstrip("v"))
+		#if v.is_prerelease or v > version_limit:
+		if v.is_prerelease:
 			continue
 		version = v
 		url = tag["tarball_url"]

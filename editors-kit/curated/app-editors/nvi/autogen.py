@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 async def generate(hub, **pkginfo):
@@ -13,7 +13,7 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, features="html.parser").find_all("a")
 
     downloads = [homepage+a.get('href') for a in soup if len(a) and "/" not in a.get('href')]
-    latest = max([(Version(re.findall(regex, a)[0]), a) for a in downloads])
+    latest = max([(generic.parse(re.findall(regex, a)[0]), a) for a in downloads])
     version = latest[0]
     if version.base_version == '1.81.6': revision = 8
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
     github_api = "https://api.github.com/repos"
@@ -11,7 +11,7 @@ async def generate(hub, **pkginfo):
     description = pkgmetadata["description"]
 
     json_list = await hub.pkgtools.fetch.get_page(f"{github_page}/releases", is_json=True)
-    stable = max([Version(rel['name'][1:].split()[1]) for rel in json_list])
+    stable = max([generic.parse(rel['name'][1:].split()[1]) for rel in json_list])
 
     tag = f"{github_repo.upper()}_{'_'.join(stable.public.split('.'))}"
 

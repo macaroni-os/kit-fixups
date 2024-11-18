@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 	github_user = "cnr-isti-vclab"
@@ -8,7 +8,7 @@ async def generate(hub, **pkginfo):
 	github_repo2 = "vcglib"
 
 	newpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo)
-	version = Version(newpkginfo["version"])
+	version = generic.parse(newpkginfo["version"])
 
 	# now get vcglib
 	libpkginfo = await hub.pkgtools.github.release_gen(hub, github_user, github_repo2, select=f"{version.major}+")

@@ -3,7 +3,7 @@
 import glob
 import re
 import os.path
-from packaging.version import Version
+from metatools.version import generic
 from metatools.generator.transform import RegexMatcher, VersionMatch
 
 async def generate(hub, **pkginfo):
@@ -19,7 +19,7 @@ async def generate(hub, **pkginfo):
 	pkginfo.update(newpkginfo)
 
 	if "select" in pkginfo["github"]:
-		pkgver = Version(pkginfo["tag"].split(f"{github_user}-")[1])
+		pkgver = generic.parse(pkginfo["tag"].split(f"{github_user}-")[1])
 		if pkgver.post:
 			pkginfo["version"] = f"{pkgver.base_version}_p{pkgver.post}"
 		else:

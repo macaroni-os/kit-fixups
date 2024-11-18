@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 
 async def generate(hub, **pkginfo):
@@ -42,7 +42,7 @@ async def generate(hub, **pkginfo):
 		info_url, is_json=True
 	)
 
-	versions = [Version(tag["name"].lstrip("gf2x-")) for tag in tags_dict if not tag["name"].lstrip("gf2x-").upper().isupper() ]
+	versions = [generic.parse(tag["name"].lstrip("gf2x-")) for tag in tags_dict if not tag["name"].lstrip("gf2x-").upper().isupper() ]
 	version = max(versions).public
 	artifact = hub.pkgtools.ebuild.Artifact(
 		url=f"https://{server}/{user}/{repo}/-/archive/{repo}-{version}/{repo}-{repo}-{version}.tar.bz2"

@@ -1,0 +1,21 @@
+minio-client_rule:
+  generator: github-1
+  packages:
+    - minio-client:
+        github:
+          user: minio
+          repo: mc
+          query: releases
+          transform:
+            - kind: string
+              match: 'RELEASE.'
+              replace: ''
+            - kind: string
+              match: 'T'
+              replace: ','
+            - kind: string
+              match: 'Z'
+              replace: ''
+            - kind: string
+              match: '-'
+              replace: '.'

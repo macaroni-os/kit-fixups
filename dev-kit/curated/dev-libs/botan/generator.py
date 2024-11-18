@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 	github_user = pkginfo["github"]["user"]
@@ -10,7 +10,7 @@ async def generate(hub, **pkginfo):
 
 		newpkginfo = await hub.pkgtools.github.tag_gen(hub, github_user, github_repo, select=f"{slot}+")
 		pkginfo.update(newpkginfo)
-		version = Version(pkginfo["version"])
+		version = generic.parse(pkginfo["version"])
 
 		ebuild = hub.pkgtools.ebuild.BreezyBuild(
 			**pkginfo,

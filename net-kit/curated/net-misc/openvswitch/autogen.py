@@ -1,5 +1,5 @@
 from packaging.specifiers import SpecifierSet
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 	supported_releases = {
@@ -27,7 +27,7 @@ async def generate(hub, **pkginfo):
 		if len(supported_releases) == 0:
 			break
 
-		v1 = Version(version)
+		v1 = generic.parse(version)
 		for k, v in supported_releases.items():
 			selector = SpecifierSet(v['selector'])
 			if v1 in selector:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 	user = pkginfo["gitlab_user"]
@@ -9,12 +9,12 @@ async def generate(hub, **pkginfo):
 	tags_dict = await hub.pkgtools.fetch.get_page(
 		f"https://gitlab.freedesktop.org/api/v4/projects/{project_path}/repository/tags", is_json=True
 	)
-	versions = [Version(tag["name"]) for tag in tags_dict if not tag["name"].upper().isupper() ]
+	versions = [generic.parse(tag["name"]) for tag in tags_dict if not tag["name"].upper().isupper() ]
 	version = ''
 	if 'version' in pkginfo:
 		version = pkginfo['version']
 		del pkginfo['version']
-		if not Version(version) in versions:
+		if not generic.parse(version) in versions:
 			print(version, versions)
 			return False
 	else:

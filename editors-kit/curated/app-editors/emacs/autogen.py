@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 
 
@@ -20,6 +20,6 @@ async def generate(hub, **pkginfo):
 		**pkginfo,
 		version=target_version,
 		artifacts=[src_artifact],
-		major_version=Version(target_version).major,
+		major_version=generic.parse(target_version).major,
 	)
 	ebuild.push()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import re
 import os.path
 
@@ -17,7 +17,7 @@ async def generate(hub, **pkginfo):
 
     latest = max(
         [(a.text.split('-')[1].split('.tar')[0], a.text) for a in soup.findAll("a") if re.search(f"{name}-([0-9.]+).tar.gz", a.text)],
-        key=lambda x: Version(x[0])
+        key=lambda x: generic.parse(x[0])
     )
 
     artifact = hub.pkgtools.ebuild.Artifact(url=f"{download_url}{latest[1]}")

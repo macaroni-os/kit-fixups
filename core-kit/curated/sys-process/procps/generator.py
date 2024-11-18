@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from packaging.version import Version
+from metatools.version import generic
 
 async def generate(hub, **pkginfo):
     gitlab_user = pkginfo.get('gitlab_user')
@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
         is_json=True,
     )
 
-    tags = [Version(tag["name"].lstrip("v")) for tag in tag_data]
+    tags = [generic.parse(tag["name"].lstrip("v")) for tag in tag_data]
     tags = [tag for tag in tags if tag.major < pkginfo.get("version_limit")]
 
     latest_version = max(tags)

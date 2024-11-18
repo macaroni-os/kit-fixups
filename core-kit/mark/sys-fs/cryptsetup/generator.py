@@ -3,7 +3,6 @@
 import glob
 import re
 import os.path
-from packaging.version import Version
 
 
 async def generate(hub, **pkginfo):

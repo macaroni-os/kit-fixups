@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import json
 import re
 import os
@@ -36,7 +36,7 @@ async def get_minimum_node_version(artifact):
 		package = os.path.join(artifact.extract_path, artifact.final_name.split("-linux")[0], "package.json")
 		package_info = json.load(open(package))
 	artifact.cleanup()
-	version = Version(package_info["engines"]["node"])
+	version = generic.parse(package_info["engines"]["node"])
 	return { 'minimum': version.public, 'series': max(version.major, MINIMUM_STABLE_NODEJS) }
 
 
@@ -50,7 +50,7 @@ async def generate(hub, **pkginfo):
 		f"https://api.github.com/repos/{github_user}/{github_repo}/releases",
 		is_json=True
 	)
-	versions = [Version(a["tag_name"].lstrip("v")) for a in releases]
+	versions = [generic.parse(a["tag_name"].lstrip("v")) for a in releases]
 	latest = max([v for v in versions])
 
 	# Create an ebuild for the most recent 2 major versions

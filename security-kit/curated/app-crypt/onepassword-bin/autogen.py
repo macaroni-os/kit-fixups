@@ -4,7 +4,7 @@ import json
 import re
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 
 '''
 Get the official latest stable 1Password Linux release from the 1Password Linux homepage: https://releases.1password.com/linux/
@@ -53,7 +53,7 @@ async def generate(hub, **pkginfo):
 	upstream_version = await hub.pkgtools.fetch.get_page("https://downloads.1password.com/linux/tar/stable/x86_64/LATEST")
 	if upstream_version is None:
 		raise hub.pkgtools.ebuild.BreezyError(f"Can't find a suitable upstream version of 1Password Linux")
-	version = Version(upstream_version)
+	version = generic.parse(upstream_version)
 	final_name = f"{pkginfo['name']}-{version.base_version}.tar.gz"
 	# Upstream Stable URL Format: https://downloads.1password.com/linux/tar/stable/x86_64/1password-${version}.x64.tar.gz
 	# Upstream Beta URL Format: https://downloads.1password.com/linux/tar/beta/x86_64/1password-${version}.x64.tar.gz

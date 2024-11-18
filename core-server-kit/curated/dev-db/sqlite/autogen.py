@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from packaging.version import Version as Version
+from metatools.version import generic
 from bs4 import BeautifulSoup, Comment
 from csv import DictReader
 from io import StringIO
@@ -28,7 +28,7 @@ async def generate(hub, **pkginfo):
         rel_url = row['RELATIVE-URL']
         if rel_url.startswith("snapshot"):
             continue
-        version = Version(row['VERSION'])
+        version = generic.parse(row['VERSION'])
         asset_type = rel_url.split('-')[1]
         if version not in releases:
             releases[version] = {}

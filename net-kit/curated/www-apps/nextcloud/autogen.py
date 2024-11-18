@@ -2,7 +2,7 @@
 
 import re
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 
 
 async def generate(hub, **pkginfo):
@@ -12,7 +12,7 @@ async def generate(hub, **pkginfo):
     soup = BeautifulSoup(html, "html.parser").find_all("a")
 
     downloads = [a.get('href') for a in soup if a.get('href').endswith('.tar.bz2') and not a.get('href').startswith('latest')]
-    tarballs = [(Version(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
+    tarballs = [(generic.parse(re.findall(regex, a)[0]), a) for a in downloads if re.findall(regex, a)]
     major_versions = set([a[0].major for a in tarballs])
 
     for major_version in major_versions:

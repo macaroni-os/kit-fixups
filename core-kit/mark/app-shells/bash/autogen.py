@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-from packaging.version import Version
+from metatools.version import generic
 import os
 import re
 
@@ -21,7 +21,7 @@ async def generate(hub, **pkginfo):
 	soup = BeautifulSoup(html, 'html.parser').find_all('a', href=True)
 
 	tarballs = [a.get('href') for a in soup if '.tar.' in a.contents[0] and re.findall(regex, a.contents[0]) and not a.contents[0].endswith('.sig')]
-	versions = [(Version(a.split(f"{name}-")[1].split('.tar.')[0]), a) for a in tarballs]
+	versions = [(generic.parse(a.split(f"{name}-")[1].split('.tar.')[0]), a) for a in tarballs]
 	stable_version = max([v for v in versions if re.findall(stable_regex, v[1])])
 	newest_version = max(versions)
 	
@@ -30,6 +30,9 @@ async def generate(hub, **pkginfo):
 	if stable_version != newest_version:
 		versions.append(newest_version)
 	for version in versions:
+		if "a" in str(version[0]):
+			# POST: skip alpha version like 5.3a0
+			continue
 		artifact = hub.pkgtools.ebuild.Artifact(url=f"{package_url}/{version[1]}")
 		pkginfo['artifacts'] = [artifact]
 		conversion = convert_version(version, name)
@@ -57,7 +60,7 @@ async def get_readline_version(artifact, name, version):
 			if "RL_VERSION_MINOR" in line:
 				rl_minor = line.split()[-1]
 
-	return Version(f"{rl_major}.{rl_minor}")
+	return generic.parse(f"{rl_major}.{rl_minor}")
 
 
 async def generate_ebuild(hub, version=0, unstable=False, readline=None, **pkginfo):

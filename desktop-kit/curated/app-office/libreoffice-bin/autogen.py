@@ -140,11 +140,11 @@ async def autogen_libreoffice(hub, pkginfo, version="latest", gen={"main", "l10n
 	"""
 	libre_regex = "LibreOffice_([0-9.]+)_Linux_x86-64_rpm"
 	if version == "latest":
-		mirror = "https://mirror1.cs-georgetown.net/tdf/libreoffice"
-		base_url = f"{mirror}/stable"
+		mirror = "https://downloadarchive.documentfoundation.org/libreoffice/old/"
+		base_url = f"{mirror}"
 		main_version = hub.pkgtools.pages.latest(await hub.pkgtools.pages.iter_links(
 			base_url=base_url,
-			match_fn=lambda x: re.match(f"([0-9]\.[0-9]\.[0-9])/", x),
+			match_fn=lambda x: re.match(f"(\d+\.\d+\.\d+.\d+)/", x),
 			fixup_fn=lambda x: x.groups()[0],
 		))
 		dl_url = base_url + f"/{main_version}/rpm/x86_64"

@@ -1,0 +1,14 @@
+php_rule:
+  generator: github-1
+  packages:
+    - php:
+        github:
+          user: php
+          repo: php-src
+          query: tags
+          transform:
+            - kind: string
+              match: 'php-'
+              replace: ''
+
+

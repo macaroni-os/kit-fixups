@@ -6,11 +6,9 @@ WANT_AUTOMAKE="none"
 
 inherit flag-o-matic autotools
 
-# MY_PV=${PV/_rc/RC}
-MY_PV=${PV/_beta/beta}
 DESCRIPTION="The PHP language runtime engine"
 HOMEPAGE="https://www.php.net/"
-SRC_URI="{{artifacts[0].src_uri}}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="PHP-3.01
 	BSD
@@ -20,10 +18,10 @@ LICENSE="PHP-3.01
 	gd? ( gd )
 	unicode? ( BSD-2 LGPL-2.1 )"
 
-SLOT="8.1"
+SLOT="$(ver_cut 1-2)"
 KEYWORDS="*"
 
-S="${WORKDIR}/${PN}-${MY_PV}"
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
 # We can build the following SAPIs in the given order
 SAPIS="embed cli cgi fpm apache2 phpdbg"

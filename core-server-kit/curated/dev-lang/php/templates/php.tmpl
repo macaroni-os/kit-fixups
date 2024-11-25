@@ -208,13 +208,11 @@ php_set_ini_dir() {
 src_prepare() {
 	
 	if use apache2; then
-    
-    eapply "${FILESDIR}/php-iodbc-header-location.patch" || die
-	
-	fi
-	
-	if use iodbc; then
         eapply "${FILESDIR}/apache.patch" || die
+	fi
+
+	if use iodbc; then
+        eapply "${FILESDIR}/php-iodbc-header-location.patch" || die
     fi
     
     eapply_user

@@ -1,0 +1,45 @@
+php_rule:
+  generator: github-1
+  packages:
+    - php:
+        slot: 8.1
+        github:
+          user: php
+          repo: php-src
+          query: tags
+          match: '^(8\.1\.[0-9.]+)$'
+          transform:
+            - kind: string
+              match: 'php-'
+              replace: ''
+    - php:
+        slot: 8.2
+        github:
+          user: php
+          repo: php-src
+          query: tags
+          match: '^(8\.2\.[0-9.]+)$'
+          transform:
+            - kind: string
+              match: 'php-'
+              replace: ''
+    - php:
+        slot: 8.3
+        github:
+          user: php
+          repo: php-src
+          query: tags
+          match: '^(8\.3\.[0-9.]+)$'
+          transform:
+            - kind: string
+              match: 'php-'
+              replace: ''
+    - php:
+        github:
+          user: php
+          repo: php-src
+          query: tags
+          transform:
+            - kind: string
+              match: 'php-'
+              replace: ''

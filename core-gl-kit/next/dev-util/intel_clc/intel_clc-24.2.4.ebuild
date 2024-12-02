@@ -14,7 +14,7 @@ DESCRIPTION="intel_clc tool used for building OpenCL C to SPIR-V"
 HOMEPAGE="https://mesa3d.org/"
 
 SRC_URI="https://archive.mesa3d.org/mesa-${MY_PV}.tar.xz"
-KEYWORDS="next"
+KEYWORDS="*"
 
 S="${WORKDIR}/mesa-${MY_PV}"
 

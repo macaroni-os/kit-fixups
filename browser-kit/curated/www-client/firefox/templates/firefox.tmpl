@@ -495,38 +495,38 @@ src_prepare() {
 (
 /bin/cat <<DISTRIBUTION.INI
 [Global]
-id=funtoo
+id=macaronios
 version={{ version }}
-about=Mozilla Firefox for Funtoo
-about.de=Mozilla Firefox für Funtoo
+about=Mozilla Firefox for MacaroniOS
+about.de=Mozilla Firefox für MacaroniOS
 
 [Preferences]
-app.distributor="funtoo"
-app.distributor.channel="funtoo"
-startup.homepage_welcome_url="https://www.funtoo.org/"
+app.distributor="macaronios"
+app.distributor.channel="macaronios"
+startup.homepage_welcome_url="https://www.macaronios.org/"
 
 [BookmarksToolbar]
 item.1.type=default
-item.2.title=Funtoo Wiki
-item.2.link=https://www.funtoo.org/Welcome
-item.3.title=Funtoo Forums
-item.3.link=https://forums.funtoo.org/
-item.4.title=Funtoo Bugs Tracker
-item.4.link=https://bugs.funtoo.org/
+item.2.title=MacaroniOS Docs
+item.2.link=https://www.macaronios.org/docs/
+item.4.title=MacaroniOS Issues Tracker
+item.4.link=https://github.com/macaroni-os/macaroni-funtoo/issues
+item.4.title=M.A.R.K. Issues Tracker
+item.4.link=https://github.com/macaroni-os/mark-issues/issues
 
 [BookmarksMenu]
-item.1.title=Funtoo
+item.1.title=MacaroniOS
 item.1.type=folder
 item.1.folderId=1
 
 [BookmarksFolder-1]
 item.1.type=default
-item.2.title=Funtoo Wiki
-item.2.link=https://www.funtoo.org/Welcome
-item.3.title=Funtoo Forums
-item.3.link=https://forums.funtoo.org/
-item.4.title=Funtoo Bugs Tracker
-item.4.link=https://bugs.funtoo.org/
+item.2.title=MacaroniOS Docs
+item.2.link=https://www.macaronios.org/docs/
+item.3.title=MacaroniOS Issues Tracker
+item.3.link=https://github.com/macaroni-os/macaroni-funtoo/issues
+item.4.title=M.A.R.K. Issues Tracker
+item.4.link=https://github.com/macaroni-os/mark-issues/issues
 DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 

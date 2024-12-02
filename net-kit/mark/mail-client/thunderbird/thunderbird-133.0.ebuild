@@ -515,14 +515,14 @@ src_prepare() {
 (
 /bin/cat <<DISTRIBUTION.INI
 [Global]
-id=funtoo
+id=macaronios
 version=${MOZ_PV}
-about=Mozilla Thunderbird for Funtoo
-about.de=Mozilla Thunderbird für Funtoo
+about=Mozilla Thunderbird for MacaroniOS
+about.de=Mozilla Thunderbird für MacaroniOS
 
 [Preferences]
-app.distributor="funtoo"
-app.distributor.channel="funtoo"
+app.distributor="macaronios"
+app.distributor.channel="macaronios"
 DISTRIBUTION.INI
 ) > "${WORKDIR}/distribution.ini"
 

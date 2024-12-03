@@ -2,6 +2,8 @@ minio_rule:
   generator: github-1
   packages:
     - minio:
+        extensions:
+          - golang
         github:
           user: minio
           query: releases

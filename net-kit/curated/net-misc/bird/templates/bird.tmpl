@@ -2,20 +2,29 @@
 
 EAPI=7
 
-DESCRIPTION="A routing daemon implementing OSPF, RIPv2 & BGP for IPv4 & IPv6"
-HOMEPAGE="http://bird.network.cz"
-SRC_URI="{{artifacts[0].src_uri}}"
+inherit autotools
+
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
 LICENSE="GPL-2"
 
 SLOT="0"
 KEYWORDS="*"
 IUSE="+client debug"
 
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
 RDEPEND="client? ( sys-libs/ncurses )
 	client? ( sys-libs/readline )"
 DEPEND="sys-devel/flex
 	sys-devel/bison
 	sys-devel/m4"
+
+src_prepare() {
+    default
+    eautoreconf
+}
 
 src_configure() {
 	econf \

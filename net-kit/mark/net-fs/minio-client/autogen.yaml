@@ -2,6 +2,8 @@ minio-client_rule:
   generator: github-1
   packages:
     - minio-client:
+        extensions:
+          - golang
         github:
           user: minio
           repo: mc

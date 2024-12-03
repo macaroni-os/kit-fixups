@@ -1,0 +1,18 @@
+fail2ban_rule:
+  generator: github-1
+  packages:
+    - fail2ban:
+        desc: Scans log files and bans IPs that show malicious signs
+        homepage: https://www.fail2ban.org/
+        github:
+          user: fail2ban
+          repo: fail2ban
+          query: tags
+        versions:
+          latest: {}
+          1.1.0:
+            patches:
+              - fail2ban-0.11.2-adjust-apache-logs-paths.patch
+              - fail2ban-1.1.0-match_sshd-session_in_daemon_pattern.patch
+        revision:
+          1.1.0: 1

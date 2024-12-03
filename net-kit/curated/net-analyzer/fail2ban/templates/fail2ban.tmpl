@@ -7,9 +7,9 @@ DISTUTILS_SINGLE_IMPL=1
 
 inherit bash-completion-r1 distutils-r1 tmpfiles
 
-DESCRIPTION="Scans log files and bans IPs that show malicious signs"
-HOMEPAGE="https://www.fail2ban.org/"
-SRC_URI="{{artifacts[0].src_uri}}"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -26,14 +26,15 @@ RDEPEND="
 
 DOCS=( ChangeLog DEVELOP README.md THANKS TODO doc/run-rootless.txt )
 
-src_unpack() {
-	unpack "${A}"
-	mv "${WORKDIR}/{{github_user}}-{{github_repo}}"* "$S" || die
-}
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
+{%- if patches %}
 PATCHES=(
-	"${FILESDIR}"/${PN}-0.11.2-adjust-apache-logs-paths.patch
+{%- for patch in patches %}
+	"${FILESDIR}"/"{{ patch }}"
+{%- endfor %}
 )
+{%- endif %}
 
 python_prepare_all() {
 #	default

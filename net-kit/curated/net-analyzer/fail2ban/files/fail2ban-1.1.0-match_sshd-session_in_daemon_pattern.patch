@@ -1,0 +1,21 @@
+Subject: [PATCH] Update sshd.conf to match sshd-session in daemon pattern
+
+The regular expression for the _daemon parameter in sshd.conf has been updated to include an optional "-session" suffix. This ensures that SSH daemon logs with the "sshd-session" context are correctly filtered.
+---
+Index: config/filter.d/sshd.conf
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config/filter.d/sshd.conf b/config/filter.d/sshd.conf
+--- a/config/filter.d/sshd.conf
++++ b/config/filter.d/sshd.conf
+@@ -16,7 +16,7 @@
+ 
+ [DEFAULT]
+ 
+-_daemon = sshd
++_daemon = sshd(?:-session)?
+ 
+ # optional prefix (logged from several ssh versions) like "error: ", "error: PAM: " or "fatal: "
+ __pref = (?:(?:error|fatal): (?:PAM: )?)?

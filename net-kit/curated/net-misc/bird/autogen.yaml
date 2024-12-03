@@ -1,0 +1,14 @@
+bird_rule:
+  generator: github-1
+  packages:
+    - bird:
+        desc: A routing daemon implementing OSPF, RIPv2 & BGP for IPv4 & IPv6
+        homepage: http://bird.network.cz
+        github:
+          user: CZ-NIC
+          repo: bird
+          query: tags
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''

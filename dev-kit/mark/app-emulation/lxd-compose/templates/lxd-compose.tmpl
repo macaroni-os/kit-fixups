@@ -24,7 +24,7 @@ src_compile() {
 	)
 
 	CGO_ENABLED=0 go build \
-		-ldflags "${anise_ldflags[*]}" \
+		-ldflags "${lxdcompose_ldflags[*]}" \
 		-o ${PN} -v -x -mod=vendor . || die
 }
 

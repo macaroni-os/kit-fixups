@@ -25,7 +25,7 @@ OFF=$'\033[0m'
 
 # fix broken console with utf8 in the alternative-kernels
 echo -n -e '\033%G'
-kbd_mode -u
+kbd_mode -u -f
 
 LINES=$(stty size|cut -d" " -f1)
 fbecho(){
@@ -33,8 +33,8 @@ fbecho(){
 }
 
 VERSION="7.0"
-OS_LOGO="/etc/funtoo.ascii"
-OS_LOGO_SMALL="/etc/funtoo_small.ascii"
+OS_LOGO="/etc/vipnix/logo.ascii"
+OS_LOGO_SMALL="/etc/vipnix/logo.ascii"
 LOCAL_RESOLUTION="$(fbset -s | grep mode -w | awk '{print $2}' | sed s,'\"',,g | cut -dx -f1)"
 
 if [ ${LOCAL_RESOLUTION} -le 1440 ];then
@@ -54,9 +54,9 @@ fi
 
 fbecho
 cat <<BANNER
-${RED} =============== ${PURP}Funtoo LiveCD (64bit)${RED} ========= ${PURP} Boot ${MODE_HEADER} Mode ${RED} =========== ${WHITE}$(basename $(tty))${GREY}/6 ${RED}==${OFF}
-                 ${WHITE}Created by the Funtoo Core Team${OFF}
-                 ${PURP}https://www.funtoo.org${OFF}
+${RED} =============== ${PURP}Vipnix LiveCD (64bit)${RED} ========= ${PURP} Boot ${MODE_HEADER} Mode ${RED} =========== ${WHITE}$(basename $(tty))${GREY}/6 ${RED}==${OFF}
+                 ${WHITE}Created using Macaroni OS${OFF}
+                 ${PURP}https://vipnix.com.br${OFF}
 $(cat $OS_LOGO_SET)
 ${PURP}*${RED} Configure network${GREY}: ${WHITE}nmtui${GREY}
 ${PURP}*${RED} Available Text Editors${WHITE}: vim${GREY}, ${WHITE}vi${GREY}, ${WHITE}nano${GREY}, ${WHITE}zile${GREY}, ${WHITE}joe

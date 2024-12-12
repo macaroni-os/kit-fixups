@@ -2106,6 +2106,17 @@ better_autogens_without_templates:
     python_compat: python3+
   generator: pypi-simple-1
   packages:
+    - pdm-pep517:
+        du_pep517: standalone
+        pydeps:
+          py:all:
+            - cerberus
+            - license-expression
+          py:all:build:
+            - packaging
+            - tomli
+            - tomli-w
+            - setuptools
     - py:
         python_compat: python3+ pypy{,3}
         revision:
@@ -2284,15 +2295,6 @@ pep517_compliance_rule:
     - pyproject-metadata:
         pydeps:
           - packaging
-    - pdm-pep517:
-        du_pep517: standalone
-        pydeps:
-          - packaging
-          - cerberus
-          - license-expression
-          - tomli
-          - tomli-w
-          - setuptools
     - cerberus:
         pypi_name: Cerberus
     - tomli-w:

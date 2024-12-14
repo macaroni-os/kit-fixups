@@ -98,7 +98,7 @@ src_install() {
 	einstalldocs
 
 	docinto html
-	dodoc -r "${S}"/doc/html/.
+	dodoc -r "${S}"/doc/turbojpeg/.
 
 	if use java; then
 		docinto html/java

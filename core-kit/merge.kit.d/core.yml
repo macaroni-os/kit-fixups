@@ -1,0 +1,54 @@
+sources:
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+  #commit_sha1: "1456ea54c3efae418e8de419af2ea1b66ab2cbaa"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "perl-kit"
+  url: "https://github.com/macaroni-os/perl-kit"
+  branch: "mark-testing"
+
+- name: "python-kit"
+  url: "https://github.com/macaroni-os/python-kit"
+  branch: "mark-testing"
+
+- name: "python-modules-kit"
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-kit
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: mark-xl
+  eclasses:
+    include:
+      core-kit:
+        # Regex rules for match eclasses
+        - '.*'
+
+  fixups:
+    include:
+      - dir: ../../static/licenses
+        to: licenses
+
+      - file: ../../static/LICENSE.txt
+        to: LICENSE.txt
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: sys-devel/gcc:12.3.0
+    - pkg: sys-libs/glibc:2.2
+      conditions:
+        - '>=sys-libs/glibc-2.33-r4:2.2'
+    - pkg: sys-devel/binutils:2.40
+    - pkg: sys-libs/binutils-libs

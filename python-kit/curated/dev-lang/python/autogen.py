@@ -4,7 +4,7 @@ import re
 
 
 async def generate(hub, **pkginfo):
-	versions = [ "2.7.18" ]
+	versions = [ ]
 	minor = 10000
 	async for tag in hub.pkgtools.github.iter_all_tags(hub, "python", "cpython"):
 		v = re.match(r"v((\d+).(\d+).\d+\b)(?!-)", tag["name"])
@@ -21,7 +21,6 @@ async def generate(hub, **pkginfo):
 		versions.append(v[1])
 
 	revision = {
-		"2.7.18" : "1",
 		"3.10.4" : "1",
 	}
 

@@ -1,0 +1,18 @@
+release:
+
+  sources:
+  - name: "core-kit"
+    url: "https://github.com/macaroni-os/core-kit"
+    branch: "mark-xl"
+    # Override the git pull depth optionally. This is set on kit-sha1.json
+    # depth: 4
+
+  main_kit: "core-kit"
+
+  target:
+    # Keep the name with `meta-repo` to have
+    # ego sync working correctly.
+    name: meta-repo
+    url: "https://github.com/macaroni-os/meta-repo"
+    branch: mark-xl
+

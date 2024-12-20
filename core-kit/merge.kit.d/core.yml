@@ -39,8 +39,11 @@ target:
       - dir: ../../static/licenses
         to: licenses
 
-      - file: ../../static/LICENSE.txt
-        to: LICENSE.txt
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
 
   atoms_defaults:
     max_versions: 3
@@ -78,7 +81,7 @@ target:
     - pkg: dev-libs/libltdl
     - pkg: dev-libs/libpcre2
 
-    - pkg: dev-libs/libidn2
+    - pkg: net-dns/libidn2
 
     - pkg: sys-apps/acl
     - pkg: sys-apps/attr

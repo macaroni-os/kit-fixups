@@ -4,13 +4,9 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
-  branch: "mark-testing"
-
 target:
-  name: python-kit
-  url: "https://github.com/macaroni-os/python-kit"
+  name: portage-kit
+  url: "https://github.com/macaroni-os/portage-kit"
   branch: mark-xl
 
   fixups:
@@ -22,6 +18,5 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-lang/python:3.9
-
-    - pkg: dev-lang/python-exec:2
+    - pkg: app-admin/ego
+    - pkg: sys-apps/metatools

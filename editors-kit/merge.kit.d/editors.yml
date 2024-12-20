@@ -4,13 +4,9 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
-  branch: "mark-testing"
-
 target:
-  name: python-kit
-  url: "https://github.com/macaroni-os/python-kit"
+  name: editors-kit
+  url: "https://github.com/macaroni-os/editors-kit"
   branch: mark-xl
 
   fixups:
@@ -22,6 +18,6 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-lang/python:3.9
+    - pkg: app-editors/nano
+    - pkg: app-misc/editor-wrapper
 
-    - pkg: dev-lang/python-exec:2

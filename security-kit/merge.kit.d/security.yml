@@ -1,0 +1,53 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "python-kit"
+  url: "https://github.com/macaroni-os/python-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+target:
+  name: security-kit
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE.txt
+        to: LICENSE.txt
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: app-crypt/gpgme:1
+    - pkg: app-crypt/gnupg
+    - pkg: app-crypt/libb2
+    - pkg: app-crypt/pinentry
+
+    - pkg: app-misc/pax-utils
+
+    - pkg: dev-libs/libassuan
+    - pkg: dev-libs/libgcrypt
+    - pkg: dev-libs/libgpg-error
+    - pkg: dev-libs/libksba
+    - pkg: dev-libs/libtasn1
+    - pkg: dev-libs/libunistring
+    - pkg: dev-libs/nettle
+    - pkg: dev-libs/npth
+
+    - pkg: dev-libs/openssl
+
+    - pkg: net-libs/gnutls
+
+    - pkg: sys-auth/pambase
+    - pkg: sys-libs/pam
+    - pkg: sys-libs/cracklib
+
+    - pkg: virtual/pam

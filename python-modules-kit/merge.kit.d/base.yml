@@ -8,9 +8,13 @@ sources:
   url: "https://github.com/macaroni-os/python-kit"
   branch: "mark-testing"
 
+- name: "python-modules-kit"
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: "mark-testing"
+
 target:
-  name: python-kit
-  url: "https://github.com/macaroni-os/python-kit"
+  name: python-modules-kit
+  url: "https://github.com/macaroni-os/python-modules-kit"
   branch: mark-xl
 
   fixups:
@@ -22,6 +26,6 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-lang/python:3.9
-
-    - pkg: dev-lang/python-exec:2
+    - pkg: dev-python/libxml2-python
+    - pkg: dev-python/pyelftools
+    - pkg: dev-python/setuptools

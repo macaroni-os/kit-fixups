@@ -4,13 +4,13 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
   branch: "mark-testing"
 
 target:
-  name: python-kit
-  url: "https://github.com/macaroni-os/python-kit"
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
   branch: mark-xl
 
   fixups:
@@ -22,6 +22,6 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-lang/python:3.9
-
-    - pkg: dev-lang/python-exec:2
+    - pkg: net-libs/nghttp2
+    - pkg: net-misc/curl
+    - pkg: net-misc/wget

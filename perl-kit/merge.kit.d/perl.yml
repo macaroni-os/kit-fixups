@@ -4,13 +4,13 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
+- name: "perl-kit"
+  url: "https://github.com/macaroni-os/perl-kit"
   branch: "mark-testing"
 
 target:
-  name: python-kit
-  url: "https://github.com/macaroni-os/python-kit"
+  name: perl-kit
+  url: "https://github.com/macaroni-os/perl-kit"
   branch: mark-xl
 
   fixups:
@@ -22,6 +22,5 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-lang/python:3.9
+    - pkg: dev-lang/perl
 
-    - pkg: dev-lang/python-exec:2

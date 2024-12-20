@@ -23,3 +23,12 @@ target:
 
   atoms:
     - pkg: sys-kernel/linux-headers
+      conditions:
+        - '>=sys-kernel/linux-headers-6.9'
+        - '<sys-kernel/linux-headers-6.10'
+
+    - pkg: sys-kernel/linux-headers
+      conditions:
+        - '>=sys-kernel/linux-headers-5.10'
+        - '<sys-kernel/linux-headers-5.11'
+

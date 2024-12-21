@@ -4,9 +4,17 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
+- name: "core-hw-kit"
+  url: "https://github.com/macaroni-os/core-hw-kit"
+  branch: "mark-testing"
+
 - name: "security-kit"
   url: "https://github.com/macaroni-os/security-kit"
   branch: "mark-testing"
+
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
 
 target:
   name: kernel-kit
@@ -15,8 +23,11 @@ target:
 
   fixups:
     include:
-      - file: ../../LICENSE.txt
-        to: LICENSE.txt
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
 
   atoms_defaults:
     max_versions: 3
@@ -32,3 +43,14 @@ target:
         - '>=sys-kernel/linux-headers-5.10'
         - '<sys-kernel/linux-headers-5.11'
 
+    - pkg: sys-kernel/dummy-sources
+    - pkg: sys-kernel/vanilla-sources
+
+    - pkg: sys-kernel/linux-firmware
+
+    - pkg: sys-kernel/dracut
+    - pkg: sys-kernel/genkernel
+
+    - pkg: sys-block/zram-init
+
+    - pkg: sys-apps/kmod

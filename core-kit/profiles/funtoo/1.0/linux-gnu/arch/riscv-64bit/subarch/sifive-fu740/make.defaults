@@ -1,0 +1,11 @@
+# SiFive Freedom U740 profile.
+
+CHOST="riscv64-unknown-linux-gnu"
+
+# also set CHOST_${ABI} which is defined in multilib.eclass and by used by many ebuilds
+CHOST_riscv64="${CHOST}"
+
+CFLAGS="-O2 -march=rv64gc -mabi=lp64d"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"

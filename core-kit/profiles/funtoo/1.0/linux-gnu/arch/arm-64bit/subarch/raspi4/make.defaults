@@ -1,0 +1,11 @@
+# For Raspberry Pi 4 Model B (Broadcom BCM2711 released June 2019)
+
+CHOST="aarch64-unknown-linux-gnu"
+
+# also set CHOST_arm64 which is defined in multilib.eclass and by used by many ebuilds
+CHOST_arm64="${CHOST}"
+
+CFLAGS="-march=armv8-a+crc -mtune=cortex-a72 -ftree-vectorize -O2 -pipe -fomit-frame-pointer"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"

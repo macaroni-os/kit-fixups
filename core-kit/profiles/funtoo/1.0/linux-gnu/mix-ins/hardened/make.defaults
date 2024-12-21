@@ -1,0 +1,17 @@
+# Copyright 1999-2014 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: /var/cvsroot/gentoo-x86/profiles/hardened/linux/make.defaults,v 1.19 2014/09/03 18:48:15 axs Exp $
+
+# FL-5220 - enable JIT in hardened. Is disabled in Gentoo as per:
+# https://wiki.gentoo.org/wiki/Hardened/FAQ#Why_is_the_jit_and_orc_flag_disabled_in_the_hardened_profile.3F
+
+BOOTSTRAP_USE="${BOOTSTRAP_USE} hardened pax_kernel pic xtpax"
+
+USE="hardened pax_kernel pic urandom xtpax -fortran"
+
+# Ian Stakenvicius, 2014-09-03
+# Set a variable just to indicate that the current profile is a hardened one
+# This variable can be leveraged in ebuilds for pkg_postinst messages that
+# indicate said package is, say, configured in a way that defeats the purpose
+# of running hardened.
+PROFILE_IS_HARDENED=1

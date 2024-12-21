@@ -1,0 +1,20 @@
+# Main RISC-V 64 bit profile
+
+TRACK_KEYWORDS="~amd64 amd64"
+ARCH="riscv64"
+# Accept keywords for:
+#   - No restriction on bitness (works on any riscv* hardware)
+#   - Restricted to 64 bits (works only on riscv64 hardware)
+ACCEPT_KEYWORDS="riscv ~riscv riscv64 ~riscv64"
+
+MULTILIB_ABIS="riscv64"
+DEFAULT_ABI="riscv64"
+ABI=${DEFAULT_ABI}
+LIBDIR_riscv64="lib"
+
+CFLAGS="-O2"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
+LLVM_TARGETS="RISCV"

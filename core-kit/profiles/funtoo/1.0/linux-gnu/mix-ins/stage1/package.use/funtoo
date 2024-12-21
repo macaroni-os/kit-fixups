@@ -1,0 +1,11 @@
+sys-libs/zlib static-libs abi_x86_32
+virtual/libiconv abi_x86_32
+sys-devel/binutils gold plugins
+sys-devel/gcc openmp
+sys-devel/gettext static-libs
+
+# crypt is needed by shadow
+# static-libs needed at build time of stage1. FL-12450.
+sys-libs/glibc crypt static-libs
+
+dev-libs/libxml2 python # fix from ffs

@@ -1,0 +1,28 @@
+# for genkernel
+sys-apps/busybox -pam static
+
+# for use of openssl, this requires careful management
+net-misc/curl -curl_ssl_gnutls -curl_ssl_nss curl_ssl_openssl -gnutls nss
+net-libs/liboauth curl -nss
+
+# samba needs ldap USE enabled. Need work also in minimal core setup. Put the use here
+net-fs/samba ldap
+
+# set default uses for LXC.
+app-emulation/lxc seccomp
+
+# add threads for boehm-gc. needed enabled for stage builds.
+dev-libs/boehm-gc threads
+
+# avoid having a gawk->readline->ncurses dependency, since gawk is used in almost all configure scripts.
+sys-apps/gawk -readline
+sys-apps/util-linux static-libs
+sys-fs/eudev gudev static-libs
+virtual/libudev static-libs
+x11-libs/gtk+ X
+# FL-2902:
+sys-fs/eudev rule-generator
+
+# for gcc-7.3.1:
+sys-libs/zlib static-libs
+sys-devel/gettext static-libs

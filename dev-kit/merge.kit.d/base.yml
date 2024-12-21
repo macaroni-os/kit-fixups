@@ -1,0 +1,43 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+- name: "lang-kit"
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+target:
+  name: dev-kit
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-util/meson
+
+

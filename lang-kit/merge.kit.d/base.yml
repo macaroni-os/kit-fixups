@@ -1,0 +1,89 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "lang-kit"
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
+target:
+  name: lang-kit
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    # Golang
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.22.0'
+        - '<dev-lang/go-1.23.0'
+
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.23.0'
+        - '<dev-lang/go-1.24.0'
+
+    - pkg: dev-lang/go-bootstrap
+
+    # Nodejs
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-14.0.0'
+        - '<net-libs/nodejs-15.0.0'
+
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-20.0.0'
+        - '<net-libs/nodejs-21.0.0'
+
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-22.0.0'
+        - '<net-libs/nodejs-23.0.0'
+
+
+    # Zig
+    - pkg: dev-lang/zig
+    - pkg: dev-lang/zig-bin
+    - pkg: virtual/zig
+
+    # Rust
+    - pkg: dev-lang/rust-bin
+      # seems broken on resolver
+      #conditions:
+      #  - '>=dev-lang/rust-bin-1.68.0'
+      #  - '<dev-lang/rust-bin-1.70.0'
+
+    - pkg: dev-lang/rust-bin
+
+    - pkg: virtual/rust
+    #conditions:
+    #    - '>=virtual/rust-1.69.0'
+    #    - '<virtual/rust-1.70.0'
+
+

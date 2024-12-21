@@ -4,6 +4,10 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
+- name: "ruby-kit"
+  url: "https://github.com/macaroni-os/ruby-kit"
+  branch: "mark-testing"
+
 target:
   name: portage-kit
   url: "https://github.com/macaroni-os/portage-kit"
@@ -11,17 +15,36 @@ target:
 
   fixups:
     include:
-      - file: ../../LICENSE.txt
-        to: LICENSE.txt
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
 
   atoms_defaults:
     max_versions: 3
 
   atoms:
     - pkg: app-admin/eselect
-    - pkg: app-eselect/eselect-lib-bin-symlink
-    - pkg: app-eselect/eselect-pinentry
 
+    - pkg: app-eselect/eselect-awk
+    - pkg: app-eselect/eselect-blas
+    - pkg: app-eselect/eselect-cblas
+    - pkg: app-eselect/eselect-ctags
+    - pkg: app-eselect/eselect-fontconfig
+    - pkg: app-eselect/eselect-lapack
+    - pkg: app-eselect/eselect-lib-bin-symlink
+    - pkg: app-eselect/eselect-java
+    - pkg: app-eselect/eselect-pinentry
+    - pkg: app-eselect/eselect-php
+    - pkg: app-eselect/eselect-python
+    - pkg: app-eselect/eselect-postgresql
+    - pkg: app-eselect/eselect-ruby
+    - pkg: app-eselect/eselect-rust
+    - pkg: app-eselect/eselect-timezone
+    - pkg: app-eselect/eselect-vi
+
+    - pkg: app-portage/eix
     - pkg: app-portage/elt-patches
     - pkg: app-portage/portage-utils
 

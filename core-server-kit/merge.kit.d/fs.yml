@@ -1,0 +1,36 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-xl
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: sys-block/thin-provisioning-tools
+
+    - pkg: sys-fs/btrfs-progs
+
+    - pkg: sys-fs/fuse:0
+    - pkg: sys-fs/fuse:3
+    - pkg: sys-fs/fuse-common
+    - pkg: sys-fs/fuse-exfat
+
+    - pkg: sys-fs/lvm2
+
+    - pkg: sys-fs/reiser4progs
+    - pkg: sys-fs/reiserfsprogs
+    - pkg: sys-fs/xfsprogs
+    - pkg: sys-fs/zfs
+
+

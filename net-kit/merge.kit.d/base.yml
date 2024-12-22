@@ -29,6 +29,13 @@ target:
     max_versions: 3
 
   atoms:
+
+    - pkg: mail-mta/ssmtp
+    - pkg: mail-mta/nullmailer
+
+    - pkg: net-mail/mailbase
+    - pkg: net-mail/fetchmail
+
     - pkg: net-misc/bridge-utils
     - pkg: net-misc/dhcpcd
     - pkg: net-misc/ifenslave
@@ -42,4 +49,3 @@ target:
 
     - pkg: sys-apps/iproute2
     - pkg: sys-apps/net-tools
-

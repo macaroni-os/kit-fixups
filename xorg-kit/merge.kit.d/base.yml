@@ -1,0 +1,36 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
+target:
+  name: xorg-kit
+  url: "https://github.com/macaroni-os/xorg-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-libs/glib:2
+    - pkg: dev-util/glib-utils
+    - pkg: dev-libs/gobject-introspection
+    - pkg: dev-util/desktop-file-utils

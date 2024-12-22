@@ -8,21 +8,13 @@ sources:
   url: "https://github.com/macaroni-os/core-server-kit"
   branch: "mark-testing"
 
-- name: "dev-kit"
-  url: "https://github.com/macaroni-os/dev-kit"
-  branch: "mark-testing"
-
-- name: "lang-kit"
-  url: "https://github.com/macaroni-os/lang-kit"
-  branch: "mark-testing"
-
-- name: "security-kit"
-  url: "https://github.com/macaroni-os/security-kit"
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
   branch: "mark-testing"
 
 target:
-  name: dev-kit
-  url: "https://github.com/macaroni-os/dev-kit"
+  name: net-kit
+  url: "https://github.com/macaroni-os/net-kit"
   branch: mark-xl
 
   fixups:
@@ -37,10 +29,14 @@ target:
     max_versions: 3
 
   atoms:
-    - pkg: dev-libs/mpc
+    - pkg: net-misc/bridge-utils
+    - pkg: net-misc/dhcpcd
+    - pkg: net-misc/ifenslave
+    - pkg: net-misc/iputils
+    - pkg: net-misc/rsync
 
-    - pkg: dev-util/meson
+    - pkg: net-dns/openresolv
 
-    - pkg: dev-vcs/git
+    - pkg: net-libs/libnsl
+    - pkg: net-libs/rpcsvc-proto
 
-    - pkg: sys-apps/busybox

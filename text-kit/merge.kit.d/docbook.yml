@@ -1,0 +1,35 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "text-kit"
+  url: "https://github.com/macaroni-os/text-kit"
+  branch: "mark-testing"
+
+target:
+  name: text-kit
+  url: "https://github.com/macaroni-os/text-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-text/docbook-dsssl-stylesheets
+    - pkg: app-text/docbook-sgml
+    - pkg: app-text/docbook-sgml-dtd
+    - pkg: app-text/docbook-sgml-utils
+    - pkg: app-text/docbook-xml-simple-dtd
+    - pkg: app-text/docbook-xsl-ns-stylesheets
+

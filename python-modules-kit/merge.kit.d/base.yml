@@ -12,6 +12,11 @@ sources:
   url: "https://github.com/macaroni-os/python-modules-kit"
   branch: "mark-testing"
 
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+
 target:
   name: python-modules-kit
   url: "https://github.com/macaroni-os/python-modules-kit"
@@ -24,10 +29,30 @@ target:
 
       - file: ../../.github/FUNDING.yml
         to: .github/FUNDING.yml
+
   atoms_defaults:
     max_versions: 3
 
   atoms:
+
+    - pkg: dev-cpp/pystring
+
     - pkg: dev-python/libxml2-python
     - pkg: dev-python/pyelftools
     - pkg: dev-python/setuptools
+
+    - pkg: dev-python/aiofiles
+    - pkg: dev-python/async_timeout
+    - pkg: dev-python/docker-py
+
+    # Packages for build
+    - pkg: dev-python/hatchling
+    - pkg: dev-python/packaging
+    - pkg: dev-python/packaging-legacy
+    - pkg: dev-python/pdm-backend
+    - pkg: dev-python/setuptools_scm
+
+    - pkg: dev-python/pyrfc3339
+    - pkg: dev-python/python-xlib
+    - pkg: dev-python/semantic_version
+    - pkg: dev-python/webcolors

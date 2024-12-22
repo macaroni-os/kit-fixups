@@ -4,6 +4,10 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-testing"
 
+- name: "editors-kit"
+  url: "https://github.com/macaroni-os/editors-kit"
+  branch: "mark-testing"
+
 target:
   name: editors-kit
   url: "https://github.com/macaroni-os/editors-kit"
@@ -22,5 +26,12 @@ target:
 
   atoms:
     - pkg: app-editors/nano
+    - pkg: app-editors/vim-core
+    - pkg: app-editors/vim
+
     - pkg: app-misc/editor-wrapper
+
+    - pkg: dev-util/ctags
+
+    - pkg: virtual/editor
 

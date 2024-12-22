@@ -16,8 +16,16 @@ sources:
   url: "https://github.com/macaroni-os/lang-kit"
   branch: "mark-testing"
 
+- name: "text-kit"
+  url: "https://github.com/macaroni-os/text-kit"
+  branch: "mark-testing"
+
 - name: "security-kit"
   url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
   branch: "mark-testing"
 
 target:
@@ -43,6 +51,8 @@ target:
     - pkg: dev-libs/mpc
 
     - pkg: dev-util/meson
+    - pkg: dev-util/gtk-doc
+    - pkg: dev-util/pkgconf
 
     - pkg: dev-vcs/git
 
@@ -53,3 +63,4 @@ target:
     - pkg: sys-devel/flex
 
     - pkg: virtual/man
+    - pkg: virtual/pkgconfig

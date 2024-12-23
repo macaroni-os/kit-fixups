@@ -36,6 +36,10 @@ target:
     - pkg: net-mail/mailbase
     - pkg: net-mail/fetchmail
 
+    - pkg: net-firewall/ebtables
+    - pkg: net-firewall/iptables
+    - pkg: net-firewall/nftables
+
     - pkg: net-misc/bridge-utils
     - pkg: net-misc/dhcpcd
     - pkg: net-misc/ifenslave
@@ -45,6 +49,9 @@ target:
     - pkg: net-dns/openresolv
 
     - pkg: net-libs/libnsl
+    - pkg: net-libs/libmnl
+    - pkg: net-libs/libnftnl
+    - pkg: net-libs/libtirpc
     - pkg: net-libs/rpcsvc-proto
 
     - pkg: sys-apps/iproute2

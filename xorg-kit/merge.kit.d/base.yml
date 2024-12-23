@@ -12,6 +12,10 @@ sources:
   url: "https://github.com/macaroni-os/gnome-kit"
   branch: "mark-testing"
 
+- name: "desktop-kit"
+  url: "https://github.com/macaroni-os/desktop-kit"
+  branch: "mark-testing"
+
 target:
   name: xorg-kit
   url: "https://github.com/macaroni-os/xorg-kit"
@@ -31,6 +35,10 @@ target:
   atoms:
 
     - pkg: dev-libs/glib:2
-    - pkg: dev-util/glib-utils
     - pkg: dev-libs/gobject-introspection
+
+    - pkg: dev-util/gdbus-codegen
+    - pkg: dev-util/glib-utils
     - pkg: dev-util/desktop-file-utils
+
+    - pkg: x11-misc/shared-mime-info

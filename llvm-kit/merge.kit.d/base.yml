@@ -1,0 +1,41 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "llvm-kit"
+  url: "https://github.com/macaroni-os/llvm-kit"
+  branch: "mark-testing"
+
+target:
+  name: llvm-kit
+  url: "https://github.com/macaroni-os/llvm-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: sys-devel/clang-common
+      conditions:
+        - '>=sys-devel/clang-common-16.0.0'
+        - '<sys-devel/clang-common-17.0.0'
+
+    - pkg: sys-devel/clang:16
+    - pkg: sys-devel/llvm:16
+
+    - pkg: sys-devel/llvm-common
+
+    - pkg: sys-libs/compiler-rt:16.0.0
+    - pkg: sys-libs/compiler-rt-sanitizers:16.0.0
+

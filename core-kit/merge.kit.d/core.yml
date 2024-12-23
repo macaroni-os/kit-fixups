@@ -8,6 +8,10 @@ sources:
   url: "https://github.com/macaroni-os/core-server-kit"
   branch: "mark-testing"
 
+- name: "core-hw-kit"
+  url: "https://github.com/macaroni-os/core-hw-kit"
+  branch: "mark-testing"
+
 - name: "perl-kit"
   url: "https://github.com/macaroni-os/perl-kit"
   branch: "mark-testing"
@@ -548,6 +552,7 @@ target:
     - pkg: app-arch/bzip2
     - pkg: app-arch/cpio
     - pkg: app-arch/gzip
+    - pkg: app-arch/libarchive
     - pkg: app-arch/tar
     - pkg: app-arch/unzip
     - pkg: app-arch/xz-utils
@@ -587,12 +592,14 @@ target:
     - pkg: sys-apps/less
     - pkg: sys-apps/sed
     - pkg: sys-apps/shadow
+    - pkg: sys-apps/sysvinit
     - pkg: sys-apps/util-linux
     - pkg: sys-apps/which
 
     - pkg: sys-devel/automake:1.16
     - pkg: sys-devel/autoconf:2.69
     - pkg: sys-devel/autoconf:latest
+    - pkg: sys-devel/autoconf-archive
     - pkg: sys-devel/libtool:2
     - pkg: sys-devel/gettext
     - pkg: sys-devel/gnuconfig
@@ -604,13 +611,16 @@ target:
     - pkg: sys-libs/libcap-ng
     - pkg: sys-libs/ncurses
     - pkg: sys-libs/readline
+    - pkg: sys-libs/timezone-data
     - pkg: sys-libs/zlib
 
     - pkg: virtual/acl
     - pkg: virtual/awk
     - pkg: virtual/libc
+    - pkg: virtual/libelf
     - pkg: virtual/libiconv
     - pkg: virtual/libintl
+    - pkg: virtual/libffi
     - pkg: virtual/pager
     - pkg: virtual/shadow
     - pkg: virtual/tmpfiles

@@ -1,0 +1,29 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: "mark-testing"
+
+- name: "browser-kit"
+  url: "https://github.com/macaroni-os/browser-kit"
+  branch: "mark-testing"
+
+target:
+  name: net-kit
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: mark-xl
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: www-client/lynx

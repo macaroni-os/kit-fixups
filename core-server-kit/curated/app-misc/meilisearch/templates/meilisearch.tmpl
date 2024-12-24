@@ -21,6 +21,8 @@ BDEPEND="
 
 S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
+RESTRICT="network-sandbox"
+
 MEILI_DATA_DIR="/var/lib/${PN}"
 
 pkg_setup() {
@@ -28,30 +30,12 @@ pkg_setup() {
 	enewuser "${PN}" -1 -1 "${MEILI_DATA_DIR}" "${PN}"
 }
 
-src_prepare() {
-	default
-
-	# Patch lindera-unidic to use the unidic-mecab src downloaded by the ebuild
-	local lindera_unidic_build=$(find "${WORKDIR}"/cargo_home/gentoo/lindera-unidic-* -iname build.rs)
-
-	# Replace the input/unpacked folder with our version
-	sed -i 's|\(let input_dir =.*\)\("unidic-mecab.*"\)\(.*\)|\1"{{ unidic.final_name.rsplit(".", 1)[0] }}"\3|' "${lindera_unidic_build}"
-
-	# Replace the path to the source with the one downloaded by the ebuild
-	sed -i "s|\(let source_path_for_build =\).*$|\1 Path::new("'"'"${DISTDIR}/{{ unidic.final_name }}"'"'");|" "${lindera_unidic_build}"
-
-	if use mini-dashboard; then
-		# Inject path to downloaded mini-dashboard build
-		sed -i "s|{{ dashboard_url }}|${DISTDIR}/{{ artifacts["mini-dashboard"][0].final_name }}|g" "${S}"/meilisearch/Cargo.toml
-
-		# Replace HTTP fetch with direct file read
-		sed -i -r 's|(let dashboard_assets_bytes =)(.*)$|\1 std::fs::read(url)?;|' "${S}"/meilisearch/build.rs
-	fi
+src_unpack() {
+	cargo_src_unpack
 }
 
 src_configure() {
 	CARGO_FEATURES=(
-		"analytics"
 		"meilisearch-types/all-tokenizations"
 		"$(usex mini-dashboard mini-dashboard '')"
 	)
@@ -68,7 +52,7 @@ src_compile() {
 }
 
 src_install() {
-	cargo_src_install --path meilisearch --frozen \
+	cargo_src_install --path crates/meilisearch --frozen \
 		--no-default-features ${CARGO_FEATURES:+--features "${CARGO_FEATURES[*]}"}
 
 	mkdir -p "${ED}"/"${MEILI_DATA_DIR}"

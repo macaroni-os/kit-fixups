@@ -14,6 +14,13 @@ arches = {
 
 base_download_url = "https://downloads.vivaldi.com"
 
+def parse_versions(versions_script):
+	# Extract and clean up JSON part
+	json_part = versions_script.split("=", 1)[-1].strip()
+	if json_part.endswith(";"):
+		json_part = json_part[:-1]
+	return json.loads(json_part)
+
 
 async def generate_stable(hub, **pkginfo):
 	download_url = f"{base_download_url}/stable"
@@ -21,7 +28,7 @@ async def generate_stable(hub, **pkginfo):
 
 	versions_script = await hub.pkgtools.fetch.get_page(versions_script_url)
 
-	versions = json.loads(versions_script.split("=")[-1].strip())
+	versions = parse_versions(versions_script)
 	version = versions["vivaldi_version_number"]
 
 	artifacts = {}

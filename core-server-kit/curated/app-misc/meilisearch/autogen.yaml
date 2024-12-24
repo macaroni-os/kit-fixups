@@ -1,0 +1,12 @@
+meilisearch_rule:
+  generator: github-1
+  packages:
+    - meilisearch:
+        github:
+          query: releases
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''
+        extensions:
+          - rust

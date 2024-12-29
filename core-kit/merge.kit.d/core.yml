@@ -512,17 +512,26 @@ target:
 
     - alias: gentoo
       uri:
-        - https://distfiles.macaronios.org
-        - https://distfiles-flat.macaronios.org
+        # ATTENTION: Portage add /distfiles/ path by default on URL defined in GENTOO_MIRRORS
+        #            but on thirdpartymirrors file we need the full path.
+        - https://distfiles.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/
 
         - http://gentoo.osuosl.org/distfiles
         - http://ftp.halifax.rwth-aachen.de/gentoo/distfiles
-        - http://gentoo-distfiles.mirrors.tds.net/distfiles
 
     - alias: funtoo
       uri:
-        - https://distfiles.macaronios.org
-        - https://distfiles-flat.macaronios.org
+        - https://distfiles.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/
+
+    - alias: macaroni
+      uri:
+        - https://distfiles.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/distfiles
+        - https://distfiles-flat.macaronios.org/
 
   fixups:
     include:

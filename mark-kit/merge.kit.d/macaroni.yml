@@ -26,7 +26,7 @@ target:
         to: .github/FUNDING.yml
 
   atoms_defaults:
-    max_versions: 3
+    max_versions: 2
 
   atoms:
 
@@ -40,6 +40,10 @@ target:
 
     - pkg: dev-util/pkgs-checker
     - pkg: dev-util/mark-devkit
+      #max_versions: 2
+      #versions:
+      #  - "0.8.0"
+
     - pkg: dev-util/ssh-compose
 
     - pkg: sys-apps/whip-catalog

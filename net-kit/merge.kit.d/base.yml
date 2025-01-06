@@ -38,22 +38,59 @@ target:
     - pkg: net-mail/mailbase
     - pkg: net-mail/fetchmail
 
+    - pkg: net-analyzer/arpwatch
     - pkg: net-analyzer/tcpdump
     - pkg: net-analyzer/tcping
+    - pkg: net-analyzer/tcptraceroute
+    - pkg: net-analyzer/tcptrace
+    - pkg: net-analyzer/tcpreplay
+    - pkg: net-analyzer/traceroute
+    - pkg: net-analyzer/net-snmp
+    - pkg: net-analyzer/macchanger
+    - pkg: net-analyzer/hping
 
+    - pkg: net-dialup/ppp
+
+    - pkg: net-dns/openresolv
+    - pkg: net-dns/dnsmasq
+
+    - pkg: net-firewall/conntrack-tools
     - pkg: net-firewall/ebtables
     - pkg: net-firewall/iptables
     - pkg: net-firewall/nftables
+    - pkg: net-firewall/ipset
+
+    - pkg: net-ftp/atftp
+    - pkg: net-ftp/proftpd
 
     - pkg: net-misc/bridge-utils
     - pkg: net-misc/dhcpcd
+    - pkg: net-misc/dhcp
     - pkg: net-misc/ethertypes
     - pkg: net-misc/ifenslave
     - pkg: net-misc/iputils
     - pkg: net-misc/rsync
     - pkg: net-misc/vconfig
+    - pkg: net-misc/netkit-telnetd
+    - pkg: net-misc/ntp
+    - pkg: net-misc/olsrd
+    - pkg: net-misc/whois
+    - pkg: net-misc/socat
 
-    - pkg: net-dns/openresolv
+    - pkg: net-wireless/wireless-tools
+    - pkg: net-wireless/wepattack
+    - pkg: net-wireless/wavemon
+
+    - pkg: net-p2p/rtorrent
+
+    - pkg: net-proxy/cntlm
+
+    - pkg: net-vpn/openconnect
+    - pkg: net-vpn/openfortivpn
+    - pkg: net-vpn/openvpn
+    - pkg: net-vpn/wireguard-tools
+    - pkg: net-vpn/tor
+    - pkg: net-vpn/vpnc
 
     - pkg: net-libs/libnsl
     - pkg: net-libs/libmnl
@@ -64,5 +101,7 @@ target:
 
     - pkg: sys-apps/iproute2
     - pkg: sys-apps/net-tools
+    - pkg: sys-apps/ethtool
+    - pkg: sys-apps/tcp-wrappers
 
     - pkg: virtual/mta

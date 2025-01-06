@@ -35,9 +35,11 @@ target:
     - pkg: app-crypt/gpgme:1
     - pkg: app-crypt/gnupg
     - pkg: app-crypt/libb2
+    - pkg: app-crypt/libmd
     - pkg: app-crypt/p11-kit
     - pkg: app-crypt/pinentry
     - pkg: app-crypt/rhash
+    - pkg: app-crypt/mit-krb5
 
     - pkg: app-misc/pax-utils
 
@@ -56,9 +58,12 @@ target:
     - pkg: net-libs/gnutls
     - pkg: net-misc/openssh
 
+    - pkg: sys-apps/keyutils
+
     - pkg: sys-auth/pambase
     - pkg: sys-libs/pam
     - pkg: sys-libs/cracklib
 
+    - pkg: virtual/krb5
     - pkg: virtual/pam
     - pkg: virtual/ssh

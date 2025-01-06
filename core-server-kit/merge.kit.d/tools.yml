@@ -22,9 +22,12 @@ target:
   atoms:
 
     - pkg: app-admin/sudo
+    - pkg: app-admin/logrotate
 
     - pkg: app-misc/rdfind
 
+    - pkg: sys-process/cronbase
+    - pkg: sys-process/cronie
     - pkg: sys-process/lsof
     - pkg: sys-process/htop
     - pkg: sys-process/iotop
@@ -44,5 +47,6 @@ target:
 
     - pkg: sys-devel/bc
 
+    - pkg: virtual/cron
     - pkg: virtual/service-manager
 

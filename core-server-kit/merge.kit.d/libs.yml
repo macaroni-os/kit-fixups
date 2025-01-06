@@ -13,21 +13,17 @@ target:
   url: "https://github.com/macaroni-os/core-server-kit"
   branch: mark-xl
 
-  fixups:
-    include:
-
   atoms_defaults:
     max_versions: 3
 
   atoms:
-    - pkg: app-admin/apache-tools
+    - pkg: dev-libs/apr:1
+    - pkg: dev-libs/apr-util:1
 
-    - pkg: net-libs/nghttp2
-    - pkg: net-misc/curl
-    - pkg: net-misc/chrony
-    - pkg: net-misc/wget
-    - pkg: net-misc/memcached
+    - pkg: dev-libs/libdnet
+    - pkg: dev-libs/libbsd
+    - pkg: dev-libs/libevent
+    - pkg: dev-libs/libverto
+    - pkg: dev-libs/libmemcached
 
-    - pkg: www-servers/apache:2
-    - pkg: www-servers/nginx
-    - pkg: www-servers/lighttpd
+    - pkg: net-libs/http-parser

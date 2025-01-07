@@ -39,6 +39,11 @@ target:
     - pkg: net-mail/fetchmail
 
     - pkg: net-analyzer/arpwatch
+    - pkg: net-analyzer/hping
+    - pkg: net-analyzer/macchanger
+    - pkg: net-analyzer/net-snmp
+    - pkg: net-analyzer/openbsd-netcat
+    - pkg: net-analyzer/rrdtool
     - pkg: net-analyzer/tcpflow
     - pkg: net-analyzer/tcpdump
     - pkg: net-analyzer/tcping
@@ -46,9 +51,6 @@ target:
     - pkg: net-analyzer/tcptrace
     - pkg: net-analyzer/tcpreplay
     - pkg: net-analyzer/traceroute
-    - pkg: net-analyzer/net-snmp
-    - pkg: net-analyzer/macchanger
-    - pkg: net-analyzer/hping
 
     - pkg: net-dialup/ppp
 
@@ -62,6 +64,7 @@ target:
     - pkg: net-firewall/ipset
 
     - pkg: net-ftp/atftp
+    - pkg: net-ftp/ftpbase
     - pkg: net-ftp/proftpd
 
     - pkg: net-misc/bridge-utils
@@ -75,8 +78,8 @@ target:
     - pkg: net-misc/netkit-telnetd
     - pkg: net-misc/ntp
     - pkg: net-misc/olsrd
-    - pkg: net-misc/whois
     - pkg: net-misc/socat
+    - pkg: net-misc/whois
 
     - pkg: net-wireless/wireless-tools
     - pkg: net-wireless/wepattack
@@ -93,11 +96,18 @@ target:
     - pkg: net-vpn/tor
     - pkg: net-vpn/vpnc
 
+    - pkg: net-libs/libnet
     - pkg: net-libs/libnsl
     - pkg: net-libs/libmnl
+    - pkg: net-libs/libnetfilter_conntrack
+    - pkg: net-libs/libnetfilter_cthelper
+    - pkg: net-libs/libnetfilter_cttimeout
+    - pkg: net-libs/libnetfilter_queue
     - pkg: net-libs/libnftnl
     - pkg: net-libs/libnfnetlink
     - pkg: net-libs/libpcap
+    - pkg: net-libs/libpcapnav
+    - pkg: net-libs/libtorrent
     - pkg: net-libs/libtirpc
     - pkg: net-libs/rpcsvc-proto
 

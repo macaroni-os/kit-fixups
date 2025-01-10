@@ -58,6 +58,14 @@ target:
     - pkg: app-text/opensp
 
     - pkg: dev-cpp/tbb
+    - pkg: dev-cpp/yaml-cpp
+
+    - pkg: dev-db/mysql-connector-c
+    - pkg: dev-db/libiodbc
+    - pkg: dev-db/lmdb
+    - pkg: dev-db/unixODBC
+
+    - pkg: dev-go/go-md2man
 
     - pkg: dev-libs/boehm-gc
     - pkg: dev-libs/libatomic_ops
@@ -70,21 +78,32 @@ target:
 
     - pkg: dev-libs/check
     - pkg: dev-libs/geoip
+    - pkg: dev-libs/libbson
     - pkg: dev-libs/libedit
     - pkg: dev-libs/libev
     - pkg: dev-libs/libevdev
+    - pkg: dev-libs/libdaemon
     - pkg: dev-libs/libgamin
     - pkg: dev-libs/libyaml
     - pkg: dev-libs/lzo
     - pkg: dev-libs/jsoncpp
+    - pkg: dev-libs/json-c
     - pkg: dev-libs/jansson
+    - pkg: dev-libs/jemalloc
+    - pkg: dev-libs/hiredis
     - pkg: dev-libs/xmlrpc-c
     - pkg: dev-libs/mpc
     - pkg: dev-libs/mpfr
+    - pkg: dev-libs/mongo-c-driver
     - pkg: dev-libs/nspr
     - pkg: dev-libs/nss
     - pkg: dev-libs/oniguruma
+    - pkg: dev-libs/ossp-uuid
     - pkg: dev-libs/popt
+    - pkg: dev-libs/protobuf
+    - pkg: dev-libs/protobuf-c
+    - pkg: dev-libs/userspace-rcu
+    - pkg: dev-libs/snowball-stemmer
 
     - pkg: dev-libs/boost
 
@@ -92,19 +111,26 @@ target:
     - pkg: dev-util/cmake
     - pkg: dev-util/colm
     - pkg: dev-util/cppunit
+    - pkg: dev-util/cunit
+    - pkg: dev-util/google-perftools
     - pkg: dev-util/gtk-doc
     - pkg: dev-util/gtk-doc-am
     - pkg: dev-util/gperf
     - pkg: dev-util/intltool
     - pkg: dev-util/itstool
     - pkg: dev-util/yacc
+    - pkg: dev-util/lttng-ust
+    - pkg: dev-util/lttng-tools
+    - pkg: dev-util/lttng-modules
     - pkg: dev-util/meson
     - pkg: dev-util/ninja
     - pkg: dev-util/ragel
     - pkg: dev-util/re2c
     - pkg: dev-util/patchelf
     - pkg: dev-util/pkgconf
+    - pkg: dev-util/scons
     - pkg: dev-util/strace
+
 
     - pkg: dev-vcs/git
 
@@ -121,6 +147,7 @@ target:
 
     - pkg: sys-libs/libseccomp
     - pkg: sys-libs/libunwind
+    - pkg: sys-libs/talloc
 
     - pkg: virtual/yacc
     - pkg: virtual/man

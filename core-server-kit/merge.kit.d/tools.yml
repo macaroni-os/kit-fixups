@@ -25,20 +25,40 @@ target:
 
   atoms:
 
+    - pkg: app-admin/cloud-init
     - pkg: app-admin/sudo
     - pkg: app-admin/logrotate
+    - pkg: app-admin/metalog
+    - pkg: app-admin/rsyslog
+    - pkg: app-admin/syslog-ng
+
+    - pkg: app-emulation/containerd
+    - pkg: app-emulation/docker
+    - pkg: app-emulation/docker-buildx
+    - pkg: app-emulation/docker-cli
+    - pkg: app-emulation/docker-compose
+    - pkg: app-emulation/docker-proxy
+    - pkg: app-emulation/incus
+    - pkg: app-emulation/lxc
+    - pkg: app-emulation/lxd
+    - pkg: app-emulation/runc
 
     - pkg: app-misc/rdfind
     - pkg: app-misc/screen
 
+    - pkg: sys-block/parted
+
     - pkg: sys-process/cronbase
     - pkg: sys-process/cronie
+    - pkg: sys-process/criu
     - pkg: sys-process/fcron
     - pkg: sys-process/lsof
     - pkg: sys-process/htop
     - pkg: sys-process/iotop
     - pkg: sys-process/procps
     - pkg: sys-process/psmisc
+    - pkg: sys-process/numactl
+    - pkg: sys-process/tini
 
     - pkg: sys-apps/kbd
 
@@ -54,5 +74,6 @@ target:
     - pkg: sys-devel/bc
 
     - pkg: virtual/cron
+    - pkg: virtual/logger
     - pkg: virtual/service-manager
 

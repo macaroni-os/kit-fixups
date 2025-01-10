@@ -22,12 +22,21 @@ target:
   atoms:
     - pkg: app-admin/apache-tools
 
+    - pkg: net-dialup/freeradius
+
     - pkg: net-libs/nghttp2
+
     - pkg: net-misc/curl
     - pkg: net-misc/chrony
     - pkg: net-misc/wget
     - pkg: net-misc/memcached
 
+    - pkg: net-misc/cni-plugins
+
     - pkg: www-servers/apache:2
+    - pkg: www-servers/caddy
     - pkg: www-servers/nginx
     - pkg: www-servers/lighttpd
+
+    - pkg: sys-cluster/singularity
+    - pkg: sys-cluster/glusterfs

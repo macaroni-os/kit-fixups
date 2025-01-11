@@ -29,6 +29,8 @@ target:
 
   atoms:
 
+    - pkg: app-admin/ansible
+    - pkg: app-admin/ansible-base
     - pkg: app-admin/cloud-init
     - pkg: app-admin/sudo
     - pkg: app-admin/logrotate
@@ -36,16 +38,23 @@ target:
     - pkg: app-admin/rsyslog
     - pkg: app-admin/syslog-ng
 
+    - pkg: app-backup/backrest
+    - pkg: app-backup/restic
+
     - pkg: app-emulation/containerd
     - pkg: app-emulation/docker
     - pkg: app-emulation/docker-buildx
     - pkg: app-emulation/docker-cli
     - pkg: app-emulation/docker-compose
     - pkg: app-emulation/docker-proxy
+    - pkg: app-emulation/docker-registry
     - pkg: app-emulation/incus
     - pkg: app-emulation/lxc
     - pkg: app-emulation/lxd
     - pkg: app-emulation/runc
+    - pkg: app-emulation/qemu
+    - pkg: app-emulation/spice
+    - pkg: app-emulation/spice-protocol
 
     - pkg: app-misc/rdfind
     - pkg: app-misc/screen
@@ -66,6 +75,7 @@ target:
 
     - pkg: sys-apps/kbd
 
+    - pkg: sys-apps/cpuid
     - pkg: sys-apps/hwids
     - pkg: sys-apps/lsb-release
     - pkg: sys-apps/openrc
@@ -76,6 +86,8 @@ target:
     - pkg: sys-apps/systemd-tmpfiles
 
     - pkg: sys-devel/bc
+
+    - pkg: sys-power/cpupower
 
     - pkg: virtual/cron
     - pkg: virtual/logger

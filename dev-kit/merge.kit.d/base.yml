@@ -50,6 +50,10 @@ target:
 
   atoms:
 
+    - pkg: app-cdr/cdrtools
+
+    - pkg: app-arch/upx-bin
+
     - pkg: app-misc/jq
     - pkg: app-misc/yq-go
 
@@ -77,6 +81,7 @@ target:
     - pkg: dev-libs/libxslt
 
     - pkg: dev-libs/check
+    - pkg: dev-libs/fribidi
     - pkg: dev-libs/geoip
     - pkg: dev-libs/libbson
     - pkg: dev-libs/libedit
@@ -117,6 +122,7 @@ target:
     - pkg: dev-util/gtk-doc
     - pkg: dev-util/gtk-doc-am
     - pkg: dev-util/gperf
+    - pkg: dev-util/github-cli
     - pkg: dev-util/intltool
     - pkg: dev-util/itstool
     - pkg: dev-util/yacc
@@ -127,19 +133,27 @@ target:
     - pkg: dev-util/ninja
     - pkg: dev-util/ragel
     - pkg: dev-util/re2c
+    - pkg: dev-util/packer
     - pkg: dev-util/patchelf
     - pkg: dev-util/pkgconf
     - pkg: dev-util/scons
     - pkg: dev-util/strace
-
+    - pkg: dev-util/valgrind
 
     - pkg: dev-vcs/git
+    - pkg: dev-vcs/gitolite
+    - pkg: dev-vcs/hub
+
+    - pkg: media-gfx/ascii-image-converter
 
     - pkg: sys-apps/busybox
     - pkg: sys-apps/help2man
     - pkg: sys-apps/man-db
     - pkg: sys-apps/man-pages
     - pkg: sys-apps/man-pages-posix
+    - pkg: sys-apps/pcsc-lite
+
+    - pkg: sys-boot/syslinux
 
     - pkg: sys-devel/autogen
     - pkg: sys-devel/bison
@@ -150,6 +164,7 @@ target:
     - pkg: sys-libs/libunwind
     - pkg: sys-libs/talloc
 
+    - pkg: virtual/cdrtools
     - pkg: virtual/yacc
     - pkg: virtual/man
     - pkg: virtual/pkgconfig

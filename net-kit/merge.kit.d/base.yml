@@ -30,6 +30,7 @@ target:
 
   atoms:
 
+    - pkg: mail-mta/dovecot
     - pkg: mail-mta/postfix
     - pkg: mail-mta/ssmtp
     - pkg: mail-mta/nullmailer
@@ -54,12 +55,15 @@ target:
     - pkg: net-analyzer/traceroute
 
     - pkg: net-dialup/ppp
+    - pkg: net-dialup/minicom
 
+    - pkg: net-dns/avahi
     - pkg: net-dns/bind
     - pkg: net-dns/bind-tools
     - pkg: net-dns/coredns
     - pkg: net-dns/dnsmasq
     - pkg: net-dns/openresolv
+    - pkg: net-dns/libidn
 
     - pkg: net-nds/openldap
 
@@ -68,6 +72,9 @@ target:
     - pkg: net-firewall/iptables
     - pkg: net-firewall/nftables
     - pkg: net-firewall/ipset
+
+    - pkg: net-fs/minio
+    - pkg: net-fs/minio-client
 
     - pkg: net-ftp/atftp
     - pkg: net-ftp/ftpbase
@@ -86,7 +93,11 @@ target:
     - pkg: net-misc/netkit-telnetd
     - pkg: net-misc/ntp
     - pkg: net-misc/olsrd
+    - pkg: net-misc/openvswitch
+    - pkg: net-misc/ovn
+    - pkg: net-misc/rclone
     - pkg: net-misc/socat
+    - pkg: net-misc/stunnel
     - pkg: net-misc/whois
 
     - pkg: net-wireless/wireless-tools
@@ -96,7 +107,11 @@ target:
 
     - pkg: net-p2p/rtorrent
 
+    - pkg: net-print/cups
+    - pkg: net-print/cups-filters
+
     - pkg: net-proxy/cntlm
+    - pkg: net-proxy/haproxy
 
     - pkg: net-vpn/openconnect
     - pkg: net-vpn/strongswan
@@ -104,6 +119,7 @@ target:
     - pkg: net-vpn/openvpn
     - pkg: net-vpn/wireguard-tools
     - pkg: net-vpn/tor
+    - pkg: net-vpn/tailscale
     - pkg: net-vpn/vpnc
 
     - pkg: net-libs/libnet
@@ -121,6 +137,8 @@ target:
     - pkg: net-libs/libtorrent
     - pkg: net-libs/libtirpc
     - pkg: net-libs/rpcsvc-proto
+
+    - pkg: www-apps/gitea
 
     - pkg: sys-apps/iproute2
     - pkg: sys-apps/net-tools

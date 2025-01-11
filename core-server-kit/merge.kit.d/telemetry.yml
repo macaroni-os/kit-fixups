@@ -21,16 +21,16 @@ target:
     max_versions: 3
 
   atoms:
-    - app-metrics/alertmanager-bin
-    - app-metrics/blackbox_exporter-bin
-    - app-metrics/consul_exporter-bin
-    - app-metrics/freeradius_exporter
-    - app-metrics/redis_exporter-bin
-    - app-metrics/mysqld_exporter-bin
-    - app-metrics/memcached_exporter-bin
-    - app-metrics/prometheus-bin
-    - app-metrics/node_exporter-bin
-    - app-metrics/snmp_notifier
+    - pkg: app-metrics/alertmanager-bin
+    - pkg: app-metrics/blackbox_exporter-bin
+    - pkg: app-metrics/consul_exporter-bin
+    - pkg: app-metrics/freeradius_exporter
+    - pkg: app-metrics/redis_exporter-bin
+    - pkg: app-metrics/mysqld_exporter-bin
+    - pkg: app-metrics/memcached_exporter-bin
+    - pkg: app-metrics/prometheus-bin
+    - pkg: app-metrics/node_exporter-bin
+    - pkg: app-metrics/snmp_notifier
 
-    - www-apps/grafana-bin
+    - pkg: www-apps/grafana-bin
 

@@ -62,8 +62,11 @@ target:
 
     - pkg: app-arch/upx-bin
 
+    - pkg: app-misc/asciinema
     - pkg: app-misc/jq
     - pkg: app-misc/yq-go
+    - pkg: app-misc/google-cloud-sdk
+    - pkg: app-misc/neofetch
 
     - pkg: app-text/asciidoc
     - pkg: app-text/manpager
@@ -74,10 +77,13 @@ target:
 
     - pkg: dev-db/mysql-connector-c
     - pkg: dev-db/libiodbc
+    - pkg: dev-db/libdbi
+    - pkg: dev-db/libdbi-drivers
     - pkg: dev-db/lmdb
     - pkg: dev-db/unixODBC
 
     - pkg: dev-go/go-md2man
+    - pkg: dev-go/go-bindata
 
     - pkg: dev-libs/boehm-gc
     - pkg: dev-libs/libatomic_ops
@@ -90,21 +96,30 @@ target:
 
     - pkg: dev-libs/check
     - pkg: dev-libs/fribidi
+    - pkg: dev-libs/fstrm
     - pkg: dev-libs/geoip
     - pkg: dev-libs/libbson
     - pkg: dev-libs/libedit
     - pkg: dev-libs/libev
     - pkg: dev-libs/libevdev
+    - pkg: dev-libs/libestr
+    - pkg: dev-libs/libfastjson
     - pkg: dev-libs/libdaemon
     - pkg: dev-libs/libpthread-stubs
     - pkg: dev-libs/libgamin
+    - pkg: dev-libs/libgit2
     - pkg: dev-libs/libyaml
+    - pkg: dev-libs/liblognorm
+    - pkg: dev-libs/libmaxminddb
+    - pkg: dev-libs/librdkafka
+    - pkg: dev-libs/libsodium
     - pkg: dev-libs/lzo
     - pkg: dev-libs/jsoncpp
     - pkg: dev-libs/json-c
     - pkg: dev-libs/jansson
     - pkg: dev-libs/jemalloc
     - pkg: dev-libs/hiredis
+    - pkg: dev-libs/ivykis
     - pkg: dev-libs/xmlrpc-c
     - pkg: dev-libs/mpc
     - pkg: dev-libs/mpfr
@@ -120,6 +135,8 @@ target:
     - pkg: dev-libs/snowball-stemmer
 
     - pkg: dev-libs/boost
+
+    - pkg: dev-python/j2cli
 
     - pkg: dev-util/b2
     - pkg: dev-util/cmake
@@ -155,6 +172,7 @@ target:
     - pkg: media-gfx/ascii-image-converter
 
     - pkg: sys-apps/busybox
+    - pkg: sys-apps/eza
     - pkg: sys-apps/help2man
     - pkg: sys-apps/man-db
     - pkg: sys-apps/man-pages
@@ -162,12 +180,18 @@ target:
     - pkg: sys-apps/pcsc-lite
 
     - pkg: sys-boot/syslinux
+    - pkg: sys-boot/grub:2
+    - pkg: sys-boot/grub-emu:2
+    - pkg: sys-boot/gnu-efi
+    - pkg: sys-boot/efibootmgr
 
     - pkg: sys-devel/autogen
     - pkg: sys-devel/bison
     - pkg: sys-devel/flex
     - pkg: sys-devel/gdb
 
+    - pkg: sys-libs/efivar
+    - pkg: sys-libs/libaal
     - pkg: sys-libs/libseccomp
     - pkg: sys-libs/libunwind
     - pkg: sys-libs/talloc

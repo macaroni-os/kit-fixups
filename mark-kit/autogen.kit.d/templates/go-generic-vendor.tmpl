@@ -1,0 +1,46 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI={{ .Values.eapi | default "7" }}
+
+DESCRIPTION="{{ .Values.desc }}"
+HOMEPAGE="{{ .Values.homepage }}"
+SRC_URI="{{ .Values.src_uri }}"
+
+LICENSE="{{ .Values.license }}"
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+DEPEND="dev-lang/go"
+{{- if .Values.rdepend | default false }}
+RDEPEND="{{ regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+"
+{{- end }}
+
+post_src_unpack() {
+	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+}
+
+src_compile() {
+	custom_ldflags=(
+		"-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
+		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildCommit={{ .Values.sha }}"
+		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildGoVersion=$(go env GOVERSION)"
+	)
+
+	CGO_ENABLED=0 go build \
+		-ldflags "${custom_ldflags[*]}" \
+		-o ${PN} -v -x -mod=vendor . || die
+}
+
+src_install() {
+	dobin "${PN}"
+	{{- if .Values.dodoc | default false }}
+	dodoc {{ .Values.dodoc }}
+	{{- end }}
+
+	{{- if .Values.src_install_extra | default false }}
+	{{ regexReplaceAll "\\n" .Values.src_install_extra "\n\t" }}
+	{{- end }}
+}
+
+# vim: filetype=ebuild

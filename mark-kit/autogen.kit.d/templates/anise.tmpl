@@ -1,0 +1,38 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="{{ .Values.desc }}"
+HOMEPAGE="{{ .Values.homepage }}"
+SRC_URI="{{ .Values.src_uri }}"
+
+LICENSE="{{ .Values.license }}"
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+DEPEND="dev-lang/go"
+
+post_src_unpack() {
+	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+}
+
+src_compile() {
+	custom_ldflags=(
+		"-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
+		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildCommit={{ .Values.sha }}"
+		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildGoVersion=$(go env GOVERSION)"
+	)
+
+	CGO_ENABLED=0 go build \
+		-ldflags "${custom_ldflags[*]}" \
+		-o {{ if .Values.bindir | default false }}{{ .Values.bindir }}{{- end }}${PN} \
+		-v -x -mod=vendor {{ if .Values.bindir | default false }}./{{ .Values.bindir }}{{- else }}.{{- end }} || die
+}
+
+{{- if .Values.src_install | default false }}
+src_install() {
+{{ regexReplaceAll "\\n" .Values.src_install "\n\t" }}
+}
+{{- end }}
+
+# vim: filetype=ebuild

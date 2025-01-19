@@ -1,0 +1,166 @@
+macaroni:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-util
+    template: "templates/go-generic-vendor.tmpl"
+    vars:
+      dodoc: README.md
+      license: GPL-3
+    github:
+      user: macaroni-os
+      query: releases
+
+  packages:
+    - mark-devkit:
+        vars:
+          ldflags_ns: pkg/config
+          homepage: https://github.com/macaroni-os/mark-devkit
+          desc: M.A.R.K. Development Kit Knife
+
+    - whip:
+        vars:
+          ldflags_ns: cmd
+          homepage: https://github.com/macaroni-os/whip
+          desc: Macaroni OS Whip tool
+          src_install_extra: |
+            insinto /etc
+            doins "${FILESDIR}"/whip.yml
+
+
+    - anise-portage-converter:
+        category: app-admin
+        vars:
+          ldflags_ns: pkg/converter
+          homepage: https://github.com/macaroni-os/anise-portage-converter
+          desc: Macaroni OS Anise Portage Converter
+
+    - macaronictl:
+        category: app-admin
+        vars:
+          ldflags_ns: cmd
+          homepage: https://github.com/macaroni-os/macaronictl
+          desc: Macaroni OS Knife
+
+    - gpu-configurator:
+        category: app-admin
+        vars:
+          ldflags_ns: cmd
+          homepage: https://github.com/macaroni-os/gpu-configurator
+          desc: Macaroni OS GPU Configurator
+          rdepend: |
+
+            sys-apps/kmod
+            sys-apps/pciutils
+
+
+geaaru_tools:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-util
+    template: "templates/go-generic-vendor.tmpl"
+    vars:
+      dodoc: README.md
+      license: GPL-3
+      ldflags_ns: cmd
+    github:
+      user: geaaru
+      query: releases
+
+  packages:
+    - anise:
+        category: app-admin
+        github:
+          repo: luet
+        template: "templates/anise.tmpl"
+        vars:
+          ldflags_ns: pkg/config
+          homepage: https://github.com/geaaru/luet
+          desc: Macaroni OS Package Manager System
+          src_install: |
+
+            dobin "anise"
+            dosym /usr/bin/${PN} /usr/bin/luet
+            dodoc README.md
+
+            dosym /etc/anise /etc/luet
+            insinto /etc/anise
+            newins "${FILESDIR}"/anise.yaml anise.yaml
+            dosym /etc/anise/anise.yaml /etc/anise/luet.yaml
+
+            insinto /etc/anise/repos.conf.d
+            newins "${FILESDIR}"/geaaru-repo-index.yml geaaru-repo-index.yml
+
+        transform:
+          - kind: string
+            match: '-geaaru'
+            replace: ''
+
+    - anise-build:
+        category: app-admin
+        github:
+          repo: luet
+        template: "templates/anise.tmpl"
+        vars:
+          ldflags_ns: pkg/config
+          homepage: https://github.com/geaaru/luet
+          desc: Macaroni OS Package Manager System
+          bindir: luet-build/
+          src_install: |
+
+            dobin luet-build/${PN}
+            dosym /usr/bin/${PN} /usr/bin/luet-build
+            dodoc README.md
+
+        transform:
+          - kind: string
+            match: '-geaaru'
+            replace: ''
+
+
+    - entities:
+        vars:
+          homepage: https://github.com/geaaru/entities
+          desc: Macaroni OS Anise System Users/Groups Manager
+        transform:
+          - kind: string
+            match: '-geaaru'
+            replace: ''
+
+    - pkgs-checker:
+        vars:
+          homepage: https://github.com/geaaru/pkgs-checker
+          desc: Macaroni OS Artefacts Checker
+
+mottainaici:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    template: "templates/go-generic-vendor.tmpl"
+    vars:
+      ldflags_ns: cmd
+      dodoc: README.md
+      license: GPL-3
+    github:
+      user: MottainaiCI
+      query: releases
+
+  packages:
+    - ssh-compose:
+        category: dev-util
+        vars:
+          homepage: https://github.com/MottainaiCI/ssh-compose
+          desc: SSH Compose Orchestrator
+
+    - lxd-compose:
+        category: app-emulation
+        vars:
+          homepage: https://github.com/MottainaiCI/lxd-compose
+          desc: Deploy a complex environment to an LXD Cluster or LXD standalone installation

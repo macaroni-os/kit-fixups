@@ -55,6 +55,33 @@ macaroni:
             sys-apps/kmod
             sys-apps/pciutils
 
+    - whip-catalog:
+        category: app-admin
+        template: "templates/simple.tmpl"
+        github:
+          query: tags
+        vars:
+          homepage: https://github.com/macaroni-os/whip-catalog
+          desc: Whip tool Catalog
+          rdepend: |
+
+            app-admin/whip
+          body: |
+            post_src_unpack() {
+              mv macaroni-os-whip-catalog-* ${S}
+            }
+
+            src_install() {
+              insinto /usr/share/macaroni/whip-catalog/eclass
+              for f in "${S}"/catalog/eclass/*.yaml ; do
+                doins "${f}"
+              done
+              insinto /usr/share/macaroni/whip-catalog/commons
+              for f in "${S}"/catalog/commons/*.yaml ; do
+                doins "${f}"
+              done
+            }
+
 
 geaaru_tools:
   generator: builtin-github

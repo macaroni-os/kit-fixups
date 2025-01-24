@@ -1,0 +1,46 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "mark-kit"
+  url: "https://github.com/macaroni-os/mark-kit"
+  branch: "mark-unstable"
+
+target:
+  name: mark-kit
+  url: "https://github.com/macaroni-os/mark-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 2
+
+  atoms:
+
+    - pkg: app-admin/anise
+    - pkg: app-admin/anise-build
+    - pkg: app-admin/anise-portage-converter
+    - pkg: app-admin/entities
+    - pkg: app-admin/gpu-configurator
+    - pkg: app-admin/whip
+
+    - pkg: app-emulation/lxd-compose
+
+    - pkg: dev-util/pkgs-checker
+    - pkg: dev-util/mark-devkit
+      #max_versions: 2
+      #versions:
+      #  - "0.8.0"
+    - pkg: dev-util/ssh-compose
+
+    - pkg: sys-apps/whip-catalog
+

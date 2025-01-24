@@ -1,0 +1,193 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "python-kit"
+  url: "https://github.com/macaroni-os/python-kit"
+  branch: "mark-testing"
+
+- name: "python-modules-kit"
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
+target:
+  name: python-modules-kit
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-cpp/pystring
+
+    - pkg: dev-python/libxml2-python
+    - pkg: dev-python/pyelftools
+    - pkg: dev-python/setuptools
+
+    - pkg: dev-python/automat
+    - pkg: dev-python/aiodns
+    - pkg: dev-python/aiofiles
+    - pkg: dev-python/aiohttp
+    - pkg: dev-python/aiosignal
+    - pkg: dev-python/appdirs
+    - pkg: dev-python/async_timeout
+    - pkg: dev-python/brotlipy
+    - pkg: dev-python/bcrypt
+    - pkg: dev-python/blinker
+    - pkg: dev-python/cerberus
+    - pkg: dev-python/certifi
+    - pkg: dev-python/cffi
+    - pkg: dev-python/chardet
+    - pkg: dev-python/charset_normalizer
+    - pkg: dev-python/cheetah3
+    - pkg: dev-python/colorama
+    - pkg: dev-python/commonmark
+    - pkg: dev-python/constantly
+    - pkg: dev-python/configobj
+    - pkg: dev-python/cryptography
+    - pkg: dev-python/curio
+    - pkg: dev-python/defusedxml
+    - pkg: dev-python/docker-py
+    - pkg: dev-python/filelock
+    - pkg: dev-python/frozenlist
+
+    - pkg: dev-python/Babel
+    - pkg: dev-python/PySocks
+    - pkg: dev-python/alabaster
+    - pkg: dev-python/appi
+    - pkg: dev-python/boolean-py
+    - pkg: dev-python/calver
+
+    - pkg: dev-python/docutils
+    - pkg: dev-python/editables
+
+    - pkg: dev-python/h2
+    - pkg: dev-python/hyperlink
+    - pkg: dev-python/httplib2
+    - pkg: dev-python/httpcore
+    - pkg: dev-python/idna
+    - pkg: dev-python/imagesize
+    - pkg: dev-python/importlib_metadata
+    - pkg: dev-python/installer
+    - pkg: dev-python/ipaddress
+    - pkg: dev-python/j2cli
+    - pkg: dev-python/jinja
+    - pkg: dev-python/jsonpatch
+    - pkg: dev-python/jsonpointer
+    - pkg: dev-python/jsonschema
+    - pkg: dev-python/license-expression
+    - pkg: dev-python/libxslt-python
+    - pkg: dev-python/lxml
+    - pkg: dev-python/yarl
+    - pkg: dev-python/markdown
+    - pkg: dev-python/markupsafe
+    - pkg: dev-python/mako
+    - pkg: dev-python/meson-python
+    - pkg: dev-python/mistune
+    - pkg: dev-python/mwparserfromhell
+    - pkg: dev-python/multidict
+    - pkg: dev-python/namespace-google
+    - pkg: dev-python/namespace-sphinxcontrib
+    - pkg: dev-python/netaddr
+    - pkg: dev-python/oauthlib
+    - pkg: dev-python/ovs
+    - pkg: dev-python/paramiko
+    - pkg: dev-python/pathspec
+    - pkg: dev-python/pexpect
+    - pkg: dev-python/pbr
+    - pkg: dev-python/pip
+    - pkg: dev-python/platformdirs
+    - pkg: dev-python/pluggy
+    - pkg: dev-python/ply
+    - pkg: dev-python/protobuf-python
+    - pkg: dev-python/ptyprocess
+    - pkg: dev-python/pyasn1
+    - pkg: dev-python/pyasn1-modules
+    - pkg: dev-python/pycares
+    - pkg: dev-python/pycparser
+    - pkg: dev-python/pycurl
+    - pkg: dev-python/pygments
+    - pkg: dev-python/pyhamcrest
+    - pkg: dev-python/pyjwt
+    - pkg: dev-python/pyyaml
+    - pkg: dev-python/pyopenssl
+    - pkg: dev-python/pymongo
+    - pkg: dev-python/pynacl
+    - pkg: dev-python/pyparsing
+    - pkg: dev-python/pypax
+    - pkg: dev-python/pyproject-metadata
+    - pkg: dev-python/pyrsistent
+    - pkg: dev-python/pyserial
+    - pkg: dev-python/pytz
+    - pkg: dev-python/requests
+    - pkg: dev-python/resolvelib
+    - pkg: dev-python/rfc3986
+    - pkg: dev-python/service_identity
+    - pkg: dev-python/six
+    - pkg: dev-python/snowballstemmer
+    - pkg: dev-python/sphinx
+    - pkg: dev-python/sphinx_rtd_theme
+    - pkg: dev-python/sphinxcontrib-applehelp
+    - pkg: dev-python/sphinxcontrib-devhelp
+    - pkg: dev-python/sphinxcontrib-htmlhelp
+    - pkg: dev-python/sphinxcontrib-jquery
+    - pkg: dev-python/sphinxcontrib-jsmath
+    - pkg: dev-python/sphinxcontrib-qthelp
+    - pkg: dev-python/sphinxcontrib-serializinghtml
+    - pkg: dev-python/toml
+    - pkg: dev-python/tomli
+    - pkg: dev-python/tomli-w
+    - pkg: dev-python/twisted
+    - pkg: dev-python/trove-classifiers
+    - pkg: dev-python/typing-extensions
+    - pkg: dev-python/urllib3
+    - pkg: dev-python/versioneer
+    - pkg: dev-python/virtualenv
+    - pkg: dev-python/wheel
+    - pkg: dev-python/wstools
+    - pkg: dev-python/zipp
+    - pkg: dev-python/zope-interface
+
+    # Packages for build
+    - pkg: dev-python/flit_core
+    - pkg: dev-python/gpep517
+    - pkg: dev-python/hatchling
+    - pkg: dev-python/hatch-fancy-pypi-readme
+    - pkg: dev-python/hatch-requirements-txt
+    - pkg: dev-python/packaging
+    - pkg: dev-python/packaging-legacy
+    - pkg: dev-python/poetry-core
+    - pkg: dev-python/pdm-backend
+    - pkg: dev-python/pdm-pep517
+    - pkg: dev-python/setuptools-rust
+    - pkg: dev-python/setuptools_scm
+    - pkg: dev-python/pyrfc3339
+    - pkg: dev-python/python-xlib
+    - pkg: dev-python/semantic_version
+    - pkg: dev-python/webcolors
+
+    - pkg: dev-python/cython
+
+    - pkg: virtual/python-cffi
+    - pkg: virtual/python-enum34
+    - pkg: virtual/python-ipaddress

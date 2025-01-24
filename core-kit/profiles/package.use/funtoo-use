@@ -1,0 +1,143 @@
+# FL-10578 (mostly missing dependencies)
+net-analyzer/wireshark -plugin-ifdemo -sdjournal -bcg729 -ilbc -spandsp -sinsp -doc -test
+
+# firefox stuff:
+www-client/firefox system-sqlite
+dev-db/sqlite secure-delete
+
+# In 1.4 testing, this was required for libreoffice
+dev-libs/xmlsec nss
+media-gfx/fontforge cairo
+
+# Break a circular dependency
+media-gfx/graphviz -svg
+
+# Break another circular dependency
+net-libs/libsoup -vala
+
+# Make chromium happy re: nodejs
+net-libs/nodejs inspector
+
+# Use gentoo's upstream zeromq but set this so pyzmq can be merged cleanly.
+net-libs/zeromq drafts
+
+# FL-5241: enable *both* gtk and gtk3 USE flags for libcanberra. A good default for the applcations that are gtk2 still and for the gtk3 based gui too.
+media-libs/libcanberra gtk gtk3
+
+# git-2.15 and above require dev-libs/pcre with jit USE enabled. FL-5220:
+>=dev-libs/libpcre2-10.30 jit
+
+# enable gtk USE by default for virt-manager. FL-5196
+app-emulation/virt-manager gtk
+
+# FL-3512: workaround mutt default USE's. Stick to tokyocabinet as per upstream default.
+mail-client/mutt tokyocabinet -berkdb -gdbm
+
+# QA-473: enable text USE for app-text/xmlto
+app-text/xmlto text
+
+# FL-2625: enable virt-network in libvirt to ease networking setup
+app-emulation/libvirt virt-network
+
+# FL-2573: enable tools USE in chromaprint:
+media-libs/chromaprint tools
+
+# FL-2326: enahnce mutt USEs to more suitable defaults
+mail-client/mutt imap mbox sasl smtp
+
+# FL-1948:
+media-video/mjpegtools -v4l
+
+# FL-1437
+media-video/ffmpeg threads
+
+# FL-1808, enable xft USE in rxvt-unicode by default:
+x11-terms/rxvt-unicode xft
+
+# FL-1805: enable json USE in syslog-ng, required for correct work
+app-admin/syslog-ng json
+
+# FL-1711 enable most filesystem support in gparted
+sys-block/gparted fat hfs jfs ntfs xfs reiserfs btrfs
+
+# FL-1685 enable extraengine for dev-db/mariadb, work-arounds for clean emerge
+dev-db/mariadb extraengine
+
+# FL-1286, disable gstream USE flag for tumbler, with both ffmpeg and gstreamer flags enabled tumbler suffers from memory leaks, freezes.
+# Using ffmpeg only reported making tumbler to work much better
+xfce-extra/tumbler -gstreamer
+
+# FL-1131, qemu, set usb and usbredir USE flag enabled by default
+app-emulation/qemu usb usbredir
+
+# FL-1093, https://bugs.gentoo.org/show_bug.cgi?id=481316
+# FL-1098, force enable gbm use flag for media-libs/mesa
+# Force enable llvm-shared-libs USE flag for mesa
+media-libs/mesa gbm
+
+# FL-934, force opengl USE flag to have clean emerge of xvba-video and x11-libs/libva
+x11-libs/libva opengl
+
+# FL-897
+# force upnp and video USE flag in media-libs/mediatreamer, required for clean net-voip/linphone emerge
+media-libs/mediastreamer upnp video
+
+# FL-792, enable xattr USE flag in rsync, required for vzmigrate, and enable zstd compression capability
+net-misc/rsync xattr zstd
+
+# FL-849 add ads flag to cifs-utils, required for clean samba or cifs-utils emerge.
+# acl flag causing crappy circular dependencies, disabled atm. 
+net-fs/cifs-utils ads
+
+# FL-730 extent layman to support subversion, mercurial and git by default
+app-portage/layman git mercurial subversion
+
+# FL-660 munin require rrdtool compiled with perl flag, let's add it
+net-analyzer/rrdtool perl
+
+# FL-597: set external USE flag to virtual/python-json
+virtual/python-json external
+
+# FL-408 blender requires dev-cpp/glog built with gflags USE flag
+dev-cpp/glog gflags
+
+# FL-562 set webkit USe flag turned on for app-misc/recoll as it required for successfull package build
+app-misc/recoll webkit
+
+# FL-548 alpine need c-client built with chappa use flag, fixing it for painless install
+net-libs/c-client chappa
+
+#  FL-520 set upcall USE flag, required for clean cifs-utils emerge
+net-fs/cifs-utils upcall
+
+# FL-426, set introspection flag to gupnp-igd, it's a hard dep
+net-libs/gupnp-igd introspection
+# FL-6563: gupnp-igd is not very actively maintained, and requires older versions of gupnp, etc. Workaround:
+net-libs/libnice -upnp
+
+# FL-370, set sasl USE flag to openldap
+net-nds/openldap sasl
+
+# set mta flag to gnupg, do not remove postfix from stages
+# FL-354
+app-crypt/gnupg mta
+
+dev-lang/php gd intl
+
+# New version of net-tools (still 1.60) have new syntax which may break scripts and more.
+# Current wicd (net-misc/wicd-1.7.1_beta2-r7) is also affected.
+sys-apps/net-tools old-output
+
+# FL-261. sqlalchemy need virtual/python-sqlite external. Move package.use from unused default/linux/ profile.
+dev-lang/php gd
+dev-lang/python sqlite
+virtual/python-sqlite external
+
+# FL-194, build static mdadm binary
+sys-fs/mdadm static
+
+#FL-282, set libkms flag as it explicitly required
+x11-libs/libdrm libkms
+
+# FL-278, wpa_supplicant needs dbus for clean networkmanager emerge, let's set it here
+net-wireless/wpa_supplicant dbus

@@ -1,0 +1,38 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-xl
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-libs/apr:1
+    - pkg: dev-libs/apr-util:1
+
+    - pkg: dev-libs/libdnet
+    - pkg: dev-libs/libbsd
+    - pkg: dev-libs/libevent
+    - pkg: dev-libs/libnl:3
+    - pkg: dev-libs/libverto
+    - pkg: dev-libs/libmemcached
+
+    - pkg: net-libs/http-parser

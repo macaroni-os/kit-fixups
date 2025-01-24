@@ -1,0 +1,18 @@
+# FL-6060: mask the system-ffmpeg USE for kodi. This will turn kodi building ffmpeg internally and avoid external dep ffmpeg slots conflicts.
+media-tv/kodi system-ffmpeg
+
+# FL-5223: use.mask default-libcxx USE for the clang. libcxx the standalone standart will cause issues with GCC's libstdc++. clang can use libstdc++, but if libcxx used instead and when clang is set as main compiler, then, many ebuilds need compiled against libcxx. In reality they are built against libstdc++ from gcc. Oleg
+sys-devel/clang default-libcxx
+
+# mask icu use flag for old qtore:4. https://bugs.funtoo.org/browse/FL-4685.
+=dev-qt/qtcore-4.8.7* icu
+
+# mask autotrace USE for imagemagick. https://bugs.funtoo.org/browse/FL-3861
+media-gfx/imagemagick autotrace
+
+# QA-445: mask udev USE in util-linux. This allows to break circ dep with udev/eudev. Workaround without fork necessity.
+sys-apps/util-linux udev
+
+# This 2 packages using Gpm_Wgetch, which is what ncurses upstream suggest to avoid.
+media-libs/aalib gpm
+www-client/w3m gpm

@@ -1,0 +1,21 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+target:
+  name: kernel-kit
+  url: "https://github.com/macaroni-os/kernel-kit"
+  branch: mark-xl
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: sys-kernel/debian-sources:bookworm
+    - pkg: sys-kernel/debian-sources:trixie

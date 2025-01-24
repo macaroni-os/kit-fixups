@@ -1,0 +1,42 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-hw-kit"
+  url: "https://github.com/macaroni-os/core-hw-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-hw-kit
+  url: "https://github.com/macaroni-os/core-hw-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-libs/libusb
+
+    - pkg: sys-firmware/edk2-ovmf-bin
+    - pkg: sys-firmware/edk2-ovmf
+    - pkg: sys-firmware/ipxe
+    - pkg: sys-firmware/sgabios
+    - pkg: sys-firmware/seabios
+    - pkg: sys-firmware/seabios-bin
+    - pkg: sys-firmware/vgabios
+
+    - pkg: sys-power/iasl
+
+    - pkg: virtual/libusb:1
+

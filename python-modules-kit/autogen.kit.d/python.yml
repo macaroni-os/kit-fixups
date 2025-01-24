@@ -1,0 +1,53 @@
+hatchling_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    category: dev-python
+    template: "templates/pypi-generic.tmpl"
+    vars:
+      du_pep517: hatchling
+
+  packages:
+    - expandvars:
+        pydeps_ignore:
+          - extra == 'tests'
+        python_compat: "python3+"
+        vars:
+          license: MIT
+
+standalone_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    category: dev-python
+    template: "templates/pypi-generic.tmpl"
+    vars:
+      du_pep517: standalone
+
+  packages:
+    - propcache:
+        pydeps:
+          py:all:build:
+            - expandvars
+            - setuptools
+          use:native-extensions:build:
+            - cython
+        python_compat: "python3+"
+
+        vars:
+          license: Apache-2.0
+          iuse: +native-extensions
+
+          body: |
+            python_compile() {
+              local -x PROPCACHE_NO_EXTENSIONS=0
+              if ! use native-extensions || [[ ${EPYTHON} != python* ]]; then
+                PROPCACHE_NO_EXTENSIONS=1
+              fi
+              distutils-r1_python_compile
+            }
+

@@ -1,0 +1,94 @@
+{#- Convert 2-space indents to tabs in the ebuild: #}
+{%- macro indented(lines, initial_indent=0, allow_empty=False) %}
+{%- for line in lines.split('\n') %}
+  {%- set indent_level = (line|length - line.lstrip(" ")|length) // 2 %}
+  {%- set newline = "\n" + "\t" * ( indent_level + initial_indent ) + line[indent_level*2:] -%}
+{{newline if ( line[indent_level*2:]|length or allow_empty ) and not line == lines else line }}
+{%- endfor %}
+{%- endmacro -%}
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI={{eapi|default('7')}}
+
+PYTHON_COMPAT=( {{python_compat}} )
+{%- if du_setuptools is defined %}
+DISTUTILS_USE_SETUPTOOLS="{{du_setuptools|default('bdepend')}}"
+{%- endif %}
+{%- if du_pep517 is defined %}
+DISTUTILS_USE_PEP517="{{du_pep517|default('setuptools')}}"
+{%- endif %}
+{%- if inherit is defined %}
+{%- if 'cargo' is in inherit and cargo_optional is defined %}
+CARGO_OPTIONAL="yes"
+{%- endif %}
+
+{%- if 'cargo' is in inherit %}
+CRATES="
+{{crates}}"
+
+inherit {{inherit|sort|join(' ')}}
+{%- else %}
+inherit {{inherit|reject('equalto','cargo')|sort|join(' ')}}
+{%- endif %}
+{%- else %}
+inherit distutils-r1
+{%- endif %}
+
+DESCRIPTION="{{desc|default('')}}"
+HOMEPAGE="{{homepage|default('')}}"
+SRC_URI="{{ src_uri}}
+{%- if inherit is defined and 'cargo' is in inherit %}
+{{indented('$(cargo_crate_uris ${CRATES})',2)}}
+{%- endif %}
+"
+
+{%- if depend is defined or py_depend is defined %}
+DEPEND="
+{%- if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
+{%- if py_depend is defined %}{{indented(py_depend|default(''),1)}}{%- endif %}
+"
+{%- endif %}
+{%- if rdepend is defined or py_rdepend is defined %}
+RDEPEND="
+{%- if rdepend is defined %}{{indented(rdepend|default(''),1)}}{%- endif %}
+{%- if py_rdepend is defined %}{{indented(py_rdepend|default(''),1)}}{%- endif %}
+"
+{%- endif %}
+{%- if pdepend is defined or py_pdepend is defined %}
+PDEPEND="
+{%- if pdepend is defined %}{{indented(pdepend|default(''),1)}}{%- endif %}
+{%- if py_pdepend is defined %}{{indented(py_pdepend|default(''),1)}}{%- endif %}
+"
+{%- endif %}
+{%- if bdepend is defined or py_bdepend is defined %}
+BDEPEND="
+{%- if bdepend is defined %}{{indented(bdepend|default(''),1)}}{%- endif %}
+{%- if py_bdepend is defined %}{{indented(py_bdepend|default(''),1)}}{%- endif %}
+"
+{%- endif %}
+
+IUSE="{{iuse|default('')}}"
+{%- if restrict is defined %}
+RESTRICT="{{restrict|default('')}}"
+{%- endif %}
+SLOT="{{slot|default('0')}}"
+LICENSE="{{license|default('')}}"
+KEYWORDS="{{keywords|default('*')}}"
+
+{%- if patches is defined %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+
+{%- endif %}
+{%- if S is defined %}
+S="{{ S }}"
+{%- else %}
+S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
+{%- endif %}
+
+{%- if body is defined %}
+{{indented(body,allow_empty=True)}}
+{%- endif %}

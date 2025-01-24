@@ -2544,7 +2544,10 @@ ansible_deps_rule:
         pydeps:
           - pyparsing
     - yarl:
+        du_pep517: standalone
         pydeps:
+          py:all:build:
+            - expandvars
           py:all:
             - idna >= 2.0
             - propcache >= 0.2.0

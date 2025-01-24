@@ -30,6 +30,16 @@ sdl2libs_rule:
     github:
       user: libsdl-org
   packages:
+    - libsdl3:
+        desc: Simple Direct Media Layer
+        homepage: https://www.libsdl.org/
+        github:
+          repo: SDL
+          query: tags
+          # An odd number in the minor version indicates a pre-release.
+          # The latest one with an even number is the stable release.
+          select: release-\d+\.\d*[02468]\.\d+
+        tarball: release-{version}.tar.gz
     - libsdl2:
         desc: Simple Direct Media Layer
         homepage: https://www.libsdl.org/

@@ -2555,7 +2555,19 @@ ansible_deps_rule:
           S="${WORKDIR}/PyNaCl-${PV}"
         rdepend: |
           dev-libs/libsodium
-    - propcache
+    - expandvars:
+        du_pep517: hatchling
+        license: MIT
+    - propcache:
+        du_pep517: standalone
+        license: Apache-2.0
+        iuse: native-extensions
+        pydeps:
+          py:all:build:
+            - expandvars
+            - setuptools
+          use:native-extensions:build:
+            - cython
 
 yq_deps_rule:
   generator: pypi-compat-1

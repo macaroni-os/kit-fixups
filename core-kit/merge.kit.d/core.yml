@@ -32,11 +32,6 @@ target:
   name: core-kit
   url: "https://github.com/macaroni-os/core-kit"
   branch: mark-unstable
-  eclasses:
-    include:
-      core-kit:
-        # Regex rules for match eclasses
-        - '.*'
 
   metadata:
     # layout_masters: "core-kit"
@@ -553,6 +548,10 @@ target:
 
       - dir: ../profiles/
         to: profiles
+
+      - dir: ../eclass/
+        to: eclass
+
 
   atoms_defaults:
     max_versions: 3

@@ -21,6 +21,7 @@ macaroni:
           desc: M.A.R.K. Development Kit Knife
 
     - whip:
+        category: app-admin
         vars:
           ldflags_ns: cmd
           homepage: https://github.com/macaroni-os/whip
@@ -28,7 +29,6 @@ macaroni:
           src_install_extra: |
             insinto /etc
             doins "${FILESDIR}"/whip.yml
-
 
     - anise-portage-converter:
         category: app-admin
@@ -151,6 +151,7 @@ geaaru_tools:
 
 
     - entities:
+        category: app-admin
         vars:
           homepage: https://github.com/geaaru/entities
           desc: Macaroni OS Anise System Users/Groups Manager

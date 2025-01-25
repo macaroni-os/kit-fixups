@@ -1,0 +1,26 @@
+openssl:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-libs
+    github:
+      query: releases
+
+  packages:
+    - openssl:
+        template: templates/openssl3.tmpl
+        github:
+          user: openssl
+        vars:
+          homepage: https://github.com/openssl/openssl
+          desc: TLS/SSL and crypto library
+          license: Apache-2.0
+        selector:
+          - '<3.1.0'
+          - '>3.0.0'
+        transform:
+          - kind: string
+            match: 'OpenSSL '
+            replace: ''

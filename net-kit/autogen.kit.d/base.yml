@@ -26,6 +26,33 @@ net_vpn_dirlisting:
           desc: IPsec-based VPN solution, supporting IKEv1/IKEv2 and MOBIKE
           homepage: https://www.strongswan.org/
 
+
+net_dns_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: net-dns
+
+  packages:
+    - unbound:
+        template: templates/unbound.tmpl
+        dir:
+          url: https://nlnetlabs.nl/downloads/unbound/
+          matcher: "unbound-1..*.tar.gz$"
+          exclude: "rc"
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+        transform:
+          - kind: string
+            match: 'unbound-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+
 net_wireless_noop:
   generator: builtin-noop
   template:

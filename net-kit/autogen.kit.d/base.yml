@@ -26,3 +26,20 @@ net_vpn_dirlisting:
           desc: IPsec-based VPN solution, supporting IKEv1/IKEv2 and MOBIKE
           homepage: https://www.strongswan.org/
 
+net_wireless_noop:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: net-wireless
+
+  packages:
+    - wpa_supplicant:
+        vars:
+          versions:
+            - "2.11"
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            prefix: https://w1.fi/releases/

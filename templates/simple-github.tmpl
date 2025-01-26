@@ -1,0 +1,45 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI={{ .Values.eapi | default "7" }}
+
+DESCRIPTION="{{ .Values.desc }}"
+HOMEPAGE="{{ .Values.homepage }}"
+SRC_URI="{{ .Values.src_uri }}"
+
+LICENSE="{{ .Values.license }}"
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+{{- if .Values.restrict | default false }}
+RESTRICT="{{ .Values.restrict }}"
+{{- end }}
+
+{{- if .Values.depend | default false }}
+DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.bdepend | default false }}
+BDEPEND="{{ regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.rdepend | default false }}
+RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.pdepend | default false }}
+PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.iuse | default false }}
+IUSE="{{ .Values.iuse }}"
+{{- end }}
+
+post_src_unpack() {
+	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+}
+
+{{ if .Values.body }}
+{{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
+{{ end }}
+
+# vim: filetype=ebuild

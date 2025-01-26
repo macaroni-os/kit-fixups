@@ -84,6 +84,12 @@ fi
 # Optional meson test arguments as Bash array; this should be defined before
 # calling meson_src_test.
 
+# @VARIABLE: MESON_SETUP
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# In order to slowly migrate to new meson setup workflow but keep
+# old ebuild working as before we need to setup MESON_SETUP=1
+# to new ebuilds.
 
 read -d '' __MESON_ARRAY_PARSER <<"EOF"
 import shlex
@@ -208,6 +214,8 @@ meson_feature() {
 	usex "$1" "-D${2-$1}=enabled" "-D${2-$1}=disabled"
 }
 
+
+
 # @FUNCTION: meson_src_configure
 # @USAGE: [extra meson arguments]
 # @DESCRIPTION:
@@ -237,8 +245,19 @@ meson_src_configure() {
 	mesonargs+=("${emesonargs[@]}")
 
 	BUILD_DIR="${BUILD_DIR:-${WORKDIR}/${P}-build}"
-	set -- meson "${mesonargs[@]}" "$@" \
-		"${EMESON_SOURCE:-${S}}" "${BUILD_DIR}"
+
+	if [ "${MESON_SETUP}" = "1" ] ; then
+		# https://bugs.gentoo.org/721786
+		export BOOST_INCLUDEDIR="${BOOST_INCLUDEDIR-${EPREFIX}/usr/include}"
+		export BOOST_LIBRARYDIR="${BOOST_LIBRARYDIR-${EPREFIX}/usr/$(get_libdir)}"
+
+			echo meson setup "${mesonargs[@]} $@" >&2
+		meson setup "${mesonargs[@]}" "$@" \
+			"${EMESON_SOURCE:-${S}}" "${BUILD_DIR}" || die -n "configure failed"
+	else
+		set -- meson "${mesonargs[@]}" "$@" \
+			"${EMESON_SOURCE:-${S}}" "${BUILD_DIR}"
+	fi
 	echo "$@"
 	tc-env_build "$@" || die
 }

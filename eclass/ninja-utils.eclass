@@ -36,6 +36,16 @@ esac
 
 inherit multiprocessing
 
+# @FUNCTION: get_NINJAOPTS
+# @DESCRIPTION:
+# Get the value of NINJAOPTS, inferring them from MAKEOPTS if unset.
+get_NINJAOPTS() {
+	if [[ -z ${NINJAOPTS+set} ]]; then
+		NINJAOPTS="-j$(makeopts_jobs) -l$(makeopts_loadavg "${MAKEOPTS}" 0)"
+	fi
+	echo "${NINJAOPTS}"
+}
+
 # @FUNCTION: eninja
 # @USAGE: [<args>...]
 # @DESCRIPTION:

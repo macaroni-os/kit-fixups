@@ -183,6 +183,10 @@ if [[ ! ${_DISTUTILS_R1} ]]; then
 [[ ${EAPI} == [56] ]] && inherit eutils xdg-utils
 inherit multibuild multiprocessing toolchain-funcs
 
+if [[ ${DISTUTILS_USE_PEP517} == meson-python ]]; then
+	inherit ninja-utils meson
+fi
+
 if [[ ! ${DISTUTILS_SINGLE_IMPL} ]]; then
 	inherit python-r1
 else
@@ -247,9 +251,14 @@ _distutils_set_globals() {
 					>=dev-python/pbr-5.8.0-r1[${PYTHON_USEDEP}]
 				'
 				;;
-			pdm)
+			pdm|pdm-backend)
+				# the pdm-pep517 package is been renamed in
+				# pdm-backend. I will inject the old and new
+				# version until the old packages will be
+				# updated.
 				bdep+='
-					>=dev-python/pdm-pep517-1.0.0[${PYTHON_USEDEP}]
+					>=dev-python/pdm-pep517[${PYTHON_USEDEP}]
+					>=dev-python/pdm-backend[${PYTHON_USEDEP}]
 				'
 				;;
 			poetry)
@@ -1179,8 +1188,8 @@ _distutils-r1_backend_to_key() {
 		pbr.build)
 			echo pbr
 			;;
-		pdm.pep517.api)
-			echo pdm
+		pdm.backend|pdm.pep517.api)
+			echo pdm-backend
 			;;
 		poetry.core.masonry.api|poetry.masonry.api)
 			echo poetry
@@ -1328,6 +1337,24 @@ distutils_pep517_install() {
 	local config_settings=
 	if [[ -n ${DISTUTILS_ARGS[@]} ]]; then
 		case ${DISTUTILS_USE_PEP517} in
+			meson-python)
+				local -x NINJAOPTS=$(get_NINJAOPTS)
+				config_settings=$(
+					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die
+						import json
+						import os
+						import shlex
+						import sys
+
+						ninjaopts = shlex.split(os.environ["NINJAOPTS"])
+						print(json.dumps({
+							"builddir": "${BUILD_DIR}",
+							"setup-args": sys.argv[1:],
+							"compile-args": ["-v"] + ninjaopts,
+						}))
+					EOF
+				)
+				;;
 			setuptools)
 				config_settings=$(
 					"${EPYTHON}" - "${DISTUTILS_ARGS[@]}" <<-EOF || die

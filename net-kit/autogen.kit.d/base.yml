@@ -1,0 +1,28 @@
+net_vpn_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: net-vpn
+
+  packages:
+    - strongswan:
+        template: templates/strongswan.tmpl
+        dir:
+          url: https://download.strongswan.org/
+          matcher: "strongswan-.*.tar.bz2$"
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.bz2"
+        transform:
+          - kind: string
+            match: 'strongswan-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: IPsec-based VPN solution, supporting IKEv1/IKEv2 and MOBIKE
+          homepage: https://www.strongswan.org/
+

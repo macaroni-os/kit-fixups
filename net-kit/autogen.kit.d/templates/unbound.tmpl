@@ -3,7 +3,7 @@
 EAPI="7"
 PYTHON_COMPAT=( python3+ )
 
-inherit autotools flag-o-matic multilib-minimal python-single-r1 systemd user
+inherit autotools flag-o-matic python-single-r1 systemd user
 
 MY_P=${PN}-${PV/_/}
 DESCRIPTION="A validating, recursive and caching DNS resolver"
@@ -108,7 +108,7 @@ src_install() {
 		newinitd "${FILESDIR}"/unbound-r1.initd unbound
 	fi
 
-	dodoc doc/{README,CREDITS,TODO,Changelog,FEATURES}
+	dodoc doc/{README,CREDITS,TODO,Changelog,FEATURES,example.conf}
 
 	# bug #315519
 	dodoc contrib/unbound_munin_
@@ -121,11 +121,6 @@ src_install() {
 
 	# create space for auto-trust-anchor-file...
 	keepdir /etc/unbound/var
-	# ... and point example config to it
-	sed -i \
-		-e '/# auto-trust-anchor-file:/s,/etc/dnssec/root-anchors.txt,/etc/unbound/var/root-anchors.txt,' \
-		"${ED%/}/etc/unbound/unbound.conf" || \
-		die
 
 	# Used to store cache data
 	keepdir /var/lib/${PN}

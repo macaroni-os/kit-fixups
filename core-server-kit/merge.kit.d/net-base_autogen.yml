@@ -9,11 +9,9 @@ target:
   url: "https://github.com/macaroni-os/core-server-kit"
   branch: mark-unstable
 
-  fixups:
-    include:
-
   atoms_defaults:
     max_versions: 3
 
   atoms:
     - pkg: net-libs/nghttp2
+    - pkg: sys-cluster/glusterfs

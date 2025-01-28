@@ -63,3 +63,29 @@ net_libs_github:
                 find "${ED}"/usr -name '*.la' -delete || die
               fi
             }
+
+sys_cluster_github:
+  generator: builtin-github
+  template:
+    engine: j2cli
+
+  defaults:
+    category: sys-cluster
+    files_dir: "{{ .Values.pn }}"
+    github:
+      query: tags
+
+  packages:
+    - glusterfs:
+        github:
+          user: gluster
+        exclude:
+          - '.*dev$'
+          - '.*alpha|.*rc.*'
+
+        vars:
+          desc: GlusterFS is a powerful network/cluster filesystem
+          homepage: https://www.gluster.org/ https://github.com/gluster/glusterfs/
+          patches:
+            - 11.0-extras-defer-invoking-of-gluster-volume-set-help.patch
+

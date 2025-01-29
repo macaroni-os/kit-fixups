@@ -53,6 +53,29 @@ net_dns_dirlisting:
             match: '.tar.gz'
             replace: ''
 
+
+bind_dirlisting:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: net-dns
+    vars:
+      python_compat: python3+
+      tar_prefix: "bind"
+    dir:
+      url: https://downloads.isc.org/isc/bind9/
+      matcher: '9.*'
+      exclude: 'rc|W|P|ESV|a|b'
+    assets:
+      - name: "{{ .Values.tar_prefix }}-{{ .Values.version }}.tar.xz"
+        prefix: "{{ .Values.version }}/"
+
+  packages:
+    - bind:
+    - bind-tools:
+
+
 net_wireless_noop:
   generator: builtin-noop
   template:

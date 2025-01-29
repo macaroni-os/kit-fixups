@@ -5,6 +5,7 @@ openssl:
 
   defaults:
     category: dev-libs
+    files_dir: "{{ .Values.pn }}"
     github:
       query: releases
 
@@ -17,6 +18,7 @@ openssl:
           homepage: https://github.com/openssl/openssl
           desc: TLS/SSL and crypto library
           license: Apache-2.0
+        # Uses 3.0 LTS release
         selector:
           - '<3.1.0'
           - '>3.0.0'
@@ -24,3 +26,27 @@ openssl:
           - kind: string
             match: 'OpenSSL '
             replace: ''
+
+    - openssh:
+        category: net-misc
+        vars:
+          keywords: "*"
+        github:
+          user: openssh
+          repo: openssh-portable
+          query: tags
+        transform:
+          - kind: string
+            match: 'P'
+            replace: 'p'
+          - kind: string
+            match: 'V_'
+            replace: ''
+          - kind: string
+            match: '_'
+            replace: '.'
+          - kind: string
+            match: '.p'
+            replace: '_p'
+
+

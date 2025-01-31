@@ -1836,6 +1836,7 @@ dev_python_simplified_rule:
         revision:
           4.0: 1
           4.8.0: 1
+        select: '4.*'
         blocker: "!<dev-python/pymongo-4.0" #block all older versions
         iuse: kerberos
         pydeps:

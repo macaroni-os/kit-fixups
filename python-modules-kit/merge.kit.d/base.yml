@@ -132,6 +132,8 @@ target:
     - pkg: dev-python/pyyaml
     - pkg: dev-python/pyopenssl
     - pkg: dev-python/pymongo
+      conditions:
+        - '<dev-python/pymongo-10.0'
     - pkg: dev-python/pynacl
     - pkg: dev-python/pyparsing
     - pkg: dev-python/pypax

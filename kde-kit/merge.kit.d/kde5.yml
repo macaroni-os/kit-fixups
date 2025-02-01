@@ -1,0 +1,80 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "kde-kit"
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: kde-apps/kdegraphics-mobipocket:5
+
+    - pkg: kde-frameworks/kfilemetadata:5
+    - pkg: kde-frameworks/kirigami:5
+    - pkg: kde-frameworks/kdesu:5
+    - pkg: kde-frameworks/kpeople:5
+    - pkg: kde-frameworks/baloo:5
+    - pkg: kde-frameworks/krunner:5
+    - pkg: kde-frameworks/plasma:5
+    - pkg: kde-frameworks/kholidays:5
+    - pkg: kde-frameworks/kcmutils:5
+    - pkg: kde-frameworks/prison:5
+    - pkg: kde-frameworks/ktexteditor:5
+    - pkg: kde-frameworks/kemoticons:5
+    - pkg: kde-frameworks/knewstuff:5
+    - pkg: kde-frameworks/kactivities:5
+    - pkg: kde-frameworks/kitemmodels:5
+    - pkg: kde-frameworks/threadweaver:5
+    - pkg: kde-frameworks/kdnssd:5
+    - pkg: kde-frameworks/syntax-highlighting:5
+    - pkg: kde-frameworks/attica:5
+    - pkg: kde-frameworks/kquickcharts:5
+    - pkg: kde-frameworks/frameworkintegration:5
+    - pkg: kde-frameworks/kdeclarative:5
+    - pkg: kde-frameworks/kpty:5
+    - pkg: kde-frameworks/kunitconversion:5
+    - pkg: kde-frameworks/knotifyconfig:5
+    - pkg: kde-frameworks/kactivities-stats:5
+
+    - pkg: kde-misc/kdiff3:5
+
+    - pkg: kde-plasma/kwin:5
+    - pkg: kde-plasma/layer-shell-qt:5
+    - pkg: kde-plasma/breeze:5
+    - pkg: kde-plasma/kwayland-server:5
+    - pkg: kde-plasma/kscreenlocker:5
+    - pkg: kde-plasma/milou:5
+    - pkg: kde-plasma/plasma-integration:5
+    - pkg: kde-plasma/kdecoration:5
+    - pkg: kde-plasma/kactivitymanagerd:5
+    - pkg: kde-plasma/libkworkspace:5
+    - pkg: kde-plasma/libksysguard:5
+    - pkg: kde-plasma/kde-cli-tools:5
+
+    - pkg: media-libs/libqaccessibilityclient:5
+
+
+

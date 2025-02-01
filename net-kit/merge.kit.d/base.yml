@@ -72,6 +72,7 @@ target:
 
     - pkg: net-firewall/conntrack-tools
     - pkg: net-firewall/ebtables
+    - pkg: net-firewall/firewalld
     - pkg: net-firewall/iptables
     - pkg: net-firewall/nftables
     - pkg: net-firewall/ipset
@@ -92,6 +93,7 @@ target:
     - pkg: net-misc/iputils
     - pkg: net-misc/networkmanager
     - pkg: net-misc/lksctp-tools
+    - pkg: net-misc/radvd
     - pkg: net-misc/rsync
     - pkg: net-misc/vconfig
     - pkg: net-misc/netkit-telnetd
@@ -99,7 +101,9 @@ target:
     - pkg: net-misc/olsrd
     - pkg: net-misc/openvswitch
     - pkg: net-misc/ovn
+    - pkg: net-libs/phodav
     - pkg: net-misc/rclone
+    - pkg: net-misc/spice-gtk
     - pkg: net-misc/socat
     - pkg: net-misc/stunnel
     - pkg: net-misc/whois
@@ -126,12 +130,14 @@ target:
     - pkg: net-vpn/tailscale
     - pkg: net-vpn/vpnc
 
+    - pkg: net-libs/czmq
     - pkg: net-libs/libasyncns
     - pkg: net-libs/libesmtp
     - pkg: net-libs/libiscsi
     - pkg: net-libs/libnet
     - pkg: net-libs/libnsl
     - pkg: net-libs/libmnl
+    - pkg: net-libs/libmicrohttpd
     - pkg: net-libs/libndp
     - pkg: net-libs/libnetfilter_conntrack
     - pkg: net-libs/libnetfilter_cthelper
@@ -146,6 +152,7 @@ target:
     - pkg: net-libs/libssh2
     - pkg: net-libs/libtorrent
     - pkg: net-libs/libtirpc
+    - pkg: net-libs/rabbitmq-c
     - pkg: net-libs/rpcsvc-proto
 
     - pkg: www-apps/gitea

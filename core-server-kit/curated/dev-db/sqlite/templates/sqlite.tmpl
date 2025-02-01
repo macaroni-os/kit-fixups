@@ -29,11 +29,6 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
-src_prepare() {
-	eapply_user
-	eautoreconf
-}
-
 src_configure() {
 	local -x CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}"
 	local options=()
@@ -171,7 +166,15 @@ src_configure() {
 		# Support ICU extension.
 		# https://sqlite.org/compile.html#enable_icu
 		append-cppflags -DSQLITE_ENABLE_ICU
-		sed -e "s/^TLIBS = @LIBS@/& -licui18n -licuuc/" -i Makefile.in || die "sed failed"
+
+		# sqlite needs a little help properly linking to ICU. Its automatic configure code
+		# doesn't seem to work, so we will use pkg-config directly to extract all libraries
+		# to link against: (See ext/icu/README.txt and auto.def for more details)
+
+		for lib in i18n io uc; do
+			pkg-config icu-$lib --libs >> $T/icu_ld.txt || die
+		done
+		options+=( --with-icu-ldflags="$(cat $T/icu_ld.txt | tr '\n' ' ' )" )
 	fi
 
 	# readline USE flag.

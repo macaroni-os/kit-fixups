@@ -29,6 +29,7 @@ target:
 
   atoms:
 
+
     - pkg: app-admin/ansible
     - pkg: app-admin/ansible-base
     - pkg: app-admin/awscli
@@ -41,6 +42,7 @@ target:
     - pkg: app-admin/syslog-ng
 
     - pkg: app-backup/backrest
+    - pkg: app-backup/borgbackup
     - pkg: app-backup/restic
 
     - pkg: app-emulation/containerd
@@ -57,10 +59,16 @@ target:
     - pkg: app-emulation/qemu
     - pkg: app-emulation/spice
     - pkg: app-emulation/spice-protocol
+    - pkg: app-emulation/open-vm-tools
+    - pkg: app-emulation/waydroid
+    - pkg: app-emulation/virt-manager
+    - pkg: app-emulation/cri-o
 
     - pkg: app-misc/rdfind
     - pkg: app-misc/screen
 
+    - pkg: sys-block/open-iscsi
+    - pkg: sys-block/open-isns
     - pkg: sys-block/parted
 
     - pkg: sys-process/cronbase
@@ -72,6 +80,7 @@ target:
     - pkg: sys-process/iotop
     - pkg: sys-process/procps
     - pkg: sys-process/psmisc
+    - pkg: sys-process/procs
     - pkg: sys-process/numactl
     - pkg: sys-process/tini
 

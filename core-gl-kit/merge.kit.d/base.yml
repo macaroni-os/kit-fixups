@@ -2,23 +2,11 @@ sources:
 # We need this to inherit the eclass used for kit cache JSON generation
 - name: "core-kit"
   url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-testing"
+  branch: "mark-iii"
 
-- name: "dev-kit"
-  url: "https://github.com/macaroni-os/dev-kit"
+- name: "core-gl-kit"
+  url: "https://github.com/macaroni-os/core-gl-kit"
   branch: "mark-testing"
-
-- name: "gnome-kit"
-  url: "https://github.com/macaroni-os/gnome-kit"
-  branch: "mark-testing"
-
-- name: "desktop-kit"
-  url: "https://github.com/macaroni-os/desktop-kit"
-  branch: "mark-testing"
-
-- name: "geaaru-kit"
-  url: "https://github.com/geaaru/geaaru_overlay"
-  branch: "funtoo"
 
 target:
   name: core-gl-kit
@@ -116,5 +104,7 @@ target:
     - pkg: media-fonts/font-bitstream-100dpi
     - pkg: media-fonts/font-cronyx-cyrillic
     - pkg: media-fonts/takao-fonts
+
+    - pkg: app-emulation/vkd3d
 
     - pkg: virtual/ttf-fonts

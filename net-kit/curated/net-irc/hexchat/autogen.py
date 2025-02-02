@@ -5,10 +5,10 @@ from metatools.version import generic
 
 async def generate(hub, **pkginfo):
 
-	base_url = "https://dl.hexchat.net/hexchat/"
+	base_url = "https://dl.hexchat.net/hexchat"
 
 	versions = await hub.pkgtools.pages.iter_links (
-		base_url = base_url,
+		base_url = f'{base_url}/',
 		match_fn = lambda x: re.match("hexchat-(\d+\.\d+\.\d+).tar.xz", x),
 		fixup_fn = lambda x: x.groups()[0]
     )

@@ -1,0 +1,143 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-iii"
+
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
+target:
+  name: gnome-kit
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-accessibility/at-spi2-atk:2
+    - pkg: app-accessibility/at-spi2-core:2
+
+    - pkg: dev-libs/atk
+
+    - pkg: app-admin/system-config-printer
+
+    - pkg: app-arch/file-roller
+    - pkg: app-arch/gnome-autoar
+
+    - pkg: app-accessibility/brltty
+    - pkg: app-accessibility/caribou
+    - pkg: app-accessibility/orca
+
+    - pkg: app-cdr/brasero
+
+    - pkg: app-crypt/seahorse
+
+    - pkg: app-dicts/gnome-dictionary
+
+    - pkg: app-misc/bijiben
+    - pkg: app-misc/geoclue
+    - pkg: app-misc/gnote
+
+    - pkg: gnome-base/adrien-gdm-keyboard
+    - pkg: gnome-base/dconf
+    - pkg: gnome-base/dconf-editor
+    - pkg: gnome-base/gconf
+    - pkg: gnome-base/gdm
+    - pkg: gnome-base/gnome
+    - pkg: gnome-base/gnome-common
+    - pkg: gnome-base/gnome-control-center
+    - pkg: gnome-base/gnome-core-apps
+    - pkg: gnome-base/gnome-core-libs
+    - pkg: gnome-base/gnome-desktop
+    - pkg: gnome-base/gnome-keyring
+    - pkg: gnome-base/gnome-menus
+    - pkg: gnome-base/gnome-mime-data
+    - pkg: gnome-base/gnome-session
+    - pkg: gnome-base/gnome-settings-daemon
+    - pkg: gnome-base/gnome-shell
+    - pkg: gnome-base/gnome-shell-common
+    - pkg: gnome-base/gsettings-desktop-schemas
+    - pkg: gnome-base/gvfs
+    - pkg: gnome-base/libglade
+    - pkg: gnome-base/libgnomecanvas
+    - pkg: gnome-base/libgnomekbd
+    - pkg: gnome-base/libgtop
+    - pkg: gnome-base/librsvg
+    - pkg: gnome-base/nautilus
+    - pkg: gnome-extra/chrome-gnome-shell
+    - pkg: gnome-extra/evolution-data-server
+    - pkg: gnome-extra/evolution-ews
+    - pkg: gnome-extra/gconf-editor
+    - pkg: gnome-extra/gnome-calculator
+    - pkg: gnome-extra/gnome-calendar
+    - pkg: gnome-extra/gnome-characters
+    - pkg: gnome-extra/gnome-clocks
+    - pkg: gnome-extra/gnome-color-manager
+    - pkg: gnome-extra/gnome-contacts
+    - pkg: gnome-extra/gnome-documents
+    - pkg: gnome-extra/gnome-getting-started-docs
+    - pkg: gnome-extra/gnome-integration-spotify
+    - pkg: gnome-extra/gnome-power-manager
+    - pkg: gnome-extra/gnome-recipes
+    - pkg: gnome-extra/gnome-search-tool
+    - pkg: gnome-extra/gnome-shell-extension-applications-overview-tooltip
+    - pkg: gnome-extra/gnome-shell-extension-dash-to-dock
+    - pkg: gnome-extra/gnome-shell-extension-desktop-icons
+    - pkg: gnome-extra/gnome-shell-extension-dynamic-panel-transparency
+    - pkg: gnome-extra/gnome-shell-extensions
+    - pkg: gnome-extra/gnome-shell-extensions-topicons
+    - pkg: gnome-extra/gnome-shell-extensions-topicons-plus
+    - pkg: gnome-extra/gnome-shell-frippery
+    - pkg: gnome-extra/gnome-software
+    - pkg: gnome-extra/gnome-system-monitor
+    - pkg: gnome-extra/gnome-todo
+    - pkg: gnome-extra/gnome-tweaks
+    - pkg: gnome-extra/gnome-user-docs
+    - pkg: gnome-extra/gnome-user-share
+    - pkg: gnome-extra/gnome-weather
+    - pkg: gnome-extra/gucharmap
+    - pkg: gnome-extra/libgsf
+    - pkg: gnome-extra/mousetweaks
+    - pkg: gnome-extra/nautilus-sendto
+    - pkg: gnome-extra/nm-applet
+    - pkg: gnome-extra/polkit-gnome
+    - pkg: gnome-extra/sushi
+    - pkg: gnome-extra/zenity
+
+    - pkg: games-arcade/gnome-nibbles
+    - pkg: games-arcade/gnome-robots
+    - pkg: games-board/aisleriot
+    - pkg: games-board/crafty
+    - pkg: games-board/four-in-a-row
+    - pkg: games-board/gnome-chess
+    - pkg: games-board/gnome-mahjongg
+    - pkg: games-board/gnome-mines
+    - pkg: games-board/gnuchess
+    - pkg: games-board/iagno
+    - pkg: games-board/sjeng
+    - pkg: games-board/stockfish
+    - pkg: games-board/tali
+    - pkg: games-puzzle/atomix
+    - pkg: games-puzzle/five-or-more
+    - pkg: games-puzzle/gnome-klotski
+    - pkg: games-puzzle/gnome-sudoku
+    - pkg: games-puzzle/gnome-taquin
+    - pkg: games-puzzle/gnome-tetravex
+    - pkg: games-puzzle/gnome2048
+    - pkg: games-puzzle/hitori
+    - pkg: games-puzzle/lightsoff
+    - pkg: games-puzzle/quadrapassel
+    - pkg: games-puzzle/swell-foop
+

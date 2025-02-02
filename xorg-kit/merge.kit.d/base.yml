@@ -1,0 +1,136 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
+- name: "desktop-kit"
+  url: "https://github.com/macaroni-os/desktop-kit"
+  branch: "mark-testing"
+
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
+target:
+  name: xorg-kit
+  url: "https://github.com/macaroni-os/xorg-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-libs/glib:2
+    - pkg: dev-libs/gobject-introspection
+    - pkg: dev-libs/gobject-introspection-common
+
+    - pkg: dev-util/gdbus-codegen
+    - pkg: dev-util/glib-utils
+    - pkg: dev-util/desktop-file-utils
+
+    - pkg: x11-apps/mkfontdir
+    - pkg: x11-apps/mkfontscale
+    - pkg: x11-apps/bdftopcf
+    - pkg: x11-apps/xprop
+    - pkg: x11-apps/xset
+
+    - pkg: x11-base/xcb-proto
+    - pkg: x11-base/xorg-proto
+
+    - pkg: x11-libs/cairo
+    - pkg: x11-libs/libX11
+    - pkg: x11-libs/libXau
+    - pkg: x11-libs/libXdmcp
+    - pkg: x11-libs/libXext
+    - pkg: x11-libs/libXrender
+    - pkg: x11-libs/libfontenc
+    - pkg: x11-libs/libxcb
+    - pkg: x11-libs/libICE
+    - pkg: x11-libs/libSM
+    - pkg: x11-libs/libXcomposite
+    - pkg: x11-libs/libXdamage
+    - pkg: x11-libs/libXfixes
+    - pkg: x11-libs/libXft
+    - pkg: x11-libs/libXi
+    - pkg: x11-libs/libXmu
+    - pkg: x11-libs/libXrandr
+    - pkg: x11-libs/libXt
+    - pkg: x11-libs/libXtst
+    - pkg: x11-libs/libXxf86vm
+    - pkg: x11-libs/libdrm
+    - pkg: x11-libs/libpciaccess
+    - pkg: x11-libs/libxkbcommon
+    - pkg: x11-libs/libxshmfence
+    - pkg: x11-libs/pango
+    - pkg: x11-libs/pixman
+    - pkg: x11-libs/xtrans
+
+    - pkg: x11-misc/compose-tables
+    - pkg: x11-misc/xdg-utils
+    - pkg: x11-misc/shared-mime-info
+    - pkg: x11-misc/makedepend
+
+    - pkg: x11-proto/applewmproto
+    - pkg: x11-proto/bigreqsproto
+    - pkg: x11-proto/compositeproto
+    - pkg: x11-proto/damageproto
+    - pkg: x11-proto/dmxproto
+    - pkg: x11-proto/dri2proto
+    - pkg: x11-proto/dri3proto
+    - pkg: x11-proto/evieproto
+    - pkg: x11-proto/fixesproto
+    - pkg: x11-proto/fontcacheproto
+    - pkg: x11-proto/fontsproto
+    - pkg: x11-proto/glproto
+    - pkg: x11-proto/inputproto
+    - pkg: x11-proto/kbproto
+    - pkg: x11-proto/lg3dproto
+    - pkg: x11-proto/presentproto
+    - pkg: x11-proto/printproto
+    - pkg: x11-proto/randrproto
+    - pkg: x11-proto/recordproto
+    - pkg: x11-proto/renderproto
+    - pkg: x11-proto/resourceproto
+    - pkg: x11-proto/scrnsaverproto
+    - pkg: x11-proto/trapproto
+    - pkg: x11-proto/videoproto
+    - pkg: x11-proto/windowswmproto
+    - pkg: x11-proto/xcalibrateproto
+    - pkg: x11-proto/xcmiscproto
+    - pkg: x11-proto/xextproto
+    - pkg: x11-proto/xf86bigfontproto
+    - pkg: x11-proto/xf86dgaproto
+    - pkg: x11-proto/xf86driproto
+    - pkg: x11-proto/xf86miscproto
+    - pkg: x11-proto/xf86rushproto
+    - pkg: x11-proto/xf86vidmodeproto
+    - pkg: x11-proto/xineramaproto
+    - pkg: x11-proto/xproxymngproto
+    - pkg: x11-proto/xproto
+    - pkg: x11-proto/xwaylandproto
+
+
+    - pkg: sys-libs/libgbinder
+    - pkg: sys-libs/libglibutil
+
+    - pkg: virtual/jpeg
+    - pkg: virtual/glu
+    - pkg: virtual/opengl

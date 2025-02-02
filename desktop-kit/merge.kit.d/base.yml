@@ -1,0 +1,46 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-iii"
+
+- name: "desktop-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
+target:
+  name: desktop-kit
+  url: "https://github.com/macaroni-os/desktop-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    # Gkrellm stuff
+    - pkg: app-admin/gkrellm
+    - pkg: x11-plugins/gkrellm-bluez
+    - pkg: x11-plugins/gkrellm-countdown
+    - pkg: x11-plugins/gkrellm-cpupower
+    - pkg: x11-plugins/gkrellm-leds
+    - pkg: x11-plugins/gkrellm-mailwatch
+    - pkg: x11-plugins/gkrellm-radio
+    - pkg: x11-plugins/gkrellm-trayicons
+    - pkg: x11-plugins/gkrellm-vaiobright
+    - pkg: x11-plugins/gkrellm-volume
+    - pkg: x11-plugins/gkrellm-xkb
+    - pkg: x11-plugins/gkrellmlaunch
+    - pkg: x11-plugins/gkrellmoon
+    - pkg: x11-plugins/gkrellmwireless
+
+    - pkg: x11-themes/gkrellm-themes
+

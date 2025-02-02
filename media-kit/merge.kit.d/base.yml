@@ -2,7 +2,7 @@ sources:
 # We need this to inherit the eclass used for kit cache JSON generation
 - name: "core-kit"
   url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-testing"
+  branch: "mark-iii"
 
 - name: "security-kit"
   url: "https://github.com/macaroni-os/security-kit"
@@ -30,4 +30,65 @@ target:
 
   atoms:
 
+    - pkg: app-crypt/gcr
+    - pkg: app-crypt/libsecret
+
+    - pkg: app-accessibility/speech-dispatcher
+    - pkg: app-accessibility/espeak
+    - pkg: app-accessibility/espeak-ng
+    - pkg: app-accessibility/flite
+
+    - pkg: app-emulation/faudio
+
+    - pkg: app-cdr/cdrdao
+    - pkg: app-cdr/dvd+rw-tools
+
     - pkg: media-libs/zxing-cpp
+
+    - pkg: media-plugins/alsa-plugins
+    - pkg: media-plugins/frei0r-plugins
+    - pkg: media-plugins/grilo-plugins
+    - pkg: media-plugins/gst-plugins-a52dec
+    - pkg: media-plugins/gst-plugins-amr
+    - pkg: media-plugins/gst-plugins-assrender
+    - pkg: media-plugins/gst-plugins-bluez
+    - pkg: media-plugins/gst-plugins-cairo
+    - pkg: media-plugins/gst-plugins-cdio
+    - pkg: media-plugins/gst-plugins-cdparanoia
+    - pkg: media-plugins/gst-plugins-chromaprint
+    - pkg: media-plugins/gst-plugins-colormanagement
+    - pkg: media-plugins/gst-plugins-dash
+    - pkg: media-plugins/gst-plugins-dtls
+    - pkg: media-plugins/gst-plugins-dts
+    - pkg: media-plugins/gst-plugins-dv
+    - pkg: media-plugins/gst-plugins-dvb
+    - pkg: media-plugins/gst-plugins-dvdread
+    - pkg: media-plugins/gst-plugins-faac
+    - pkg: media-plugins/gst-plugins-faad
+    - pkg: media-plugins/gst-plugins-flac
+    - pkg: media-plugins/gst-plugins-gdkpixbuf
+    - pkg: media-plugins/gst-plugins-gtk
+    - pkg: media-plugins/gst-plugins-hls
+    - pkg: media-plugins/gst-plugins-jack
+    - pkg: media-plugins/gst-plugins-jpeg
+    - pkg: media-plugins/gst-plugins-lame
+    - pkg: media-plugins/gst-plugins-libav
+    - pkg: media-plugins/gst-plugins-libmms
+    - pkg: media-plugins/gst-plugins-meta
+    - pkg: media-plugins/gst-plugins-modplug
+    - pkg: media-plugins/gst-plugins-mpeg2dec
+    - pkg: media-plugins/gst-plugins-mpg123
+    - pkg: media-plugins/gst-plugins-mplex
+    - pkg: media-plugins/gst-plugins-opus
+    - pkg: media-plugins/gst-plugins-oss
+    - pkg: media-plugins/gst-plugins-pulse
+    - pkg: media-plugins/gst-plugins-resindvd
+    - pkg: media-plugins/gst-plugins-soup
+    - pkg: media-plugins/gst-plugins-taglib
+    - pkg: media-plugins/gst-plugins-twolame
+    - pkg: media-plugins/gst-plugins-v4l2
+    - pkg: media-plugins/gst-plugins-vaapi
+    - pkg: media-plugins/gst-plugins-vpx
+    - pkg: media-plugins/gst-plugins-wavpack
+    - pkg: media-plugins/gst-plugins-x264
+    - pkg: media-plugins/live

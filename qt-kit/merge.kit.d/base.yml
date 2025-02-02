@@ -1,0 +1,84 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "qt-kit"
+  url: "https://github.com/macaroni-os/qt-kit"
+  branch: "mark-testing"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
+target:
+  name: qt-kit
+  url: "https://github.com/macaroni-os/qt-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+
+    - pkg: dev-python/PyQt-builder
+    - pkg: dev-python/PyQt5
+    - pkg: dev-python/PyQt5-sip
+    - pkg: dev-python/PyQtWebEngine
+
+    - pkg: dev-qt/designer
+    - pkg: dev-qt/linguist
+    - pkg: dev-qt/linguist-tools
+    - pkg: dev-qt/qdbus
+    - pkg: dev-qt/qtbluetooth
+    - pkg: dev-qt/qtcharts
+    - pkg: dev-qt/qtchooser
+    - pkg: dev-qt/qtconcurrent
+    - pkg: dev-qt/qtcore
+    - pkg: dev-qt/qtdatavis3d
+    - pkg: dev-qt/qtdbus
+    - pkg: dev-qt/qtdeclarative
+    - pkg: dev-qt/qtdiag
+    - pkg: dev-qt/qtgraphicaleffects
+    - pkg: dev-qt/qtgui
+    - pkg: dev-qt/qthelp
+    - pkg: dev-qt/qtimageformats
+    - pkg: dev-qt/qtlocation
+    - pkg: dev-qt/qtlockedfile
+    - pkg: dev-qt/qtmultimedia
+    - pkg: dev-qt/qtnetwork
+    - pkg: dev-qt/qtnetworkauth
+    - pkg: dev-qt/qtopengl
+    - pkg: dev-qt/qtpaths
+    - pkg: dev-qt/qtpositioning
+    - pkg: dev-qt/qtprintsupport
+    - pkg: dev-qt/qtquickcontrols
+    - pkg: dev-qt/qtquickcontrols2
+    - pkg: dev-qt/qtscript
+    - pkg: dev-qt/qtsensors
+    - pkg: dev-qt/qtspeech
+    - pkg: dev-qt/qtsql
+    - pkg: dev-qt/qtsvg
+    - pkg: dev-qt/qttest
+    - pkg: dev-qt/qttranslations
+    - pkg: dev-qt/qtvirtualkeyboard
+    - pkg: dev-qt/qtwayland
+    - pkg: dev-qt/qtwebchannel
+    - pkg: dev-qt/qtwebengine
+    - pkg: dev-qt/qtwebkit
+    - pkg: dev-qt/qtwebsockets
+    - pkg: dev-qt/qtwidgets
+    - pkg: dev-qt/qtx11extras
+    - pkg: dev-qt/qtxml
+    - pkg: dev-qt/qtxmlpatterns
+

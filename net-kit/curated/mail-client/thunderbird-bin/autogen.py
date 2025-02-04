@@ -26,8 +26,8 @@ def get_artifact(hub, version, arch):
 		moz_arch = "x86_64"
 	elif arch == "x86":
 		moz_arch = "i686"
-	url = f"https://archive.mozilla.org/pub/thunderbird/releases/{version}/linux-{moz_arch}/en-US/thunderbird-{version}.tar.bz2"
-	final_name = f"thunderbird-bin_{moz_arch}-{version}.tar.bz2"
+	url = f"https://archive.mozilla.org/pub/thunderbird/releases/{version}/linux-{moz_arch}/en-US/thunderbird-{version}.tar.xz"
+	final_name = f"thunderbird-bin_{moz_arch}-{version}.tar.xz"
 	return hub.pkgtools.ebuild.Artifact(url=url, final_name=final_name)
 
 

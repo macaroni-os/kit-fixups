@@ -34,9 +34,6 @@ def get_moz_url(version, url_path, arch, channel):
 	if "nightly" in channel:
 		return f"{base_url}/pub/{url_path}/firefox-{version}.en-US.linux-{arch}.tar.xz"
 
-	if "stable" in channel:
-		return f"{base_url}/pub/{url_path}/{version}/linux-{arch}/en-US/firefox-{version}.tar.bz2"
-
 	return f"{base_url}/pub/{url_path}/{version}/linux-{arch}/en-US/firefox-{version}.tar.xz"
 
 
@@ -47,10 +44,7 @@ def get_artifacts(hub, name, version, url_path, channel):
 		"x86": "i686",
 	}
 
-	if "stable" in channel:
-		archive_type = "tar.bz2"
-	else:
-		archive_type = "tar.xz"
+	archive_type = "tar.xz"
 
 	# Construct the upstream url and transform the upstream version to a portage friendly version
 	return [(

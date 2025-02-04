@@ -16,6 +16,10 @@ sources:
   url: "https://github.com/geaaru/geaaru_overlay"
   branch: "funtoo"
 
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
 target:
   name: core-server-kit
   url: "https://github.com/macaroni-os/core-server-kit"
@@ -95,6 +99,8 @@ target:
     - pkg: app-misc/rdfind
     - pkg: app-misc/screen
     - pkg: app-misc/mosquitto
+
+    - pkg: dev-libs/fcgi
 
     - pkg: sys-block/open-iscsi
     - pkg: sys-block/open-isns

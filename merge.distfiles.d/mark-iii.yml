@@ -1,74 +1,120 @@
 sources:
-- name: "core-kit"
-  url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-iii"
+  - name: "core-kit"
+    url: "https://github.com/macaroni-os/core-kit"
+    branch: "mark-iii"
+    # Override the git pull depth optionally. This is set on kit-sha1.json
+    # depth: 4
 
-- name: "core-server-kit"
-  url: "https://github.com/macaroni-os/core-server-kit"
-  branch: "mark-iii"
+  - name: "browser-kit"
+    url: "https://github.com/macaroni-os/browser-kit"
+    branch: "mark-iii"
 
-- name: "core-hw-kit"
-  url: "https://github.com/macaroni-os/core-hw-kit"
-  branch: "mark-iii"
+  - name: "mark-kit"
+    url: "https://github.com/macaroni-os/mark-kit"
+    branch: "mark-iii"
 
-- name: "dev-kit"
-  url: "https://github.com/macaroni-os/dev-kit"
-  branch: "mark-iii"
+  - name: "core-server-kit"
+    url: "https://github.com/macaroni-os/core-server-kit"
+    branch: "mark-iii"
 
-- name: "lang-kit"
-  url: "https://github.com/macaroni-os/lang-kit"
-  branch: "mark-iii"
+  - name: "core-hw-kit"
+    url: "https://github.com/macaroni-os/core-hw-kit"
+    branch: "mark-iii"
 
-- name: "editors-kit"
-  url: "https://github.com/macaroni-os/editors-kit"
-  branch: "mark-iii"
+  - name: "core-gl-kit"
+    url: "https://github.com/macaroni-os/core-gl-kit"
+    branch: "mark-iii"
 
-- name: "perl-kit"
-  url: "https://github.com/macaroni-os/perl-kit"
-  branch: "mark-iii"
+  - name: "desktop-kit"
+    url: "https://github.com/macaroni-os/desktop-kit"
+    branch: "mark-iii"
 
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
-  branch: "mark-iii"
+  - name: "dev-kit"
+    url: "https://github.com/macaroni-os/dev-kit"
+    branch: "mark-iii"
 
-- name: "python-modules-kit"
-  url: "https://github.com/macaroni-os/python-modules-kit"
-  branch: "mark-iii"
+  - name: "lang-kit"
+    url: "https://github.com/macaroni-os/lang-kit"
+    branch: "mark-iii"
 
-- name: "portage-kit"
-  url: "https://github.com/macaroni-os/portage-kit"
-  branch: "mark-iii"
+  - name: "editors-kit"
+    url: "https://github.com/macaroni-os/editors-kit"
+    branch: "mark-iii"
 
-- name: "net-kit"
-  url: "https://github.com/macaroni-os/net-kit"
-  branch: "mark-iii"
+  - name: "gnome-kit"
+    url: "https://github.com/macaroni-os/gnome-kit"
+    branch: "mark-iii"
 
-- name: "kernel-kit"
-  url: "https://github.com/macaroni-os/kernel-kit"
-  branch: "mark-iii"
+  - name: "i18n-kit"
+    url: "https://github.com/macaroni-os/i18n-kit"
+    branch: "mark-iii"
 
-- name: "security-kit"
-  url: "https://github.com/macaroni-os/security-kit"
-  branch: "mark-iii"
+  - name: "java-kit"
+    url: "https://github.com/macaroni-os/java-kit"
+    branch: "mark-iii"
 
-- name: "science-kit"
-  url: "https://github.com/macaroni-os/science-kit"
-  branch: "mark-iii"
+  - name: "kde-kit"
+    url: "https://github.com/macaroni-os/kde-kit"
+    branch: "mark-iii"
 
-- name: "xorg-kit"
-  url: "https://github.com/macaroni-os/xorg-kit"
-  branch: "mark-iii"
+  - name: "perl-kit"
+    url: "https://github.com/macaroni-os/perl-kit"
+    branch: "mark-iii"
 
-- name: "text-kit"
-  url: "https://github.com/macaroni-os/text-kit"
-  branch: "mark-iii"
+  - name: "python-kit"
+    url: "https://github.com/macaroni-os/python-kit"
+    branch: "mark-iii"
 
-- name: "llvm-kit"
-  url: "https://github.com/macaroni-os/llvm-kit"
-  branch: "mark-iii"
+  - name: "python-modules-kit"
+    url: "https://github.com/macaroni-os/python-modules-kit"
+    branch: "mark-iii"
+
+  - name: "portage-kit"
+    url: "https://github.com/macaroni-os/portage-kit"
+    branch: "mark-iii"
+
+  - name: "media-kit"
+    url: "https://github.com/macaroni-os/media-kit"
+    branch: "mark-iii"
+
+  - name: "net-kit"
+    url: "https://github.com/macaroni-os/net-kit"
+    branch: "mark-iii"
+
+  - name: "kernel-kit"
+    url: "https://github.com/macaroni-os/kernel-kit"
+    branch: "mark-iii"
+
+  - name: "security-kit"
+    url: "https://github.com/macaroni-os/security-kit"
+    branch: "mark-iii"
+
+  - name: "science-kit"
+    url: "https://github.com/macaroni-os/science-kit"
+    branch: "mark-iii"
+
+  - name: "text-kit"
+    url: "https://github.com/macaroni-os/text-kit"
+    branch: "mark-iii"
+
+  - name: "llvm-kit"
+    url: "https://github.com/macaroni-os/llvm-kit"
+    branch: "mark-iii"
 
   - name: "ruby-kit"
     url: "https://github.com/macaroni-os/ruby-kit"
+    branch: "mark-iii"
+
+  - name: "qt-kit"
+    url: "https://github.com/macaroni-os/qt-kit"
+    branch: "mark-iii"
+
+  - name: "xfce-kit"
+    url: "https://github.com/macaroni-os/xfce-kit"
+    branch: "mark-iii"
+
+  - name: "xorg-kit"
+    url: "https://github.com/macaroni-os/xorg-kit"
     branch: "mark-iii"
 
 fallback_mirrors:

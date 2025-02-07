@@ -118,6 +118,7 @@ sources:
     branch: "mark-iii"
 
 fallback_mirrors:
+
   - alias: macaroni-cdn-hash
     uri:
       - https://distfiles.macaronios.org/distfiles
@@ -132,6 +133,10 @@ fallback_mirrors:
     uri:
       - https://distfiles-flat.macaronios.org/distfiles
 
+  - alias: macaroni-cdn-mark
+    uri:
+      # Use https://distfiles.macaronios.org/mark-distfiles in GENTOO_MIRRORS
+      - https://distfiles.macaronios.org/mark-distfiles/distfiles
 
 target:
   thirdpartymirrors:

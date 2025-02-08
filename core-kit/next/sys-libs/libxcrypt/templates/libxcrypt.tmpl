@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=5
+inherit eutils
+
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
+
+LICENSE="LGPL-2"
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+src_configure() {
+    ./autogen.sh
+
+	# Do not install into /usr so that tcb and pam can use us.
+	econf --libdir=/$(get_libdir) --disable-static
+}
+
+src_install() {
+	default
+	prune_libtool_files
+}

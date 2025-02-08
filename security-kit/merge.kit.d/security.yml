@@ -81,11 +81,18 @@ target:
     - pkg: dev-libs/crypto++
 
     - pkg: dev-libs/openssl
+    - pkg: dev-libs/pkcs11-helper
 
+    - pkg: net-libs/libgsasl
+    - pkg: net-libs/liboauth
+    - pkg: net-libs/mbedtls
     - pkg: net-libs/gnutls
+
     - pkg: net-misc/openssh
 
     - pkg: sys-apps/keyutils
+    - pkg: sys-apps/bolt
+    - pkg: sys-apps/bubblewrap
 
     - pkg: sys-auth/elogind
     - pkg: sys-auth/pambase

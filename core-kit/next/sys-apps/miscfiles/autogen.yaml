@@ -1,0 +1,14 @@
+miscfiles_rule:
+  generator: miscfiles
+  packages:
+    - miscfiles:
+        cat: sys-apps
+        desc: Miscellaneous files
+        homepage: https://savannah.gnu.org/projects/miscfiles/
+        revision: 4
+        dir:
+          url: https://ftp.gnu.org/gnu/miscfiles/
+          order: asc
+          format: tar.gz
+        additional_artifacts:
+          - https://distfiles.gentoo.org/distfiles/0b/UnicodeData-10.0.0.txt.xz

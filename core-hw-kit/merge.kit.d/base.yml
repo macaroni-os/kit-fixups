@@ -8,6 +8,14 @@ sources:
   url: "https://github.com/macaroni-os/core-hw-kit"
   branch: "mark-testing"
 
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: "mark-testing"
+
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
 target:
   name: core-hw-kit
   url: "https://github.com/macaroni-os/core-hw-kit"
@@ -41,9 +49,31 @@ target:
     - pkg: app-misc/lirc
 
     - pkg: dev-libs/libusb
-
+    - pkg: dev-libs/libmodbus
+    - pkg: dev-libs/libusb-compat
+    - pkg: dev-libs/libwacom
+    - pkg: net-wireless/b43-fwcutter
+    - pkg: net-wireless/bluez
+    - pkg: net-wireless/bluez-tools
+    - pkg: net-wireless/bluez-hcidump
+    - pkg: net-wireless/crda
+    - pkg: net-wireless/irda-utils
+    - pkg: net-wireless/iwd
+    - pkg: net-wireless/wireless-regdb
+    - pkg: sys-apps/dmapi
+    - pkg: sys-apps/dmidecode
+    - pkg: sys-apps/flashrom
+    - pkg: sys-apps/fwupd
+    - pkg: sys-apps/fwupd-efi
+    - pkg: sys-apps/fxload
+    - pkg: sys-apps/hwloc
+    - pkg: sys-apps/i2c-tools
+    - pkg: sys-apps/iucode_tool
+    - pkg: sys-apps/lm_sensors
+    - pkg: sys-apps/lshw
     - pkg: sys-apps/hwdata
 
+    - pkg: sys-firmware/bluez-firmware
     - pkg: sys-firmware/edk2-ovmf-bin
     - pkg: sys-firmware/edk2-ovmf
     - pkg: sys-firmware/ipxe

@@ -34,6 +34,21 @@ target:
 
     - pkg: app-emulation/libnvidia-container-bin
 
+    - pkg: dev-libs/ocl-icd
+
+    - pkg: dev-util/glslang
+    - pkg: dev-util/opencl-headers
+    - pkg: dev-util/spirv-headers
+    - pkg: dev-util/spirv-tools
+    - pkg: dev-util/vulkan-headers
+    - pkg: dev-util/vulkan-tools
+
+    - pkg: gui-libs/egl-gbm
+    - pkg: gui-libs/egl-wayland
+    - pkg: gui-libs/eglexternalplatform
+    - pkg: gui-libs/libwpe
+    - pkg: gui-libs/wpebackend-fdo
+
     - pkg: x11-drivers/xf86-input-evdev
     - pkg: x11-drivers/xf86-input-libinput
     - pkg: x11-drivers/xf86-input-mouse
@@ -133,6 +148,9 @@ target:
     - pkg: media-fonts/font-bitstream-100dpi
     - pkg: media-fonts/font-cronyx-cyrillic
     - pkg: media-fonts/takao-fonts
+
+    - pkg: media-libs/vulkan-layers
+    - pkg: media-libs/vulkan-loader
 
     - pkg: app-emulation/vkd3d
 

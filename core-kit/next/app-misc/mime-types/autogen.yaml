@@ -1,0 +1,13 @@
+mime-types_rule:
+  generator: dirlisting-1
+  packages:
+    - mime-types:
+        cat: app-misc
+        desc: Provides /etc/mime.types file
+        homepage: https://pagure.io/mailcap
+        dir:
+          url: https://releases.pagure.org/mailcap/
+          order: asc
+          format: tar.xz
+          files:
+            - mailcap

@@ -1,0 +1,164 @@
+core_sys_apps_http:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+
+  packages:
+    - which:
+        vars:
+          body: |
+
+            src_configure() {
+              append-lfs-flags
+              tc-export AR
+              default
+            }
+
+          inherit:
+            - flag-o-matic
+            - toolchain-funcs
+          license: GPL-3
+          homepage: https://carlowood.github.io/which/
+          desc: Prints out location of specified executables that are in your path
+        dir:
+          url: https://carlowood.github.io/which/
+          matcher: "which-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'which-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        assets:
+          - name: "which-{{ .Values.version }}.tar.gz"
+
+
+savannah_sys_apps_http:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: LGPL-2.1
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+  packages:
+    - attr:
+        vars:
+          body: |
+
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              unset PLATFORM
+              export OPTIMIZER=${CFLAGS}
+              export DEBUG=-DNDEBUG
+
+              tc-ld-disable-gold
+
+              local myeconfargs=(
+                --bindir="${EPREFIX}"/bin
+                --libexecdir="${EPREFIX}"/usr/$(get_libdir)
+                --enable-shared
+                $(use_enable static-libs static)
+                $(use_enable nls)
+                $(use_enable debug)
+              )
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              emake DESTDIR="${D}" install
+
+              # we install attr into /bin, so we need the shared lib with it
+              gen_usr_ldscript -a attr
+
+              # Add a wrapper until people upgrade.
+              insinto /usr/include/attr
+              newins "${FILESDIR}"/xattr-shim.h xattr.h
+
+              if ! use static-libs; then
+                find "${ED}" -name '*.la' -delete || die
+              fi
+
+              einstalldocs
+            }
+
+          depend: |
+            nls? ( sys-devel/gettext )
+          inherit:
+            - libtool
+            - toolchain-funcs
+            - usr-ldscript
+          license: LGPL-2.1
+          homepage: https://savannah.nongnu.org/projects/attr
+          desc: Extended attributes tools
+          iuse: debug nls static-libs
+        dir:
+          url: http://download.savannah.nongnu.org/releases/attr/
+          matcher: "attr-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'attr-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+
+    - acl:
+        vars:
+          body: |
+
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              local myeconfargs=(
+                --bindir="${EPREFIX}"/bin
+                --libexecdir="${EPREFIX}"/usr/$(get_libdir)
+                $(use_enable static-libs static)
+                $(use_enable nls)
+              )
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              default
+
+              gen_usr_ldscript -a acl
+
+              use static-libs || prune_libtool_files --all
+            }
+
+          depend: |
+            nls? ( sys-devel/gettext )
+          homepage: https://savannah.nongnu.org/projects/acl
+          desc: access control list utilities, libraries and headers
+          iuse: nls static-libs
+          inherit:
+            - libtool
+            - toolchain-funcs
+            - usr-ldscript
+            - ltprune
+        dir:
+          url: http://download.savannah.nongnu.org/releases/acl/
+          matcher: "acl-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'acl-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+

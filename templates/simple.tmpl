@@ -2,6 +2,10 @@
 
 EAPI={{ .Values.eapi | default "7" }}
 
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- end }}
+
 DESCRIPTION="{{ .Values.desc }}"
 {{- if .Values.homepage | default false }}
 HOMEPAGE="{{ .Values.homepage }}"
@@ -15,6 +19,14 @@ LICENSE="{{ .Values.license }}"
 {{- end }}
 SLOT="{{ .Values.slot | default 0 }}"
 KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+{{- if .Values.patches | default false }}
+PATCHES=(
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
+)
+{{- end }}
 
 {{- if .Values.iuse | default false }}
 IUSE="{{ .Values.iuse }}"
@@ -39,6 +51,7 @@ RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
 "
 {{- end }}
+
 {{- if .Values.body }}
 {{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
 {{- end }}

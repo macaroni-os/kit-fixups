@@ -1,0 +1,106 @@
+virtual_core:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+
+  packages:
+    - acl:
+        vars:
+          desc: Virtual for acl support (sys/acl.h)
+          iuse: static-libs
+          versions:
+            - "1"
+          rdepend: |
+            sys-apps/acl[static-libs?]
+
+    - awk:
+        vars:
+          desc: Virtual for awk implementation
+          versions:
+            - "2"
+          rdepend: |
+            || (
+              sys-apps/gawk
+              sys-apps/busybox
+            )
+
+    - libc:
+        vars:
+          desc: Virtual for C library
+          versions:
+            - "2"
+          rdepend: |
+            elibc_glibc? ( sys-libs/glibc )
+            elibc_musl? ( sys-libs/musl )
+            elibc_uclibc? ( sys-libs/uclibc-ng )
+
+    - libelf:
+        vars:
+          desc: Virtual for libelf.so.1 provider dev-libs/elfutils
+          versions:
+            - "4"
+          rdepend: |
+            dev-libs/elfutils
+
+    # NOTE: This virtual could be a removed from the tree.
+    - libiconv:
+        vars:
+          desc: Virtual for the GNU conversion library
+          versions:
+            - "1"
+          # Don't put elibc_glibc? ( sys-libs/glibc ) to avoid
+          # circular deps between that and gcc
+          rdepend: ""
+
+    # NOTE: This virtual could be a removed from the tree.
+    - libintl:
+        vars:
+          desc: Virtual for the GNU Internationalization Library
+          versions:
+            - "1"
+          # Don't put elibc_glibc? ( sys-libs/glibc ) to avoid
+          # circular deps between that and gcc
+          rdepend: ""
+
+    - pager:
+        vars:
+          desc: Virtual for command-line pagers
+          versions:
+            - "1"
+          rdepend: |
+            || (
+              sys-apps/less
+              sys-apps/util-linux[ncurses]
+              app-editors/vim[vim-pager]
+            )
+
+    - shadow:
+        vars:
+          desc: Virtual for user account management utilities
+          # At some point we can consider to have only
+          # entities if it supplies similar features
+          versions:
+            - "1"
+          rdepend: |
+            sys-apps/shadow
+
+    - tmpfiles:
+        vars:
+          desc: Virtual to select between different tmpfiles.d handlers
+          iuse: systemd
+          versions:
+            - "3"
+          rdepend: |
+            !systemd? ( sys-apps/systemd-tmpfiles )
+            systemd? ( sys-apps/systemd )
+
+    - libffi:
+        vars:
+          desc: A virtual for the Foreign Function Interface implementation
+          versions:
+            - "3.3_rc0"
+          rdepend: ">=dev-libs/libffi-{{ .Values.version }}"

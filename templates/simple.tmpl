@@ -3,13 +3,22 @@
 EAPI={{ .Values.eapi | default "7" }}
 
 DESCRIPTION="{{ .Values.desc }}"
+{{- if .Values.homepage | default false }}
 HOMEPAGE="{{ .Values.homepage }}"
+{{- end }}
+{{- if .Values.src_uri | default false }}
 SRC_URI="{{ .Values.src_uri }}"
+{{- end }}
 
+{{- if .Values.license | default false }}
 LICENSE="{{ .Values.license }}"
+{{- end }}
 SLOT="{{ .Values.slot | default 0 }}"
 KEYWORDS="{{ .Values.keywords | default "*" }}"
 
+{{- if .Values.iuse | default false }}
+IUSE="{{ .Values.iuse }}"
+{{- end }}
 {{- if .Values.restrict | default false }}
 RESTRICT="{{ .Values.restrict }}"
 {{- end }}
@@ -30,11 +39,8 @@ RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
 "
 {{- end }}
-{{- if .Values.iuse | default false }}
-IUSE="{{ .Values.iuse }}"
-{{- end }}
-{{ if .Values.body }}
+{{- if .Values.body }}
 {{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
-{{ end }}
+{{- end }}
 
 # vim: filetype=ebuild

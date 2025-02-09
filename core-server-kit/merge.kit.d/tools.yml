@@ -127,11 +127,16 @@ target:
     - pkg: sys-process/numactl
     - pkg: sys-process/tini
 
+    - pkg: sys-auth/nss-mdns
+    - pkg: sys-auth/nss-myhostname
+    - pkg: sys-auth/realtime-base
+
     - pkg: sys-apps/kbd
 
     - pkg: sys-apps/cpuid
     - pkg: sys-apps/dtc
     - pkg: sys-apps/hwids
+    - pkg: sys-apps/xinetd
     - pkg: sys-apps/lsb-release
     - pkg: sys-apps/openrc
     - pkg: sys-apps/pciutils
@@ -142,6 +147,15 @@ target:
     - pkg: sys-apps/systemd-tmpfiles
 
     - pkg: sys-devel/bc
+
+    - pkg: sys-libs/gpm
+    - pkg: sys-libs/ldb
+    - pkg: sys-libs/libblockdev
+    - pkg: sys-libs/libstatgrab
+    - pkg: sys-libs/liburing
+    - pkg: sys-libs/libutempter
+    - pkg: sys-libs/tdb
+    - pkg: sys-libs/tevent
 
     - pkg: sys-power/cpupower
 

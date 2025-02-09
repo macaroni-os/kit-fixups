@@ -117,6 +117,10 @@ sources:
     url: "https://github.com/macaroni-os/xorg-kit"
     branch: "mark-iii"
 
+  - name: "games-kit"
+    url: "https://github.com/macaroni-os/games-kit"
+    branch: "mark-iii"
+
 fallback_mirrors:
 
   - alias: macaroni-cdn-hash
@@ -137,6 +141,19 @@ fallback_mirrors:
     uri:
       # Use https://distfiles.macaronios.org/mark-distfiles in GENTOO_MIRRORS
       - https://distfiles.macaronios.org/mark-distfiles/distfiles
+
+  # Temporary add old funtoo distfiles to retrieve ancient packages
+  # available in the tree until mark-iii will be stable.
+  - alias: funtoo-old
+    layout:
+      modes:
+        - type: "content-hash"
+          hash: "SHA512"
+          hash_mode: "8:8:8"
+    uri:
+      # Use https://distfiles.macaronios.org/mark-distfiles in GENTOO_MIRRORS
+      - https://direct.funtoo.org/distfiles/
+      - https://direct.funtoo.org/
 
 target:
   thirdpartymirrors:
@@ -581,6 +598,9 @@ target:
         - https://distfiles.macaronios.org/distfiles
         - https://distfiles-flat.macaronios.org/distfiles
         - https://distfiles-flat.macaronios.org/
+        - https://dev.macaronios.org/
+        - https://dev.macaronios.org/distfiles/
+        - https://direct.funtoo.org/distfiles/
 
         - https://dev.gentoo.org/~sam/distfiles/
         - http://gentoo.osuosl.org/distfiles
@@ -591,6 +611,7 @@ target:
         - https://distfiles.macaronios.org/distfiles
         - https://distfiles-flat.macaronios.org/distfiles
         - https://distfiles-flat.macaronios.org/
+        - https://direct.funtoo.org/distfiles/
 
     - alias: macaroni
       uri:

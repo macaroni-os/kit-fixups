@@ -99,7 +99,6 @@ savannah_sys_apps_http:
             - libtool
             - toolchain-funcs
             - usr-ldscript
-          license: LGPL-2.1
           homepage: https://savannah.nongnu.org/projects/attr
           desc: Extended attributes tools
           iuse: debug nls static-libs
@@ -161,4 +160,24 @@ savannah_sys_apps_http:
           - kind: string
             match: '.tar.gz'
             replace: ''
+
+sys_apps_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: LGPL-2.1
+
+  packages:
+    - shadow:
+        github:
+          user: shadow-maint
+          query: releases
+        vars:
+          license: BSD GPL-2
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "shadow-.*.tar.gz"
+
 

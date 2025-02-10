@@ -110,6 +110,28 @@ core_sys_apps_http:
         assets:
           - name: "debianutils_{{ .Values.version }}.tar.xz"
 
+    - autoconf-archive:
+        category: sys-devel
+        vars:
+          rdepend: |
+            !>=gnome-base/gnome-common-3.14.0-r1[-autoconf-archive(+)]
+          license: GPL-3
+          homepage: https://www.gnu.org/software/autoconf-archive/
+          desc: GNU Autoconf Macro Archive
+        dir:
+          url: http://gnu.mirror.constant.com/autoconf-archive/
+          matcher: "autoconf-archive-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'autoconf-archive-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+
+
 savannah_sys_apps_http:
   generator: builtin-dirlisting
   defaults:

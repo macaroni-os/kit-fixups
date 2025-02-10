@@ -51,6 +51,9 @@ RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
 "
 {{- end }}
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- end }}
 
 {{- if .Values.body }}
 {{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}

@@ -7,6 +7,32 @@ core_sys_apps_http:
     category: sys-apps
 
   packages:
+    - mime-types:
+        category: app-misc
+        dir:
+          url: https://releases.pagure.org/mailcap/
+          matcher: "mailcap-.*.tar.xz$"
+        vars:
+          homepage: https://pagure.io/mailcap
+          desc: Provides /etc/mime.types file
+          license: GPL-2
+          s: "${WORKDIR}/mailcap-${PV}"
+          body: |
+
+            src_install() {
+              insinto /etc
+              doins mime.types
+            }
+        transform:
+          - kind: string
+            match: 'mailcap-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "mailcap-{{ .Values.version }}.tar.xz"
+
     - which:
         vars:
           body: |

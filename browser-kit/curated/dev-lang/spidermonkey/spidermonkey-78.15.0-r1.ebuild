@@ -49,8 +49,8 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://dev.gentoo.org/~whissi/mozilla/patchsets/${FIREFOX_PATCHSET}
-	https://dev.gentoo.org/~whissi/mozilla/patchsets/${SPIDERMONKEY_PATCHSET}
+	https://distfiles-flat.macaronios.org/distfiles/${FIREFOX_PATCHSET}
+	https://distfiles-flat.macaronios.org/distfiles/${SPIDERMONKEY_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz

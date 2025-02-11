@@ -1,4 +1,4 @@
-core_sys_apps_http:
+core_dirlisting:
   generator: builtin-dirlisting
 
   defaults:
@@ -130,6 +130,83 @@ core_sys_apps_http:
             replace: ''
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+
+    - libcap-ng:
+        category: sys-libs
+        dir:
+          url: https://people.redhat.com/sgrubb/libcap-ng/
+          matcher: "libcap-ng-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'libcap-ng-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+        vars:
+          python_compat: python3+
+          inherit:
+            - autotools
+            - flag-o-matic
+            - python-r1
+          rdepend: |
+            python? ( ${PYTHON_DEPS} )
+          depend: |
+            ${RDEPEND}
+            sys-kernel/linux-headers
+            python? ( dev-lang/swig )
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          iuse: python static-libs
+          license: LGPL-2.1
+          homepage: https://people.redhat.com/sgrubb/libcap-ng/
+          desc: POSIX 1003.1e capabilities
+          body: |
+            src_prepare() {
+              # Apply patch from upstream
+              sed -i -e '/^PYTHON = $(PYTHON)/d' bindings/python3/Makefile.am || die
+              default
+              eautoreconf
+            }
+            src_configure() {
+              use sparc && replace-flags -O? -O0
+              local ECONF_SOURCE="${S}"
+              local myconf=(
+                $(use_enable static-libs static)
+                --with-capability_header="${ESYSROOT}"/usr/include/linux/capability.h
+              )
+              local pythonconf=( --without-python3 )
+              if use python ; then
+                setup_python_flags_configure() {
+                  pythonconf=( --with-python3 )
+                  run_in_build_dir econf "${pythonconf[@]}" "${myconf[@]}"
+                }
+                python_foreach_impl setup_python_flags_configure
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                run_in_build_dir econf "${pythonconf[@]}" "${myconf[@]}"
+              fi
+            }
+            src_compile() {
+              if use python; then
+                python_foreach_impl run_in_build_dir emake
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                emake -C "${BUILD_DIR}"
+              fi
+            }
+            src_install() {
+              if use python; then
+                python_foreach_impl run_in_build_dir emake DESTDIR="${D}" install
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                emake -C "${BUILD_DIR}" DESTDIR="${D}" install
+              fi
+              find "${ED}" -name '*.la' -delete || die
+            }
 
 
 savannah_sys_apps_http:

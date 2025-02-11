@@ -209,6 +209,46 @@ core_dirlisting:
             }
 
 
+libtools_pkgs:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+    assets:
+      - name: "libtool-{{ .Values.version }}.tar.xz"
+
+  packages:
+    - libltdl:
+        vars:
+          desc: A shared library tool for developers
+          homepage: https://www.gnu.org/software/libtool/
+          license: GPL-2
+          iuse: static-libs
+          s: "${WORKDIR}/libtool-${PV}/libltdl"
+          body: |
+            src_configure() {
+              ECONF_SOURCE=${S}
+              econf --enable-ltdl-install \
+                $(use_enable static-libs static)
+            }
+            src_install() {
+              emake DESTDIR="${D}" install
+            }
+
+        dir:
+          url: https://ftp.wayne.edu/gnu/libtool/
+          matcher: "libtool-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'libtool-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+
 savannah_sys_apps_http:
   generator: builtin-dirlisting
   defaults:

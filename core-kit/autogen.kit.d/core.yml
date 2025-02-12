@@ -502,4 +502,47 @@ sys_apps_github:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             matcher: "shadow-.*.tar.gz"
 
+    - libffi:
+        transform:
+          - kind: string
+            match: 'libffi '
+            replace: ''
+        template: ../../templates/simple.tmpl
+        category: dev-libs
+        github:
+          user: libffi
+          query: releases
+        vars:
+          inherit:
+            - preserve-libs
+          license: MIT
+          iuse: debug exec-static-trampoline pax_kernel static-libs
+          desc: Portable, high level programming interface to various calling conventions
+          homepage: https://sourceware.org/libffi/ https://github.com/libffi/libffi/
+          body: |
+            src_configure() {
+              ECONF_SOURCE="${S}" econf \
+                --prefix="${EPREFIX}"/usr/ \
+                --includedir="${EPREFIX}"/usr/$(get_libdir)/${PN}/include \
+                --disable-multi-os-directory \
+                $(use_enable static-libs static) \
+                $(use_enable exec-static-trampoline exec-static-tramp) \
+                $(use_enable pax_kernel pax_emutramp) \
+                $(use_enable debug)
+            }
 
+            src_install() {
+              einstalldocs
+              emake DESTDIR="${D}" install
+              find "${ED}" -name "*.la" -delete || die
+            }
+            pkg_preinst() {
+              preserve_old_lib /usr/$(get_libdir)/libffi.so.7
+            }
+            pkg_postinst() {
+              preserve_old_lib_notify /usr/$(get_libdir)/libffi.so.7
+            }
+
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "libffi-.*.tar.gz"

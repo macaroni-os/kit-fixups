@@ -98,9 +98,24 @@ virtual_core:
             !systemd? ( sys-apps/systemd-tmpfiles )
             systemd? ( sys-apps/systemd )
 
+
+virtual_github:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+    ignore_artefacts: true
+
+  packages:
     - libffi:
+        github:
+          user: libffi
+          query: releases
         vars:
+          license: MIT
           desc: A virtual for the Foreign Function Interface implementation
-          versions:
-            - "3.3_rc0"
           rdepend: ">=dev-libs/libffi-{{ .Values.version }}"
+        transform:
+          - kind: string
+            match: 'libffi '
+            replace: ''

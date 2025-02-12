@@ -2,6 +2,15 @@
 
 EAPI={{ .Values.eapi | default "7" }}
 
+{{- if .Values.python_compat | default false }}
+PYTHON_COMPAT=( {{ .Values.python_compat }})
+{{- end }}
+{{- if .Values.extra_envs | default false }}
+{{- range $p := .Values.extra_envs }}
+{{ $p }}
+{{- end }}
+{{- end }}
+
 {{- if .Values.inherit | default false }}
 inherit {{ .Values.inherit | join " " }}
 {{- end }}
@@ -30,6 +39,9 @@ PATCHES=(
 
 {{- if .Values.iuse | default false }}
 IUSE="{{ .Values.iuse }}"
+{{- end }}
+{{- if .Values.required_use | default false }}
+REQUIRED_USE="{{ .Values.required_use }}"
 {{- end }}
 {{- if .Values.restrict | default false }}
 RESTRICT="{{ .Values.restrict }}"

@@ -2,6 +2,19 @@
 
 EAPI={{ .Values.eapi | default "7" }}
 
+{{- if .Values.python_compat | default false }}
+PYTHON_COMPAT=( {{ .Values.python_compat }})
+{{- end }}
+{{- if .Values.extra_envs | default false }}
+{{- range $p := .Values.extra_envs }}
+{{ $p }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- end }}
+
 DESCRIPTION="{{ .Values.desc }}"
 {{- if .Values.homepage | default false }}
 HOMEPAGE="{{ .Values.homepage }}"
@@ -16,8 +29,19 @@ LICENSE="{{ .Values.license }}"
 SLOT="{{ .Values.slot | default 0 }}"
 KEYWORDS="{{ .Values.keywords | default "*" }}"
 
+{{- if .Values.patches | default false }}
+PATCHES=(
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
+)
+{{- end }}
+
 {{- if .Values.iuse | default false }}
 IUSE="{{ .Values.iuse }}"
+{{- end }}
+{{- if .Values.required_use | default false }}
+REQUIRED_USE="{{ .Values.required_use }}"
 {{- end }}
 {{- if .Values.restrict | default false }}
 RESTRICT="{{ .Values.restrict }}"
@@ -39,6 +63,10 @@ RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
 "
 {{- end }}
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- end }}
+
 {{- if .Values.body }}
 {{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
 {{- end }}

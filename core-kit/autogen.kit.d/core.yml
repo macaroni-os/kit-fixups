@@ -1,0 +1,548 @@
+core_dirlisting:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+
+  packages:
+    - mime-types:
+        category: app-misc
+        dir:
+          url: https://releases.pagure.org/mailcap/
+          matcher: "mailcap-.*.tar.xz$"
+        vars:
+          homepage: https://pagure.io/mailcap
+          desc: Provides /etc/mime.types file
+          license: GPL-2
+          s: "${WORKDIR}/mailcap-${PV}"
+          body: |
+
+            src_install() {
+              insinto /etc
+              doins mime.types
+            }
+        transform:
+          - kind: string
+            match: 'mailcap-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "mailcap-{{ .Values.version }}.tar.xz"
+
+    - which:
+        vars:
+          body: |
+
+            src_configure() {
+              append-lfs-flags
+              tc-export AR
+              default
+            }
+
+          inherit:
+            - flag-o-matic
+            - toolchain-funcs
+          license: GPL-3
+          homepage: https://carlowood.github.io/which/
+          desc: Prints out location of specified executables that are in your path
+        dir:
+          url: https://carlowood.github.io/which/
+          matcher: "which-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'which-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        assets:
+          - name: "which-{{ .Values.version }}.tar.gz"
+
+    - debianutils:
+        vars:
+          body: |
+            src_prepare() {
+              # Avoid adding po4a dependency, upstream refreshes manpages.
+              sed -i -e '/SUBDIRS/s|po4a||' Makefile.am || die
+              default
+              eautoreconf
+            }
+            src_configure() {
+              use static && append-ldflags -static
+              default
+            }
+
+            src_install() {
+              into /
+              dobin tempfile run-parts
+              if use installkernel ; then
+                dosbin installkernel
+              fi
+              into /usr
+              dobin ischroot
+              dosbin savelog
+              doman ischroot.1 tempfile.1 run-parts.8 savelog.8
+              use installkernel && doman installkernel.8
+              keepdir /etc/kernel/postinst.d
+            }
+
+          inherit:
+            - autotools
+            - flag-o-matic
+          iuse: +installkernel static
+          desc: A selection of tools from Debian
+          homepage: https://packages.qa.debian.org/d/debianutils.html
+          license: BSD GPL-2 SMAIL
+        dir:
+          url: http://ftp.it.debian.org/debian/pool/main/d/debianutils/
+          matcher: "debianutils_.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'debianutils_'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "debianutils_{{ .Values.version }}.tar.xz"
+
+    - autoconf-archive:
+        category: sys-devel
+        vars:
+          rdepend: |
+            !>=gnome-base/gnome-common-3.14.0-r1[-autoconf-archive(+)]
+          license: GPL-3
+          homepage: https://www.gnu.org/software/autoconf-archive/
+          desc: GNU Autoconf Macro Archive
+        dir:
+          url: http://gnu.mirror.constant.com/autoconf-archive/
+          matcher: "autoconf-archive-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'autoconf-archive-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+
+
+    - gettext:
+        category: sys-devel
+        vars:
+          body: |
+            pkg_setup() {
+              java-pkg-opt-2_pkg_setup
+            }
+            src_prepare() {
+              java-pkg-opt-2_src_prepare
+              default
+              elibtoolize
+            }
+            src_configure() {
+              local myconf=(
+                # switches common to runtime and top-level
+                --cache-file=${S}/config.cache
+                # Emacs support is now in a separate package
+                --without-emacs
+                --without-lispdir
+                # glib depends on us so avoid circular deps
+                --with-included-glib
+                # libcroco depends on glib which ... ^^^
+                --with-included-libcroco
+                # this will _disable_ libunistring (since it is not bundled),
+                --with-included-libunistring
+                # Never build libintl since it's in dev-libs/libintl now.
+                --without-included-gettext
+                # Never build bundled copy of libxml2.
+                --without-included-libxml
+                --disable-csharp
+                --without-cvs
+                $(use_enable acl)
+                $(use_enable cxx c++)
+                $(use_enable cxx libasprintf)
+                $(use_with git)
+                $(use_enable java)
+                $(use_enable ncurses curses)
+                $(use_enable nls)
+                $(use_enable openmp)
+                $(use_enable static-libs static)
+                $(use_enable xattr attr)
+              )
+              local ECONF_SOURCE="${S}"
+              econf "${myconf[@]}"
+            }
+            src_install() {
+              emake DESTDIR="${D}" install
+              dosym msgfmt /usr/bin/gmsgfmt # bug #43435
+              dobin gettext-tools/misc/gettextize
+              # 909041 never install libintl which upstream insists on building
+              rm -f "${ED}"/usr/$(get_libdir)/libintl.* "${ED}"/usr/include/libintl.h
+              find "${ED}" -type f -name "*.la" -delete || die
+              if use java ; then
+                java-pkg_dojar "${ED}"/usr/share/${PN}/*.jar
+                rm "${ED}"/usr/share/${PN}/*.jar || die
+                rm "${ED}"/usr/share/${PN}/*.class || die
+                if use doc ; then
+                  java-pkg_dojavadoc "${ED}"/usr/share/doc/${PF}/html/javadoc2
+                fi
+              fi
+              dodoc AUTHORS ChangeLog NEWS README THANKS
+              if use doc ; then
+                docinto html
+                dodoc "${ED}"/usr/share/doc/${PF}/*.html
+              else
+                rm -rf "${ED}"/usr/share/doc/${PF}/{csharpdoc,examples,javadoc2,javadoc1}
+              fi
+              rm "${ED}"/usr/share/doc/${PF}/*.html || die
+            }
+            pkg_preinst() {
+              java-pkg-opt-2_pkg_preinst
+            }
+
+          depend: |
+            virtual/libiconv
+            virtual/libintl
+            dev-libs/libxml2
+            dev-libs/expat
+            acl? ( virtual/acl )
+            ncurses? ( sys-libs/ncurses )
+            java? ( virtual/jdk )
+          bdepend: |
+            git? (  dev-vcs/git )
+          pdepend: |
+            emacs? ( app-emacs/po-mode )
+          rdepend: |
+            ${DEPEND}
+            git? (  dev-vcs/git )
+            java? ( virtual/jdk )
+          inherit:
+            - libtool
+            - java-pkg-opt-2
+          license: GPL-3+ cxx? ( LGPL-2.1+ )
+          homepage: https://www.gnu.org/software/gettext/
+          desc: GNU locale utilities
+          iuse: acl -cvs +cxx doc emacs git java ncurses nls openmp static-libs xattr
+        dir:
+          url: https://ftp.gnu.org/pub/gnu/gettext/
+          matcher: "gettext-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'gettext-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+
+    - libcap-ng:
+        category: sys-libs
+        dir:
+          url: https://people.redhat.com/sgrubb/libcap-ng/
+          matcher: "libcap-ng-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'libcap-ng-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+        vars:
+          python_compat: python3+
+          inherit:
+            - autotools
+            - flag-o-matic
+            - python-r1
+          rdepend: |
+            python? ( ${PYTHON_DEPS} )
+          depend: |
+            ${RDEPEND}
+            sys-kernel/linux-headers
+            python? ( dev-lang/swig )
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          iuse: python static-libs
+          license: LGPL-2.1
+          homepage: https://people.redhat.com/sgrubb/libcap-ng/
+          desc: POSIX 1003.1e capabilities
+          body: |
+            src_prepare() {
+              # Apply patch from upstream
+              sed -i -e '/^PYTHON = $(PYTHON)/d' bindings/python3/Makefile.am || die
+              default
+              eautoreconf
+            }
+            src_configure() {
+              use sparc && replace-flags -O? -O0
+              local ECONF_SOURCE="${S}"
+              local myconf=(
+                $(use_enable static-libs static)
+                --with-capability_header="${ESYSROOT}"/usr/include/linux/capability.h
+              )
+              local pythonconf=( --without-python3 )
+              if use python ; then
+                setup_python_flags_configure() {
+                  pythonconf=( --with-python3 )
+                  run_in_build_dir econf "${pythonconf[@]}" "${myconf[@]}"
+                }
+                python_foreach_impl setup_python_flags_configure
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                run_in_build_dir econf "${pythonconf[@]}" "${myconf[@]}"
+              fi
+            }
+            src_compile() {
+              if use python; then
+                python_foreach_impl run_in_build_dir emake
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                emake -C "${BUILD_DIR}"
+              fi
+            }
+            src_install() {
+              if use python; then
+                python_foreach_impl run_in_build_dir emake DESTDIR="${D}" install
+              else
+                local BUILD_DIR=${WORKDIR}/build
+                emake -C "${BUILD_DIR}" DESTDIR="${D}" install
+              fi
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+
+libtools_pkgs:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+    assets:
+      - name: "libtool-{{ .Values.version }}.tar.xz"
+
+  packages:
+    - libltdl:
+        vars:
+          desc: A shared library tool for developers
+          homepage: https://www.gnu.org/software/libtool/
+          license: GPL-2
+          iuse: static-libs
+          s: "${WORKDIR}/libtool-${PV}/libltdl"
+          body: |
+            src_configure() {
+              ECONF_SOURCE=${S}
+              econf --enable-ltdl-install \
+                $(use_enable static-libs static)
+            }
+            src_install() {
+              emake DESTDIR="${D}" install
+            }
+
+        dir:
+          url: https://ftp.wayne.edu/gnu/libtool/
+          matcher: "libtool-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'libtool-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+
+savannah_sys_apps_http:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: LGPL-2.1
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+  packages:
+    - attr:
+        vars:
+          body: |
+
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              unset PLATFORM
+              export OPTIMIZER=${CFLAGS}
+              export DEBUG=-DNDEBUG
+
+              tc-ld-disable-gold
+
+              local myeconfargs=(
+                --bindir="${EPREFIX}"/bin
+                --libexecdir="${EPREFIX}"/usr/$(get_libdir)
+                --enable-shared
+                $(use_enable static-libs static)
+                $(use_enable nls)
+                $(use_enable debug)
+              )
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              emake DESTDIR="${D}" install
+
+              # we install attr into /bin, so we need the shared lib with it
+              gen_usr_ldscript -a attr
+
+              # Add a wrapper until people upgrade.
+              insinto /usr/include/attr
+              newins "${FILESDIR}"/xattr-shim.h xattr.h
+
+              if ! use static-libs; then
+                find "${ED}" -name '*.la' -delete || die
+              fi
+
+              einstalldocs
+            }
+
+          depend: |
+            nls? ( sys-devel/gettext )
+          inherit:
+            - libtool
+            - toolchain-funcs
+            - usr-ldscript
+          homepage: https://savannah.nongnu.org/projects/attr
+          desc: Extended attributes tools
+          iuse: debug nls static-libs
+        dir:
+          url: http://download.savannah.nongnu.org/releases/attr/
+          matcher: "attr-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'attr-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+
+    - acl:
+        vars:
+          body: |
+
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              local myeconfargs=(
+                --bindir="${EPREFIX}"/bin
+                --libexecdir="${EPREFIX}"/usr/$(get_libdir)
+                $(use_enable static-libs static)
+                $(use_enable nls)
+              )
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              default
+
+              gen_usr_ldscript -a acl
+
+              use static-libs || prune_libtool_files --all
+            }
+
+          depend: |
+            nls? ( sys-devel/gettext )
+          homepage: https://savannah.nongnu.org/projects/acl
+          desc: access control list utilities, libraries and headers
+          iuse: nls static-libs
+          inherit:
+            - libtool
+            - toolchain-funcs
+            - usr-ldscript
+            - ltprune
+        dir:
+          url: http://download.savannah.nongnu.org/releases/acl/
+          matcher: "acl-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'acl-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+
+sys_apps_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: LGPL-2.1
+
+  packages:
+    - shadow:
+        github:
+          user: shadow-maint
+          query: releases
+        vars:
+          license: BSD GPL-2
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "shadow-.*.tar.gz"
+
+    - libffi:
+        transform:
+          - kind: string
+            match: 'libffi '
+            replace: ''
+        template: ../../templates/simple.tmpl
+        category: dev-libs
+        github:
+          user: libffi
+          query: releases
+        vars:
+          inherit:
+            - preserve-libs
+          license: MIT
+          iuse: debug exec-static-trampoline pax_kernel static-libs
+          desc: Portable, high level programming interface to various calling conventions
+          homepage: https://sourceware.org/libffi/ https://github.com/libffi/libffi/
+          body: |
+            src_configure() {
+              ECONF_SOURCE="${S}" econf \
+                --prefix="${EPREFIX}"/usr/ \
+                --includedir="${EPREFIX}"/usr/$(get_libdir)/${PN}/include \
+                --disable-multi-os-directory \
+                $(use_enable static-libs static) \
+                $(use_enable exec-static-trampoline exec-static-tramp) \
+                $(use_enable pax_kernel pax_emutramp) \
+                $(use_enable debug)
+            }
+
+            src_install() {
+              einstalldocs
+              emake DESTDIR="${D}" install
+              find "${ED}" -name "*.la" -delete || die
+            }
+            pkg_preinst() {
+              preserve_old_lib /usr/$(get_libdir)/libffi.so.7
+            }
+            pkg_postinst() {
+              preserve_old_lib_notify /usr/$(get_libdir)/libffi.so.7
+            }
+
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "libffi-.*.tar.gz"

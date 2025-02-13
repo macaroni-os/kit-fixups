@@ -1,0 +1,17 @@
+spidermonkey_rule:
+  generator: spidermonkey
+  packages:
+    - spidermonkey:
+        cat: dev-lang
+        desc: SpiderMonkey is Mozilla's JavaScript engine written in C and C++
+        homepage: https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey
+        license: MPL-2.0
+        version: 78.15.0
+        revision: 2
+        dir:
+          url: https://archive.mozilla.org/pub/firefox/releases/78.15.0esr/source/firefox-78.15.0esr.source.tar.xz
+        files:
+          - firefox-78.15.0esr.source
+        additional_artifacts:
+          - https://distfiles-flat.macaronios.org/distfiles/firefox-78esr-patches-19.tar.xz
+          - https://distfiles-flat.macaronios.org/distfiles/spidermonkey-78-patches-04.tar.xz

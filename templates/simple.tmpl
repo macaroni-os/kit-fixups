@@ -3,7 +3,7 @@
 EAPI={{ .Values.eapi | default "7" }}
 
 {{- if .Values.python_compat | default false }}
-PYTHON_COMPAT=( {{ .Values.python_compat }})
+PYTHON_COMPAT=( {{ .Values.python_compat }} )
 {{- end }}
 {{- if .Values.extra_envs | default false }}
 {{- range $p := .Values.extra_envs }}

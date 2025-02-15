@@ -1,0 +1,205 @@
+sys_devel_llvm:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-devel
+    vars:
+      llvm_experimental_targets:
+        - ARC
+        - CSKY
+        - DirectX
+        - M68k
+        - SPIRV
+        - Xtensa
+      llvm_production_targets:
+        - AArch64
+        - AMDGPU
+        - ARM
+        - AVR
+        - BPF
+        - Hexagon
+        - Lanai
+        - LoongArch
+        - Mips
+        - MSP430
+        - NVPTX
+        - PowerPC
+        - RISCV
+        - Sparc
+        - SystemZ
+        - VE
+        - WebAssembly
+        - X86
+        - XCore
+      llvm_components:
+        # shared libs
+        - LLVM
+        - LTO
+        - Remarks
+
+        # tools
+        - llvm-config
+
+        # common stuff
+        - cmake-exports
+        - llvm-headers
+
+        # libraries needed for clang-tblgen
+        - LLVMDemangle
+        - LLVMSupport
+        - LLVMTableGen
+
+        # utilities
+        - llvm-tblgen
+        - FileCheck
+        - llvm-PerfectShuffle
+        - count
+        - not
+        - yaml-bench
+        - UnicodeNameMappingGenerator
+
+        # tools
+        - bugpoint
+        - dsymutil
+        - llc
+        - lli
+        - lli-child-target
+        - llvm-addr2line
+        - llvm-ar
+        - llvm-as
+        - llvm-bcanalyzer
+        - llvm-bitcode-strip
+        - llvm-c-test
+        - llvm-cat
+        - llvm-cfi-verify
+        - llvm-config
+        - llvm-cov
+        - llvm-cvtres
+        - llvm-cxxdump
+        - llvm-cxxfilt
+        - llvm-cxxmap
+        - llvm-debuginfo-analyzer
+        - llvm-debuginfod
+        - llvm-debuginfod-find
+        - llvm-diff
+        - llvm-dis
+        - llvm-dlltool
+        - llvm-dwarfdump
+        - llvm-dwarfutil
+        - llvm-dwp
+        - llvm-exegesis
+        - llvm-extract
+        - llvm-gsymutil
+        - llvm-ifs
+        - llvm-install-name-tool
+        - llvm-jitlink
+        - llvm-jitlink-executor
+        - llvm-lib
+        - llvm-libtool-darwin
+        - llvm-link
+        - llvm-lipo
+        - llvm-lto
+        - llvm-lto2
+        - llvm-mc
+        - llvm-mca
+        - llvm-ml
+        - llvm-modextract
+        - llvm-mt
+        - llvm-nm
+        - llvm-objcopy
+        - llvm-objdump
+        - llvm-opt-report
+        - llvm-otool
+        - llvm-pdbutil
+        - llvm-profdata
+        - llvm-profgen
+        - llvm-ranlib
+        - llvm-rc
+        - llvm-readelf
+        - llvm-readobj
+        - llvm-reduce
+        - llvm-remark-size-diff
+        - llvm-remarkutil
+        - llvm-rtdyld
+        - llvm-sim
+        - llvm-size
+        - llvm-split
+        - llvm-stress
+        - llvm-strings
+        - llvm-strip
+        - llvm-symbolizer
+        - llvm-tapi-diff
+        - llvm-tli-checker
+        - llvm-undname
+        - llvm-windres
+        - llvm-xray
+        - obj2yaml
+        - opt
+        - sancov
+        - sanstats
+        - split-file
+        - verify-uselistorder
+        - yaml2obj
+
+        # python modules
+        - opt-viewer
+    github:
+      user: llvm
+      repo: llvm-project
+      query: releases
+      num_pages: 3
+      per_page: 1000
+      #per_page: 300
+
+  packages:
+    - llvm:
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.src.tar.xz"
+            matcher: "llvm-project-.*.src.tar.xz"
+        transform:
+          - kind: string
+            match: 'LLVM '
+            replace: ''
+        selector:
+          - '<17.0'
+        vars:
+          python_compat: "python3+"
+          slot: 16
+          inherit:
+            - cmake
+            - pax-utils
+            - python-any-r1
+            - toolchain-funcs
+          desc: Low Level Virtual Machine
+          homepage: https://llvm.org/
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc
+          iuse: debug doc exegesis gold libedit +libffi ncurses xar xml z3 zstd binutils-plugin
+          rdepend: |
+            sys-libs/zlib:=
+            exegesis? ( dev-libs/libpfm:= )
+            gold? ( sys-devel/binutils:*[plugins] )
+            libedit? ( dev-libs/libedit:= )
+            libffi? ( dev-libs/libffi:0= )
+            ncurses? ( sys-libs/ncurses:0= )
+            xar? ( app-arch/xar )
+            xml? ( dev-libs/libxml2:2= )
+            z3? ( >=sci-mathematics/z3-4.7.1:0= )
+            zstd? ( app-arch/zstd:= )
+          depend: |
+            ${RDEPEND}
+            gold? ( sys-libs/binutils-libs )
+          bdepend: |
+            dev-lang/perl
+            dev-util/cmake
+            sys-devel/gnuconfig
+            ${PYTHON_DEPS}
+            doc? ( $(python_gen_any_dep '
+              dev-python/recommonmark[${PYTHON_USEDEP}]
+              dev-python/sphinx[${PYTHON_USEDEP}]
+            ') )
+            libffi? ( virtual/pkgconfig )
+          pdepend: |
+            sys-devel/llvm-common
+            gold? ( >=sys-devel/llvmgold-${SLOT} )
+

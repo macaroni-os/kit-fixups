@@ -1,0 +1,241 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI={{ .Values.eapi | default "7" }}
+
+{{- if .Values.python_compat | default false }}
+PYTHON_COMPAT=( {{ .Values.python_compat }} )
+{{- end }}
+{{- if .Values.extra_envs | default false }}
+{{- range $p := .Values.extra_envs }}
+{{ $p }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- end }}
+
+DESCRIPTION="{{ .Values.desc }}"
+{{- if .Values.homepage | default false }}
+HOMEPAGE="{{ .Values.homepage }}"
+{{- end }}
+{{- if .Values.src_uri | default false }}
+SRC_URI="{{ .Values.src_uri }}"
+{{- end }}
+
+{{- if .Values.license | default false }}
+LICENSE="{{ .Values.license }}"
+{{- end }}
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+{{- if .Values.patches | default false }}
+PATCHES=(
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
+)
+{{- end }}
+
+{{- if .Values.iuse | default false }}
+IUSE="{{ .Values.iuse }}"
+{{- end }}
+{{- if .Values.required_use | default false }}
+REQUIRED_USE="{{ .Values.required_use }}"
+{{- end }}
+{{- if .Values.restrict | default false }}
+RESTRICT="{{ .Values.restrict }}"
+{{- end }}
+
+{{- if .Values.depend | default false }}
+DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.bdepend | default false }}
+BDEPEND="{{ regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.rdepend | default false }}
+RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.pdepend | default false }}
+PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- end }}
+
+ALL_LLVM_TARGET_FLAGS=(
+{{- if .Values.llvm_experimental_targets | default false }}
+	{{- range $target := .Values.llvm_experimental_targets }}
+	llvm_targets_{{ $target }}
+	{{- end }}
+{{- end }}
+	{{- range $target := .Values.llvm_production_targets }}
+	llvm_targets_{{ $target }}
+	{{- end }}
+)
+
+IUSE+=" ${ALL_LLVM_TARGET_FLAGS[*]}"
+REQUIRED_USE+=" || ( ${ALL_LLVM_TARGET_FLAGS[*]} )"
+
+CMAKE_BUILD_TYPE=RelWithDebInfo
+
+post_src_unpack() {
+	mv {{ .Values.github_repo }}-* ${S}
+}
+
+python_check_deps() {
+	use doc || return 0
+
+	has_version -b "dev-python/recommonmark[${PYTHON_USEDEP}]" &&
+	has_version -b "dev-python/sphinx[${PYTHON_USEDEP}]"
+}
+
+# Is LLVM being linked against libc++?
+is_libcxx_linked() {
+	local code='#include <ciso646>
+#if defined(_LIBCPP_VERSION)
+	HAVE_LIBCXX
+#endif
+'
+	local out=$($(tc-getCXX) ${CXXFLAGS} ${CPPFLAGS} -x c++ -E -P - <<<"${code}") || return 1
+
+	[[ ${out} == *HAVE_LIBCXX* ]]
+}
+
+src_prepare() {
+	local S=${S}/llvm
+	cmake_src_prepare
+}
+
+src_configure() {
+	local ffi_cflags ffi_ldflags
+	if use libffi; then
+		ffi_cflags=$($(tc-getPKG_CONFIG) --cflags-only-I libffi)
+		ffi_ldflags=$($(tc-getPKG_CONFIG) --libs-only-L libffi)
+	fi
+
+	local distr_components="{{ .Values.llvm_components | join ";" }}"
+	if use binutils-plugin ; then
+		distr_components="${distr_components};LLVMgold"
+	fi
+
+	local libdir=$(get_libdir)
+	local mycmakeargs=(
+		# disable appending VCS revision to the version to improve
+		# direct cache hit ratio
+		-DLLVM_APPEND_VC_REV=OFF
+		-DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/${SLOT}"
+		-DLLVM_LIBDIR_SUFFIX=${libdir#lib}
+
+		-DBUILD_SHARED_LIBS=OFF
+		-DLLVM_BUILD_LLVM_DYLIB=ON
+		-DLLVM_LINK_LLVM_DYLIB=ON
+		-DLLVM_DISTRIBUTION_COMPONENTS=${distr_components}
+
+		# cheap hack: LLVM combines both anyway, and the only difference
+		# is that the former list is explicitly verified at cmake time
+		-DLLVM_TARGETS_TO_BUILD=""
+		-DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD="${LLVM_TARGETS// /;}"
+		-DLLVM_INCLUDE_BENCHMARKS=OFF
+		-DLLVM_INCLUDE_TESTS=OFF
+		-DLLVM_BUILD_TESTS=OFF
+
+		-DLLVM_ENABLE_FFI=$(usex libffi)
+		-DLLVM_ENABLE_LIBEDIT=$(usex libedit)
+		-DLLVM_ENABLE_TERMINFO=$(usex ncurses)
+		-DLLVM_ENABLE_LIBXML2=$(usex xml)
+		-DLLVM_ENABLE_ASSERTIONS=$(usex debug)
+		-DLLVM_ENABLE_LIBPFM=$(usex exegesis)
+		-DLLVM_ENABLE_EH=ON
+		-DLLVM_ENABLE_RTTI=ON
+		-DLLVM_ENABLE_ZLIB=ON
+		-DLLVM_ENABLE_Z3_SOLVER=$(usex z3)
+		-DLLVM_ENABLE_ZSTD=$(usex zstd)
+
+		-DLLVM_HOST_TRIPLE="${CHOST}"
+
+		-DFFI_INCLUDE_DIR="${ffi_cflags#-I}"
+		-DFFI_LIBRARY_DIR="${ffi_ldflags#-L}"
+		# used only for llvm-objdump tool
+		-DLLVM_HAVE_LIBXAR=$(usex xar 1 0)
+
+		-DPython3_EXECUTABLE="${PYTHON}"
+
+		# disable OCaml bindings (now in dev-ml/llvm-ocaml)
+		-DOCAMLFIND=NO
+	)
+
+	if is_libcxx_linked; then
+		# Smart hack: alter version suffix -> SOVERSION when linking
+		# against libc++. This way we won't end up mixing LLVM libc++
+		# libraries with libstdc++ clang, and the other way around.
+		mycmakeargs+=(
+			-DLLVM_VERSION_SUFFIX="libcxx"
+			-DLLVM_ENABLE_LIBCXX=ON
+		)
+	fi
+
+	# Documentation could be built from users manually.
+	mycmakeargs+=(
+		-DLLVM_BUILD_DOCS=OFF
+		-DLLVM_ENABLE_OCAMLDOC=OFF
+		-DLLVM_ENABLE_SPHINX=OFF
+		-DLLVM_ENABLE_DOXYGEN=OFF
+		-DLLVM_INSTALL_UTILS=ON
+	)
+	use gold && mycmakeargs+=(
+		-DLLVM_BINUTILS_INCDIR="${EPREFIX}"/usr/include
+	)
+
+
+	# LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+	use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+	local S=${S}/llvm
+	cmake_src_configure
+}
+
+src_compile() {
+	tc-env_build cmake_build distribution
+
+	pax-mark m "${BUILD_DIR}"/bin/llvm-rtdyld
+	pax-mark m "${BUILD_DIR}"/bin/lli
+	pax-mark m "${BUILD_DIR}"/bin/lli-child-target
+}
+
+src_install() {
+	DESTDIR=${D} cmake_build install-distribution
+
+	# move headers to /usr/include for wrapping
+	rm -rf "${ED}"/usr/include || die
+	mv "${ED}"/usr/lib/llvm/${SLOT}/include "${ED}"/usr/include || die
+
+	LLVM_LDPATHS+=( "${EPREFIX}/usr/lib/llvm/${SLOT}/$(get_libdir)" )
+
+	newenvd - "60llvm-${SLOT}" <<-_EOF_
+		PATH="${EPREFIX}/usr/lib/llvm/${SLOT}/bin"
+		# we need to duplicate it in ROOTPATH for Portage to respect...
+		ROOTPATH="${EPREFIX}/usr/lib/llvm/${SLOT}/bin"
+		MANPATH="${EPREFIX}/usr/lib/llvm/${SLOT}/share/man"
+		LDPATH="$( IFS=:; echo "${LLVM_LDPATHS[*]}" )"
+	_EOF_
+
+	docompress "/usr/lib/llvm/${SLOT}/share/man"
+
+	# move wrapped headers back
+	mv "${ED}"/usr/include "${ED}"/usr/lib/llvm/${SLOT}/include || die
+}
+
+pkg_postinst() {
+	elog "You can find additional opt-viewer utility scripts in:"
+	elog "  ${EROOT}/usr/lib/llvm/${SLOT}/share/opt-viewer"
+	elog "To use these scripts, you will need Python along with the following"
+	elog "packages:"
+	elog "  dev-python/pygments (for opt-viewer)"
+	elog "  dev-python/pyyaml (for all of them)"
+}
+
+# vim: filetype=ebuild

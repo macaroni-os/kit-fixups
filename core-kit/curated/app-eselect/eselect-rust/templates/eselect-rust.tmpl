@@ -2,6 +2,8 @@
 
 EAPI="7"
 
+inherit autotools
+
 DESCRIPTION="{{desc}}"
 HOMEPAGE="{{homepage}}"
 SRC_URI="{{src_uri}}"
@@ -12,6 +14,12 @@ SLOT="0"
 IUSE=""
 
 RDEPEND=">=app-admin/eselect-1.2.3"
+
+src_prepare() {
+	default
+	eautoreconf
+}
+
 
 pkg_postinst() {
 	if has_version 'dev-lang/rust' || has_version 'dev-lang/rust-bin'; then

@@ -368,7 +368,7 @@ gnome3_query_immodules_gtk2() {
 	[[ ! -x ${updater} ]] && updater=${EPREFIX}/usr/bin/gtk-query-immodules-2.0
 
 	ebegin "Updating gtk2 input method module cache"
-	GTK_IM_MODULE_FILE="${EROOT}usr/$(get_libdir)/gtk-2.0/2.10.0/immodules.cache" \
+	GTK_IM_MODULE_FILE="${EROOT}/usr/$(get_libdir)/gtk-2.0/2.10.0/immodules.cache" \
 		"${updater}" --update-cache
 	eend $?
 }

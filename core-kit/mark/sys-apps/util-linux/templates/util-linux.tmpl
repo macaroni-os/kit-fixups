@@ -7,11 +7,11 @@ PYTHON_COMPAT=( python3+ )
 inherit autotools toolchain-funcs libtool flag-o-matic bash-completion-r1 usr-ldscript \
 	pam python-r1 multiprocessing
 
-DESCRIPTION="Various useful Linux utilities"
-HOMEPAGE="https://www.kernel.org/pub/linux/utils/util-linux/ https://github.com/karelzak/util-linux"
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
 SRC_URI="{{src_uri}}"
+LICENSE="{{license}}"
 
-LICENSE="GPL-2 GPL-3 LGPL-2.1 BSD-4 MIT public-domain"
 SLOT="0"
 KEYWORDS="*"
 IUSE="audit build +caps +cramfs cryptsetup fdformat hardlink kill +logger magic ncurses nls pam python +readline rtas selinux slang static-libs su +suid tty-helpers udev unicode"

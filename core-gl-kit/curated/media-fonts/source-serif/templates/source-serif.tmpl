@@ -25,19 +25,19 @@ src_prepare() {
 }
 
 src_install() {
-    FONT_S=( "${S}"/OTF "${S}"/VF )
+    FONT_S=( "${S}"/OTF "${S}"/VAR )
     FONT_SUFFIX="otf"
     font_src_install
 
-    FONT_S=( "${S}"/TTF "${S}"/VF )
+    FONT_S=( "${S}"/TTF "${S}"/VAR )
     FONT_SUFFIX="ttf"
     font_src_install
 
-    FONT_S=( "${S}"/WOFF/OTF "${S}"/WOFF/TTF "${S}"/WOFF/VF )
+    FONT_S=( "${S}"/WOFF/OTF "${S}"/WOFF/TTF "${S}"/WOFF/VAR )
     FONT_SUFFIX="woff"
     font_src_install
 
-    FONT_S=( "${S}"/WOFF2/OTF "${S}"/WOFF2/TTF "${S}"/WOFF2/VF )
+    FONT_S=( "${S}"/WOFF2/OTF "${S}"/WOFF2/TTF "${S}"/WOFF2/VAR )
     FONT_SUFFIX="woff2"
     font_src_install
 

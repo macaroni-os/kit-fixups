@@ -2,7 +2,7 @@
 
 EAPI="7"
 
-LLVM_MAX_SLOT=12
+LLVM_MAX_SLOT=16
 
 PYTHON_COMPAT=( python3+ )
 
@@ -60,27 +60,12 @@ BDEPEND="${PYTHON_DEPS}
 	virtual/pkgconfig
 	|| (
 		(
-			sys-devel/llvm:12
+			sys-devel/llvm:16
 			clang? (
-				sys-devel/clang:12
-				lto? ( =sys-devel/lld-12* )
+				sys-devel/clang:16
+				lto? ( =sys-devel/lld-16* )
 			)
 		)
-		(
-			sys-devel/llvm:11
-			clang? (
-				sys-devel/clang:11
-				lto? ( =sys-devel/lld-11* )
-			)
-		)
-		(
-			sys-devel/llvm:10
-			clang? (
-				sys-devel/clang:10
-				lto? ( =sys-devel/lld-10* )
-			)
-		)
-	)
 	lto? (
 		!clang? ( sys-devel/binutils[gold] )
 	)"

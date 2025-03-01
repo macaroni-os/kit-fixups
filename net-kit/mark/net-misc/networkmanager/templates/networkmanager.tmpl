@@ -85,6 +85,7 @@ RDEPEND="${COMMON_DEPEND}
 DEPEND="${COMMON_DEPEND}
 	>=sys-kernel/linux-headers-3.18
 	net-libs/libndp
+	dev-libs/jansson
 "
 BDEPEND="
 	dev-util/gdbus-codegen
@@ -235,7 +236,6 @@ src_configure() {
 		-Dconfig_dns_rc_manager_default=auto
 
 		$(meson_nm_program dhclient "" /sbin/dhclient)
-		-Ddhcpcanon=no
 		$(meson_nm_program dhcpcd "" /sbin/dhcpcd)
 
 		$(meson_use introspection)

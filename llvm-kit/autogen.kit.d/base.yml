@@ -283,12 +283,15 @@ sys_devel_llvm16:
           slot: 16
           desc: Common files shared between multiple slots of clang
           license: Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc
-          s: ${WORKDIR}/clang/utils
+          s: ${WORKDIR}/llvm-src/clang/utils
           pdepend: |
             sys-devel/clang:*
           inherit:
             - bash-completion-r1
           body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
             src_install() {
               newbashcomp bash-autocomplete.sh clang
             }
@@ -309,6 +312,86 @@ sys_devel_llvm16:
             )
             libcxx? ( >=sys-libs/libcxx-{{ .Values.version }} )
             openmp? ( >=sys-libs/libomp-{{ .Values.version }} )
+
+
+    - compiler-rt:
+        category: sys-libs
+        vars:
+          python_compat: "python3+"
+          slot: 16
+          desc: Compiler runtime library for clang (built-in part)
+          license: Apache-2.0-with-LLVM-exceptions || ( UoI-NCSA MIT )
+          #s: "${WORKDIR}/llvm-src/compiler-rt"
+          s: "${WORKDIR}/llvm-src"
+          inherit:
+            - cmake
+            - flag-o-matic
+            - python-any-r1
+            - toolchain-funcs
+          iuse: +clang debug
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
+          depend: |
+            sys-devel/llvm
+          bdepend: |
+            dev-util/cmake
+            clang? ( sys-devel/clang )
+            ${PYTHON_DEPS}
+
+          # The compilation of compiler-rt could be done in two
+          # ways. Using runtimes directory and later set -DLLVM_ENABLE_RUNTIMES=compiler-rt
+          # or directly configure cmake on compiler-rt.
+          #
+          # These the CFLAGS to compile the packages manually.
+          # CFLAGS="${CFLAGS} $(llvm-config --cflags)"
+          # export CFLAGS="${CFLAGS} -I/usr/lib/clang/16/include/"
+
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              CMAKE_USE_DIR="${S}/runtimes"
+              #CMAKE_USE_DIR="${S}/compiler-rt"
+              local s="${WORKDIR}"
+              cmake_src_prepare
+            }
+            src_configure() {
+              # Ensure to use llvm binary with the right version
+              export PATH=${EROOT}/usr/lib/llvm/{{ .Values.slot }}/bin:${PATH}
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              # pre-set since we need to pass it to cmake
+              BUILD_DIR=${WORKDIR}/${P}_build
+              if use clang; then
+                # Only do this conditionally to allow overriding with
+                # e.g. CC=clang-13 in case of breakage
+                if ! tc-is-clang ; then
+                  local -x CC=${CHOST}-clang
+                  local -x CXX=${CHOST}-clang++
+                fi
+                strip-unsupported-flags
+              fi
+              local mycmakeargs=(
+                -DLLVM_CONFIG_PATH="/usr/lib/llvm/{{ .Values.slot }}/bin/llvm-config"
+                -DLLVM_ENABLE_RUNTIMES="compiler-rt"
+                -DCOMPILER_RT_INSTALL_PATH="${EPREFIX}/usr/lib/clang/{{ .Values.slot }}"
+                -DCOMPILER_RT_INCLUDE_TESTS=OFF
+                -DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+                -DCOMPILER_RT_BUILD_MEMPROF=OFF
+                -DCOMPILER_RT_BUILD_ORC=OFF
+                -DCOMPILER_RT_BUILD_PROFILE=OFF
+                -DCOMPILER_RT_BUILD_SANITIZERS=OFF
+                -DCOMPILER_RT_BUILD_XRAY=OFF
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DCAN_TARGET_${CHOST/-pc-*/}=yes
+              )
+              cmake_src_configure
+            }
+
 
     - llvm:
         template: templates/llvm.tmpl

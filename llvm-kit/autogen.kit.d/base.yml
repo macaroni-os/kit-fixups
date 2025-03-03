@@ -814,3 +814,35 @@ sys_devel_llvm16:
             }
 
 
+    - lld:
+        template: ../../templates/simple.tmpl
+        vars:
+          depend: "${RDEPEND}"
+          rdepend: |
+            ~sys-devel/llvm-{{ .Values.version }}
+            sys-libs/zlib:=
+          desc: The LLVM linker (link editor)
+          homepage: https://llvm.org/
+          python_compat: "python3+"
+          slot: 16
+          iuse: debug
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          inherit:
+            - cmake
+            - python-any-r1
+          s: "${WORKDIR}/llvm-src/lld"
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_configure() {
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
+              local mycmakeargs=(
+                -DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/${SLOT}"
+                -DBUILD_SHARED_LIBS=ON
+                -DLLVM_INCLUDE_TESTS=OFF
+              )
+              cmake_src_configure
+            }
+

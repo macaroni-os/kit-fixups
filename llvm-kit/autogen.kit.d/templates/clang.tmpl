@@ -83,7 +83,7 @@ src_prepare() {
 	#mkdir -p x/y || die
 	#BUILD_DIR=${WORKDIR}/x/y/clang
 	# Ensure to use llvm binary with the right version
-	export PATH=${EROOT}/usr/lib/llvm/16/bin:${PATH}
+	export PATH=${EROOT}/usr/lib/llvm/{{ .Values.slot }}/bin:${PATH}
 	#local S=${S}/clang
 	CMAKE_USE_DIR="${S}/clang"
 	cmake_src_prepare
@@ -91,7 +91,7 @@ src_prepare() {
 
 src_configure() {
 	local llvm_version=$(llvm-config --version) || die
-	local clang_version=$(ver_cut 1-3 "${llvm_version}")
+	local clang_version={{ .Values.slot }}
 
 	local distr_components="{{ .Values.clang_components | join ";" }}"
 	if use extra ; then
@@ -208,7 +208,6 @@ src_install() {
 	# note: we use two version components here (vs 3 in runtime path)
 	local llvm_version=$(llvm-config --version) || die
 	local clang_version=$(ver_cut 1 "${llvm_version}")
-	local clang_full_version=$(ver_cut 1-3 "${llvm_version}")
 	local clang_tools=( clang clang++ clang-cl clang-cpp )
 	local abi i
 

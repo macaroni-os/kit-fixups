@@ -1,0 +1,12 @@
+samba_rule:
+  generator: dirlisting-1
+  packages:
+    - samba:
+        cat: net-fs
+        desc: Samba Suite
+        homepage: https://samba.org/
+        license: LGPL-3
+        dir:
+          url: https://download.samba.org/pub/samba/stable/
+          format: tar.gz
+          order: asc

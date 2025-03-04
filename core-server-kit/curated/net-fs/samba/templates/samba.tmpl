@@ -6,16 +6,16 @@ PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="threads(+),xml(+)"
 inherit python-single-r1 waf-utils linux-info pam
 
-DESCRIPTION="Samba Suite Version 4"
-HOMEPAGE="https://samba.org/"
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
+LICENSE="{{license}}"
 
 MY_PV="${PV/_rc/rc}"
 MY_P="${PN}-${MY_PV}"
-SRC_URI="mirror://samba/stable/${MY_P}.tar.gz"
-KEYWORDS="*"
 
-LICENSE="GPL-3"
-SLOT="0"
+KEYWORDS="*"
+SLOT="0/2.10.0"
 
 IUSE="acl addc addns ads ceph client cluster cups debug dmapi fam glusterfs
 gpg iprint json ldap ntvfs pam profiling-data python quota +regedit
@@ -33,15 +33,14 @@ COMMON_DEPEND="
 	>=net-libs/gnutls-3.4.7
 	net-libs/libnsl
 	sys-libs/e2fsprogs-libs
-	>=sys-libs/ldb-2.2.0[ldap(+)?]
-	<sys-libs/ldb-2.3.0[ldap(+)?]
+	!sys-libs/ldb
 	sys-libs/libcap
 	sys-libs/liburing
 	sys-libs/ncurses:0=
 	sys-libs/readline:0=
-	>=sys-libs/talloc-2.3.1
-	>=sys-libs/tdb-1.4.3
-	>=sys-libs/tevent-0.10.2
+	sys-libs/talloc
+	sys-libs/tdb
+	sys-libs/tevent
 	sys-libs/zlib
 	virtual/libiconv
 	acl? ( virtual/acl )
@@ -63,7 +62,6 @@ COMMON_DEPEND="
 	ldap? ( net-nds/openldap )
 	pam? ( sys-libs/pam )
 	python? (
-		sys-libs/ldb[python,${PYTHON_USEDEP}]
 		sys-libs/talloc[python,${PYTHON_USEDEP}]
 		sys-libs/tdb[python,${PYTHON_USEDEP}]
 		sys-libs/tevent[python,${PYTHON_USEDEP}]
@@ -125,8 +123,6 @@ PATCHES=(
 	"${FILESDIR}/${PN}-4.4.0-pam.patch"
 )
 
-CONFDIR="${FILESDIR}/4.13"
-
 WAF_BINARY="${S}/buildtools/bin/waf"
 
 SHAREDMODS=""
@@ -165,6 +161,8 @@ src_prepare() {
 }
 
 src_configure() {
+    export PYTHONHASHSEED=1
+
 	# when specifying libs for samba build you must append NONE to the end to
 	# stop it automatically including things
 	local bundled_libs="NONE"
@@ -187,8 +185,7 @@ src_configure() {
 		--without-winexe
 		$(use_with acl acl-support)
 		$(usex addc '' '--without-ad-dc')
-		$(use_with addns dnsupdate)
-		$(use_with ads)
+		--with-ads
 		$(use_enable ceph cephfs)
 		$(use_with cluster cluster-support)
 		$(use_enable cups)
@@ -198,7 +195,6 @@ src_configure() {
 		$(use_with gpg gpgme)
 		$(use_with json)
 		$(use_enable iprint)
-		$(use_with ntvfs ntvfs-fileserver)
 		$(use_with pam)
 		$(usex pam "--with-pammodulesdir=${EPREFIX}/$(get_libdir)/security" '')
 		$(use_with quota quotas)
@@ -214,6 +210,7 @@ src_configure() {
 		$(use_with ldap)
 		$(use_with profiling-data)
 		--with-shared-modules=${SHAREDMODS}
+		--private-libraries='!ldb'
 		# bug #683148
 		--jobs 1
 	)
@@ -227,7 +224,7 @@ src_compile() {
 }
 
 src_install() {
-	waf-utils_src_install
+    waf-utils_src_install
 
 	# Make all .so files executable
 	find "${ED}" -type f -name "*.so" -exec chmod +x {} + || die
@@ -257,11 +254,11 @@ src_install() {
 		-i "${ED}"/etc/samba/smb.conf.default || die
 
 	# Install init script and conf.d file
-	newinitd "${CONFDIR}/samba4.initd-r1" samba
-	newconfd "${CONFDIR}/samba4.confd" samba
+	newinitd "${FILESDIR}/samba4.initd-r1" samba
+	newconfd "${FILESDIR}/samba4.confd" samba
 
 	if use pam && use winbind ; then
-		newpamd "${CONFDIR}/system-auth-winbind.pam" system-auth-winbind
+		newpamd "${FILESDIR}/system-auth-winbind.pam" system-auth-winbind
 		# bugs #376853 and #590374
 		insinto /etc/security
 		doins examples/pam_winbind/pam_winbind.conf

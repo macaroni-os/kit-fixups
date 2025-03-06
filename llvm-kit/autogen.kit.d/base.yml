@@ -937,6 +937,29 @@ sys_devel_llvm16:
               cmake_src_configure
             }
 
+    - clang-python:
+        category: dev-python
+        template: ../../templates/simple.tmpl
+        vars:
+          inherit:
+            - python-r1
+          python_compat: "python3+"
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          s: "${WORKDIR}/llvm-src/clang/bindings/python"
+          depend: |
+            >=sys-devel/clang-${PV}:*
+            ${PYTHON_DEPS}
+          rdepend: |
+            ${PYTHON_DEPS}
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_install() {
+              python_foreach_impl python_domodule clang
+            }
+
+
 
 
 llvm16_extras:

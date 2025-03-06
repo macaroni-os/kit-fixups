@@ -542,6 +542,21 @@ sys_devel_llvm16:
             sys-devel/llvm-common
             gold? ( >=sys-devel/llvmgold-${SLOT} )
 
+    - llvmgold:
+        ignore_artefacts: true
+        vars:
+          slot: 16
+          desc: LLVMgold plugin symlink for autoloading
+          rdepend: |
+            sys-devel/llvm:{{ .Values.slot }}[gold]
+          s: "${WORKDIR}"
+          body: |
+            src_install() {
+              dodir "/usr/${CHOST}/binutils-bin/lib/bfd-plugins"
+              dosym "../../../../lib/llvm/{{ .Values.slot }}/$(get_libdir)/LLVMgold.so" \
+                "/usr/${CHOST}/binutils-bin/lib/bfd-plugins/LLVMgold.so"
+            }
+
     - llvm-common:
         vars:
           desc: Common files shared between multiple slots of LLVM
@@ -813,6 +828,82 @@ sys_devel_llvm16:
               cmake_src_configure
             }
 
+    - lldb:
+        template: ../../templates/simple.tmpl
+        category: dev-util
+        vars:
+          desc: The LLVM debugger
+          iuse: debug +libedit lzma ncurses +python +xml
+          required_use: "${PYTHON_REQUIRED_USE}"
+          python_compat: "python3+"
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          rdepend: |
+            libedit? ( dev-libs/libedit:0= )
+            lzma? ( app-arch/xz-utils:= )
+            ncurses? ( sys-libs/ncurses )
+            python? (
+              $(python_gen_cond_dep '
+                dev-python/six[${PYTHON_USEDEP}]
+              ')
+              ${PYTHON_DEPS}
+            )
+            xml? ( dev-libs/libxml2:= )
+            sys-devel/clang:{{ .Values.slot }}
+            sys-devel/llvm:{{ .Values.slot }}
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            dev-util/cmake
+            python? ( dev-lang/swig )
+            ${PYTHON_DEPS}
+          s: "${WORKDIR}/llvm-src/lldb"
+          slot: 16
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
+          inherit:
+            - cmake
+            - python-single-r1
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_configure() {
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+
+              local mycmakeargs=(
+                -DLLDB_ENABLE_CURSES=$(usex ncurses)
+                -DLLDB_ENABLE_LIBEDIT=$(usex libedit)
+                -DLLDB_ENABLE_PYTHON=$(usex python)
+                -DLLDB_ENABLE_LZMA=$(usex lzma)
+                -DLLDB_ENABLE_LIBXML2=$(usex xml)
+                -DLLDB_USE_SYSTEM_SIX=1
+                -DLLVM_ENABLE_TERMINFO=$(usex ncurses)
+                -DLLDB_INCLUDE_TESTS=OFF
+                -DCLANG_LINK_CLANG_DYLIB=ON
+                # TODO: fix upstream to detect this properly
+                -DHAVE_LIBDL=ON
+                -DHAVE_LIBPTHREAD=ON
+                # normally we'd have to set LLVM_ENABLE_TERMINFO, HAVE_TERMINFO
+                # and TERMINFO_LIBS... so just force FindCurses.cmake to use
+                # ncurses with complete library set (including autodetection
+                # of -ltinfo)
+                -DCURSES_NEED_NCURSES=ON
+                -DLLDB_EXTERNAL_CLANG_RESOURCE_DIR="${BROOT}/usr/lib/clang/{{ .Values.slot }}"
+                -DPython3_EXECUTABLE="${PYTHON}"
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              find "${D}" -name '*.a' -delete || die
+              use python && python_optimize
+            }
+
+
 
     - lld:
         template: ../../templates/simple.tmpl
@@ -846,3 +937,102 @@ sys_devel_llvm16:
               cmake_src_configure
             }
 
+
+
+llvm16_extras:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+
+  packages:
+    - spirv-headers:
+        category: dev-util
+        github:
+          user: KhronosGroup
+          repo: SPIRV-Headers
+          query: tags
+          num_pages: 3
+        exclude:
+          - ^sdk-*
+          - raytracing
+          - vulkan-sdk-*
+        transform:
+          - kind: string
+            match: 'vulkan-sdk-'
+            replace: ''
+          - kind: string
+            match: 'sdk-'
+            replace: ''
+        vars:
+          desc: Machine-readable files for the SPIR-V Registry
+          homepage: https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/SPIRV-Headers
+          inherit:
+            - cmake
+          license: MIT
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DSPIRV_HEADERS_ENABLE_INSTALL=ON
+              )
+              cmake_src_configure
+            }
+
+
+    - spirv-llvm-translator:
+        selector:
+          - '<17.0'
+        category: dev-util
+        github:
+          user: KhronosGroup
+          repo: SPIRV-LLVM-Translator
+          query: tags
+        vars:
+          depend: |
+            dev-util/spirv-headers
+            ${RDEPEND}
+            clang? (
+              sys-devel/clang:{{ .Values.slot }}=
+            }
+          rdepend: |
+            sys-devel/clang:{{ .Values.slot }}=
+          desc: Bi-directional translator between SPIR-V and LLVM IR
+          homepage: https://github.com/KhronosGroup/SPIRV-LLVM-Translator
+          slot: 16
+          iuse: tools clang
+          license: UoI-NCSA
+          inherit:
+            - cmake-utils
+            - flag-o-matic
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              append-flags -fPIC
+              cmake-utils_src_prepare
+            }
+            src_configure() {
+              if use clang; then
+                extra_cflags="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                export CPPFLAGS="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+                strip-unsupported-flags
+              fi
+              local mycmakeargs=(
+                -DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/{{ .Values.slot }}/"
+                -DLLVM_BUILD_TOOLS=$(usex tools "ON" "OFF")
+              )
+              cmake-utils_src_configure
+            }
+            src_install() {
+              cmake-utils_src_install
+              # Do not install pkgconfig data files, pkg-config does not presently look at
+              # /usr/lib/llvm/.../pkgconfig and putting them in /usr/lib*/pkgconfig would
+              # cause collisions between slots.
+            }

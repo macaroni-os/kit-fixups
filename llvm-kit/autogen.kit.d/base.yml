@@ -980,6 +980,8 @@ llvm16_extras:
           - ^sdk-*
           - raytracing
           - vulkan-sdk-*
+        selector:
+          - '<1.4'
         transform:
           - kind: string
             match: 'vulkan-sdk-'
@@ -1008,12 +1010,13 @@ llvm16_extras:
 
     - spirv-llvm-translator:
         selector:
-          - '<17.0'
+          - '<=16.0.5'
         category: dev-util
         github:
           user: KhronosGroup
           repo: SPIRV-LLVM-Translator
           query: tags
+          num_pages: 3
         vars:
           depend: |
             dev-util/spirv-headers

@@ -1000,6 +1000,7 @@ llvm16_extras:
             src_configure() {
               local mycmakeargs=(
                 -DSPIRV_HEADERS_ENABLE_INSTALL=ON
+                -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="${ESYSROOT}/usr/include/spirv"
               )
               cmake_src_configure
             }
@@ -1019,7 +1020,7 @@ llvm16_extras:
             ${RDEPEND}
             clang? (
               sys-devel/clang:{{ .Values.slot }}=
-            }
+            )
           rdepend: |
             sys-devel/clang:{{ .Values.slot }}=
           desc: Bi-directional translator between SPIR-V and LLVM IR
@@ -1030,6 +1031,8 @@ llvm16_extras:
           inherit:
             - cmake-utils
             - flag-o-matic
+          extra_envs:
+            - "CMAKE_BUILD_TYPE=RelWithDebInfo"
           body: |
             post_src_unpack() {
               mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
@@ -1048,6 +1051,8 @@ llvm16_extras:
               fi
               local mycmakeargs=(
                 -DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/{{ .Values.slot }}/"
+                -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="${ESYSROOT}/usr/include/spirv"
+                -DBUILD_SHARED_LIBS=True
                 -DLLVM_BUILD_TOOLS=$(usex tools "ON" "OFF")
               )
               cmake-utils_src_configure

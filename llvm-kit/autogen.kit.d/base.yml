@@ -1,0 +1,1121 @@
+sys_devel_llvm16:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-devel
+    template: ../../templates/simple.tmpl
+    vars:
+      homepage: https://llvm.org/
+      license: Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc
+      llvm_experimental_targets:
+        - ARC
+        - CSKY
+        - DirectX
+        - M68k
+        - SPIRV
+        - Xtensa
+      llvm_production_targets:
+        - AArch64
+        - AMDGPU
+        - ARM
+        - AVR
+        - BPF
+        - Hexagon
+        - Lanai
+        - LoongArch
+        - Mips
+        - MSP430
+        - NVPTX
+        - PowerPC
+        - RISCV
+        - Sparc
+        - SystemZ
+        - VE
+        - WebAssembly
+        - X86
+        - XCore
+      llvm_components:
+        # shared libs
+        - LLVM
+        - LTO
+        - Remarks
+
+        # tools
+        - llvm-config
+
+        # common stuff
+        - cmake-exports
+        - llvm-headers
+
+        # libraries needed for clang-tblgen
+        - LLVMDemangle
+        - LLVMSupport
+        - LLVMTableGen
+
+        # utilities
+        - llvm-tblgen
+        - FileCheck
+        - llvm-PerfectShuffle
+        - count
+        - not
+        - yaml-bench
+        - UnicodeNameMappingGenerator
+
+        # tools
+        - bugpoint
+        - dsymutil
+        - llc
+        - lli
+        - lli-child-target
+        - llvm-addr2line
+        - llvm-ar
+        - llvm-as
+        - llvm-bcanalyzer
+        - llvm-bitcode-strip
+        - llvm-c-test
+        - llvm-cat
+        - llvm-cfi-verify
+        - llvm-config
+        - llvm-cov
+        - llvm-cvtres
+        - llvm-cxxdump
+        - llvm-cxxfilt
+        - llvm-cxxmap
+        - llvm-debuginfo-analyzer
+        - llvm-debuginfod
+        - llvm-debuginfod-find
+        - llvm-diff
+        - llvm-dis
+        - llvm-dlltool
+        - llvm-dwarfdump
+        - llvm-dwarfutil
+        - llvm-dwp
+        - llvm-exegesis
+        - llvm-extract
+        - llvm-gsymutil
+        - llvm-ifs
+        - llvm-install-name-tool
+        - llvm-jitlink
+        - llvm-jitlink-executor
+        - llvm-lib
+        - llvm-libtool-darwin
+        - llvm-link
+        - llvm-lipo
+        - llvm-lto
+        - llvm-lto2
+        - llvm-mc
+        - llvm-mca
+        - llvm-ml
+        - llvm-modextract
+        - llvm-mt
+        - llvm-nm
+        - llvm-objcopy
+        - llvm-objdump
+        - llvm-opt-report
+        - llvm-otool
+        - llvm-pdbutil
+        - llvm-profdata
+        - llvm-profgen
+        - llvm-ranlib
+        - llvm-rc
+        - llvm-readelf
+        - llvm-readobj
+        - llvm-reduce
+        - llvm-remark-size-diff
+        - llvm-remarkutil
+        - llvm-rtdyld
+        - llvm-sim
+        - llvm-size
+        - llvm-split
+        - llvm-stress
+        - llvm-strings
+        - llvm-strip
+        - llvm-symbolizer
+        - llvm-tapi-diff
+        - llvm-tli-checker
+        - llvm-undname
+        - llvm-windres
+        - llvm-xray
+        - obj2yaml
+        - opt
+        - sancov
+        - sanstats
+        - split-file
+        - verify-uselistorder
+        - yaml2obj
+
+        # python modules
+        - opt-viewer
+    github:
+      user: llvm
+      repo: llvm-project
+      query: releases
+      num_pages: 3
+      per_page: 1000
+      #per_page: 300
+    assets:
+      - name: "llvm-project-{{ .Values.version }}.src.tar.xz"
+        matcher: "llvm-project-.*.src.tar.xz"
+    transform:
+      - kind: string
+        match: 'LLVM '
+        replace: ''
+    selector:
+      - '<17.0'
+
+  packages:
+
+    - clang:
+        template: templates/clang.tmpl
+        vars:
+          clang_components:
+            # common stuff
+            - bash-autocomplete
+            - clang-cmake-exports
+            - clang-headers
+            - clang-resource-headers
+            - libclang-headers
+            - libclang-python-bindings
+
+            - aarch64-resource-headers
+            - arm-common-resource-headers
+            - arm-resource-headers
+            - core-resource-headers
+            - cuda-resource-headers
+            - hexagon-resource-headers
+            - hip-resource-headers
+            - hlsl-resource-headers
+            - mips-resource-headers
+            - opencl-resource-headers
+            - openmp-resource-headers
+            - ppc-htm-resource-headers
+            - ppc-resource-headers
+            - riscv-resource-headers
+            - systemz-resource-headers
+            - utility-resource-headers
+            - ve-resource-headers
+            - webassembly-resource-headers
+            - windows-resource-headers
+            - x86-resource-headers
+
+            - # libs
+            - clang-cpp
+            - libclang
+
+            - # tools
+            - amdgpu-arch
+            - c-index-test
+            - clang
+            - clang-format
+            - clang-offload-bundler
+            - clang-offload-packager
+            - clang-refactor
+            - clang-repl
+            - clang-rename
+            - clang-scan-deps
+            - diagtool
+            - hmaptool
+            - nvptx-arch
+
+            - # needed for cross-compiling Clang
+            - clang-tblgen
+          clang_components_extra:
+            # extra tools
+            - clang-apply-replacements
+            - clang-change-namespace
+            - clang-doc
+            - clang-include-cleaner
+            - clang-include-fixer
+            - clang-move
+            - clang-pseudo
+            - clang-query
+            - clang-reorder-fields
+            - clang-tidy
+            - clang-tidy-headers
+            - clangd
+            - find-all-symbols
+            - modularize
+            - pp-trace
+          clang_components_static_analyzer:
+            - clang-check
+            - clang-extdef-mapping
+            - scan-build
+            - scan-build-py
+            - scan-view
+          inherit:
+            - cmake
+            - flag-o-matic
+            - python-single-r1
+            - toolchain-funcs
+          slot: 16
+          python_compat: "python3+"
+          desc: C language family frontend for LLVM
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA MIT
+          iuse: |
+            debug +extra ieee-long-double +pie +static-analyzer xml llvm-libunwind
+            default-compiler-rt default-libcxx default-lld
+          required_use: "${PYTHON_REQUIRED_USE}"
+          depend: |
+            ~sys-devel/llvm-{{ .Values.version }}:{{ .Values.slot }}[debug=]
+            static-analyzer? ( dev-lang/perl:* )
+            xml? ( dev-libs/libxml2:2 )
+          rdepend: |
+            ${PYTHON_DEPS}
+            ${DEPEND}
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/cmake
+            xml? ( virtual/pkgconfig )
+          pdepend: |
+            sys-devel/clang-common
+            ~sys-devel/clang-runtime-{{ .Values.version }}
+            default-compiler-rt? (
+              =sys-libs/compiler-rt-${PV%_*}*
+              llvm-libunwind? ( sys-libs/llvm-libunwind )
+              !llvm-libunwind? ( sys-libs/libunwind )
+            )
+            default-libcxx? ( >=sys-libs/libcxx-{{ .Values.version }} )
+            default-lld? ( sys-devel/lld )
+
+    - clang-common:
+        vars:
+          desc: Common files shared between multiple slots of clang
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA BSD public-domain rc
+          s: ${WORKDIR}/llvm-src/clang/utils
+          pdepend: |
+            sys-devel/clang:*
+          inherit:
+            - bash-completion-r1
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_install() {
+              newbashcomp bash-autocomplete.sh clang
+            }
+
+    - clang-runtime:
+        ignore_artefacts: true
+        vars:
+          slot: 16
+          desc: Meta-ebuild for clang runtime libraries
+          license: metapackage
+          iuse: +compiler-rt libcxx openmp +sanitize
+          required_use: |
+            sanitize? ( compiler-rt )
+          rdepend: |
+            compiler-rt? (
+              ~sys-libs/compiler-rt-{{ .Values.version }}:${SLOT}
+              sanitize? ( ~sys-libs/compiler-rt-sanitizers-{{ .Values.version }}:${SLOT} )
+            )
+            libcxx? ( >=sys-libs/libcxx-{{ .Values.version }} )
+            openmp? ( >=sys-libs/libomp-{{ .Values.version }} )
+
+
+    - compiler-rt:
+        category: sys-libs
+        vars:
+          python_compat: "python3+"
+          slot: 16
+          desc: Compiler runtime library for clang (built-in part)
+          license: Apache-2.0-with-LLVM-exceptions || ( UoI-NCSA MIT )
+          #s: "${WORKDIR}/llvm-src/compiler-rt"
+          s: "${WORKDIR}/llvm-src"
+          inherit:
+            - cmake
+            - flag-o-matic
+            - python-any-r1
+            - toolchain-funcs
+          iuse: +clang debug
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
+          depend: |
+            sys-devel/llvm
+          bdepend: |
+            dev-util/cmake
+            clang? ( sys-devel/clang )
+            ${PYTHON_DEPS}
+
+          # The compilation of compiler-rt could be done in two
+          # ways. Using runtimes directory and later set -DLLVM_ENABLE_RUNTIMES=compiler-rt
+          # or directly configure cmake on compiler-rt.
+          #
+          # These the CFLAGS to compile the packages manually.
+          # CFLAGS="${CFLAGS} $(llvm-config --cflags)"
+          # export CFLAGS="${CFLAGS} -I/usr/lib/clang/16/include/"
+
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              CMAKE_USE_DIR="${S}/runtimes"
+              #CMAKE_USE_DIR="${S}/compiler-rt"
+              local s="${WORKDIR}"
+              cmake_src_prepare
+            }
+            src_configure() {
+              # Ensure to use llvm binary with the right version
+              export PATH=${EROOT}/usr/lib/llvm/{{ .Values.slot }}/bin:${PATH}
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              # pre-set since we need to pass it to cmake
+              BUILD_DIR=${WORKDIR}/${P}_build
+              if use clang; then
+                # Only do this conditionally to allow overriding with
+                # e.g. CC=clang-13 in case of breakage
+                if ! tc-is-clang ; then
+                  local -x CC=${CHOST}-clang
+                  local -x CXX=${CHOST}-clang++
+                fi
+                strip-unsupported-flags
+              fi
+              local mycmakeargs=(
+                -DLLVM_CONFIG_PATH="/usr/lib/llvm/{{ .Values.slot }}/bin/llvm-config"
+                -DLLVM_ENABLE_RUNTIMES="compiler-rt"
+                -DCOMPILER_RT_INSTALL_PATH="${EPREFIX}/usr/lib/clang/{{ .Values.slot }}"
+                -DCOMPILER_RT_INCLUDE_TESTS=OFF
+                -DCOMPILER_RT_BUILD_LIBFUZZER=OFF
+                -DCOMPILER_RT_BUILD_MEMPROF=OFF
+                -DCOMPILER_RT_BUILD_ORC=OFF
+                -DCOMPILER_RT_BUILD_PROFILE=OFF
+                -DCOMPILER_RT_BUILD_SANITIZERS=OFF
+                -DCOMPILER_RT_BUILD_XRAY=OFF
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DCAN_TARGET_${CHOST/-pc-*/}=yes
+              )
+              cmake_src_configure
+            }
+
+
+    - compiler-rt-sanitizers:
+        category: sys-libs
+        vars:
+          python_compat: "python3+"
+          slot: 16
+          desc: Compiler runtime libraries for clang (sanitizers & xray)
+          license: Apache-2.0-with-LLVM-exceptions || ( UoI-NCSA MIT )
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
+            - SANITIZER_FLAGS=( asan dfsan lsan msan hwasan tsan ubsan safestack cfi scudo shadowcallstack gwp-asan )
+          iuse: +clang debug elibc_glibc +libfuzzer +memprof +orc +profile +xray ${SANITIZER_FLAGS[@]/#/+}
+          required_use: |
+            || ( ${SANITIZER_FLAGS[*]} libfuzzer orc profile xray )
+          depend: |
+            sys-devel/llvm
+          bdepend: |
+            dev-util/cmake
+            clang? ( sys-devel/clang )
+            elibc_glibc? ( net-libs/libtirpc )
+            ${PYTHON_DEPS}
+          s: "${WORKDIR}/llvm-src"
+          inherit:
+            - cmake
+            - flag-o-matic
+            - python-any-r1
+            - toolchain-funcs
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              sed -i -e 's:-Werror::' compiler-rt/lib/tsan/go/buildgo.sh || die
+              local flag
+              for flag in "${SANITIZER_FLAGS[@]}"; do
+                if ! use "${flag}"; then
+                  local cmake_flag=${flag/-/_}
+                  sed -i -e "/COMPILER_RT_HAS_${cmake_flag^^}/s:TRUE:FALSE:" \
+                    compiler-rt/cmake/config-ix.cmake || die
+                fi
+              done
+              # bug #926330
+              sed -i -e '/-Wthread-safety/d' compiler-rt/CMakeLists.txt \
+                compiler-rt/cmake/config-ix.cmake || die
+              # TODO: fix these tests to be skipped upstream
+              if use asan && ! use profile; then
+                rm compiler-rt/test/asan/TestCases/asan_and_llvm_coverage_test.cpp || die
+              fi
+              if use ubsan && ! use cfi; then
+                > compiler-rt/test/cfi/CMakeLists.txt || die
+              fi
+              if has_version -b ">=sys-libs/glibc-2.37"; then
+                # known failures with glibc-2.37
+                # https://github.com/llvm/llvm-project/issues/60678
+                rm compiler-rt/test/dfsan/custom.cpp || die
+                rm compiler-rt/test/dfsan/release_shadow_space.c || die
+              fi
+              CMAKE_USE_DIR="${S}/runtimes"
+              local s="${WORKDIR}"
+              cmake_src_prepare
+            }
+            src_configure() {
+              # Ensure to use llvm binary with the right version
+              export PATH=${EROOT}/usr/lib/llvm/{{ .Values.slot }}/bin:${PATH}
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              # pre-set since we need to pass it to cmake
+              BUILD_DIR=${WORKDIR}/compiler-rt_build
+              local extra_cflags=""
+              if use clang; then
+                extra_cflags="-I/usr/lib/clang/16/include/"
+                export CPPFLAGS="-I/usr/lib/clang/16/include/"
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+                strip-unsupported-flags
+              fi
+              local flag want_sanitizer=OFF
+              for flag in "${SANITIZER_FLAGS[@]}"; do
+                if use "${flag}"; then
+                  want_sanitizer=ON
+                  break
+                fi
+              done
+              local mycmakeargs=(
+                -DLLVM_CONFIG_PATH="/usr/lib/llvm/{{ .Values.slot }}/bin/llvm-config"
+                -DLLVM_ENABLE_RUNTIMES="compiler-rt"
+                -DCOMPILER_RT_INSTALL_PATH="${EPREFIX}/usr/lib/clang/{{ .Values.slot }}"
+                -DCOMPILER_RT_OUTPUT_DIR="${BUILD_DIR}/lib/clang/{{ .Values.slot }}"
+                -DCOMPILER_RT_INCLUDE_TESTS=OFF
+                -DCOMPILER_RT_BUILD_BUILTINS=OFF
+                -DCOMPILER_RT_BUILD_CRT=OFF
+                -DCOMPILER_RT_COMMON_CFLAGS="${extra_cflags}"
+                -DCOMPILER_RT_CXX_CFLAGS="${extra_cflags}"
+                -DCMAKE_CXX_FLAGS="${extra_cflags}"
+                -DLIBCXX_ADDITIONAL_COMPILE_FLAGS="${extra_cflags}"
+                -DCOMPILER_RT_BUILD_LIBFUZZER=$(usex libfuzzer)
+                -DCOMPILER_RT_BUILD_MEMPROF=$(usex memprof)
+                -DCOMPILER_RT_BUILD_ORC=$(usex orc)
+                -DCOMPILER_RT_BUILD_PROFILE=$(usex profile)
+                -DCOMPILER_RT_BUILD_SANITIZERS="${want_sanitizer}"
+                -DCOMPILER_RT_BUILD_XRAY=$(usex xray)
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DCAN_TARGET_${CHOST/-pc-*/}=yes
+              )
+              cmake_src_configure
+            }
+
+    - llvm:
+        template: templates/llvm.tmpl
+        vars:
+          python_compat: "python3+"
+          slot: 16
+          inherit:
+            - cmake
+            - pax-utils
+            - python-any-r1
+            - toolchain-funcs
+          desc: Low Level Virtual Machine
+          iuse: debug doc exegesis gold libedit +libffi ncurses xar xml z3 zstd binutils-plugin
+          rdepend: |
+            sys-libs/zlib:=
+            exegesis? ( dev-libs/libpfm:= )
+            gold? ( sys-devel/binutils:*[plugins] )
+            libedit? ( dev-libs/libedit:= )
+            libffi? ( dev-libs/libffi:0= )
+            ncurses? ( sys-libs/ncurses:0= )
+            xar? ( app-arch/xar )
+            xml? ( dev-libs/libxml2:2= )
+            z3? ( >=sci-mathematics/z3-4.7.1:0= )
+            zstd? ( app-arch/zstd:= )
+          depend: |
+            ${RDEPEND}
+            gold? ( sys-libs/binutils-libs )
+          bdepend: |
+            dev-lang/perl
+            dev-util/cmake
+            sys-devel/gnuconfig
+            ${PYTHON_DEPS}
+            doc? ( $(python_gen_any_dep '
+              dev-python/recommonmark[${PYTHON_USEDEP}]
+              dev-python/sphinx[${PYTHON_USEDEP}]
+            ') )
+            libffi? ( virtual/pkgconfig )
+          pdepend: |
+            sys-devel/llvm-common
+            gold? ( >=sys-devel/llvmgold-${SLOT} )
+
+    - llvmgold:
+        ignore_artefacts: true
+        vars:
+          slot: 16
+          desc: LLVMgold plugin symlink for autoloading
+          rdepend: |
+            sys-devel/llvm:{{ .Values.slot }}[gold]
+          s: "${WORKDIR}"
+          body: |
+            src_install() {
+              dodir "/usr/${CHOST}/binutils-bin/lib/bfd-plugins"
+              dosym "../../../../lib/llvm/{{ .Values.slot }}/$(get_libdir)/LLVMgold.so" \
+                "/usr/${CHOST}/binutils-bin/lib/bfd-plugins/LLVMgold.so"
+            }
+
+    - llvm-common:
+        vars:
+          desc: Common files shared between multiple slots of LLVM
+          s: "${WORKDIR}/llvm-src/llvm/utils/vim"
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_install() {
+              insinto /usr/share/vim/vimfiles
+              doins -r */
+              # some users may find it useful
+              newdoc README README.vim
+              dodoc vimrc
+            }
+
+    - libclc:
+        category: dev-libs
+        vars:
+          slot: 16
+          python_compat: python3+
+          desc: OpenCL C library
+          homepage: https://libclc.llvm.org/
+          inherit:
+            - cmake
+            - python-any-r1
+          s: "${WORKDIR}/llvm-src/libclc"
+          bdepend: |
+            ${PYTHON_DEPS}
+            sys-devel/clang:{{ .Values.slot }}
+            spirv? ( dev-util/spirv-llvm-translator:{{ .Values.slot }} )
+          iuse: spirv video_cards_nvidia video_cards_r600 video_cards_radeonsi
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local libclc_targets=()
+              use spirv && libclc_targets+=(
+                "spirv-mesa3d-"
+                "spirv64-mesa3d-"
+              )
+              use video_cards_nvidia && libclc_targets+=(
+                "nvptx--"
+                "nvptx64--"
+                "nvptx--nvidiacl"
+                "nvptx64--nvidiacl"
+              )
+              use video_cards_r600 && libclc_targets+=(
+                "r600--"
+              )
+              use video_cards_radeonsi && libclc_targets+=(
+                "amdgcn--"
+                "amdgcn-mesa-mesa3d"
+                "amdgcn--amdhsa"
+              )
+              [[ ${#libclc_targets[@]} ]] || die "libclc target missing!"
+              libclc_targets=${libclc_targets[*]}
+              local mycmakeargs=(
+                -DLIBCLC_TARGETS_TO_BUILD="${libclc_targets// /;}"
+                -DLLVM_CONFIG_PATH="/usr/lib/llvm/{{ .Values.slot }}/bin/llvm-config"
+              )
+              cmake_src_configure
+            }
+
+
+    - libcxxabi:
+        category: sys-libs
+        vars:
+          desc: Low level support for a standard C++ library
+          iuse: +libunwind clang static-libs
+          homepage: https://libcxxabi.llvm.org/
+          python_compat: python3+
+          s: "${WORKDIR}/llvm-src/runtimes"
+          extra_envs:
+            - "CMAKE_BUILD_TYPE=RelWithDebInfo"
+          inherit:
+            - cmake
+            - python-any-r1
+            - toolchain-funcs
+          # Enable libunwind fails with: x86_64-pc-linux-gnu/bin/ld: cannot find -lunwind_shared: No such file or directory
+          rdepend: |
+            libunwind? (
+              || (
+                sys-libs/libunwind[static-libs?]
+                sys-libs/llvm-libunwind[static-libs?]
+              )
+            )
+          depend: |
+            ${RDEPEND}
+            sys-devel/llvm:16
+          bdepend: |
+            clang? ( sys-devel/clang:16 )
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_configure() {
+              local S=${S}/libcxxabi
+              if use clang; then
+                local -x CC=clang
+                local -x CXX=clang++
+              fi
+              # link against compiler-rt instead of libgcc if we are using clang with libunwind
+              local want_compiler_rt=OFF
+              if use libunwind && tc-is-clang; then
+                  local compiler_rt=$($(tc-getCC) ${CFLAGS} ${CPPFLAGS} \
+                      ${LDFLAGS} -print-libgcc-file-name)
+                  if [[ ${compiler_rt} == *libclang_rt* ]]; then
+                      want_compiler_rt=ON
+                  fi
+              fi
+              local libdir=$(get_libdir)
+              local mycmakeargs=(
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DLLVM_ENABLE_RUNTIMES="libunwind;libcxxabi;libcxx"
+                -DLLVM_ENABLE_EH=ON
+                -DLLVM_ENABLE_RTTI=ON
+                -DLLVM_INCLUDE_TESTS=OFF
+                -DLLVM_LIBDIR_SUFFIX=${libdir#lib}
+                -DLIBCXXABI_LIBDIR_SUFFIX=${libdir#lib}
+                -DLIBCXXABI_ENABLE_SHARED=ON
+                -DLIBCXXABI_USE_LLVM_UNWINDER=$(usex libunwind)
+                -DLIBCXXABI_ENABLE_STATIC=$(usex static-libs)
+                -DLIBCXXABI_INCLUDE_TESTS=OFF
+                -DLIBCXXABI_USE_COMPILER_RT=${want_compiler_rt}
+                # upstream is omitting standard search path for this
+                # probably because gcc & clang are bundling their own unwind.h
+                -DLIBCXXABI_LIBUNWIND_INCLUDES="${EPREFIX}"/usr/include
+                -DLIBCXXABI_ADDITIONAL_LIBRARIES="-Wl,-lunwind"
+                -DLIBCXX_LIBDIR_SUFFIX=
+                -DLIBCXX_ENABLE_SHARED=ON
+                -DLIBCXX_ENABLE_STATIC=OFF
+                -DLIBCXX_CXX_ABI=libcxxabi
+                -DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=OFF
+                -DLIBCXX_HAS_MUSL_LIBC=$(usex elibc_musl)
+                -DLIBCXX_HAS_GCC_S_LIB=OFF
+                -DLIBCXX_INCLUDE_BENCHMARKS=OFF
+                -DLIBCXX_INCLUDE_TESTS=OFF
+              )
+              cmake_src_configure
+            }
+            src_compile() {
+              cmake_build cxxabi
+            }
+            src_install() {
+              DESTDIR="${D}" cmake_build install-cxxabi
+            }
+
+
+    - libcxx:
+        category: sys-libs
+        vars:
+          desc: New implementation of the C++ standard library, targeting C++11
+          iuse: static-libs clang +libcxxabi +libunwind
+          homepage: https://libcxx.llvm.org/
+          python_compat: python3+
+          s: "${WORKDIR}/llvm-src/runtimes"
+          inherit:
+            - cmake
+            - python-any-r1
+            - toolchain-funcs
+          required_use: libunwind? ( libcxxabi )
+          rdepend: |
+            libcxxabi? ( ~sys-libs/libcxxabi-${PV}[static-libs?] )
+            !libcxxabi? ( sys-devel/gcc[cxx] )
+          depend: |
+            ${RDEPEND}
+            sys-devel/llvm:16
+          bdepend: |
+            clang? ( sys-devel/clang:16 )
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_configure() {
+              local S=${S}/libcxx
+              if use clang; then
+                local -x CC=clang
+                local -x CXX=clang++
+              fi
+              local cxxabi cxxabi_incs
+              if use libcxxabi; then
+                cxxabi=system-libcxxabi
+                cxxabi_incs="${EPREFIX}/usr/include/c++/v1"
+              else
+                local gcc_inc="${EPREFIX}/usr/lib/gcc/${CHOST}/$(gcc-fullversion)/include/g++-v$(gcc-major-version)"
+                cxxabi=libsupc++
+                cxxabi_incs="${gcc_inc};${gcc_inc}/${CHOST}"
+              fi
+
+              # link against compiler-rt instead of libgcc if we are using clang with libunwind
+              local want_compiler_rt=OFF
+              if use libunwind && tc-is-clang; then
+                  local compiler_rt=$($(tc-getCC) ${CFLAGS} ${CPPFLAGS} \
+                      ${LDFLAGS} -print-libgcc-file-name)
+                  if [[ ${compiler_rt} == *libclang_rt* ]]; then
+                      want_compiler_rt=ON
+                  fi
+              fi
+              local libdir=$(get_libdir)
+              local mycmakeargs=(
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DLLVM_ENABLE_RUNTIMES=libcxx
+                -DLLVM_INCLUDE_TESTS=OFF
+                -DLIBCXX_USE_LLVM_UNWINDER=$(usex libunwind)
+                -DLIBCXX_LIBDIR_SUFFIX=${libdir#lib}
+                -DLIBCXX_ENABLE_SHARED=ON
+                -DLIBCXX_ENABLE_STATIC=$(usex static-libs)
+                -DLIBCXX_CXX_ABI=${cxxabi}
+                -DLIBCXX_CXX_ABI_INCLUDE_PATHS=${cxxabi_incs}
+                -DLIBCXX_ENABLE_ABI_LINKER_SCRIPT=OFF
+                -DLIBCXX_HAS_MUSL_LIBC=$(usex elibc_musl)
+                -DLIBCXX_INCLUDE_BENCHMARKS=OFF
+                -DLIBCXX_HAS_GCC_S_LIB=OFF
+                -DLIBCXX_INCLUDE_TESTS=OFF
+                -DLIBCXX_ADDITIONAL_LIBRARIES="-Wl,-lunwind,-lgcc"
+                -DLIBCXX_USE_COMPILER_RT=${want_compiler_rt}
+              )
+              cmake_src_configure
+            }
+            # Usage: deps
+            gen_ldscript() {
+              local output_format
+              output_format=$($(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\([^"]*\)",.*/\1/p')
+              [[ -n ${output_format} ]] && output_format="OUTPUT_FORMAT ( ${output_format} )"
+
+              cat <<-END_LDSCRIPT
+            /* GNU ld script
+               Include missing dependencies
+            */
+            ${output_format}
+            GROUP ( $@ )
+            END_LDSCRIPT
+            }
+            gen_static_ldscript() {
+              local libdir=$(get_libdir)
+              local cxxabi_lib=$(usex libcxxabi "libc++abi.a" "libsupc++.a")
+              # Generate libc++.a ldscript for inclusion of its dependencies so that
+              # clang++ -stdlib=libc++ -static works out of the box.
+              local deps="libc++_static.a ${cxxabi_lib} $(usex libunwind libunwind.a libgcc_eh.a)"
+              # On Linux/glibc it does not link without libpthread or libdl. It is
+              # fine on FreeBSD.
+              use elibc_glibc && deps+=" libpthread.a libdl.a"
+              gen_ldscript "${deps}" > "${ED}/usr/${libdir}/libc++.a" || die
+            }
+            gen_shared_ldscript() {
+              local libdir=$(get_libdir)
+              # libsupc++ doesn't have a shared version
+              local cxxabi_lib=$(usex libcxxabi "libc++abi.so" "libsupc++.a")
+              mv "${ED}/usr/${libdir}/libc++.so" "${ED}/usr/${libdir}/libc++_shared.so" || die
+              local deps="libc++_shared.so ${cxxabi_lib} $(usex libunwind libunwind.so libgcc_s.so)"
+              gen_ldscript "${deps}" > "${ED}/usr/${libdir}/libc++.so" || die
+            }
+            src_install() {
+              cmake_src_install
+              mv "${ED}/usr/${libdir}/libc++experimental.a" "${ED}/usr/${libdir}/libc++_static.a" || die
+              gen_shared_ldscript
+              if use static-libs ; then
+                gen_static_ldscript
+              fi
+            }
+
+    - libomp:
+        category: sys-libs
+        vars:
+          desc: OpenMP runtime library for LLVM/clang compiler
+          iuse: cuda debug hwloc offload ompt llvm_targets_AMDGPU llvm_targets_NVPTX abi_x86_64
+          homepage: https://openmp.llvm.org/
+          license: Apache-2.0-with-LLVM-exceptions || ( UoI-NCSA MIT )
+          s: "${WORKDIR}/llvm-src/openmp"
+          inherit:
+            - cmake
+          required_use: |
+            cuda? ( llvm_targets_NVPTX )
+            offload? ( cuda? ( abi_x86_64 ) )
+          rdepend: |
+            hwloc? ( sys-apps/hwloc:0= )
+            offload? (
+              virtual/libelf
+              dev-libs/libffi
+              ~sys-devel/llvm-{{ .Values.version }}
+            )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            dev-lang/perl
+            offload? (
+              llvm_targets_AMDGPU? ( sys-devel/clang )
+              llvm_targets_NVPTX? ( sys-devel/clang )
+              virtual/pkgconfig
+            )
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_configure() {
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              local libdir="$(get_libdir)"
+              local mycmakeargs=(
+                -DOPENMP_LIBDIR_SUFFIX="${libdir#lib}"
+                -DLIBOMP_USE_HWLOC=$(usex hwloc)
+                -DLIBOMP_OMPT_SUPPORT=$(usex ompt)
+                -DOPENMP_ENABLE_LIBOMPTARGET=$(usex offload)
+                # do not install libgomp.so & libiomp5.so aliases
+                -DLIBOMP_INSTALL_ALIASES=OFF
+                # disable unnecessary hack copying stuff back to srcdir
+                -DLIBOMP_COPY_EXPORTS=OFF
+                # prevent trying to access the GPU
+                -DLIBOMPTARGET_AMDGPU_ARCH=LIBOMPTARGET_AMDGPU_ARCH-NOTFOUND
+                -DOPENMP_LLVM_LIT_EXECUTABLE="${EPREFIX}/usr/bin/lit"
+              )
+              use offload && mycmakeargs+=(
+                -DLIBOMPTARGET_BUILD_AMDGPU_PLUGIN=$(usex llvm_targets_AMDGPU)
+                -DLIBOMPTARGET_BUILD_CUDA_PLUGIN=$(usex llvm_targets_NVPTX)
+              )
+              addpredict /dev/nvidiactl
+              cmake_src_configure
+            }
+
+    - lldb:
+        template: ../../templates/simple.tmpl
+        category: dev-util
+        vars:
+          desc: The LLVM debugger
+          iuse: debug +libedit lzma ncurses +python +xml
+          required_use: "${PYTHON_REQUIRED_USE}"
+          python_compat: "python3+"
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          rdepend: |
+            libedit? ( dev-libs/libedit:0= )
+            lzma? ( app-arch/xz-utils:= )
+            ncurses? ( sys-libs/ncurses )
+            python? (
+              $(python_gen_cond_dep '
+                dev-python/six[${PYTHON_USEDEP}]
+              ')
+              ${PYTHON_DEPS}
+            )
+            xml? ( dev-libs/libxml2:= )
+            sys-devel/clang:{{ .Values.slot }}
+            sys-devel/llvm:{{ .Values.slot }}
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            dev-util/cmake
+            python? ( dev-lang/swig )
+            ${PYTHON_DEPS}
+          s: "${WORKDIR}/llvm-src/lldb"
+          slot: 16
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
+          inherit:
+            - cmake
+            - python-single-r1
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_configure() {
+              # LLVM_ENABLE_ASSERTIONS=NO does not guarantee this for us, #614844
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+
+              local mycmakeargs=(
+                -DLLDB_ENABLE_CURSES=$(usex ncurses)
+                -DLLDB_ENABLE_LIBEDIT=$(usex libedit)
+                -DLLDB_ENABLE_PYTHON=$(usex python)
+                -DLLDB_ENABLE_LZMA=$(usex lzma)
+                -DLLDB_ENABLE_LIBXML2=$(usex xml)
+                -DLLDB_USE_SYSTEM_SIX=1
+                -DLLVM_ENABLE_TERMINFO=$(usex ncurses)
+                -DLLDB_INCLUDE_TESTS=OFF
+                -DCLANG_LINK_CLANG_DYLIB=ON
+                # TODO: fix upstream to detect this properly
+                -DHAVE_LIBDL=ON
+                -DHAVE_LIBPTHREAD=ON
+                # normally we'd have to set LLVM_ENABLE_TERMINFO, HAVE_TERMINFO
+                # and TERMINFO_LIBS... so just force FindCurses.cmake to use
+                # ncurses with complete library set (including autodetection
+                # of -ltinfo)
+                -DCURSES_NEED_NCURSES=ON
+                -DLLDB_EXTERNAL_CLANG_RESOURCE_DIR="${BROOT}/usr/lib/clang/{{ .Values.slot }}"
+                -DPython3_EXECUTABLE="${PYTHON}"
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              find "${D}" -name '*.a' -delete || die
+              use python && python_optimize
+            }
+
+
+
+    - lld:
+        template: ../../templates/simple.tmpl
+        vars:
+          depend: "${RDEPEND}"
+          rdepend: |
+            ~sys-devel/llvm-{{ .Values.version }}
+            sys-libs/zlib:=
+          desc: The LLVM linker (link editor)
+          homepage: https://llvm.org/
+          python_compat: "python3+"
+          slot: 16
+          iuse: debug
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          inherit:
+            - cmake
+            - python-any-r1
+          s: "${WORKDIR}/llvm-src/lld"
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_configure() {
+              use debug || local -x CPPFLAGS="${CPPFLAGS} -DNDEBUG"
+              use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
+              local mycmakeargs=(
+                -DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/${SLOT}"
+                -DBUILD_SHARED_LIBS=ON
+                -DLLVM_INCLUDE_TESTS=OFF
+              )
+              cmake_src_configure
+            }
+
+    - clang-python:
+        category: dev-python
+        template: ../../templates/simple.tmpl
+        vars:
+          inherit:
+            - python-r1
+          python_compat: "python3+"
+          license: Apache-2.0-with-LLVM-exceptions UoI-NCSA
+          s: "${WORKDIR}/llvm-src/clang/bindings/python"
+          depend: |
+            >=sys-devel/clang-${PV}:*
+            ${PYTHON_DEPS}
+          rdepend: |
+            ${PYTHON_DEPS}
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            src_install() {
+              python_foreach_impl python_domodule clang
+            }
+
+
+
+
+llvm16_extras:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+
+  packages:
+    - spirv-headers:
+        category: dev-util
+        github:
+          user: KhronosGroup
+          repo: SPIRV-Headers
+          query: tags
+          num_pages: 3
+        exclude:
+          - ^sdk-*
+          - raytracing
+          - vulkan-sdk-*
+        selector:
+          - '<1.4'
+        transform:
+          - kind: string
+            match: 'vulkan-sdk-'
+            replace: ''
+          - kind: string
+            match: 'sdk-'
+            replace: ''
+        vars:
+          desc: Machine-readable files for the SPIR-V Registry
+          homepage: https://registry.khronos.org/SPIR-V/ https://github.com/KhronosGroup/SPIRV-Headers
+          inherit:
+            - cmake
+          license: MIT
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DSPIRV_HEADERS_ENABLE_INSTALL=ON
+                -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="${ESYSROOT}/usr/include/spirv"
+              )
+              cmake_src_configure
+            }
+
+
+    - spirv-llvm-translator:
+        selector:
+          - '<=16.0.5'
+        category: dev-util
+        github:
+          user: KhronosGroup
+          repo: SPIRV-LLVM-Translator
+          query: tags
+          num_pages: 3
+        vars:
+          depend: |
+            dev-util/spirv-headers
+            ${RDEPEND}
+            clang? (
+              sys-devel/clang:{{ .Values.slot }}=
+            )
+          rdepend: |
+            sys-devel/clang:{{ .Values.slot }}=
+          desc: Bi-directional translator between SPIR-V and LLVM IR
+          homepage: https://github.com/KhronosGroup/SPIRV-LLVM-Translator
+          slot: 16
+          iuse: tools clang
+          license: UoI-NCSA
+          inherit:
+            - cmake-utils
+            - flag-o-matic
+          extra_envs:
+            - "CMAKE_BUILD_TYPE=RelWithDebInfo"
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              append-flags -fPIC
+              cmake-utils_src_prepare
+            }
+            src_configure() {
+              if use clang; then
+                extra_cflags="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                export CPPFLAGS="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+                strip-unsupported-flags
+              fi
+              local mycmakeargs=(
+                -DCMAKE_INSTALL_PREFIX="${EPREFIX}/usr/lib/llvm/{{ .Values.slot }}/"
+                -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="${ESYSROOT}/usr/include/spirv"
+                -DBUILD_SHARED_LIBS=True
+                -DLLVM_BUILD_TOOLS=$(usex tools "ON" "OFF")
+              )
+              cmake-utils_src_configure
+            }
+            src_install() {
+              cmake-utils_src_install
+              # Do not install pkgconfig data files, pkg-config does not presently look at
+              # /usr/lib/llvm/.../pkgconfig and putting them in /usr/lib*/pkgconfig would
+              # cause collisions between slots.
+            }

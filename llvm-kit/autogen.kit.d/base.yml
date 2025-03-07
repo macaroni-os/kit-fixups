@@ -572,6 +572,59 @@ sys_devel_llvm16:
               dodoc vimrc
             }
 
+    - libclc:
+        category: dev-libs
+        vars:
+          slot: 16
+          python_compat: python3+
+          desc: OpenCL C library
+          homepage: https://libclc.llvm.org/
+          inherit:
+            - cmake
+            - python-any-r1
+          s: "${WORKDIR}/llvm-src/libclc"
+          bdepend: |
+            ${PYTHON_DEPS}
+            sys-devel/clang:{{ .Values.slot }}
+            spirv? ( dev-util/spirv-llvm-translator:{{ .Values.slot }} )
+          iuse: spirv video_cards_nvidia video_cards_r600 video_cards_radeonsi
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* llvm-src
+            }
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local libclc_targets=()
+              use spirv && libclc_targets+=(
+                "spirv-mesa3d-"
+                "spirv64-mesa3d-"
+              )
+              use video_cards_nvidia && libclc_targets+=(
+                "nvptx--"
+                "nvptx64--"
+                "nvptx--nvidiacl"
+                "nvptx64--nvidiacl"
+              )
+              use video_cards_r600 && libclc_targets+=(
+                "r600--"
+              )
+              use video_cards_radeonsi && libclc_targets+=(
+                "amdgcn--"
+                "amdgcn-mesa-mesa3d"
+                "amdgcn--amdhsa"
+              )
+              [[ ${#libclc_targets[@]} ]] || die "libclc target missing!"
+              libclc_targets=${libclc_targets[*]}
+              local mycmakeargs=(
+                -DLIBCLC_TARGETS_TO_BUILD="${libclc_targets// /;}"
+                -DLLVM_CONFIG_PATH="/usr/lib/llvm/{{ .Values.slot }}/bin/llvm-config"
+              )
+              cmake_src_configure
+            }
+
+
     - libcxxabi:
         category: sys-libs
         vars:

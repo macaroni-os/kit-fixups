@@ -4,11 +4,11 @@ EAPI=7
 
 inherit cargo
 
-DESCRIPTION="{{description}}"
-HOMEPAGE="https://github.com/{{github_user}}/{{github_repo}}"
-SRC_URI="{{src_uri}}"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+LICENSE="{{ license }}"
 
-LICENSE="MIT"
 SLOT="0"
 KEYWORDS="*"
 
@@ -20,20 +20,18 @@ BDEPEND="
 	virtual/rust
 "
 
+RESTRICT="network-sandbox"
+
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
 src_unpack() {
 	cargo_src_unpack
-	rm -rf ${S}
-	mv ${WORKDIR}/{{github_user}}-{{github_repo}}-* ${S} || die
 }
 
 src_compile() {
 	# Don't try to fetch prebuilt V8, build it instead
 	export V8_FROM_SOURCE=1
-
-	# Resolves to /usr/lib64/llvm/<version>
-	export CLANG_BASE_PATH="$(readlink -f -- "$(dirname -- $(clang --print-prog-name=clang))/..")"
-
-	cargo_src_compile
+    cargo_src_compile
 }
 
 src_install() {

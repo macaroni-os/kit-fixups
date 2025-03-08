@@ -2,7 +2,7 @@ sources:
 # We need this to inherit the eclass used for kit cache JSON generation
 - name: "core-kit"
   url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-testing"
+  branch: "mark-xl"
 
 - name: "dev-kit"
   url: "https://github.com/macaroni-os/dev-kit"
@@ -29,6 +29,13 @@ target:
     max_versions: 3
 
   atoms:
+
+    - pkg: dev-java/ant-bin
+    - pkg: dev-java/gradle-bin
+    - pkg: dev-java/javatoolkit
+
+    - pkg: dev-java/oracle-jdk-bin:17
+    - pkg: dev-java/oracle-jdk-bin:20
 
     - pkg: dev-java/openjdk-bin:11
     - pkg: dev-java/openjdk-jre-bin:11

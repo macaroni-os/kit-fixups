@@ -1,0 +1,132 @@
+# file qt6spec.yml
+dev-qt:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-qt
+    vars:
+        release: 6.8
+        slot: 6
+    selector:
+        - '<6.9'
+    assets:
+       - name: "{{ .Values.pn }}-everywhere-src-{{ .Values.version}}.tar.xz"
+         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-src-{{ .Values.version}}.tar.xz
+    dir:
+        url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
+        matcher: "^6.*"
+
+  packages:
+    - qt3d:
+        vars:
+          desc: "Qt 3D provides a fully configurable renderer that enables developers to quickly implement any rendering pipeline that they need"
+
+    - qt5compat:
+        vars:
+          desc: "Qt Graphical Effects module from Qt 5 provided for compatibility"
+
+    - qtbase:
+        vars:
+          desc: "Qt Cross-platform application framework"
+
+    - qtcharts:
+        vars:
+          desc: "UI Components for displaying visually pleasing charts, driven by static or dynamic data models"
+
+    - qtconnectivity:
+        vars:
+          desc: "Bluetooth and NFC support library for the Qt framework"
+
+    - qtdeclarative:
+        vars:
+          desc: "A declarative framework for building highly dynamic applications with custom UIs"
+
+    - qthttpserver:
+        vars:
+          desc: "A framework for embedding an HTTP server into a Qt application"
+
+    - qtimageformats:
+        vars:
+          desc: "Plugins for additional image formats: TIFF, MNG, TGA, WBMP"
+
+    - qtlanguageserver:
+        vars:
+          desc: "Implementation of the Language Server Protocol for Qt"
+
+    - qtlocation:
+        vars:
+          desc: "Location (places, maps, navigation) library for the Qt framework"
+
+    - qtmultimedia:
+        vars:
+          desc: "A rich set of QML types and C++ classes to handle multimedia content. Also includes APIs to handle camera access"
+
+    - qtnetworkauth:
+        vars:
+          desc: "Provides support for OAuth-based authorization to online services"
+
+    - qtpositioning:
+        vars:
+          desc: "Provides access to position, satellite info and area monitoring classes"
+
+    - qtquick3d:
+        vars:
+          desc: "Provides a high-level API for creating 3D content or UIs based on Qt Quick"
+
+    - qtquicktimeline:
+        vars:
+          desc: "Enables keyframe-based animations and parameterization"
+
+    - qtscxml:
+        vars:
+          desc: "Provides classes and tools for creating state machines from SCXML files and embedding them in applications"
+
+    - qtsensors:
+        vars:
+          desc: "Provides access to sensor hardware on Android, iOS, and Windows platforms"
+
+    - qtserialport:
+        vars:
+          desc: "Provides classes to interact with hardware and virtual serial ports"
+
+    - qtshadertools:
+        vars:
+          desc: "Provides tools for the cross-platform Qt shader pipeline. These enable processing graphics and compute shaders to make them usable for Qt Quick and other components in the Qt ecosystem"
+
+    - qtspeech:
+        vars:
+          desc: "Provides support for synthesizing speech from text and playing it as audio output"
+
+    - qtsvg:
+        vars:
+          desc: "Classes for displaying the contents of SVG files"
+
+    - qttools:
+        vars:
+          desc: "Qt Tools Collection"
+
+    - qttranslations:
+        vars:
+          desc: "Translation files for the Qt framework"
+
+    - qtwayland:
+        vars:
+          desc: "Provides a framework to develop a Wayland compositor on Linux and Boot to Qt targets"
+
+    - qtwebchannel:
+        vars:
+          desc: "Provides access to QObject or QML objects from HTML clients for seamless integration of Qt applications with HTML/JavaScript clients"
+
+    - qtwebengine:
+        vars:
+          desc: "Classes and functions for embedding web content in applications using the Chromium browser project"
+
+    - qtwebsockets:
+        vars:
+          desc: "Provides WebSocket communication compliant with RFC 6455"
+
+    - qtwebview:
+        vars:
+          desc: "Displays web content in a QML application by using APIs native to the platform, without the need to include a full web browser stack"

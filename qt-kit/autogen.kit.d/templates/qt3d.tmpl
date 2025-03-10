@@ -1,0 +1,31 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt6-build
+
+DESCRIPTION="3D rendering module for the Qt framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=6
+
+KEYWORDS="*"
+IUSE=""
+
+RDEPEND="
+	media-libs/assimp[>=5.0.0]
+	~dev-qt/qtbase-${PV}:6[gles2-only,gui,vulkan]
+	~dev-qt/qtdeclarative-${PV}:6
+	~dev-qt/qtmultimedia-${PV}:6
+	~dev-qt/qtshadertools-${PV}:6
+	sys-libs/zlib
+
+"
+DEPEND="${RDEPEND}"
+
+src_configure() {
+	local mycmakeargs=(
+		-DQT_FEATURE_qt3d_system_assimp=ON
+	)
+
+	qt6-build_src_configure
+}

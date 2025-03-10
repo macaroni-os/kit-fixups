@@ -1,0 +1,36 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt6-build
+
+DESCRIPTION="Module enables a Qt application to support accessibility features such as text-to-speech"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=6
+
+KEYWORDS="*"
+IUSE="flite qml +speechd"
+
+RDEPEND="
+	~dev-qt/qtbase-${PV}:6
+	~dev-qt/qtmultimedia-${PV}:6
+	flite? ( app-accessibility/flite )
+	qml? ( ~dev-qt/qtdeclarative-${PV}:6 )
+	speechd? ( app-accessibility/speech-dispatcher )
+"
+DEPEND="${RDEPEND}"
+
+src_prepare() {
+	qt6-build_src_prepare
+}
+
+src_configure() {
+	local mycmakeargs=(
+		$(cmake_use_find_package qml Qt6Qml)
+		$(qt_feature flite)
+		$(qt_feature speechd)
+		-DQT_FEATURE_flite_alsa=OFF
+	)
+
+	qt6-build_src_configure
+}

@@ -1,0 +1,15 @@
+pigz_rule:
+  generator: github-1
+  packages:
+    - pigz:
+        cat: app-arch
+        description: A parallel implementation of gzip
+        homepage: http://www.zlib.net/pigz/
+        license: ZLIB
+        github:
+          user: madler
+          query: tags
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''

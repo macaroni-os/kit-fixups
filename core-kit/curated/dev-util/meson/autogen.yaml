@@ -2,11 +2,12 @@ meson_rule:
   generator: github-1
   packages:
     - meson:
+        cat: dev-util
+        description: Open source build system
+        homepage: https://mesonbuild.com/
+        license: Apache-2.0
         github:
           user: mesonbuild
           query: tags
           tarball: "meson-{version}.tar.gz"
         template: meson.tmpl
-        versions:
-          latest: {}
-          0.59.1: {}

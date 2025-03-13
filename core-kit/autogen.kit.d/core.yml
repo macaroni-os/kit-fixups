@@ -1,3 +1,52 @@
+arch_dirlisting:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-arch
+
+  packages:
+    - sharutils:
+        dir:
+          url: https://ftp.gnu.org/gnu/sharutils/
+          matcher: "sharutils-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: "sharutils-"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+        vars:
+          desc: Tools to deal with shar archives
+          homepage: https://www.gnu.org/software/sharutils/
+          iuse: nls
+          depend: |
+            app-arch/xz-utils
+            sys-apps/texinfo
+            nls? ( sys-devel/gettext )
+          inherit:
+            - flag-o-matic
+            - autotools
+          patches:
+            - sharutils-4.15.2-CVE-2018-1000097.patch
+            - sharutils-4.15.2-gcc-10.patch
+            - sharutils-4.15.2-glibc228.patch
+          body: |
+            src_prepare() {
+              default
+              append-cflags $(test-flags-CC -Wno-error=format-security)
+              append-cflags -std=gnu17
+              eautoreconf
+            }
+
+            src_configure() {
+              econf $(use_enable nls)
+            }
+
+
+
 core_dirlisting:
   generator: builtin-dirlisting
 

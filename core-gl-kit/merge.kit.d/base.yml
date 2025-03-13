@@ -1,0 +1,198 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "core-gl-kit"
+  url: "https://github.com/macaroni-os/core-gl-kit"
+  branch: "mark-testing"
+
+- name: "media-kit"
+  url: "https://github.com/macaroni-os/media-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-gl-kit
+  url: "https://github.com/macaroni-os/core-gl-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-misc/wayland-utils
+
+    - pkg: app-emulation/libnvidia-container-bin
+
+    - pkg: dev-libs/ocl-icd
+
+    - pkg: dev-util/glslang
+    - pkg: dev-util/opencl-headers
+    - pkg: dev-util/spirv-headers
+    - pkg: dev-util/spirv-tools
+    - pkg: dev-util/vulkan-headers
+    - pkg: dev-util/vulkan-tools
+
+    - pkg: gui-libs/egl-gbm
+    - pkg: gui-libs/egl-wayland
+    - pkg: gui-libs/eglexternalplatform
+    - pkg: gui-libs/libwpe
+    - pkg: gui-libs/wpebackend-fdo
+
+    - pkg: x11-drivers/xf86-input-evdev
+    - pkg: x11-drivers/xf86-input-libinput
+    - pkg: x11-drivers/xf86-input-mouse
+    - pkg: x11-drivers/xf86-input-synaptics
+    - pkg: x11-drivers/xf86-input-vmmouse
+    - pkg: x11-drivers/xf86-input-wacom
+    - pkg: x11-drivers/xf86-video-amdgpu
+    - pkg: x11-drivers/xf86-video-ati
+    - pkg: x11-drivers/xf86-video-dummy
+    - pkg: x11-drivers/xf86-video-fbdev
+    - pkg: x11-drivers/xf86-video-nouveau
+    - pkg: x11-drivers/xf86-video-vbox
+    - pkg: x11-drivers/xf86-video-vesa
+    - pkg: x11-drivers/xf86-video-vmware
+
+    # NOTE: Move to geaaru-kit ebuilds soon.
+    # 555 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-555.0'
+        - '<x11-drivers/nvidia-drivers-556'
+
+    # 560 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-560.0'
+        - '<x11-drivers/nvidia-drivers-561'
+
+    # 565 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-565.0'
+        - '<x11-drivers/nvidia-drivers-566'
+
+    # NOTE: Move to geaaru-kit ebuilds soon.
+    # 555 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-555.0'
+        - '<x11-drivers/nvidia-kernel-modules-556'
+
+    # 560 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-560.0'
+        - '<x11-drivers/nvidia-kernel-modules-561'
+
+    # 565 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-565.0'
+        - '<x11-drivers/nvidia-kernel-modules-566'
+
+
+    - pkg: media-fonts/encodings
+    - pkg: media-fonts/font-util
+    - pkg: media-fonts/font-adobe-100dpi
+    - pkg: media-fonts/font-adobe-75dpi
+    - pkg: media-fonts/font-adobe-utopia-100dpi
+    - pkg: media-fonts/font-adobe-utopia-75dpi
+    - pkg: media-fonts/font-adobe-utopia-type1
+    - pkg: media-fonts/font-alias
+    - pkg: media-fonts/liberation-fonts
+    - pkg: media-fonts/noto-emoji
+
+    - pkg: media-fonts/cantarell
+    - pkg: media-fonts/culmus
+    - pkg: media-fonts/dejavu
+    - pkg: media-fonts/source-pro
+    - pkg: media-fonts/unifont
+
+    - pkg: media-fonts/font-bitstream-75dpi
+    - pkg: media-fonts/mikachan-font-ttc
+    - pkg: media-fonts/font-cursor-misc
+    - pkg: media-fonts/unfonts-extra
+    - pkg: media-fonts/font-daewoo-misc
+    - pkg: media-fonts/font-bh-lucidatypewriter-75dpi
+    - pkg: media-fonts/font-sony-misc
+    - pkg: media-fonts/font-bh-type1
+    - pkg: media-fonts/zh-kcfonts
+    - pkg: media-fonts/font-xfree86-type1
+    - pkg: media-fonts/mikachan-font-otf
+    - pkg: media-fonts/unfonts
+    - pkg: media-fonts/font-misc-misc
+    - pkg: media-fonts/cheapskatefonts
+    - pkg: media-fonts/tibetan-machine-font
+    - pkg: media-fonts/font-misc-ethiopic
+    - pkg: media-fonts/arabeyes-fonts
+    - pkg: media-fonts/hunkyfonts
+    - pkg: media-fonts/font-bitstream-speedo
+    - pkg: media-fonts/webby-fonts
+    - pkg: media-fonts/stix-fonts
+    - pkg: media-fonts/font-sun-misc
+    - pkg: media-fonts/free-bangla-font
+    - pkg: media-fonts/font-schumacher-misc
+    - pkg: media-fonts/freefont
+    - pkg: media-fonts/font-arabic-misc
+    - pkg: media-fonts/font-bh-lucidatypewriter-100dpi
+    - pkg: media-fonts/ipamonafont
+    - pkg: media-fonts/font-misc-cyrillic
+    - pkg: media-fonts/kacst-fonts
+    - pkg: media-fonts/font-isas-misc
+    - pkg: media-fonts/urw-fonts
+    - pkg: media-fonts/font-jis-misc
+    - pkg: media-fonts/intlfonts
+    - pkg: media-fonts/tengwar-fonts
+    - pkg: media-fonts/ekushey-bangla-fonts
+    - pkg: media-fonts/nepali-fonts
+    - pkg: media-fonts/proggy-fonts
+    - pkg: media-fonts/font-ibm-type1
+    - pkg: media-fonts/symbola
+    - pkg: media-fonts/sgi-fonts
+    - pkg: media-fonts/corefonts
+    - pkg: media-fonts/font-bh-ttf
+    - pkg: media-fonts/font-winitzki-cyrillic
+    - pkg: media-fonts/croscorefonts
+    - pkg: media-fonts/font-mutt-misc
+    - pkg: media-fonts/font-micro-misc
+    - pkg: media-fonts/font-screen-cyrillic
+    - pkg: media-fonts/font-bh-100dpi
+    - pkg: media-fonts/monafont
+    - pkg: media-fonts/font-bitstream-type1
+    - pkg: media-fonts/aquafont
+    - pkg: media-fonts/font-misc-meltho
+    - pkg: media-fonts/farsi-fonts
+    - pkg: media-fonts/font-bh-75dpi
+    - pkg: media-fonts/hack
+    - pkg: media-fonts/terminus-font
+    - pkg: media-fonts/aquapfont
+    - pkg: media-fonts/freefonts
+    - pkg: media-fonts/font-dec-misc
+    - pkg: media-fonts/mikachan-font-ttf
+    - pkg: media-fonts/wqy-bitmapfont
+    - pkg: media-fonts/noto-cjk
+    - pkg: media-fonts/fs-fonts
+    - pkg: media-fonts/font-bitstream-100dpi
+    - pkg: media-fonts/font-cronyx-cyrillic
+    - pkg: media-fonts/takao-fonts
+
+    - pkg: media-libs/vulkan-layers
+    - pkg: media-libs/vulkan-loader
+    - pkg: media-libs/freeglut
+
+    - pkg: app-emulation/vkd3d
+
+    - pkg: virtual/ttf-fonts
+    - pkg: virtual/opencl

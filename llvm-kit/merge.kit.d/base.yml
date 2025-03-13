@@ -6,7 +6,7 @@ sources:
 
 - name: "llvm-kit"
   url: "https://github.com/macaroni-os/llvm-kit"
-  branch: "mark-testing"
+  branch: "mark-unstable"
 
 target:
   name: llvm-kit
@@ -25,20 +25,28 @@ target:
     max_versions: 3
 
   atoms:
+    - pkg: dev-python/clang-python
+
+    - pkg: dev-libs/libclc
+
+    - pkg: dev-util/lldb:16
+
+    - pkg: sys-libs/compiler-rt:16
+    - pkg: sys-libs/compiler-rt-sanitizers:16
 
     - pkg: sys-devel/clang-common
       conditions:
         - '>=sys-devel/clang-common-16.0.0'
         - '<sys-devel/clang-common-17.0.0'
-
     - pkg: sys-devel/clang:16
+    - pkg: sys-devel/clang-runtime:16
+
+    - pkg: sys-devel/lld:16
     - pkg: sys-devel/llvm:16
-
+    - pkg: sys-devel/llvmgold:16
     - pkg: sys-devel/llvm-common
-
-    - pkg: sys-libs/compiler-rt:16.0.0
-    - pkg: sys-libs/compiler-rt-sanitizers:16.0.0
 
     - pkg: sys-libs/libcxx
     - pkg: sys-libs/libcxxabi
+    - pkg: sys-libs/libomp
 

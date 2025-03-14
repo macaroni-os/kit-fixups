@@ -47,16 +47,16 @@ REQUIRED_USE="{{ .Values.required_use }}"
 RESTRICT="{{ .Values.restrict }}"
 {{- end }}
 
-{{- if .Values.depend | default false }}
-DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
-"
-{{- end }}
 {{- if .Values.bdepend | default false }}
 BDEPEND="{{ regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
 "
 {{- end }}
 {{- if .Values.rdepend | default false }}
 RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.depend | default false }}
+DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
 "
 {{- end }}
 {{- if .Values.pdepend | default false }}

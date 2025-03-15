@@ -300,7 +300,7 @@ src_install() {
 	local d
 	for d in / /howto/ /technical/ ; do
 		docinto ${d}
-		dodoc Documentation${d}*.txt
+		dodoc Documentation${d}*.adoc
 		if use doc ; then
 			docinto ${d}/html
 			dodoc Documentation${d}*.html
@@ -341,7 +341,7 @@ src_install() {
 		git_emake install-man install-html || die "Failed to emake install-html install-man for git-subtree"
 	fi
 	newdoc README README.git-subtree
-	dodoc git-subtree.txt
+	dodoc git-subtree.adoc
 	popd &>/dev/null || die
 
 	# diff-highlight
@@ -351,12 +351,12 @@ src_install() {
 	# git-jump
 	exeinto /usr/libexec/git-core/
 	doexe contrib/git-jump/git-jump
-	newdoc contrib/git-jump/README git-jump.txt
+	newdoc contrib/git-jump/README git-jump.adoc
 
 	# git-contacts
 	exeinto /usr/libexec/git-core/
 	doexe contrib/contacts/git-contacts
-	dodoc contrib/contacts/git-contacts.txt
+	dodoc contrib/contacts/git-contacts.adoc
 
 	if use gnome-keyring ; then
 		pushd contrib/credential/libsecret &>/dev/null || die

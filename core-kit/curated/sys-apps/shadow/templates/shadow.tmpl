@@ -27,7 +27,7 @@ DEPEND="acl? ( sys-apps/acl:0= )
 	)
 	nls? ( virtual/libintl )
 	xattr? ( sys-apps/attr:0= )"
-BDEPEND="
+BDEPEND="dev-libs/libbsd
 	app-arch/xz-utils
 	nls? ( sys-devel/gettext )"
 RDEPEND="${DEPEND}

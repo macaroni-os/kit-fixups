@@ -1,0 +1,12 @@
+xfsprogs_rule:
+  generator: dirlisting-1
+  packages:
+    - xfsprogs:
+        cat: sys-fs
+        desc: xfs filesystem utilities
+        homepage: https://xfs.wiki.kernel.org/
+        license: LGPL-2.1
+        dir:
+          url: https://www.kernel.org/pub/linux/utils/fs/xfs/xfsprogs/
+          order: asc
+          format: tar.xz

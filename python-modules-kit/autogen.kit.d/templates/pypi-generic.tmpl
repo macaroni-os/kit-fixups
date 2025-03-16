@@ -83,8 +83,8 @@ PATCHES=(
 )
 
 {%- endif %}
-{%- if S is defined %}
-S="{{ S }}"
+{%- if s is defined %}
+S="{{ s }}"
 {%- else %}
 S="${WORKDIR}/{{pypi_name}}-{{pypi_version}}"
 {%- endif %}

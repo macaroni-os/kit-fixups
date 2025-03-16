@@ -6,3 +6,8 @@ runc:
           user: opencontainers
           repo: runc
           query: releases
+          transform:
+            - kind: string
+              match: "v"
+              replace: ""
+          select: '\d+.\d+.\d+'

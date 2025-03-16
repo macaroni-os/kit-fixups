@@ -27,7 +27,8 @@ DEPEND="acl? ( sys-apps/acl:0= )
 	)
 	nls? ( virtual/libintl )
 	xattr? ( sys-apps/attr:0= )"
-BDEPEND="dev-libs/libbsd
+BDEPEND="dev-util/pkgconf
+    dev-libs/libbsd
 	app-arch/xz-utils
 	nls? ( sys-devel/gettext )"
 RDEPEND="${DEPEND}
@@ -40,6 +41,8 @@ PATCHES=(
 src_prepare() {
 	default
 	./autogen.sh
+	#eautoreconf
+	elibtoolize
 }
 
 src_configure() {

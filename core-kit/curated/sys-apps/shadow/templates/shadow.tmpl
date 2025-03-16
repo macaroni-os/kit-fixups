@@ -40,8 +40,6 @@ PATCHES=(
 src_prepare() {
 	default
 	./autogen.sh
-	#eautoreconf
-	elibtoolize
 }
 
 src_configure() {

@@ -1,0 +1,47 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-testing"
+
+- name: "php-kit"
+  url: "https://github.com/macaroni-os/php-kit"
+  branch: "mark-testing"
+
+target:
+  name: php-kit
+  url: "https://github.com/macaroni-os/php-kit"
+  branch: mark-xl
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-php/pecl-amqp
+    - pkg: dev-php/pecl-apcu
+    - pkg: dev-php/pecl-event
+    - pkg: dev-php/pecl-http
+    - pkg: dev-php/pecl-imagick
+    - pkg: dev-php/pecl-mcrypt
+    - pkg: dev-php/pecl-memcache
+    - pkg: dev-php/pecl-mongodb
+    - pkg: dev-php/pecl-oauth
+    - pkg: dev-php/pecl-pam
+    - pkg: dev-php/pecl-radius
+    - pkg: dev-php/pecl-raphf
+    - pkg: dev-php/pecl-redis
+    - pkg: dev-php/pecl-translit
+    - pkg: dev-php/pecl-xdiff
+    - pkg: dev-php/pecl-yaz

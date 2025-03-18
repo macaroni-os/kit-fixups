@@ -83,6 +83,14 @@ setuptools_modules:
               distutils-r1_python_compile
             }
 
+    - falcon:
+        vars:
+          license: Apache-2.0
+        pydeps:
+          py:all:build:
+            - wheel
+            - cython
+
 standalone_modules:
   generator: builtin-pypi
   template:

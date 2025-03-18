@@ -8,6 +8,7 @@ ruby_gen:
     - ruby:
         versions:
           3.2.4:
+            template: ruby3.tmpl
             unmasked: False
             bundled_gems:
               - dev-ruby/debug-1.7.1
@@ -36,6 +37,7 @@ ruby_gen:
             target: "ruby32"
           3.1.5:
             unmasked: True
+            template: ruby3.tmpl
             bundled_gems:
               - dev-ruby/debug-1.6.3
               - dev-ruby/irb-1.5.0
@@ -66,6 +68,7 @@ ruby_gen:
             target: "ruby31"
           3.0.7:
             unmasked: True
+            template: ruby3.tmpl
             bundled_gems:
               - dev-ruby/minitest-5.14.2
               - dev-ruby/power_assert-1.2.0

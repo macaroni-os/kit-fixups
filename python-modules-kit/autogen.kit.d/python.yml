@@ -54,6 +54,35 @@ flit_modules:
               fi
             }
 
+setuptools_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    category: dev-python
+    template: "templates/pypi-generic.tmpl"
+    vars:
+      du_pep517: setuptools
+    python_compat: "python3+"
+
+  packages:
+    - dependency-injector:
+        pypi_name: dependency_injector
+        vars:
+          use:native-extensions:build:
+            - cython
+          iuse: +native-extensions
+          license: BSD-3-Clause
+          body: |
+            python_compile() {
+              local -x DEPENDENCY_INJECTOR_NO_EXTENSIONS=0
+              if ! use native-extensions || [[ ${EPYTHON} != python* ]]; then
+                DEPENDENCY_INJECTOR_NO_EXTENSIONS=1
+              fi
+              distutils-r1_python_compile
+            }
+
 standalone_modules:
   generator: builtin-pypi
   template:
@@ -67,7 +96,6 @@ standalone_modules:
     python_compat: "python3+"
 
   packages:
-
 
     - yarl:
         pydeps:

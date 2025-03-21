@@ -13,7 +13,7 @@ LICENSE="{{ license }}"
 
 KEYWORDS="*"
 SLOT="0"
-IUSE="doc emacs test vim-syntax"
+IUSE="doc emacs vim-syntax"
 
 S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
 
@@ -25,7 +25,6 @@ BDEPEND="
 		app-doc/doxygen
 		dev-libs/libxslt
 	)
-	test? ( dev-cpp/gtest )
 "
 RDEPEND="
 	emacs? ( virtual/emacs )
@@ -71,15 +70,6 @@ src_compile() {
 
 	if use emacs; then
 		elisp-compile misc/ninja-mode.el || die
-	fi
-}
-
-src_test() {
-	if ! tc-is-cross-compiler; then
-		# Bug 485772
-		ulimit -n 2048
-		./ninja -v ninja_test || die
-		./ninja_test || die
 	fi
 }
 

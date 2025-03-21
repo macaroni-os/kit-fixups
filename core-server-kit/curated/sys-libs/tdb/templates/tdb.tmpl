@@ -6,11 +6,11 @@ PYTHON_COMPAT=( python3+ )
 PYTHON_REQ_USE="threads(+)"
 inherit waf-utils python-single-r1
 
-DESCRIPTION="Simple database API"
-HOMEPAGE="https://tdb.samba.org/"
-SRC_URI="https://samba.org/ftp/tdb/${P}.tar.gz"
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
+LICENSE="{{license}}"
 
-LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="*"
 IUSE="python"
@@ -35,6 +35,8 @@ src_prepare() {
 }
 
 src_configure() {
+    export PYTHONHASHSEED=1
+
 	local extra_opts=()
 	if ! use python; then
 		extra_opts+=( --disable-python )

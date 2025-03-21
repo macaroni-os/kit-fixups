@@ -1,0 +1,15 @@
+ninja_rule:
+  generator: github-1
+  packages:
+    - ninja:
+        cat: dev-util
+        description: A small build system similar to make
+        homepage: hhttps://ninja-build.org/
+        license: Apache-2.0
+        github:
+          user: ninja-build
+          query: tags
+          transform:
+            - kind: string
+              match: 'v'
+              replace: ''

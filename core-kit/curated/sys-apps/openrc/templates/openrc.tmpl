@@ -1,29 +1,26 @@
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
-inherit flag-o-matic pam toolchain-funcs
+inherit flag-o-matic meson pam toolchain-funcs
 
-DESCRIPTION="OpenRC manages the services, startup and shutdown of a host"
-HOMEPAGE="https://github.com/openrc/openrc/"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+LICENSE="{{ license }}"
 
-SRC_URI="https://github.com/${PN}/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="*"
-LICENSE="BSD-2"
 SLOT="0"
-IUSE="audit +bash-completion debug ncurses pam newnet prefix -netifrc selinux static-libs unicode kernel_linux kernel_FreeBSD zsh-completion"
+IUSE="audit +bash debug ncurses pam newnet prefix -netifrc selinux static-libs unicode zsh-completion"
 
-COMMON_DEPEND="kernel_FreeBSD? ( || ( >=sys-freebsd/freebsd-ubin-9.0_rc sys-process/fuser-bsd ) )
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+COMMON_DEPEND="
 	ncurses? ( sys-libs/ncurses:0= )
-	pam? (
-		sys-auth/pambase
-		virtual/pam
-	)
+	pam? ( sys-libs/pam )
 	audit? ( sys-process/audit )
-	kernel_linux? (
-		sys-process/psmisc
-		!<sys-process/procps-3.3.9-r2
-	)
+	sys-process/psmisc
+	!<sys-process/procps-3.3.9-r2
 	selinux? (
 		sys-apps/policycoreutils
 		>=sys-libs/libselinux-2.6
@@ -33,13 +30,11 @@ DEPEND="${COMMON_DEPEND}
 	virtual/os-headers
 	ncurses? ( virtual/pkgconfig )"
 RDEPEND="${COMMON_DEPEND}
+	bash? ( app-shells/bash )
 	sys-apps/corenetwork
 	!prefix? (
-		kernel_linux? (
-			>=sys-apps/sysvinit-2.86-r6[selinux?]
-			virtual/tmpfiles
-		)
-		kernel_FreeBSD? ( sys-freebsd/freebsd-sbin )
+		>=sys-apps/sysvinit-2.86-r6[selinux?]
+		virtual/tmpfiles
 	)
 	selinux? (
 		>=sec-policy/selinux-base-policy-2.20170204-r4
@@ -55,45 +50,22 @@ src_prepare() {
 	default
 	# remove lxc keyword from devfs. FL-6048
 	sed -i -e 's/-\lxc\+ //g' init.d/devfs.in || die "sed failed"
-	eapply "${FILESDIR}"/openrc-0.40.2-systemd-cgroups.patch #FL-6105
-	eapply "${FILESDIR}"/openrc-netmount-funtoo.patch # FL-6362
-	eapply "${FILESDIR}"/openrc-filesystem-btrfs-funtoo.patch # FL-6211
-	eapply "${FILESDIR}"/openrc-0.41.2-integer-expression-expected.patch # FL-6510
-	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix1.patch # FL-9280
-	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix2.patch # FL-9280
-	eapply "${FILESDIR}"/openrc-0.41.2-CVE-2018-21269-fix3.patch # FL-9280
-	sed -i -e 's/^pid_t rc_logger_pid;/extern pid_t rc_logger_pid;/' -e 's/int rc_logger_tty;/extern int rc_logger_tty;/' src/rc/rc-logger.h || die
 }
 
-src_compile() {
-	unset LIBDIR #266688
-
-	MAKE_ARGS="${MAKE_ARGS}
-		LIBNAME=$(get_libdir)
-		LIBEXECDIR=${EPREFIX}/lib/rc
-		MKBASHCOMP=$(usex bash-completion)
-		MKNET=$(usex newnet)
-		MKSELINUX=$(usex selinux)
-		MKAUDIT=$(usex audit)
-		MKPAM=$(usev pam)
-		MKSTATICLIBS=$(usex static-libs)
-		MKZSHCOMP=$(usex zsh-completion)"
-
-	local brand="Unknown"
-	if use kernel_linux ; then
-		MAKE_ARGS="${MAKE_ARGS} OS=Linux"
-		brand="Linux"
-	elif use kernel_FreeBSD ; then
-		MAKE_ARGS="${MAKE_ARGS} OS=FreeBSD"
-		brand="FreeBSD"
-	fi
-	export BRANDING="Funtoo ${brand}"
-	use prefix && MAKE_ARGS="${MAKE_ARGS} MKPREFIX=yes PREFIX=${EPREFIX}"
-	export DEBUG=$(usev debug)
-	export MKTERMCAP=$(usev ncurses)
-
-	tc-export CC AR RANLIB
-	emake ${MAKE_ARGS}
+src_configure() {
+	local emesonargs=(
+		$(meson_feature audit)
+		"-Dbranding=\"Macaroni OS\""
+		$(meson_use newnet)
+		-Dos=Linux
+		$(meson_use pam)
+		$(meson_feature selinux)
+		-Drootprefix="${EPREFIX}"
+		-Dshell=$(usex bash /bin/bash /bin/sh)
+		-Dtermcap=$(usev ncurses)
+	)
+	# export DEBUG=$(usev debug)
+	meson_src_configure
 }
 
 # set_config <file> <option name> <yes value> <no value> test
@@ -110,19 +82,8 @@ set_config_yes_no() {
 }
 
 src_install() {
-	emake ${MAKE_ARGS} DESTDIR="${D}" install
+	meson_src_install
 
-	# move the shared libs back to /usr so ldscript can install
-	# more of a minimal set of files
-	# disabled for now due to #270646
-	#mv "${ED}"/$(get_libdir)/lib{einfo,rc}* "${ED}"/usr/$(get_libdir)/ || die
-	#gen_usr_ldscript -a einfo rc
-	gen_usr_ldscript libeinfo.so
-	gen_usr_ldscript librc.so
-
-	if ! use kernel_linux; then
-		keepdir /lib/rc/init.d
-	fi
 	keepdir /lib/rc/tmp
 
 	# Backup our default runlevels
@@ -149,15 +110,14 @@ src_install() {
 	insinto /etc/logrotate.d
 	newins "${FILESDIR}"/openrc.logrotate openrc
 
-	# install gentoo pam.d files
-	newpamd "${FILESDIR}"/start-stop-daemon.pam start-stop-daemon
-	newpamd "${FILESDIR}"/start-stop-daemon.pam supervise-daemon
+	if use pam; then
+		# install gentoo pam.d files
+		newpamd "${FILESDIR}"/start-stop-daemon.pam start-stop-daemon
+		newpamd "${FILESDIR}"/start-stop-daemon.pam supervise-daemon
+	fi
 
 	# install documentation
-	dodoc ChangeLog *.md
-	if use newnet; then
-		dodoc README.newnet
-	fi
+	dodoc *.md
 
 	# funtoo goodies
 	exeinto /etc/init.d
@@ -171,12 +131,11 @@ src_install() {
 }
 
 pkg_preinst() {
-	local f LIBDIR=$(get_libdir)
 	# avoid default thrashing in conf.d files when possible #295406
-	if [[ -e "${EROOT}"etc/conf.d/hostname ]] ; then
+	if [[ -e "${EROOT}"/etc/conf.d/hostname ]] ; then
 		(
 		unset hostname HOSTNAME
-		source "${EROOT}"etc/conf.d/hostname
+		source "${EROOT}"/etc/conf.d/hostname
 		: ${hostname:=${HOSTNAME}}
 		[[ -n ${hostname} ]] && set_config /etc/conf.d/hostname hostname "${hostname}"
 		)
@@ -184,11 +143,10 @@ pkg_preinst() {
 
 	# set default interactive shell to sulogin if it exists
 	set_config /etc/rc.conf rc_shell /sbin/sulogin "#" test -e /sbin/sulogin
+	return 0
 }
 
 pkg_postinst() {
-	local LIBDIR=$(get_libdir)
-
 	for r in sysinit boot shutdown default nonetwork; do
 		if [ ! -e ${EROOT}/etc/runlevels/$r ]; then
 			install -d ${EROOT}/etc/runlevels/$r

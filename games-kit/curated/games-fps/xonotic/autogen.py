@@ -14,9 +14,10 @@ async def generate(hub, **pkginfo):
 	)
 
 	link_matches = (
-		src_pattern.match(link.get("href")) for link in autobuild_soup.find_all("a")
+		src_pattern.match(link.get("href")) for link in autobuild_soup.find_all("a") if link.get("href")
 	)
 	valid_matches = (match.groups() for match in link_matches if match)
+
 
 	target_filename, target_version = max(
 		valid_matches,

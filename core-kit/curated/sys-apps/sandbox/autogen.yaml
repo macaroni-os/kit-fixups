@@ -1,0 +1,16 @@
+sandbox_rule:
+  generator: github-1
+  packages:
+    - sandbox:
+        cat: sys-apps
+        desc: sandbox'd LD_PRELOAD hack
+        homepage: https://wiki.gentoo.org/wiki/Project:Sandbox
+        license: GPL-2
+        github:
+          user: gentoo
+          query: tags
+          transform:
+            - kind: string
+              match: "v"
+              replace: ""
+          select: '2.\d+'

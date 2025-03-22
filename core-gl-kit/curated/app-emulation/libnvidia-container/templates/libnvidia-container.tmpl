@@ -53,6 +53,11 @@ post_src_unpack() {
 }
 
 src_prepare() {
+	local gov=$(go version | awk '{ print $3 }' | sed -e 's/go//' -e 's/.[0-9]*$//' -e 's/^[0-9].//')
+    if [ $gov -ge 24 ] ; then
+        eapply ${FILESDIR}/${PN}-1.17.4-go-1.24.patch
+    fi
+
 	default
 
 	# Don't fetch the sources for nvidia-modprobe and elftoolchain from the internet during src_compile()

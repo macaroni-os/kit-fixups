@@ -4,17 +4,15 @@ EAPI=7
 
 inherit prefix
 
-DESCRIPTION="Filesystem baselayout and init scripts"
-SRC_URI=""
-KEYWORDS="*"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{ {homepage }}"
+SRC_URI="{{ src_uri }}"
+LICENSE={{ license }}
 
-LICENSE="GPL-2"
 SLOT="0"
 IUSE="build kernel_FreeBSD kernel_linux +split-usr"
 
-src_unpack() {
-	cp -r "${FILESDIR}/baselayout" "${S}" || die
-}
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 pkg_preinst() {
 	if use build && [ $ROOT != "/" ]; then

@@ -1,0 +1,15 @@
+baselayout_rule:
+  generator: github-1
+  packages:
+    - baselayout:
+        cat: sys-apps
+        desc: Filesystem baselayout and init scripts
+        hompage: https://github.com/gentoo/baselayout
+        license: GPL-2
+        github:
+          user: gentoo
+          query: tags
+          transform:
+            - kind: string
+              match: 'baselayout-'
+              replace: ''

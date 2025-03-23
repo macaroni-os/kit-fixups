@@ -75,6 +75,11 @@ target:
     - pkg: sys-auth/elogind
     - pkg: sys-auth/pambase
     - pkg: sys-auth/polkit
+      conditions:
+        - '<sys-auth/polkit-0.120'
+    - pkg: sys-auth/polkit
+      conditions:
+        - '>=sys-auth/polkit-0.120'
     - pkg: sys-auth/google-authenticator
 
     - pkg: sys-libs/pam

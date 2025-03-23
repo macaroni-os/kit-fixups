@@ -1,0 +1,22 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=5
+
+inherit autotools-utils
+
+DESCRIPTION="{{desc}}"
+HOMEPAGE="{{homepage}}"
+SRC_URI="{{src_uri}}"
+LICENSE="{{license}}"
+
+SLOT="0"
+KEYWORDS="*"
+IUSE=""
+
+S="${WORKDIR}/{{ github_user }}-{{ github_repo }}-{{ sha[:7] }}"
+
+RDEPEND="app-admin/eselect"
+
+src_prepare() {
+	eautoreconf
+}

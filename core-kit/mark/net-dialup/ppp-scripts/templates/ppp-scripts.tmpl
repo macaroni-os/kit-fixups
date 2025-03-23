@@ -16,9 +16,8 @@ RDEPEND="${DEPEND}"
 S="${WORKDIR}"
 
 src_unpack() {
-	tar xf "${FILESDIR}/ppp-scripts-0.tar.xz" -C "${WORKDIR}"/ || die
+	cp -r "${FILESDIR}/scripts" "${S}" || die
 }
-
 
 src_install() {
 	exeinto /etc/ppp

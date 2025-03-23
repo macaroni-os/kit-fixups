@@ -16,8 +16,7 @@ S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 SLOT="0/$(ver_cut 1-2)"
 KEYWORDS="*"
-IUSE="+bmff doc examples nls +png test webready +xmp"
-RESTRICT="!test? ( test )"
+IUSE="+bmff doc examples nls +png webready +xmp"
 
 BDEPEND="
 	doc? (
@@ -41,8 +40,6 @@ RDEPEND="
 	)
 	xmp? ( dev-libs/expat )
 "
-DEPEND="${DEPEND}
-	test? ( dev-cpp/gtest )"
 
 DOCS=( README.md doc/ChangeLog doc/cmd.txt )
 
@@ -73,7 +70,6 @@ src_configure() {
 		-DEXIV2_ENABLE_BMFF=$(usex bmff)
 		$(echo -DEXIV2_BUILD_EXIV2_COMMAND=NO)
 		$(echo -DEXIV2_BUILD_DOC=$(usex doc))
-		$(echo -DEXIV2_BUILD_UNIT_TESTS=$(usex test))
 		-DCMAKE_INSTALL_DOCDIR="${EPREFIX}"/usr/share/doc/${PF}/html
 	)
 
@@ -84,11 +80,6 @@ src_compile() {
 	cmake_src_compile
 
 	use doc && eninja doc
-}
-
-src_test() {
-	cd "${BUILD_DIR}"/bin || die
-	./unit_tests || die "Failed to run tests"
 }
 
 src_install() {

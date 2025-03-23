@@ -16,6 +16,10 @@ sources:
   url: "https://github.com/macaroni-os/desktop-kit"
   branch: "mark-testing"
 
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
 target:
   name: net-kit
   url: "https://github.com/macaroni-os/net-kit"
@@ -40,6 +44,7 @@ target:
     - pkg: mail-mta/nullmailer
     - pkg: mail-mta/sendmail
 
+    - pkg: net-mail/dovecot
     - pkg: net-mail/mailbase
     - pkg: net-mail/fetchmail
 

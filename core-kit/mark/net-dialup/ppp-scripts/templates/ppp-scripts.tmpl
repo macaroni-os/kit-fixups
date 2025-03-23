@@ -15,6 +15,11 @@ RDEPEND="${DEPEND}"
 
 S="${WORKDIR}"
 
+src_unpack() {
+	tar xf "${FILESDIR}/ppp-scripts-0.tar.xz" -C "${WORKDIR}"/ || die
+}
+
+
 src_install() {
 	exeinto /etc/ppp
 	for i in ip-up ip-down ; do

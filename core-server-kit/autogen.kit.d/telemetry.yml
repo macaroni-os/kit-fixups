@@ -84,3 +84,18 @@ prometheus-exporters:
         vars:
           homepage: "https://github.com/prometheus/node_exporter"
 
+    - redis_exporter-bin:
+        github:
+          user: oliver006
+          repo: redis_exporter
+        vars:
+          homepage: "https://github.com/prometheus/redis_exporter"
+
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-amd64.tar.gz'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-v{{ .Values.version }}.linux-amd64.tar.gz$'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-arm64.tar.gz'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-v{{ .Values.version }}.linux-arm64.tar.gz$'
+            use: arm64

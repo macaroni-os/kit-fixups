@@ -60,10 +60,10 @@ BDEPEND="${PYTHON_DEPS}
 	virtual/pkgconfig
 	|| (
 		(
-			sys-devel/llvm:{ llvm_max_slot }}
+			sys-devel/llvm:{{ llvm_max_slot }}
 			clang? (
-				sys-devel/clang:{ llvm_max_slot }}
-				lto? ( =sys-devel/lld-{ llvm_max_slot }}* )
+				sys-devel/clang:{{ llvm_max_slot }}
+				lto? ( =sys-devel/lld-{{ llvm_max_slot }}* )
 			)
 		)
 	)

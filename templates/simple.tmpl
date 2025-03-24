@@ -19,8 +19,15 @@ DESCRIPTION="{{ .Values.desc }}"
 {{- if .Values.homepage | default false }}
 HOMEPAGE="{{ .Values.homepage }}"
 {{- end }}
+{{- $assets_len := .Values.artefacts | len }}
+{{- if gt $assets_len 1 }}
+SRC_URI="{{- range $k, $v := .Values.artefacts }}
+{{ $v.Use }}? ( {{ $v.SrcUri | first }} -> {{ $v.Name }} )
+{{- end }}"
+{{- else }}
 {{- if .Values.src_uri | default false }}
 SRC_URI="{{ .Values.src_uri }}"
+{{- end }}
 {{- end }}
 
 {{- if .Values.license | default false }}

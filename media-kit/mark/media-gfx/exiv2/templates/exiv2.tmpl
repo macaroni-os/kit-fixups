@@ -68,9 +68,9 @@ src_configure() {
 		-DEXIV2_ENABLE_WEBREADY=$(usex webready)
 		-DEXIV2_ENABLE_XMP=$(usex xmp)
 		-DEXIV2_ENABLE_BMFF=$(usex bmff)
-		$(echo -DEXIV2_BUILD_EXIV2_COMMAND=NO)
-		$(echo -DEXIV2_BUILD_DOC=$(usex doc))
-		$(echo -DEXIV2_BUILD_UNIT_TESTS=NO)
+		-DEXIV2_BUILD_EXIV2_COMMAND=NO
+		-DEXIV2_BUILD_DOC=$(usex doc)
+		-DEXIV2_BUILD_UNIT_TESTS=NO
 		-DCMAKE_INSTALL_DOCDIR="${EPREFIX}"/usr/share/doc/${PF}/html
 	)
 

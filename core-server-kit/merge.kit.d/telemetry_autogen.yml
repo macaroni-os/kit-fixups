@@ -1,0 +1,22 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-unstable
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: app-metrics/blackbox_exporter-bin
+    - pkg: app-metrics/consul_exporter-bin
+    - pkg: app-metrics/memcached_exporter-bin
+    - pkg: app-metrics/mysqld_exporter-bin
+    - pkg: app-metrics/node_exporter-bin
+    - pkg: app-metrics/redis_exporter-bin
+

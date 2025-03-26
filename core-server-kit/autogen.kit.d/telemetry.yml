@@ -58,30 +58,35 @@ prometheus-exporters:
         github:
           repo: blackbox_exporter
         vars:
+          desc: Blackbox prober exporter
           homepage: "https://github.com/prometheus/blackbox_exporter"
 
     - consul_exporter-bin:
         github:
           repo: consul_exporter
         vars:
+          desc: Exporter for Consul metrics
           homepage: "https://github.com/prometheus/consul_exporter"
 
     - memcached_exporter-bin:
         github:
           repo: memcached_exporter
         vars:
+          desc: Exports metrics from memcached servers for consumption by Prometheus.
           homepage: "https://github.com/prometheus/memcached_exporter"
 
     - mysqld_exporter-bin:
         github:
           repo: mysqld_exporter
         vars:
+          desc: Exporter for MySQL server metrics
           homepage: "https://github.com/prometheus/mysqld_exporter"
 
     - node_exporter-bin:
         github:
           repo: node_exporter
         vars:
+          desc: Exporter for machine metrics
           homepage: "https://github.com/prometheus/node_exporter"
 
     - redis_exporter-bin:
@@ -89,6 +94,7 @@ prometheus-exporters:
           user: oliver006
           repo: redis_exporter
         vars:
+          desc: Prometheus Exporter for ValKey & Redis Metrics.
           homepage: "https://github.com/prometheus/redis_exporter"
 
         assets:
@@ -99,3 +105,93 @@ prometheus-exporters:
           - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-arm64.tar.gz'
             matcher: '{{ .Values.pn | replace "-bin" "" }}-v{{ .Values.version }}.linux-arm64.tar.gz$'
             use: arm64
+
+prometheus:
+  generator: builtin-github
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-metrics
+    files_dir: '{{ .Values.pn | replace "-bin" "" }}'
+    github:
+      query: releases
+      user: prometheus
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-amd64.tar.gz'
+        matcher: '{{ .Values.pn | replace "-bin" "" }}-{{ .Values.version }}.linux-amd64.tar.gz$'
+        use: amd64
+
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-arm64.tar.gz'
+        matcher: '{{ .Values.pn | replace "-bin" "" }}-{{ .Values.version }}.linux-arm64.tar.gz$'
+        use: arm64
+    transform:
+      - kind: regex
+        match: " /.*"
+        replace: ""
+    vars:
+      inherit:
+        - user
+      license: Apache-2.0
+      iuse: amd64 arm64
+  packages:
+    - alertmanager-bin:
+        github:
+          repo: alertmanager
+        vars:
+          desc: Prometheus Alertmanager
+          extra_envs:
+            - 'MY_PN=${PN/-bin/}'
+            - 'ALERTMANAGER_USER="${MY_PN}"'
+            - 'ALERTMANAGER_HOME="/var/lib/${MY_PN}"'
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* ${S}
+            }
+
+            pkg_setup() {
+              enewgroup ${ALERTMANAGER_USER}
+              enewuser ${ALERTMANAGER_USER} -1 -1 "${ALERTMANAGER_HOME}" ${ALERTMANAGER_USER}
+            }
+
+            src_install() {
+              dobin ${MY_PN} amtool
+              insinto /etc/"${MY_PN}"
+              doins ${MY_PN}.yml
+              newconfd ${FILESDIR}/${MY_PN}.confd ${MY_PN}
+              newinitd ${FILESDIR}/${MY_PN}.initd ${MY_PN}
+              keepdir /var/{lib,log}/"${MY_PN}"
+              fowners ${ALERTMANAGER_USER}:${ALERTMANAGER_USER} /var/{lib,log}/"${MY_PN}"
+              fperms 0750 /var/{lib,log}/"${MY_PN}"
+            }
+
+    - prometheus-bin:
+        github:
+          repo: prometheus
+        vars:
+          extra_envs:
+            - 'MY_PN=${PN/-bin/}'
+            - 'PROMETHEUS_USER="${MY_PN}"'
+            - 'PROMETHEUS_HOME="/var/lib/${MY_PN}"'
+          desc: "The Prometheus monitoring system and time series database."
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_repo }}-* ${S}
+            }
+
+            pkg_setup() {
+              enewgroup ${PROMETHEUS_USER}
+              enewuser ${PROMETHEUS_USER} -1 -1 "${PROMETHEUS_HOME}" ${PROMETHEUS_USER}
+            }
+
+            src_install() {
+              dobin ${MY_PN} promtool
+              insinto /etc/"${MY_PN}"
+              doins ${MY_PN}.yml
+              newconfd ${FILESDIR}/${MY_PN}.confd ${MY_PN}
+              newinitd ${FILESDIR}/${MY_PN}.initd ${MY_PN}
+              keepdir /var/{lib,log}/"${MY_PN}"
+              fowners ${PROMETHEUS_USER}:${PROMETHEUS_USER} /var/{lib,log}/"${MY_PN}"
+              fperms 0750 /var/{lib,log}/"${MY_PN}"
+            }
+

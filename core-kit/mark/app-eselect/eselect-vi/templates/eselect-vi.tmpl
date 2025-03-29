@@ -13,6 +13,11 @@ IUSE=""
 
 RDEPEND=">=app-admin/eselect-1.0.6"
 
+src_prepare() {
+    default
+    mv vi.eselect.in vi.eselect
+}
+
 src_install() {
 	insinto /usr/share/eselect/modules
 	doins vi.eselect || die

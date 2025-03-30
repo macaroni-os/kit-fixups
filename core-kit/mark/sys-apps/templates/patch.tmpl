@@ -18,21 +18,6 @@ RDEPEND="xattr? ( sys-apps/attr )"
 DEPEND="${RDEPEND}
 	test? ( sys-apps/ed )"
 
-PATCHES=(
-	"${FILESDIR}"/${P}-fix-test-suite.patch
-	"${FILESDIR}"/${PN}-2.7.6-fix-error-handling-with-git-style-patches.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2018-6951.patch
-	"${FILESDIR}"/${PN}-2.7.6-allow-input-files-to-be-missing-for-ed-style-patches.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2018-1000156.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2018-6952.patch
-	"${FILESDIR}"/${PN}-2.7.6-Do-not-crash-when-RLIMIT_NOFILE-is-set-to-RLIM_INFINITY.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2018-1000156-fix1.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2018-1000156-fix2.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2019-13636.patch
-	"${FILESDIR}"/${PN}-2.7.6-CVE-2019-13638.patch
-	"${FILESDIR}"/${PN}-2.7.6-Avoid-invalid-memory-access-in-context-format-diffs.patch
-)
-
 src_configure() {
 	use static && append-ldflags -static
 

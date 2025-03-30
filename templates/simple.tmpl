@@ -22,7 +22,11 @@ HOMEPAGE="{{ .Values.homepage }}"
 {{- $assets_len := .Values.artefacts | len }}
 {{- if gt $assets_len 1 }}
 SRC_URI="{{- range $k, $v := .Values.artefacts }}
+{{- if eq $v.Use "" }}
+{{ $v.SrcUri | first }} -> {{ $v.Name }}
+{{- else }}
 {{ $v.Use }}? ( {{ $v.SrcUri | first }} -> {{ $v.Name }} )
+{{- end }}
 {{- end }}"
 {{- else }}
 {{- if .Values.src_uri | default false }}

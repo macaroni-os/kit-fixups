@@ -548,6 +548,11 @@ target:
 
       - dir: ../profiles/
         to: profiles
+        keep_files:
+          # Avoid to remove generated files.
+          - categories$
+          - repo_name$
+          - thirdpartymirrors$
 
       - dir: ../../eclass/
         to: eclass

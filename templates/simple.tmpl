@@ -48,6 +48,14 @@ PATCHES=(
 )
 {{- end }}
 
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
 {{- if .Values.iuse | default false }}
 IUSE="{{ .Values.iuse }}"
 {{- end }}

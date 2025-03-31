@@ -1,0 +1,158 @@
+golang:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-lang
+    template: ../../templates/simple.tmpl
+
+
+    dir:
+      url: https://go.dev/dl
+      matcher: "go1.*src.tar.gz$"
+    transform:
+      - kind: string
+        match: go
+        replace: ""
+      - kind: string
+        match: ".src.tar.gz"
+        replace: ""
+    vars:
+      homepage: "https://golang.org"
+      desc: "A concurrent garbage collected and typesafe programming language"
+      extra_envs:
+        - 'RESTRICT="strip"'
+        # the *.syso files have writable/executable stacks
+        - "QA_EXECSTACK='*.syso'"
+        # Do not complain about CFLAGS, etc, since Go doesn't use them.
+        - "QA_FLAGS_IGNORED='.*'"
+        # The tools in /usr/lib/go should not cause the multilib-strict check to fail.
+        - 'QA_MULTILIB_PATHS="usr/lib/go/pkg/tool/.*/.*"'
+        # This package triggers "unrecognized elf file(s)" notices on riscv.
+        # https://bugs.gentoo.org/794046
+        - "QA_PREBUILT='.*'"
+        - 'export CBUILD=${CBUILD:-${CHOST}}'
+        - 'export CTARGET=${CTARGET:-${CHOST}}'
+      inherit:
+        - toolchain-funcs
+      license: BSD
+      iuse: amd64 arm64 armv6
+      patches:
+        - go-never-download-newer-toolchains.patch
+      docs:
+        - CONTRIBUTING.md
+        - PATENTS
+        - README.md
+        - SECURITY.md
+      s: '${WORKDIR}/go'
+      body: |
+        src_unpack() {
+            for i in amd64 arm64 armv6 ; do
+                if use $i ; then
+                    if [ $i = "armv6" ] ; then
+                        i=${i}l
+                    fi
+                    unpack go{{ .Values.version }}-bootstrap.linux-${i}.tar.gz || die
+                    mv ${WORKDIR}/go ${WORKDIR}/go-bootstrap
+                    break
+                fi
+            done
+            unpack go{{ .Values.version }}.src.tar.gz || die
+        }
+
+        src_compile() {
+          if has_version -b dev-lang/go; then
+            export GOROOT_BOOTSTRAP="${BROOT}/usr/lib/go"
+          else
+            # Using bootstrap tarball.
+            export GOROOT_BOOTSTRAP="${WORKDIR}/go-bootstrap"
+          fi
+
+          CARCH=${CHOST%%-*}
+
+          case "$CARCH" in
+            aarch64) export GOARCH="arm64" ;;
+            armel)   export GOARCH="arm" GOARM=5 ;;
+            armhf)   export GOARCH="arm" GOARM=6 ;;
+            armv7)   export GOARCH="arm" GOARM=7 ;;
+            s390x)   export GOARCH="s390x" ;;
+            x86)     export GOARCH="386" ;;
+            x86_64)  export GOARCH="amd64" ;;
+            ppc64)   export GOARCH="ppc64" ;;
+            ppc64le) export GOARCH="ppc64le" ;;
+            riscv64) export GOARCH="riscv64" ;;
+            loongarch64) export GOARCH="loong64" ;;
+            *)       export GOARCH="unsupported";;
+          esac
+
+          case "$CARCH" in
+          x86_64|s390x|aarch64) export GO_LDFLAGS=-buildmode=pie ;;
+          esac
+
+          export GOROOT_FINAL="${EPREFIX}"/usr/lib/go
+          export GOROOT="${PWD}"
+          export GOBIN="${GOROOT}/bin"
+          export GOCACHE="${T}/go-build"
+          export CC=$(tc-getBUILD_CC)
+          export GOOS="linux"
+          export CC_FOR_TARGET=$(tc-getCC)
+          export CXX_FOR_TARGET=$(tc-getCXX)
+          use arm && export GOARM=$(go_arm)
+          use x86 && export GO386=$(usex cpu_flags_x86_sse2 '' 'softfloat')
+
+          cd src
+          bash -x ./make.bash || die "build failed"
+        }
+
+        src_install() {
+          dodir /usr/lib/go
+          cp -R api bin doc lib pkg misc src test "${ED}"/usr/lib/go
+          einstalldocs
+
+          if [ -f go.env ]; then
+            insinto /usr/lib/go
+            doins go.env
+          fi
+
+          # testdata directories are not needed on the installed system
+          rm -fr $(find "${ED}"/usr/lib/go -iname testdata -type d -print)
+          local bin_path=bin
+          local f x
+          for x in ${bin_path}/*; do
+            f=${x##*/}
+            dosym ../lib/go/${bin_path}/${f} /usr/bin/${f}
+          done
+        }
+
+
+    assets:
+      - name: "go{{ .Values.version }}.src.tar.gz"
+
+      - name: "go{{ .Values.version }}-bootstrap.linux-amd64.tar.gz"
+        url: "https://go.dev/dl/go{{ .Values.version }}.linux-amd64.tar.gz"
+        use: amd64
+      - name: "go{{ .Values.version }}-bootstrap.linux-arm64.tar.gz"
+        url: "https://go.dev/dl/go{{ .Values.version }}.linux-arm64.tar.gz"
+        use: arm64
+      - name: "go{{ .Values.version }}-bootstrap.linux-armv6l.tar.gz"
+        url: "https://go.dev/dl/go{{ .Values.version }}.linux-armv6l.tar.gz"
+        use: armv6
+
+  packages:
+    # go1.22
+    - go:
+        selector:
+          - '<1.23.0'
+          - '>=1.22.0'
+
+    # go1.23
+    - go:
+        selector:
+          - '<1.24.0'
+          - '>=1.23.0'
+    # go1.24
+    - go:
+        selector:
+          - '<1.25.0'
+          - '>=1.24.0'
+

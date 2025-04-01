@@ -52,19 +52,6 @@ target:
 
     - pkg: dev-scheme/guile:12
 
-    # Golang
-    - pkg: dev-lang/go
-      conditions:
-        - '>=dev-lang/go-1.22.0'
-        - '<dev-lang/go-1.23.0'
-
-    - pkg: dev-lang/go
-      conditions:
-        - '>=dev-lang/go-1.23.0'
-        - '<dev-lang/go-1.24.0'
-
-    - pkg: dev-lang/go-bootstrap
-
     - pkg: dev-lang/duktape
 
     # Nodejs

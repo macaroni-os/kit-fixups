@@ -2262,7 +2262,12 @@ pep517_compliance_rule:
         pydeps:
           py:all:build:
             - calver
-    - calver
+    - calver:
+        body: |
+          src_prepare() {
+            sed -i -e 's/license = "Apache-2.0"/license = { text = "Apache-2.0" }/' pyproject.toml || die
+            distutils-r1_src_prepare
+          }
     - hatch-vcs:
         pypi_name: hatch_vcs
         du_pep517: hatchling

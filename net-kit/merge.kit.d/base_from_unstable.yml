@@ -1,0 +1,27 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-iii"
+
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: "mark-unstable"
+
+target:
+  name: net-kit
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: mark-iii
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: net-dns/bind
+    - pkg: net-dns/bind-tools
+    - pkg: net-dns/unbound
+
+    - pkg: net-vpn/strongswan
+    - pkg: net-vpn/tor
+
+    - pkg: net-wireless/wpa_supplicant

@@ -67,6 +67,15 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+    - calver:
+        vars:
+          license: Apache-2.0
+          body: |
+            src_prepare() {
+              sed -i -e 's/license = "Apache-2.0"/license = { text = "Apache-2.0" }/' pyproject.toml || die
+              distutils-r1_src_prepare
+            }
+
     - dependency-injector:
         pypi_name: dependency_injector
         vars:

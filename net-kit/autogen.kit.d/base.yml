@@ -4,6 +4,7 @@ net_vpn_dirlisting:
     engine: helm
 
   defaults:
+    files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     category: net-vpn
 
@@ -26,6 +27,86 @@ net_vpn_dirlisting:
           desc: IPsec-based VPN solution, supporting IKEv1/IKEv2 and MOBIKE
           homepage: https://www.strongswan.org/
 
+    - tor:
+        dir:
+          url: https://dist.torproject.org/
+          exclude: "-alpha|-rc"
+          matcher: "tor-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: 'tor-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        vars:
+          inherit:
+            - flag-o-matic
+            - readme.gentoo-r1
+            - user
+          rdepend: |
+            dev-libs/libevent[ssl]
+            sys-libs/zlib
+            caps? ( sys-libs/libcap )
+            dev-libs/openssl
+            lzma? ( app-arch/xz-utils )
+            seccomp? ( sys-libs/libseccomp )
+            zstd? ( app-arch/zstd )
+
+          depend: |
+            ${RDEPEND}
+            app-text/asciidoc
+          docs:
+            - README.md
+            - ChangeLog
+            - ReleaseNotes
+            - doc/HACKING
+          iuse: caps lzma seccomp selinux tor-hardening zstd
+          homepage: https://torproject.org
+          desc: Anonymizing overlay network for TCP
+          license: BSD GPL-2
+          body: |
+            pkg_setup() {
+              enewgroup tor
+              enewuser tor -1 -1 /var/lib/tor tor
+            }
+            src_configure() {
+              export ac_cv_lib_cap_cap_init=$(usex caps)
+              econf \
+                --localstatedir="${EPREFIX}/var" \
+                --enable-system-torrc \
+                --enable-asciidoc \
+                --disable-android \
+                --disable-libfuzzer \
+                --disable-module-dirauth \
+                --enable-pic \
+                --disable-rust \
+                --disable-restart-debugging \
+                --disable-zstd-advanced-apis  \
+                --disable-unittests \
+                --disable-coverage \
+                --disable-libscrypt \
+                $(use_enable lzma) \
+                $(use_enable seccomp) \
+                $(use_enable tor-hardening gcc-hardening) \
+                $(use_enable tor-hardening linker-hardening) \
+                $(use_enable zstd)
+            }
+            src_install() {
+              default
+              readme.gentoo_create_doc
+
+              newconfd "${FILESDIR}"/tor.confd tor
+              newinitd "${FILESDIR}"/tor.initd-r8 tor
+
+              keepdir /var/lib/tor
+
+              fperms 750 /var/lib/tor
+              fowners tor:tor /var/lib/tor
+
+              insinto /etc/tor/
+              newins "${FILESDIR}"/torrc-r1 torrc
+            }
 
 net_dns_dirlisting:
   generator: builtin-dirlisting

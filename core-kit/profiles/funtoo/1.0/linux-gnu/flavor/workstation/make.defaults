@@ -1,0 +1,6 @@
+USE="glvnd opengl dnssd zeroconf elogind gstreamer startup-notification widgets"
+USE="$USE nsplugin" ## enable Java plugin. http://bugs.funtoo.org/browse/FL-1136
+# enable all possible video acceleration goodies:
+VIDEO_CARDS="xa xvmc vaapi vdpau"
+# enable framebuffer. Other graphics are enabled via mix-ins."
+VIDEO_CARDS="$VIDEO_CARDS fbdev"

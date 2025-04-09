@@ -1,0 +1,182 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-xl"
+
+target:
+  name: dev-kit
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-cdr/cdrtools
+
+    - pkg: app-admin/mongo-tools
+
+    - pkg: app-arch/upx-bin
+
+    - pkg: app-misc/asciinema
+    - pkg: app-misc/jq
+    - pkg: app-misc/yq-go
+    - pkg: app-misc/google-cloud-sdk
+    - pkg: app-misc/neofetch
+
+    - pkg: app-text/asciidoc
+    - pkg: app-text/manpager
+    - pkg: app-text/opensp
+
+    - pkg: dev-cpp/tbb
+    - pkg: dev-cpp/yaml-cpp
+
+    - pkg: dev-db/mysql-connector-c
+    - pkg: dev-db/libiodbc
+    - pkg: dev-db/libdbi
+    - pkg: dev-db/libdbi-drivers
+    - pkg: dev-db/lmdb
+    - pkg: dev-db/unixODBC
+
+    - pkg: dev-go/go-md2man
+    - pkg: dev-go/go-bindata
+
+    - pkg: dev-libs/boehm-gc
+    - pkg: dev-libs/libatomic_ops
+
+    - pkg: dev-libs/libaio
+    - pkg: dev-libs/libbpf
+    - pkg: dev-libs/libpipeline
+    - pkg: dev-libs/libuv
+    - pkg: dev-libs/libxslt
+    - pkg: dev-libs/libzip
+
+    - pkg: dev-libs/check
+    - pkg: dev-libs/ffcall
+    - pkg: dev-libs/fribidi
+    - pkg: dev-libs/fstrm
+    - pkg: dev-libs/geoip
+    - pkg: dev-libs/libbson
+    - pkg: dev-libs/libedit
+    - pkg: dev-libs/libev
+    - pkg: dev-libs/libevdev
+    - pkg: dev-libs/libestr
+    - pkg: dev-libs/libfastjson
+    - pkg: dev-libs/libdaemon
+    - pkg: dev-libs/libpthread-stubs
+    - pkg: dev-libs/libgamin
+    - pkg: dev-libs/libgit2
+    - pkg: dev-libs/libyaml
+    - pkg: dev-libs/liblognorm
+    - pkg: dev-libs/libmaxminddb
+    - pkg: dev-libs/librdkafka
+    - pkg: dev-libs/libsodium
+    - pkg: dev-libs/libsigsegv
+    - pkg: dev-libs/lzo
+    - pkg: dev-libs/jsoncpp
+    - pkg: dev-libs/json-c
+    - pkg: dev-libs/jansson
+    - pkg: dev-libs/jemalloc
+    - pkg: dev-libs/hiredis
+    - pkg: dev-libs/ivykis
+    - pkg: dev-libs/xmlrpc-c
+    - pkg: dev-libs/mpc
+    - pkg: dev-libs/mpfr
+    - pkg: dev-libs/mongo-c-driver
+    - pkg: dev-libs/nspr
+    - pkg: dev-libs/nss
+    - pkg: dev-libs/oniguruma
+    - pkg: dev-libs/ossp-uuid
+    - pkg: dev-libs/popt
+    - pkg: dev-libs/protobuf
+    - pkg: dev-libs/protobuf-c
+    - pkg: dev-libs/userspace-rcu
+    - pkg: dev-libs/snowball-stemmer
+
+    - pkg: dev-libs/libisoburn
+    - pkg: dev-libs/libburn
+    - pkg: dev-libs/libisofs
+
+    - pkg: dev-libs/boost
+
+    - pkg: dev-python/j2cli
+
+    - pkg: dev-util/b2
+    - pkg: dev-util/cmake
+    - pkg: dev-util/colm
+    - pkg: dev-util/cppunit
+    - pkg: dev-util/cunit
+    - pkg: dev-util/cscope
+    - pkg: dev-util/gitlab-runner-bin
+    - pkg: dev-util/google-perftools
+    - pkg: dev-util/gtk-doc
+    - pkg: dev-util/gtk-doc-am
+    - pkg: dev-util/gperf
+    - pkg: dev-util/github-cli
+    - pkg: dev-util/intltool
+    - pkg: dev-util/itstool
+    - pkg: dev-util/yacc
+    - pkg: dev-util/lttng-ust
+    - pkg: dev-util/lttng-tools
+    - pkg: dev-util/lttng-modules
+    - pkg: dev-util/meson
+    - pkg: dev-util/ninja
+    - pkg: dev-util/ragel
+    - pkg: dev-util/re2c
+    - pkg: dev-util/packer
+    - pkg: dev-util/patchelf
+    - pkg: dev-util/pkgconf
+    - pkg: dev-util/kbuild
+    - pkg: dev-util/scons
+    - pkg: dev-util/strace
+    - pkg: dev-util/valgrind
+    - pkg: dev-util/xdelta
+
+    - pkg: dev-vcs/git
+    - pkg: dev-vcs/gitolite
+    - pkg: dev-vcs/hub
+
+    - pkg: media-gfx/ascii-image-converter
+
+    - pkg: sys-apps/busybox
+    - pkg: sys-apps/eza
+    - pkg: sys-apps/help2man
+    - pkg: sys-apps/man-db
+    - pkg: sys-apps/man-pages
+    - pkg: sys-apps/man-pages-posix
+    - pkg: sys-apps/pcsc-lite
+
+    - pkg: sys-boot/syslinux
+    - pkg: sys-boot/grub:2
+    - pkg: sys-boot/gnu-efi
+    - pkg: sys-boot/efibootmgr
+
+    - pkg: sys-devel/autogen
+    - pkg: sys-devel/bison
+    - pkg: sys-devel/flex
+    - pkg: sys-devel/gdb
+
+    - pkg: sys-libs/efivar
+    - pkg: sys-libs/libaal
+    - pkg: sys-libs/libseccomp
+    - pkg: sys-libs/libunwind
+    - pkg: sys-libs/talloc
+
+    - pkg: virtual/cdrtools
+    - pkg: virtual/yacc
+    - pkg: virtual/man
+    - pkg: virtual/pkgconfig

@@ -1,0 +1,13 @@
+# Do not let live ebuild of gentoo-syntax installs:
+=app-vim/gentoo-syntax-9999*
+
+# Daniel Robbins <drobbins@funtoo.org> (02 Mar 2011)
+# mask sys-apps/man as part of a workaround to get
+# man-db to merge smoothly:
+sys-apps/man
+
+# Ryan Harris
+# Mask paludis and pkgcore. Not supported on funtoo at this time
+sys-apps/paludis
+sys-apps/pkgcore
+

@@ -1,0 +1,98 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-xl"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-admin/ansible
+    - pkg: app-admin/ansible-base
+    - pkg: app-admin/awscli
+    - pkg: app-admin/awscliv2
+    - pkg: app-admin/cloud-init
+    - pkg: app-admin/sudo
+    - pkg: app-admin/logrotate
+    - pkg: app-admin/metalog
+    - pkg: app-admin/rsyslog
+    - pkg: app-admin/syslog-ng
+
+    - pkg: app-backup/backrest
+    - pkg: app-backup/restic
+
+    - pkg: app-emulation/containerd
+    - pkg: app-emulation/docker
+    - pkg: app-emulation/docker-buildx
+    - pkg: app-emulation/docker-cli
+    - pkg: app-emulation/docker-compose
+    - pkg: app-emulation/docker-proxy
+    - pkg: app-emulation/docker-registry
+    - pkg: app-emulation/incus
+    - pkg: app-emulation/lxc
+    - pkg: app-emulation/lxd
+    - pkg: app-emulation/runc
+    - pkg: app-emulation/qemu
+    - pkg: app-emulation/spice
+    - pkg: app-emulation/spice-protocol
+
+    - pkg: app-misc/rdfind
+    - pkg: app-misc/screen
+
+    - pkg: dev-util/jenkins-bin
+    - pkg: dev-util/jenkins-lts-bin
+
+    - pkg: sys-block/parted
+
+    - pkg: sys-process/cronbase
+    - pkg: sys-process/cronie
+    - pkg: sys-process/criu
+    - pkg: sys-process/fcron
+    - pkg: sys-process/lsof
+    - pkg: sys-process/htop
+    - pkg: sys-process/iotop
+    - pkg: sys-process/procps
+    - pkg: sys-process/procs
+    - pkg: sys-process/psmisc
+    - pkg: sys-process/numactl
+    - pkg: sys-process/tini
+
+    - pkg: sys-apps/kbd
+
+    - pkg: sys-apps/cpuid
+    - pkg: sys-apps/dtc
+    - pkg: sys-apps/hwids
+    - pkg: sys-apps/lsb-release
+    - pkg: sys-apps/openrc
+    - pkg: sys-apps/pciutils
+    - pkg: sys-apps/texinfo
+    - pkg: sys-apps/usbutils
+    - pkg: sys-apps/usbredir
+    - pkg: sys-apps/dbus
+    - pkg: sys-apps/systemd-tmpfiles
+
+    - pkg: sys-devel/bc
+
+    - pkg: sys-libs/gpm
+    - pkg: sys-libs/libutempter
+
+    - pkg: sys-power/cpupower
+
+    - pkg: virtual/cron
+    - pkg: virtual/logger
+    - pkg: virtual/service-manager
+

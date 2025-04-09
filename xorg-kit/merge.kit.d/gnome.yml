@@ -1,0 +1,26 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "xorg-kit"
+  url: "https://github.com/macaroni-os/xorg-kit"
+  branch: "mark-xl"
+
+target:
+  name: xorg-kit
+  url: "https://github.com/macaroni-os/xorg-kit"
+  branch: mark-v
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-accessibility/at-spi2-atk:2
+    - pkg: app-accessibility/at-spi2-core:2
+
+    - pkg: dev-libs/atk
+
+

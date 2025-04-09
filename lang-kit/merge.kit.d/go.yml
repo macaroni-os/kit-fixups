@@ -1,0 +1,36 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "lang-kit"
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: "mark-xl"
+
+target:
+  name: lang-kit
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: mark-v
+
+  fixups:
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    # Golang
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.22.0'
+        - '<dev-lang/go-1.23.0'
+
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.23.0'
+        - '<dev-lang/go-1.24.0'
+
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.24.0'
+        - '<dev-lang/go-1.25.0'

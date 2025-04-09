@@ -1,0 +1,88 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "lang-kit"
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: "mark-xl"
+
+target:
+  name: lang-kit
+  url: "https://github.com/macaroni-os/lang-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-lang/orc
+    - pkg: dev-lang/swig
+    - pkg: dev-lang/yasm
+    - pkg: dev-lang/nasm
+
+    - pkg: dev-lang/tcl:0
+    - pkg: dev-lang/tk:0
+
+    - pkg: dev-scheme/guile:12
+
+    - pkg: dev-lang/duktape
+
+    # Nodejs
+    - pkg: net-libs/nodejs::geaaru-kit
+      conditions:
+        - '>=net-libs/nodejs-14.0.0'
+        - '<net-libs/nodejs-15.0.0'
+
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-20.0.0'
+        - '<net-libs/nodejs-21.0.0'
+
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-22.0.0'
+        - '<net-libs/nodejs-23.0.0'
+
+
+    # Zig
+    - pkg: dev-lang/zig
+    - pkg: dev-lang/zig-bin
+    - pkg: virtual/zig
+
+    # Rust
+    - pkg: dev-lang/rust-bin
+
+    - pkg: virtual/rust
+
+    - pkg: dev-lang/R
+
+    - pkg: dev-lang/erlang
+
+    - pkg: dev-tcltk/expect
+
+    - pkg: dev-lang/lua
+    - pkg: dev-lua/lua:5.3
+
+    - pkg: dev-lua/lpeg
+    - pkg: dev-lua/luaexpat
+    - pkg: dev-lua/luajson
+    - pkg: dev-lua/luasocket
+    - pkg: dev-lua/LuaBitOp
+
+    - pkg: dev-lang/lazarus
+    - pkg: dev-lang/fpc
+
+    # PHP
+    - pkg: dev-lang/php:8.1
+    - pkg: dev-lang/php:8.2

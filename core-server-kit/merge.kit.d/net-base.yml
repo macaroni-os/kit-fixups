@@ -1,0 +1,45 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-xl"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: app-admin/apache-tools
+
+    - pkg: net-dialup/freeradius
+
+    - pkg: net-libs/nghttp2
+
+    - pkg: net-misc/curl
+    - pkg: net-misc/chrony
+    - pkg: net-misc/wget
+    - pkg: net-misc/memcached
+
+    - pkg: net-misc/cni-plugins
+
+    - pkg: www-servers/apache:2
+    - pkg: www-servers/caddy
+    - pkg: www-servers/gunicorn
+    - pkg: www-servers/nginx
+    - pkg: www-servers/lighttpd
+    - pkg: www-servers/tornado
+
+    - pkg: sys-cluster/singularity
+    - pkg: sys-cluster/glusterfs
+    - pkg: sys-cluster/kubectl

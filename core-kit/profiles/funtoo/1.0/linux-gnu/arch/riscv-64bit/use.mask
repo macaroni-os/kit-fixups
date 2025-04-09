@@ -1,0 +1,11 @@
+# Seccomp does not yet support riscv without
+seccomp
+
+# Unmask the flag(s) which corresponds to ARCH.
+# See make.defaults for an explanation
+-riscv
+-riscv64
+
+# Moritz Maxeiner <mm@ucw.sh> (2019-04-29)
+# Architecture unsupported
+luajit

@@ -1,0 +1,145 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "perl-kit"
+  url: "https://github.com/macaroni-os/perl-kit"
+  branch: "mark-xl"
+
+target:
+  name: perl-kit
+  url: "https://github.com/macaroni-os/perl-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-text/po4a
+
+    - pkg: dev-lang/perl
+
+    - pkg: dev-perl/Authen-SASL
+    - pkg: dev-perl/Canary-Stability
+    - pkg: dev-perl/Class-Data-Inheritable
+    - pkg: dev-perl/Crypt-PasswdMD5
+    - pkg: dev-perl/Crypt-RC4
+    - pkg: dev-perl/Devel-Caller
+    - pkg: dev-perl/Devel-GlobalDestruction
+    - pkg: dev-perl/Devel-LexAlias
+    - pkg: dev-perl/Digest-Perl-MD5
+    - pkg: dev-perl/Digest-SHA1
+    - pkg: dev-perl/Digest-HMAC
+    - pkg: dev-perl/Error
+    - pkg: dev-perl/File-BaseDir
+    - pkg: dev-perl/File-DesktopEntry
+    - pkg: dev-perl/File-MimeInfo
+    - pkg: dev-perl/IO-stringy
+    - pkg: dev-perl/IPC-System-Simple
+    - pkg: dev-perl/JSON
+    - pkg: dev-perl/JSON-XS
+    - pkg: dev-perl/Locale-gettext
+    - pkg: dev-perl/Log-Dispatch
+    - pkg: dev-perl/Module-Build
+    - pkg: dev-perl/Module-Implementation
+    - pkg: dev-perl/Module-Runtime
+    - pkg: dev-perl/MRO-Compat
+    - pkg: dev-perl/OLE-StorageLite
+    - pkg: dev-perl/Package-Stash-XS
+    - pkg: dev-perl/PadWalker
+    - pkg: dev-perl/Params-Util
+    - pkg: dev-perl/Pod-Parser
+    - pkg: dev-perl/Ref-Util-XS
+    - pkg: dev-perl/Role-Tiny
+    - pkg: dev-perl/XML-LibXML
+    - pkg: dev-perl/XML-NamespaceSupport
+    - pkg: dev-perl/XML-Parser
+    - pkg: dev-perl/XML-SAX
+    - pkg: dev-perl/XML-SAX-Base
+
+    - pkg: dev-perl/IO-Socket-SSL
+    - pkg: dev-perl/MIME-Charset
+    - pkg: dev-perl/MailTools
+    - pkg: dev-perl/Net-SSLeay
+    - pkg: dev-perl/SGMLSpm
+    - pkg: dev-perl/Sub-Exporter
+    - pkg: dev-perl/Sub-Exporter-Progressive
+    - pkg: dev-perl/Sub-Identify
+    - pkg: dev-perl/Sub-Install
+    - pkg: dev-perl/TermReadKey
+    - pkg: dev-perl/Text-CharWidth
+    - pkg: dev-perl/Text-Unidecode
+    - pkg: dev-perl/Text-WrapI18N
+    - pkg: dev-perl/Types-Serialiser
+    - pkg: dev-perl/Try-Tiny
+    - pkg: dev-perl/TimeDate
+    - pkg: dev-perl/Unicode-EastAsianWidth
+    - pkg: dev-perl/Unicode-LineBreak
+    - pkg: dev-perl/Unicode-Map
+    - pkg: dev-perl/URI
+    - pkg: dev-perl/XML-XPath
+    - pkg: dev-perl/YAML-Tiny
+    - pkg: dev-perl/libintl-perl
+    - pkg: dev-perl/common-sense
+    - pkg: dev-perl/namespace-autoclean
+    - pkg: dev-perl/namespace-clean
+
+    # mysql/database deps
+    - pkg: dev-perl/Devel-CheckLib
+    - pkg: dev-perl/DBD-mysql
+    - pkg: dev-perl/DBI
+    - pkg: dev-perl/PlRPC
+    - pkg: dev-perl/Net-Daemon
+    - pkg: virtual/perl-Sys-Syslog
+    - pkg: virtual/perl-Storable
+
+    - pkg: perl-core/File-Temp
+
+    - pkg: virtual/perl-CPAN-Meta
+    - pkg: virtual/perl-CPAN-Meta-YAML
+    - pkg: virtual/perl-Carp
+    - pkg: virtual/perl-Data-Dumper
+    - pkg: virtual/perl-Digest
+    - pkg: virtual/perl-Digest-MD5
+    - pkg: virtual/perl-Digest-SHA
+    - pkg: virtual/perl-Encode
+    - pkg: virtual/perl-Exporter
+    - pkg: virtual/perl-ExtUtils-CBuilder
+    - pkg: virtual/perl-ExtUtils-Install
+    - pkg: virtual/perl-ExtUtils-MakeMaker
+    - pkg: virtual/perl-ExtUtils-Manifest
+    - pkg: virtual/perl-ExtUtils-ParseXS
+    - pkg: virtual/perl-File-Spec
+    - pkg: virtual/perl-File-Path
+    - pkg: virtual/perl-File-Temp
+    - pkg: virtual/perl-Getopt-Long
+    - pkg: virtual/perl-IO
+    - pkg: virtual/perl-JSON-PP
+    - pkg: virtual/perl-MIME-Base64
+    - pkg: virtual/perl-Module-Metadata
+    - pkg: virtual/perl-Parse-CPAN-Meta
+    - pkg: virtual/perl-Perl-OSType
+    - pkg: virtual/perl-Pod-Parser
+    - pkg: virtual/perl-Scalar-List-Utils
+    - pkg: virtual/perl-Test-Harness
+    - pkg: virtual/perl-Test-Simple
+    - pkg: virtual/perl-Text-ParseWords
+    - pkg: virtual/perl-Term-ANSIColor
+    - pkg: virtual/perl-Time-HiRes
+    - pkg: virtual/perl-XSLoader
+    - pkg: virtual/perl-parent
+    - pkg: virtual/perl-podlators
+    - pkg: virtual/perl-version
+    - pkg: virtual/perl-libnet
+

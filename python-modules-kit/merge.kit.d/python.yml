@@ -1,0 +1,104 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "python-modules-kit"
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: "mark-xl"
+
+target:
+  name: python-modules-kit
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: mark-v
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-python/anyio
+    - pkg: dev-python/async-generator
+    - pkg: dev-python/beautifulsoup
+    - pkg: dev-python/dict-toolbox
+    - pkg: dev-python/distlib
+    - pkg: dev-python/ecdsa
+    - pkg: dev-python/exceptiongroup
+    - pkg: dev-python/flit_scm
+    - pkg: dev-python/frozenlist
+    - pkg: dev-python/h11
+    - pkg: dev-python/httpx
+    - pkg: dev-python/m2crypto
+    - pkg: dev-python/msgpack
+    - pkg: dev-python/namespace-zope
+    - pkg: dev-python/outcome
+    - pkg: dev-python/priority
+    - pkg: dev-python/psutil
+    - pkg: dev-python/py
+    - pkg: dev-python/pyzmq
+    - pkg: dev-python/rich
+    - pkg: dev-python/sniffio
+
+    - pkg: dev-python/aws-crt-python
+    - pkg: dev-python/botocore
+    - pkg: dev-python/click
+    - pkg: dev-python/configparser
+    - pkg: dev-python/contextlib2
+    - pkg: dev-python/decorator
+    - pkg: dev-python/distro
+    - pkg: dev-python/dnspython
+    - pkg: dev-python/hpack
+    - pkg: dev-python/flake8
+    - pkg: dev-python/greenlet
+    - pkg: dev-python/jmespath
+    - pkg: dev-python/lark
+    - pkg: dev-python/linecache2
+    - pkg: dev-python/markdown-it-py
+    - pkg: dev-python/mdurl
+    - pkg: dev-python/mccabe
+    - pkg: dev-python/numpy
+    - pkg: dev-python/pathlib2
+    - pkg: dev-python/prometheus_client
+    - pkg: dev-python/prompt_toolkit
+    - pkg: dev-python/pycodestyle
+    - pkg: dev-python/pycryptodome
+    - pkg: dev-python/pyflakes
+    - pkg: dev-python/pykerberos
+    - pkg: dev-python/python-dateutil
+    - pkg: dev-python/python-memcached
+    - pkg: dev-python/python-mimeparse
+    - pkg: dev-python/python-sqlparse
+    - pkg: dev-python/pyudev
+    - pkg: dev-python/requests-toolbelt
+    - pkg: dev-python/rsa
+    - pkg: dev-python/ruamel-yaml
+    - pkg: dev-python/s3transfer
+    - pkg: dev-python/scandir
+    - pkg: dev-python/setproctitle
+    - pkg: dev-python/soupsieve
+    - pkg: dev-python/sortedcontainers
+    - pkg: dev-python/simplejson
+    - pkg: dev-python/sqlalchemy
+    - pkg: dev-python/sqlalchemy-migrate
+    - pkg: dev-python/tempita
+    - pkg: dev-python/terminaltables
+    - pkg: dev-python/tomlkit
+    - pkg: dev-python/traceback2
+    - pkg: dev-python/trio
+    - pkg: dev-python/uvicorn
+    - pkg: dev-python/uvloop
+    - pkg: dev-python/wcwidth
+
+    - pkg: dev-vcs/python-gitlab
+
+    - pkg: virtual/python-typing
+
+    # Package autogen with mark-devkit
+    - pkg: dev-python/calver
+    - pkg: dev-python/dependency-injector
+    - pkg: dev-python/expandvars
+    - pkg: dev-python/falcon
+    - pkg: dev-python/jinja
+    - pkg: dev-python/yarl
+    - pkg: dev-python/propcache

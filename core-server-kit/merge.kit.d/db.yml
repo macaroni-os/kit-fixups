@@ -1,0 +1,43 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-xl"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-xl"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-v
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-db/sqlite:3
+    - pkg: sys-libs/db:18.1
+    - pkg: sys-libs/db:5.3
+    - pkg: sys-libs/gdbm
+
+    - pkg: dev-db/etcd
+
+    - pkg: dev-db/postgresql:13
+    - pkg: dev-db/postgresql:16
+
+    - pkg: dev-db/influxdb
+    - pkg: dev-db/mariadb
+    - pkg: dev-db/mongodb
+    - pkg: dev-db/mysql-community:8.0
+    - pkg: dev-db/mysql-init-scripts
+    - pkg: dev-db/redis
+    - pkg: dev-db/tinycdb

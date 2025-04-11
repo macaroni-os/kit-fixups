@@ -1,0 +1,37 @@
+#version: 2
+project_name: MARK
+build:
+  skip: true
+release:
+  header: |
+    ## Macaroni OS - {{ .Tag }}!
+
+    A new release of MARK kit is out!
+
+    See the above list for all upgrade details.
+
+    Many thanks to all Macaroni OS devs and contributors that are the sap of all this.
+
+    Enjoy!
+
+    Any user that wants to support our work for Macaroni could do this through the Github [Sponsor](https://github.com/sponsors/geaaru).
+
+changelog:
+  sort: asc
+  groups:
+    - title: New packages
+      regexp: ".*new.*"
+      order: 1
+    - title: Reverts
+      regexp: '.*Revert.*'
+      order: 3
+    - title: Packages
+      regexp: ".*Bump.*"
+      order: 2
+    - title: Others
+      order: 9999
+  filters:
+    exclude:
+      - '^.github'
+      - '^github'
+      - '^.gorelease'

@@ -21,6 +21,12 @@ target:
       - file: ../../.github/FUNDING.yml
         to: .github/FUNDING.yml
 
+      - dir: ../../.github/workflows
+        to: .github/workflows
+
+      - file: ../../.goreleaser.yml
+        to: .goreleaser.yml
+
   atoms_defaults:
     max_versions: 3
 

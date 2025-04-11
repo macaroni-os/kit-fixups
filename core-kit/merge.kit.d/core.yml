@@ -527,6 +527,12 @@ target:
       - file: ../../.github/FUNDING.yml
         to: .github/FUNDING.yml
 
+      - dir: ../../.github/workflows
+        to: .github/workflows
+
+      - file: ../../.goreleaser.yml
+        to: .goreleaser.yml
+
       - dir: ../profiles/
         to: profiles
         keep_files:

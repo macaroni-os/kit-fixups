@@ -8,6 +8,10 @@ sources:
   url: "https://github.com/macaroni-os/core-server-kit"
   branch: "mark-testing"
 
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-testing"
+
 target:
   name: core-server-kit
   url: "https://github.com/macaroni-os/core-server-kit"
@@ -24,8 +28,12 @@ target:
     max_versions: 3
 
   atoms:
+
+    - pkg: app-admin/mongo-tools
+
     - pkg: dev-db/sqlite:3
     - pkg: sys-libs/db:18.1
+    - pkg: sys-libs/db:5.3
     - pkg: sys-libs/gdbm
 
     - pkg: dev-db/etcd
@@ -34,7 +42,10 @@ target:
 
     - pkg: dev-db/influxdb
     - pkg: dev-db/mariadb
+    - pkg: dev-db/mariadb-connector-c
     - pkg: dev-db/mongodb
     - pkg: dev-db/mysql-community:8.0
+    - pkg: dev-db/mysql-connector-c
+    - pkg: dev-db/mysql-init-scripts
     - pkg: dev-db/redis
     - pkg: dev-db/tinycdb

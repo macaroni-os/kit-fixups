@@ -12,6 +12,10 @@ sources:
   url: "https://github.com/macaroni-os/media-kit"
   branch: "mark-testing"
 
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
 target:
   name: core-gl-kit
   url: "https://github.com/macaroni-os/core-gl-kit"
@@ -188,9 +192,13 @@ target:
     - pkg: media-fonts/font-cronyx-cyrillic
     - pkg: media-fonts/takao-fonts
 
+    - pkg: media-libs/freeglut
+    - pkg: media-libs/fontconfig
+    - pkg: media-libs/glu
+    - pkg: media-libs/harfbuzz
+    - pkg: media-libs/mesa
     - pkg: media-libs/vulkan-layers
     - pkg: media-libs/vulkan-loader
-    - pkg: media-libs/freeglut
 
     - pkg: app-emulation/vkd3d
 

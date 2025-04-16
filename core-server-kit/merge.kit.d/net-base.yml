@@ -12,6 +12,14 @@ sources:
   url: "https://github.com/geaaru/geaaru_overlay"
   branch: "funtoo"
 
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: "mark-testing"
+
+- name: "python-modules-kit"
+  url: "https://github.com/macaroni-os/python-modules-kit"
+  branch: "mark-testing"
+
 target:
   name: core-server-kit
   url: "https://github.com/macaroni-os/core-server-kit"
@@ -28,6 +36,8 @@ target:
 
     - pkg: net-dialup/freeradius
 
+    - pkg: net-libs/nghttp2
+
     - pkg: net-misc/curl
     - pkg: net-misc/chrony
     - pkg: net-misc/wget
@@ -42,5 +52,8 @@ target:
     - pkg: www-servers/lighttpd
     - pkg: www-servers/tornado
 
+    - pkg: www-apache/mod_dnssd
+
     - pkg: sys-cluster/singularity
+    - pkg: sys-cluster/glusterfs
     - pkg: sys-cluster/kubectl

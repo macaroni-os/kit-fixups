@@ -1,0 +1,48 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "kde-kit"
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-unstable
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-misc/qtxdg-tools
+
+    - pkg: dev-libs/libqtxdg
+
+    - pkg: lxde-base/menu-cache
+    - pkg: lxqt-base/liblxqt
+    - pkg: lxqt-base/libsysstat
+    - pkg: lxqt-base/lxqt-about
+    - pkg: lxqt-base/lxqt-admin
+    - pkg: lxqt-base/lxqt-config
+    - pkg: lxqt-base/lxqt-globalkeys
+    - pkg: lxqt-base/lxqt-menu-data
+    - pkg: lxqt-base/lxqt-meta
+    - pkg: lxqt-base/lxqt-notificationd
+    - pkg: lxqt-base/lxqt-openssh-askpass
+    - pkg: lxqt-base/lxqt-panel
+    - pkg: lxqt-base/lxqt-policykit
+    - pkg: lxqt-base/lxqt-powermanagement
+    - pkg: lxqt-base/lxqt-qtplugin
+    - pkg: lxqt-base/lxqt-runner
+    - pkg: lxqt-base/lxqt-session
+    - pkg: lxqt-base/lxqt-sudo
+
+    - pkg: x11-themes/lxqt-themes

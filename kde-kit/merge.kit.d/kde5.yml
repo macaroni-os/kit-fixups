@@ -1,0 +1,363 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "kde-kit"
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-admin/calamares
+
+    - pkg: app-crypt/qca
+
+    - pkg: dev-libs/grantlee
+    - pkg: dev-libs/kdiagram:5
+    - pkg: dev-libs/kirigami-addons:5
+    - pkg: dev-libs/kpeoplevcard:5
+    - pkg: dev-libs/ktextaddons:5
+    - pkg: dev-libs/kuserfeedback:5
+
+    - pkg: kde-apps/kdegraphics-mobipocket:5
+
+    - pkg: kde-apps/akonadi
+    - pkg: kde-apps/akonadi-calendar
+    - pkg: kde-apps/akonadi-contacts
+    - pkg: kde-apps/akonadi-mime
+    - pkg: kde-apps/akonadi-notes
+    - pkg: kde-apps/akonadi-search
+    - pkg: kde-apps/analitza
+    - pkg: kde-apps/ark
+    - pkg: kde-apps/baloo-widgets
+    - pkg: kde-apps/bomber
+    - pkg: kde-apps/bovo
+    - pkg: kde-apps/calendarsupport
+    - pkg: kde-apps/dolphin
+    - pkg: kde-apps/dolphin-plugins-git
+    - pkg: kde-apps/dragon
+    - pkg: kde-apps/eventviews
+    - pkg: kde-apps/ffmpegthumbs
+    - pkg: kde-apps/filelight
+    - pkg: kde-apps/grantlee-editor
+    - pkg: kde-apps/grantleetheme
+    - pkg: kde-apps/gwenview
+    - pkg: kde-apps/incidenceeditor
+    - pkg: kde-apps/juk
+    - pkg: kde-apps/k3b
+    - pkg: kde-apps/kaccounts-integration
+    - pkg: kde-apps/kaccounts-providers
+    - pkg: kde-apps/kaddressbook
+    - pkg: kde-apps/kalarm
+    - pkg: kde-apps/kalgebra
+    - pkg: kde-apps/kamera
+    - pkg: kde-apps/kapman
+    - pkg: kde-apps/kateprivate
+    - pkg: kde-apps/kbackup
+    - pkg: kde-apps/kcalc
+    - pkg: kde-apps/kcalutils
+    - pkg: kde-apps/kcharselect
+    - pkg: kde-apps/kcolorchooser
+    - pkg: kde-apps/kcron
+    - pkg: kde-apps/kdeadmin-meta
+    - pkg: kde-apps/kdeedu-data
+    - pkg: kde-apps/kdenetwork-filesharing
+    - pkg: kde-apps/kdepim-runtime
+    - pkg: kde-apps/kdf
+    - pkg: kde-apps/kdialog
+    - pkg: kde-apps/keditbookmarks
+    - pkg: kde-apps/kfind
+    - pkg: kde-apps/kfourinline
+    - pkg: kde-apps/kget
+    - pkg: kde-apps/kgpg
+    - pkg: kde-apps/kidentitymanagement
+    - pkg: kde-apps/killbots
+    - pkg: kde-apps/kimap
+    - pkg: kde-apps/kio-extras
+    - pkg: kde-apps/kipi-plugins
+    - pkg: kde-apps/kiriki
+    - pkg: kde-apps/kldap
+    - pkg: kde-apps/kleopatra
+    - pkg: kde-apps/klines
+    - pkg: kde-apps/kmag
+    - pkg: kde-apps/kmahjongg
+    - pkg: kde-apps/kmail
+    - pkg: kde-apps/kmail-account-wizard
+    - pkg: kde-apps/kmailtransport
+    - pkg: kde-apps/kmbox
+    - pkg: kde-apps/kmime
+    - pkg: kde-apps/kmines
+    - pkg: kde-apps/kmix
+    - pkg: kde-apps/kmousetool
+    - pkg: kde-apps/kmouth
+    - pkg: kde-apps/knavalbattle
+    - pkg: kde-apps/knetwalk
+    - pkg: kde-apps/knights
+    - pkg: kde-apps/knotes
+    - pkg: kde-apps/kolf
+    - pkg: kde-apps/kollision
+    - pkg: kde-apps/kolourpaint
+    - pkg: kde-apps/kompare
+    - pkg: kde-apps/konquest
+    - pkg: kde-apps/konsole
+    - pkg: kde-apps/konsolekalendar
+    - pkg: kde-apps/kontact
+    - pkg: kde-apps/kontactinterface
+    - pkg: kde-apps/korganizer
+    - pkg: kde-apps/kpat
+    - pkg: kde-apps/kpimtextedit
+    - pkg: kde-apps/krdc
+    - pkg: kde-apps/kreversi
+    - pkg: kde-apps/krfb
+    - pkg: kde-apps/ksanecore
+    - pkg: kde-apps/kshisen
+    - pkg: kde-apps/ksirk
+    - pkg: kde-apps/ksmtp
+    - pkg: kde-apps/kspaceduel
+    - pkg: kde-apps/ksquares
+    - pkg: kde-apps/ksudoku
+    - pkg: kde-apps/ksystemlog
+    - pkg: kde-apps/kteatime
+    - pkg: kde-apps/ktimer
+    - pkg: kde-apps/ktp-auth-handler
+    - pkg: kde-apps/ktp-common-internals
+    - pkg: kde-apps/ktp-contact-list
+    - pkg: kde-apps/ktp-contact-runner
+    - pkg: kde-apps/ktp-desktop-applets
+    - pkg: kde-apps/ktp-filetransfer-handler
+    - pkg: kde-apps/ktp-send-file
+    - pkg: kde-apps/ktuberling
+    - pkg: kde-apps/kturtle
+    - pkg: kde-apps/kubrick
+    - pkg: kde-apps/kwalletmanager
+    - pkg: kde-apps/kwordquiz
+    - pkg: kde-apps/kwrite
+    - pkg: kde-apps/libgravatar
+    - pkg: kde-apps/libkcddb
+    - pkg: kde-apps/libkcompactdisc
+    - pkg: kde-apps/libkdcraw
+    - pkg: kde-apps/libkdegames
+    - pkg: kde-apps/libkdepim
+    - pkg: kde-apps/libkeduvocdocument
+    - pkg: kde-apps/libkexiv2
+    - pkg: kde-apps/libkgapi
+    - pkg: kde-apps/libkipi
+    - pkg: kde-apps/libkleo
+    - pkg: kde-apps/libkmahjongg
+    - pkg: kde-apps/libkomparediff2
+    - pkg: kde-apps/libksane
+    - pkg: kde-apps/libksieve
+    - pkg: kde-apps/libktnef
+    - pkg: kde-apps/lokalize
+    - pkg: kde-apps/lskat
+    - pkg: kde-apps/mailcommon
+    - pkg: kde-apps/mailimporter
+    - pkg: kde-apps/mbox-importer
+    - pkg: kde-apps/messagelib
+    - pkg: kde-apps/minuet
+    - pkg: kde-apps/okular
+    - pkg: kde-apps/palapeli
+    - pkg: kde-apps/parley
+    - pkg: kde-apps/picmi
+    - pkg: kde-apps/pim-data-exporter
+    - pkg: kde-apps/pim-sieve-editor
+    - pkg: kde-apps/pimcommon
+    - pkg: kde-apps/print-manager
+    - pkg: kde-apps/spectacle
+    - pkg: kde-apps/svgpart
+    - pkg: kde-apps/sweeper
+    - pkg: kde-apps/thumbnailers
+    - pkg: kde-apps/yakuake
+    - pkg: kde-frameworks/bluez-qt
+    - pkg: kde-frameworks/breeze-icons
+    - pkg: kde-frameworks/extra-cmake-modules
+    - pkg: kde-frameworks/karchive
+    - pkg: kde-frameworks/kauth
+    - pkg: kde-frameworks/kbookmarks
+    - pkg: kde-frameworks/kcalendarcore
+    - pkg: kde-frameworks/kcodecs
+    - pkg: kde-frameworks/kcompletion
+    - pkg: kde-frameworks/kconfig
+    - pkg: kde-frameworks/kconfigwidgets
+    - pkg: kde-frameworks/kcontacts
+    - pkg: kde-frameworks/kcoreaddons
+    - pkg: kde-frameworks/kcrash
+    - pkg: kde-frameworks/kdav
+    - pkg: kde-frameworks/kdbusaddons
+    - pkg: kde-frameworks/kded
+    - pkg: kde-frameworks/kdelibs4support
+    - pkg: kde-frameworks/kdesignerplugin
+    - pkg: kde-frameworks/kdoctools
+    - pkg: kde-frameworks/kf-env
+    - pkg: kde-frameworks/kglobalaccel
+    - pkg: kde-frameworks/kguiaddons
+    - pkg: kde-frameworks/khtml
+    - pkg: kde-frameworks/ki18n
+    - pkg: kde-frameworks/kiconthemes
+    - pkg: kde-frameworks/kidletime
+    - pkg: kde-frameworks/kimageformats
+    - pkg: kde-frameworks/kinit
+    - pkg: kde-frameworks/kio
+    - pkg: kde-frameworks/kitemviews
+    - pkg: kde-frameworks/kjobwidgets
+    - pkg: kde-frameworks/kjs
+    - pkg: kde-frameworks/knotifications
+    - pkg: kde-frameworks/kpackage
+    - pkg: kde-frameworks/kparts
+    - pkg: kde-frameworks/kplotting
+    - pkg: kde-frameworks/kross
+    - pkg: kde-frameworks/kservice
+    - pkg: kde-frameworks/ktextwidgets
+    - pkg: kde-frameworks/kwallet
+    - pkg: kde-frameworks/kwayland
+    - pkg: kde-frameworks/kwidgetsaddons
+    - pkg: kde-frameworks/kwindowsystem
+    - pkg: kde-frameworks/kxmlgui
+    - pkg: kde-frameworks/modemmanager-qt
+    - pkg: kde-frameworks/networkmanager-qt
+    - pkg: kde-frameworks/oxygen-icons
+    - pkg: kde-frameworks/purpose
+    - pkg: kde-frameworks/qqc2-desktop-style
+    - pkg: kde-frameworks/solid
+    - pkg: kde-frameworks/sonnet
+    - pkg: kde-frameworks/syndication
+
+
+    - pkg: kde-frameworks/kfilemetadata:5
+    - pkg: kde-frameworks/kirigami:5
+    - pkg: kde-frameworks/kdesu:5
+    - pkg: kde-frameworks/kpeople:5
+    - pkg: kde-frameworks/baloo:5
+    - pkg: kde-frameworks/krunner:5
+    - pkg: kde-frameworks/plasma:5
+    - pkg: kde-frameworks/kholidays:5
+    - pkg: kde-frameworks/kcmutils:5
+    - pkg: kde-frameworks/prison:5
+    - pkg: kde-frameworks/ktexteditor:5
+    - pkg: kde-frameworks/kemoticons:5
+    - pkg: kde-frameworks/knewstuff:5
+    - pkg: kde-frameworks/kactivities:5
+    - pkg: kde-frameworks/kitemmodels:5
+    - pkg: kde-frameworks/threadweaver:5
+    - pkg: kde-frameworks/kdnssd:5
+    - pkg: kde-frameworks/syntax-highlighting:5
+    - pkg: kde-frameworks/attica:5
+    - pkg: kde-frameworks/kquickcharts:5
+    - pkg: kde-frameworks/frameworkintegration:5
+    - pkg: kde-frameworks/kdeclarative:5
+    - pkg: kde-frameworks/kpty:5
+    - pkg: kde-frameworks/kunitconversion:5
+    - pkg: kde-frameworks/knotifyconfig:5
+    - pkg: kde-frameworks/kactivities-stats:5
+
+    - pkg: kde-misc/kdiff3:5
+
+    - pkg: kde-misc/kdeconnect
+    - pkg: kde-misc/kio-fuse
+    - pkg: kde-misc/kio-gdrive
+    - pkg: kde-misc/latte-dock
+    - pkg: kde-misc/skanlite
+    - pkg: kde-plasma/bluedevil
+    - pkg: kde-plasma/breeze-grub
+    - pkg: kde-plasma/breeze-gtk
+    - pkg: kde-plasma/breeze-plymouth
+    - pkg: kde-plasma/discover
+    - pkg: kde-plasma/drkonqi
+    - pkg: kde-plasma/kde-gtk-config
+    - pkg: kde-plasma/kdeplasma-addons
+    - pkg: kde-plasma/kgamma
+    - pkg: kde-plasma/khotkeys
+    - pkg: kde-plasma/kinfocenter
+    - pkg: kde-plasma/kmenuedit
+    - pkg: kde-plasma/kpipewire
+    - pkg: kde-plasma/kscreen
+    - pkg: kde-plasma/ksshaskpass
+    - pkg: kde-plasma/ksystemstats
+    - pkg: kde-plasma/kwallet-pam
+    - pkg: kde-plasma/kwayland-integration
+    - pkg: kde-plasma/kwrited
+    - pkg: kde-plasma/libkscreen
+    - pkg: kde-plasma/oxygen
+    - pkg: kde-plasma/plasma-browser-integration
+    - pkg: kde-plasma/plasma-desktop
+    - pkg: kde-plasma/plasma-disks
+    - pkg: kde-plasma/plasma-nm
+    - pkg: kde-plasma/plasma-pa
+    - pkg: kde-plasma/plasma-sdk
+    - pkg: kde-plasma/plasma-systemmonitor
+    - pkg: kde-plasma/plasma-vault
+    - pkg: kde-plasma/plasma-workspace
+    - pkg: kde-plasma/plasma-workspace-wallpapers
+    - pkg: kde-plasma/plymouth-kcm
+    - pkg: kde-plasma/polkit-kde-agent
+    - pkg: kde-plasma/powerdevil
+    - pkg: kde-plasma/sddm-kcm
+    - pkg: kde-plasma/systemsettings
+    - pkg: kde-plasma/xdg-desktop-portal-kde
+
+    - pkg: kde-plasma/kwin:5
+    - pkg: kde-plasma/layer-shell-qt:5
+    - pkg: kde-plasma/breeze:5
+    - pkg: kde-plasma/kwayland-server:5
+    - pkg: kde-plasma/kscreenlocker:5
+    - pkg: kde-plasma/milou:5
+    - pkg: kde-plasma/plasma-integration:5
+    - pkg: kde-plasma/kdecoration:5
+    - pkg: kde-plasma/kactivitymanagerd:5
+    - pkg: kde-plasma/libkworkspace:5
+    - pkg: kde-plasma/libksysguard:5
+    - pkg: kde-plasma/kde-cli-tools:5
+
+    - pkg: media-libs/libqaccessibilityclient:5
+    - pkg: media-libs/phonon
+    - pkg: media-libs/phonon-gstreamer
+    - pkg: media-libs/phonon-vlc
+    - pkg: media-libs/pulseaudio-qt
+    - pkg: media-libs/kcolorpicker
+    - pkg: media-libs/kimageannotator
+
+    - pkg: media-gfx/krita:5
+    - pkg: media-gfx/lximage-qt
+
+    - pkg: dev-libs/plasma-wayland-protocols
+    - pkg: dev-libs/qcoro5
+    - pkg: dev-util/lxqt-build-tools
+    - pkg: net-irc/konversation
+    - pkg: net-libs/kdsoap
+    - pkg: net-libs/kdsoap-ws-discovery-client
+    - pkg: net-libs/libktorrent
+    - pkg: net-p2p/ktorrent
+
+    - pkg: sys-auth/polkit-qt
+    - pkg: sys-libs/kpmcore
+
+    - pkg: x11-libs/qtermwidget
+
+    - pkg: x11-misc/pcmanfm-qt
+    - pkg: x11-misc/qps
+    - pkg: x11-misc/screengrab
+
+    - pkg: x11-terms/qterminal
+

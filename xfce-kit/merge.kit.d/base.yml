@@ -1,0 +1,87 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "xfce-kit"
+  url: "https://github.com/macaroni-os/xfce-kit"
+  branch: "mark-testing"
+
+target:
+  name: xfce-kit
+  url: "https://github.com/macaroni-os/xfce-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-util/xfce4-dev-tools
+
+    - pkg: xfce-base/exo
+    - pkg: xfce-base/garcon
+    - pkg: xfce-base/libxfce4ui
+    - pkg: xfce-base/libxfce4util
+    - pkg: xfce-base/thunar
+    - pkg: xfce-base/xfce4-appfinder
+    - pkg: xfce-base/xfce4-meta
+    - pkg: xfce-base/xfce4-panel
+    - pkg: xfce-base/xfce4-session
+    - pkg: xfce-base/xfce4-settings
+    - pkg: xfce-base/xfconf
+    - pkg: xfce-base/xfdesktop
+    - pkg: xfce-base/xfwm4
+    - pkg: xfce-extra/thunar-archive-plugin
+    - pkg: xfce-extra/thunar-media-tags-plugin
+    - pkg: xfce-extra/thunar-shares-plugin
+    - pkg: xfce-extra/thunar-vcs-plugin
+    - pkg: xfce-extra/thunar-volman
+    - pkg: xfce-extra/tumbler
+    - pkg: xfce-extra/xfce4-alsa-plugin
+    - pkg: xfce-extra/xfce4-battery-plugin
+    - pkg: xfce-extra/xfce4-calculator-plugin
+    - pkg: xfce-extra/xfce4-clipman-plugin
+    - pkg: xfce-extra/xfce4-cpufreq-plugin
+    - pkg: xfce-extra/xfce4-cpugraph-plugin
+    - pkg: xfce-extra/xfce4-datetime-plugin
+    - pkg: xfce-extra/xfce4-dict
+    - pkg: xfce-extra/xfce4-diskperf-plugin
+    - pkg: xfce-extra/xfce4-eyes-plugin
+    - pkg: xfce-extra/xfce4-fsguard-plugin
+    - pkg: xfce-extra/xfce4-genmon-plugin
+    - pkg: xfce-extra/xfce4-hdaps
+    - pkg: xfce-extra/xfce4-indicator-plugin
+    - pkg: xfce-extra/xfce4-kbdleds-plugin
+    - pkg: xfce-extra/xfce4-mailwatch-plugin
+    - pkg: xfce-extra/xfce4-mount-plugin
+    - pkg: xfce-extra/xfce4-mpc-plugin
+    - pkg: xfce-extra/xfce4-netload-plugin
+    - pkg: xfce-extra/xfce4-notes-plugin
+    - pkg: xfce-extra/xfce4-notifyd
+    - pkg: xfce-extra/xfce4-panel-profiles
+    - pkg: xfce-extra/xfce4-places-plugin
+    - pkg: xfce-extra/xfce4-power-manager
+    - pkg: xfce-extra/xfce4-pulseaudio-plugin
+    - pkg: xfce-extra/xfce4-screensaver
+    - pkg: xfce-extra/xfce4-screenshooter
+    - pkg: xfce-extra/xfce4-sensors-plugin
+    - pkg: xfce-extra/xfce4-smartbookmark-plugin
+    - pkg: xfce-extra/xfce4-statusnotifier-plugin
+    - pkg: xfce-extra/xfce4-stopwatch-plugin
+    - pkg: xfce-extra/xfce4-systemload-plugin
+    - pkg: xfce-extra/xfce4-taskmanager
+    - pkg: xfce-extra/xfce4-timer-plugin
+    - pkg: xfce-extra/xfce4-weather-plugin
+    - pkg: xfce-extra/xfce4-windowck-plugin
+    - pkg: xfce-extra/xfce4-xkb-plugin
+
+    - pkg: x11-terms/xfce4-terminal

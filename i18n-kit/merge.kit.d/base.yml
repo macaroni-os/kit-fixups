@@ -1,0 +1,37 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "text-kit"
+  url: "https://github.com/macaroni-os/text-kit"
+  branch: "mark-testing"
+
+- name: "i18n-kit"
+  url: "https://github.com/macaroni-os/i18n-kit"
+  branch: "mark-testing"
+
+target:
+  name: i18n-kit
+  url: "https://github.com/macaroni-os/i18n-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-i18n/ibus
+    - pkg: app-i18n/translate-shell
+    - pkg: app-i18n/uchardet
+    - pkg: app-i18n/unicode-cldr
+    - pkg: app-i18n/unicode-data

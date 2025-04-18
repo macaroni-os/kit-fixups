@@ -43,11 +43,15 @@ target:
     - pkg: dev-perl/JSON
     - pkg: dev-perl/JSON-XS
     - pkg: dev-perl/Locale-gettext
+    - pkg: dev-perl/LWP-Protocol-https
     - pkg: dev-perl/Module-Build
+    - pkg: dev-perl/Net-DBus
     - pkg: dev-perl/Pod-Parser
+    - pkg: dev-perl/X11-Protocol
     - pkg: dev-perl/XML-LibXML
     - pkg: dev-perl/XML-NamespaceSupport
     - pkg: dev-perl/XML-Parser
+    - pkg: dev-perl/XML-Twig
     - pkg: dev-perl/XML-SAX
     - pkg: dev-perl/XML-SAX-Base
 
@@ -58,8 +62,11 @@ target:
     - pkg: dev-perl/SGMLSpm
     - pkg: dev-perl/TermReadKey
     - pkg: dev-perl/Text-CharWidth
+    - pkg: dev-perl/Text-Iconv
     - pkg: dev-perl/Text-Unidecode
     - pkg: dev-perl/Text-WrapI18N
+    - pkg: dev-perl/Text-CSV
+    - pkg: dev-perl/Tie-IxHash
     - pkg: dev-perl/Types-Serialiser
     - pkg: dev-perl/TimeDate
     - pkg: dev-perl/Unicode-EastAsianWidth
@@ -69,6 +76,108 @@ target:
     - pkg: dev-perl/YAML-Tiny
     - pkg: dev-perl/libintl-perl
     - pkg: dev-perl/common-sense
+
+    - pkg: dev-perl/Devel-Caller
+    - pkg: dev-perl/Variable-Magic
+    - pkg: dev-perl/MRO-Compat
+    - pkg: dev-perl/Spreadsheet-ParseExcel
+    - pkg: dev-perl/App-pwhich
+    - pkg: dev-perl/Exception-Class
+    - pkg: dev-perl/Sub-Quote
+    - pkg: dev-perl/Package-Stash-XS
+    - pkg: dev-perl/Module-Runtime
+    - pkg: dev-perl/IO-stringy
+    - pkg: dev-perl/Package-Stash
+    - pkg: dev-perl/Data-OptList
+    - pkg: dev-perl/Sub-Install
+    - pkg: dev-perl/File-Which
+    - pkg: dev-perl/Sub-Identify
+    - pkg: dev-perl/Eval-Closure
+    - pkg: dev-perl/File-HomeDir
+    - pkg: dev-perl/Crypt-RC4
+    - pkg: dev-perl/Digest-Perl-MD5
+    - pkg: dev-perl/Class-Data-Inheritable
+    - pkg: dev-perl/namespace-clean
+    - pkg: dev-perl/PadWalker
+    - pkg: dev-perl/Perl-Tidy
+    - pkg: dev-perl/B-Hooks-EndOfScope
+    - pkg: dev-perl/Devel-LexAlias
+    - pkg: dev-perl/Role-Tiny
+    - pkg: dev-perl/Dist-CheckConflicts
+    - pkg: dev-perl/Params-ValidationCompiler
+    - pkg: dev-perl/Try-Tiny
+    - pkg: dev-perl/Ref-Util-XS
+    - pkg: dev-perl/Sub-Exporter
+    - pkg: dev-perl/Sub-Name
+    - pkg: dev-perl/Devel-GlobalDestruction
+    - pkg: dev-perl/Jcode
+    - pkg: dev-perl/namespace-autoclean
+    - pkg: dev-perl/OLE-StorageLite
+    - pkg: dev-perl/Text-CSV_XS
+    - pkg: dev-perl/Sub-Exporter-Progressive
+    - pkg: dev-perl/Params-Util
+    - pkg: dev-perl/Unicode-Map
+    - pkg: dev-perl/Test-Fatal
+    - pkg: dev-perl/Tk
+    - pkg: dev-perl/Ref-Util
+    - pkg: dev-perl/Devel-StackTrace
+    - pkg: dev-perl/Module-Implementation
+    - pkg: dev-perl/Specio
+
+    - pkg: dev-perl/Algorithm-Diff
+    - pkg: dev-perl/AnyEvent
+    - pkg: dev-perl/AnyEvent-I3
+    - pkg: dev-perl/AppConfig
+    - pkg: dev-perl/BSD-Resource
+    - pkg: dev-perl/Crypt-OpenSSL-Bignum
+    - pkg: dev-perl/Crypt-OpenSSL-RSA
+    - pkg: dev-perl/Crypt-OpenSSL-Random
+    - pkg: dev-perl/DBD-Pg
+    - pkg: dev-perl/DBD-SQLite
+    - pkg: dev-perl/DBD-mysql
+    - pkg: dev-perl/DBI
+    - pkg: dev-perl/Date-Manip
+    - pkg: dev-perl/Devel-CheckLib
+    - pkg: dev-perl/Encode-Detect
+    - pkg: dev-perl/Encode-Locale
+    - pkg: dev-perl/ExtUtils-PkgConfig
+    - pkg: dev-perl/File-Listing
+    - pkg: dev-perl/GD
+    - pkg: dev-perl/Geo-IP
+    - pkg: dev-perl/HTML-Parser
+    - pkg: dev-perl/HTML-Tagset
+    - pkg: dev-perl/HTML-Tree
+    - pkg: dev-perl/HTTP-Cookies
+    - pkg: dev-perl/HTTP-Daemon
+    - pkg: dev-perl/HTTP-Date
+    - pkg: dev-perl/HTTP-Message
+    - pkg: dev-perl/HTTP-Negotiate
+    - pkg: dev-perl/IO-HTML
+    - pkg: dev-perl/IO-Socket-INET6
+    - pkg: dev-perl/LWP-MediaTypes
+    - pkg: dev-perl/Log-Dispatch
+    - pkg: dev-perl/MIME-tools
+    - pkg: dev-perl/Mail-DKIM
+    - pkg: dev-perl/Mail-SPF
+    - pkg: dev-perl/Net-CIDR-Lite
+    - pkg: dev-perl/Net-DNS
+    - pkg: dev-perl/Net-DNS-Resolver-Programmable
+    - pkg: dev-perl/Net-Daemon
+    - pkg: dev-perl/Net-HTTP
+    - pkg: dev-perl/Net-Patricia
+    - pkg: dev-perl/NetAddr-IP
+    - pkg: dev-perl/Parse-Yapp
+    - pkg: dev-perl/Path-Tiny
+    - pkg: dev-perl/PlRPC
+    - pkg: dev-perl/Pod-LaTeX
+    - pkg: dev-perl/Socket6
+    - pkg: dev-perl/Template-Toolkit
+    - pkg: dev-perl/Text-Autoformat
+    - pkg: dev-perl/Text-Reform
+    - pkg: dev-perl/WWW-RobotRules
+    - pkg: dev-perl/XML-SAX-Expat
+    - pkg: dev-perl/XML-Simple
+    - pkg: dev-perl/libwww-perl
 
     - pkg: perl-core/File-Temp
 
@@ -106,3 +215,19 @@ target:
     - pkg: virtual/perl-podlators
     - pkg: virtual/perl-version
     - pkg: virtual/perl-libnet
+
+    - pkg: virtual/perl-Archive-Tar
+    - pkg: virtual/perl-Compress-Raw-Bzip2
+    - pkg: virtual/perl-Compress-Raw-Zlib
+    - pkg: virtual/perl-DB_File
+    - pkg: virtual/perl-ExtUtils-Constant
+    - pkg: virtual/perl-IO-Compress
+    - pkg: virtual/perl-IO-Socket-IP
+    - pkg: virtual/perl-IO-Zlib
+    - pkg: virtual/perl-Storable
+    - pkg: virtual/perl-Sys-Syslog
+    - pkg: virtual/perl-Test-Simple
+    - pkg: virtual/perl-Text-Tabs+Wrap
+    - pkg: virtual/perl-Time-Local
+    - pkg: virtual/perl-XSLoader
+    - pkg: virtual/perl-if

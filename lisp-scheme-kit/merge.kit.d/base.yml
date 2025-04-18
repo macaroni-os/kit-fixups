@@ -1,0 +1,31 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "lisp-scheme-kit"
+  url: "https://github.com/macaroni-os/lisp-scheme-kit"
+  branch: "mark-testing"
+
+target:
+  name: lisp-scheme-kit
+  url: "https://github.com/macaroni-os/lisp-scheme-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-lisp/asdf
+    - pkg: dev-lisp/hyperspec
+    - pkg: dev-lisp/uiop

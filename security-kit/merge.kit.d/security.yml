@@ -40,16 +40,29 @@ target:
     max_versions: 3
 
   atoms:
+
+    - pkg: app-admin/makepasswd
+
+    - pkg: app-antivirus/lkrg
+
     - pkg: app-crypt/argon2
     - pkg: app-crypt/gpgme:1
     - pkg: app-crypt/gnupg
     - pkg: app-crypt/libb2
     - pkg: app-crypt/libmd
+    - pkg: app-crypt/paperkey
     - pkg: app-crypt/p11-kit
     - pkg: app-crypt/pinentry
     - pkg: app-crypt/rhash
+    - pkg: app-crypt/mhash
     - pkg: app-crypt/mit-krb5
     - pkg: app-crypt/trousers
+    - pkg: app-crypt/tpm2-abrmd
+    - pkg: app-crypt/tpm2-tools
+    - pkg: app-crypt/tpm2-totp
+    - pkg: app-crypt/tpm2-tss
+    - pkg: app-crypt/tpm2-tss-engine
+    - pkg: app-crypt/sbsigntools
 
     - pkg: app-misc/pax-utils
 
@@ -61,18 +74,33 @@ target:
     - pkg: dev-libs/libtasn1
     - pkg: dev-libs/libunistring
     - pkg: dev-libs/libpwquality
+    - pkg: dev-libs/libmcrypt
     - pkg: dev-libs/xmlsec
     - pkg: dev-libs/nettle
     - pkg: dev-libs/npth
+    - pkg: dev-libs/crypto++
 
+    - pkg: dev-libs/pkcs11-helper
+
+    - pkg: net-libs/libgsasl
+    - pkg: net-libs/liboauth
+    - pkg: net-libs/mbedtls
     - pkg: net-libs/gnutls
 
     - pkg: sys-apps/keyutils
+    - pkg: sys-apps/bolt
+    - pkg: sys-apps/bubblewrap
 
     - pkg: sys-auth/elogind
     - pkg: sys-auth/pambase
+    # 0.120 is masked atm.
     - pkg: sys-auth/polkit
+      conditions:
+        - '<sys-auth/polkit-0.120'
+    - pkg: sys-auth/rtkit
     - pkg: sys-auth/google-authenticator
+
+    - pkg: sys-boot/mokutil
 
     - pkg: sys-libs/pam
     - pkg: sys-libs/cracklib
@@ -81,6 +109,7 @@ target:
 
     - pkg: sys-process/audit
 
+    - pkg: virtual/gsasl
     - pkg: virtual/krb5
     - pkg: virtual/pam
     - pkg: virtual/ssh

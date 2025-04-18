@@ -1,0 +1,315 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "core-testing-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+- name: "security-kit"
+  url: "https://github.com/macaroni-os/security-kit"
+  branch: "mark-testing"
+
+- name: "media-kit"
+  url: "https://github.com/macaroni-os/media-kit"
+  branch: "mark-testing"
+
+- name: "core-gl-kit"
+  url: "https://github.com/macaroni-os/core-gl-kit"
+  branch: "mark-testing"
+
+target:
+  name: media-kit
+  url: "https://github.com/macaroni-os/media-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-crypt/gcr
+    - pkg: app-crypt/libsecret
+
+    - pkg: app-accessibility/speech-dispatcher
+    - pkg: app-accessibility/espeak
+    - pkg: app-accessibility/espeak-ng
+    - pkg: app-accessibility/flite
+
+    - pkg: app-emulation/faudio
+
+    - pkg: app-cdr/cdrdao
+    - pkg: app-cdr/dvd+rw-tools
+
+    - pkg: dev-libs/libburn
+    - pkg: dev-libs/libcdio
+    - pkg: dev-libs/libcdio-paranoia
+
+    - pkg: dev-libs/libisoburn
+    - pkg: dev-libs/libisofs
+    - pkg: dev-libs/libudfread
+    - pkg: media-gfx/mypaint-brushes:1
+    - pkg: media-gfx/mypaint-brushes:2
+    - pkg: media-gfx/openvdb
+    - pkg: media-gfx/potrace
+    - pkg: media-gfx/sane-backends
+    - pkg: media-gfx/scour
+    - pkg: media-gfx/xsane
+    - pkg: media-video/dvdauthor
+    - pkg: media-video/ffmpeg
+    - pkg: media-video/ffmpegthumbnailer
+    - pkg: media-video/gaupol
+    - pkg: media-video/kino
+    - pkg: media-video/mjpegtools
+    - pkg: media-video/movit
+    - pkg: media-video/mpv
+    - pkg: media-video/obs-studio
+    - pkg: media-video/openshot
+    - pkg: media-video/pipewire
+    - pkg: media-video/rav1e
+    - pkg: media-video/rtmpdump
+    - pkg: media-video/transcode
+    - pkg: media-video/vcdimager
+    - pkg: media-video/vlc
+    - pkg: media-video/wireplumber
+
+    - pkg: media-libs/zxing-cpp
+
+    - pkg: media-libs/giflib
+    - pkg: media-libs/jbig2dec
+    - pkg: media-libs/ladspa-sdk
+    - pkg: media-libs/lcms
+    - pkg: media-libs/lib3mf
+    - pkg: media-libs/libao
+    - pkg: media-libs/libaom
+    - pkg: media-libs/libart_lgpl
+    - pkg: media-libs/libass
+    - pkg: media-libs/libavif
+    - pkg: media-libs/libbluray
+    - pkg: media-libs/libbs2b
+    - pkg: media-libs/libcanberra
+    - pkg: media-libs/libcddb
+    - pkg: media-libs/libcdr
+    - pkg: media-libs/libchamplain
+    - pkg: media-libs/libcuefile
+    - pkg: media-libs/libdc1394
+    - pkg: media-libs/libdca
+    - pkg: media-libs/libde265
+    - pkg: media-libs/libdiscid
+    - pkg: media-libs/libdmtx
+    - pkg: media-libs/libdv
+    - pkg: media-libs/libdvbpsi
+    - pkg: media-libs/libdvdcss
+    - pkg: media-libs/libdvdnav
+    - pkg: media-libs/libdvdread
+    - pkg: media-libs/libemf
+    - pkg: media-libs/libepoxy
+    - pkg: media-libs/libexif
+    - pkg: media-libs/libffado
+    - pkg: media-libs/libfpx
+    - pkg: media-libs/libfreeaptx
+    - pkg: media-libs/libfreehand
+    - pkg: media-libs/libgphoto2
+    - pkg: media-libs/libheif
+    - pkg: media-libs/libid3tag
+    - pkg: media-libs/libiec61883
+    - pkg: media-libs/libkate
+    - pkg: media-libs/libldac
+    - pkg: media-libs/libmad
+    - pkg: media-libs/libmatroska
+    - pkg: media-libs/libmediaart
+    - pkg: media-libs/libmikmod
+    - pkg: media-libs/libmms
+    - pkg: media-libs/libmng
+    - pkg: media-libs/libmodplug
+    - pkg: media-libs/libmpd
+    - pkg: media-libs/libmpeg2
+    - pkg: media-libs/libmtp
+    - pkg: media-libs/libmypaint
+    - pkg: media-libs/libnsgif
+    - pkg: media-libs/libopenraw
+    - pkg: media-libs/libopenshot
+    - pkg: media-libs/libopenshot-audio
+    - pkg: media-libs/libpagemaker
+    - pkg: media-libs/libplacebo
+    - pkg: media-libs/libquicktime
+    - pkg: media-libs/libquvi
+    - pkg: media-libs/libquvi-scripts
+    - pkg: media-libs/libraqm
+    - pkg: media-libs/libraw
+    - pkg: media-libs/libreplaygain
+    - pkg: media-libs/libsamplerate
+    - pkg: media-libs/libshout
+    - pkg: media-libs/libsidplay
+    - pkg: media-libs/libtheora
+    - pkg: media-libs/libtiger
+    - pkg: media-libs/libuninameslist
+    - pkg: media-libs/libv4l
+    - pkg: media-libs/libvisio
+    - pkg: media-libs/libvpx
+    - pkg: media-libs/libwebp
+    - pkg: media-libs/libwmf
+    - pkg: media-libs/libzmf
+    - pkg: media-libs/lilv
+    - pkg: media-libs/lv2
+
+    - pkg: media-libs/a52dec
+    - pkg: media-libs/adplug
+    - pkg: media-libs/aribb24
+    - pkg: media-libs/chromaprint
+    - pkg: media-libs/dav1d
+    - pkg: media-libs/exempi
+    - pkg: media-libs/faac
+    - pkg: media-libs/faad2
+    - pkg: media-libs/fdk-aac
+    - pkg: media-libs/game-music-emu
+    - pkg: media-libs/gavl
+    - pkg: media-libs/gd
+    - pkg: media-libs/glew
+    - pkg: media-libs/glfw
+    - pkg: media-libs/glm
+    - pkg: media-libs/graphene
+    - pkg: media-libs/gst-plugins-bad
+    - pkg: media-libs/gst-plugins-base
+    - pkg: media-libs/gst-plugins-good
+    - pkg: media-libs/gst-plugins-ugly
+    - pkg: media-libs/gstreamer
+    - pkg: media-libs/gstreamer-editing-services
+    - pkg: media-libs/gupnp-dlna
+    - pkg: media-libs/id3lib
+    - pkg: media-libs/imlib2
+    - pkg: media-libs/jasper
+    - pkg: media-libs/jbigkit
+    - pkg: media-libs/musicbrainz
+    - pkg: media-libs/nas
+    - pkg: media-libs/openal
+    - pkg: media-libs/opencolorio
+    - pkg: media-libs/opencore-amr
+    - pkg: media-libs/opencv
+    - pkg: media-libs/openjpeg
+
+    - pkg: media-libs/openexr
+    - pkg: media-libs/openh264
+    - pkg: media-libs/openimageio
+    - pkg: media-libs/opusfile
+    - pkg: media-libs/pcaudiolib
+    - pkg: media-libs/portaudio
+    - pkg: media-libs/quirc
+    - pkg: media-libs/raptor
+    - pkg: media-libs/rlottie
+    - pkg: media-libs/sbc
+    - pkg: media-libs/sdl2-image
+    - pkg: media-libs/sdl2-mixer
+    - pkg: media-libs/sdl2-ttf
+    - pkg: media-libs/shaderc
+    - pkg: media-libs/soxr
+    - pkg: media-libs/sratom
+    - pkg: media-libs/taglib
+    - pkg: media-libs/tiff
+    - pkg: media-libs/virglrenderer
+    - pkg: media-libs/vo-amrwbenc
+    - pkg: media-libs/webrtc-audio-processing
+    - pkg: media-libs/woff2
+    - pkg: media-libs/x264
+    - pkg: media-libs/x265
+    - pkg: media-libs/xvid
+
+    - pkg: media-gfx/blender
+    - pkg: media-gfx/blender-bin
+    - pkg: media-gfx/exiv2
+    - pkg: media-gfx/gimp
+    - pkg: media-gfx/graphite2
+    - pkg: media-gfx/graphviz
+    - pkg: media-gfx/imagemagick
+    - pkg: media-gfx/inkscape
+
+    - pkg: media-plugins/alsa-plugins
+    - pkg: media-plugins/frei0r-plugins
+    - pkg: media-plugins/grilo-plugins
+    - pkg: media-plugins/gst-plugins-a52dec
+    - pkg: media-plugins/gst-plugins-amr
+    - pkg: media-plugins/gst-plugins-assrender
+    - pkg: media-plugins/gst-plugins-bluez
+    - pkg: media-plugins/gst-plugins-cairo
+    - pkg: media-plugins/gst-plugins-cdio
+    - pkg: media-plugins/gst-plugins-cdparanoia
+    - pkg: media-plugins/gst-plugins-chromaprint
+    - pkg: media-plugins/gst-plugins-colormanagement
+    - pkg: media-plugins/gst-plugins-dash
+    - pkg: media-plugins/gst-plugins-dtls
+    - pkg: media-plugins/gst-plugins-dts
+    - pkg: media-plugins/gst-plugins-dv
+    - pkg: media-plugins/gst-plugins-dvb
+    - pkg: media-plugins/gst-plugins-dvdread
+    - pkg: media-plugins/gst-plugins-faac
+    - pkg: media-plugins/gst-plugins-faad
+    - pkg: media-plugins/gst-plugins-flac
+    - pkg: media-plugins/gst-plugins-gdkpixbuf
+    - pkg: media-plugins/gst-plugins-gtk
+    - pkg: media-plugins/gst-plugins-hls
+    - pkg: media-plugins/gst-plugins-jack
+    - pkg: media-plugins/gst-plugins-jpeg
+    - pkg: media-plugins/gst-plugins-lame
+    - pkg: media-plugins/gst-plugins-libav
+    - pkg: media-plugins/gst-plugins-libmms
+    - pkg: media-plugins/gst-plugins-meta
+    - pkg: media-plugins/gst-plugins-modplug
+    - pkg: media-plugins/gst-plugins-mpeg2dec
+    - pkg: media-plugins/gst-plugins-mpg123
+    - pkg: media-plugins/gst-plugins-mplex
+    - pkg: media-plugins/gst-plugins-opus
+    - pkg: media-plugins/gst-plugins-oss
+    - pkg: media-plugins/gst-plugins-pulse
+    - pkg: media-plugins/gst-plugins-resindvd
+    - pkg: media-plugins/gst-plugins-soup
+    - pkg: media-plugins/gst-plugins-taglib
+    - pkg: media-plugins/gst-plugins-twolame
+    - pkg: media-plugins/gst-plugins-v4l2
+    - pkg: media-plugins/gst-plugins-vaapi
+    - pkg: media-plugins/gst-plugins-vpx
+    - pkg: media-plugins/gst-plugins-wavpack
+    - pkg: media-plugins/gst-plugins-x264
+    - pkg: media-plugins/live
+
+    - pkg: media-sound/alsa-utils
+    - pkg: media-sound/cdparanoia
+    - pkg: media-sound/elisa
+    - pkg: media-sound/fluidsynth
+    - pkg: media-sound/gnome-music
+    - pkg: media-sound/gnome-sound-recorder
+    - pkg: media-sound/gsm
+    - pkg: media-sound/jack2
+    - pkg: media-sound/lame
+    - pkg: media-sound/mpd
+    - pkg: media-sound/mpg123
+    - pkg: media-sound/musepack-tools
+    - pkg: media-sound/pavucontrol-qt
+    - pkg: media-sound/playerctl
+    - pkg: media-sound/rawrec
+    - pkg: media-sound/rhythmbox
+    - pkg: media-sound/sndio
+    - pkg: media-sound/sound-juicer
+    - pkg: media-sound/sox
+    - pkg: media-sound/spotify
+    - pkg: media-sound/timidity-freepats
+    - pkg: media-sound/twolame
+    - pkg: media-sound/vorbis-tools
+    - pkg: media-sound/wavpack
+    - pkg: media-sound/wildmidi
+
+    - pkg: sys-libs/libavc1394
+
+    - pkg: virtual/eject
+    - pkg: virtual/ffmpeg
+    - pkg: virtual/imagemagick-tools
+    - pkg: virtual/jack

@@ -1,0 +1,130 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "desktop-kit"
+  url: "https://github.com/macaroni-os/desktop-kit"
+  branch: "mark-testing"
+
+- name: "net-kit"
+  url: "https://github.com/macaroni-os/net-kit"
+  branch: "mark-testing"
+
+target:
+  name: desktop-kit
+  url: "https://github.com/macaroni-os/desktop-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-office/dia
+    - pkg: app-office/gnucash
+    - pkg: app-office/grisbi
+    - pkg: app-office/hamster-time-tracker
+    - pkg: app-office/libreoffice-bin
+    - pkg: app-office/libreoffice-l10n
+    - pkg: app-office/unoconv
+
+
+    # Enlightenment
+    - pkg: dev-libs/efl
+    - pkg: media-gfx/ephoto
+
+    - pkg: dev-libs/libdbusmenu
+
+    # Gkrellm stuff
+    - pkg: app-admin/gkrellm
+    - pkg: x11-plugins/gkrellm-bluez
+    - pkg: x11-plugins/gkrellm-countdown
+    - pkg: x11-plugins/gkrellm-cpupower
+    - pkg: x11-plugins/gkrellm-leds
+    - pkg: x11-plugins/gkrellm-mailwatch
+    - pkg: x11-plugins/gkrellm-radio
+    - pkg: x11-plugins/gkrellm-trayicons
+    - pkg: x11-plugins/gkrellm-vaiobright
+    - pkg: x11-plugins/gkrellm-volume
+    - pkg: x11-plugins/gkrellm-xkb
+    - pkg: x11-plugins/gkrellmlaunch
+    - pkg: x11-plugins/gkrellmoon
+    - pkg: x11-plugins/gkrellmwireless
+
+    - pkg: x11-themes/gkrellm-themes
+
+    - pkg: x11-libs/fltk
+    - pkg: x11-libs/wxGTK:3.0-gtk3
+
+    - pkg: x11-themes/hicolor-icon-theme
+    - pkg: x11-themes/murrine-themes
+    - pkg: x11-themes/papirus-icon-theme
+    - pkg: x11-themes/sound-theme-freedesktop
+    - pkg: x11-themes/xcursor-themes
+
+    - pkg: media-gfx/plantuml
+
+    - pkg: net-im/discord-bin
+    - pkg: net-im/mattermost-desktop-bin
+    - pkg: net-im/skypeforlinux
+    - pkg: net-im/slack-bin
+    - pkg: net-im/telegram-desktop-bin
+
+    - pkg: net-irc/hexchat
+
+    - pkg: net-misc/postman-bin
+    - pkg: net-misc/remmina
+
+    - pkg: net-print/brlaser
+    - pkg: net-print/cups-pdf
+    - pkg: net-print/cups-pk-helper
+    - pkg: net-print/epson-inkjet-printer-escpr
+    - pkg: net-print/hplip
+    - pkg: net-print/hplip-plugin
+
+    - pkg: sys-apps/xdg-desktop-portal
+
+    - pkg: sys-boot/plymouth
+    - pkg: sys-boot/plymouth-openrc-plugin
+
+    - pkg: sys-process/evisum
+
+    - pkg: x11-misc/barrier
+    - pkg: x11-misc/dmenu
+    - pkg: x11-misc/grsync
+    - pkg: x11-misc/i3lock
+    - pkg: x11-misc/i3status
+    - pkg: x11-misc/icon-naming-utils
+    - pkg: x11-misc/lightdm
+    - pkg: x11-misc/lightdm-mini-greeter
+    - pkg: x11-misc/lightdm-gtk-greeter
+    - pkg: x11-misc/lightdm-gtk-greeter-settings
+    - pkg: x11-misc/sddm
+    - pkg: x11-misc/synergy
+    - pkg: x11-misc/wmctrl
+    - pkg: x11-misc/xautomation
+    - pkg: x11-misc/xdotool
+    - pkg: x11-misc/xsettingsd
+
+    - pkg: x11-terms/alacritty
+    - pkg: x11-terms/cool-retro-term
+    - pkg: x11-terms/guake
+    - pkg: x11-terms/st
+    - pkg: x11-terms/terminator
+    - pkg: x11-terms/terminology
+    - pkg: x11-terms/wezterm
+    - pkg: x11-terms/xterm
+
+    - pkg: x11-wm/enlightenment
+    - pkg: x11-wm/i3
+    - pkg: x11-wm/twm

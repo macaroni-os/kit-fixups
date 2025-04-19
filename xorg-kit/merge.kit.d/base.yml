@@ -110,6 +110,10 @@ target:
 
     - pkg: x11-base/xcb-proto
     - pkg: x11-base/xorg-proto
+    - pkg: x11-base/xorg-proto
+      conditions:
+        - '=x11-base/xorg-proto-2023.2'
+
 
     - pkg: x11-libs/cairo
     - pkg: x11-libs/libX11
@@ -193,6 +197,9 @@ target:
     - pkg: x11-proto/dmxproto
     - pkg: x11-proto/dpmsproto
     - pkg: x11-proto/dri2proto
+    - pkg: x11-proto/dri3proto
+      conditions:
+        - '<x11-proto/dri3proto-1.4'
     - pkg: x11-proto/dri3proto
     - pkg: x11-proto/evieproto
     - pkg: x11-proto/fixesproto

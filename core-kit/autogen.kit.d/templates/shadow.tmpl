@@ -40,13 +40,8 @@ PATCHES=(
 )
 {{- end }}
 
-post_src_unpack() {
-	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
-}
-
 src_prepare() {
 	default
-	./autogen.sh
 	elibtoolize
 }
 
@@ -54,6 +49,7 @@ src_configure() {
 	local myeconfargs=(
 		--without-group-name-max-length
 		--without-tcb
+		--without-libbsd
 		--enable-shared=no
 		--enable-static=yes
 		$(use_with acl)

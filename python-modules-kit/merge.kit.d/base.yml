@@ -20,6 +20,10 @@ sources:
   url: "https://github.com/geaaru/geaaru_overlay"
   branch: "funtoo"
 
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
 target:
   name: python-modules-kit
   url: "https://github.com/macaroni-os/python-modules-kit"
@@ -153,6 +157,8 @@ target:
     - pkg: dev-python/psutil
     - pkg: dev-python/pyalsa
     - pkg: dev-python/pyatspi
+      conditions:
+        - '>dev-python/pyatspi-2.30.0
     - pkg: dev-python/pybind11
     - pkg: dev-python/pycairo
     - pkg: dev-python/pycountry

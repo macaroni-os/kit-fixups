@@ -201,6 +201,8 @@ target:
       conditions:
         - '<x11-proto/dri3proto-1.4'
     - pkg: x11-proto/dri3proto
+      conditions:
+        - '>=x11-proto/dri3proto-1.4'
     - pkg: x11-proto/evieproto
     - pkg: x11-proto/fixesproto
     - pkg: x11-proto/fontcacheproto
@@ -210,6 +212,11 @@ target:
     - pkg: x11-proto/kbproto
     - pkg: x11-proto/lg3dproto
     - pkg: x11-proto/presentproto
+      conditions:
+        - '<x11-proto/presentproto-1.4'
+    - pkg: x11-proto/presentproto
+      conditions:
+        - '>=x11-proto/presentproto-1.4'
     - pkg: x11-proto/printproto
     - pkg: x11-proto/randrproto
     - pkg: x11-proto/recordproto

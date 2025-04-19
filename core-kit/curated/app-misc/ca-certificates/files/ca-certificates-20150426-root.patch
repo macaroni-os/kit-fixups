@@ -1,5 +1,5 @@
-add a --root option so we can generate with DESTDIR installs
-
+diff --git a/image/usr/sbin/update-ca-certificates b/image/usr/sbin/update-ca-certificates
+index 91d8024..f35b89f 100755
 --- a/image/usr/sbin/update-ca-certificates
 +++ b/image/usr/sbin/update-ca-certificates
 @@ -30,6 +30,8 @@ LOCALCERTSDIR=/usr/local/share/ca-certificates
@@ -11,7 +11,7 @@ add a --root option so we can generate with DESTDIR installs
  
  while [ $# -gt 0 ];
  do
-@@ -59,13 +61,25 @@ do
+@@ -59,6 +61,12 @@ do
      --hooksdir)
        shift
        HOOKSDIR="$1";;
@@ -21,6 +21,12 @@ add a --root option so we can generate with DESTDIR installs
 +      # This gets us from $CERTSCONF to $CERTSDIR.
 +      RELPATH="../../.."
 +      ROOT=$(readlink -f "$1");;
+     --sysroot)
+       shift
+       SYSROOT="$1"
+@@ -68,12 +76,18 @@ do
+       ETCCERTSDIR="$1/${ETCCERTSDIR}"
+       HOOKSDIR="$1/${HOOKSDIR}";;
      --help|-h|*)
 -      echo "$0: [--verbose] [--fresh]"
 +      echo "$0: [--verbose] [--fresh] [--root <dir>]"
@@ -38,7 +44,7 @@ add a --root option so we can generate with DESTDIR installs
  if [ ! -s "$CERTSCONF" ]
  then
    fresh=1
-@@ -94,7 +107,7 @@ add() {
+@@ -102,7 +116,7 @@ add() {
                                                    -e 's/,/_/g').pem"
    if ! test -e "$PEM" || [ "$(readlink "$PEM")" != "$CERT" ]
    then

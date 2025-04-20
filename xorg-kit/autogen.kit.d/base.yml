@@ -12,8 +12,96 @@ x11_base_dirlisting:
       exclude: ".99"
     assets:
       - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+    vars:
+      license: MIT
+      inherit:
+        - meson
 
   packages:
+
+    - xwayland:
+        dir:
+          matcher: "xwayland-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xwayland-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        selector:
+          # xwayland 24 needs xorg-proto-2024.1
+          - '<24.0'
+        vars:
+          desc: Compatibility X server to run under Wayland
+          homepage: https://wayland.freedesktop.org/xserver.html
+          iuse: rpc selinux unwind video_cards_nvidia xcsecurity
+          cdepend: |
+            dev-libs/libbsd
+            dev-libs/openssl
+            >=dev-libs/wayland-1.21.0
+            >=dev-libs/wayland-protocols-1.30
+            media-fonts/font-util
+            media-libs/libepoxy[X,egl(+)]
+            media-libs/libglvnd[X]
+            media-libs/mesa[X(+),egl(+),gbm(+)]
+            x11-apps/xkbcomp
+            x11-base/xorg-proto
+            x11-libs/libdrm
+            x11-libs/libXau
+            x11-libs/libxcvt
+            x11-libs/libXdmcp
+            x11-libs/libXfont2
+            x11-libs/libxkbfile
+            x11-libs/libxshmfence
+            x11-libs/pixman
+            x11-libs/xtrans
+            x11-misc/xkeyboard-config
+            selinux? (
+              sys-process/audit
+              sys-libs/libselinux
+            )
+            unwind? ( sys-libs/libunwind )
+            video_cards_nvidia? ( gui-libs/egl-wayland )
+          depend: |
+            ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+            selinux? ( sec-policy/selinux-xserver )
+            !<=x11-base/xorg-server-1.20.11
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use rpc secure-rpc)
+                $(meson_use selinux xselinux)
+                $(meson_use unwind libunwind)
+                $(meson_use xcsecurity)
+                $(meson_use video_cards_nvidia xwayland_eglstream)
+                -Ddpms=true
+                -Ddri3=true
+                -Ddtrace=false
+                -Dglamor=true
+                -Dglx=true
+                -Dipv6=true
+                -Dscreensaver=true
+                -Dsha1=libcrypto
+                -Dxace=true
+                -Dxdmcp=true
+                -Dxinerama=true
+                -Dxvfb=true
+                -Dxv=true
+                -Dxwayland-path="${EPREFIX}"/usr/bin
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # Part of xorg-server
+              rm -f "${ED}"/usr/share/man/man1/Xserver.1 || die
+              # Part of xorg-server
+              rm -f "${ED}"/usr/lib64/xorg/protocol.txt || die
+            }
+
     - xorg-server:
         dir:
           matcher: "xorg-server-.*.tar.xz$"
@@ -28,10 +116,7 @@ x11_base_dirlisting:
           desc: x.org X server
           homepage: https://www.x.org/wiki
           iuse: kdrive xephyr xnest xorg xvfb debug +elogind minimal selinux +suid +udev unwind xcsecurity systemd
-          license: MIT
-          inherit:
-            - meson
-          rdepend: |
+          cdepend: |
             dev-libs/libbsd
             dev-libs/openssl
             media-libs/libglvnd[X]
@@ -85,7 +170,9 @@ x11_base_dirlisting:
               sys-apps/systemd
             )
           depend: |
-            ${RDEPEND}
+            ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
             selinux? ( sec-policy/selinux-xserver )
           bdepend: |
             media-fonts/font-util

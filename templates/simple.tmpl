@@ -67,6 +67,12 @@ REQUIRED_USE="{{ .Values.required_use }}"
 RESTRICT="{{ .Values.restrict }}"
 {{- end }}
 
+{{- if .Values.cdepend | default false }}
+# Commons depends
+CDEPEND="{{ regexReplaceAll "\\n" .Values.cdepend "\n\t" }}
+"
+{{- end }}
+
 {{- if .Values.bdepend | default false }}
 BDEPEND="{{ regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
 "

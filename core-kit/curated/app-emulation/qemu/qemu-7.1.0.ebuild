@@ -270,6 +270,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-6.0.0-make.patch
 	"${FILESDIR}"/${PN}-7.1.0-also-build-virtfs-proxy-helper.patch
 	"${FILESDIR}"/${PN}-7.1.0-strings.patch
+	"${FILESDIR}"/${PN}-sched_setattr.patch
 )
 
 

@@ -1669,6 +1669,12 @@ io_stuff_rule:
           - outcome
           - sniffio
           - exceptiongroup
+        body: |
+          src_prepare() {
+            sed -i -e 's/license = "MIT OR Apache-2.0"/license = { text = "MIT OR Apache-2.0" }/' pyproject.toml || die
+            sed -i -e '/license-files/d' pyproject.toml || die
+            distutils-r1_src_prepare
+          }
     - sortedcontainers:
         license: Apache-2.0
     - outcome:

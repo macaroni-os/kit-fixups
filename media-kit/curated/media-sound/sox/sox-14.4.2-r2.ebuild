@@ -25,6 +25,7 @@ src_unpack() {
 
 RDEPEND="
 	dev-libs/libltdl:0=
+	>=media-sound/gsm-1.0.12-r1
 	alsa? ( media-libs/alsa-lib )
 	amr? ( media-libs/opencore-amr )
 	ao? ( media-libs/libao )

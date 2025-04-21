@@ -40,8 +40,13 @@ PATCHES=(
 )
 {{- end }}
 
+post_src_unpack() {
+	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+}
+
 src_prepare() {
 	default
+	./autogen.sh
 	elibtoolize
 }
 

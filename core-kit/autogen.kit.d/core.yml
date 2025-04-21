@@ -544,6 +544,8 @@ sys_apps_github:
     - shadow:
         github:
           user: shadow-maint
+          # The release 4.17.4 is without name
+          # and not catched correctly.
           query: tags
         vars:
           license: BSD GPL-2

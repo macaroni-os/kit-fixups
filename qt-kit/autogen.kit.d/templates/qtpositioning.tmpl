@@ -1,0 +1,34 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt6-build
+
+DESCRIPTION="Qt Positioning lets you determine a position by using various sources"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=6
+
+KEYWORDS="*"
+IUSE="geoclue nmea +qml"
+
+DEPEND="
+	~dev-qt/qtbase-${PV}:6
+	geoclue? ( ~dev-qt/qtbase-${PV}:6 )
+	nmea? (
+		~dev-qt/qtbase-${PV}:6
+		~dev-qt/qtserialport-${PV}:6
+	)
+	qml? ( ~dev-qt/qtdeclarative-${PV}:6 )
+"
+RDEPEND="
+	${DEPEND}
+	geoclue? ( app-misc/geoclue:2.0 )
+"
+
+src_configure() {
+	local mycmakeargs=(
+		$(cmake_use_find_package qml Qt6Qml)
+	)
+
+	qt6-build_src_configure
+}

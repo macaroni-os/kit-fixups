@@ -1,0 +1,53 @@
+# cat qt6.yml
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+target:
+  name: qt-kit
+  url: "https://github.com/macaroni-os/qt-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 2
+
+  atoms:
+
+    - pkg: dev-qt/qt3d
+    - pkg: dev-qt/qt5compat
+    - pkg: dev-qt/qtbase
+    - pkg: dev-qt/qtcharts
+    - pkg: dev-qt/qtconnectivity
+    - pkg: dev-qt/qtdeclarative
+    - pkg: dev-qt/qthttpserver
+    - pkg: dev-qt/qtimageformats
+    - pkg: dev-qt/qtlanguageserver
+    - pkg: dev-qt/qtlocation
+    - pkg: dev-qt/qtmultimedia
+    - pkg: dev-qt/qtnetworkauth
+    - pkg: dev-qt/qtpositioning
+    - pkg: dev-qt/qtquick3d
+    - pkg: dev-qt/qtquicktimeline
+    - pkg: dev-qt/qtscxml
+    - pkg: dev-qt/qtsensors
+    - pkg: dev-qt/qtserialport
+    - pkg: dev-qt/qtshadertools
+    - pkg: dev-qt/qtspeech
+    - pkg: dev-qt/qtsvg
+    - pkg: dev-qt/qttools
+    - pkg: dev-qt/qttranslations
+    - pkg: dev-qt/qtwayland
+    - pkg: dev-qt/qtwebchannel
+    - pkg: dev-qt/qtwebengine
+    - pkg: dev-qt/qtwebsockets
+    - pkg: dev-qt/qtwebview

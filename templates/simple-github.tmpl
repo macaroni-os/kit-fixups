@@ -1,4 +1,5 @@
 # Distributed under the terms of the GNU General Public License v2
+# Autogen by MARK Devkit
 
 EAPI={{ .Values.eapi | default "7" }}
 
@@ -22,7 +23,11 @@ HOMEPAGE="{{ .Values.homepage }}"
 {{- $assets_len := .Values.artefacts | len }}
 {{- if gt $assets_len 1 }}
 SRC_URI="{{- range $k, $v := .Values.artefacts }}
+{{- if eq $v.Use "" }}
+{{ $v.SrcUri | first }} -> {{ $v.Name }}
+{{- else }}
 {{ $v.Use }}? ( {{ $v.SrcUri | first }} -> {{ $v.Name }} )
+{{- end }}
 {{- end }}"
 {{- else }}
 {{- if .Values.src_uri | default false }}
@@ -44,6 +49,14 @@ PATCHES=(
 )
 {{- end }}
 
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
 {{- if .Values.iuse | default false }}
 IUSE="{{ .Values.iuse }}"
 {{- end }}
@@ -52,6 +65,12 @@ REQUIRED_USE="{{ .Values.required_use }}"
 {{- end }}
 {{- if .Values.restrict | default false }}
 RESTRICT="{{ .Values.restrict }}"
+{{- end }}
+
+{{- if .Values.cdepend | default false }}
+# Commons depends
+CDEPEND="{{ regexReplaceAll "\\n" .Values.cdepend "\n\t" }}
+"
 {{- end }}
 
 {{- if .Values.bdepend | default false }}

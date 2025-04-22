@@ -174,3 +174,52 @@ net_wireless_noop:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             prefix: https://w1.fi/releases/
+
+net_libs_github:
+  generator: builtin-github
+  defaults:
+    category: net-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: tags
+
+  packages:
+    - libqmi:
+        github:
+          user: linux-mobile-broadband
+        exclude:
+          - '-dev|-rc'
+        vars:
+          desc: "Qualcomm MSM (Mobile Station Modem) Interface (QMI) modem protocol library"
+          homepage: https://www.freedesktop.org/wiki/Software/libqmi/ https://gitlab.freedesktop.org/mobile-broadband/libqmi
+          license: LGPL-2
+          iuse: gtk-doc +mbim +qrtr
+          inherit:
+            - meson
+          cdepend: |
+            dev-libs/glib
+            dev-libs/libgudev
+            mbim? ( net-libs/libmbim )
+            qrtr? ( net-libs/libqrtr-glib )
+          depend: |
+            ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+          bdepend: |
+            app-shells/bash-completion
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use qrtr)
+                $(meson_use mbim mbim_qmux)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use qrtr)
+              )
+              meson_src_configure
+            }
+
+
+

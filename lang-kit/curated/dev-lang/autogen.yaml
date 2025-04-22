@@ -7,9 +7,12 @@ go_gen:
   packages:
     - go:
         versions:
-          1.24.1:
+          1.24.2:
             unmasked: True
-          1.23.1:
+            bootstrap_min: 1.22.12
+          1.23.8:
             unmasked: True
+            bootstrap_min: 1.20.14
           1.22.7:
             unmasked: True
+            bootstrap_min: 1.20.14

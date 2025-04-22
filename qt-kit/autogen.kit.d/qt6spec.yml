@@ -5,10 +5,14 @@ dev-qt:
     engine: helm
 
   defaults:
+    files_dir: "{{ .Values.pn }}"
     category: dev-qt
     vars:
         release: 6.8
         slot: 6
+        inherit:
+          - qt6-build
+        homepage: https://invent.kde.org/qt/qt/
     selector:
         - '<6.9'
     assets:
@@ -20,8 +24,27 @@ dev-qt:
 
   packages:
     - qt3d:
+        template: ../../templates/simple.tmpl
         vars:
-          desc: "Qt 3D provides a fully configurable renderer that enables developers to quickly implement any rendering pipeline that they need"
+          desc: "3D rendering module for the Qt6 framework"
+          cdepend: |
+            media-libs/assimp
+            dev-qt/qtbase:{{ .Values.slot }}[gles2-only,gui,vulkan]
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtshadertools:{{ .Values.slot }}
+            sys-libs/zlib
+          rdepend: |
+            ${CDEPEND}
+          depend: |
+            ${CDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DQT_FEATURE_qt3d_system_assimp=ON
+              )
+              qt6-build_src_configure
+            }
 
     - qt5compat:
         vars:

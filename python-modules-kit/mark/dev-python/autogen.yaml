@@ -209,8 +209,6 @@ setuptools_standalone_pythons:
             - tomli
 
     - setuptools_scm:
-        depend: |
-          dev-python/importlib_metadata[${PYTHON_USEDEP}]
         body : |
           src_configure() {
             if has_version "<dev-python/setuptools_scm-8"; then # only happens when setuptools_scm-7 is installed (main cause is duplicated entry points in similar fashion as in https://github.com/pypa/setuptools/issues/3649)

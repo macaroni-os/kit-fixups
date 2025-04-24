@@ -63,8 +63,34 @@ dev-qt:
           desc: "Bluetooth and NFC support library for the Qt framework"
 
     - qtdeclarative:
+        template: ../../templates/simple.tmpl
         vars:
           desc: "A declarative framework for building highly dynamic applications with custom UIs"
+          python_compat: python3+
+          iuse: +jit vulkan
+          inherit:
+            - python-any-r1
+            - qt6-build
+          cdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}[gui,sql,vulkan]
+            dev-qt/qtlanguageserver:{{ .Values.slot }}
+            dev-qt/qtshadertools:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.slot }}
+          depend: |
+            ${CDEPEND}
+            vulkan? ( dev-util/vulkan-headers )
+          rdepend: |
+            ${CDEPEND}
+          bdepend: |
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(qt_feature jit qml_jit)
+              )
+              qt6-build_src_configure
+            }
+
 
     - qthttpserver:
         vars:

@@ -1,0 +1,13 @@
+diff --git a/Source/cmCurl.cxx b/Source/cmCurl.cxx
+index b9133ed7d47..0cf8a71a72d 100644
+--- a/Source/cmCurl.cxx
++++ b/Source/cmCurl.cxx
+@@ -170,7 +170,7 @@ std::string cmCurlSetNETRCOption(::CURL* curl, const std::string& netrc_level,
+                                  const std::string& netrc_file)
+ {
+   std::string e;
+-  CURL_NETRC_OPTION curl_netrc_level = CURL_NETRC_LAST;
++  long curl_netrc_level = CURL_NETRC_LAST;
+   ::CURLcode res;
+
+   if (!netrc_level.empty()) {

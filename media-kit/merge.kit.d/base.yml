@@ -28,6 +28,14 @@ sources:
   url: "https://github.com/macaroni-os/dev-kit"
   branch: "mark-testing"
 
+- name: "geaaru-kit"
+  url: "https://github.com/geaaru/geaaru_overlay"
+  branch: "funtoo"
+
+- name: "gnome-kit"
+  url: "https://github.com/macaroni-os/gnome-kit"
+  branch: "mark-testing"
+
 target:
   name: media-kit
   url: "https://github.com/macaroni-os/media-kit"
@@ -308,6 +316,7 @@ target:
     - pkg: media-sound/musepack-tools
     - pkg: media-sound/pavucontrol
     - pkg: media-sound/pavucontrol-qt
+    - pkg: media-sound/pulseaudio
     - pkg: media-sound/playerctl
     - pkg: media-sound/rawrec
     - pkg: media-sound/rhythmbox
@@ -320,6 +329,9 @@ target:
     - pkg: media-sound/vorbis-tools
     - pkg: media-sound/wavpack
     - pkg: media-sound/wildmidi
+
+    - pkg: media-video/pipewire
+    - pkg: media-video/wireplumber
 
     - pkg: sys-libs/libavc1394
 

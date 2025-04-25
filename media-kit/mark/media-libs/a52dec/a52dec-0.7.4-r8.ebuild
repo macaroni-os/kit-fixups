@@ -3,8 +3,8 @@ EAPI=7
 inherit autotools flag-o-matic
 
 DESCRIPTION="library for decoding ATSC A/52 streams used in DVD"
-HOMEPAGE="http://liba52.sourceforge.net/"
-SRC_URI="http://liba52.sourceforge.net/files/${P}.tar.gz"
+HOMEPAGE="https://git.adelielinux.org"
+SRC_URI="https://git.adelielinux.org/community/${PN}/-/archive/v${PV}/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -21,8 +21,14 @@ PATCHES=(
 	"${FILESDIR}"/${P}-test-hidden-symbols.patch
 )
 
+post_src_unpack() {
+	if [ ! -d "${WORKDIR}/${S}" ]; then
+		mv "${WORKDIR}"/* "${S}" || die
+	fi
+}
+
 src_prepare() {
-	default
+    default
 
 	sed -i -e 's:AM_CONFIG_HEADER:AC_CONFIG_HEADERS:' configure.in || die #466978
 	mv configure.{in,ac} || die

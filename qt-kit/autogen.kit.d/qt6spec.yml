@@ -1,11 +1,9 @@
-# file qt6spec.yml
-dev-qt:
+qt6:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
     category: dev-qt
     vars:
         release: 6.8
@@ -24,7 +22,6 @@ dev-qt:
 
   packages:
     - qt3d:
-        template: ../../templates/simple.tmpl
         vars:
           desc: "3D rendering module for the Qt6 framework"
           cdepend: |
@@ -47,23 +44,232 @@ dev-qt:
             }
 
     - qt5compat:
+        template: ../../templates/simple.tmpl
         vars:
           desc: "Qt Graphical Effects module from Qt 5 provided for compatibility"
+          iuse: qml
+          cdepend: |
+            dev-libs/icu:=
+            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            qml? (
+              dev-qt/qtdeclarative:{{ .Values.slot }}
+              dev-qt/qtshadertools:{{ .Values.slot }}
+            )
+          depend: ${CDEPEND}
+          rdepend: ${CDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Quick)
+              )
+              qt6-build_src_configure
+            }
 
     - qtbase:
         vars:
-          desc: "Qt Cross-platform application framework"
+          desc: "Qt Cross-platform application development framework"
+          iuse: +X brotli cups gles2-only gtk gssapi +gui journald libinput libproxy mysql postgres renderdoc +sql sqlite vulkan wayland zstd
+          required_use: |
+            gui? ( || ( X wayland ) )
+            sql? ( || ( mysql postgres sqlite ) )
+          rdepend: |
+            sys-libs/zlib
+            dev-libs/openssl
+            virtual/libudev:=
+            zstd? ( app-arch/zstd:= )
+            app-crypt/libb2
+            dev-libs/double-conversion:=
+            dev-libs/glib:2
+            dev-libs/libpcre2:=[pcre16,unicode(+)]
+            dev-libs/icu:=
+            journald? ( sys-apps/systemd )
+            sys-apps/dbus
+            gssapi? ( virtual/krb5 )
+            gui? (
+              media-libs/fontconfig
+              media-libs/freetype:2
+              media-libs/harfbuzz:=
+              media-libs/libjpeg-turbo:=
+              media-libs/libpng:=
+              x11-libs/libdrm
+              x11-libs/libxkbcommon[X?]
+              X? (
+                x11-libs/libICE
+                x11-libs/libSM
+                x11-libs/libX11
+                x11-libs/libxcb:=
+                x11-libs/xcb-util-cursor
+                x11-libs/xcb-util-image
+                x11-libs/xcb-util-keysyms
+                x11-libs/xcb-util-renderutil
+                x11-libs/xcb-util-wm
+              )
+              app-accessibility/at-spi2-core:2
+              media-libs/mesa[gbm(+)]
+              sys-libs/mtdev
+              libinput? ( dev-libs/libinput:= )
+              gles2-only? ( media-libs/libglvnd )
+              !gles2-only? ( media-libs/libglvnd[X?] )
+              renderdoc? ( media-gfx/renderdoc )
+              vulkan? ( dev-util/vulkan-headers )
+              cups? ( net-print/cups )
+              gtk? (
+                x11-libs/gdk-pixbuf:2
+                x11-libs/gtk+:3[X?,wayland?]
+                x11-libs/pango
+                )
+            )
+            brotli? ( app-arch/brotli:= )
+            libproxy? ( net-libs/libproxy )
+            sql? (
+              mysql? ( dev-db/mysql-connector-c:= )
+              postgres? ( dev-db/postgresql:* )
+              sqlite? ( dev-db/sqlite:3 )
+            )
+          depend: ${RDEPEND}
+          bdepend: |
+            zstd? ( app-arch/libarchive[zstd] )
+          pdepend: |
+            gui? (
+              wayland? ( ~dev-qt/qtwayland-${PV}:6 )
+            )
+          body: |
+            src_configure() {
+              if use gtk; then
+                # defang automagic dependencies (bug #624960)
+                use X || append-cxxflags -DGENTOO_GTK_HIDE_X11
+                use wayland || append-cxxflags -DGENTOO_GTK_HIDE_WAYLAND
+              fi
+
+              local mycmakeargs=(
+                -DBUILD_WITH_PCH=OFF
+                -DINSTALL_ARCHDATADIR="${QT6_ARCHDATADIR}"
+                -DINSTALL_BINDIR="${QT6_BINDIR}"
+                -DINSTALL_DATADIR="${QT6_DATADIR}"
+                -DINSTALL_DOCDIR="${QT6_DOCDIR}"
+                -DINSTALL_EXAMPLESDIR="${QT6_EXAMPLESDIR}"
+                -DINSTALL_INCLUDEDIR="${QT6_HEADERDIR}"
+                -DINSTALL_LIBDIR="${QT6_LIBDIR}"
+                -DINSTALL_LIBEXECDIR="${QT6_LIBEXECDIR}"
+                -DINSTALL_MKSPECSDIR="${QT6_MKSPECSDIR}"
+                -DINSTALL_PLUGINSDIR="${QT6_PLUGINDIR}"
+                -DINSTALL_QMLDIR="${QT6_QMLDIR}"
+                -DINSTALL_SYSCONFDIR="${QT6_SYSCONFDIR}"
+                -DINSTALL_TRANSLATIONSDIR="${QT6_TRANSLATIONDIR}"
+                -DFEATURE_openssl_linked=ON
+                $(qt_feature gui libudev)
+                $(qt_feature zstd)
+
+                # qtcore
+                -DFEATURE_icu=ON
+                $(qt_feature journald)
+                -DFEATURE_syslog=ON
+
+                # tools
+                -DQT_FEATURE_androiddeployqt=OFF
+
+                # modules
+                -DFEATURE_concurrent=ON
+                -DFEATURE_dbus=ON
+                $(qt_feature gui)
+                -DFEATURE_network=ON
+                $(qt_feature sql)
+                -DQT_FEATURE_testlib=ON
+                -DFEATURE_xml=ON
+
+                # let defaults and/or users control security *FLAGS
+                -DQT_FEATURE_glibc_fortify_source=OFF
+                -DQT_FEATURE_intelcet=OFF
+                -DQT_FEATURE_libcpp_hardening=OFF
+                -DQT_FEATURE_libstdcpp_assertions=OFF
+                -DQT_FEATURE_relro_now_linker=OFF
+                -DQT_FEATURE_stack_clash_protection=OFF
+                -DQT_FEATURE_stack_protector=OFF
+                -DQT_FEATURE_trivial_auto_var_init_pattern=OFF
+
+                -DQT_INTERNAL_AVOID_OVERRIDING_SYNCQT_CONFIG=ON # would force -O3
+
+                $(qt_feature brotli)
+                $(qt_feature gssapi)
+                $(qt_feature libproxy)
+              )
+
+              use gui && mycmakeargs+=(
+                $(qt_feature X xcb)
+                $(qt_feature X system_xcb_xinput)
+                $(qt_feature X xkbcommon_x11)
+                $(cmake_use_find_package X X11) # needed for truly no automagic
+                -DFEATURE_eglfs=OFF
+                $(qt_feature gui evdev)
+                $(qt_feature gui mtdev)
+                $(qt_feature libinput)
+                $(qt_feature renderdoc graphicsframecapture)
+                -DFEATURE_tslib=OFF
+                $(qt_feature vulkan)
+                $(qt_feature wayland)
+                $(qt_feature gui widgets)
+                $(qt_feature gui opengl)
+                $(qt_feature gles2-only opengles2)
+                $(qt_feature cups)
+                $(qt_feature gtk gtk3)
+              )
+
+              use sql && mycmakeargs+=(
+                -DQT_FEATURE_sql_db2=OFF # unpackaged
+                -DQT_FEATURE_sql_ibase=OFF # unpackaged
+                -DQT_FEATURE_sql_mimer=OFF # unpackaged
+                -DQT_FEATURE_sql_oci=OFF
+                -DQT_FEATURE_sql_odbc=OFF
+                $(qt_feature mysql sql_mysql)
+                $(qt_feature postgres sql_psql)
+                $(qt_feature sqlite sql_sqlite)
+                $(qt_feature sqlite system_sqlite)
+              )
+
+              qt6-build_src_configure
+            }
+
 
     - qtcharts:
         vars:
-          desc: "UI Components for displaying visually pleasing charts, driven by static or dynamic data models"
+          desc: "Module provides a set of easy-to-use chart components"
+          license: GPL-3
+          iuse: qml
+          cdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${CDEPEND}
+          rdepend: ${CDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+              )
+              qt6-build_src_configure
+            }
 
     - qtconnectivity:
         vars:
           desc: "Bluetooth and NFC support library for the Qt framework"
+          iuse: nfc
+          cdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            net-wireless/bluez:=
+            nfc? (
+              net-wireless/neard
+              sys-apps/pcsc-lite
+            )
+          depend: ${CDEPEND}
+          rdepend: ${CDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(qt_feature nfc pcsclite)
+              )
+              qt6-build_src_configure
+            }
 
     - qtdeclarative:
-        template: ../../templates/simple.tmpl
         vars:
           desc: "A declarative framework for building highly dynamic applications with custom UIs"
           python_compat: python3+
@@ -91,91 +297,472 @@ dev-qt:
               qt6-build_src_configure
             }
 
-
     - qthttpserver:
         vars:
           desc: "A framework for embedding an HTTP server into a Qt application"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtwebsockets:{{ .Values.slot }}
+          depend: ${RDEPEND}
 
     - qtimageformats:
         vars:
           desc: "Plugins for additional image formats: TIFF, MNG, TGA, WBMP"
+          iuse: mng
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            media-libs/libwebp:=
+            media-libs/tiff:=
+            mng? ( media-libs/libmng:= )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DQT_FEATURE_jasper=OFF
+                $(qt_feature mng)
+                -DQT_FEATURE_tiff=ON
+                -DQT_FEATURE_webp=ON
+                -DQT_FEATURE_system_tiff=ON
+                -DQT_FEATURE_system_webp=ON
+              )
+              qt6-build_src_configure
+            }
 
     - qtlanguageserver:
         vars:
           desc: "Implementation of the Language Server Protocol for Qt"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+          depend: ${RDEPEND}
 
     - qtlocation:
         vars:
           desc: "Location (places, maps, navigation) library for the Qt framework"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtpositioning:{{ .Values.slot }}
+          depend: ${RDEPEND}
 
     - qtmultimedia:
         vars:
-          desc: "A rich set of QML types and C++ classes to handle multimedia content. Also includes APIs to handle camera access"
+          desc: "Multimedia (audio, video, radio, camera) library for the Qt framework"
+          iuse: alsa ffmpeg gstreamer pulseaudio qml vaapi
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}[gui,vulkan]
+            alsa? (
+              !pulseaudio? ( media-libs/alsa-lib )
+            )
+            ffmpeg? (
+              dev-qt/qtbase:{{ .Values.slot }}[X]
+              media-video/ffmpeg:=[vaapi?]
+              x11-libs/libX11
+              x11-libs/libXext
+              x11-libs/libXrandr
+            )
+            gstreamer? (
+              dev-libs/glib:2
+              media-libs/gst-plugins-bad:1.0
+              media-libs/gst-plugins-base:1.0[X,egl,opengl,wayland]
+              media-libs/gstreamer:1.0
+            )
+            media-libs/libglvnd
+            pulseaudio? ( media-sound/pulseaudio )
+            qml? (
+              dev-qt/qtdeclarative:{{ .Values.slot }}
+              dev-qt/qtquick3d:{{ .Values.slot }}
+            )
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+            sys-kernel/linux-headers
+            dev-util/vulkan-headers
+          bdepend: |
+            dev-qt/qtshadertools:{{ .Values.slot }}
+          body: |
+            src_configure() {
+              # eigen + ppc32 seems broken w/ -maltivec (forced by Qt, bug #943402)
+              use ppc && append-cppflags -DEIGEN_DONT_VECTORIZE
+
+              local mycmakeargs=(
+                -DFEATURE_linux_v4l=TRUE
+                # Android
+                -DFEATURE_opensles=FALSE
+                # Depdencyless
+                -DFEATURE_spatialaudio=TRUE
+                # MacOS
+                -DFEATURE_videotoolbox=FALSE
+                -DFEATURE_wasm=FALSE
+                -DQT_NO_STRIP_WRAPPER=TRUE
+                $(cmake_use_find_package qml Qt6Qml)
+                $(qt_feature ffmpeg)
+                #$(qt_feature gstreamer)
+                -DFEATURE_no-gstreamer=TRUE
+                $(qt_feature pulseaudio)
+                $(qt_feature vaapi)
+              )
+              # ALSA backend is experimental off-by-default and can take priority
+              # causing problems (bug #935146), disable if USE=pulseaudio is set
+              # (also do not want unnecessary usage of ALSA plugins -> pulse)
+              if use alsa && use pulseaudio; then
+                # einfo should be enough given pure-ALSA users tend to disable pulse
+                einfo "Warning: USE=alsa is ignored when USE=pulseaudio is set"
+                mycmakeargs+=( -DQT_FEATURE_alsa=OFF )
+              else
+                mycmakeargs+=( $(qt_feature alsa) )
+              fi
+              qt6-build_src_configure
+            }
 
     - qtnetworkauth:
         vars:
-          desc: "Provides support for OAuth-based authorization to online services"
+          desc: "Network authorization library for the Qt framework"
+          license: GPL-3
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
 
     - qtpositioning:
         vars:
           desc: "Provides access to position, satellite info and area monitoring classes"
+          iuse: geoclue nmea +qml
+          cdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            nmea? (
+              dev-qt/qtserialport:{{ .Values.slot }}
+            )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+            geoclue? ( app-misc/geoclue:2.0 )
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+              )
+              qt6-build_src_configure
+            }
 
     - qtquick3d:
         vars:
           desc: "Provides a high-level API for creating 3D content or UIs based on Qt Quick"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtquicktimeline:{{ .Values.slot }}
+            dev-qt/qtshadertools:{{ .Values.slot }}
+            media-libs/assimp
+            sys-libs/zlib
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DINPUT_openxr=no
+                -DQT_FEATURE_quick3dxr_openxr=OFF
+                -DQT_FEATURE_system_assimp=ON
+                -DQT_FEATURE_system_openxr=ON
+              )
+              qt6-build_src_configure
+            }
+
 
     - qtquicktimeline:
         vars:
           desc: "Enables keyframe-based animations and parameterization"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+          depend: ${RDEPEND}
 
     - qtscxml:
         vars:
-          desc: "Provides classes and tools for creating state machines from SCXML files and embedding them in applications"
+          desc: "State Chart XML (SCXML) support library for the Qt framework"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+              )
+              qt6-build_src_configure
+            }
 
     - qtsensors:
         vars:
           desc: "Provides access to sensor hardware on Android, iOS, and Windows platforms"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+              )
+              qt6-build_src_configure
+            }
 
     - qtserialport:
         vars:
           desc: "Provides classes to interact with hardware and virtual serial ports"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            virtual/libudev:=
+          depend: ${RDEPEND}
 
     - qtshadertools:
         vars:
-          desc: "Provides tools for the cross-platform Qt shader pipeline. These enable processing graphics and compute shaders to make them usable for Qt Quick and other components in the Qt ecosystem"
+          desc: "Module for displaying web content in a QML application using the Qt framework"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            virtual/libudev:=
+          depend: ${RDEPEND}
 
     - qtspeech:
         vars:
           desc: "Provides support for synthesizing speech from text and playing it as audio output"
+          iuse: flite qml +speechd
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtmultimedia:{{ .Values.slot }}
+            flite? ( app-accessibility/flite )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            speechd? ( app-accessibility/speech-dispatcher )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt6-build_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+                $(qt_feature flite)
+                $(qt_feature speechd)
+                -DQT_FEATURE_flite_alsa=OFF
+              )
+              qt6-build_src_configure
+            }
 
     - qtsvg:
         vars:
           desc: "Classes for displaying the contents of SVG files"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            sys-libs/zlib
+          depend: ${RDEPEND}
 
     - qttools:
         vars:
           desc: "Qt Tools Collection"
+          iuse: +assistant designer distancefieldgenerator +gui +linguist
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            assistant? ( dev-qt/qtbase:{{ .Values.slot }}[sql,sqlite] )
+            designer? (
+              dev-qt/qtbase:{{ .Values.slot }}[zstd]
+              app-arch/zstd:=
+            )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(qt_feature assistant)
+                $(qt_feature designer)
+                $(qt_feature distancefieldgenerator)
+                $(qt_feature linguist)
+                # TODO?: package litehtml, but support for latest releases seem
+                # to lag behind and bundled may work out better for now
+                # https://github.com/litehtml/litehtml/issues/266
+                $(usev assistant -DCMAKE_DISABLE_FIND_PACKAGE_litehtml=ON)
+              )
+              qt6-build_src_configure
+            }
 
     - qttranslations:
         vars:
           desc: "Translation files for the Qt framework"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qttools:{{ .Values.slot }}
+          depend: ${RDEPEND}
 
     - qtwayland:
         vars:
-          desc: "Provides a framework to develop a Wayland compositor on Linux and Boot to Qt targets"
+          desc: "Wayland platform plugin for Qt"
+          iuse: qml vulkan
+          rdepend: |
+            dev-libs/wayland
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-util/wayland-scanner
+            media-libs/wayland-libglvnd
+            x11-libs/libxkbcommon
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            vulkan? ( dev-util/vulkan-headers )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Quick)
+              )
+              qt6-build_src_configure
+            }
 
     - qtwebchannel:
         vars:
-          desc: "Provides access to QObject or QML objects from HTML clients for seamless integration of Qt applications with HTML/JavaScript clients"
+          desc: "Qt module enables peer-to-peer communication between a server (QML/C++ application) and a client"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Qml)
+              )
+              qt6-build_src_prepare
+            }
 
     - qtwebengine:
         vars:
-          desc: "Classes and functions for embedding web content in applications using the Chromium browser project"
+          desc: "Library for rendering dynamic web content in Qt C++ and QML applications"
+          iuse: designer geolocation kerberos pipewire pulseaudio vaapi vulkan
+          inherit:
+            - flag-o-matic
+            - multiprocessing
+            - optfeature
+            - prefix
+            - python-any-r1
+            - qt6-build
+            - toolchain-funcs
+          python_compat: python3+
+          extra_envs:
+            - 'PYTHON_REQ_USE="xml(+)"'
+          rdepend: |
+            app-arch/snappy:=
+            dev-libs/expat
+            dev-libs/icu:=
+            dev-libs/libevent:=
+            dev-libs/libxml2[icu]
+            dev-libs/libxslt
+            dev-libs/nspr
+            dev-libs/nss
+            dev-qt/qtbase:{{ .Values.slot }}[gui,vulkan?]
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtwebchannel:{{ .Values.slot }}[qml]
+            media-libs/fontconfig
+            media-libs/freetype
+            media-libs/harfbuzz:=
+            media-libs/lcms:2
+            media-libs/libjpeg-turbo:=
+            media-libs/libpng:=
+            media-libs/libwebp:=
+            media-libs/mesa[gbm(+)]
+            media-libs/openjpeg:2=
+            media-libs/opus
+            media-libs/tiff:=
+            sys-apps/dbus
+            sys-apps/pciutils
+            sys-devel/gcc:*
+            sys-libs/zlib:=[minizip]
+            virtual/libudev
+            x11-libs/libX11
+            x11-libs/libXcomposite
+            x11-libs/libXdamage
+            x11-libs/libXext
+            x11-libs/libXfixes
+            x11-libs/libXrandr
+            x11-libs/libXtst
+            x11-libs/libdrm
+            x11-libs/libxcb:=
+            x11-libs/libxkbcommon
+            x11-libs/libxkbfile
+            media-libs/alsa-lib
+            designer? ( dev-qt/qttools:{{ .Values.slot }}[designer] )
+            geolocation? ( dev-qt/qtpositioning:{{ .Values.slot }} )
+            kerberos? ( virtual/krb5 )
+            pipewire? ( media-video/pipewire )
+            pulseaudio? ( media-sound/pulseaudio )
+            vaapi? ( x11-libs/libva:=[X] )
+          depend: |
+            ${RDEPEND}
+            media-libs/libglvnd
+            x11-base/xorg-proto
+            x11-libs/libXcursor
+            x11-libs/libXi
+            x11-libs/libxshmfence
+            vaapi? (
+              vulkan? ( dev-util/vulkan-headers )
+            )
+          bdepend: |
+            $(python_gen_any_dep 'dev-python/html5lib[${PYTHON_USEDEP}]')
+            dev-util/gperf
+            net-libs/nodejs
+            sys-devel/bison
+            sys-devel/flex
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DFEATURE_qtpdf_build=ON
+                -DQT_FEATURE_pdf_v8=ON
+                -DQT_FEATURE_qtwebengine_build=ON
+                $(cmake_use_find_package designer Qt6Designer)
+                -DFEATURE_webengine_build_ninja=OFF
+                -DFEATURE_webengine_system_alsa=ON
+                -DFEATURE_webengine_proprietary_codecs=ON
+                $(qt_feature geolocation webengine_geolocation)
+                $(qt_feature kerberos webengine_kerberos)
+                $(qt_feature pulseaudio webengine_system_pulseaudio)
+                $(qt_feature pipewire webengine_webrtc_pipewire)
+                -DFEATURE_webengine_system_icu=OFF
+                $(qt_feature vaapi webengine_vaapi)
+                $(qt_feature !vaapi webengine_system_libvpx)
+                $(qt_feature vulkan webengine_vulkan)
+                -DQT_FEATURE_webengine_embedded_build=OFF
+                -DQT_FEATURE_webengine_extensions=ON
+                # TODO: it may be possible to make x11 optional since 6.8+
+                -DQT_FEATURE_webengine_ozone_x11=ON
+                -DQT_FEATURE_webengine_pepper_plugins=ON
+                -DQT_FEATURE_webengine_printing_and_pdf=ON
+                -DQT_FEATURE_webengine_spellchecker=ON
+                -DQT_FEATURE_webengine_webchannel=ON
+                -DQT_FEATURE_webengine_webrtc=ON
+                -DFEATURE_webengine_system_glib=ON
+                -DQT_FEATURE_webengine_system_ffmpeg=OFF
+                -DQT_FEATURE_webengine_system_re2=OFF
+              )
+              qt6-build_src_configure
+            }
 
     - qtwebsockets:
         vars:
-          desc: "Provides WebSocket communication compliant with RFC 6455"
+          desc: "Implementation of the WebSocket protocol for the Qt6 framework"
+          iuse: qml +ssl
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: |
+            ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package qml Qt6Quick)
+              )
+              qt6-build_src_configure
+            }
 
     - qtwebview:
         vars:
-          desc: "Displays web content in a QML application by using APIs native to the platform, without the need to include a full web browser stack"
+          desc: "Module for displaying web content in a QML application using the Qt framework"
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtwebengine:{{ .Values.slot }}
+          depend: ${RDEPEND}

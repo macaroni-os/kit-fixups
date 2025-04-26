@@ -268,7 +268,15 @@ target:
     - pkg: dev-util/packer
     - pkg: dev-util/patchelf
     - pkg: dev-util/pkgconf
+
     - pkg: dev-util/scons
+      conditions:
+        - '>=dev-util/scons-4.9.0'
+
+    # Keep scons-4.8.1 to compile mongodb-4.4.29 - See mark-issues#352
+    - pkg: dev-util/scons
+      conditions:
+        - '=dev-util/scons-4.8.1'
     - pkg: dev-util/source-highlight
     - pkg: dev-util/strace
     - pkg: dev-util/valgrind

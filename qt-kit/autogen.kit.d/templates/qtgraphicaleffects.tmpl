@@ -1,0 +1,21 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+VIRTUALX_REQUIRED="test"
+inherit qt5-build
+
+DESCRIPTION="Set of QML types for adding visual effects to user interfaces"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+RDEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	=dev-qt/qtdeclarative-{{ .Values.version}}*
+	=dev-qt/qtgui-{{ .Values.version}}*
+"
+DEPEND="${RDEPEND}"

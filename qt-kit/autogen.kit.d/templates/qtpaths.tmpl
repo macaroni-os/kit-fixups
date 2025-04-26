@@ -1,0 +1,25 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+QT5_MODULE="qttools"
+inherit qt5-build
+
+DESCRIPTION="Command line client to QStandardPaths"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+"
+RDEPEND="${DEPEND}"
+
+S=${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}
+
+QT5_TARGET_SUBDIRS=(
+	src/qtpaths
+)

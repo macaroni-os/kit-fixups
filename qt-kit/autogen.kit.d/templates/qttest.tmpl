@@ -1,0 +1,35 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+QT5_MODULE="qtbase"
+VIRTUALX_REQUIRED="test"
+inherit qt5-build
+
+DESCRIPTION="Unit testing library for the Qt5 framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+RDEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*:5=
+"
+DEPEND="${RDEPEND}
+	test? (
+		=dev-qt/qtgui-{{ .Values.version}}*
+		=dev-qt/qtxml-{{ .Values.version}}*
+	)
+"
+
+S=${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}
+
+QT5_TARGET_SUBDIRS=(
+	src/testlib
+)
+
+QT5_GENTOO_PRIVATE_CONFIG=(
+	:testlib
+)

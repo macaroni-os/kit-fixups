@@ -1,0 +1,34 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Text-to-speech library for the Qt5 framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE="alsa flite"
+
+RDEPEND="
+	>=app-accessibility/speech-dispatcher-0.8.7
+	=dev-qt/qtcore-{{ .Values.version}}*
+	flite? (
+		>=app-accessibility/flite-2[alsa?]
+		=dev-qt/qtmultimedia-{{ .Values.version}}*[alsa?]
+		alsa? ( media-libs/alsa-lib )
+	)
+"
+DEPEND="${RDEPEND}"
+
+src_prepare() {
+	qt_use_disable_config flite flite \
+		src/plugins/tts/tts.pro
+
+	qt_use_disable_config alsa flite_alsa \
+		src/plugins/tts/flite/flite.pro
+
+	qt5-build_src_prepare
+}

@@ -1,0 +1,21 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Module for displaying web content in a QML application using the Qt5 framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	=dev-qt/qtdeclarative-{{ .Values.version}}*
+	=dev-qt/qtgui-{{ .Values.version}}*
+	=dev-qt/qtwebengine-{{ .Values.version}}*:5
+"
+RDEPEND="${DEPEND}"

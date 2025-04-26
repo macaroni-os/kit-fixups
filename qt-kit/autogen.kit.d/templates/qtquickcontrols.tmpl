@@ -1,0 +1,32 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Set of Qt Quick controls to create complete user interfaces (deprecated)"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE="+widgets"
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	=dev-qt/qtdeclarative-{{ .Values.version}}*
+	=dev-qt/qtgui-{{ .Values.version}}*
+	widgets? ( =dev-qt/qtwidgets-{{ .Values.version}}* )
+"
+RDEPEND="${DEPEND}"
+
+src_prepare() {
+	qt_use_disable_mod widgets widgets \
+		src/src.pro \
+		src/controls/Private/private.pri \
+		tests/auto/activeFocusOnTab/activeFocusOnTab.pro \
+		tests/auto/controls/controls.pro \
+		tests/auto/testplugin/testplugin.pro
+
+	qt5-build_src_prepare
+}

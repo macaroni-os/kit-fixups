@@ -1,0 +1,24 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Multi-threading concurrence support library for the Qt5 framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*:5=
+"
+RDEPEND="${DEPEND}"
+
+S=${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}
+
+QT5_TARGET_SUBDIRS=(
+	src/concurrent
+)

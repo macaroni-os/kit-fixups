@@ -1,0 +1,26 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Qt5 module for integrating C++ and QML applications with HTML/JavaScript clients"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE="qml"
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	qml? ( =dev-qt/qtdeclarative-{{ .Values.version}}* )
+"
+RDEPEND="${DEPEND}"
+
+src_prepare() {
+	qt_use_disable_mod qml quick src/src.pro
+	qt_use_disable_mod qml qml src/webchannel/webchannel.pro
+
+	qt5-build_src_prepare
+}

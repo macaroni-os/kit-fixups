@@ -1,0 +1,27 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+QT5_MODULE="qttools"
+inherit qt5-build
+
+DESCRIPTION="Interface to Qt applications communicating over D-Bus"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+IUSE=""
+
+DEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	=dev-qt/qtdbus-{{ .Values.version}}*
+	=dev-qt/qtxml-{{ .Values.version}}*
+"
+RDEPEND="${DEPEND}"
+
+S=${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}
+
+QT5_TARGET_SUBDIRS=(
+	src/qdbus/qdbus
+)

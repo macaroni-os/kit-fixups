@@ -1,0 +1,325 @@
+dev-qt:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-qt
+    vars:
+        release: 5.15
+        slot: 5
+    selector:
+        - '<5.16'
+    assets:
+       - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+    dir:
+        url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
+        matcher: "^5.*"
+
+  packages:
+    - assistant:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Tool for viewing on-line documentation in Qt help file format"
+
+    - designer:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "WYSIWYG tool for designing and building graphical user interfaces with QtWidgets"
+
+    - linguist-tools:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Tools for working with Qt translation data files"
+
+    - linguist:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Graphical tool for translating Qt applications"
+
+    - pixeltool:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Qt screen magnifier"
+
+    - qdbus:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Interface to Qt applications communicating over D-Bus"
+
+    - qdbusviewer:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Graphical tool that lets you introspect D-Bus objects and messages"
+
+    - qdoc:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Qt documentation generator"
+
+    - qtbluetooth:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtconnectivity-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Bluetooth support library for the Qt5 framework"
+
+    - qtconcurrent:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Multi-threading concurrence support library for the Qt5 framework"
+
+    - qtcore:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Cross-platform application development framework"
+
+    - qtdbus:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Qt5 module for inter-process communication over the D-Bus protocol"
+
+    - qtdiag:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Tool for reporting diagnostic information about Qt and its environment"
+
+    - qtgui:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "The GUI module and platform plugins for the Qt5 framework"
+
+    - qthelp:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Qt5 module for integrating online documentation into applications"
+
+    - qtnetwork:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Network abstraction library for the Qt5 framework"
+
+    - qtopengl:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "OpenGL support library for the Qt5 framework (deprecated)"
+
+    - qtpaths:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Command line client to QStandardPaths"
+
+    - qtplugininfo:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Qt5 plugin metadata dumper"
+
+    - qtpositioning:
+        template: /templates/qtpositioning-qt5.tmpl
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtlocation-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Physical position determination library for the Qt5 framework"
+
+    - qtprintsupport:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Printing support library for the Qt5 framework"
+
+    - qtsql:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "SQL abstraction library for the Qt5 framework"
+
+    - qttest:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Unit testing library for the Qt5 framework"
+
+    - qtwidgets:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Set of components for creating classic desktop-style UIs for the Qt5 framework"
+
+    - qtxml:
+        assets:
+            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Implementation of SAX and DOM for the Qt5 framework"
+
+    - qt3d:
+        template: /templates/qt3d-qt5.tmpl
+        vars:
+          desc: "3D rendering module for the Qt5 framework"
+
+    - qtcharts:
+        template: /templates/qtcharts-qt5.tmpl
+        vars:
+          desc: "Chart component library for the Qt5 framework"
+
+    - qtdatavis3d:
+        vars:
+          desc: "3D data visualization library for the Qt5 framework"
+
+    - qtdeclarative:
+        template: /templates/qtdeclarative-qt5.tmpl
+        vars:
+          desc: "The QML and Quick modules for the Qt5 framework"
+
+    - qtgamepad:
+        vars:
+          desc: "Qt module to support gamepad hardware"
+
+    - qtgraphicaleffects:
+        vars:
+          desc: "Set of QML types for adding visual effects to user interfaces"
+
+    - qtimageformats:
+        template: /templates/qtimageformats-qt5.tmpl
+        vars:
+          desc: "Additional format plugins for the Qt image I/O system"
+
+    - qtlocation:
+        template: /templates/qtlocation-qt5.tmpl
+        vars:
+          desc: "Location (places, maps, navigation) library for the Qt5 framework"
+
+    - qtmultimedia:
+        template: /templates/qtmultimedia-qt5.tmpl
+        vars:
+          desc: "Multimedia (audio, video, radio, camera) library for the Qt5 framework"
+
+    - qtnetworkauth:
+        template: /templates/qtnetworkauth-qt5.tmpl
+        vars:
+          desc: "Network authorization library for the Qt5 framework"
+
+    - qtquickcontrols:
+        vars:
+          desc: "Set of Qt Quick controls to create complete user interfaces (deprecated)"
+
+    - qtquickcontrols2:
+        vars:
+          desc: "Set of next generation Qt Quick controls for the Qt5 framework"
+
+    - qtquicktimeline:
+        template: /templates/qtquicktimeline-qt5.tmpl
+        vars:
+          desc: "Qt module for keyframe-based timeline construction"
+
+    - qtscript:
+        vars:
+          desc: "Application scripting library for the Qt5 framework (deprecated)"
+
+    - qtscxml:
+        template: /templates/qtscxml-qt5.tmpl
+        vars:
+          desc: "State Chart XML (SCXML) support library for the Qt5 framework"
+
+    - qtsensors:
+        template: /templates/qtsensors-qt5.tmpl
+        vars:
+          desc: "Hardware sensor access library for the Qt5 framework"
+
+    - qtserialbus:
+        vars:
+          desc: "Qt module to access CAN, ModBus, and other industrial serial buses and protocols"
+
+    - qtserialport:
+        template: /templates/qtserialport-qt5.tmpl
+        vars:
+          desc: "Serial port abstraction library for the Qt5 framework"
+
+    - qtspeech:
+        template: /templates/qtspeech-qt5.tmpl
+        vars:
+          desc: "Text-to-speech library for the Qt5 framework"
+
+    - qtsvg:
+        template: /templates/qtsvg-qt5.tmpl
+        vars:
+          desc: "SVG rendering library for the Qt5 framework"
+
+    - qttranslations:
+        template: /templates/qttranslations-qt5.tmpl
+        vars:
+          desc: "Translation files for the Qt5 framework"
+
+    - qtvirtualkeyboard:
+        vars:
+          desc: "Customizable input framework and virtual keyboard for Qt"
+
+    - qtwayland:
+        template: /templates/qtwayland-qt5.tmpl
+        vars:
+          desc: "Wayland platform plugin for Qt"
+
+    - qtwebchannel:
+        template: /templates/qtwebchannel-qt5.tmpl
+        vars:
+          desc: "Qt5 module for integrating C++ and QML applications with HTML/JavaScript clients"
+
+    - qtwebsockets:
+        template: /templates/qtwebsockets-qt5.tmpl
+        vars:
+          desc: "Implementation of the WebSocket protocol for the Qt5 framework"
+
+    - qtwebview:
+        template: /templates/qtwebview-qt5.tmpl
+        vars:
+          desc: "Module for displaying web content in a QML application using the Qt5 framework"
+
+    - qtx11extras:
+        vars:
+          desc: "Linux/X11-specific support library for the Qt5 framework"
+
+    - qtxmlpatterns:
+        vars:
+          desc: "XPath, XQuery, XSLT, and XML Schema validation library for the Qt5 framework"

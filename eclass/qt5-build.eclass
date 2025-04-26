@@ -181,9 +181,7 @@ qt5-build_src_configure() {
 		qt5_base_configure
 	fi
 	if [[ ${QT5_MODULE} == qttools ]]; then
-		if [[ ${EAPI} != 7 || -n ${KDE_ORG_COMMIT} || -z ${QT5_TARGET_SUBDIRS[@]} ]]; then
 			qt5_tools_configure
-		fi
 	fi
 
 	qt5_foreach_target_subdir qt5_qmake
@@ -298,6 +296,57 @@ qt5-build_pkg_postrm() {
 
 
 ######  Public helpers  ######
+
+# @FUNCTION: qt5_configure_oos_quirk
+# @USAGE: <file> or <file> <path>
+# @DESCRIPTION:
+# Quirk for out-of-source builds. Runs qmake in root directory, copies
+# generated pri <file> from source <path> to build dir <path>.
+# If no <path> is given, <file> is copied to ${QT5_BUILD_DIR}.
+qt5_configure_oos_quirk() {
+	if [[ "$#" == 2 ]]; then
+		local source="${2}/${1}"
+		local dest="${QT5_BUILD_DIR}/${2}"
+	elif [[ "$#" == 1 ]]; then
+		local source="${1}"
+		local dest="${QT5_BUILD_DIR}"
+	else
+		die "${FUNCNAME[0]} must be passed either one or two arguments"
+	fi
+
+	mkdir -p "${dest}" || die
+	qt5_qmake "${QT5_BUILD_DIR}"
+	cp "${source}" "${dest}" || die
+}
+
+# @FUNCTION: qt5_syncqt_version
+# @DESCRIPTION:
+# Wrapper for Qt5 syncqt.pl to sync header files for ${PV} (required to run if
+# headers are added/removed by patching)
+qt5_syncqt_version() {
+	if [[ ${PV} == *9999* ]]; then
+		return
+	fi
+
+	local syncqt
+	if [[ ${PN} == qtcore ]]; then
+		syncqt=bin/syncqt.pl
+	else
+		syncqt=${QT5_BINDIR}/syncqt.pl
+	fi
+
+	perl ${syncqt} -version ${PV} || die
+}
+
+# @FUNCTION: qt5_symlink_binary_to_path
+# @USAGE: <target binary name> [suffix]
+# @DESCRIPTION:
+# Symlink a given binary from QT5_BINDIR to QT5_PREFIX/bin, with optional suffix
+qt5_symlink_binary_to_path() {
+	[[ $# -ge 1 ]] || die "${FUNCNAME}() requires at least one argument"
+
+	dosym -r "${QT5_BINDIR}"/${1} /usr/bin/${1}${2}
+}
 
 # @FUNCTION: qt_use
 # @USAGE: <flag> [feature] [enableval]
@@ -585,9 +634,7 @@ qt5_base_configure() {
 		-verbose
 
 		# disable everything to prevent automagic deps (part 3)
-		-no-cups -no-evdev -no-tslib -no-icu -no-fontconfig
-
-		$([[ ${QT5_MINOR_VERSION} -ge 8 ]] && echo -dbus-runtime || echo -no-dbus)
+		-no-cups -no-evdev -no-tslib -no-icu -no-fontconfig -no-dbus
 
 		# let portage handle stripping
 		-no-strip
@@ -692,11 +739,7 @@ qt5_tools_configure() {
 	# allow the ebuild to override what we set here
 	myqmakeargs=( "${qmakeargs[@]}" "${myqmakeargs[@]}" )
 
-	if [[ ${EAPI} != 7 || -n ${KDE_ORG_COMMIT} ]]; then
-		mkdir -p "${QT5_BUILD_DIR}" || die
-		qt5_qmake "${QT5_BUILD_DIR}"
-		cp qttools-config.pri "${QT5_BUILD_DIR}" || die
-	fi
+	qt5_configure_oos_quirk qttools-config.pri
 }
 
 # @FUNCTION: qt5_qmake_args

@@ -1,0 +1,28 @@
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit qt5-build
+
+DESCRIPTION="Hardware sensor access library for the Qt5 framework"
+SRC_URI="{{.Values.src_uri}}"
+SLOT=5
+
+KEYWORDS="*"
+
+# TODO: simulator
+IUSE="qml"
+
+RDEPEND="
+	=dev-qt/qtcore-{{ .Values.version}}*
+	=dev-qt/qtdbus-{{ .Values.version}}*
+	qml? ( =dev-qt/qtdeclarative-{{ .Values.version}}* )
+"
+DEPEND="${RDEPEND}"
+
+src_prepare() {
+	qt_use_disable_mod qml quick \
+		src/src.pro
+
+	qt5-build_src_prepare
+}

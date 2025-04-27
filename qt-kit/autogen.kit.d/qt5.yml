@@ -4,322 +4,1423 @@ dev-qt:
     engine: helm
 
   defaults:
+    template: ../../templates/simple.tmpl
+    category: dev-qt
+    vars:
+      release: 5.15
+      slot: 5
+      inherit:
+        - qt5-build
+    selector:
+      - '<5.16'
+    assets:
+      - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+        url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+    dir:
+      url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
+      matcher: "^5.*"
+
+  packages:
+    - qtbluetooth:
+        assets:
+          - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+            url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtconnectivity-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Bluetooth support library for the Qt5 framework"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtconcurrent:{{ .Values.slot }}
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdbus:{{ .Values.slot }}
+            net-wireless/bluez
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: |
+            ${RDEPEND}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+          body: |
+            src_prepare() {
+              sed -i -e 's/nfc//' src/src.pro || die
+              qt_use_disable_mod qml quick src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtpositioning:
+        assets:
+          - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+            url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtlocation-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+        vars:
+          desc: "Physical position determination library for the Qt5 framework"
+          iuse: geoclue +qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            geoclue? ( dev-qt/qtdbus:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          pdepend: |
+            geoclue? ( appmisc/geoclue:2.0 )
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/3rdparty/clipper
+              src/3rdparty/poly2tri
+              src/3rdparty/clip2tri
+              src/positioning
+              src/plugins/position/positionpoll
+            )
+            pkg_setup() {
+              use geoclue && QT5_TARGET_SUBDIRS+=( src/plugins/position/geoclue2 )
+              use qml && QT5_TARGET_SUBDIRS+=(
+                src/positioningquick
+                src/imports/positioning
+              )
+            }
+
+    - qt3d:
+        vars:
+          desc: "3D rendering module for the Qt5 framework"
+          iuse: gamepad gles2-only qml vulkan
+          rdepend: |
+            dev-qt/qtconcurrent:{{ .Values.slot }}
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[vulkan=]
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            media-libs/assimp
+            gamepad? ( dev-qt/qtgamepad:{{ .Values.slot }} )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }}[gles2-only=] )
+          depend: |
+            ${RDEPEND}
+            vulkan? ( dev-util/vulkan-headers )
+          body: |
+            src_configure() {
+              local myqmakeargs=(
+                --
+                -system-assimp
+              )
+              qt5-build_src_configure
+            }
+            src_prepare() {
+              rm -r src/3rdparty/assimp/{code,contrib,include} || die
+              qt_use_disable_mod gamepad gamepad src/input/frontend/frontend.pri
+              qt_use_disable_mod qml quick src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtcharts:
+        vars:
+          desc: "Chart component library for the Qt5 framework"
+          license: GPL-3
+          iuse: qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[vulkan=]
+            dev-qt/qtwidgets:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml quick \
+                src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtdatavis3d:
+        vars:
+          desc: "3D data visualization library for the Qt5 framework"
+          iuse: gles-only qml
+          license: GPL-3
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[vulkan=]
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              # eliminate bogus dependency on qtwidgets
+              sed -i -e '/requires.*widgets/d' qtdatavis3d.pro || die
+              qt_use_disable_mod qml quick \
+                src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtdeclarative:
+        vars:
+          python_compat: python3+
+          inherit:
+            - python-any-r1
+            - qt5-build
+          desc: "The QML and Quick modules for the Qt5 framework"
+          iuse: gles2-only +jit localstorage vulkan +widgets
+          rdepend:
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[gles2-only=,vulkan=]
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qttest:{{ .Values.slot }}
+            media-libs/libglvnd
+            localstorage? ( dev-qt/qtsql:{{ .Values.slot }} )
+            widgets? ( dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=] )
+          depend: ${RDEPEND}
+          bdepend: ${PYTHON_DEPS}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod localstorage sql \
+                src/imports/imports.pro
+              qt_use_disable_mod widgets widgets \
+                src/src.pro \
+                src/qmltest/qmltest.pro \
+                tests/auto/auto.pro \
+                tools/tools.pro \
+                tools/qmlscene/qmlscene.pro \
+                tools/qml/qml.pro
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              local myqmakeargs=(
+                --
+                -qml-debug
+                $(qt_use jit feature-qml-jit)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtgamepad:
+        vars:
+          desc: "Qt module to support gamepad hardware"
+          iuse: evdev qml sdl
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[evdev?]
+            evdev? ( virtual/libudev:= )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            sdl? ( media-libs/libsdl2 )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml quick \
+                src/src.pro
+              qt_use_disable_config evdev evdev \
+                src/plugins/gamepads/gamepads.pro
+              qt_use_disable_config sdl sdl2 \
+                src/plugins/gamepads/gamepads.pro
+              qt5-build_src_prepare
+            }
+
+    - qtgraphicaleffects:
+        vars:
+          desc: "Set of QML types for adding visual effects to user interfaces"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtimageformats:
+        vars:
+          desc: "Additional format plugins for the Qt image I/O system"
+          iuse: mng
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            media-libs/libwebp:=
+            media-libs/tiff:0
+            mng? ( media-libs/libmng:= )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              sed -e 's/qtConfig(jasper)/false:/' \
+                -i src/plugins/imageformats/imageformats.pro || die
+              qt_use_disable_config mng mng src/plugins/imageformats/imageformats.pro
+              qt5-build_src_configure
+            }
+
+    - qtlocation:
+        vars:
+          desc: "Location (places, maps, navigation) library for the Qt5 framework"
+          rdepend: |
+            dev-libs/icu:=
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qtpositioning:{{ .Values.slot }}[qml]
+            dev-qt/qtsql:{{ .Values.slot }}
+            sys-libs/zlib
+          depend: |
+            ${RDEPEND}
+            dev-qt/qtconcurrent:{{ .Values.slot }}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/3rdparty/clipper
+              src/3rdparty/poly2tri
+              src/3rdparty/clip2tri
+              src/3rdparty/mapbox-gl-native
+              src/location
+              src/imports/location
+              src/imports/locationlabs
+              src/plugins/geoservices
+            )
+            src_prepare() {
+              mv "${WORKDIR}"/${PN}-mapboxgl-*/* src/3rdparty/mapbox-gl-native || die
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              # src/plugins/geoservices requires files that are only generated when
+              # qmake is run in the root directory. Bug 633776.
+              mkdir -p "${QT5_BUILD_DIR}"/src/location || die
+              qt5_qmake "${QT5_BUILD_DIR}"
+              cp "${S}"/src/location/qtlocation-config.pri "${QT5_BUILD_DIR}"/src/location || die
+              qt5-build_src_configure
+            }
+
+    - qtmultimedia:
+        vars:
+          desc: "Multimedia (audio, video, radio, camera) library for the Qt5 framework"
+          iuse: alsa gles2-only gstreamer openal pulseaudio qml widgets
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            alsa? ( media-libs/alsa-lib )
+            gstreamer? (
+              dev-libs/glib:2
+              media-libs/gstreamer:1.0
+              media-libs/gst-plugins-bad:1.0
+              media-libs/gst-plugins-base:1.0
+            )
+            pulseaudio? ( media-sound/pulseaudio[glib] )
+            qml? (
+              dev-qt/qtdeclarative:{{ .Values.slot }}
+              gles2-only? ( dev-qt/qtgui:{{ .Values.slot }}[egl] )
+              openal? ( media-libs/openal )
+            )
+            widgets? (
+              dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=]
+              media-libs/libglvnd
+            )
+          depend: |
+            ${RDEPEND}
+            gstreamer? ( x11-base/xorg-proto )
+          body: |
+            src_prepare() {
+              sed -i -e '/CONFIG\s*+=/ s/optimize_full//' \
+                src/multimedia/multimedia.pro || die
+              qt_use_disable_config openal openal \
+                src/imports/imports.pro
+              qt_use_disable_mod qml quick \
+                src/src.pro \
+                src/plugins/plugins.pro
+              qt_use_disable_mod widgets widgets \
+                src/src.pro \
+                src/gsttools/gsttools.pro \
+                src/plugins/gstreamer/common.pri
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              local myqmakeargs=(
+                --
+                $(qt_use alsa)
+                $(qt_use gstreamer)
+                $(qt_use pulseaudio)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtnetworkauth:
+        vars:
+          desc: "Network authorization library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          license: GPL-3
+
+    - qtquickcontrols:
+        vars:
+          desc: "Set of Qt Quick controls to create complete user interfaces (deprecated)"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            widgets? dev-qt/qtwidgets:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod widgets widgets \
+                src/src.pro \
+                src/controls/Private/private.pri \
+                tests/auto/activeFocusOnTab/activeFocusOnTab.pro \
+                tests/auto/controls/controls.pro \
+                tests/auto/testplugin/testplugin.pro
+              qt5-build_src_prepare
+            }
+
+    - qtquickcontrols2:
+        vars:
+          desc: "Set of next generation Qt Quick controls for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            widgets? dev-qt/qtwidgets:{{ .Values.slot }}
+          depend: |
+            ${RDEPEND}
+            dev-qt/qtgraphicaleffects:{{ .Values.slot }}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod widgets widgets \
+                src/imports/platform/platform.pro
+              qt5-build_src_prepare
+            }
+
+    - qtquicktimeline:
+        vars:
+          desc: "Qt module for keyframe-based timeline construction"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtscript:
+        vars:
+          desc: "Application scripting library for the Qt5 framework (deprecated)"
+          iuse: +jit scripttools
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            scripttools? (
+              dev-qt/qtgui:{{ .Values.slot }}
+              dev-qt/qtwidgets:{{ .Values.slot }}
+            )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local myqmakeargs=(
+                JAVASCRIPTCORE_JIT=$(usex jit)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtscxml:
+        vars:
+          desc: "State Chart XML (SCXML) support library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtsensors:
+        vars:
+          desc: "Hardware sensor access library for the Qt5 framework"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdbus:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml quick \
+                src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtserialbus:
+        vars:
+          desc: "Qt module to access CAN, ModBus, and other industrial serial buses and protocols"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qtserialport:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtserialport:
+        vars:
+          desc: "Serial port abstraction library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            virtual/libudev:=
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              # make sure we link against libudev
+              sed -i -e 's/:qtConfig(libudev)//' \
+                src/serialport/serialport-lib.pri || die
+              qt5-build_src_prepare
+            }
+
+    - qtspeech:
+        vars:
+          desc: "Text-to-speech library for the Qt5 framework"
+          iuse: alsa flite
+          rdepend: |
+            app-accessibility/speech-dispatcher
+            dev-qt/qtcore:{{ .Values.slot }}
+            flite? (
+              >=app-accessibility/flite-2[alsa?]
+              dev-qt/qtmultimedia:{{ .Values.slot }}[alsa?]
+              alsa? ( media-libs/alsa-lib )
+            )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_config flite flite \
+                src/plugins/tts/tts.pro
+              qt_use_disable_config alsa flite_alsa \
+                src/plugins/tts/flite/flite.pro
+              qt5-build_src_prepare
+            }
+
+    - qtsvg:
+        vars:
+          desc: "SVG rendering library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtwidgets:{{ .Values.slot }}
+            sys-libs/zlib:=
+          depend: ${RDEPEND}
+
+    - qttranslations:
+        vars:
+          desc: "Translation files for the Qt5 framework"
+          depend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          bdepend: |
+            dev-qt/linguist-tools:{{ .Values.slot }}
+
+    - qtvirtualkeyboard:
+        vars:
+          desc: "Customizable input framework and virtual keyboard for Qt"
+          iuse: handwriting +spell +X
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.slot }}
+            spell? ( app-text/hunspell:= )
+            X? ( x11-libs/libxcb:= )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local myqmakeargs=(
+                $(usex handwriting CONFIG+=lipi-toolkit '')
+                $(usex spell '' CONFIG+=disable-hunspell)
+                $(usex X '' CONFIG+=disable-desktop)
+                CONFIG+="lang-ar_AR lang-bg_BG lang-cs_CZ lang-da_DK lang-de_DE \
+                  lang-el_GR lang-en_GB lang-en_US lang-es_ES lang-es_MX \
+                  lang-et_EE lang-fa_FA lang-fi_FI lang-fr_CA lang-fr_FR \
+                  lang-he_IL lang-hi_IN lang-hr_HR lang-hu_HU lang-id_ID \
+                  lang-it_IT lang-ms_MY lang-nb_NO lang-nl_NL lang-pl_PL \
+                  lang-pt_BR lang-pt_PT lang-ro_RO lang-ru_RU lang-sk_SK \
+                  lang-sl_SI lang-sq_AL lang-sr_SP lang-sv_SE lang-tr_TR \
+                  lang-uk_UA lang-vi_VN"
+              )
+              qt5-build_src_configure
+            }
+
+    - qtwayland:
+        vars:
+          desc: "Wayland platform plugin for Qt"
+          iuse: vulkan
+          rdepend: |
+            dev-libs/wayland
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            media-libs/libglvnd
+            x11-libs/libxkbcommon
+            vulkan? ( dev-util/vulkan-headers )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local myqmakeargs=(
+                --
+                $(qt_use vulkan feature-wayland-vulkan-server-buffer)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtwebchannel:
+        vars:
+          desc: "Qt5 module for integrating C++ and QML applications with HTML/JavaScript clients"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml quick src/src.pro
+              qt_use_disable_mod qml qml src/webchannel/webchannel.pro
+              qt5-build_src_prepare
+            }
+
+    - qtwebsockets:
+        vars:
+          desc: "Implementation of the WebSocket protocol for the Qt5 framework"
+          iuse: qml +ssl
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml quick src/src.pro
+              qt5-build_src_prepare
+            }
+
+    - qtwebview:
+        vars:
+          desc: "Module for displaying web content in a QML application using the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtwebengine:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtx11extras:
+        vars:
+          desc: "Linux/X11-specific support library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+          depend: ${RDEPEND}
+
+    - qtxmlpatterns:
+        vars:
+          desc: "XPath, XQuery, XSLT, and XML Schema validation library for the Qt5 framework"
+          iuse: qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              qt_use_disable_mod qml qml \
+                src/src.pro \
+                src/imports/imports.pro
+              qt_use_disable_mod qml quick tests/auto/auto.pro
+              qt5-build_src_prepare
+            }
+
+qt5_base:
+  defaults:
+    template: ../../templates/simple.tmpl
     category: dev-qt
     vars:
         release: 5.15
         slot: 5
+        inherit:
+          - qt5-build
     selector:
         - '<5.16'
     assets:
-       - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+       - name: "qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
+    dir:
+        url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
+        matcher: "^5.*"
+
+  packages:
+
+    - qtconcurrent:
+        vars:
+          desc: "Multi-threading concurrence support library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/concurrent
+            )
+
+    - qtcore:
+        vars:
+          desc: "Cross-platform application development framework"
+          iuse: icu
+          cdepend: |
+            dev-libs/double-conversion
+            dev-libs/glib:2
+            dev-libs/libpcre2[pcre16,unicode]
+            sys-libs/zlib:=
+            icu? ( dev-libs/icu:= )
+            !icu? ( virtual/libiconv )
+          depend: ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+            dev-qt/qtchooser
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/tools/bootstrap
+              src/tools/moc
+              src/tools/rcc
+              src/corelib
+              src/tools/qlalr
+              doc
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              !:network
+              !:sql
+              !:testlib
+              !:xml
+            )
+            src_prepare() {
+              # don't add -O3 to CXXFLAGS, bug 549140
+              sed -i -e '/CONFIG\s*+=/s/optimize_full//' src/corelib/corelib.pro || die
+
+              # fix missing qt_version_tag symbol w/ LTO, bug 674382
+              sed -i -e 's/^gcc:ltcg/gcc/' src/corelib/global/global.pri || die
+
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              local myconf=(
+                $(qt_use icu)
+                $(qt_use !icu iconv)
+                -no-journald
+              )
+              qt5-build_src_configure
+            }
+            src_install() {
+              qt5-build_src_install
+              local flags=(
+                DBUS FREETYPE IMAGEFORMAT_JPEG IMAGEFORMAT_PNG
+                OPENGL OPENSSL SSL WIDGETS
+              )
+              for flag in ${flags[@]}; do
+                cat >> "${D}"/${QT5_HEADERDIR}/QtCore/qconfig.h <<- _EOF_ || die
+                  #if defined(QT_NO_${flag}) && defined(QT_${flag})
+                  # undef QT_NO_${flag}
+                  #elif !defined(QT_NO_${flag}) && !defined(QT_${flag})
+                  # define QT_NO_${flag}
+                  #endif
+                _EOF_
+              done
+            }
+
+    - qtgui:
+        vars:
+          desc: "The GUI module and platform plugins for the Qt5 framework"
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          iuse: accessibility dbus egl eglfs evdev +gif gles2-only ibus jpeg +libinput linuxfb +png tslib tuio +udev vnc vulkan wayland +X
+          required_use: |
+            || ( eglfs linuxfb vnc X )
+            accessibility? ( dbus X )
+            eglfs? ( egl )
+            ibus? ( dbus )
+            libinput? ( udev )
+            X? ( gles2-only? ( egl ) )
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-util/gtk-update-icon-cache
+            media-libs/fontconfig
+            media-libs/freetype:2
+            media-libs/harfbuzz:=
+            sys-libs/zlib:=
+            dbus? ( dev-qt/qtdbus:{{ .Values.slot }} )
+            eglfs? (
+              media-libs/mesa[gbm(+)]
+              x11-libs/libdrm
+            )
+            evdev? ( sys-libs/mtdev )
+            jpeg? ( virtual/jpeg )
+            gles2-only? ( media-libs/libglvnd )
+            !gles2-only? ( media-libs/libglvnd[X] )
+            libinput? (
+              dev-libs/libinput:=
+              x11-libs/libxkbcommon
+            )
+            png? ( media-libs/libpng:= )
+            tslib? ( >=x11-libs/tslib-1.21 )
+            tuio? ( dev-qt/qtnetwork:{{ .Values.slot }} )
+            udev? ( virtual/libudev:= )
+            vnc? ( dev-qt/qtnetwork:{{ .Values.slot }} )
+            vulkan? ( dev-util/vulkan-headers )
+            X? (
+              x11-libs/libICE
+              x11-libs/libSM
+              x11-libs/libX11
+              x11-libs/libxcb:=[xkb]
+              x11-libs/libxkbcommon[X]
+              x11-libs/xcb-util-image
+              x11-libs/xcb-util-keysyms
+              x11-libs/xcb-util-renderutil
+              x11-libs/xcb-util-wm
+            )
+          depend: |
+            ${RDEPEND}
+            evdev? ( sys-kernel/linux-headers )
+            linuxfb? ( sys-kernel/linux-headers )
+            udev? ( sys-kernel/linux-headers )
+          pdepend: |
+            ibus? ( app-i18n/ibus )
+            wayland? ( dev-qt/qtwayland:{{ .Values.slot }} )
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/tools/qvkgen
+              src/gui
+              src/openglextensions
+              src/platformheaders
+              src/platformsupport
+              src/plugins/generic
+              src/plugins/imageformats
+              src/plugins/platforms
+              src/plugins/platforminputcontexts
+            )
+            QT5_GENTOO_CONFIG=(
+              accessibility:accessibility-atspi-bridge
+              egl:egl:
+              eglfs:eglfs:
+              eglfs:eglfs_egldevice:
+              eglfs:eglfs_gbm:
+              evdev:evdev:
+              evdev:mtdev:
+              :fontconfig:
+              :system-freetype:FREETYPE
+              !:no-freetype:
+              !gif:no-gif:
+              gles2-only::OPENGL_ES
+              gles2-only:opengles2:OPENGL_ES_2
+              !:no-gui:
+              :system-harfbuzz:
+              !:no-harfbuzz:
+              jpeg:system-jpeg:IMAGEFORMAT_JPEG
+              !jpeg:no-jpeg:
+              libinput
+              libinput:xkbcommon:
+              :opengl
+              png:png:
+              png:system-png:IMAGEFORMAT_PNG
+              !png:no-png:
+              tslib:tslib:
+              udev:libudev:
+              vulkan:vulkan:
+              X:xcb:
+              X:xcb-glx:
+              X:xcb-plugin:
+              X:xcb-render:
+              X:xcb-sm:
+              X:xcb-xlib:
+              X:xcb-xinput:
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :gui
+            )
+            src_prepare() {
+              # don't add -O3 to CXXFLAGS, bug 549140
+              sed -i -e '/CONFIG\s*+=/s/optimize_full//' src/gui/gui.pro || die
+              # egl_x11 is activated when both egl and X are enabled
+              use egl && QT5_GENTOO_CONFIG+=(X:egl_x11:) || QT5_GENTOO_CONFIG+=(egl:egl_x11:)
+              qt_use_disable_config dbus dbus \
+                src/platformsupport/themes/genericunix/genericunix.pri
+              qt_use_disable_config tuio tuiotouch src/plugins/generic/generic.pro
+              qt_use_disable_mod ibus dbus \
+                src/plugins/platforminputcontexts/platforminputcontexts.pro
+              use vnc || sed -i -e '/SUBDIRS += vnc/d' \
+                src/plugins/platforms/platforms.pro || die
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              local myconf=(
+                $(usex dbus -dbus-linked '')
+                $(qt_use egl)
+                $(qt_use eglfs)
+                $(usex eglfs '-gbm -kms' '')
+                $(qt_use evdev)
+                $(qt_use evdev mtdev)
+                -fontconfig
+                -system-freetype
+                $(usex gif '' -no-gif)
+                -gui
+                -system-harfbuzz
+                $(qt_use jpeg libjpeg system)
+                $(qt_use libinput)
+                $(qt_use linuxfb)
+                -opengl $(usex gles2-only es2 desktop)
+                $(qt_use png libpng system)
+                $(qt_use tslib)
+                $(qt_use udev libudev)
+                $(qt_use vulkan)
+                $(qt_use X xcb)
+                $(usex X '-xcb-xlib' '')
+              )
+              if use libinput || use X; then
+                myconf+=( -xkbcommon )
+              fi
+              qt5-build_src_configure
+            }
+
+    - qtnetwork:
+        vars:
+          desc: "Network abstraction library for the Qt5 framework"
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          iuse: connman gssapi libproxy networkmanager sctp +ssl
+          cdepend:
+            dev-qt/qtcore:{{ .Values.slot }}
+            sys-libs/zlib
+            connman? ( dev-qt/qtdbus:{{ .Values.slot }} )
+            gssapi? ( virtual/krb5 )
+            libproxy? ( net-libs/libproxy )
+            networkmanager? ( dev-qt/qtdbus:{{ .Values.slot }} )
+            sctp? ( kernel_linux? ( net-misc/lksctp-tools ) )
+            ssl? ( dev-libs/openssl )
+          depend: ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+            connman? ( net-misc/connman )
+            networkmanager? ( net-misc/networkmanager )
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/network
+              src/plugins/bearer/generic
+            )
+            QT5_GENTOO_CONFIG=(
+              libproxy:libproxy:
+              ssl::SSL
+              ssl::OPENSSL
+              ssl:openssl-linked:LINKED_OPENSSL
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :network
+            )
+            pkg_setup() {
+              use connman && QT5_TARGET_SUBDIRS+=(src/plugins/bearer/connman)
+              use networkmanager && QT5_TARGET_SUBDIRS+=(src/plugins/bearer/networkmanager)
+            }
+            src_configure() {
+              local myconf=(
+                $(usex connman -dbus-linked '')
+                $(qt_use gssapi feature-gssapi)
+                $(qt_use libproxy)
+                $(usex networkmanager -dbus-linked '')
+                $(qt_use sctp)
+                $(usex ssl -openssl-linked '')
+              )
+              qt5-build_src_configure
+            }
+            src_install() {
+              qt5-build_src_install
+              # workaround for bug 652650
+              if use ssl; then
+                sed -e "/^#define QT_LINKED_OPENSSL/s/$/ true/" \
+                  -i "${D}${QT5_HEADERDIR}"/Gentoo/${PN}-qconfig.h || die
+              fi
+            }
+
+    - qtopengl:
+        vars:
+          desc: "OpenGL support library for the Qt5 framework (deprecated)"
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          iuse: gles2-only
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[gles2-only=]
+            dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=]
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/opengl
+            )
+            src_configure() {
+              local myconf=(
+                -opengl $(usex gles2-only es2 desktop)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtprintsupport:
+        vars:
+          desc: "Printing support library for the Qt5 framework"
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          iuse: cups gles2-only
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[gles2-only=]
+            dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=]
+            cups? ( net-print/cups )
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/printsupport
+              src/plugins/printsupport
+            )
+            QT5_GENTOO_CONFIG=(
+              cups
+            )
+            src_configure() {
+              local myconf=(
+                $(qt_use cups)
+                -opengl $(usex gles2-only es2 desktop)
+              )
+              qt5-build_src_configure
+            }
+
+    - qtsql:
+        vars:
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          desc: "SQL abstraction library for the Qt5 framework"
+          iuse: freetds mysql oci8 odbc postgres +sqlite
+          required_use: |
+            || ( freetds mysql oci8 odbc postgres sqlite )
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            freetds? ( dev-db/freetds )
+            mysql? ( dev-db/mysql-connector-c:= )
+            oci8? ( dev-db/oracle-instantclient:=[sdk] )
+            odbc? ( dev-db/unixODBC )
+            postgres? ( dev-db/postgresql:* )
+            sqlite? ( dev-db/sqlite:3 )
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/sql
+              src/plugins/sqldrivers
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :sql
+            )
+            src_configure() {
+              local myconf=(
+                $(qt_use freetds  sql-tds    plugin)
+                $(qt_use mysql    sql-mysql  plugin)
+                $(qt_use oci8     sql-oci    plugin)
+                $(qt_use odbc     sql-odbc   plugin)
+                $(qt_use postgres sql-psql   plugin)
+                $(qt_use sqlite   sql-sqlite plugin)
+                $(usex sqlite -system-sqlite '')
+              )
+              use oci8 && myconf+=("-I${ORACLE_HOME}/include" "-L${ORACLE_HOME}/$(get_libdir)")
+              qt5-build_src_configure
+            }
+
+    - qttest:
+        vars:
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          desc: "Unit testing library for the Qt5 framework"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/testlib
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :testlib
+            )
+
+    - qtwidgets:
+        vars:
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          desc: "Set of components for creating classic desktop-style UIs for the Qt5 framework"
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          iuse: dbus gles2-only gtk +png +X
+          required_use: |
+            gtk? ( dbus )
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[gles2-only=,png=,X?]
+            dbus? ( dev-qt/qtdbus:{{ .Values.slot }} )
+            gtk? (
+              dev-libs/glib:2
+              dev-qt/qtgui:{{ .Values.slot }}[dbus]
+              x11-libs/gtk+:3
+              x11-libs/libX11
+              x11-libs/pango
+            )
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/tools/uic
+              src/widgets
+              src/plugins/platformthemes
+            )
+            QT5_GENTOO_CONFIG=(
+              dbus:xdgdesktopportal:
+              gtk:gtk3:
+              ::widgets
+              !:no-widgets:
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :widgets
+            )
+            src_configure() {
+              local myconf=(
+                -opengl $(usex gles2-only es2 desktop)
+                $(qt_use dbus)
+                $(qt_use gtk)
+                -gui
+                $(qt_use png libpng system)
+                -widgets
+                $(qt_use X xcb)
+                $(usex X '-xcb-xlib -xkbcommon' '')
+              )
+              qt5-build_src_configure
+            }
+
+    - qtxml:
+        vars:
+          extra_envs:
+            - 'QT5_MODULE="qtbase"'
+          desc: "Implementation of SAX and DOM for the Qt5 framework"
+          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/xml
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :xml
+            )
+
+qt5_tools:
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: dev-qt
+    vars:
+        release: 5.15
+        slot: 5
+        inherit:
+          - desktop
+          - qt5-build
+          - xdg-utils
+    selector:
+        - '<5.16'
+    assets:
+       - name: "qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
+         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
     dir:
         url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
         matcher: "^5.*"
 
   packages:
     - assistant:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Tool for viewing on-line documentation in Qt help file format"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[png]
+            dev-qt/qthelp:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qtprintsupport:{{ .Values.slot }}
+            dev-qt/qtsql:{{ .Values.slot }}[sqlite]
+            dev-qt/qtwidgets:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/assistant/assistant
+            )
+
+            src_prepare() {
+              sed -e "s/qtHaveModule(webkitwidgets)/false/g" \
+                -i src/assistant/assistant/assistant.pro || die
+              qt5-build_src_prepare
+            }
+            src_install() {
+              qt5-build_src_install
+              doicon -s 32 src/assistant/assistant/images/assistant.png
+              newicon -s 128 src/assistant/assistant/images/assistant-128.png assistant.png
+              make_desktop_entry "${QT5_BINDIR}"/assistant 'Qt 5 Assistant' assistant 'Qt;Development;Documentation'
+            }
+            pkg_postinst() {
+              qt5-build_pkg_postinst
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              qt5-build_pkg_postrm
+              xdg_icon_cache_update
+            }
 
     - designer:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "WYSIWYG tool for designing and building graphical user interfaces with QtWidgets"
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
+          iuse: declarative
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[png]
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qtwidgets:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}[sqlite]
+            declarative? ( dev-qt/qtdeclarative:{{ .Values.slot }}[widgets] )
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/designer
+            )
+            src_prepare() {
+              qt_use_disable_mod declarative quickwidgets \
+                src/designer/src/plugins/plugins.pro
+
+              sed -e "s/qtHaveModule(webkitwidgets)/false/g" \
+                -i src/designer/src/plugins/plugins.pro || die
+              qt5-build_src_prepare
+            }
+            src_install() {
+              qt5-build_src_install
+              doicon -s 128 src/designer/src/designer/images/designer.png
+              make_desktop_entry "${QT5_BINDIR}"/designer 'Qt 5 Designer' designer 'Qt;Development;GUIDesigner'
+            }
+            pkg_postinst() {
+              qt5-build_pkg_postinst
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              qt5-build_pkg_postrm
+              xdg_icon_cache_update
+            }
 
     - linguist-tools:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Tools for working with Qt translation data files"
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
+          inherit:
+            - qt5-build
+          iuse: qml
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}[sqlite]
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }}[widgets] )
+          depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/linguist
+            )
+            src_prepare() {
+              sed -i -e '/SUBDIRS += linguist/d' \
+                src/linguist/linguist.pro || die
+              qt_use_disable_mod qml qmldevtools-private \
+                src/linguist/lupdate/lupdate.pro
+              qt5-build_src_prepare
+            }
 
     - linguist:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Graphical tool for translating Qt applications"
+          rdepend: |
+            dev-qt/designer:{{ .Values.slot }}
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[png]
+            dev-qt/qtprintsupport:{{ .Values.slot }}
+            dev-qt/qtwidgets:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/linguist/linguist
+            )
+            src_install() {
+              qt5-build_src_install
+              local size
+              for size in 16 32 48 64 128; do
+                newicon -s ${size} src/linguist/linguist/images/icons/linguist-${size}-32.png linguist.png
+              done
+              make_desktop_entry "${QT5_BINDIR}"/linguist 'Qt 5 Linguist' linguist 'Qt;Development;Translation'
+            }
+            pkg_postinst() {
+              qt5-build_pkg_postinst
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              qt5-build_pkg_postrm
+              xdg_icon_cache_update
+            }
 
     - pixeltool:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Qt screen magnifier"
+          inherit:
+            - qt5-build
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}[png]
+            dev-qt/qtwidgets:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/pixeltool
+            )
 
     - qdbus:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
           desc: "Interface to Qt applications communicating over D-Bus"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdbus:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qdbus/qdbus
+            )
 
     - qdbusviewer:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Graphical tool that lets you introspect D-Bus objects and messages"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdbus:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtwidgets:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qdbus/qdbusviewer
+            )
+            src_install() {
+              qt5-build_src_install
+              doicon -s 32 src/qdbus/qdbusviewer/images/qdbusviewer.png
+              newicon -s 128 src/qdbus/qdbusviewer/images/qdbusviewer-128.png qdbusviewer.png
+              make_desktop_entry "${QT5_BINDIR}"/qdbusviewer 'Qt 5 QDBusViewer' qdbusviewer 'Qt;Development'
+            }
+            pkg_postinst() {
+              qt5-build_pkg_postinst
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              qt5-build_pkg_postrm
+              xdg_icon_cache_update
+            }
 
     - qdoc:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Qt documentation generator"
-
-    - qtbluetooth:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtconnectivity-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Bluetooth support library for the Qt5 framework"
-
-    - qtconcurrent:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Multi-threading concurrence support library for the Qt5 framework"
-
-    - qtcore:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Cross-platform application development framework"
+          inherit:
+            - qt5-build
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qdoc
+            )
+            src_prepare() {
+              qt_use_disable_mod qml qmldevtools-private \
+                src/qdoc/qdoc.pro
+              qt5-build_src_prepare
+            }
+            src_configure() {
+              # qt5_tools_configure() not enough here, needs another fix, bug 676948
+              mkdir -p "${QT5_BUILD_DIR}"/src/qdoc || die
+              qt5_qmake "${QT5_BUILD_DIR}"
+              cp src/qdoc/qtqdoc-config.pri "${QT5_BUILD_DIR}"/src/qdoc || die
+              qt5-build_src_configure
+            }
 
     - qtdbus:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
-          desc: "Qt5 module for inter-process communication over the D-Bus protocol"
+          inherit:
+            - qt5-build
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
+          desc: "Interface to Qt applications communicating over D-Bus"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtdbus:{{ .Values.slot }}
+            dev-qt/qtxml:{{ .Values.slot }}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qdbus/qdbus
+            )
 
     - qtdiag:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Tool for reporting diagnostic information about Qt and its environment"
-
-    - qtgui:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "The GUI module and platform plugins for the Qt5 framework"
+          inherit:
+            - qt5-build
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            network? ( dev-qt/qtnetwork:{{ .Values.slot }}[ssl] )
+            widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
+          iuse: +network +widgets
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qtdiag
+            )
+            src_prepare() {
+              qt_use_disable_mod network network \
+                src/qtdiag/qtdiag.pro
+              qt_use_disable_mod widgets widgets \
+                src/qtdiag/qtdiag.pro
+              qt5-build_src_prepare
+            }
 
     - qthelp:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Qt5 module for integrating online documentation into applications"
-
-    - qtnetwork:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Network abstraction library for the Qt5 framework"
-
-    - qtopengl:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "OpenGL support library for the Qt5 framework (deprecated)"
+          inherit:
+            - qt5-build
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            dev-qt/qtgui:{{ .Values.slot }}
+            dev-qt/qtnetwork:{{ .Values.slot }}
+            dev-qt/qtsql:{{ .Values.slot }}[sqlite]
+            dev-qt/qtwidgets:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/assistant/help
+              src/assistant/qcollectiongenerator
+              src/assistant/qhelpgenerator
+            )
 
     - qtpaths:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Command line client to QStandardPaths"
+          inherit:
+            - qt5-build
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qtpaths
+            )
 
     - qtplugininfo:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qttools-everywhere-opensource-src-{{ .Values.version}}.tar.xz
         vars:
           desc: "Qt5 plugin metadata dumper"
-
-    - qtpositioning:
-        template: /templates/qtpositioning-qt5.tmpl
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtlocation-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Physical position determination library for the Qt5 framework"
-
-    - qtprintsupport:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Printing support library for the Qt5 framework"
-
-    - qtsql:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "SQL abstraction library for the Qt5 framework"
-
-    - qttest:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Unit testing library for the Qt5 framework"
-
-    - qtwidgets:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Set of components for creating classic desktop-style UIs for the Qt5 framework"
-
-    - qtxml:
-        assets:
-            - name: "{{ .Values.pn }}-everywhere-opensource-src-{{ .Values.version}}.tar.xz"
-              url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/qtbase-everywhere-opensource-src-{{ .Values.version}}.tar.xz
-        vars:
-          desc: "Implementation of SAX and DOM for the Qt5 framework"
-
-    - qt3d:
-        template: /templates/qt3d-qt5.tmpl
-        vars:
-          desc: "3D rendering module for the Qt5 framework"
-
-    - qtcharts:
-        template: /templates/qtcharts-qt5.tmpl
-        vars:
-          desc: "Chart component library for the Qt5 framework"
-
-    - qtdatavis3d:
-        vars:
-          desc: "3D data visualization library for the Qt5 framework"
-
-    - qtdeclarative:
-        template: /templates/qtdeclarative-qt5.tmpl
-        vars:
-          desc: "The QML and Quick modules for the Qt5 framework"
-
-    - qtgamepad:
-        vars:
-          desc: "Qt module to support gamepad hardware"
-
-    - qtgraphicaleffects:
-        vars:
-          desc: "Set of QML types for adding visual effects to user interfaces"
-
-    - qtimageformats:
-        template: /templates/qtimageformats-qt5.tmpl
-        vars:
-          desc: "Additional format plugins for the Qt image I/O system"
-
-    - qtlocation:
-        template: /templates/qtlocation-qt5.tmpl
-        vars:
-          desc: "Location (places, maps, navigation) library for the Qt5 framework"
-
-    - qtmultimedia:
-        template: /templates/qtmultimedia-qt5.tmpl
-        vars:
-          desc: "Multimedia (audio, video, radio, camera) library for the Qt5 framework"
-
-    - qtnetworkauth:
-        template: /templates/qtnetworkauth-qt5.tmpl
-        vars:
-          desc: "Network authorization library for the Qt5 framework"
-
-    - qtquickcontrols:
-        vars:
-          desc: "Set of Qt Quick controls to create complete user interfaces (deprecated)"
-
-    - qtquickcontrols2:
-        vars:
-          desc: "Set of next generation Qt Quick controls for the Qt5 framework"
-
-    - qtquicktimeline:
-        template: /templates/qtquicktimeline-qt5.tmpl
-        vars:
-          desc: "Qt module for keyframe-based timeline construction"
-
-    - qtscript:
-        vars:
-          desc: "Application scripting library for the Qt5 framework (deprecated)"
-
-    - qtscxml:
-        template: /templates/qtscxml-qt5.tmpl
-        vars:
-          desc: "State Chart XML (SCXML) support library for the Qt5 framework"
-
-    - qtsensors:
-        template: /templates/qtsensors-qt5.tmpl
-        vars:
-          desc: "Hardware sensor access library for the Qt5 framework"
-
-    - qtserialbus:
-        vars:
-          desc: "Qt module to access CAN, ModBus, and other industrial serial buses and protocols"
-
-    - qtserialport:
-        template: /templates/qtserialport-qt5.tmpl
-        vars:
-          desc: "Serial port abstraction library for the Qt5 framework"
-
-    - qtspeech:
-        template: /templates/qtspeech-qt5.tmpl
-        vars:
-          desc: "Text-to-speech library for the Qt5 framework"
-
-    - qtsvg:
-        template: /templates/qtsvg-qt5.tmpl
-        vars:
-          desc: "SVG rendering library for the Qt5 framework"
-
-    - qttranslations:
-        template: /templates/qttranslations-qt5.tmpl
-        vars:
-          desc: "Translation files for the Qt5 framework"
-
-    - qtvirtualkeyboard:
-        vars:
-          desc: "Customizable input framework and virtual keyboard for Qt"
-
-    - qtwayland:
-        template: /templates/qtwayland-qt5.tmpl
-        vars:
-          desc: "Wayland platform plugin for Qt"
-
-    - qtwebchannel:
-        template: /templates/qtwebchannel-qt5.tmpl
-        vars:
-          desc: "Qt5 module for integrating C++ and QML applications with HTML/JavaScript clients"
-
-    - qtwebsockets:
-        template: /templates/qtwebsockets-qt5.tmpl
-        vars:
-          desc: "Implementation of the WebSocket protocol for the Qt5 framework"
-
-    - qtwebview:
-        template: /templates/qtwebview-qt5.tmpl
-        vars:
-          desc: "Module for displaying web content in a QML application using the Qt5 framework"
-
-    - qtx11extras:
-        vars:
-          desc: "Linux/X11-specific support library for the Qt5 framework"
-
-    - qtxmlpatterns:
-        vars:
-          desc: "XPath, XQuery, XSLT, and XML Schema validation library for the Qt5 framework"
+          inherit:
+            - qt5-build
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/qtplugininfo
+            )

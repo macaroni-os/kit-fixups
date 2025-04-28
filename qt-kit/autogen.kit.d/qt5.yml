@@ -1331,8 +1331,7 @@ qt5_tools:
           desc: "Interface to Qt applications communicating over D-Bus"
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
-            dev-qt/qtdbus:{{ .Values.slot }}
-            dev-qt/qtxml:{{ .Values.slot }}
+            sys-apps/dbus
           depend: ${RDEPEND}
           body: |
             QT5_TARGET_SUBDIRS=(

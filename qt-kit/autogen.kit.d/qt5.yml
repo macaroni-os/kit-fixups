@@ -1098,10 +1098,13 @@ qt5_tools:
     vars:
         release: 5.15
         slot: 5
+        s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
         inherit:
           - desktop
           - qt5-build
           - xdg-utils
+        extra_envs:
+          - 'QT5_MODULE="qttools"'
     selector:
         - '<5.16'
     assets:
@@ -1124,7 +1127,6 @@ qt5_tools:
             dev-qt/qtsql:{{ .Values.slot }}[sqlite]
             dev-qt/qtwidgets:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/assistant/assistant
@@ -1153,8 +1155,6 @@ qt5_tools:
     - designer:
         vars:
           desc: "WYSIWYG tool for designing and building graphical user interfaces with QtWidgets"
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           iuse: declarative
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
@@ -1193,8 +1193,6 @@ qt5_tools:
     - linguist-tools:
         vars:
           desc: "Tools for working with Qt translation data files"
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           inherit:
             - qt5-build
           iuse: qml
@@ -1203,7 +1201,6 @@ qt5_tools:
             dev-qt/qtxml:{{ .Values.slot }}[sqlite]
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }}[widgets] )
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/linguist
@@ -1227,7 +1224,6 @@ qt5_tools:
             dev-qt/qtwidgets:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/linguist/linguist
@@ -1251,8 +1247,6 @@ qt5_tools:
 
     - pixeltool:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           desc: "Qt screen magnifier"
           inherit:
             - qt5-build
@@ -1261,7 +1255,6 @@ qt5_tools:
             dev-qt/qtgui:{{ .Values.slot }}[png]
             dev-qt/qtwidgets:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/pixeltool
@@ -1269,14 +1262,11 @@ qt5_tools:
 
     - qdbus:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           desc: "Interface to Qt applications communicating over D-Bus"
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtdbus:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           depend: ${RDEPEND}
           body: |
             QT5_TARGET_SUBDIRS=(
@@ -1293,7 +1283,6 @@ qt5_tools:
             dev-qt/qtwidgets:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qdbus/qdbusviewer
@@ -1322,7 +1311,6 @@ qt5_tools:
             dev-qt/qtcore:{{ .Values.slot }}
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qdoc
@@ -1344,14 +1332,11 @@ qt5_tools:
         vars:
           inherit:
             - qt5-build
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           desc: "Interface to Qt applications communicating over D-Bus"
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtdbus:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
-          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           depend: ${RDEPEND}
           body: |
             QT5_TARGET_SUBDIRS=(
@@ -1360,8 +1345,6 @@ qt5_tools:
 
     - qtdiag:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           desc: "Tool for reporting diagnostic information about Qt and its environment"
           inherit:
             - qt5-build
@@ -1372,7 +1355,6 @@ qt5_tools:
             widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
           iuse: +network +widgets
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qtdiag
@@ -1390,8 +1372,6 @@ qt5_tools:
           desc: "Qt5 module for integrating online documentation into applications"
           inherit:
             - qt5-build
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtgui:{{ .Values.slot }}
@@ -1399,7 +1379,6 @@ qt5_tools:
             dev-qt/qtsql:{{ .Values.slot }}[sqlite]
             dev-qt/qtwidgets:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/assistant/help
@@ -1412,20 +1391,15 @@ qt5_tools:
           desc: "Command line client to QStandardPaths"
           inherit:
             - qt5-build
-          extra_envs:
-            - 'QT5_MODULE="qttools"'
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qtpaths
             )
 
     - qtplugininfo:
-        extra_envs:
-            - 'QT5_MODULE="qttools"'
         vars:
           desc: "Qt5 plugin metadata dumper"
           inherit:
@@ -1433,7 +1407,6 @@ qt5_tools:
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qtplugininfo

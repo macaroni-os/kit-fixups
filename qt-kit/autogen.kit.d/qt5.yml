@@ -37,6 +37,7 @@ dev-qt:
           depend: |
             ${RDEPEND}
             dev-qt/qtnetwork:{{ .Values.slot }}
+          s: '${WORKDIR}/qtconnectivity-everywhere-src-{{ .Values.version}}'
           body: |
             src_prepare() {
               sed -i -e 's/nfc//' src/src.pro || die
@@ -58,6 +59,7 @@ dev-qt:
           depend: ${RDEPEND}
           pdepend: |
             geoclue? ( appmisc/geoclue:2.0 )
+          s: '${WORKDIR}/qtlocation-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/3rdparty/clipper
@@ -98,7 +100,7 @@ dev-qt:
               qt5-build_src_configure
             }
             src_prepare() {
-              rm -r src/3rdparty/assimp/{code,contrib,include} || die
+              rm -r src/3rdparty/assimp/src/{code,contrib,include} || die
               qt_use_disable_mod gamepad gamepad src/input/frontend/frontend.pri
               qt_use_disable_mod qml quick src/src.pro
               qt5-build_src_prepare
@@ -258,7 +260,6 @@ dev-qt:
               src/plugins/geoservices
             )
             src_prepare() {
-              mv "${WORKDIR}"/${PN}-mapboxgl-*/* src/3rdparty/mapbox-gl-native || die
               qt5-build_src_prepare
             }
             src_configure() {
@@ -1123,6 +1124,7 @@ qt5_tools:
             dev-qt/qtsql:{{ .Values.slot }}[sqlite]
             dev-qt/qtwidgets:{{ .Values.slot }}
           depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/assistant/assistant
@@ -1225,6 +1227,7 @@ qt5_tools:
             dev-qt/qtwidgets:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
           depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/linguist/linguist
@@ -1248,6 +1251,8 @@ qt5_tools:
 
     - pixeltool:
         vars:
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
           desc: "Qt screen magnifier"
           inherit:
             - qt5-build
@@ -1256,6 +1261,7 @@ qt5_tools:
             dev-qt/qtgui:{{ .Values.slot }}[png]
             dev-qt/qtwidgets:{{ .Values.slot }}
           depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/pixeltool
@@ -1287,6 +1293,7 @@ qt5_tools:
             dev-qt/qtwidgets:{{ .Values.slot }}
             dev-qt/qtxml:{{ .Values.slot }}
           depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qdbus/qdbusviewer
@@ -1315,6 +1322,7 @@ qt5_tools:
             dev-qt/qtcore:{{ .Values.slot }}
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
+          s: "${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}"
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qdoc
@@ -1352,6 +1360,8 @@ qt5_tools:
 
     - qtdiag:
         vars:
+          extra_envs:
+            - 'QT5_MODULE="qttools"'
           desc: "Tool for reporting diagnostic information about Qt and its environment"
           inherit:
             - qt5-build
@@ -1362,6 +1372,7 @@ qt5_tools:
             widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
           iuse: +network +widgets
           depend: ${RDEPEND}
+          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qtdiag
@@ -1413,6 +1424,8 @@ qt5_tools:
             )
 
     - qtplugininfo:
+        extra_envs:
+            - 'QT5_MODULE="qttools"'
         vars:
           desc: "Qt5 plugin metadata dumper"
           inherit:
@@ -1420,6 +1433,7 @@ qt5_tools:
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
+          s: '${WORKDIR}/qttools-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qtplugininfo

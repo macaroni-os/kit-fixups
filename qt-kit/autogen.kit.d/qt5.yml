@@ -605,6 +605,8 @@ dev-qt:
             }
 
 qt5_base:
+  generator: builtin-dirlisting
+
   defaults:
     template: ../../templates/simple.tmpl
     category: dev-qt
@@ -613,6 +615,7 @@ qt5_base:
         slot: 5
         inherit:
           - qt5-build
+        s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
     selector:
         - '<5.16'
     assets:
@@ -630,7 +633,6 @@ qt5_base:
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/concurrent
@@ -651,7 +653,6 @@ qt5_base:
           rdepend: |
             ${CDEPEND}
             dev-qt/qtchooser
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/tools/bootstrap
@@ -760,7 +761,6 @@ qt5_base:
           pdepend: |
             ibus? ( app-i18n/ibus )
             wayland? ( dev-qt/qtwayland:{{ .Values.slot }} )
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/tools/qvkgen
@@ -876,7 +876,6 @@ qt5_base:
             ${CDEPEND}
             connman? ( net-misc/connman )
             networkmanager? ( net-misc/networkmanager )
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/network
@@ -926,7 +925,6 @@ qt5_base:
             dev-qt/qtgui:{{ .Values.slot }}[gles2-only=]
             dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=]
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/opengl
@@ -950,7 +948,6 @@ qt5_base:
             dev-qt/qtwidgets:{{ .Values.slot }}[gles2-only=]
             cups? ( net-print/cups )
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/printsupport
@@ -984,7 +981,6 @@ qt5_base:
             postgres? ( dev-db/postgresql:* )
             sqlite? ( dev-db/sqlite:3 )
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/sql
@@ -1015,7 +1011,6 @@ qt5_base:
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           body: |
             QT5_TARGET_SUBDIRS=(
               src/testlib
@@ -1029,7 +1024,6 @@ qt5_base:
           extra_envs:
             - 'QT5_MODULE="qtbase"'
           desc: "Set of components for creating classic desktop-style UIs for the Qt5 framework"
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           iuse: dbus gles2-only gtk +png +X
           required_use: |
             gtk? ( dbus )
@@ -1079,7 +1073,6 @@ qt5_base:
           extra_envs:
             - 'QT5_MODULE="qtbase"'
           desc: "Implementation of SAX and DOM for the Qt5 framework"
-          s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
           depend: ${RDEPEND}
@@ -1092,6 +1085,8 @@ qt5_base:
             )
 
 qt5_tools:
+  generator: builtin-dirlisting
+
   defaults:
     template: ../../templates/simple.tmpl
     category: dev-qt

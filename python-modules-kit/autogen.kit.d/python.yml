@@ -100,6 +100,15 @@ setuptools_modules:
             - wheel
             - cython
 
+    - html5lib:
+        vars:
+          license: MIT
+        pydeps:
+          py:all:runtime:
+            - six
+            - webencodings
+
+
 standalone_modules:
   generator: builtin-pypi
   template:

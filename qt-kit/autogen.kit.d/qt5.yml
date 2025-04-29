@@ -1323,6 +1323,7 @@ qt5_tools:
             dev-qt/qtcore:{{ .Values.slot }}
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
+          iuse: qml
           body: |
             QT5_TARGET_SUBDIRS=(
               src/qdoc

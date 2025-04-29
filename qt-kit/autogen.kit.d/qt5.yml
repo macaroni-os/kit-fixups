@@ -340,7 +340,7 @@ dev-qt:
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtgui:{{ .Values.slot }}
-            widgets? dev-qt/qtwidgets:{{ .Values.slot }}
+            widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
           depend: ${RDEPEND}
           body: |
             src_prepare() {
@@ -360,7 +360,7 @@ dev-qt:
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtgui:{{ .Values.slot }}
-            widgets? dev-qt/qtwidgets:{{ .Values.slot }}
+            widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
           depend: |
             ${RDEPEND}
             dev-qt/qtgraphicaleffects:{{ .Values.slot }}

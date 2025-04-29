@@ -1175,7 +1175,7 @@ qt5_tools:
             dev-qt/qtgui:{{ .Values.slot }}[png]
             dev-qt/qtnetwork:{{ .Values.slot }}
             dev-qt/qtwidgets:{{ .Values.slot }}
-            dev-qt/qtxml:{{ .Values.slot }}[sqlite]
+            dev-qt/qtxml:{{ .Values.slot }}
             declarative? ( dev-qt/qtdeclarative:{{ .Values.slot }}[widgets] )
           depend: ${RDEPEND}
           body: |
@@ -1212,8 +1212,8 @@ qt5_tools:
           iuse: qml
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
-            dev-qt/qtxml:{{ .Values.slot }}[sqlite]
-            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }}[widgets] )
+            dev-qt/qtxml:{{ .Values.slot }}
+            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
           body: |
             QT5_TARGET_SUBDIRS=(

@@ -616,6 +616,8 @@ qt5_base:
         inherit:
           - qt5-build
         s: '${WORKDIR}/qtbase-everywhere-src-{{ .Values.version }}'
+        extra_envs:
+          - 'QT5_MODULE="qtbase"'
     selector:
         - '<5.16'
     assets:
@@ -703,11 +705,39 @@ qt5_base:
               done
             }
 
+    - qtdbus:
+        vars:
+          inherit:
+            - qt5-build
+          desc: "Interface to Qt applications communicating over D-Bus"
+          rdepend: |
+            dev-qt/qtcore:{{ .Values.slot }}
+            sys-apps/dbus
+          depend: ${RDEPEND}
+          body: |
+            QT5_TARGET_SUBDIRS=(
+              src/dbus
+              src/tools/qdbusxml2cpp
+              src/tools/qdbuscpp2xml
+            )
+            QT5_GENTOO_CONFIG=(
+              :dbus
+              :dbus-linked:
+            )
+            QT5_GENTOO_PRIVATE_CONFIG=(
+              :dbus
+              :dbus-linked
+            )
+            src_configure() {
+              local myconf=(
+                -dbus-linked
+              )
+              qt5-build_src_configure
+            }
+
     - qtgui:
         vars:
           desc: "The GUI module and platform plugins for the Qt5 framework"
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           iuse: accessibility dbus egl eglfs evdev +gif gles2-only ibus jpeg +libinput linuxfb +png tslib tuio +udev vnc vulkan wayland +X
           required_use: |
             || ( eglfs linuxfb vnc X )
@@ -860,8 +890,6 @@ qt5_base:
     - qtnetwork:
         vars:
           desc: "Network abstraction library for the Qt5 framework"
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           iuse: connman gssapi libproxy networkmanager sctp +ssl
           cdepend:
             dev-qt/qtcore:{{ .Values.slot }}
@@ -918,8 +946,6 @@ qt5_base:
     - qtopengl:
         vars:
           desc: "OpenGL support library for the Qt5 framework (deprecated)"
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           iuse: gles2-only
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
@@ -940,8 +966,6 @@ qt5_base:
     - qtprintsupport:
         vars:
           desc: "Printing support library for the Qt5 framework"
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           iuse: cups gles2-only
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
@@ -967,8 +991,6 @@ qt5_base:
 
     - qtsql:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           desc: "SQL abstraction library for the Qt5 framework"
           iuse: freetds mysql oci8 odbc postgres +sqlite
           required_use: |
@@ -1006,8 +1028,6 @@ qt5_base:
 
     - qttest:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           desc: "Unit testing library for the Qt5 framework"
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
@@ -1022,8 +1042,6 @@ qt5_base:
 
     - qtwidgets:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           desc: "Set of components for creating classic desktop-style UIs for the Qt5 framework"
           iuse: dbus gles2-only gtk +png +X
           required_use: |
@@ -1071,8 +1089,6 @@ qt5_base:
 
     - qtxml:
         vars:
-          extra_envs:
-            - 'QT5_MODULE="qtbase"'
           desc: "Implementation of SAX and DOM for the Qt5 framework"
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
@@ -1324,20 +1340,6 @@ qt5_tools:
               qt5-build_src_configure
             }
 
-    - qtdbus:
-        vars:
-          inherit:
-            - qt5-build
-          desc: "Interface to Qt applications communicating over D-Bus"
-          rdepend: |
-            dev-qt/qtcore:{{ .Values.slot }}
-            sys-apps/dbus
-          depend: ${RDEPEND}
-          body: |
-            QT5_TARGET_SUBDIRS=(
-              src/qdbus/qdbus
-            )
-
     - qtdiag:
         vars:
           desc: "Tool for reporting diagnostic information about Qt and its environment"
@@ -1443,7 +1445,11 @@ qtchooser:
                 "$@"
             }
             src_install() {
-              qtchooser_make INSTALL_ROOT="${D}" install
+              emake \
+                CXX="$(tc-getCXX)" \
+                LFLAGS="${LDFLAGS}" \
+                prefix="${EPREFIX}/usr" \
+                INSTALL_ROOT="${D}" install
               # install configuration file
               cat > "${T}/qt5-${CHOST}.conf" <<-_EOF_ || die
                 $(qt5_get_bindir)

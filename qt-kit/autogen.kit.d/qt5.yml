@@ -342,6 +342,7 @@ dev-qt:
             dev-qt/qtgui:{{ .Values.slot }}
             widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
           depend: ${RDEPEND}
+          iuse: widgets
           body: |
             src_prepare() {
               qt_use_disable_mod widgets widgets \
@@ -361,6 +362,7 @@ dev-qt:
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtgui:{{ .Values.slot }}
             widgets? ( dev-qt/qtwidgets:{{ .Values.slot }} )
+          iuse: widgets
           depend: |
             ${RDEPEND}
             dev-qt/qtgraphicaleffects:{{ .Values.slot }}

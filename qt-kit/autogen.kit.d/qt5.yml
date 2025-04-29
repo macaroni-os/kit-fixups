@@ -127,7 +127,7 @@ dev-qt:
     - qtdatavis3d:
         vars:
           desc: "3D data visualization library for the Qt5 framework"
-          iuse: gles-only qml
+          iuse: gles-only qml vulkan
           license: GPL-3
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}

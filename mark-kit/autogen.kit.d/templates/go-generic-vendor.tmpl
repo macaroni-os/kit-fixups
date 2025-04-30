@@ -22,7 +22,7 @@ post_src_unpack() {
 
 src_compile() {
 	custom_ldflags=(
-		"-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildTime=$(date -u '+%Y-%m-%d %I:%M:%S %Z')\""
+		"-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildTime=$(date -u '+%Y-%m-%d %H:%M:%S %Z')\""
 		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildCommit={{ .Values.sha }}"
 		"-X github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/{{ .Values.ldflags_ns }}.BuildGoVersion=$(go env GOVERSION)"
 	)

@@ -15,12 +15,14 @@ qt6:
         - '<6.9'
     assets:
        - name: "{{ .Values.pn }}-everywhere-src-{{ .Values.version}}.tar.xz"
-         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-src-{{ .Values.version}}.tar.xz
+         url: https://download.qt.io/archive/qt/{{ .Values.release }}/{{ .Values.version }}/submodules/{{ .Values.pn }}-everywhere-src-{{ .Values.version }}.tar.xz
     dir:
         url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
         matcher: "^6.*"
 
   packages:
+
+
     - qt3d:
         vars:
           desc: "3D rendering module for the Qt6 framework"

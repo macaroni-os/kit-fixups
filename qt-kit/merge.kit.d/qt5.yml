@@ -1,0 +1,84 @@
+# cat qt5.yml
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: qt-kit
+  url: "https://github.com/macaroni-os/qt-kit"
+  branch: mark-unstable
+
+target:
+  name: qt-kit
+  url: "https://github.com/macaroni-os/qt-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-qt/qtchooser
+
+    - pkg: dev-qt/assistant:5
+    - pkg: dev-qt/designer:5
+    - pkg: dev-qt/linguist:5
+    - pkg: dev-qt/linguist-tools:5
+    - pkg: dev-qt/pixeltool:5
+    - pkg: dev-qt/qdbus:5
+    - pkg: dev-qt/qdbusviewer:5
+    - pkg: dev-qt/qdoc:5
+    - pkg: dev-qt/qt3d:5
+    - pkg: dev-qt/qtbluetooth:5
+    - pkg: dev-qt/qtcharts:5
+    - pkg: dev-qt/qtconcurrent:5
+    - pkg: dev-qt/qtcore:5
+    - pkg: dev-qt/qtdatavis3d:5
+    - pkg: dev-qt/qtdbus:5
+    - pkg: dev-qt/qtdeclarative:5
+    - pkg: dev-qt/qtdiag:5
+    - pkg: dev-qt/qtgamepad:5
+    - pkg: dev-qt/qtgraphicaleffects:5
+    - pkg: dev-qt/qtgui:5
+    - pkg: dev-qt/qthelp:5
+    - pkg: dev-qt/qtimageformats:5
+    - pkg: dev-qt/qtlocation:5
+    - pkg: dev-qt/qtmultimedia:5
+    - pkg: dev-qt/qtnetwork:5
+    - pkg: dev-qt/qtnetworkauth:5
+    - pkg: dev-qt/qtopengl:5
+    - pkg: dev-qt/qtpaths:5
+    - pkg: dev-qt/qtplugininfo:5
+    - pkg: dev-qt/qtpositioning:5
+    - pkg: dev-qt/qtprintsupport:5
+    - pkg: dev-qt/qtquickcontrols:5
+    - pkg: dev-qt/qtquickcontrols2:5
+    - pkg: dev-qt/qtquicktimeline:5
+    - pkg: dev-qt/qtscript:5
+    - pkg: dev-qt/qtscxml:5
+    - pkg: dev-qt/qtsensors:5
+    - pkg: dev-qt/qtserialbus:5
+    - pkg: dev-qt/qtserialport:5
+    - pkg: dev-qt/qtspeech:5
+    - pkg: dev-qt/qtsql:5
+    - pkg: dev-qt/qtsvg:5
+    - pkg: dev-qt/qttest:5
+    - pkg: dev-qt/qttranslations:5
+    - pkg: dev-qt/qtvirtualkeyboard:5
+    - pkg: dev-qt/qtwayland:5
+    - pkg: dev-qt/qtwebchannel:5
+    - pkg: dev-qt/qtwebsockets:5
+    - pkg: dev-qt/qtwebview:5
+    - pkg: dev-qt/qtwidgets:5
+    - pkg: dev-qt/qtx11extras:5
+    - pkg: dev-qt/qtxml:5
+    - pkg: dev-qt/qtxmlpatterns:5

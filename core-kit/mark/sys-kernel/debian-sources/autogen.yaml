@@ -9,13 +9,13 @@ debian-sources_rule:
             name: sid
             track_openzfs: False
             patches:
-              uarches: 6.8+/more-uarches-for-kernel-6.8-rc4+.patch
+              uarches: 6.8+/lite-more-x86-64-ISA-levels-for-kernel-6.8-rc4+.patch
             config-extract: 6.6
           testing:
             name: trixie
             track_openzfs: True
             patches:
-              uarches: 6.8+/more-uarches-for-kernel-6.8-rc4+.patch
+              uarches: 6.8+/lite-more-x86-64-ISA-levels-for-kernel-6.8-rc4+.patch
             config-extract: 6.6
           stable:
             name: bookworm

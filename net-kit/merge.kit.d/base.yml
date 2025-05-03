@@ -34,16 +34,16 @@ target:
 
   atoms:
 
+    - pkg: mail-client/alpine
     - pkg: mail-client/thunderbird-bin
 
+    - pkg: mail-filter/bogofilter
+    - pkg: mail-filter/spamassassin
 
     - pkg: mail-mta/postfix
     - pkg: mail-mta/ssmtp
     - pkg: mail-mta/nullmailer
     - pkg: mail-mta/sendmail
-
-    - pkg: mail-filter/bogofilter
-    - pkg: mail-filter/spamassassin
 
     - pkg: net-mail/dovecot
     - pkg: net-mail/mailbase
@@ -55,6 +55,7 @@ target:
     - pkg: net-analyzer/hping
     - pkg: net-analyzer/macchanger
     - pkg: net-analyzer/net-snmp
+    - pkg: net-analyzer/nettop
     - pkg: net-analyzer/openbsd-netcat
     - pkg: net-analyzer/rrdtool
     - pkg: net-analyzer/fail2ban
@@ -88,9 +89,10 @@ target:
     - pkg: net-firewall/conntrack-tools
     - pkg: net-firewall/ebtables
     - pkg: net-firewall/firewalld
+    - pkg: net-firewall/ipset
     - pkg: net-firewall/iptables
     - pkg: net-firewall/nftables
-    - pkg: net-firewall/ipset
+    - pkg: net-firewall/shorewall
 
     - pkg: net-fs/libnfs
     - pkg: net-fs/minio
@@ -129,6 +131,7 @@ target:
     - pkg: net-misc/socat
     - pkg: net-misc/stunnel
     - pkg: net-misc/sshpass
+    - pkg: net-misc/tigervnc
     - pkg: net-misc/whois
 
     - pkg: net-wireless/crda
@@ -138,6 +141,7 @@ target:
     - pkg: net-wireless/wavemon
 
     - pkg: net-p2p/rtorrent
+    - pkg: net-p2p/syncthing
 
     - pkg: net-print/cups
     - pkg: net-print/cups-filters
@@ -242,4 +246,3 @@ target:
     - pkg: net-misc/yt-dlp
 
     - pkg: www-apps/karma-bin
-

@@ -225,10 +225,12 @@ setuptools_standalone_pythons:
 
         pydeps:
           py:all:
+            - importlib_metadata
             - packaging
             - setuptools
             - tomli
           py:all:build:
+            - importlib_metadata
             - setuptools
           use:test:
             - build

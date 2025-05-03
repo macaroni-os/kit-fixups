@@ -44,6 +44,7 @@ dev-qt:
             - 009-port-to-pipewire-0.3.patch
             - 010-widevine.patch
             - 011-clang16.patch
+            - qt5-webengine-python3.patch
           inherit:
             - python-any-r1
             - qt5-build
@@ -133,7 +134,7 @@ dev-qt:
 
               # We need to make sure this integrates well into Qt 5.15.2 installation.
               # Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
-              sed -e "/^MODULE_VERSION/s/5.*/${QTVER}/" -i .qmake.conf || die
+              sed -e "/^MODULE_VERSION/s/5.*/${PV}/" -i .qmake.conf || die
 
               if ! use jumbo-build; then
                 sed -i -e 's|use_jumbo_build=true|use_jumbo_build=false|' \

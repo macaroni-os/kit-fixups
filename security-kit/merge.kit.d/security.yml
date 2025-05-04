@@ -40,8 +40,9 @@ target:
     max_versions: 3
 
   atoms:
-
     - pkg: app-admin/makepasswd
+    - pkg: app-admin/pwgen
+    - pkg: app-admin/sshguard
 
     - pkg: app-antivirus/lkrg
 
@@ -88,6 +89,9 @@ target:
     - pkg: net-libs/liboauth
     - pkg: net-libs/mbedtls
     - pkg: net-libs/gnutls
+
+    - pkg: net-proxy/privoxy
+    - pkg: net-proxy/torsocks
 
     - pkg: sys-apps/keyutils
     - pkg: sys-apps/bolt

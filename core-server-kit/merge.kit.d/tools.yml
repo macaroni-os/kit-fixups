@@ -37,6 +37,19 @@ target:
 
   atoms:
 
+    - pkg: app-admin/ansible
+    - pkg: app-admin/ansible-base
+    - pkg: app-admin/awscli
+    - pkg: app-admin/awscliv2
+    - pkg: app-admin/cloud-init
+    - pkg: app-admin/sudo
+    - pkg: app-admin/logrotate
+    - pkg: app-admin/metalog
+    - pkg: app-admin/openrc-settingsd
+    - pkg: app-admin/rsyslog
+    - pkg: app-admin/syslog-ng
+    - pkg: app-admin/sysstat
+
     - pkg: app-arch/gcab
     - pkg: app-arch/lrzip
     - pkg: app-arch/lziprecover
@@ -55,22 +68,10 @@ target:
     - pkg: app-arch/zoo
     - pkg: app-arch/zopfli
 
-    - pkg: app-admin/ansible
-    - pkg: app-admin/ansible-base
-    - pkg: app-admin/awscli
-    - pkg: app-admin/awscliv2
-    - pkg: app-admin/cloud-init
-    - pkg: app-admin/sudo
-    - pkg: app-admin/logrotate
-    - pkg: app-admin/metalog
-    - pkg: app-admin/openrc-settingsd
-    - pkg: app-admin/rsyslog
-    - pkg: app-admin/syslog-ng
-    - pkg: app-admin/sysstat
-
     - pkg: app-backup/backrest
     - pkg: app-backup/borgbackup
     - pkg: app-backup/restic
+    - pkg: app-backup/rsnapshot
 
     - pkg: app-benchmarks/hyperfine
 
@@ -113,43 +114,28 @@ target:
     - pkg: dev-util/smem
     - pkg: dev-util/xdelta
 
-    - pkg: sys-block/open-iscsi
-    - pkg: sys-block/open-isns
-    - pkg: sys-block/parted
-
-    - pkg: sys-process/cronbase
-    - pkg: sys-process/cronie
-    - pkg: sys-process/criu
-    - pkg: sys-process/fcron
-    - pkg: sys-process/lsof
-    - pkg: sys-process/htop
-    - pkg: sys-process/iotop
-    - pkg: sys-process/numad
-    - pkg: sys-process/procps
-    - pkg: sys-process/procs
-    - pkg: sys-process/psmisc
-    - pkg: sys-process/procs
-    - pkg: sys-process/numactl
-    - pkg: sys-process/tini
+    - pkg: sys-apps/cpuid
+    - pkg: sys-apps/dbus
+    - pkg: sys-apps/dtc
+    - pkg: sys-apps/hdparm
+    - pkg: sys-apps/hwids
+    - pkg: sys-apps/kbd
+    - pkg: sys-apps/lsb-release
+    - pkg: sys-apps/openrc
+    - pkg: sys-apps/pciutils
+    - pkg: sys-apps/sdparm
+    - pkg: sys-apps/systemd-tmpfiles
+    - pkg: sys-apps/texinfo
+    - pkg: sys-apps/usbutils
+    - pkg: sys-apps/usbredir
 
     - pkg: sys-auth/nss-mdns
     - pkg: sys-auth/nss-myhostname
     - pkg: sys-auth/realtime-base
 
-    - pkg: sys-apps/kbd
-
-    - pkg: sys-apps/cpuid
-    - pkg: sys-apps/dtc
-    - pkg: sys-apps/hwids
-    - pkg: sys-apps/xinetd
-    - pkg: sys-apps/lsb-release
-    - pkg: sys-apps/openrc
-    - pkg: sys-apps/pciutils
-    - pkg: sys-apps/texinfo
-    - pkg: sys-apps/usbutils
-    - pkg: sys-apps/usbredir
-    - pkg: sys-apps/dbus
-    - pkg: sys-apps/systemd-tmpfiles
+    - pkg: sys-block/open-iscsi
+    - pkg: sys-block/open-isns
+    - pkg: sys-block/parted
 
     - pkg: sys-devel/bc
 
@@ -163,8 +149,24 @@ target:
     - pkg: sys-libs/tevent
 
     - pkg: sys-power/cpupower
+    - pkg: sys-power/powertop
+
+    - pkg: sys-process/at
+    - pkg: sys-process/cronbase
+    - pkg: sys-process/cronie
+    - pkg: sys-process/criu
+    - pkg: sys-process/fcron
+    - pkg: sys-process/lsof
+    - pkg: sys-process/htop
+    - pkg: sys-process/iotop
+    - pkg: sys-process/numactl
+    - pkg: sys-process/numad
+    - pkg: sys-process/parallel
+    - pkg: sys-process/procps
+    - pkg: sys-process/procs
+    - pkg: sys-process/psmisc
+    - pkg: sys-process/tini
 
     - pkg: virtual/cron
     - pkg: virtual/logger
     - pkg: virtual/service-manager
-

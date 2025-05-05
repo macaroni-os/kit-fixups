@@ -9,11 +9,21 @@ import requests
 openzfs_meta_url = 'https://raw.githubusercontent.com/openzfs/zfs/master/META'
 
 # squish this with the release name in the middle and it'll be a url string
+# NOTE: this source disappears from time to time
+#debian_packages_url = [
+#    'https://packages.debian.org/',
+#    '',
+#    '/allpackages?format=txt.gz'
+#]
+
+# alternative source, with many mirrors available for failover
 debian_packages_url = [
-    'https://packages.debian.org/',
+    'https://deb.debian.org/debian/dists/',
     '',
-    '/allpackages?format=txt.gz'
+    '/main/binary-all/Packages.gz'
 ]
+
+# TODO: implement mirror failover
 
 debian_sources_url = 'https://deb.debian.org/debian/pool/main/l/linux'
 kernel_dot_org_url = 'https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x'
@@ -30,13 +40,22 @@ async def get_version(*, rel:str):
     r = requests.get(''.join(url))
     text = gzip.decompress(r.content)
     print(''.join(url))
+    # prior package source
+    #v1 = re.findall(
+    #    'linux-source *\((\d\.\d+\.\d+)-(\d+)\)',
+    #    str(text)
+    #)
+
+    # deb mirrors
     v1 = re.findall(
-        'linux-source *\((\d\.\d+\.\d+)-(\d+)\)',
+        'pool/main/l/linux/linux-source_((\d\.\d+\.\d+)-(\d+))_all\.deb',
         str(text)
     )
+    #print(v1, f'{v1[-1][1][-1]}_p{v1[-1][2]}')
 
     # returns: 6.10.4_p1
-    return f'{v1[0][0]}_p{v1[0][1]}'
+    # NOTE: chooses the final list element, assuming it is greatest
+    return f'{v1[-1][1]}_p{v1[-1][2]}'
 
 
 async def get_openzfs_compat():

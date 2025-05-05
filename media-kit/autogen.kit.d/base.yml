@@ -1,0 +1,83 @@
+
+libs_gh:
+  generator: builtin-noop
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+
+  packages:
+
+    - libplacebo:
+        #github:
+        #  user: haasn
+        #  query: releases
+        selector:
+          - "=5.264.1"
+        # We need a review of mark-devkit in order to support github with children assets
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            url: https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.pn }}/tarball/v{{ .Values.version }}
+          - name: "{{ .Values.pn }}-{{ .Values.version }}-glad-{{ .Values.glad_hash }}.tar.gz"
+            url: https://github.com/Dav1dde/glad/archive/{{ .Values.glad_hash }}.tar.gz
+        vars:
+          versions:
+            - "5.264.1"
+          github_user: haasn
+          glad_hash: 525eddb7e04bc4008b691fb38a6d31bf3cad684c
+          desc: Reusable library for GPU-accelerated image processing primitives
+          homepage: https://code.videolan.org/videolan/libplacebo
+          python_compat: python3+
+          extra_envs:
+            - 'PYTHON_REQ_USE="xml"'
+          inherit:
+            - meson
+            - python-any-r1
+          license: LGPL-2.1+
+          iuse: glslang lcms +opengl +shaderc +vulkan
+          rdepend: |
+            glslang? ( dev-util/glslang )
+            lcms? ( media-libs/lcms:2 )
+            opengl? ( media-libs/libepoxy )
+            shaderc? ( media-libs/shaderc )
+            vulkan? (
+              dev-util/vulkan-headers
+              media-libs/vulkan-loader
+            )
+          depend: ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            vulkan? (
+              ${PYTHON_DEPS}
+              $(python_gen_any_dep 'dev-python/mako[${PYTHON_USEDEP}]')
+            )
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.pn }}-* ${S}
+              if use opengl ; then
+                rmdir "${S}"/3rdparty/glad || die
+                mv glad-{{ .Values.glad_hash }} "${S}"/3rdparty/glad || die
+              fi
+              sed -i "s:\(#include <vulkan/vulkan.h>\):\1\n#include <vulkan/vulkan_metal.h>:" "${S}"/src/include/${PN}/vulkan.h || die
+            }
+            python_check_deps() {
+              has_version -b "dev-python/mako[${PYTHON_USEDEP}]"
+            }
+            pkg_setup() {
+              use vulkan && python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature glslang)
+                $(meson_feature lcms)
+                $(meson_feature opengl)
+                $(meson_feature shaderc)
+                $(meson_feature vulkan)
+                -Dtests=false
+                # hard-code path from dev-util/vulkan-headers
+                -Dvulkan-registry=/usr/share/vulkan/registry/vk.xml
+              )
+              meson_src_configure
+            }
+

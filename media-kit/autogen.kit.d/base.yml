@@ -179,7 +179,9 @@ video_gh:
                 $(meson_feature javascript)
                 -Dlibavdevice=enabled
                 $(meson_feature lcms lcms2)
-                -Dlua=$(usex lua "${ELUA}" disabled)
+                # force using lua for pkg-config and lua5.1
+                #-Dlua=$(usex lua "${ELUA}" disabled)
+                -Dlua=$(usex lua "lua" disabled)
                 $(meson_feature rubberband)
                 -Dsdl2=$(use gamepad || use sdl && echo enabled || echo disabled) #857156
                 $(meson_feature uchardet)

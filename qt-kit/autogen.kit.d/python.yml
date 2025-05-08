@@ -1,0 +1,29 @@
+dev_python:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/pypi-generic.tmpl
+    category: dev-python
+    vars:
+      python_compat: python3+
+
+  packages:
+    - PyQt-builder:
+        vars:
+          license: BSD
+          body: |
+            post_src_unpack() {
+              mv pyqt_builder-* "${S}"
+            }
+
+            src_prepare() {
+              # This is needed until we have setuptoos_scm-8
+              sed -i -e "s|^dynamic.*|version = \"${PV}\"|g" \
+                -e '/^version_file.*/d' \
+                pyproject.toml
+              distutils-r1_src_prepare
+            }
+

@@ -43,6 +43,12 @@ SRC_URI="{{ src_uri}}
 {%- endif %}
 "
 
+{%- if cdepend is defined %}
+CDEPEND="
+{{indented(cdepend|default(''),1)}}
+"
+{%- endif %}
+
 {%- if depend is defined or py_depend is defined %}
 DEPEND="
 {%- if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
@@ -52,7 +58,9 @@ DEPEND="
 {%- if rdepend is defined or py_rdepend is defined %}
 RDEPEND="
 {%- if rdepend is defined %}{{indented(rdepend|default(''),1)}}{%- endif %}
-{%- if py_rdepend is defined %}{{indented(py_rdepend|default(''),1)}}{%- endif %}
+{%- if py_rdepend is defined %}
+{{indented(py_rdepend|default(''),1)}}
+{%- endif %}
 "
 {%- endif %}
 {%- if pdepend is defined or py_pdepend is defined %}

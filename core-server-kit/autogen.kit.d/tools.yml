@@ -1,0 +1,35 @@
+python_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    template: "../../templates/pypi-generic.tmpl"
+    category: app-admin
+    vars:
+      du_pep517: setuptools
+    python_compat: "python3+"
+  packages:
+    - ansible:
+        selector:
+          - '<9.0.2'
+        python_requires_ignore: "true"
+        vars:
+          license: GPL-3+
+          rdepend: |
+            virtual/ssh
+            net-misc/sshpass
+        pydeps:
+          py:all:
+            - cryptography
+            - httplib2
+            - importlib_resources
+            - jinja
+            - netaddr
+            - paramiko
+            - pexpect
+            - pyyaml
+            - six
+          py:all:build:
+            - packaging
+

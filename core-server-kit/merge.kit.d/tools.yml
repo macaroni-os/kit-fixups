@@ -34,6 +34,7 @@ target:
   atoms:
     - pkg: app-admin/ansible
     - pkg: app-admin/ansible-base
+    - pkg: app-admin/ansible-core
     - pkg: app-admin/awscli
     - pkg: app-admin/awscliv2
     - pkg: app-admin/cloud-init
@@ -56,6 +57,7 @@ target:
     - pkg: app-emulation/docker-proxy
     - pkg: app-emulation/docker-registry
     - pkg: app-emulation/incus
+    - pkg: app-emulation/libvirt
     - pkg: app-emulation/lxc
     - pkg: app-emulation/lxd
     - pkg: app-emulation/runc
@@ -70,7 +72,9 @@ target:
 
     - pkg: dev-util/jenkins-bin
     - pkg: dev-util/jenkins-lts-bin
-    
+
+    - pkg: net-fs/autofs
+
     - pkg: sys-apps/cpuid
     - pkg: sys-apps/dbus
     - pkg: sys-apps/dool

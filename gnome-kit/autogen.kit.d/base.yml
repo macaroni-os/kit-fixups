@@ -1,0 +1,78 @@
+media_libs:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    vars:
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+
+  packages:
+
+    - gexiv2:
+        dir:
+          matcher: "gexiv2-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: "gexiv2-"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+        vars:
+          release: 0.14
+          python_compat: python3+
+          desc: GObject-based wrapper around the Exiv2 library
+          homepage: https://wiki.gnome.org/Projects/gexiv2
+          license: LGPL-2.1
+          iuse: gtk-doc +introspection python static-libs test +vala
+          inherit:
+            - meson
+            - python-r1
+            - vala
+            - xdg-utils
+          rdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/glib:2
+            media-gfx/exiv2:0=
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+          required_use: |
+            python? ( introspection ${PYTHON_REQUIRED_USE} )
+            test? ( python introspection )
+            vala? ( introspection )
+          body: |
+            src_prepare() {
+              xdg_environment_reset
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+                # prevents installation of python modules (uses install_data from meson
+                # which does not optimize the modules
+                -Dpython3=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use python ; then
+                python_moduleinto gi/overrides/
+                python_foreach_impl python_domodule GExiv2.py
+              fi
+            }
+
+
+
+

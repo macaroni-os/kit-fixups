@@ -785,7 +785,7 @@ src_install() {
 	insinto "${EROOT}usr/share/nginx/html"
 	doins "${FILESDIR}/example/index.html"
 	doins "${FILESDIR}/example/nginx-logo.png"
-	doins "${FILESDIR}/example/powered-by-funtoo.png"
+	doins "${FILESDIR}/example/powered-by-macaronios.png"
 
 	keepdir "${EROOT}etc/${PN}"/conf.d
 	insinto "${EROOT}etc/${PN}/conf.d"

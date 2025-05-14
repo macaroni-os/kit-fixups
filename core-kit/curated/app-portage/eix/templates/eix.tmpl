@@ -86,6 +86,7 @@ src_install() {
 	default
 	dobashcomp bash/eix
 	dotmpfiles tmpfiles.d/eix.conf
+	echo 'PORTDIR_CACHE_METHOD="parse#metadata-md5#metadata-flat#assign"' >> "${D}"/etc/eixrc/mark.conf
 
 	rm -r "${ED}"/usr/bin/eix-functions.sh || die
 }
@@ -104,3 +105,5 @@ pkg_postrm() {
 		rm -rf "${EROOT}/var/cache/${PN}" || die
 	fi
 }
+
+# vim: syn=ebuild

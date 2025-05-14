@@ -29,7 +29,7 @@ media_libs:
           desc: GObject-based wrapper around the Exiv2 library
           homepage: https://wiki.gnome.org/Projects/gexiv2
           license: LGPL-2.1
-          iuse: gtk-doc +introspection python static-libs test +vala
+          iuse: gtk-doc +introspection python static-libs +vala
           inherit:
             - meson
             - python-r1
@@ -46,7 +46,6 @@ media_libs:
             gtk-doc? ( dev-util/gtk-doc )
           required_use: |
             python? ( introspection ${PYTHON_REQUIRED_USE} )
-            test? ( python introspection )
             vala? ( introspection )
           body: |
             src_prepare() {

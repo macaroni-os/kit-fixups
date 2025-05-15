@@ -8,7 +8,6 @@ linear_packages:
     category: dev-libs
 
 
-
   packages:
 
     - liblinear:
@@ -16,6 +15,12 @@ linear_packages:
           license: BSD
           desc: A Library for Large Linear Classification
           homepage: https://www.csie.ntu.edu.tw/~cjlin/liblinear/ https://github.com/cjlin1/liblinear
+          iuse: blas
+          rdepend: |
+            blas? ( virtual/blas )
+          depend: |
+            ${RDEPEND}
+            blas? ( virtual/pkgconfig )
           inherit:
             - toolchain-funcs
           body: |

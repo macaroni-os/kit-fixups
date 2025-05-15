@@ -1,0 +1,65 @@
+
+linear_packages:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+
+
+
+  packages:
+
+    - liblinear:
+        vars:
+          license: BSD
+          desc: A Library for Large Linear Classification
+          homepage: https://www.csie.ntu.edu.tw/~cjlin/liblinear/ https://github.com/cjlin1/liblinear
+          inherit:
+            - toolchain-funcs
+          body: |
+            src_prepare() {
+              default
+              sed -i \
+                -e '/^CFLAGS/d;/^CXXFLAGS/d' \
+                blas/Makefile || die
+              sed -i \
+                -e 's|make|$(MAKE)|g' \
+                -e '/$(LIBS)/s|$(CFLAGS)|& $(LDFLAGS)|g' \
+                -e '/^CFLAGS/d;/^CXXFLAGS/d' \
+                -e 's|$(SHARED_LIB_FLAG)|& $(LDFLAGS)|g' \
+                Makefile || die
+            }
+            src_compile() {
+              emake \
+                CC="$(tc-getCC)" \
+                CXX="$(tc-getCXX)" \
+                CFLAGS="${CFLAGS} -fPIC" \
+                CXXFLAGS="${CXXFLAGS} -fPIC" \
+                AR="$(tc-getAR)" \
+                RANLIB="$(tc-getRANLIB)" \
+                lib all
+            }
+            src_install() {
+              dolib.so {{ .Values.pn }}.so.*
+              dosym {{ .Values.pn }}.so.* /usr/$(get_libdir)/{{ .Values.pn }}$(get_libname)
+              newbin predict {{ .Values.pn }}-predict
+              newbin train {{ .Values.pn }}-train
+              doheader linear.h
+              dodoc README
+            }
+
+        dir:
+          #https://www.csie.ntu.edu.tw/~cjlin/liblinear/liblinear-2.48.tar.gz
+          url: https://www.csie.ntu.edu.tw/~cjlin/liblinear/
+          matcher: "liblinear-.*.tar.gz$"
+        transform:
+          - kind: string
+            match: "liblinear-"
+            replace: ""
+          - kind: string
+            match: ".tar.gz"
+            replace: ""
+
+

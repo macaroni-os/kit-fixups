@@ -31,6 +31,35 @@ flit_modules:
 
   packages:
 
+    - importlib_metadata:
+        selector:
+          # keep same version for now
+          # fix issue macaroni-os/mark-issues#350
+          - '<=6.7.0'
+        pypi_name: importlib_metadata
+        pydeps:
+          py:all:runtime:
+            - zipp
+            - typing-extensions >= 3.6.4
+        vars:
+          desc: Read metadata from Python packages
+          homepage: https://importlib-metadata.readthedocs.io/
+          license: Apache-2.0
+          body: |
+            src_configure() {
+              # write a custom pyproject.toml to ease setuptools bootstrap
+              cat > pyproject.toml <<-EOF || die
+              [build-system]
+              requires = ["flit_core >=3.2,<4"]
+              build-backend = "flit_core.buildapi"
+
+              [project]
+              name = "importlib_metadata"
+              version = "${PV}"
+              description = "Read metadata from Python packages"
+              EOF
+            }
+
     - jinja:
         pypi_name: jinja2
         pydeps:

@@ -342,3 +342,70 @@ libs_gh:
               meson_src_configure
             }
 
+
+sdl_autogen:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: releases
+      user: libsdl-org
+
+  packages:
+
+    - sdl2-ttf:
+        vars:
+          desc: Support for TrueType fonts in SDL applications.
+          homepage: https://www.libsdl.org/projects/SDL_ttf/
+          inherit:
+            - cmake
+          license: ZLIB
+          iuse: +harfbuzz static-libs X
+          rdepend: |
+            media-libs/libsdl2
+            media-libs/freetype[harfbuzz?]
+            virtual/opengl
+            harfbuzz? ( media-libs/harfbuzz )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DSDL2TTF_VENDORED=OFF
+                -DSDL2TTF_HARFBUZZ=$(usex harfbuzz)
+              )
+              cmake_src_configure
+            }
+        github:
+          repo: SDL_ttf
+        selector:
+          - '<3.0'
+
+    - sdl3-ttf:
+        vars:
+          desc: Support for TrueType fonts in SDL applications.
+          homepage: https://www.libsdl.org/projects/SDL_ttf/
+          inherit:
+            - cmake
+          license: ZLIB
+          iuse: +harfbuzz static-libs X
+          rdepend: |
+            media-libs/libsdl3
+            media-libs/freetype[harfbuzz?]
+            virtual/opengl
+            harfbuzz? ( media-libs/harfbuzz )
+          depend: ${RDEPEND}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DSDL3TTF_VENDORED=OFF
+                -DSDL3TTF_HARFBUZZ=$(usex harfbuzz)
+              )
+              cmake_src_configure
+            }
+        github:
+          repo: SDL_ttf
+        selector:
+          - '>=3.0'

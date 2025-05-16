@@ -389,3 +389,114 @@ sdl_tff_autogen:
           sdl_version: "3"
         selector:
           - '>=3.0'
+
+
+sdl_image_autogen:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: releases
+      user: libsdl-org
+      repo: SDL_image
+    vars:
+      inherit:
+        - cmake
+      desc: Image decoding for many popular formats for SDL.
+      homepage: https://www.libsdl.org/projects/SDL_image/
+      license: ZLIB
+      iuse: gif jpeg png static-libs tiff webp
+      depend: ${RDEPEND}
+      rdepend: |
+        media-libs/libsdl{{ .Values.sdl_version }}
+        sys-libs/zlib
+        png? ( media-libs/libpng )
+        jpeg? ( virtual/jpeg )
+        tiff? ( media-libs/tiff )
+        webp? ( media-libs/libwebp )
+
+  packages:
+
+    - sdl2-image:
+        vars:
+          sdl_version: "2"
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DSDL2IMAGE_AVIF=OFF
+                -DSDL2IMAGE_BMP=ON
+                -DSDL2IMAGE_GIF=$(usex gif)
+                -DSDL2IMAGE_JPG=$(usex jpeg)
+                -DSDL2IMAGE_JXL=OFF
+                -DSDL2IMAGE_LBM=ON
+                -DSDL2IMAGE_PCX=ON
+                -DSDL2IMAGE_PNG=$(usex png)
+                -DSDL2IMAGE_PNM=ON
+                -DSDL2IMAGE_QOI=ON
+                -DSDL2IMAGE_SVG=ON
+                -DSDL2IMAGE_TGA=ON
+                -DSDL2IMAGE_TIF=$(usex tiff)
+                -DSDL2IMAGE_WEBP=$(usex webp)
+                -DSDL2IMAGE_XCF=ON
+                -DSDL2IMAGE_XPM=ON
+                -DSDL2IMAGE_XV=ON
+                -DSDL2IMAGE_BACKEND_STB=OFF
+                -DSDL2IMAGE_DEPS_SHARED=OFF
+                -DSDL2IMAGE_SAMPLES_INSTALL=ON
+                -DSDL2IMAGE_TESTS=OFF
+                -DSDL2IMAGE_TESTS_INSTALL=OFF
+                -DSDL2IMAGE_VENDORED=OFF
+              )
+              cmake_src_configure
+            }
+
+
+        selector:
+          - '<3.0'
+
+    - sdl3-image:
+        vars:
+          sdl_version: "3"
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DSDLIMAGE_DEPS_SHARED=ON
+                -DSDLIMAGE_INSTALL_MAN=ON
+                -DSDLIMAGE_STRICT=ON
+                -DSDLIMAGE_TESTS_INSTALL=OFF
+                -DSDLIMAGE_TESTS=OFF
+                -DSDLIMAGE_VENDORED=OFF
+                -DSDLIMAGE_BACKEND_STB=OFF
+                # TODO: add libavif?
+                -DSDLIMAGE_AVIF=OFF
+                -DSDLIMAGE_AVIF_SAVE=OFF
+                -DSDLIMAGE_BMP=ON
+                -DSDLIMAGE_GIF=$(usex gif)
+                -DSDLIMAGE_JPG=$(usex jpeg)
+                -DSDLIMAGE_JPG_SAVE=$(usex jpeg)
+                # TODO: add jpegxl
+                -DSDLIMAGE_JXL=OFF
+                -DSDLIMAGE_LBM=ON
+                -DSDLIMAGE_PCX=ON
+                -DSDLIMAGE_PNG=$(usex png)
+                -DSDLIMAGE_PNG_SAVE=$(usex png)
+                -DSDLIMAGE_PNM=ON
+                -DSDLIMAGE_QOI=ON
+                -DSDLIMAGE_SVG=ON
+                -DSDLIMAGE_TGA=ON
+                -DSDLIMAGE_TIF=$(usex tiff)
+                -DSDLIMAGE_WEBP=$(usex webp)
+                -DSDLIMAGE_XCF=ON
+                -DSDLIMAGE_XPM=ON
+                -DSDLIMAGE_XV=ON
+              )
+              cmake_src_configure
+            }
+
+        selector:
+          - '>=3.0'
+          - '<4.0'
+

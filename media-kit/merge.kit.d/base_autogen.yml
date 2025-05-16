@@ -27,4 +27,7 @@ target:
     - pkg: media-libs/libplacebo
 
     - pkg: media-libs/sdl2-ttf
+      # force condition to skip 3.x versions
+      conditions:
+        - '<media-libs/sdl2-ttf-3.0'
     - pkg: media-libs/sdl3-ttf

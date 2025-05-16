@@ -88,7 +88,7 @@ src_configure() {
 src_compile() {
 	LC_ALL=POSIX emake comm.h term.h
 
-	emake -C doc screen.info
+	emake -C doc screen.texinfo
 	default
 }
 

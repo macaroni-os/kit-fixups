@@ -343,7 +343,7 @@ libs_gh:
             }
 
 
-sdl_autogen:
+sdl_tff_autogen:
   generator: builtin-github
 
   defaults:
@@ -353,59 +353,36 @@ sdl_autogen:
     github:
       query: releases
       user: libsdl-org
+      repo: SDL_ttf
+    vars:
+      desc: Support for TrueType fonts in SDL applications.
+      homepage: https://www.libsdl.org/projects/SDL_ttf/
+      inherit:
+        - cmake
+      license: ZLIB
+      iuse: +harfbuzz static-libs X
+      depend: ${RDEPEND}
+      sdl_version: "3"
+      rdepend: |
+        media-libs/libsdl{{ .Values.sdl_version }}
+        media-libs/freetype[harfbuzz?]
+        virtual/opengl
+        harfbuzz? ( media-libs/harfbuzz )
+      body: |
+        src_configure() {
+          local mycmakeargs=(
+            -DSDL{{ .Values.sdl_version }}TTF_VENDORED=OFF
+            -DSDL{{ .Values.sdl_version }}TTF_HARFBUZZ=$(usex harfbuzz)
+          )
+          cmake_src_configure
+        }
 
   packages:
 
     - sdl2-ttf:
-        vars:
-          desc: Support for TrueType fonts in SDL applications.
-          homepage: https://www.libsdl.org/projects/SDL_ttf/
-          inherit:
-            - cmake
-          license: ZLIB
-          iuse: +harfbuzz static-libs X
-          rdepend: |
-            media-libs/libsdl2
-            media-libs/freetype[harfbuzz?]
-            virtual/opengl
-            harfbuzz? ( media-libs/harfbuzz )
-          depend: ${RDEPEND}
-          body: |
-            src_configure() {
-              local mycmakeargs=(
-                -DSDL2TTF_VENDORED=OFF
-                -DSDL2TTF_HARFBUZZ=$(usex harfbuzz)
-              )
-              cmake_src_configure
-            }
-        github:
-          repo: SDL_ttf
         selector:
           - '<3.0'
 
     - sdl3-ttf:
-        vars:
-          desc: Support for TrueType fonts in SDL applications.
-          homepage: https://www.libsdl.org/projects/SDL_ttf/
-          inherit:
-            - cmake
-          license: ZLIB
-          iuse: +harfbuzz static-libs X
-          rdepend: |
-            media-libs/libsdl3
-            media-libs/freetype[harfbuzz?]
-            virtual/opengl
-            harfbuzz? ( media-libs/harfbuzz )
-          depend: ${RDEPEND}
-          body: |
-            src_configure() {
-              local mycmakeargs=(
-                -DSDL3TTF_VENDORED=OFF
-                -DSDL3TTF_HARFBUZZ=$(usex harfbuzz)
-              )
-              cmake_src_configure
-            }
-        github:
-          repo: SDL_ttf
         selector:
           - '>=3.0'

@@ -362,7 +362,6 @@ sdl_tff_autogen:
       license: ZLIB
       iuse: +harfbuzz static-libs X
       depend: ${RDEPEND}
-      sdl_version: "3"
       rdepend: |
         media-libs/libsdl{{ .Values.sdl_version }}
         media-libs/freetype[harfbuzz?]
@@ -380,9 +379,13 @@ sdl_tff_autogen:
   packages:
 
     - sdl2-ttf:
+        vars:
+          sdl_version: "2"
         selector:
           - '<3.0'
 
     - sdl3-ttf:
+        vars:
+          sdl_version: "3"
         selector:
           - '>=3.0'

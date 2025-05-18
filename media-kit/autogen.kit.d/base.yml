@@ -500,7 +500,7 @@ sdl_image_autogen:
           - '>=3.0'
           - '<4.0'
 
-gnome_sound_apps:
+gnome_stuff:
   generator: builtin-dirlisting
   template:
     engine: helm
@@ -508,12 +508,12 @@ gnome_sound_apps:
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
-    category: media-sound
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
 
   packages:
     - gnome-music:
+        category: media-sound
         dir:
           matcher: "gnome-music-.*.tar.xz$"
         transform:
@@ -575,3 +575,64 @@ gnome_sound_apps:
               meson_src_install
               python_fix_shebang "${D}"/usr/bin/gnome-music
             }
+
+    - libmediaart:
+        category: media-libs
+        dir:
+          matcher: "libmediaart-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: "libmediaart-"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+        vars:
+          python_compat: python3+
+          release: "1.9"
+          desc: Manages, extracts and handles media art caches
+          homepage: https://gitlab.gnome.org/GNOME/libmediaart
+          license: LGPL-2.1+
+          slot: 2.0
+          iuse: gtk-doc +introspection -qt5 vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            !qt5? ( x11-libs/gdk-pixbuf:2 )
+            introspection? ( dev-libs/gobject-introspection:= )
+            qt5? ( dev-qt/qtgui:5 )
+          depend: ${RDEPEND}
+          bdepend: |
+            dev-libs/gobject-introspection-common
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+            vala? ( $(vala_depend) )
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local image_library
+              if use qt5 ; then
+                image_library=qt5
+              else
+                image_library=gdk-pixbuf
+              fi
+              local emesonargs=(
+                -Dimage_library=${image_library}
+                -Dtests=false
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+

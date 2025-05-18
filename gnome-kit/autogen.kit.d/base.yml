@@ -7,7 +7,6 @@ media_libs:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     category: media-libs
-    vars:
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
 
@@ -72,6 +71,20 @@ media_libs:
               fi
             }
 
+
+net_misc_cat:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-misc
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+
+  packages:
     - rygel:
         dir:
           matcher: "rygel-.*.tar.xz$"

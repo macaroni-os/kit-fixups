@@ -251,3 +251,58 @@ mail_apps:
               gnome3_schemas_update
             }
 
+extra_apps:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: gnome-extra
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+
+  packages:
+    - gnome-weather:
+        dir:
+          matcher: "gnome-weather-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: "gnome-weather-"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+        vars:
+          patches:
+            - gnome-weather-timezone.patch
+          release: "3.36"
+          desc: A weather application for GNOME
+          homepage: https://wiki.gnome.org/Design/Apps/Weather
+          license: GPL-2+ LGPL-2+ MIT CC-BY-3.0 CC-BY-SA-3.0
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - python-any-r1
+            - virtualx
+            - meson
+          rdepend: |
+            app-misc/geoclue:2.0
+            dev-libs/gjs
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/libgweather:=
+            gnome-base/gsettings-desktop-schemas
+            x11-libs/gtk+:3
+          depend: |
+            ${RDEPEND}
+            dev-libs/appstream-glib
+            dev-util/intltool
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              sed -i -e "/'appdata'\,/d" data/meson.build
+              gnome3_src_prepare
+            }
+
+
+

@@ -20,6 +20,10 @@ sources:
   url: "https://github.com/geaaru/geaaru_overlay"
   branch: "funtoo"
 
+- name: "core-hw-kit"
+  url: "https://github.com/macaroni-os/core-hw-kit"
+  branch: "mark-testing"
+
 target:
   name: net-kit
   url: "https://github.com/macaroni-os/net-kit"
@@ -63,6 +67,8 @@ target:
     - pkg: net-analyzer/tcptrace
     - pkg: net-analyzer/tcpreplay
     - pkg: net-analyzer/traceroute
+    - pkg: net-analyzer/nmap
+    - pkg: net-analyzer/speedtest-cli
 
     - pkg: net-dialup/lrzsz
     - pkg: net-dialup/ppp

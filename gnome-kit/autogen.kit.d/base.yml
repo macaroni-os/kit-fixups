@@ -1,5 +1,8 @@
 media_libs:
   generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
   template:
     engine: helm
 
@@ -74,6 +77,9 @@ media_libs:
 
 net_misc_cat:
   generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
   template:
     engine: helm
 
@@ -164,6 +170,9 @@ net_misc_cat:
 
 mail_apps:
   generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -253,6 +262,9 @@ mail_apps:
 
 extra_apps:
   generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
 
   defaults:
     files_dir: "{{ .Values.pn }}"

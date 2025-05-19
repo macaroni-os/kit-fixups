@@ -1,0 +1,26 @@
+iucode_tool:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+
+  packages:
+    - iucode_tool:
+        vars:
+          versions:
+            - "2.3.1"
+          desc: "tool to manipulate Intel X86 and X86-64 processor microcode update collections"
+          homepage: "https://gitlab.com/iucode-tool/"
+          license: GPL-2
+          s: '${WORKDIR}/{{ .Values.pn | replace "_" "-" }}-{{ .Values.version }}'
+        assets:
+          - name: '{{ .Values.pn | replace "_" "-" }}_{{ .Values.version }}.tar.xz'
+            prefix: https://gitlab.com/iucode-tool/releases/raw/master/
+
+
+
+

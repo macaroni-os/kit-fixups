@@ -140,6 +140,7 @@ prometheus:
           repo: alertmanager
         vars:
           desc: Prometheus Alertmanager
+          homepage: https://github.com/prometheus/alertmanager
           extra_envs:
             - 'MY_PN=${PN/-bin/}'
             - 'ALERTMANAGER_USER="${MY_PN}"'

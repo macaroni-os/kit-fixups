@@ -31,6 +31,9 @@ DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}
 	!<=net-dns/bind-9.18.1-r2
 "
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- end }}
 
 # sphinx required for man-page and html creation
 BDEPEND="

@@ -155,6 +155,8 @@ bind_dirlisting:
   packages:
     - bind:
     - bind-tools:
+        vars:
+          s: '${WORKDIR}/bind-{{ .Values.version }}'
 
 
 net_wireless_noop:

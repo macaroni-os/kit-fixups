@@ -118,6 +118,8 @@ target:
     - pkg: dev-python/fspath
     - pkg: dev-python/google-api-python-client
     - pkg: dev-python/gst-python:1.0
+      conditions:
+        - '<dev-python/gst-python-1.90'
     - pkg: dev-python/h11
     - pkg: dev-python/hatch-vcs
     - pkg: dev-python/hpack

@@ -43,9 +43,6 @@ post_src_unpack() {
 }
 
 all_ruby_prepare() {
-	# Other packages also have use for a nonexistent directory, bug 321059
-	sed -i -e 's#/nonexistent#/nonexistent_rdoc_tests#g' test/rdoc/test_rdoc*.rb || die
-
 	# Avoid unneeded dependency on bundler, bug 603696
 	sed -i -e '/bundler/ s:^:#:' \
 		-e 's/Bundler::GemHelper.gemspec.full_name/"rdoc"/' \
@@ -54,12 +51,6 @@ all_ruby_prepare() {
 
 	# Skip rubygems tests since the rubygems test case code is no longer installed by rubygems.
 	sed -i -e '/^task/ s/, :rubygems_test//' Rakefile || die
-
-	# Remove test that is depending on the locale, which we can't garantuee.
-	sed -i -e '/def test_encode_with/,/^  end/ s:^:#:' test/rdoc/test_rdoc_options.rb || die
-
-	# Remove test depending on FEATURES=userpriv, bug 361959
-	sed -i -e '/def test_check_files/,/^  end/ s:^:#:' test/rdoc/test_rdoc_options.rb || die
 
 	sed -i -e 's:_relative ": "./:' ${RUBY_FAKEGEM_GEMSPEC} || die
 }

@@ -76,7 +76,9 @@ BDEPEND="
 "
 {%- endif %}
 
+{%- if iuse is defined %}
 IUSE="{{indented(iuse|default(''),1)}}"
+{%- endif %}
 {%- if required_use is defined %}
 REQUIRED_USE="{{indented(required_use, 1)}}
 "

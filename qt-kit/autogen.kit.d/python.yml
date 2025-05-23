@@ -187,9 +187,9 @@ dev_python:
               fi
             }
 
-
     - PyQt5-sip:
         pypi_name: pyqt5_sip
+
     - PyQtWebEngine:
         pydeps_ignore:
           - PyQt
@@ -203,7 +203,7 @@ dev_python:
           required_use: ${PYTHON_REQUIRED_USE}
           cdepend: |
             ${PYTHON_DEPS}
-            dev-python/PyQt5:5[gui,network,printsupport,ssl,webchannel,widgets,${PYTHON_USEDEP}]
+            dev-python/PyQt5[gui,network,printsupport,ssl,webchannel,widgets,${PYTHON_USEDEP}]
             dev-qt/qtcore:5
             dev-qt/qtgui:5
             dev-qt/qtwebengine:5[widgets]

@@ -4,17 +4,9 @@ sources:
   url: "https://github.com/macaroni-os/core-kit"
   branch: "mark-iii"
 
-- name: "security-kit"
-  url: "https://github.com/macaroni-os/security-kit"
-  branch: "mark-testing"
-
 - name: "kde-kit"
   url: "https://github.com/macaroni-os/kde-kit"
-  branch: "mark-testing"
-
-- name: "desktop-kit"
-  url: "https://github.com/macaroni-os/desktop-kit"
-  branch: "mark-testing"
+  branch: "mark-unstable"
 
 target:
   name: kde-kit
@@ -32,6 +24,7 @@ target:
 
     - pkg: lxde-base/menu-cache
     - pkg: lxqt-base/liblxqt
+    - pkg: lxqt-base/libsysstat
     - pkg: lxqt-base/lxqt-about
     - pkg: lxqt-base/lxqt-admin
     - pkg: lxqt-base/lxqt-config

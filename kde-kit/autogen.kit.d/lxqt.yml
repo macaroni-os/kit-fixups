@@ -1,0 +1,24 @@
+lxqt_github:
+  generator: builtin-github
+  defaults:
+    category: net-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+      user: lxqt
+
+  packages:
+    - libsysstat:
+        selector:
+          - '<1.0.0'
+        vars:
+          inherit:
+            - cmake
+          desc: Qt GUI for System Statistics
+          homepage: https://lxqt.github.io/
+          license: GPL-2+ LGPL-2.1+
+          bdepend: dev-util/lxqt-build-tools
+          rdepend: |
+            dev-qt/qtcore:5
+          depend: ${RDEPEND}

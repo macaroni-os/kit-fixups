@@ -20,6 +20,10 @@ sources:
   url: "https://github.com/geaaru/geaaru_overlay"
   branch: "funtoo"
 
+- name: "kde-kit"
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: "mark-testing"
+
 target:
   name: core-hw-kit
   url: "https://github.com/macaroni-os/core-hw-kit"
@@ -39,6 +43,7 @@ target:
   atoms:
 
     - pkg: app-admin/hddtemp
+    - pkg: app-admin/sysstat
 
     - pkg: app-laptop/hdapsd
     - pkg: app-laptop/radeontool
@@ -118,8 +123,8 @@ target:
 
     - pkg: sys-apps/cpuid
     - pkg: sys-apps/dtc
+    - pkg: sys-apps/hwdata
     - pkg: sys-apps/setserial
-    - pkg: app-admin/sysstat
     - pkg: sys-apps/smartmontools
     - pkg: sys-apps/usb_modeswitch
 

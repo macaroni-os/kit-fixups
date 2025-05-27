@@ -107,6 +107,11 @@ autogens:
           py:all:
             - toml
             - setuptools_scm
+        body: |
+          src_prepare() {
+            sed -i -e 's/license = "MIT"/license = { text = "MIT" }/' pyproject.toml || die
+            distutils-r1_src_prepare
+          }
     - ujson
     - ufbt:
         license: GPL-3+

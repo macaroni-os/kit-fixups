@@ -219,7 +219,11 @@ src_configure() {
 }
 
 src_compile() {
-	emake HAVE_TCL="$(usex tcl 1 "")" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}"
+	if use tcl || use test || use tools; then
+		emake HAVE_TCL="1" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}"
+	else
+		emake
+	fi
 
 	if use tools; then
 		emake changeset dbdump dbhash dbtotxt index_usage rbu scrub showdb showjournal showshm showstat4 showwal sqldiff sqlite3_analyzer sqlite3_checker sqlite3_expert sqltclsh
@@ -234,11 +238,19 @@ src_test() {
 
 	local -x SQLITE_HISTORY="${T}/sqlite_history_${ABI}"
 
-	emake HAVE_TCL="$(usex tcl 1 "")" $(use debug && echo fulltest || echo test)
+	if use tcl || use test || use tools; then
+		emake HAVE_TCL="1" $(use debug && echo fulltest || echo test)
+	else
+		emake $(use debug && echo fulltest || echo test)
+	fi
 }
 
 src_install() {
-	emake DESTDIR="${D}" HAVE_TCL="$(usex tcl 1 "")" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}" install
+	if use tcl || use test || use tools; then
+		emake DESTDIR="${D}" HAVE_TCL="1" TCLLIBDIR="${EPREFIX}/usr/$(get_libdir)/${P}" install
+	else
+		emake DESTDIR="${D}" install
+	fi
 
 	if use tools; then
 		install_tool() {

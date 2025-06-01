@@ -51,3 +51,55 @@ openssl:
             replace: '_p'
 
 
+sys_apps:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    category: sys-apps
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  packages:
+    - bubblewrap:
+        github:
+          user: containers
+        vars:
+          desc: Unprivileged sandboxing tool, namespaces-powered chroot-like solution
+          homepage: https://github.com/containers/bubblewrap/
+          license: LGPL-2
+          iuse: selinux suid
+          rdepend: |
+            sys-libs/libseccomp
+            sys-libs/libcap
+            selinux? ( sys-libs/libselinux )
+          depend: ${RDEPEND}
+          bdepend: |
+            app-text/docbook-xml-dtd:4.3
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            virtual/pkgconfig
+          inherit:
+            - meson
+
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbash_completion=enabled
+                -Dman=enabled
+                -Dtests=false
+                -Dzsh_completion=enabled
+                $(meson_feature selinux)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use suid; then
+                chmod u+s "${ED}"/usr/bin/bwrap
+              fi
+            }
+

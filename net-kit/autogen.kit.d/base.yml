@@ -224,4 +224,97 @@ net_libs_github:
             }
 
 
+flatpak:
+  generator: builtin-github
+  defaults:
+    category: sys-apps
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  packages:
+    - flatpak:
+        github:
+          user: flatpak
+        vars:
+          python_compat: "python3+"
+          desc: Linux application sandboxing and distribution framework
+          homepage: https://flatpak.org/
+          license: LGPL-2.1
+          iuse: introspection policykit seccomp X gnome kde
+          inherit:
+            - meson
+            - python-any-r1
+            - user
+          rdepend: |
+            sys-fs/libostree
+            net-libs/libsoup
+            gnome-base/dconf
+            dev-libs/appstream
+            dev-libs/appstream-glib
+            x11-libs/gdk-pixbuf:2
+            dev-libs/glib
+            dev-libs/libxml2
+            sys-apps/dbus
+            dev-libs/json-glib
+            x11-apps/xauth
+            app-arch/libarchive
+            app-crypt/gpgme
+            sys-fs/fuse
+            >=sys-apps/bubblewrap-0.10.0
+            dev-util/xdg-dbus-proxy
+            policykit? ( sys-auth/polkit )
+            seccomp? ( sys-libs/libseccomp )
+          depend: ${RDEPEND}
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-util/gdbus-codegen
+            sys-devel/bison
+            introspection? ( dev-libs/gobject-introspection )
+            $(python_gen_any_dep '
+              dev-python/pyparsing[${PYTHON_USEDEP}]
+            ')
+          pdepend: |
+            gnome? (
+              sys-apps/xdg-desktop-portal
+              sys-apps/xdg-desktop-portal-gtk
+            )
+            kde? (
+              sys-apps/xdg-desktop-portal
+              sys-apps/xdg-desktop-portal-kde
+            )
+          body: |
+            pkg_setup() {
+              enewgroup flatpak
+              enewuser flatpak -1 -1 /dev/null flatpak
+              python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                --localstatedir="${EPREFIX}"/var
+                -Ddbus_config_dir=/usr/share/dbus-1/system.d
+                -Dsystem_bubblewrap=bwrap
+                -Dsystem_dbus_proxy=xdg-dbus-proxy
+                -Dtmpfilesdir=/usr/lib/tmpfiles.d
+                # Disable doc generation
+                -Dgtkdoc=disabled
+                -Ddocbook_docs=disabled
+                # Disable systemd support
+                -Dsystemd=disabled
+                $(meson_use gnome gdm_env_file)
+                $(meson_use policykit tests)
+                $(meson_feature policykit system_helper)
+                $(meson_feature introspection gir)
+                $(meson_feature X xauth)
+                $(meson_feature seccomp seccomp)
+              )
+
+              meson_src_configure
+            }
+
+
+
+
 

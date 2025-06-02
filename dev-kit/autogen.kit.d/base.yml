@@ -68,3 +68,74 @@ linear_packages:
             replace: ""
 
 
+etcher:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-boot
+    github:
+      query: releases
+  packages:
+    - etcher-bin:
+        github:
+          user: balena-io
+          repo: etcher
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-amd64.tar.gz'
+            matcher: 'balena-{{ .Values.pn | replace "-bin" "" }}_{{ .Values.version }}_amd64.deb$'
+        vars:
+          inherit:
+            - desktop
+            - eutils
+            - electron
+            - unpacker
+            - pax-utils
+            - xdg
+          desc: Flash OS images to SD cards & USB drives, safely and easily.
+          homepage: https://etcher.io/
+          license: GPL-2
+          cdepend: |
+            media-libs/libpng
+            x11-libs/gtk+
+            x11-libs/cairo
+            x11-libs/libXtst
+            sys-apps/lsb-release
+          depend: ${CDEPEND}
+          rdepend: |
+            ${CDEPEND}
+            x11-libs/libnotify
+            x11-libs/libXScrnSaver
+            dev-libs/nss
+          body: |
+            src_unpack() {
+              # etcher does not use a containing folder(deb archive)
+              # manual intervention required
+              install -d "${WORKDIR}/${P}"
+              S="${WORKDIR}/${P}"
+              cd "${S}" || die "cd into target directory ${S} failed"
+              unpack_deb "${A}"
+            }
+            src_install() {
+              local instdir="/opt/balenaEtcher"
+              local balenabin="balena-{{ .Values.pn | replace "-bin" "" }}"
+              insinto ${instdir}
+              doins -r *
+              dosym "${instdir}/${balenabin}" "/usr/bin/{{ .Values.pn | replace "-bin" "" }}" || die
+              make_wrapper "{{ .Values.pn | replace "-bin" "" }}" "${instdir}/${balenabin}" || die
+              # only contains changelog"
+              rm -rf "${D}/usr/share/doc" || die
+              # use own desktop file
+              rm -fR "${D}/usr/share/applications" || die
+              domenu "${FILESDIR}/{{ .Values.pn | replace "-bin" "" }}.desktop" || die
+              # correct permissions of install components
+              fperms a+x "${instdir}/usr/bin/${balenabin}" || die
+              pax-mark m "${instdir}/usr/bin/${balenabin}" || die
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+            }
+            pkg_postrm() {
+              xdg_pkg_postrm
+            }
+

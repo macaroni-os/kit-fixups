@@ -129,6 +129,19 @@ setuptools_modules:
             - wheel
             - cython
 
+    - llfuse:
+        vars:
+          license: LGPL-2
+          depend: |
+            sys-apps/attr
+            virtual/pkgconfig
+          rdepend: |
+            sys-fs/fuse:0
+        pydeps:
+          py:all:build:
+            - setuptools
+
+
     - html5lib:
         vars:
           license: MIT

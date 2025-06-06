@@ -21,6 +21,7 @@ RDEPEND="${DEPEND}"
 PATCHES=(
 	# https://bugs.gentoo.org/891633
 	"${FILESDIR}/${PN}-2.3-liburing.map-Export-io_uring_-enable_rings-register_.patch"
+	"${FILESDIR}/${PN}-2.10-io_uring_cqe_iter_cqhead.patch"
 )
 
 post_src_unpack() {

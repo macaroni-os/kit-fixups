@@ -633,7 +633,7 @@ dev-qt:
             app-accessibility/speech-dispatcher
             dev-qt/qtcore:{{ .Values.slot }}
             flite? (
-              >=app-accessibility/flite-2[alsa?]
+              app-accessibility/flite[alsa?]
               dev-qt/qtmultimedia:{{ .Values.slot }}[alsa?]
               alsa? ( media-libs/alsa-lib )
             )

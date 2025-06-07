@@ -4,11 +4,11 @@ EAPI="7"
 
 inherit flag-o-matic toolchain-funcs multilib-minimal
 
-DESCRIPTION="full-strength general purpose cryptography library (including SSL and TLS)"
-HOMEPAGE="https://www.openssl.org/"
-SRC_URI="{{ artifacts[0].src_uri }}"
+DESCRIPTION="{{ desc }}"
+HOMEPAGE="{{ homepage }}"
+SRC_URI="{{ src_uri }}"
+LICENSE="{{ license }}"
 
-LICENSE="openssl"
 SLOT="0/${PVR}" # Funtoo change -- force more frequent rebuilds.
 {%- if unmasked %}
 KEYWORDS="*"
@@ -18,6 +18,8 @@ KEYWORDS=""
 # bindist is currently a no-op in funtoo, maintained for compatibility with older ebuilds:
 IUSE="+asm -bindist libc_musl rfc3779 sctp cpu_flags_x86_sse2 -sslv3 static-libs test +tls-compression tls-heartbeat vanilla"
 RESTRICT="!test? ( test )"
+
+S="${WORKDIR}/{{github_user}}-{{github_repo}}-{{sha[:7]}}"
 
 # app-misc/c_rehash is deprecated by https://bugs.funtoo.org/browse/FL-10434
 # openssl installs perl version of c_rehash by default
@@ -38,12 +40,6 @@ BDEPEND="
 		sys-process/procps
 	)"
 PDEPEND="app-misc/ca-certificates"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-1.1.0j-parallel_install_fix.patch #671602
-	"${FILESDIR}"/${PN}-1.1.1i-riscv32.patch
-	"${FILESDIR}"/${PN}-3.0.5-test-memcmp.patch
-)
 
 # force upgrade to prevent broken login, bug 696950
 RDEPEND+=" !<net-misc/openssh-8.0_p1-r3"
@@ -250,7 +246,7 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
-	dodoc CHANGES* FAQ NEWS README doc/*.txt doc/${PN}-c-indent.el
+	dodoc CHANGES* NEWS.md README.md doc/*.txt doc/${PN}-c-indent.el
 
 	# create the certs directory
 	keepdir ${SSL_CNF_DIR}/certs

@@ -1,8 +1,10 @@
 openssl:
-  generator: openssl
+  generator: github-1
   packages:
     - openssl:
-        template: openssl_1.1.tmpl
-        versions:
-          1.1.1q:
-            unmasked: True
+        description: full-strength general purpose cryptography library (including SSL and TLS)
+        homepage: https://www.openssl.org
+        license: openssl
+        github:
+          user: openssl
+          query: releases

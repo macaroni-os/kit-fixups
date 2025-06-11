@@ -2,27 +2,11 @@ sources:
 # We need this to inherit the eclass used for kit cache JSON generation
 - name: "core-kit"
   url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-testing"
-
-- name: "python-kit"
-  url: "https://github.com/macaroni-os/python-kit"
-  branch: "mark-testing"
+  branch: "mark-xl"
 
 - name: "security-kit"
   url: "https://github.com/macaroni-os/security-kit"
-  branch: "mark-testing"
-
-- name: "gnome-kit"
-  url: "https://github.com/macaroni-os/gnome-kit"
-  branch: "mark-testing"
-
-- name: "net-kit"
-  url: "https://github.com/macaroni-os/net-kit"
-  branch: "mark-testing"
-
-- name: "dev-kit"
-  url: "https://github.com/macaroni-os/dev-kit"
-  branch: "mark-testing"
+  branch: "mark-unstable"
 
 target:
   name: security-kit
@@ -69,6 +53,8 @@ target:
     - pkg: dev-libs/npth
 
     - pkg: dev-libs/openssl
+      conditions:
+        - '<dev-libs/openssl-3.0'
 
     - pkg: net-libs/gnutls
     - pkg: net-misc/openssh

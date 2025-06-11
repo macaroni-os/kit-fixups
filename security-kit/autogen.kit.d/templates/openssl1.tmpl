@@ -3,7 +3,6 @@
 
 EAPI={{ .Values.eapi | default "7" }}
 
-PRESERVE_LIB_FORCE=1
 inherit flag-o-matic toolchain-funcs preserve-libs
 
 DESCRIPTION="{{ .Values.desc }}"
@@ -14,7 +13,8 @@ LICENSE="{{ .Values.license }}"
 SLOT="{{ .Values.slot | default "0" }}/${PVR}" # Funtoo change -- force more frequent rebuilds.
 KEYWORDS="{{ .Values.keywords | default "*" }}"
 # TODO: Add support for fips
-IUSE="+asm libc_musl rfc3779 sctp cpu_flags_x86_sse2 static-libs +tls-compression vanilla weak-ssl-ciphers"
+# keep bindist USE for compatibility with older ebuilds until we will migrate to openssl3.
+IUSE="+asm -bindist libc_musl rfc3779 sctp cpu_flags_x86_sse2 weak-ssl-ciphers static-libs +tls-compression tls-heartbeat vanilla"
 RESTRICT=""
 
 # app-misc/c_rehash is deprecated by https://bugs.funtoo.org/browse/FL-10434
@@ -110,15 +110,17 @@ src_configure() {
 		enable-sm2 \
 		enable-srp \
 		$(use elibc_musl && echo "no-async") \
+		${ec_nistp_64_gcc_128} \
 		enable-idea \
 		enable-mdc2 \
 		enable-rc5 \
+		$(use_ssl weak-ssl-ciphers) \
 		no-tests \
 		$(use_ssl asm) \
 		$(use_ssl rfc3779) \
 		$(use_ssl sctp) \
 		$(use_ssl tls-compression zlib) \
-		$(use_ssl weak-ssl-ciphers) \
+		$(use_ssl tls-heartbeat heartbeats) \
 		shared threads \
 		|| die
 
@@ -150,7 +152,10 @@ src_install() {
 		rm "${ED}"/usr/$(get_libdir)/lib{crypto,ssl}.a || die
 	fi
 
-	dodoc {AUTHORS,CHANGES,NEWS,README,README-PROVIDERS}.md doc/*.txt doc/${PN}-c-indent.el
+	# Avoid conflicts with sys-apps/shadow
+	rm "${ED}"/usr/share/man/man1/{openssl-passwd,passwd}.* || die
+
+	dodoc AUTHORS CHANGES FAQ NEWS README doc/*.txt doc/${PN}-c-indent.el
 	# create the certs directory
 	keepdir ${SSL_CNF_DIR}/certs
 
@@ -161,23 +166,10 @@ src_install() {
 	keepdir ${SSL_CNF_DIR}/private
 }
 
-pkg_preinst() {
-	# Force preseve of libssl.so.1.1 if prsent
-	if [ -e /usr/$(get_libdir)/libssl$(get_libname 1.1) ] ; then
-		preserve_old_lib /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
-			/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
-	fi
-}
-
 pkg_postinst() {
 	ebegin "Running 'openssl rehash ${EROOT}${SSL_CNF_DIR}/certs/' to rebuild hashes #333069"
 	openssl rehash "${EROOT}${SSL_CNF_DIR}/certs" >/dev/null
 	eend $?
-
-	if [ -e /usr/$(get_libdir)/libssl$(get_libname 1.1) ] ; then
-		preserve_old_lib_notify /usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1) \
-			/usr/$(get_libdir)/lib{crypto,ssl}$(get_libname 1.1)
-	fi
 }
 
 # vim: filetype=ebuild

@@ -1,0 +1,73 @@
+From 6706b3e9511ba7eb2c9f3c98376f7ebccbc0753f Mon Sep 17 00:00:00 2001
+From: fossdd <fossdd@pwned.life>
+Date: Tue, 25 Mar 2025 22:42:01 +0100
+Subject: [PATCH] Revert "Remove support for elogind"
+
+(e)logind is used by fwupd for poweroff/reboot and for the logind
+plugin, which "is used to ensure that the machine does not enter a
+low power mode when updates are being performed".
+
+Upstream removed support for elogind, but I think it is still useful and
+important downstream.
+
+This reverts commit bbda9dec06674757da55ce6a241953c37553aaf9.
+
+Signed-off-by: fossdd <fossdd@pwned.life>
+---
+ meson.build                | 6 ++++++
+ meson_options.txt          | 4 ++++
+ plugins/logind/meson.build | 2 +-
+ 3 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 8bffa1e23..7626fb567 100644
+--- a/meson.build
++++ b/meson.build
+@@ -517,6 +517,11 @@ if libsystemd.found()
+   endif
+ endif
+ 
++elogind = dependency('systemd', 'libelogind', required: get_option('elogind'))
++if elogind.found()
++  conf.set('HAVE_LOGIND' , '1')
++endif
++
+ supported_build = get_option('supported_build').disable_auto_if(not tag).allowed()
+ if supported_build
+     conf.set('SUPPORTED_BUILD', '1')
+@@ -702,6 +707,7 @@ summary({
+   'dbus_socket_address': get_option('dbus_socket_address'),
+   'vendor_ids_dir': vendor_ids_dir,
+   'docs': build_docs,
++  'elogind': elogind,
+   'gnutls': gnutls,
+   'introspection': introspection.allowed(),
+   'libblkid': libblkid,
+diff --git a/meson_options.txt b/meson_options.txt
+index 40103c03e..bf8e96433 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -39,6 +39,10 @@ option('efi_os_dir',
+   type: 'string',
+   description: 'the hardcoded name of OS directory in ESP, e.g. fedora',
+ )
++option('elogind',
++  type: 'feature',
++  description: 'elogind support',
++)
+ option('firmware-packager',
+   type: 'boolean',
+   value: true,
+diff --git a/plugins/logind/meson.build b/plugins/logind/meson.build
+index f07118cd9..257b8f455 100644
+--- a/plugins/logind/meson.build
++++ b/plugins/logind/meson.build
+@@ -1,4 +1,4 @@
+-if libsystemd.found()
++if libsystemd.found() or elogind.found()
+ cargs = ['-DG_LOG_DOMAIN="FuPluginLogind"']
+ plugins += {meson.current_source_dir().split('/')[-1]: true}
+ 
+-- 
+2.49.0
+

@@ -30,6 +30,7 @@ fwupd_packages:
     category: sys-apps
     vars:
       python_compat: python3+
+      homepage: https://fwupd.org
     github:
       user: fwupd
       query: releases
@@ -40,7 +41,6 @@ fwupd_packages:
         vars:
           license: LGPL-2.1+
           desc: Aims to make updating firmware on Linux automatic, safe and reliable
-          homepage: https://fwupd.org
           inherit:
             - bash-completion-r1
             - meson
@@ -165,4 +165,33 @@ fwupd_packages:
             pkg_postrm() {
               xdg_pkg_postrm
               use minimal || udev_reload
+            }
+
+    - fwupd-efi:
+        vars:
+          license: LGPL-2.1+
+          desc: EFI executable for fwupd
+          inherit:
+            - meson
+            - python-single-r1
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+          depend: |
+            sys-boot/gnu-efi
+            $(python_gen_cond_dep 'dev-python/pefile[${PYTHON_USEDEP}]')
+          body: |
+            src_prepare() {
+              default
+              python_fix_shebang "${S}/efi"
+            }
+            src_configure() {
+              local emesonargs=(
+                -Defi-libdir="${EPREFIX}"/usr/$(get_libdir)
+                -Defi_sbat_distro_id="macaroni"
+                -Defi_sbat_distro_summary="MacaroniOS GNU/Linux"
+                -Defi_sbat_distro_pkgname="${PN}"
+                -Defi_sbat_distro_version="${PVR}"
+              )
+              meson_src_configure
             }

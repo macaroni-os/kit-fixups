@@ -1,0 +1,38 @@
+media_fonts_noop:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: media-fonts
+
+  packages:
+    - sedgwick-ave-display:
+        vars:
+          versions:
+            - "20250621"
+          # SIL Open Font License Version 1.1
+          license: OFL
+          desc: Sedgwick Ave Display Font
+          inherit:
+            - font
+          bdepend: |
+            app-arch/unzip
+          s: "${WORKDIR}"
+          body: |
+            src_install() {
+              local fontdir=/usr/share/fonts
+              insinto ${fontdir}
+              doins ${S}/SedgwickAveDisplay-Regular.ttf
+            }
+            pkg_postrm() {
+              font_pkg_postrm
+            }
+            pkg_postinst() {
+              font_pkg_postinst
+            }
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.zip"
+            url: https://font.download/dl/font/sedgwick-ave-display.zip

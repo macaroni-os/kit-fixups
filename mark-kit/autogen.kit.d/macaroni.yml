@@ -164,6 +164,9 @@ geaaru_tools:
         vars:
           homepage: https://github.com/geaaru/pkgs-checker
           desc: Macaroni OS Artefacts Checker
+          src_install_extra: |
+            insinto /usr/share/pkgs-checker
+            doins "${S}"/contrib/gen-uses-filter.yaml
 
 mottainaici:
   generator: builtin-github

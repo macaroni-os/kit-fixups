@@ -1,0 +1,95 @@
+debian_sources:
+  generator: custom
+  generator_opts:
+    script: sys-kernel/debian-sources/generator.py
+    enable_set_version: 'false'
+
+  defaults:
+    files_dir: sys-kernel/debian-sources/files
+    template: templates/debian-sources.tmpl
+    category: sys-kernel
+    vars:
+      # NOTE: update this file when zfs-kmod changes
+      openzfs_meta_url: https://raw.githubusercontent.com/openzfs/zfs/zfs-2.3-release/META
+      desc: 'Debian Sources (and optional binary kernel)'
+      homepage: 'https://packages.debian.org/unstable/kernel/'
+      #additional_artifacts:
+        #rtw89-driver: 'https://build.funtoo.org/distfiles/debian-sources/debian-sources-6.3.7_p1-rtw89-driver.tar.gz'
+      common_patches:
+        - ikconfig.patch
+        - mcelog.patch
+      license: GPL-2
+      iuse: |
+        acpi-ec binary btrfs custom-cflags dracut ec2 +logo luks lvm mdadm savedconfig sshd sign-modules zfs
+      rdepend: |
+        sys-apps/gawk
+        dracut? (
+          sys-kernel/dracut
+          virtual/dracut-mark
+        )
+      depend: |
+        virtual/libelf
+        btrfs? ( sys-fs/btrfs-progs )
+        zfs? ( sys-fs/zfs )
+        luks? ( sys-fs/cryptsetup )
+        lvm? ( sys-fs/lvm2 )
+      required_use: |
+        binary? (
+          ^^ ( dracut )
+          btrfs? ( dracut )
+          mdadm? ( dracut )
+          luks? ( dracut )
+          lvm? ( dracut )
+          sshd? ( dracut )
+        )
+        sshd? ( binary )
+
+  packages:
+    - debian-sources:
+        vars:
+          level: unstable
+          branch: sid
+          track_openzfs: False
+          patches:
+            - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
+          config_extract: 6.6
+    - debian-sources:
+        vars:
+          level: testing
+          branch: trixie
+          track_openzfs: True
+          patches:
+            - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+          config_extract: 6.6
+    - debian-sources:
+        vars:
+          level: stable
+          branch: bookworm
+          track_openzfs: True
+          patches:
+            - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+          config_extract: 6.1
+
+
+# TODO: move to separate file, as it's not specifically debian-sources--related
+dracut_config:
+  generator: builtin-noop
+  template:
+    engine: helm
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+    ignore_artefacts: true
+  packages:
+    - dracut-mark:
+        files_dir: virtual/dracut-mark
+        vars:
+          versions:
+            - "1"
+          desc: A virtual package that installs a Dracut config for MARK
+          s: "${WORKDIR}"
+          body: |
+            src_install() {
+              insinto /etc/dracut.conf.d/
+              newins ${FILESDIR}/dracut-mark.conf 99-macaroni.conf
+            }

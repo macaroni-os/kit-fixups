@@ -120,3 +120,24 @@ emulation_modules:
             pkg_postinst() {
               use gtk && gnome3_pkg_postinst
             }
+
+sudo:
+  generator: builtin-dirlisting
+  defaults:
+    template: templates/sudo.tmpl
+    category: app-admin
+  packages:
+    - sudo:
+        dir:
+          url: https://www.sudo.ws/dist/
+          matcher: "sudo-.*.tar.gz"
+        transform:
+          - kind: string
+            match: 'sudo-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+          - kind: string
+            match: 'p'
+            replace: '.'

@@ -54,12 +54,16 @@ async def fetch_patches(hub, package_url, name, version):
 	url = f"{package_url}/{name}-{version}-patches/"
 	name = f"{name}{version.replace('.','')}"
 
-	patches = await fetch_soup(hub, url, name)
-	patch_artifacts = [hub.pkgtools.ebuild.Artifact(url=url + p.get('href')) for p in patches]
 	try:
-		plevel = max([generic.parse(p.contents[0].split('-')[1]) for p in patches]).public
-		return plevel, patch_artifacts
-	except ValueError:
+		patches = await fetch_soup(hub, url, name)
+		patch_artifacts = [hub.pkgtools.ebuild.Artifact(url=url + p.get('href')) for p in patches]
+		try:
+			plevel = max([generic.parse(p.contents[0].split('-')[1]) for p in patches]).public
+			return plevel, patch_artifacts
+		except ValueError:
+			return 0, []
+	except Exception as e:
+		# If patches directory doesn't exist (like for 8.3), return empty
 		return 0, []
 
 # vim: ts=4 sw=4 noet

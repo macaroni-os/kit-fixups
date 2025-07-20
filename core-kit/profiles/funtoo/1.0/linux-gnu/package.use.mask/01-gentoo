@@ -1,10 +1,6 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-# Jason Zaman <perfinion@gentoo.org> (06 Sep 2015)
-# This is masked in base/package.use.mask as Linux only.
-sys-auth/consolekit -cgroups
-
 # Michael Palimaka <kensington@gentoo.org> (03 Sep 2015)
 # Native inotify support is preferred on linux.
 kde-frameworks/kdelibs fam
@@ -51,10 +47,6 @@ sys-libs/glibc hardened
 # Samuli Suominen <ssuominen@gentoo.org> (30 Apr 2012)
 # This is replaced by native CONFIG_INOTIFY_USER support wrt #413403
 =dev-libs/glib-2* fam
-
-# Samuli Suominen <ssuominen@gentoo.org (20 Mar 2012)
-# This is masked in base/package.use.mask as Linux only.
-sys-auth/consolekit -acl
 
 # Samuli Suominen <ssuominen@gentoo.org> (10 Jan 2012)
 # Masked in base/package.use.mask as Linux -only feature

@@ -83,6 +83,16 @@ flit_modules:
               fi
             }
 
+    - packaging:
+        vars:
+          homepage: https://github.com/pypa/packaging/
+          license: '|| ( Apache-2.0 BSD-2 )'
+        pydeps_ignore:
+          - 'extra == "test"'
+        selector:
+          - '<25'
+
+
 setuptools_modules:
   generator: builtin-pypi
   template:

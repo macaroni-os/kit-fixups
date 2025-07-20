@@ -177,6 +177,65 @@ net_wireless_noop:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             prefix: https://w1.fi/releases/
 
+
+net_vpn_github:
+  generator: builtin-github
+  defaults:
+    category: net-vpn
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: tags
+
+  packages:
+    - wireguard-tools:
+        github:
+          user: WireGuard
+        vars:
+          desc: Required tools for WireGuard, such as wg(8) and wg-quick(8)
+          homepage: https://www.wireguard.com/
+          license: GPL-2
+          inherit:
+            - bash-completion-r1
+            - systemd
+            - toolchain-funcs
+          bdepend: virtual/pkgconfig
+          iuse: systemd
+          body: |
+            src_compile() {
+              emake RUNSTATEDIR="${EPREFIX}/run" \
+                -C src CC="$(tc-getCC)" LD="$(tc-getLD)"
+            }
+            src_install() {
+              local emakeargs=(
+                WITH_BASHCOMPLETION=yes
+                WITH_WGQUICK=yes
+                DESTDIR="${D}"
+                BASHCOMPDIR="$(get_bashcompdir)"
+                SYSTEMDUNITDIR="$(systemd_get_systemunitdir)"
+                PREFIX="${EPREFIX}/usr"
+              )
+
+              if use systemd ; then
+                emakeargs+=(
+                  WITH_SYSTEMDUNITS=yes
+                )
+              else
+                emakeargs+=(
+                  WITH_SYSTEMDUNITS=no
+                )
+              fi
+
+              dodoc README.md
+              dodoc -r contrib
+              emake "${emakeargs[@]}" -C src install
+
+              if ! use systemd ; then
+                newinitd "${FILESDIR}"/wg-quick.initd wg-quick
+              fi
+            }
+
+
 net_libs_github:
   generator: builtin-github
   defaults:

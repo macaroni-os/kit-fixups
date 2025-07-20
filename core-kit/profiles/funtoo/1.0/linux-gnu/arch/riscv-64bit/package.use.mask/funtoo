@@ -1,0 +1,18 @@
+# Moritz Maxeiner <mm@ucw.sh> (2019-04-14)
+# pcre jit is not available for RISC-V
+dev-libs/libpcre jit
+dev-libs/libpcre2 jit
+dev-vcs/git pcre-jit
+
+# Moritz Maxeiner <mm@ucw.sh> (2021-09-12)
+# MongoDB bundles old spidermonkey with no riscv support
+# Upstream support: https://bugzilla.mozilla.org/show_bug.cgi?id=1318905
+dev-db/mongodb shell
+
+# Moritz Maxeiner <mm@ucw.sh> (2021-10-22)
+# No upstream support for riscv asm
+media-libs/libglvnd asm
+
+# Moritz Maxeiner <mm@ucw.sh> (2021-10-23)
+# No upstream jit support
+dev-lang/spidermonkey jit

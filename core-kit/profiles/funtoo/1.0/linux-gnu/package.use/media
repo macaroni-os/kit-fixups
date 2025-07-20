@@ -1,0 +1,6 @@
+# FL-4579: enable graphic support in imlib2 to make it functional on non-desktop profiles too.
+media-libs/imlib2 gif jpeg png tiff
+
+# This came up in testing sandro's setup -- a circular dep. These changes resolve it.
+# See FL-6667. We also need a -qt5 for graphviz in the kde-plasma-5 mix-in.
+media-gfx/graphviz -svg -qt5

@@ -1,0 +1,52 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "kernel-kit"
+  url: "https://github.com/macaroni-os/kernel-kit"
+  branch: "mark-iii"
+
+target:
+  name: kernel-kit
+  url: "https://github.com/macaroni-os/kernel-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: sys-kernel/linux-headers
+      conditions:
+        - '>=sys-kernel/linux-headers-6.9'
+        - '<sys-kernel/linux-headers-6.10'
+
+    - pkg: sys-kernel/linux-headers
+      conditions:
+        - '>=sys-kernel/linux-headers-5.10'
+        - '<sys-kernel/linux-headers-5.11'
+
+    - pkg: sys-kernel/dummy-sources
+    - pkg: sys-kernel/vanilla-sources
+
+    - pkg: sys-kernel/linux-firmware
+
+    - pkg: sys-kernel/dracut
+
+    - pkg: sys-block/zram-init
+
+    - pkg: sys-apps/kmod
+    - pkg: sys-apps/gptfdisk
+
+    - pkg: virtual/os-headers
+    - pkg: virtual/linux-sources
+    - pkg: virtual/modutils

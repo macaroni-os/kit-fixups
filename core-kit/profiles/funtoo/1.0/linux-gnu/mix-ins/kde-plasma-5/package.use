@@ -1,0 +1,133 @@
+# required by kde-plasma/kinfocenter-5.27.9::kde-kit
+x11-apps/mesa-progs egl
+
+# FL-10946:
+app-doc/doxygen -qt5
+
+# FL-6667: remove circular dep. This needs to exist here, not just in the gnome mix-in,
+# since make.defaults enables qt5 globally. Then we need to turn it off here for
+# graphviz *again*:
+media-gfx/graphviz -qt5
+
+# telepathy-qt require farstream USE. FL-6061:
+net-libs/telepathy-qt farstream
+
+dev-libs/libgusb -vala
+
+net-dns/avahi mdnsresponder-compat
+
+# FL-5121: synchronizes qt4 USE's with gentoo
+>=media-libs/phonon-vlc-0.9.1-r1 qt4
+>=media-libs/phonon-4.9.1-r1 qt4
+>=dev-libs/libdbusmenu-qt-0.9.3_pre20160218-r1 qt4
+
+# Add svc USE to libvpx, need for emerge kde.
+>=media-libs/libvpx-1.6.1 svc
+
+# enable touchpad USE for plasma-desktop. Looks good to have enabled by default. FL-4936
+kde-plasma/plasma-desktop touchpad
+
+# enable gtk USE for the libreoffice, when kde USE enabled. Weird, but required.
+app-office/libreoffice gtk
+
+# libpcre2 require pcre16 USE flag
+dev-libs/libpcre2 pcre16
+
+# FL-3982: temporary disable python use for kdegames-meta
+>=kde-apps/kdegames-meta-17.04.3 -python
+
+#  Required by kde-plasma/plasma-pa
+media-sound/pulseaudio gconf
+
+# kde-frameworks/networkmanager-qt need polkit compiled with introspection:
+sys-auth/polkit introspection
+
+x11-libs/libxcb xkb
+
+# plasma 5 builds still building applications that are qt4 only. Adjust USE flags for them:
+dev-qt/qtopengl qt3support
+dev-qt/qtcore qt3support
+dev-qt/qtdeclarative qt3support
+dev-qt/qtgui qt3support
+dev-qt/qtsql qt3support
+
+# Avoid circular dependency when installing from scratch
+dev-util/cmake -qt4 -qt5
+
+# Not required, but makes life easier with Qt; bug 457934
+app-arch/unzip natspec
+
+# Required by app-office/akonadi-server
+dev-qt/qtsql mysql
+
+# Required by dev-qt/qtcore
+dev-libs/libpcre pcre16
+
+# Required by media-gfx/graphviz which is required by kde-apps/kcachegrind
+media-libs/gd fontconfig
+
+# Required by kde-apps/ktp-text-ui
+kde-apps/ktp-common-internals otr
+
+# Required by kde-apps/libkexiv2
+media-gfx/exiv2 xmp
+
+# Required by kde-apps/okteta
+dev-qt/qtscript scripttools
+
+# Required by kde-base/pykde4
+dev-python/PyQt4 script sql webkit
+
+# Required by kde-frameworks/kactivities
+sys-libs/zlib minizip
+
+# Required by kde-frameworks/kapidox
+media-gfx/graphviz python
+
+# Required by kde-frameworks/kcoreaddons
+dev-qt/qtcore icu
+
+# Required by kde-plasma/kwin
+media-libs/mesa egl
+
+# Required by net-libs/signon-ui
+net-libs/libproxy -kde
+
+# Required by kde-apps/kdenlive
+>=media-libs/mlt-0.9.8-r2 kdenlive melt sdl
+>=media-video/ffmpeg-4.3.1-r2 sdl
+
+# Allow certain KDE 4 components to be coinstalled with Plasma 5
+kde-apps/solid-runtime -bluetooth
+kde-frameworks/baloo minimal
+sys-auth/polkit-kde-agent minimal
+
+# Required by app-office/libreoffice
+media-libs/phonon designer
+
+#Required by kde-apps/kate[addons]
+dev-libs/libgit2 threads
+
+# FIXME: unnecessary REQUIRED_USE ^^ ( qt4 qt5 )
+<app-office/texmaker-4.5-r1 -qt4
+<dev-libs/quazip-0.7.2-r1 -qt4
+dev-python/qscintilla-python -qt4
+x11-libs/qscintilla -qt4
+
+# Fix REQUIRED_USE conflicts: qt5? ( !qt4 )
+>=app-crypt/pinentry-0.9.6-r5 -qt4
+<dev-games/openscenegraph-3.5.1-r1 -qt4
+>=kde-misc/kdiff3-0.9.98-r1 -kde -qt4
+>=media-libs/opencv-2.4.12-r1 -qt4
+<media-video/smplayer-16.4.0-r2 -qt4
+net-analyzer/wireshark -qt4
+<net-print/hplip-3.16.11-r3 -qt4
+<net-wireless/wpa_supplicant-2.6-r1 -qt4
+
+# Changes prompted following removal of the parent file (containging ../gnome and ../wayland) 2022-03-22
+>=dev-qt/qtgui-5.15.2-r1 egl
+>=media-libs/mesa-20.2.4-r2 wayland
+media-sound/jack2 -ieee1394
+
+# required by media-sound/pulseaudio-16.1::gnome-kit[alsa-plugin,alsa]
+media-plugins/alsa-plugins pulseaudio

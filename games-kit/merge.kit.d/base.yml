@@ -1,0 +1,33 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "games-kit"
+  url: "https://github.com/macaroni-os/games-kit"
+  branch: "mark-iii"
+
+target:
+  name: games-kit
+  url: "https://github.com/macaroni-os/games-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-games/freecell-solver
+
+    - pkg: games-board/crafty
+    - pkg: games-board/gnuchess
+    - pkg: games-board/stockfish
+

@@ -1,0 +1,142 @@
+release:
+
+  sources:
+  - name: "core-kit"
+    url: "https://github.com/macaroni-os/core-kit"
+    branch: "mark-i"
+    # Override the git pull depth optionally. This is set on kit-sha1.json
+    # depth: 4
+
+  - name: "browser-kit"
+    url: "https://github.com/macaroni-os/browser-kit"
+    branch: "mark-i"
+
+  - name: "mark-kit"
+    url: "https://github.com/macaroni-os/mark-kit"
+    branch: "mark-i"
+
+  - name: "core-server-kit"
+    url: "https://github.com/macaroni-os/core-server-kit"
+    branch: "mark-i"
+
+  - name: "core-hw-kit"
+    url: "https://github.com/macaroni-os/core-hw-kit"
+    branch: "mark-i"
+
+  - name: "core-gl-kit"
+    url: "https://github.com/macaroni-os/core-gl-kit"
+    branch: "mark-i"
+
+  - name: "desktop-kit"
+    url: "https://github.com/macaroni-os/desktop-kit"
+    branch: "mark-i"
+
+  - name: "dev-kit"
+    url: "https://github.com/macaroni-os/dev-kit"
+    branch: "mark-i"
+
+  - name: "lang-kit"
+    url: "https://github.com/macaroni-os/lang-kit"
+    branch: "mark-i"
+
+  - name: "editors-kit"
+    url: "https://github.com/macaroni-os/editors-kit"
+    branch: "mark-i"
+
+  - name: "gnome-kit"
+    url: "https://github.com/macaroni-os/gnome-kit"
+    branch: "mark-i"
+
+  - name: "i18n-kit"
+    url: "https://github.com/macaroni-os/i18n-kit"
+    branch: "mark-i"
+
+  - name: "java-kit"
+    url: "https://github.com/macaroni-os/java-kit"
+    branch: "mark-i"
+
+  - name: "kde-kit"
+    url: "https://github.com/macaroni-os/kde-kit"
+    branch: "mark-i"
+
+  - name: "perl-kit"
+    url: "https://github.com/macaroni-os/perl-kit"
+    branch: "mark-i"
+
+  - name: "python-kit"
+    url: "https://github.com/macaroni-os/python-kit"
+    branch: "mark-i"
+
+  - name: "python-modules-kit"
+    url: "https://github.com/macaroni-os/python-modules-kit"
+    branch: "mark-i"
+
+  - name: "portage-kit"
+    url: "https://github.com/macaroni-os/portage-kit"
+    branch: "mark-i"
+
+  - name: "media-kit"
+    url: "https://github.com/macaroni-os/media-kit"
+    branch: "mark-i"
+
+  - name: "net-kit"
+    url: "https://github.com/macaroni-os/net-kit"
+    branch: "mark-i"
+
+  - name: "kernel-kit"
+    url: "https://github.com/macaroni-os/kernel-kit"
+    branch: "mark-i"
+
+  - name: "security-kit"
+    url: "https://github.com/macaroni-os/security-kit"
+    branch: "mark-i"
+
+  - name: "science-kit"
+    url: "https://github.com/macaroni-os/science-kit"
+    branch: "mark-i"
+
+  - name: "text-kit"
+    url: "https://github.com/macaroni-os/text-kit"
+    branch: "mark-i"
+
+  - name: "llvm-kit"
+    url: "https://github.com/macaroni-os/llvm-kit"
+    branch: "mark-i"
+
+  - name: "ruby-kit"
+    url: "https://github.com/macaroni-os/ruby-kit"
+    branch: "mark-i"
+
+  - name: "qt-kit"
+    url: "https://github.com/macaroni-os/qt-kit"
+    branch: "mark-i"
+
+  - name: "xfce-kit"
+    url: "https://github.com/macaroni-os/xfce-kit"
+    branch: "mark-i"
+
+  - name: "xorg-kit"
+    url: "https://github.com/macaroni-os/xorg-kit"
+    branch: "mark-i"
+
+  - name: "games-kit"
+    url: "https://github.com/macaroni-os/games-kit"
+    branch: "mark-i"
+
+  - name: "php-kit"
+    url: "https://github.com/macaroni-os/php-kit"
+    branch: "mark-i"
+
+  - name: "lisp-scheme-kit"
+    url: "https://github.com/macaroni-os/lisp-scheme-kit"
+    branch: "mark-i"
+
+  main_kit: "core-kit"
+
+  target:
+    # Keep the name with `meta-repo` to have
+    # ego sync working correctly.
+    name: meta-repo
+    url: "https://github.com/macaroni-os/meta-repo"
+    branch: mark-i
+

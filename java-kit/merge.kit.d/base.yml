@@ -1,0 +1,63 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "java-kit"
+  url: "https://github.com/macaroni-os/java-kit"
+  branch: "mark-iii"
+
+target:
+  name: java-kit
+  url: "https://github.com/macaroni-os/java-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-java/ant-bin
+
+    - pkg: dev-java/gradle-bin
+    - pkg: dev-java/javatoolkit
+
+    - pkg: dev-java/oracle-jdk-bin:17
+    - pkg: dev-java/oracle-jdk-bin:20
+
+    - pkg: dev-java/openjdk-bin:8
+    - pkg: dev-java/openjdk-jre-bin:8
+
+    - pkg: dev-java/openjdk-bin:11
+    - pkg: dev-java/openjdk-jre-bin:11
+
+    - pkg: dev-java/openjdk-bin:17
+    - pkg: dev-java/openjdk-jre-bin:17
+
+    - pkg: dev-java/openjdk-bin:21
+    - pkg: dev-java/openjdk-jre-bin:21
+
+    - pkg: dev-java/java-config:2
+    - pkg: dev-java/maven-bin:3.9
+
+    - pkg: dev-lang/scala-bin
+
+    - pkg: sys-apps/baselayout-java
+
+    - pkg: virtual/jdk:1.8
+    - pkg: virtual/jdk:11
+    - pkg: virtual/jdk:17
+    - pkg: virtual/jdk:21
+
+    - pkg: virtual/jre:1.8
+    - pkg: virtual/jre:11
+    - pkg: virtual/jre:17
+    - pkg: virtual/jre:21

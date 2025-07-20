@@ -1,0 +1,47 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "dev-kit"
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: "mark-iii"
+
+target:
+  name: dev-kit
+  url: "https://github.com/macaroni-os/dev-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-util/idea-ultimate
+    - pkg: dev-util/jetbrains-toolbox
+    - pkg: dev-util/pycharm-community
+    # Download page now is changed and we need to review autogen.
+    # Disable for now
+    #- pkg: dev-util/vpumlce
+    #- pkg: dev-util/vpuml
+    - pkg: dev-util/idea-community
+    - pkg: dev-util/pycharm-professional
+    - pkg: dev-util/goland
+    - pkg: dev-util/datagrip
+    - pkg: dev-util/phpstorm
+    - pkg: dev-util/clion
+    - pkg: dev-util/webstorm
+
+    - pkg: dev-vcs/gitkraken
+
+    - pkg: app-editors/vscodium-bin
+    - pkg: app-editors/vscode-bin
+

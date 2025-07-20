@@ -1,0 +1,51 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "editors-kit"
+  url: "https://github.com/macaroni-os/editors-kit"
+  branch: "mark-iii"
+
+target:
+  name: editors-kit
+  url: "https://github.com/macaroni-os/editors-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-editors/geany
+    - pkg: app-editors/geany-plugins
+
+    - pkg: app-editors/gedit
+    - pkg: app-editors/gedit-plugins
+    - pkg: app-editors/gvim
+
+    - pkg: app-editors/nano
+    - pkg: app-editors/vim-core
+    - pkg: app-editors/vim
+
+    - pkg: app-misc/editor-wrapper
+
+    - pkg: app-vim/vim-tmux
+
+    - pkg: dev-util/ctags
+
+    - pkg: sys-apps/ed
+
+    - pkg: virtual/editor
+
+    - pkg: x11-themes/geany-themes
+

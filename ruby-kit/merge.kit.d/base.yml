@@ -1,0 +1,66 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "ruby-kit"
+  url: "https://github.com/macaroni-os/ruby-kit"
+  branch: "mark-iii"
+
+target:
+  name: ruby-kit
+  url: "https://github.com/macaroni-os/ruby-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: dev-lang/ruby:3.1
+
+    - pkg: dev-ruby/bundler
+    - pkg: dev-ruby/did_you_mean
+    - pkg: dev-ruby/debug
+    - pkg: dev-ruby/typeprof
+    - pkg: dev-ruby/rss
+    - pkg: dev-ruby/reline
+    - pkg: dev-ruby/net-pop
+    - pkg: dev-ruby/io-console
+    - pkg: dev-ruby/irb
+    - pkg: dev-ruby/net-smtp
+    - pkg: dev-ruby/prime
+    - pkg: dev-ruby/matrix
+    - pkg: dev-ruby/net-imap
+    - pkg: dev-ruby/net-ftp
+    - pkg: dev-ruby/rexml
+    - pkg: dev-ruby/rbs
+
+    - pkg: dev-ruby/rubygems
+    - pkg: dev-ruby/json:2
+    - pkg: dev-ruby/minitest:5
+    - pkg: dev-ruby/test-unit:2
+    - pkg: dev-ruby/xmlrpc
+    - pkg: dev-ruby/psych
+    - pkg: dev-ruby/bundler:2
+    - pkg: dev-ruby/kpeg:1
+    - pkg: dev-ruby/net-telnet:1
+    - pkg: dev-ruby/power_assert
+    - pkg: dev-ruby/rake
+    - pkg: dev-ruby/rdoc
+    - pkg: dev-ruby/racc
+    - pkg: dev-ruby/webrick
+    - pkg: dev-ruby/stringio
+    - pkg: dev-ruby/xmlrpc
+
+    - pkg: virtual/ruby-ssl
+    - pkg: virtual/rubygems

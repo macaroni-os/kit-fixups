@@ -1,0 +1,36 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-i"
+
+- name: "core-server-kit"
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: "mark-iii"
+
+target:
+  name: core-server-kit
+  url: "https://github.com/macaroni-os/core-server-kit"
+  branch: mark-i
+
+  fixups:
+    include:
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: app-shells/bash-completion
+    - pkg: app-shells/direnv
+    - pkg: app-shells/fish
+    - pkg: app-shells/fzf
+    - pkg: app-shells/mcfly
+    - pkg: app-shells/push
+    - pkg: app-shells/quoter
+    - pkg: app-shells/starship
+    - pkg: app-shells/zsh-autosuggestions
+    - pkg: app-shells/zsh-completions
+    - pkg: app-shells/zsh-history-substring-search
+    - pkg: app-shells/zsh-syntax-highlighting
+
+

@@ -23,3 +23,41 @@ target:
   atoms:
 
     - pkg: media-fonts/sedgwick-ave-display
+
+    # 555 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-555.0'
+        - '<x11-drivers/nvidia-drivers-556'
+
+    # 560 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-560.0'
+        - '<x11-drivers/nvidia-drivers-561'
+
+    # 565 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-565.0'
+        - '<x11-drivers/nvidia-drivers-566'
+
+    # 555 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-555.0'
+        - '<x11-drivers/nvidia-kernel-modules-556'
+
+    # 560 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-560.0'
+        - '<x11-drivers/nvidia-kernel-modules-561'
+
+    # 565 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-565.0'
+        - '<x11-drivers/nvidia-kernel-modules-566'
+
+

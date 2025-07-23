@@ -1,0 +1,132 @@
+nvidia_drivers:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: x11-drivers
+    files_dir: "{{ .Values.pn }}"
+    template: templates/nvidia-drivers.tmpl
+    dir:
+      url: https://download.nvidia.com/XFree86/Linux-x86_64/
+    assets:
+      - name: NVIDIA-Linux-x86_64-{{ .Values.version }}-no-compat32.run
+        url: http://download.nvidia.com/XFree86/Linux-x86_64/{{ .Values.version }}/NVIDIA-Linux-x86_64-{{ .Values.version }}-no-compat32.run
+        use: amd64
+
+      - name: NVIDIA-Linux-aarch64-{{ .Values.version }}.run
+        url: http://download.nvidia.com/XFree86/Linux-aarch64/{{ .Values.version }}/NVIDIA-Linux-aarch64-{{ .Values.version }}.run
+        use: arm64
+
+  packages:
+    - nvidia-drivers:
+        # 535.86
+        vars:
+          slot: 535
+          max_kernel_version: 6.7
+        dir:
+          matcher: "535.86.*"
+
+    - nvidia-drivers:
+        # 555.*
+        vars:
+          slot: 555
+          max_kernel_version: 6.14
+        dir:
+          matcher: "555.*"
+
+    - nvidia-drivers:
+        # 560.*
+        vars:
+          slot: 560
+          max_kernel_version: 6.14
+        dir:
+          matcher: "560.*"
+
+    - nvidia-drivers:
+        # 565.*
+        vars:
+          slot: 565
+          max_kernel_version: 6.14
+        dir:
+          matcher: "565.*"
+
+    - nvidia-drivers:
+        # 570.*
+        vars:
+          slot: 570
+          max_kernel_version: 6.14
+        dir:
+          matcher: "570.*"
+
+    - nvidia-drivers:
+        # 575.*
+        vars:
+          slot: 575
+          max_kernel_version: 6.14
+        dir:
+          matcher: "575.*"
+        selector:
+          # version broken
+          - '!=575.64.05'
+
+nvidia_kernel_modules:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: x11-drivers
+    files_dir: "{{ .Values.pn }}"
+    template: templates/nvidia-kernel-modules.tmpl
+    dir:
+      url: https://download.nvidia.com/XFree86/Linux-x86_64/
+    ignore_artefacts: true
+
+  packages:
+    - nvidia-kernel-modules:
+        # 535.86
+        vars:
+          slot: 535
+          max_kernel_version: 6.7
+        dir:
+          matcher: "535.86.*"
+
+    - nvidia-kernel-modules:
+        # 555.*
+        vars:
+          slot: 555
+          max_kernel_version: 6.14
+        dir:
+          matcher: "555.*"
+
+    - nvidia-kernel-modules:
+        # 560.*
+        vars:
+          slot: 560
+          max_kernel_version: 6.14
+        dir:
+          matcher: "560.*"
+
+    - nvidia-kernel-modules:
+        # 565.*
+        vars:
+          slot: 565
+          max_kernel_version: 6.14
+        dir:
+          matcher: "565.*"
+
+    - nvidia-kernel-modules:
+        # 570.*
+        vars:
+          slot: 570
+          max_kernel_version: 6.14
+        dir:
+          matcher: "570.*"
+
+    - nvidia-kernel-modules:
+        # 575.*
+        vars:
+          slot: 575
+          max_kernel_version: 6.14
+        dir:
+          matcher: "575.*"
+        selector:
+          # version broken
+          - '!=575.64.05'

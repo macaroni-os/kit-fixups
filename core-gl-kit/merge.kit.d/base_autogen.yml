@@ -42,6 +42,18 @@ target:
         - '>=x11-drivers/nvidia-drivers-565.0'
         - '<x11-drivers/nvidia-drivers-566'
 
+    # 570 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-570.0'
+        - '<x11-drivers/nvidia-drivers-571'
+
+    # 575 release
+    - pkg: x11-drivers/nvidia-drivers
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-575.0'
+        - '<x11-drivers/nvidia-drivers-576'
+
     # 555 release
     - pkg: x11-drivers/nvidia-kernel-modules
       conditions:
@@ -60,4 +72,14 @@ target:
         - '>=x11-drivers/nvidia-kernel-modules-565.0'
         - '<x11-drivers/nvidia-kernel-modules-566'
 
+    # 570 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-570.0'
+        - '<x11-drivers/nvidia-kernel-modules-571'
 
+    # 575 release
+    - pkg: x11-drivers/nvidia-kernel-modules
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-575.0'
+        - '<x11-drivers/nvidia-kernel-modules-576'

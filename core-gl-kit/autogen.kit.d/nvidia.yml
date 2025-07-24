@@ -21,9 +21,9 @@ nvidia_drivers:
         # 535.86
         vars:
           slot: 535
-          max_kernel_version: 6.7
+          max_kernel_version: 6.12
         dir:
-          matcher: "535.86.*"
+          matcher: "535.*"
 
     - nvidia-drivers:
         # 555.*
@@ -81,12 +81,12 @@ nvidia_kernel_modules:
 
   packages:
     - nvidia-kernel-modules:
-        # 535.86
+        # 535
         vars:
           slot: 535
-          max_kernel_version: 6.7
+          max_kernel_version: 6.12
         dir:
-          matcher: "535.86.*"
+          matcher: "535.*"
 
     - nvidia-kernel-modules:
         # 555.*

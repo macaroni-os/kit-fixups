@@ -24,6 +24,24 @@ nvidia_drivers:
           max_kernel_version: 6.12
         dir:
           matcher: "535.*"
+        # The selector is needed in order
+        # to compare only the version of this
+        # slot. The package autogen process
+        # doesn't use slot for compare versions.
+        selector:
+          - '<536'
+          - '>534'
+
+    - nvidia-drivers:
+        # 550.*
+        vars:
+          slot: 550
+          max_kernel_version: 6.14
+        dir:
+          matcher: "550.*"
+        selector:
+          - '<551'
+          - '>549'
 
     - nvidia-drivers:
         # 555.*
@@ -32,6 +50,9 @@ nvidia_drivers:
           max_kernel_version: 6.14
         dir:
           matcher: "555.*"
+        selector:
+          - '<556'
+          - '>554'
 
     - nvidia-drivers:
         # 560.*
@@ -40,6 +61,9 @@ nvidia_drivers:
           max_kernel_version: 6.14
         dir:
           matcher: "560.*"
+        selector:
+          - '<561'
+          - '>559'
 
     - nvidia-drivers:
         # 565.*
@@ -48,6 +72,9 @@ nvidia_drivers:
           max_kernel_version: 6.14
         dir:
           matcher: "565.*"
+        selector:
+          - '<566'
+          - '>564'
 
     - nvidia-drivers:
         # 570.*
@@ -56,6 +83,9 @@ nvidia_drivers:
           max_kernel_version: 6.14
         dir:
           matcher: "570.*"
+        selector:
+          - '<571'
+          - '>569'
 
     - nvidia-drivers:
         # 575.*
@@ -67,6 +97,8 @@ nvidia_drivers:
         selector:
           # version broken
           - '!=575.64.05'
+          - '<576'
+          - '>574'
 
 nvidia_kernel_modules:
   generator: builtin-dirlisting
@@ -87,6 +119,20 @@ nvidia_kernel_modules:
           max_kernel_version: 6.12
         dir:
           matcher: "535.*"
+        selector:
+          - '<536'
+          - '>534'
+
+    - nvidia-kernel-modules:
+        # 550.*
+        vars:
+          slot: 550
+          max_kernel_version: 6.14
+        dir:
+          matcher: "550.*"
+        selector:
+          - '<551'
+          - '>549'
 
     - nvidia-kernel-modules:
         # 555.*
@@ -95,6 +141,9 @@ nvidia_kernel_modules:
           max_kernel_version: 6.14
         dir:
           matcher: "555.*"
+        selector:
+          - '<556'
+          - '>554'
 
     - nvidia-kernel-modules:
         # 560.*
@@ -103,6 +152,9 @@ nvidia_kernel_modules:
           max_kernel_version: 6.14
         dir:
           matcher: "560.*"
+        selector:
+          - '<561'
+          - '>559'
 
     - nvidia-kernel-modules:
         # 565.*
@@ -111,6 +163,9 @@ nvidia_kernel_modules:
           max_kernel_version: 6.14
         dir:
           matcher: "565.*"
+        selector:
+          - '<566'
+          - '>564'
 
     - nvidia-kernel-modules:
         # 570.*
@@ -119,6 +174,9 @@ nvidia_kernel_modules:
           max_kernel_version: 6.14
         dir:
           matcher: "570.*"
+        selector:
+          - '<571'
+          - '>569'
 
     - nvidia-kernel-modules:
         # 575.*
@@ -130,3 +188,5 @@ nvidia_kernel_modules:
         selector:
           # version broken
           - '!=575.64.05'
+          - '<576'
+          - '>574'

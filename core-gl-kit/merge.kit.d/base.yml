@@ -68,44 +68,35 @@ target:
     - pkg: x11-drivers/xf86-video-vesa
     - pkg: x11-drivers/xf86-video-vmware
 
-    # NOTE: Move to geaaru-kit ebuilds soon.
+    # 535 release
+    - pkg: x11-drivers/nvidia-drivers:535
+    # 550 release
+    - pkg: x11-drivers/nvidia-drivers:550
     # 555 release
-    - pkg: x11-drivers/nvidia-drivers
-      conditions:
-        - '>=x11-drivers/nvidia-drivers-555.0'
-        - '<x11-drivers/nvidia-drivers-556'
-
+    - pkg: x11-drivers/nvidia-drivers:555
     # 560 release
-    - pkg: x11-drivers/nvidia-drivers
-      conditions:
-        - '>=x11-drivers/nvidia-drivers-560.0'
-        - '<x11-drivers/nvidia-drivers-561'
-
+    - pkg: x11-drivers/nvidia-drivers:560
     # 565 release
-    - pkg: x11-drivers/nvidia-drivers
-      conditions:
-        - '>=x11-drivers/nvidia-drivers-565.0'
-        - '<x11-drivers/nvidia-drivers-566'
+    - pkg: x11-drivers/nvidia-drivers:565
+    # 570 release
+    - pkg: x11-drivers/nvidia-drivers:570
+    # 575 release
+    - pkg: x11-drivers/nvidia-drivers:575
 
-    # NOTE: Move to geaaru-kit ebuilds soon.
+    # 535 release
+    - pkg: x11-drivers/nvidia-kernel-modules:535
+    # 550 release
+    - pkg: x11-drivers/nvidia-kernel-modules:550
     # 555 release
-    - pkg: x11-drivers/nvidia-kernel-modules
-      conditions:
-        - '>=x11-drivers/nvidia-kernel-modules-555.0'
-        - '<x11-drivers/nvidia-kernel-modules-556'
-
+    - pkg: x11-drivers/nvidia-kernel-modules:555
     # 560 release
-    - pkg: x11-drivers/nvidia-kernel-modules
-      conditions:
-        - '>=x11-drivers/nvidia-kernel-modules-560.0'
-        - '<x11-drivers/nvidia-kernel-modules-561'
-
+    - pkg: x11-drivers/nvidia-kernel-modules:560
     # 565 release
-    - pkg: x11-drivers/nvidia-kernel-modules
-      conditions:
-        - '>=x11-drivers/nvidia-kernel-modules-565.0'
-        - '<x11-drivers/nvidia-kernel-modules-566'
-
+    - pkg: x11-drivers/nvidia-kernel-modules:565
+    # 570 release
+    - pkg: x11-drivers/nvidia-kernel-modules:570
+    # 575 release
+    - pkg: x11-drivers/nvidia-kernel-modules:575
 
     - pkg: media-fonts/encodings
     - pkg: media-fonts/font-util

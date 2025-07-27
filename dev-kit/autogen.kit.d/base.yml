@@ -73,11 +73,62 @@ etcher:
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
-    category: sys-boot
     github:
       query: releases
   packages:
+
+    - jq-bin:
+        category: app-misc
+        github:
+          user: jqlang
+          repo: jq
+        transform:
+          - kind: string
+            match: "jq "
+            replace: ""
+        vars:
+          iuse: amd64 arm arm64
+          homepage: https://stedolan.github.io/jq/
+          desc: A lightweight and flexible command-line JSON processor
+          extra_envs:
+            - QA_PREBUILT="/usr/bin/jq"
+          rdepend: |
+            !app-misc/jq
+          depend: ${RDEPEND}
+          s: ${WORKDIR}
+
+          body: |
+            src_prepare() {
+              if use amd64; then
+                cp "${DISTDIR}"/${P}-linux-amd64 jq || die
+              elif use arm64; then
+                cp "${DISTDIR}"/${P}-linux-arm64 jq || die
+              else
+                cp "${DISTDIR}"/${P}-linux-armhf jq || die
+              fi
+              eapply_user
+            }
+            src_install() {
+              dobin "${WORKDIR}"/jq
+            }
+
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-amd64'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-linux-amd64$'
+            use: amd64
+
+          # For ARM (add support for armv7 with HF
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-armhf'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-linux-armhf$'
+            use: arm
+
+          # For ARM (add support for armv7 with HF
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-arm64'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-linux-arm64$'
+            use: arm64
+
     - etcher-bin:
+        category: sys-boot
         github:
           user: balena-io
           repo: etcher

@@ -68,7 +68,7 @@ linear_packages:
             replace: ""
 
 
-etcher:
+dev_github:
   generator: builtin-github
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -111,7 +111,6 @@ etcher:
             src_install() {
               dobin "${WORKDIR}"/jq
             }
-
         assets:
           - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-amd64'
             matcher: '{{ .Values.pn | replace "-bin" "" }}-linux-amd64$'
@@ -189,4 +188,101 @@ etcher:
             pkg_postrm() {
               xdg_pkg_postrm
             }
+
+    - yq3-bin:
+        category: app-misc
+        github:
+          user: mikefarah
+          repo: yq
+          num_pages: 15
+        selector:
+          - '<4.0'
+        transform:
+          - kind: regex
+            match: " - .*$"
+            replace: ""
+
+        vars:
+          iuse: amd64 arm arm64
+          homepage: https://github.com/mikefarah/yq/
+          desc: Portable command-line YAML, JSON, XML, CSV, TOML and properties processor
+          extra_envs:
+            - QA_PREBUILT="/usr/bin/yq"
+          s: ${WORKDIR}
+
+          body: |
+            src_prepare() {
+              if use amd64; then
+                cp "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-linux-amd64 yq || die
+              elif use arm64; then
+                cp "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-linux-arm64 yq || die
+              else
+                cp "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-linux-arm yq || die
+              fi
+              eapply_user
+            }
+            src_install() {
+              dobin yq
+            }
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-amd64'
+            matcher: 'yq_linux_amd64$'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-arm'
+            matcher: 'yq_linux_arm$'
+            use: arm
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-arm64'
+            matcher: 'yq_linux_arm64$'
+            use: arm64
+
+    - yq4-bin:
+        category: app-misc
+        github:
+          user: mikefarah
+          repo: yq
+        selector:
+          - '<5.0'
+        transform:
+          - kind: regex
+            match: " - .*$"
+            replace: ""
+        vars:
+          iuse: amd64 arm arm64
+          homepage: https://github.com/mikefarah/yq/
+          desc: Portable command-line YAML, JSON, XML, CSV, TOML and properties processor
+          extra_envs:
+            - QA_PREBUILT="/usr/bin/yq4"
+          rdepend: |
+            !app-misc/yq-go
+          depend: ${RDEPEND}
+          s: ${WORKDIR}
+          body: |
+            src_prepare() {
+              default
+              if use amd64; then
+                mv {{ .Values.pn | replace "4-bin" "" }}_linux_amd64 yq4 || die
+              elif use arm64; then
+                mv {{ .Values.pn | replace "4-bin" "" }}_linux_arm64 yq4 || die
+              else
+                cp {{ .Values.pn | replace "4-bin" "" }}_linux_arm yq4 || die
+              fi
+              eapply_user
+            }
+            src_install() {
+              dobin yq4
+            }
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-amd64.tar.gz'
+            matcher: 'yq_linux_amd64.tar.gz$'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-arm.tar.gz'
+            matcher: 'yq_linux_arm.tar.gz$'
+            use: arm
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-arm64.tar.gz'
+            matcher: 'yq_linux_arm64.tar.gz$'
+            use: arm64
 

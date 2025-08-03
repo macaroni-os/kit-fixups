@@ -110,6 +110,7 @@ dev-qt:
           depend: ${RDEPEND}
           bdepend: |
             ${PYTHON_DEPS}
+            dev-python/html5lib
             dev-util/gperf
             dev-util/ninja
             dev-util/re2c
@@ -231,7 +232,7 @@ dev-qt:
           iuse: geoclue +qml
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
-            geoclue? ( dev-qt/qtdbus:{{ .Values.slot }}
+            geoclue? ( dev-qt/qtdbus:{{ .Values.slot }} )
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
           pdepend: |
@@ -287,7 +288,7 @@ dev-qt:
         vars:
           desc: "Chart component library for the Qt5 framework"
           license: GPL-3
-          iuse: qml
+          iuse: qml vulkan
           rdepend: |
             dev-qt/qtcore:{{ .Values.slot }}
             dev-qt/qtgui:{{ .Values.slot }}[vulkan=]

@@ -506,7 +506,7 @@ minio:
               sed -i -e "s/time.Now().UTC().Format(time.RFC3339)/\"${MY_PV}\"/"\
                 -e "s/-s //"\
                 -e "/time/d"\
-                -e "s/+ commitID()/+ \"${EGIT_COMMIT}\"/"\
+                -e "s/+ commitID()/+ \"{{ .Values.sha }}\"/"\
                 buildscripts/gen-ldflags.go || die
             }
             src_unpack() {
@@ -545,7 +545,7 @@ minio:
               sed -i -e "s/time.Now().UTC().Format(time.RFC3339)/\"${MY_PV}\"/"\
                 -e "s/-s //"\
                 -e "/time/d"\
-                -e "s/+ commitID()/+ \"${EGIT_COMMIT}\"/"\
+                -e "s/+ commitID()/+ \"{{ .Values.sha }}\"/"\
                 buildscripts/gen-ldflags.go || die
             }
             src_unpack() {
@@ -571,4 +571,105 @@ minio:
               newconfd "${FILESDIR}"/"${PN}".confd ${PN}
               keepdir /var/{lib,log}/"${PN}"
               fowners minio:minio /
+            }
+
+gitea:
+  generator: builtin-github
+  defaults:
+    category: www-apps
+    template: ../../templates/simple-github.tmpl
+    files_dir: "{{ .Values.pn }}"
+    github:
+      query: releases
+    extensions:
+      - golang
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - gitea:
+        github:
+          user: go-gitea
+        tarball: gitea-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz
+        vars:
+          desc: A painless self-hosted Git service
+          homepage: https://gitea.com https://github.com/go-gitea/gitea
+          iuse: systemd
+          inherit:
+            - fcaps
+            - go-module
+            - tmpfiles
+            - systemd
+            - flag-o-matic
+            - user
+          docs:
+            - custom/conf/app.example.ini
+            - CHANGELOG.md
+            - CONTRIBUTING.md
+            - README.md
+          extra_envs:
+            - FILECAPS=( -m 711 cap_net_bind_service+ep usr/bin/gitea )
+          cdepend: sys-libs/pam
+          rdepend: |
+            ${CDEPEND}
+            dev-vcs/git
+          depend: ${CDEPEND}
+          bdepend: dev-lang/go
+          body: |
+            pkg_setup() {
+              enewgroup git
+              enewuser git -1 /bin/bash /var/lib/gitea git
+            }
+            src_prepare() {
+              default
+              sed -i -e "s#^MODE = console#MODE = file#" custom/conf/app.example.ini || die
+            }
+            src_configure() {
+              # bug 832756 - PIE build issues
+              filter-flags -fPIE
+              filter-ldflags -fPIE -pie
+            }
+            src_compile() {
+              local gitea_tags
+              local -a gitea_settings makeenv
+              gitea_tags="bindata,pam,sqlite,sqlite_unlock_notify"
+              gitea_settings=(
+                "-X code.gitea.io/gitea/modules/setting.CustomConf=/etc/gitea/app.ini"
+                "-X code.gitea.io/gitea/modules/setting.CustomPath=/var/lib/gitea/custom"
+                "-X code.gitea.io/gitea/modules/setting.AppWorkPath=/var/lib/gitea"
+              )
+              makeenv=(
+                LDFLAGS="-extldflags \"${LDFLAGS}\" ${gitea_settings[*]}"
+                TAGS="${gitea_tags}"
+              )
+              # Use variable STORED_VERSION_FILE (the "${S}/VERSION" file) to set version,
+              # and prevent executing git command when it's not a live version.
+              makeenv+=( GITHUB_REF_NAME="" )
+              env "${makeenv[@]}" emake backend
+            }
+            src_install() {
+              dobin gitea
+              einstalldocs
+              newconfd "${FILESDIR}/gitea.confd-r1" gitea
+              if use systemd ; then
+                systemd_newunit "${FILESDIR}"/gitea.service-r4 gitea.service
+              else
+                newinitd "${FILESDIR}/gitea.initd-r3" gitea
+              fi
+              newtmpfiles - gitea.conf <<-EOF
+                d /run/gitea 0755 git git
+              EOF
+              insinto /etc/gitea
+              newins custom/conf/app.example.ini app.ini
+              fowners root:git /etc/gitea/{,app.ini}
+              fperms g+w,o-rwx /etc/gitea/{,app.ini}
+              diropts -m0750 -o git -g git
+              keepdir /var/lib/gitea /var/lib/gitea/custom /var/lib/gitea/data
+              keepdir /var/log/gitea
+            }
+            pkg_postinst() {
+              fcaps_pkg_postinst
+              tmpfiles_process gitea.conf
             }

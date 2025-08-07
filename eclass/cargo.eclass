@@ -240,8 +240,6 @@ cargo_src_unpack() {
 			done
 		fi
 	fi
-
-	[[ ${#PATCHES[@]} -gt 0 ]] && epatch "${PATCHES[@]}"
 }
 
 _cargo_process_crate() {

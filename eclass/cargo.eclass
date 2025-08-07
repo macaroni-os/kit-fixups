@@ -38,6 +38,8 @@ IUSE="${IUSE} debug"
 
 ECARGO_HOME="${WORKDIR}/cargo_home"
 ECARGO_VENDOR="${ECARGO_HOME}/gentoo"
+ECARGO_BUNDLE_POSTFIX="${ECARGO_BUNDLE_POSTFIX:-mark-rust-bundle}"
+ECARGO_BUNDLE_CONFIG="${ECARGO_BUNDLE_CONFIG:-mark_config.toml}"
 
 # @ECLASS-VARIABLE: CARGO_OPTIONAL
 # @DEFAULT_UNSET
@@ -163,10 +165,11 @@ cargo_src_unpack() {
 
 	cargo_gen_config
 
-	if [ "${A/${P}-funtoo-crates-bundle-/}" != "${A}" ]; then
+	if [ "${A/${P}-${ECARGO_BUNDLE_POSTFIX}-/}" != "${A}" ]; then
+
 		unpack ${A}
 
-		local crates_dir="${WORKDIR}"/funtoo-crates-bundle-"${PN}"
+		local crates_dir="${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"
 
 		local crate
 		for crate in "${crates_dir}"/*.crate; do
@@ -176,39 +179,69 @@ cargo_src_unpack() {
 		pushd "${crates_dir}" >/dev/null
 
 		local extra
-		for extra in "${WORKDIR}"/funtoo-crates-bundle-"${PN}"/*.tar.xz; do
+		for extra in "${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"/*.tar.*; do
 				tar xf "${extra}"
 				local filename=$(basename "${extra}")
-				local unpack_dir="${filename%.tar.xz}"
+				local unpack_dir="${filename%.tar.*}"
 
 				pushd "${unpack_dir}" >/dev/null
-				cat funtoo_config.toml | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
+				cat ${ECARGO_BUNDLE_CONFIG} | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
 				popd >/dev/null
 		done
 
 		popd >/dev/null
+
 	else
-		local archive shasum pkg
-		for archive in ${A}; do
-			case "${archive}" in
-				*.crate)
-					_cargo_process_crate "${DISTDIR}"/"${archive}"
-					;;
-				cargo-snapshot*)
-					ebegin "Unpacking ${archive}"
-					mkdir -p "${S}"/target/snapshot
-					tar -xzf "${DISTDIR}"/${archive} -C "${S}"/target/snapshot --strip-components 2 || die
-					# cargo's makefile needs this otherwise it will try to
-					# download it
-					touch "${S}"/target/snapshot/bin/cargo || die
-					eend $?
-					;;
-				*)
-					unpack ${archive}
-					;;
-			esac
-		done
+
+		if [ "${A/${P}-funtoo-crates-bundle-/}" != "${A}" ]; then
+			unpack ${A}
+
+			local crates_dir="${WORKDIR}"/funtoo-crates-bundle-"${PN}"
+
+			local crate
+			for crate in "${crates_dir}"/*.crate; do
+				_cargo_process_crate "${crate}"
+			done
+
+			pushd "${crates_dir}" >/dev/null
+
+			local extra
+			for extra in "${WORKDIR}"/funtoo-crates-bundle-"${PN}"/*.tar.xz; do
+					tar xf "${extra}"
+					local filename=$(basename "${extra}")
+					local unpack_dir="${filename%.tar.xz}"
+
+					pushd "${unpack_dir}" >/dev/null
+					cat funtoo_config.toml | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
+					popd >/dev/null
+			done
+
+			popd >/dev/null
+		else
+			local archive shasum pkg
+			for archive in ${A}; do
+				case "${archive}" in
+					*.crate)
+						_cargo_process_crate "${DISTDIR}"/"${archive}"
+						;;
+					cargo-snapshot*)
+						ebegin "Unpacking ${archive}"
+						mkdir -p "${S}"/target/snapshot
+						tar -xzf "${DISTDIR}"/${archive} -C "${S}"/target/snapshot --strip-components 2 || die
+						# cargo's makefile needs this otherwise it will try to
+						# download it
+						touch "${S}"/target/snapshot/bin/cargo || die
+						eend $?
+						;;
+					*)
+						unpack ${archive}
+						;;
+				esac
+			done
+		fi
 	fi
+
+	[[ ${#PATCHES[@]} -gt 0 ]] && epatch "${PATCHES[@]}"
 }
 
 _cargo_process_crate() {

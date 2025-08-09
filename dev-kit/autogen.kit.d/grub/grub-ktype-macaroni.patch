@@ -1,0 +1,59 @@
+diff --git a/util/grub.d/10_linux.in b/util/grub.d/10_linux.in
+index 44a38f0..1cb2699 100644
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -73,7 +73,7 @@ case x"$GRUB_FS" in
+ 	    GRUB_CMDLINE_LINUX="rootflags=subvol=${rootsubvol} ${GRUB_CMDLINE_LINUX}"
+ 	fi;;
+     xzfs)
+-	rpool=`${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || true`
++	#rpool=`${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || true`
+ 	bootfs="`make_system_path_relative_to_its_root / | sed -e "s,@$,,"`"
+ 	LINUX_ROOT_DEVICE="ZFS=${rpool}${bootfs%/}"
+ 	;;
+@@ -142,7 +142,13 @@ linux_entry ()
+     fi
+     printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   fi
+-  message="$(gettext_printf "Loading Linux %s ..." ${version})"
++
++  if [ -z "${ktype}" ] ; then
++	  msg_version=${version}
++  else
++	  msg_version=${ktype}-${version}
++  fi
++  message="$(gettext_printf "Loading Linux %s ..." ${msg_version})"
+   sed "s/^/$submenu_indentation/" << EOF
+ 	echo	'$(echo "$message" | grub_quote)'
+ 	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
+@@ -215,6 +221,7 @@ for linux in ${reverse_sorted_list}; do
+   rel_dirname=`make_system_path_relative_to_its_root $dirname`
+   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
++  ktype=$(echo ${basename/kernel-/} | sed -e "s/-${alt_version}//g")
+   linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+ 
+   initrd_early=
+@@ -227,11 +234,17 @@ for linux in ${reverse_sorted_list}; do
+ 
+   initrd_real=
+   for i in "initrd.img-${version}" "initrd-${version}.img" \
+-	   "initrd-${alt_version}.img.old" "initrd-${version}.gz" \
+-	   "initrd-${alt_version}.gz.old" "initrd-${version}" \
+-	   "initramfs-${version}.img" "initramfs-${alt_version}.img.old" \
+-	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
+-	   "initrd-${alt_version}" "initramfs-${alt_version}.img" \
++	   "initrd-${version}.gz" \
++	   "initrd-${version}" \
++	   "initrd-${alt_version}.img.old" \
++	   "initrd-${alt_version}.gz.old" \
++	   "initramfs-${version}.img" \
++	   "initramfs-${alt_version}.img.old" \
++	   "initrd.img-${alt_version}" \
++	   "initrd-${alt_version}.img" \
++	   "initramfs-${alt_version}.img" \
++	   "initrd-${alt_version}" \
++	   "initramfs-${ktype}-${alt_version}" \
+ 	   "initramfs-genkernel-${version}" \
+ 	   "initramfs-genkernel-${alt_version}" \
+ 	   "initramfs-genkernel-${GENKERNEL_ARCH}-${version}" \

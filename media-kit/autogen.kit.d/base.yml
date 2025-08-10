@@ -776,6 +776,7 @@ blender:
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
+    category: media-gfx
     dir:
       url: https://download.blender.org/release/Blender{{ .Values.release }}/
       matcher: 'blender-.*-linux-x64.tar.xz$'

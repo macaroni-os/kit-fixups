@@ -24,6 +24,23 @@ target:
 
     - pkg: media-video/mpv
 
+    # Blender release 4.5
+    - pkg: media-gfx/blender-bin
+      conditions:
+        - '>=media-gfx/blender-bin-4.5.0'
+
+    # Blender release 4.4
+    - pkg: media-gfx/blender-bin
+      conditions:
+        - '<media-gfx/blender-bin-4.5.0'
+        - '>=media-gfx/blender-bin-4.4.0'
+
+    # Blender release 4.3
+    - pkg: media-gfx/blender-bin
+      conditions:
+        - '<media-gfx/blender-bin-4.4.0'
+        - '>=media-gfx/blender-bin-4.3.0'
+
     - pkg: media-libs/libmediaart
     - pkg: media-libs/libplacebo
 

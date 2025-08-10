@@ -822,14 +822,22 @@ blender:
     - blender-bin:
         vars:
           release: 4.3
+        selector:
+          - '<4.4'
 
     - blender-bin:
         vars:
           release: 4.4
+        selector:
+          - '<4.5'
+          - '>=4.4.0'
 
     - blender-bin:
         vars:
           release: 4.5
+        selector:
+          - '<4.6'
+          - '>=4.5.0'
 
 gnome_stuff:
   generator: builtin-dirlisting

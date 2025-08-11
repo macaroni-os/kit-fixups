@@ -1,8 +1,9 @@
-mattermost:
+net-im_github:
   generator: builtin-github
   defaults:
     template: ../../templates/simple.tmpl
     files_dir: '{{ .Values.pn }}'
+    category: net-im
     github:
       query: releases
 
@@ -11,7 +12,6 @@ mattermost:
         github:
           user: mattermost
           repo: desktop
-        category: net-im
         transform:
           - kind: regex
             match: " [(].*"
@@ -91,6 +91,63 @@ mattermost:
               dosym "/opt/${MY_PN}/${MY_PN}" "/usr/bin/${MY_PN}"
               make_desktop_entry "${MY_PN}" Mattermost "${MY_PN}"
               einstalldocs
+            }
+
+    - telegram-desktop-bin:
+        github:
+          user: telegramdesktop
+          repo: tdesktop
+        transform:
+          - kind: string
+            match: "v "
+            replace: ""
+        assets:
+          - name: '{{ .Values.pn | replace "-bin" "" }}-tdesktop-{{ .Values.version }}.tar.gz'
+            matcher: 'tdesktop-{{ .Values.version }}-full.tar.gz$'
+            use: amd64
+
+          - name: '{{ .Values.pn | replace "-bin" "" }}-tsetup-{{ .Values.version }}.tar.xz'
+            matcher: 'tsetup.{{ .Values.version }}.tar.xz$'
+            use: amd64
+        vars:
+          desc: Official desktop client for Telegram (binary package)
+          homepage: https://desktop.telegram.org
+          license: GPL-3-with-openssl-exception
+          iuse: amd64
+          extra_envs:
+            - 'QA_PREBUILT="usr/lib/${PN}/Telegram"'
+          rdepend: |
+            dev-libs/glib
+            dev-libs/gobject-introspection
+            media-libs/fontconfig
+            sys-apps/dbus
+            x11-libs/libX11
+            x11-libs/libxcb[xkb]
+          s: '${WORKDIR}/Telegram'
+          inherit:
+            - desktop
+            - eutils
+            - xdg
+          body: |
+            src_install() {
+              local SOURCE_DIR="${WORKDIR}/tdesktop-${PV}-full"
+              exeinto /usr/lib/${PN}
+              doexe "Telegram"
+              newbin "${FILESDIR}"/${PN} "telegram-desktop"
+              local icon_size
+              for icon_size in 16 32 128 256 512; do
+                newicon -s "${icon_size}" \
+                  "${SOURCE_DIR}/Telegram/Telegram/Images.xcassets/Icon.iconset/icon_${icon_size}x${icon_size}.png" \
+                  telegram.png
+              done
+              sed -i \
+              -e '/SingleMainWindow=true/d' \
+              -e '/DBusActivatable=true/d' \
+              "${SOURCE_DIR}"/lib/xdg/org.telegram.desktop.desktop
+              domenu "${SOURCE_DIR}"/lib/xdg/org.telegram.desktop.desktop
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
             }
 
 

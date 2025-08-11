@@ -95,6 +95,94 @@ mattermost:
 
 
 
+slack:
+  generator: custom
+  generator_opts:
+    script: ./custom-generators/slack.sh
+    enable_set_version: "false"
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+
+  packages:
+    - slack-bin:
+        category: net-im
+        assets:
+          - name: slack-desktop-{{ .Values.version }}-amd64.deb
+            url: https://downloads.slack-edge.com/desktop-releases/linux/x64/{{ .Values.version }}/slack-desktop-{{ .Values.version }}-amd64.deb
+            use: amd64
+        vars:
+          desc: Team collaboration tool
+          homepage: http://www.slack.com/
+          license: all-rights-reserved
+          iuse: amd64 ayatana gnome-keyring pax_kernel
+          inherit:
+            - desktop
+            - gnome3
+            - pax-utils
+            - unpacker
+          rdepend: |
+            dev-libs/atk
+            dev-libs/expat
+            dev-libs/glib
+            dev-libs/nspr
+            dev-libs/nss
+            gnome-base/gconf
+            media-libs/alsa-lib
+            media-libs/fontconfig
+            media-libs/freetype
+            net-misc/curl
+            net-print/cups
+            sys-apps/dbus
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+:3
+            x11-libs/libX11
+            x11-libs/libxcb
+            x11-libs/libXcomposite
+            x11-libs/libXcursor
+            x11-libs/libXdamage
+            x11-libs/libXext
+            x11-libs/libXfixes
+            x11-libs/libXi
+            x11-libs/libxkbfile
+            x11-libs/libXrandr
+            x11-libs/libXrender
+            x11-libs/libXScrnSaver
+            x11-libs/libXtst
+            x11-libs/pango
+            ayatana? ( dev-libs/libappindicator )
+            gnome-keyring? ( app-crypt/libsecret )
+          extra_envs:
+            - 'QA_PREBUILT="/opt/slack/*"'
+          s: '${WORKDIR}'
+          body: |
+            src_prepare() {
+              default
+              if use ayatana ; then
+                sed -i '/Exec/s|=|=env XDG_CURRENT_DESKTOP=Unity |' \
+                  usr/share/applications/slack.desktop \
+                  || die "sed failed for slack.desktop"
+              fi
+            }
+            src_configure() {
+              :
+            }
+            src_install() {
+              doicon usr/share/pixmaps/slack.png
+              doicon -s 512 usr/share/pixmaps/slack.png
+              domenu usr/share/applications/slack.desktop
+
+              insinto /opt/slack
+              doins -r usr/lib/slack/.
+              fperms +x /opt/slack/slack
+              fperms +x /opt/slack/chrome_crashpad_handler
+              fperms 4711 /opt/slack/chrome-sandbox
+              dosym ../../opt/slack/slack usr/bin/slack
+
+              use pax_kernel && pax-mark -m "${ED%/}"/opt/slack/slack
+            }
+
 wezterm:
   generator: builtin-github
   defaults:

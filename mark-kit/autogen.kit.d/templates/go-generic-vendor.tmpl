@@ -10,7 +10,12 @@ LICENSE="{{ .Values.license }}"
 SLOT="{{ .Values.slot | default 0 }}"
 KEYWORDS="{{ .Values.keywords | default "*" }}"
 
+{{- if .Values.depend | default false }}
+DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
+"
+{{- else }}
 DEPEND="dev-lang/go"
+{{- end }}
 {{- if .Values.rdepend | default false }}
 RDEPEND="{{ regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 "

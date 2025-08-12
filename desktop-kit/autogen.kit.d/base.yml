@@ -457,6 +457,59 @@ wezterm:
             }
 
 
+postman:
+  generator: builtin-json
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: net-misc
+    json:
+      # Define the URL with params directly
+      url: 'https://dl.pstmn.io/api/version/notes?channel={{ .Values.channel }}'
+      version_filter: '$.notes[*].version'
+      # Exclude garbage versions like 11.35.0-r250304-1730
+      exclude: '.*-r[0-9-]+$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-linux64.tar.gz'
+        url: https://dl.pstmn.io/download/version/{{ .Values.version }}/linux64
+
+  packages:
+    - postman-bin:
+        vars:
+          desc: Supercharge your API workflow
+          homepage: https://www.postman.com
+          license: MPL-2.0
+          iuse: pax_kernel
+          restrict: strip
+          channel: stable
+          inherit:
+            - desktop
+            - eutils
+            - pax-utils
+            - xdg
+          s: '"${WORKDIR}/Postman/app"'
+          rdepend: |
+            app-crypt/libsecret
+          body: |
+            src_install() {
+              local dir="/opt/${PN}"
+              insinto "${dir}"
+              doins -r *
+              fperms 755 "${dir}"/postman
+              fperms 755 "${dir}"/Postman
+
+              fperms 4755 "${dir}"/chrome-sandbox || die
+              if [ -f "${ED%/}${dir}"/chrome_crashpad_handler ]; then
+                fperms 4755 "${dir}"/chrome_crashpad_handler || die
+              fi
+
+              make_wrapper "${PN}" "${dir}/Postman"
+              newicon "resources/app/assets/icon.png" "${PN}.png"
+              make_desktop_entry "${PN}" "Postman" "${PN}" "Development;IDE;"
+
+              use pax_kernel && pax-mark m "${ED}/opt/{{ .Values.pn | replace "-bin" "" }}/Postman"
+            }
+
+
 zoom:
   generator: custom
   generator_opts:

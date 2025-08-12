@@ -8,6 +8,25 @@ net-im_github:
       query: releases
 
   packages:
+
+    - betterdiscordctl:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: bb010g
+        transform:
+          - kind: string
+            match: "betterdiscordctl v"
+            replace: ""
+        vars:
+          homepage: https://github.com/bb010g/betterdiscordctl
+          desc: A manager for BetterDiscord on Linux
+          license: MIT
+          body: |
+            src_install() {
+              dobin {{ .Values.pn }}
+            }
+
+
     - mattermost-desktop-bin:
         github:
           user: mattermost
@@ -526,3 +545,4 @@ zoom:
               xdg_mimeinfo_database_update
               xdg_icon_cache_update
             }
+

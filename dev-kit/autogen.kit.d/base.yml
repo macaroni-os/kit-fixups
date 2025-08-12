@@ -553,3 +553,84 @@ dev_github:
             matcher: 'yq_linux_arm64.tar.gz$'
             use: arm64
 
+
+gnu_savannah_atoms:
+  # Using GARR mirror more fast.
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: LGPL-2.1
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+  packages:
+    - miscfiles:
+        category: sys-apps
+        dir:
+          # master node seems slow: https://ftp.gnu.org/gnu/miscfiles/
+          # we use GARR mirror
+          url: http://gnuftp.mirror.garr.it/miscfiles/
+          matcher: 'miscfiles-.*.tar.gz$'
+        transform:
+          - kind: string
+            match: miscfiles-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+
+        vars:
+          homepage: https://savannah.gnu.org/projects/miscfiles/
+          desc: Miscellaneous files
+          license: GPL-2 unicode
+          unicode_extra_pv: 10.0.0
+          iuse: minimal
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+          - name: '{{ .Values.pn }}-UnicodeData-{{ .Values.unicode_extra_pv }}.txt.xz'
+            url: 'https://distfiles.gentoo.org/distfiles/0b/UnicodeData-{{ .Values.unicode_extra_pv }}.txt.xz'
+        body: |
+          src_prepare() {
+            default
+            mv "${WORKDIR}"/UnicodeData-${UNI_PV}.txt unicode || die
+          }
+          src_configure() {
+            econf --datadir="${EPREFIX%/}"/usr/share/misc
+          }
+
+          src_install() {
+            emake install DESTDIR="${D}"
+            dodoc NEWS ORIGIN README dict-README
+            # not sure if this is still needed ...
+            dodir /usr/share/dict
+            cd "${ED%/}"/usr/share/misc || die
+            mv $(awk '$1=="dictfiles"{$1="";$2="";print}' "${S}"/Makefile) ../dict/ || die
+            cd ../dict || die
+            ln -s web2 words || die
+            ln -s web2a extra.words || die
+            if use minimal ; then
+              pushd "${ED%/}"/usr/share/dict || die
+              rm -f words extra.words || die
+              gzip -9 * || die
+              ln -s web2.gz words || die
+              ln -s web2a.gz extra.words || die
+              ln -s connectives{.gz,} || die
+              ln -s propernames{.gz,} || die
+              popd || die
+              rm -r "${ED%/}"/usr/share/misc || die
+            fi
+          }
+          pkg_postinst() {
+            if [[ ${ROOT} == "/" ]] && type -P create-cracklib-dict >/dev/null ; then
+              ebegin "Regenerating cracklib dictionary"
+              create-cracklib-dict "${EPREFIX%/}"/usr/share/dict/* > /dev/null
+              eend $?
+            fi
+            # pkg_postinst isn't supposed to fail
+            return 0
+          }
+
+

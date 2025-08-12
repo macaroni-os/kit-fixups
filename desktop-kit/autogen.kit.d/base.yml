@@ -436,3 +436,93 @@ wezterm:
             pkg_postrm() {
               xdg_icon_cache_update
             }
+
+
+zoom:
+  generator: custom
+  generator_opts:
+    script: ./custom-generators/zoom.sh
+    enable_set_version: "false"
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+    category: net-im
+    assets:
+      - name: '{{ .Values.pn | replace "-bin" "" }}-{{ .Values.version }}_x86_64.pkg.tar.xz'
+        url: 'https://cdn.zoom.us/prod/{{ .Values.version }}/zoom_x86_64.pkg.tar.xz'
+
+  packages:
+    - zoom-bin:
+
+        vars:
+          desc: Video conferencing and web conferencing service
+          homepage: https://zoom.us
+          license: ZOOM
+          restrict: strip preserve-libs
+          iuse: pulseaudio
+          s: '${WORKDIR}'
+
+          inherit:
+            - unpacker
+            - xdg
+          extra_envs:
+            - 'QA_PREBUILT="opt/zoom/*"'
+          rdepend: |
+            app-crypt/mit-krb5
+            pulseaudio? ( media-sound/pulseaudio )
+            app-i18n/ibus
+            dev-libs/glib:2
+            dev-libs/libxslt
+            dev-libs/nss
+            media-libs/fontconfig
+            media-libs/mesa
+            sys-apps/dbus
+            x11-libs/libSM
+            x11-libs/libX11
+            x11-libs/libXcomposite
+            x11-libs/libXfixes
+            x11-libs/libXi
+            x11-libs/libXrandr
+            x11-libs/libXrender
+            x11-libs/libXtst
+            x11-libs/libxcb
+            x11-libs/libxshmfence
+            x11-libs/xcb-util-image
+            x11-libs/xcb-util-keysyms
+          depend: |
+            app-admin/chrpath
+          body: |
+            src_prepare() {
+              rm -f ${WORKDIR}/.PKGINFO ${WORKDIR}/.INSTALL ${WORKDIR}/.MTREE
+              rmdir usr/share/doc/zoom usr/share/doc
+              sed -i \
+                -e 's:Icon=Zoom.png:Icon=Zoom:' \
+                -e 's:Application;::' \
+                -e 's:/usr/bin/zoom:&-bin:' \
+                "${WORKDIR}/usr/share/applications/Zoom.desktop"
+              chrpath -r '' opt/zoom/platforminputcontexts/libfcitxplatforminputcontextplugin.so
+              scanelf -Xr opt/zoom/platforminputcontexts/libfcitxplatforminputcontextplugin.so
+              chrpath -r '' opt/zoom/libturbojpeg.so
+              scanelf -Xr opt/zoom/libturbojpeg.so
+              eapply_user
+            }
+            src_install() {
+              rm "${S}"/usr/bin/zoom
+              cp -Rp "${S}/"* "${D}"
+              dosym ../../opt/zoom/ZoomLauncher /usr/bin/zoom-bin
+              # Zoom needs the SUID bit set on chrome-sandbox, but the installer doesn't do that
+              fperms 4755 /opt/zoom/cef/chrome_sandbox
+            }
+            pkg_preinst() {
+              xdg_pkg_preinst
+            }
+            pkg_postinst() {
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+              xdg_icon_cache_update
+            }

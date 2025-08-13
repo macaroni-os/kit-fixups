@@ -159,6 +159,226 @@ bind_dirlisting:
           s: '${WORKDIR}/bind-{{ .Values.version }}'
 
 
+netfilters_dir:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: 'https://www.netfilter.org/pub/{{ .Values.pn }}/'
+    category: net-libs
+
+  packages:
+
+    - libmnl:
+        transform:
+          - kind: string
+            match: 'libmnl-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        dir:
+          matcher: 'libmnl-.*.tar.bz2$'
+        vars:
+          inherit:
+            - ltprune
+            - eutils
+          homepage: https://netfilter.org/projects/libmnl/
+          desc: Minimalistic netlink library
+          iuse: examples static-libs
+          license: LGPL-2.1
+          body: |
+            src_configure() {
+              econf $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              gen_usr_ldscript -a mnl
+              prune_libtool_files
+              if use examples; then
+                find examples/ -name 'Makefile*' -delete
+                dodoc -r examples/
+                docompress -x /usr/share/doc/${PF}/examples
+              fi
+            }
+
+    - libnftnl:
+        transform:
+          - kind: string
+            match: 'libnftnl-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        dir:
+          matcher: 'libnftnl-.*.tar.xz$'
+        vars:
+          inherit:
+            - autotools
+            - toolchain-funcs
+          homepage: https://netfilter.org/projects/libnftnl/
+          desc: Netlink API to the in-kernel nf_tables subsystem
+          iuse: examples static-libs
+          license: GPL-2
+          rdepend: |
+            >=net-libs/libmnl-1.0.4
+          bdepend: virtual/pkgconfig
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                $(use_enable static-libs static)
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              gen_usr_ldscript -a nftnl
+              find "${ED}" -type f -name '*.la' -delete || die
+              if use examples; then
+                find examples/ -name 'Makefile*' -delete || die "Could not rm examples"
+                dodoc -r examples
+                docompress -x /usr/share/doc/${PF}/examples
+              fi
+            }
+
+    - ipset:
+        category: net-firewall
+        transform:
+          - kind: string
+            match: 'ipset-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        dir:
+          matcher: 'ipset-.*.tar.bz2$'
+          # Ignore old versions
+          exclude: '2005[0-9]+.tar.bz2$|2004[0-9]+.tar.bz2$'
+        vars:
+          homepage: https://netfilter.org/projects/ipset/ http://ipset.netfilter.org/
+          desc: IPset tool for iptables, successor to ippool
+          license: GPL-2
+          rdepend: |
+            net-firewall/iptables
+            net-libs/libmnl
+          depend: ${RDEPEND}
+          docs:
+            - ChangeLog
+            - INSTALL
+            - README
+            - UPGRADE
+          inherit:
+            - linux-info
+            - ltprune
+          extra_envs:
+            - |
+              # configurable from outside, e.g. /etc/portage/make.conf
+              IP_NF_SET_MAX=${IP_NF_SET_MAX:-256}
+          body: |
+            src_configure() {
+              econf \
+                --without-kmod
+                --with-maxsets=${IP_NF_SET_MAX} \
+                --libdir="${EPREFIX}/$(get_libdir)" \
+                --with-ksource="${KV_DIR}" \
+                --with-kbuild="${KV_OUT_DIR}"
+            }
+            src_compile() {
+              einfo "Building userspace"
+              emake
+            }
+            src_install() {
+              einfo "Installing userspace"
+              default
+              prune_libtool_files
+              newinitd "${FILESDIR}"/ipset.initd-r4 ${PN}
+              newconfd "${FILESDIR}"/ipset.confd ${PN}
+              keepdir /var/lib/ipset
+              if [[ ${build_modules} -eq 1 ]]; then
+                einfo "Installing kernel modules"
+                linux-mod_src_install
+              fi
+            }
+
+
+    - nftables:
+        category: net-firewall
+        transform:
+          - kind: string
+            match: 'nftables-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        dir:
+          matcher: 'nftables-.*.tar.xz$'
+        vars:
+          homepage: https://netfilter.org/projects/nftables/
+          desc: Modern Linux kernel packet classification framework
+          iuse: debug +cli doc +gmp json +modern_kernel python xtables
+          inherit:
+            - autotools
+          rdepend: |
+            net-libs/libmnl
+            gmp? ( dev-libs/gmp:0= )
+            json? ( dev-libs/jansson )
+            cli? ( dev-libs/libedit:0= )
+            >=net-libs/libnftnl-1.2.9
+          depend: |
+            ${RDEPEND}
+            app-text/docbook2X
+            doc? ( app-text/dblatex )
+            sys-devel/bison
+            sys-devel/flex
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              local myeconfargs=(
+                --sbindir="${EPREFIX}"/sbin
+                $(use_enable python)
+                $(use_enable debug)
+                $(use_enable doc man-doc)
+                $(use_with !gmp mini_gmp)
+                $(use_with json)
+                $(use_with xtables)
+                $(if use !cli; then use_with cli; fi)
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              local mksuffix=""
+              use modern_kernel && mksuffix="-mk"
+              exeinto /usr/libexec/${PN}
+              newexe "${FILESDIR}"/libexec/${PN}${mksuffix}.sh ${PN}.sh
+              newconfd "${FILESDIR}"/${PN}${mksuffix}.confd ${PN}
+              newinitd "${FILESDIR}"/${PN}${mksuffix}.init ${PN}
+              keepdir /var/lib/nftables
+              docinto /usr/share/doc/${PF}/skels
+              dodoc -r "${D}"/etc/nftables/*
+              rm -R "${D}"/etc/nftables
+            }
+            pkg_postinst() {
+              local save_file
+              save_file="${EROOT%/}/var/lib/nftables/rules-save"
+              # In order for the nftables-restore systemd service to start
+              # the save_file must exist.
+              if [[ ! -f ${save_file} ]]; then
+                touch ${save_file}
+              fi
+              elog "If you are creating firewall rules before the next system restart "
+              elog "the nftables-restore service must be manually started in order to "
+              elog "save those rules on shutdown."
+            }
+
+
+
 net_wireless_noop:
   generator: builtin-noop
   template:

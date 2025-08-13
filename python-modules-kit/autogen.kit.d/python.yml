@@ -31,6 +31,7 @@ flit_modules:
 
   packages:
 
+
     - importlib_metadata:
         selector:
           # keep same version for now
@@ -106,6 +107,7 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+
     - calver:
         vars:
           license: Apache-2.0
@@ -270,5 +272,36 @@ standalone_modules:
                 echo "from ._file_finders.hg import *" >  ${S}/src/setuptools_scm/file_finder_hg.py
               fi
               distutils-r1_src_configure
+            }
+
+
+bdepend_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic.tmpl"
+    python_compat: "python3+"
+
+  packages:
+    - cachecontrol:
+        pypi_name: cachecontrol
+        pydeps:
+          py:all:build:
+            - requests
+            - msgpack
+          py:all:runtime:
+            - requests
+            - msgpack
+        vars:
+          license: Apache-2.0
+          body: |
+            src_prepare() {
+              sed -i -e 's/license = "Apache-2.0"/license = { text = "Apache-2.0" }/' \
+                -e '/^license-files.*/d' \
+                pyproject.toml || die
+              distutils-r1_src_prepare
             }
 

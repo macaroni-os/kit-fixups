@@ -170,6 +170,63 @@ netfilters_dir:
 
   packages:
 
+    - ebtables:
+        category: net-firewall
+        transform:
+          - kind: regex
+            match: 'ebtables-|ebtables-v'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+          - kind: string
+            match: '-'
+            replace: '_p'
+        dir:
+          matcher: 'ebtables-.*.tar.gz$'
+
+        vars:
+          license: GPL-2
+          iuse: +perl static
+          rdepend: |
+            perl? ( dev-lang/perl )
+            net-misc/ethertypes
+          depend: '${RDEPEND}'
+          inherit:
+            - autotools
+            - toolchain-funcs
+            - flag-o-matic
+          desc: Controls Ethernet frame filtering on a Linux bridge, MAC NAT and brouting
+          homepage: http://ebtables.sourceforge.net/
+          docs:
+            - ChangeLog
+            - THANKS
+          body: |
+            src_configure() {
+              econf \
+                --bindir="/bin" \
+                --sbindir="/sbin" \
+                --libdir="/$(get_libdir)/{{ .Values.pn }}" \
+                $(use_enable static)
+            }
+            src_install() {
+              if ! use static; then
+                emake DESTDIR="${D}" install
+                if ! use perl; then
+                  rm "${ED}"/sbin/ebtables-save || die
+                fi
+                rm "${ED%/}"/etc/ethertypes || die
+              else
+                into /
+                newsbin static ebtables
+              fi
+              keepdir /var/lib/ebtables/
+              newinitd "${FILESDIR}"/ebtables.initd-r1 ebtables
+              newconfd "${FILESDIR}"/ebtables.confd-r1 ebtables
+              einstalldocs
+            }
+
+
     - libmnl:
         transform:
           - kind: string

@@ -679,6 +679,61 @@ net_vpn_github:
             }
 
 
+
+net_misc_github:
+  generator: builtin-github
+  defaults:
+    category: net-misc
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - rclone:
+        extensions:
+          - golang
+        github:
+          user: rclone
+        transform:
+          - kind: string
+            match: 'rclone v'
+            replace: ''
+        vars:
+          inherit:
+            - bash-completion-r1
+            - go-module
+          desc: A program to sync files to and from various cloud storage providers
+          homepage: https://rclone.org/
+          license: Apache-2.0 BSD BSD-2 ISC MIT
+          iuse: +mount
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            sys-fs/fuse:3
+          body: |
+            src_compile() {
+              go build -mod=mod . || die "compile failed"
+            }
+            src_install() {
+              dobin ${PN}
+              doman ${PN}.1
+              dodoc README.md
+              ./rclone genautocomplete bash ${PN}.bash || die
+              newbashcomp ${PN}.bash ${PN}
+              ./rclone genautocomplete zsh ${PN}.zsh || die
+              insinto /usr/share/zsh/site-functions
+              newins ${PN}.zsh _${PN}
+              use mount && insinto /usr/bin && \
+                doins ${FILESDIR}/rclonefs && \
+                fperms +x /usr/bin/rclonefs
+            }
+
+
 net_libs_github:
   generator: builtin-github
   defaults:

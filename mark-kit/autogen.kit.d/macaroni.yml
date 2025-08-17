@@ -22,6 +22,14 @@ macaroni:
           homepage: https://github.com/macaroni-os/mark-devkit
           desc: M.A.R.K. Development Kit Knife
 
+    - anise-repo-devkit:
+        vars:
+          ldflags_ns: pkg/devkit
+          depend: |
+            >=dev-lang/go-1.24.0
+          homepage: https://github.com/macaroni-os/anise-repo-devkit
+          desc: Anise Repository Development Kit Knife
+
     - whip:
         category: app-admin
         vars:

@@ -21,10 +21,9 @@ dev_python:
             }
 
             src_prepare() {
-              # This is needed until we have setuptoos_scm-8
-              sed -i -e "s|^dynamic.*|version = \"${PV}\"|g" \
-                -e '/^version_file.*/d' \
-                pyproject.toml
+              sed -i -e 's/license =.*/license = { text = "BSD" }/' \
+                -e '/^license-files.*/d' \
+                pyproject.toml || die
               distutils-r1_src_prepare
             }
 

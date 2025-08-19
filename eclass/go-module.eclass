@@ -293,7 +293,23 @@ go-module_src_unpack() {
 	fi
 }
 
+_go-module_check_gotoolchain() {
+	local gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+	local gotoolchain_pkg=$(cat go.mod | grep "^go " | sed -e 's|go ||g')
+
+	if [ "${gotoolchain_pkg}" == "" ] ; then
+		return
+	fi
+	if [ "${gotoolchain_local}" != "${gotoolchain_pkg}" ] ; then
+		ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+		sed -i -e "s|^go.*|go $(go env GOVERSION | sed -e 's|go||g')|g" go.mod
+	fi
+}
+
+
 go-module_src_prepare() {
+	_go-module_check_gotoolchain
+
 	if [ ${#EGO_SUM} != 0 ] || [ ${#GOPROXY} != 0 ]; then
 		_go-module_src_prepare_verify_gosum
 	fi

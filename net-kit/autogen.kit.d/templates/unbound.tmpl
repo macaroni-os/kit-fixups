@@ -11,7 +11,7 @@ HOMEPAGE="https://unbound.net/ https://nlnetlabs.nl/projects/unbound/about/"
 SRC_URI="{{ .Values.src_uri }}"
 
 LICENSE="BSD GPL-2"
-SLOT="0" # ABI version of libunbound.so
+SLOT="0/8" # ABI version of libunbound.so
 KEYWORDS="*"
 IUSE="debug dnscrypt dnstap +ecdsa ecs gost python redis +http2 selinux static-libs systemd test threads"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -91,10 +91,12 @@ src_configure() {
 		--with-pidfile="${EPREFIX%/}"/run/unbound.pid \
 		--with-rootkey-file="${EPREFIX%/}"/etc/dnssec/root-anchors.txt \
 		--with-ssl="${EPREFIX%/}"/usr \
-		--with-libexpat="${EPREFIX%/}"/usr
+		--with-libexpat="${EPREFIX%/}"/usr \
+		--libdir=/usr/$(get_libdir)
 }
 
 src_install() {
+	default
 	use python && python_optimize
 
 	newconfd "${FILESDIR}"/unbound-r1.confd unbound

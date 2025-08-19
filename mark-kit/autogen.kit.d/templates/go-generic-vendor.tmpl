@@ -2,6 +2,12 @@
 
 EAPI={{ .Values.eapi | default "7" }}
 
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- else }}
+inherit go-module
+{{- end }}
+
 DESCRIPTION="{{ .Values.desc }}"
 HOMEPAGE="{{ .Values.homepage }}"
 SRC_URI="{{ .Values.src_uri }}"

@@ -342,7 +342,30 @@ dev_github:
     template: ../../templates/simple.tmpl
     github:
       query: releases
+
+  extensions_defs:
+    golang:
+      opts:
+
   packages:
+
+    - go-swagger:
+        category: dev-util
+        template: ../../templates/simple-github.tmpl
+        extensions:
+          - golang
+        vars:
+          inherit:
+            - go-module
+          bdepend: dev-lang/go
+          body: |
+            src_compile() {
+              go build -x -v ./cmd/swagger
+            }
+            src_install() {
+              dobin swagger
+            }
+
 
     - jq-bin:
         category: app-misc

@@ -17,8 +17,22 @@ target:
     max_versions: 3
 
   atoms:
+    # stable release 9.20
     - pkg: net-dns/bind
+      conditions:
+        - '<net-dns/bind-9.21.0'
     - pkg: net-dns/bind-tools
+      conditions:
+        - '<net-dns/bind-9.21.0'
+    # development release 9.21
+    - pkg: net-dns/bind
+      conditions:
+        - '>=net-dns/bind-9.21.0'
+        - '<net-dns/bind-9.22.0'
+    - pkg: net-dns/bind-tools
+      conditions:
+        - '>=net-dns/bind-9.21.0'
+        - '<net-dns/bind-9.22.0'
     - pkg: net-dns/unbound
 
     - pkg: net-libs/libqmi

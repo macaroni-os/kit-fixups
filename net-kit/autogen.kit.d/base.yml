@@ -153,11 +153,27 @@ bind_dirlisting:
         prefix: "{{ .Values.version }}/"
 
   packages:
+    # Current stable release 9.20.x
     - bind:
+        selector:
+          - '<9.21.0'
     - bind-tools:
         vars:
           s: '${WORKDIR}/bind-{{ .Values.version }}'
+        selector:
+          - '<9.21.0'
 
+    # Development release 9.21.x
+    - bind:
+        selector:
+          - '>9.21.0'
+          - '<9.22.0'
+    - bind-tools:
+        selector:
+          - '>9.21.0'
+          - '<9.22.0'
+        vars:
+          s: '${WORKDIR}/bind-{{ .Values.version }}'
 
 netfilters_dir:
   generator: builtin-dirlisting

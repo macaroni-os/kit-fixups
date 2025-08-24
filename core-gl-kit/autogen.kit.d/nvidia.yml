@@ -84,6 +84,8 @@ nvidia_drivers:
         dir:
           matcher: "570.*"
         selector:
+          # version broken grrrrrr
+          - '!=570.181'
           - '<571'
           - '>569'
 
@@ -99,6 +101,17 @@ nvidia_drivers:
           - '!=575.64.05'
           - '<576'
           - '>574'
+
+    - nvidia-drivers:
+        # 580.*
+        vars:
+          slot: 580
+          max_kernel_version: 6.14
+        dir:
+          matcher: "580.*"
+        selector:
+          - '<581'
+          - '>579'
 
 nvidia_kernel_modules:
   generator: builtin-dirlisting
@@ -175,6 +188,8 @@ nvidia_kernel_modules:
         dir:
           matcher: "570.*"
         selector:
+          # version broken grrrrrr
+          - '!=570.181'
           - '<571'
           - '>569'
 
@@ -190,3 +205,14 @@ nvidia_kernel_modules:
           - '!=575.64.05'
           - '<576'
           - '>574'
+
+    - nvidia-kernel-modules:
+        # 580.*
+        vars:
+          slot: 580
+          max_kernel_version: 6.14
+        dir:
+          matcher: "580.*"
+        selector:
+          - '<581'
+          - '>579'

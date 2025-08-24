@@ -1187,3 +1187,426 @@ gitea:
               fcaps_pkg_postinst
               tmpfiles_process gitea.conf
             }
+
+thunderbird:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "thunderbird"
+    template: ../../templates/simple.tmpl
+    category: mail-client
+    vars:
+      # iuse=$(for i in $(cat /tmp/lang.txt | awk '{ print $2 }') ; do echo l10n_${i/.xpi/} ; done)
+      # echo $iuse
+      iuse: |
+        amd64 +crashreporter +ffmpeg +pulseaudio selinux
+        l10n_af l10n_ar l10n_ast l10n_be l10n_bg l10n_br l10n_ca l10n_cak l10n_cs
+        l10n_cy l10n_da l10n_de l10n_dsb l10n_el l10n_en-CA l10n_en-GB l10n_en-US
+        l10n_es-AR l10n_es-ES l10n_es-MX l10n_et l10n_eu l10n_fi l10n_fr l10n_fy-NL
+        l10n_ga-IE l10n_gd l10n_gl l10n_he l10n_hr l10n_hsb l10n_hu l10n_hy-AM l10n_id
+        l10n_is l10n_it l10n_ja l10n_ka l10n_kab l10n_kk l10n_ko l10n_lt l10n_lv
+        l10n_ms l10n_nb-NO l10n_nl l10n_nn-NO l10n_pa-IN l10n_pl l10n_pt-BR
+        l10n_pt-PT l10n_rm l10n_ro l10n_ru l10n_sk l10n_sl l10n_sq l10n_sr l10n_sv-SE
+        l10n_th l10n_tr l10n_uk l10n_uz l10n_vi l10n_zh-CN l10n_zh-TW
+      inherit:
+        - eutils
+        - pax-utils
+        - xdg-utils
+        - desktop
+      homepage: "https://www.thunderbird.net/"
+      license: "MPL-2.0 GPL-2 LGPL-2.1"
+      extra_envs:
+        # mozlangs=$(for i in $(cat /tmp/lang.txt | awk '{ print $2 }') ; do echo ${i/.xpi/} ; done)
+        # echo $mozlangs
+        - MOZ_PN="thunderbird"
+        - MOZ_PV="${PV}"
+        - MOZ_P="${MOZ_PN}-${MOZ_PV}"
+        - |
+          QA_PREBUILT="
+            opt/thunderbird/*.so
+            opt/thunderbird/${PN}
+            opt/thunderbird/crashreporter
+            opt/thunderbird/pingsender
+            opt/thunderbird/plugin-container
+            opt/thunderbird/minidump-analyzer
+            opt/thunderbird/mozilla-xremote-client
+            opt/thunderbird/updater
+          "
+
+      depend: |
+        app-arch/unzip
+        app-arch/zip
+      # x11-libs/gtk+:2 check if is needed
+      rdepend: |
+        dev-libs/atk
+        sys-apps/dbus
+        dev-libs/dbus-glib
+        dev-libs/glib
+        media-libs/alsa-lib
+        media-libs/fontconfig
+        media-libs/freetype
+        virtual/freedesktop-icon-theme
+        x11-libs/cairo[X]
+        x11-libs/gdk-pixbuf:2
+        x11-libs/gtk+:3
+        x11-libs/libX11
+        x11-libs/libXext
+        x11-libs/libXrender
+        x11-libs/libXt
+        x11-libs/pango
+        pulseaudio? ( media-sound/pulseaudio )
+        ffmpeg? ( media-video/ffmpeg )
+        crashreporter? ( net-misc/curl )
+        {{- if eq .Values.pn "thunderbird-bin" }}
+        !mail-client/thunderbird-esr-bin
+        {{- else }}
+        !mail-client/thunderbird-bin
+        {{- end }}
+      s: '${WORKDIR}/thunderbird'
+      restrict: strip
+      body: |
+        src_unpack() {
+          einfo "${A}"
+          local _lp_dir="${WORKDIR}/language_packs"
+          local _src_file
+
+          if [[ ! -d "${_lp_dir}" ]] ; then
+            mkdir "${_lp_dir}" || die
+          fi
+
+          for _src_file in ${A} ; do
+            if [[ ${_src_file} == *.xpi ]]; then
+              cp "${DISTDIR}/${_src_file}" "${_lp_dir}" || die "Failed to copy '${_src_file}' to '${_lp_dir}'!"
+            else
+              unpack ${_src_file}
+            fi
+          done
+        }
+        moz_install_xpi() {
+          debug-print-function ${FUNCNAME} "$@"
+
+          if [[ ${#} -lt 2 ]] ; then
+            die "${FUNCNAME} requires at least two arguments"
+          fi
+
+          local DESTDIR=${1}
+          shift
+
+          insinto "${DESTDIR}"
+
+          local emid xpi_file xpi_tmp_dir
+          for xpi_file in "${@}" ; do
+            emid=
+            xpi_tmp_dir=$(mktemp -d --tmpdir="${T}")
+            # Unpack XPI
+            unzip -qq "${xpi_file}" -d "${xpi_tmp_dir}" || die
+            # Determine extension ID
+            if [[ -f "${xpi_tmp_dir}/install.rdf" ]] ; then
+              emid=$(
+                sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' \
+                "${xpi_tmp_dir}/install.rdf")
+              [[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
+            elif [[ -f "${xpi_tmp_dir}/manifest.json" ]] ; then
+              emid=$(sed -n -e 's/.*"id": "\([^"]*\)".*/\1/p' "${xpi_tmp_dir}/manifest.json")
+              [[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
+            else
+              die "failed to determine extension id"
+            fi
+
+            einfo "Installing ${emid}.xpi into ${ED}/${DESTDIR} ..."
+            newins "${xpi_file}" "${emid}.xpi"
+          done
+        }
+        src_install() {
+          local MOZILLA_FIVE_HOME="/opt/{{ .Values.pn | replace "-bin" "" | replace "-esr" "" }}"
+          local PLUGIN_BASE_PATH="/usr/$(get_libdir)"
+
+          local size sizes icon_path icon name
+          sizes="16 22 24 32 48 128"
+          icon_path="${S}/chrome/icons/default"
+          icon="{{ .Values.pn | replace "esr-" ""}}-icon"
+          name="Thunderbird"
+
+          # Install icons and .desktop for menu entry
+          for size in ${sizes}; do
+            insinto "/usr/share/icons/hicolor/${size}x${size}/apps"
+            newins "${icon_path}/default${size}.png" "${icon}.png"
+          done
+          # Install a 48x48 icon into /usr/share/pixmaps for legacy DEs
+          newicon "${S}"/chrome/icons/default/default48.png "${icon}.png"
+          domenu "${FILESDIR}"/icon/{{ .Values.pn | replace "esr-" "" }}.desktop
+
+          # Install thunderbird in /opt
+          dodir ${MOZILLA_FIVE_HOME%/*}
+          mv "${S}" "${ED}"${MOZILLA_FIVE_HOME}
+          cd "${WORKDIR}" || die # PWD no longer exists so move to somewhere that does
+
+          # Install language packs
+          local langpacks=( $(find "${WORKDIR}/language_packs" -type f -name '*.xpi') )
+          if [[ -n "${langpacks}" ]] ; then
+            moz_install_xpi "${MOZILLA_FIVE_HOME}/distribution/extensions" "${langpacks[@]}"
+          fi
+
+          # Create /usr/bin/thunderbird-bin
+          newbin - thunderbird-bin <<- _EOF_
+            #!/bin/sh
+            exec ${MOZILLA_FIVE_HOME}/thunderbird "\$@"
+          _EOF_
+
+          # revdep-rebuild entry
+          insinto /etc/revdep-rebuild
+          doins "${FILESDIR}"/10{{ .Values.pn | replace "esr-" "" }}
+
+          # Enable very specific settings for thunderbird
+          insinto ${MOZILLA_FIVE_HOME}/defaults/pref/
+          newins "${FILESDIR}"/thunderbird-macaroni-default-prefs.js all-macaroni.js
+
+          # Plugins dir
+          dosym "${PLUGIN_BASE_PATH}/nsbrowser/plugins" "${MOZILLA_FIVE_HOME}/plugins"
+
+          pax-mark mr "${ED}"${MOZILLA_FIVE_HOME}/{thunderbird-bin,thunderbird,plugin-container}
+        }
+        pkg_postinst() {
+          xdg_desktop_database_update
+          xdg_icon_cache_update
+          use ffmpeg || ewarn "USE=-ffmpeg : HTML5 video will not render without media-video/ffmpeg installed"
+          use pulseaudio || ewarn "USE=-pulseaudio : audio will not play without pulseaudio installed"
+        }
+        pkg_postrm() {
+          xdg_icon_cache_update
+        }
+
+
+
+    dir:
+      url: https://archive.mozilla.org/pub/thunderbird/releases/
+      matcher: '[0-9]+.*'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/en-US/thunderbird-{{ .Values.original_version }}.tar.xz'
+        use: amd64
+
+      # Download the xpi dirlist webpage on /tmp/lang.txt and later
+      # run:
+      # for i in $(cat /tmp/lang.txt | awk '{ print $2 }') ; do echo -e "- name: '{{ .Values.pn }}-{{ .Values.original_version }}-$i'\n  url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.version }}/linux-x86_64/xpi/$i'\n  use: l10n_${i/.xpi/}" ; done
+      # XPI
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-af.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/af.xpi'
+        use: l10n_af
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ar.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ar.xpi'
+        use: l10n_ar
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ast.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ast.xpi'
+        use: l10n_ast
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-be.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/be.xpi'
+        use: l10n_be
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-bg.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/bg.xpi'
+        use: l10n_bg
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-br.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/br.xpi'
+        use: l10n_br
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ca.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ca.xpi'
+        use: l10n_ca
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-cak.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/cak.xpi'
+        use: l10n_cak
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-cs.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/cs.xpi'
+        use: l10n_cs
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-cy.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/cy.xpi'
+        use: l10n_cy
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-da.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/da.xpi'
+        use: l10n_da
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-de.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/de.xpi'
+        use: l10n_de
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-dsb.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/dsb.xpi'
+        use: l10n_dsb
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-el.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/el.xpi'
+        use: l10n_el
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-en-CA.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/en-CA.xpi'
+        use: l10n_en-CA
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-en-GB.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/en-GB.xpi'
+        use: l10n_en-GB
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-en-US.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/en-US.xpi'
+        use: l10n_en-US
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-es-AR.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/es-AR.xpi'
+        use: l10n_es-AR
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-es-ES.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/es-ES.xpi'
+        use: l10n_es-ES
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-es-MX.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/es-MX.xpi'
+        use: l10n_es-MX
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-et.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/et.xpi'
+        use: l10n_et
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-eu.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/eu.xpi'
+        use: l10n_eu
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-fi.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/fi.xpi'
+        use: l10n_fi
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-fr.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/fr.xpi'
+        use: l10n_fr
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-fy-NL.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/fy-NL.xpi'
+        use: l10n_fy-NL
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ga-IE.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ga-IE.xpi'
+        use: l10n_ga-IE
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-gd.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/gd.xpi'
+        use: l10n_gd
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-gl.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/gl.xpi'
+        use: l10n_gl
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-he.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/he.xpi'
+        use: l10n_he
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-hr.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/hr.xpi'
+        use: l10n_hr
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-hsb.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/hsb.xpi'
+        use: l10n_hsb
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-hu.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/hu.xpi'
+        use: l10n_hu
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-hy-AM.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/hy-AM.xpi'
+        use: l10n_hy-AM
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-id.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/id.xpi'
+        use: l10n_id
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-is.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/is.xpi'
+        use: l10n_is
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-it.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/it.xpi'
+        use: l10n_it
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ja.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ja.xpi'
+        use: l10n_ja
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ka.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ka.xpi'
+        use: l10n_ka
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-kab.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/kab.xpi'
+        use: l10n_kab
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-kk.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/kk.xpi'
+        use: l10n_kk
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ko.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ko.xpi'
+        use: l10n_ko
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-lt.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/lt.xpi'
+        use: l10n_lt
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-lv.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/lv.xpi'
+        use: l10n_lv
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ms.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ms.xpi'
+        use: l10n_ms
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-nb-NO.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/nb-NO.xpi'
+        use: l10n_nb-NO
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-nl.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/nl.xpi'
+        use: l10n_nl
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-nn-NO.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/nn-NO.xpi'
+        use: l10n_nn-NO
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-pa-IN.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/pa-IN.xpi'
+        use: l10n_pa-IN
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-pl.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/pl.xpi'
+        use: l10n_pl
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-pt-BR.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/pt-BR.xpi'
+        use: l10n_pt-BR
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-pt-PT.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/pt-PT.xpi'
+        use: l10n_pt-PT
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-rm.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/rm.xpi'
+        use: l10n_rm
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ro.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ro.xpi'
+        use: l10n_ro
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-ru.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/ru.xpi'
+        use: l10n_ru
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-sk.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/sk.xpi'
+        use: l10n_sk
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-sl.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/sl.xpi'
+        use: l10n_sl
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-sq.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/sq.xpi'
+        use: l10n_sq
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-sr.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/sr.xpi'
+        use: l10n_sr
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-sv-SE.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/sv-SE.xpi'
+        use: l10n_sv-SE
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-th.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/th.xpi'
+        use: l10n_th
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-tr.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/tr.xpi'
+        use: l10n_tr
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-uk.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/uk.xpi'
+        use: l10n_uk
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-uz.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/uz.xpi'
+        use: l10n_uz
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-vi.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/vi.xpi'
+        use: l10n_vi
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-zh-CN.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/zh-CN.xpi'
+        use: l10n_zh-CN
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-zh-TW.xpi'
+        url: 'https://archive.mozilla.org/pub/thunderbird/releases/{{ .Values.original_version }}/linux-x86_64/xpi/zh-TW.xpi'
+        use: l10n_zh-TW
+
+
+  packages:
+    - thunderbird-bin:
+        vars:
+          bdepend: |
+            !mail-client/thunderbird-esr-bin
+          desc: Thunderbird Mail Client
+        dir:
+          exclude: 'esr|b[0-9]+'
+
+    - thunderbird-esr-bin:
+        vars:
+          bdepend: |
+            !mail-client/thunderbird-bin
+          desc: Thunderbird Mail Client (ESR)
+        dir:
+          matcher: 'esr'
+        transform:
+          - kind: string
+            match: "esr"
+            replace: ""

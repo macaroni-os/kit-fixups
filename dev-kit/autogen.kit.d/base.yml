@@ -347,7 +347,33 @@ dev_github:
     golang:
       opts:
 
+    rust:
+      opts:
+
   packages:
+
+    - cbindgen:
+        category: dev-util
+        extensions:
+          - rust
+        github:
+          user: mozilla
+          num_pages: 3
+        vars:
+          inherit:
+            - cargo
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="/usr/bin/cbindgen"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user}}-{{ .Values.github_repo }}-* ${S} || die
+            }
+            src_install() {
+              cargo_src_install
+              einstalldocs
+            }
 
     - go-swagger:
         category: dev-util

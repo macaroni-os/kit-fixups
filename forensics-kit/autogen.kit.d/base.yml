@@ -1,0 +1,36 @@
+golang_forensics_github:
+  generator: builtin-github
+  defaults:
+    category: app-forensics
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - gobuster:
+        extensions:
+          - golang
+        github:
+          user: OJ
+        vars:
+          inherit:
+            - go-module
+          bdepend: |
+            >=dev-lang/go-1.24
+          body: |
+            src_compile() {
+              go build -mod=mod . || die "compile failed"
+            }
+            src_install() {
+              dobin {{ .Values.pn }}
+              dodoc README.md
+            }
+
+
+
+

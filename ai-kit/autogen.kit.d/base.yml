@@ -1,0 +1,44 @@
+ollama:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - ollama:
+        # TODO:
+        # - improve integration with CUDA and ROCm
+        extensions:
+          - golang
+        vars:
+          inherit:
+            - go-module
+            - cmake
+          bdepend: |
+            >=dev-lang/go-1.24
+          body: |
+            src_prepare() {
+              default
+              go-module_src_prepare
+              cmake_src_prepare
+            }
+            src_compile() {
+              cmake_src_compile
+              go build -mod=mod . || die "compile failed"
+            }
+            src_install() {
+              cmake_src_install
+              dobin {{ .Values.pn }}
+              dodoc README.md
+            }
+
+
+
+

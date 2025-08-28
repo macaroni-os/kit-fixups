@@ -12,6 +12,75 @@ ollama:
       opts:
 
   packages:
+
+    - llama-cpp:
+        github:
+          #per_page: 5
+          user: ggml-org
+          repo: llama.cpp
+          ignore_tags: true
+        transform:
+          - kind: regex
+            match: "b"
+            replace: "0.0."
+        vars:
+          inherit:
+            - cmake
+          nvidia_cuda_capability:
+            - 12.0
+            - 10.0
+            - 9.0
+            - 8.9
+            - 8.7
+            - 8.9
+            - 7.5
+            - 6.1
+            - 6.2
+
+          iuse: static blas cuda vulkan
+          cdepend: |
+            cuda? ( x11-drivers/nvidia-drivers )
+            vulkan? (
+              dev-util/vulkan-tools
+              media-libs/vulkan-layers
+              media-libs/vulkan-loader
+              media-libs/shaderc
+              sci-libs/gsl
+            )
+            blas? (
+              virtual/blas
+              virtual/lapack
+            )
+          bdepend: |
+            vulkan? (
+              dev-util/vulkan-headers
+            )
+          depend: '${CDEPEND}'
+          rdepend: '${CDEPEND}'
+          body: |
+            src_configure() {
+              if use blas ; then
+                # It seems that -lcblas -lblas is not injected. It's inject only -llapack
+                export LDFLAGS="${LDFLAGS} -lcblas -lblas"
+              fi
+
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=$(usex static OFF ON)
+                -DGGML_CUDA=$(usex cuda ON OFF)
+                -DGGML_BLAS=$(usex blas ON OFF)
+                -DGGML_VULKAN=$(usex vulkan ON OFF)
+                -DGGML_BLAS_VENDOR=Generic
+                -DCMAKE_CUDA_ARCHITECTURES='{{ .Values.nvidia_cuda_capability | join ":" }}'
+                -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              dodoc README.md SECURITY.md CONTRIBUTING.md
+            }
+
+
     - ollama:
         # TODO:
         # - improve integration with CUDA and ROCm

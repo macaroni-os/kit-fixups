@@ -271,6 +271,8 @@ target:
     - pkg: media-gfx/ascii-image-converter
 
     - pkg: sys-apps/busybox
+      conditions:
+        - '<sys-apps/busybox-1.37.0'
     - pkg: sys-apps/eza
     - pkg: sys-apps/help2man
     - pkg: sys-apps/mlocate

@@ -180,13 +180,17 @@ cargo_src_unpack() {
 
 		local extra
 		for extra in "${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"/*.tar.*; do
-				tar xf "${extra}"
-				local filename=$(basename "${extra}")
-				local unpack_dir="${filename%.tar.*}"
+			if $(basename $extra) = "*.tar.*" ; then
+				# No extra found
+				continue
+			fi
+			tar xf "${extra}"
+			local filename=$(basename "${extra}")
+			local unpack_dir="${filename%.tar.*}"
 
-				pushd "${unpack_dir}" >/dev/null
-				cat ${ECARGO_BUNDLE_CONFIG} | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
-				popd >/dev/null
+			pushd "${unpack_dir}" >/dev/null
+			cat ${ECARGO_BUNDLE_CONFIG} | sed "s|%CRATES_DIR%|${crates_dir}|g" >> "${ECARGO_HOME}"/config
+			popd >/dev/null
 		done
 
 		popd >/dev/null

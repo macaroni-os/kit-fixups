@@ -49,6 +49,10 @@ debian_sources:
         vars:
           level: unstable
           branch: sid
+          # Set the slot here in order to
+          # generate correctly the reposcan object
+          # used on merge phase.
+          slot: sid
           track_openzfs: False
           patches:
             - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
@@ -57,6 +61,7 @@ debian_sources:
         vars:
           level: testing
           branch: trixie
+          slot: trixie
           track_openzfs: True
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
@@ -65,6 +70,7 @@ debian_sources:
         vars:
           level: stable
           branch: bookworm
+          slot: bookworm
           track_openzfs: True
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch

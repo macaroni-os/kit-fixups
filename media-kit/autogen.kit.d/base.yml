@@ -1009,6 +1009,59 @@ blender:
           - '<4.6'
           - '>=4.5.0'
 
+dav1d:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: https://download.videolan.org/pub/videolan/{{ .Values.pn }}/
+      matcher: '[0.9.]+'
+
+  packages:
+    - dav1d:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.pn }}.tar.xz'
+            url: 'https://download.videolan.org/pub/videolan/{{ .Values.pn }}/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        vars:
+          license: BSD-2
+          desc: dav1d is an AV1 Decoder :)
+          homepage: https://code.videolan.org/videolan/dav1d
+          iuse: +8bit +10bit +asm xxhash
+          rdepend: |
+            xxhash? (
+              dev-libs/xxhash
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            asm? (
+                dev-lang/nasm
+            )
+          inherit:
+            - meson
+            - ninja-utils
+          docs:
+            - README.md
+            - doc/PATENTS
+            - THANKS.md
+          body: |
+            src_configure() {
+              local -a bits=()
+              use 8bit  && bits+=( 8 )
+              use 10bit && bits+=( 16 )
+
+              local emesonargs=(
+                -Dbitdepths=$(IFS=,; echo "${bits[*]}")
+                -Denable_tests=false
+                -Denable_asm=$(usex asm true false)
+                $(meson_feature xxhash xxhash_muxer)
+              )
+              meson_src_configure
+            }
+
+
 gnome_stuff:
   generator: builtin-dirlisting
   template:

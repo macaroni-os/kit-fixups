@@ -259,7 +259,7 @@ opera:
 
 
 
-firefox-bin:
+firefox:
   generator: builtin-dirlisting
   template:
     engine: helm
@@ -269,432 +269,1071 @@ firefox-bin:
     template: ../../templates/simple.tmpl
     category: www-client
     dir:
-      url: "https://archive.mozilla.org/pub/firefox/releases/"
+      url: "{{ .Values.baseurl }}/"
       matcher: '[1-9][0-9][0-9].*'
       exclude: "esr|b[0-9]|test|rc[0-9]"
+    vars:
+      baseurl: 'https://archive.mozilla.org/pub/firefox/releases'
+      src_unpack: |
+        src_unpack() {
+          einfo "${A}"
+          local _lp_dir="${WORKDIR}/language_packs"
+          local _src_file
+
+          if [[ ! -d "${_lp_dir}" ]] ; then
+            mkdir "${_lp_dir}" || die
+          fi
+
+          for _src_file in ${A} ; do
+            if [[ ${_src_file} == *.xpi ]]; then
+              cp "${DISTDIR}/${_src_file}" "${_lp_dir}" || die "Failed to copy '${_src_file}' to '${_lp_dir}'!"
+            else
+              unpack ${_src_file}
+            fi
+          done
+        }
+      moz_install_xpi: |
+        moz_install_xpi() {
+          debug-print-function ${FUNCNAME} "$@"
+
+          if [[ ${#} -lt 2 ]] ; then
+            die "${FUNCNAME} requires at least two arguments"
+          fi
+
+          local DESTDIR=${1}
+          shift
+
+          insinto "${DESTDIR}"
+
+          local emid xpi_file xpi_tmp_dir
+          for xpi_file in "${@}" ; do
+            emid=
+            xpi_tmp_dir=$(mktemp -d --tmpdir="${T}")
+            # Unpack XPI
+            unzip -qq "${xpi_file}" -d "${xpi_tmp_dir}" || die
+            # Determine extension ID
+            if [[ -f "${xpi_tmp_dir}/install.rdf" ]] ; then
+              emid=$(
+                sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' \
+                "${xpi_tmp_dir}/install.rdf")
+              [[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
+            elif [[ -f "${xpi_tmp_dir}/manifest.json" ]] ; then
+              emid=$(sed -n -e 's/.*"id": "\([^"]*\)".*/\1/p' "${xpi_tmp_dir}/manifest.json")
+              [[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
+            else
+              die "failed to determine extension id"
+            fi
+
+            einfo "Installing ${emid}.xpi into ${ED}/${DESTDIR} ..."
+            newins "${xpi_file}" "${emid}.xpi"
+          done
+        }
     assets:
-      - name: "{{ .Values.pn }}_x86_64-{{ .Values.version }}.tar.xz"
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/en-US/firefox-{{ .Values.version }}.tar.xz"
+      - name: '{{- if eq .Values.pn "firefox-bin" }}{{ .Values.pn }}_x86_64-{{ .Values.version }}{{- else }}{{ .Values.pn }}-{{ .Values.version }}.source{{- end }}.tar.xz'
+        url: '{{ .Values.baseurl }}/{{ .Values.version }}/{{- if eq .Values.pn "firefox-bin" }}linux-x86_64/en-US/firefox-{{ .Values.version }}{{- else }}source/firefox-{{ .Values.version }}.source{{- end }}.tar.xz'
         use: amd64
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ach.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ach.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ach.xpi"
         use: l10n_ach
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-af.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/af.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/af.xpi"
         use: l10n_af
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-an.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/an.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/an.xpi"
         use: l10n_an
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ar.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ar.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ar.xpi"
         use: l10n_ar
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ast.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ast.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ast.xpi"
         use: l10n_ast
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-az.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/az.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/az.xpi"
         use: l10n_az
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-be.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/be.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/be.xpi"
         use: l10n_be
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-bg.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/bg.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/bg.xpi"
         use: l10n_bg
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-bn.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/bn.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/bn.xpi"
         use: l10n_bn
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-br.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/br.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/br.xpi"
         use: l10n_bn
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-bs.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/bs.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/bs.xpi"
         use: l10n_bs
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ca-valencia.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ca-valencia.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ca-valencia.xpi"
         use: l10n_ca-valencia
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ca.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ca.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ca.xpi"
         use: l10n_ca
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-cak.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/cak.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/cak.xpi"
         use: l10n_cak
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-cs.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/cs.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/cs.xpi"
         use: l10n_cs
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-cy.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/cy.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/cy.xpi"
         use: l10n_cy
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-da.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/da.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/da.xpi"
         use: l10n_da
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-de.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/de.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/de.xpi"
         use: l10n_de
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-dsb.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/dsb.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/dsb.xpi"
         use: l10n_dsb
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-el.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/el.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/el.xpi"
         use: l10n_el
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-en-CA.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/en-CA.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/en-CA.xpi"
         use: l10n_en-CA
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-en-GB.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/en-GB.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/en-GB.xpi"
         use: l10n_en-GB
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-en-US.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/en-US.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/en-US.xpi"
         use: l10n_en-US
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-eo.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/eo.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/eo.xpi"
         use: l10n_eo
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-es-AR.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/es-AR.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/es-AR.xpi"
         use: l10n_es-AR
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-es-CL.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/es-CL.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/es-CL.xpi"
         use: l10n_es-CL
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-es-ES.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/es-ES.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/es-ES.xpi"
         use: l10n_es-ES
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-es-MX.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/es-MX.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/es-MX.xpi"
         use: l10n_es-MX
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-et.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/et.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/et.xpi"
         use: l10n_et
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-eu.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/eu.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/eu.xpi"
         use: l10n_eu
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-fa.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/fa.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/fa.xpi"
         use: l10n_fa
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ff.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ff.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ff.xpi"
         use: l10n_ff
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-fi.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/fi.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/fi.xpi"
         use: l10n_fi
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-fr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/fr.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/fr.xpi"
         use: l10n_fr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-fur.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/fur.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/fur.xpi"
         use: l10n_fur
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-fy-NL.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/fy-NL.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/fy-NL.xpi"
         use: l10n_fy-NL
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ga-IE.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ga-IE.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ga-IE.xpi"
         use: l10n_ga-IE
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-gd.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/gd.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/gd.xpi"
         use: l10n_gd
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-gl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/gl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/gl.xpi"
         use: l10n_gl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-gn.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/gn.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/gn.xpi"
         use: l10n_gn
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-gu-IN.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/gu-IN.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/gu-IN.xpi"
         use: l10n_gu-IN
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-he.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/he.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/he.xpi"
         use: l10n_he
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-hi-IN.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/hi-IN.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/hi-IN.xpi"
         use: l10n_hi-IN
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-hr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/hr.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/hr.xpi"
         use: l10n_hr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-hsb.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/hsb.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/hsb.xpi"
         use: l10n_hsb
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-hu.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/hu.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/hu.xpi"
         use: l10n_hu
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-hy-AM.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/hy-AM.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/hy-AM.xpi"
         use: l10n_hy-AM
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ia.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ia.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ia.xpi"
         use: l10n_ia
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-id.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/id.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/id.xpi"
         use: l10n_id
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-is.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/is.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/is.xpi"
         use: l10n_is
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-it.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/it.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/it.xpi"
         use: l10n_it
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ja.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ja.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ja.xpi"
         use: l10n_ja
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ka.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ka.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ka.xpi"
         use: l10n_ka
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-kab.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/kab.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/kab.xpi"
         use: l10n_kab
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-kk.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/kk.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/kk.xpi"
         use: l10n_kk
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-km.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/km.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/km.xpi"
         use: l10n_km
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-kn.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/kn.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/kn.xpi"
         use: l10n_kn
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ko.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ko.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ko.xpi"
         use: l10n_ko
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-lij.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/lij.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/lij.xpi"
         use: l10n_lij
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-lt.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/lt.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/lt.xpi"
         use: l10n_lt
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-lv.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/lv.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/lv.xpi"
         use: l10n_lv
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-mk.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/mk.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/mk.xpi"
         use: l10n_mk
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-mr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/mk.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/mk.xpi"
         use: l10n_mr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ms.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ms.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ms.xpi"
         use: l10n_ms
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-my.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/my.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/my.xpi"
         use: l10n_my
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-nb-NO.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/nb-NO.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/nb-NO.xpi"
         use: l10n_nb-NO
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ne-NP.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ne-NP.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ne-NP.xpi"
         use: l10n_ne-NP
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-nl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/nl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/nl.xpi"
         use: l10n_nl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-nn-NO.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/nn-NO.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/nn-NO.xpi"
         use: l10n_nn-NO
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-oc.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/oc.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/oc.xpi"
         use: l10n_oc
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-pa-IN.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/pa-IN.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/pa-IN.xpi"
         use: l10n_pa-IN
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-pl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/pl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/pl.xpi"
         use: l10n_pl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-pt-BR.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/pt-BR.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/pt-BR.xpi"
         use: l10n_pt-BR
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-pt-PT.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/pt-PT.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/pt-PT.xpi"
         use: l10n_pt-PT
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-rm.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/rm.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/rm.xpi"
         use: l10n_rm
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ro.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ro.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ro.xpi"
         use: l10n_ro
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ru.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ru.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ru.xpi"
         use: l10n_ru
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sat.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sat.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sat.xpi"
         use: l10n_sat
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sc.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sc.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sc.xpi"
         use: l10n_sc
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sco.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sco.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sco.xpi"
         use: l10n_sco
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-si.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/si.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/si.xpi"
         use: l10n_si
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sk.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sk.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sk.xpi"
         use: l10n_sk
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-skr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/skr.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/skr.xpi"
         use: l10n_skr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sl.xpi"
         use: l10n_sl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-son.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/son.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/son.xpi"
         use: l10n_son
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sq.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sq.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sq.xpi"
         use: l10n_sq
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sr.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sr.xpi"
         use: l10n_sr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-sv-SE.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/sv-SE.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/sv-SE.xpi"
         use: l10n_sv-SE
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-szl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/szl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/szl.xpi"
         use: l10n_szl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ta.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ta.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ta.xpi"
         use: l10n_ta
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-te.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/te.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/te.xpi"
         use: l10n_te
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-tg.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/tg.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/tg.xpi"
         use: l10n_tg
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-th.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/th.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/th.xpi"
         use: l10n_th
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-tl.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/tl.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/tl.xpi"
         use: l10n_tl
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-tr.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/tr.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/tr.xpi"
         use: l10n_tr
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-trs.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/trs.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/trs.xpi"
         use: l10n_trs
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-uk.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/uk.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/uk.xpi"
         use: l10n_uk
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-ur.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/ur.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/ur.xpi"
         use: l10n_ur
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-uz.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/uz.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/uz.xpi"
         use: l10n_uz
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-vi.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/vi.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/vi.xpi"
         use: l10n_vi
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-xh.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/xh.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/xh.xpi"
         use: l10n_xh
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-zh-CN.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/zh-CN.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/zh-CN.xpi"
         use: l10n_zh-CN
 
       - name: '{{ .Values.pn | replace "-bin" "" }}_x86_64-{{ .Values.version }}-zh-TW.xpi'
-        url: "https://archive.mozilla.org/pub/firefox/releases/{{ .Values.version }}/linux-x86_64/xpi/zh-TW.xpi"
+        url: "{{ .Values.baseurl }}/{{ .Values.version }}/linux-x86_64/xpi/zh-TW.xpi"
         use: l10n_zh-TW
 
   packages:
+    - firefox:
+        vars:
+          # This system will be unable to play DRM-protected content without CONFIG_SECCOMP kernel option
+          homepage: https://www.mozilla.org/en-US/firefox/
+          desc: Firefox Web Browser
+          license: MPL-2.0 GPL-2 LGPL-2.1
+          python_compat: python3+
+          inherit:
+            - desktop
+            - flag-o-matic
+            - gnome2-utils
+            - multiprocessing
+            - toolchain-funcs
+            - pax-utils
+            - python-any-r1
+            - virtualx
+            - xdg
+          # Set statically LLVM version to ensure compilation
+          # of the package with the tested release.
+          llvm_slot: 16
+          patches:
+            - 00-fix-fortify-system-wrappers.patch
+            - 01-fix-rust-target.patch
+            - 02-bmo-847568-support-system-harfbuzz-graphite2.patch
+            - 03-loong0001-Enable-WebRTC-for-loongarch64.patch
+            - 04-loong0001-Enable-WebRTC-for-loongarch64.patch
+            - 05-loong0004-Fix-ycbcr-chromium_types-warning.patch
+            - 06-sandbox-sched_setscheduler.patch
+            - 07-rust-lto-thin.patch
+
+          # +system-av1 requires dav1d 1.5. keep off for now.
+          iuse: |
+            amd64 +clang dbus debug eme-free hwaccl jack libproxy lto +openh264 pgo pulseaudio sndio
+            system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx
+            system-png system-python-libs +system-webp +gmp-autoupdate screecast +X
+            +pulseaudio selinux wayland wifi screencast system-pipewire telemetry
+            l10n_ach l10n_af l10n_an l10n_ar l10n_ast l10n_az l10n_be l10n_bg l10n_bn l10n_br
+            l10n_bs l10n_ca-valencia l10n_ca l10n_cak l10n_cs l10n_cy l10n_da l10n_de l10n_dsb
+            l10n_el l10n_en-CA l10n_en-GB l10n_en-US l10n_eo l10n_es-AR l10n_es-CL l10n_es-ES
+            l10n_es-MX l10n_et l10n_eu l10n_fa l10n_ff l10n_fi l10n_fr l10n_fur l10n_fy-NL
+            l10n_ga-IE l10n_gd l10n_gl l10n_gn l10n_gu-IN l10n_he l10n_hi-IN l10n_hr l10n_hsb
+            l10n_hu l10n_hy-AM l10n_ia l10n_id l10n_is l10n_it l10n_ja l10n_ka l10n_kab l10n_kk
+            l10n_km l10n_kn l10n_ko l10n_lij l10n_lt l10n_lv l10n_mk l10n_mr l10n_ms l10n_my
+            l10n_nb-NO l10n_ne-NP l10n_nl l10n_nn-NO l10n_oc l10n_pa-IN l10n_pl l10n_pt-BR
+            l10n_pt-PT l10n_rm l10n_ro l10n_ru l10n_sat l10n_sc l10n_sco l10n_si l10n_sk l10n_skr
+            l10n_sl l10n_son l10n_sq l10n_sr l10n_sv-SE l10n_szl l10n_ta l10n_te l10n_tg l10n_th
+            l10n_tl l10n_tr l10n_trs l10n_uk l10n_ur l10n_uz l10n_vi l10n_xh l10n_zh-CN l10n_zh-TW
+          required_use: |
+            debug? ( !system-av1 )
+            pgo? ( lto )
+            wayland? ( dbus )
+            wifi? ( dbus )
+            || ( X wayland )
+            screecast? ( wayland )
+          bdepend: |
+            ${PYTHON_DEPS}
+            app-arch/unzip
+            app-arch/zip
+            dev-util/cbindgen
+            net-libs/nodejs
+            virtual/pkgconfig
+            virtual/rust
+            || (
+              (
+                sys-devel/clang:{{ .Values.llvm_slot }}
+                sys-devel/llvm:{{ .Values.llvm_slot }}
+                clang? (
+                  sys-devel/lld
+                  pgo? ( sys-libs/compiler-rt-sanitizers[profile] )
+                )
+              )
+            )
+            amd64? ( dev-lang/nasm )
+          cdepend: |
+            dev-libs/glib
+            dev-libs/atk
+            dev-libs/expat
+            dev-libs/libffi:=
+            dev-libs/nss
+            dev-libs/nspr
+            media-libs/alsa-lib
+            media-libs/fontconfig
+            media-libs/freetype
+            media-libs/mesa
+            media-video/ffmpeg
+            sys-libs/zlib
+            virtual/freedesktop-icon-theme
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf
+            x11-libs/pango
+            x11-libs/pixman
+            dbus? (
+              dev-libs/dbus-glib
+              sys-apps/dbus
+            )
+            jack? ( virtual/jack )
+            libproxy? ( net-libs/libproxy )
+            selinux? ( sec-policy/selinux-mozilla )
+            sndio? ( media-sound/sndio )
+            screencast? ( media-video/pipewire:= )
+            system-av1? (
+              media-libs/dav1d:=
+              media-libs/libaom:=
+            )
+            system-harfbuzz? (
+              media-gfx/graphite2
+              media-libs/harfbuzz:=
+            )
+            system-icu? ( dev-libs/icu:= )
+            system-jpeg? ( media-libs/libjpeg-turbo )
+            system-libevent? ( dev-libs/libevent[threads] )
+            system-libvpx? ( media-libs/libvpx[postproc] )
+            system-png? ( media-libs/libpng[apng] )
+            system-webp? ( media-libs/libwebp )
+            wayland? (
+              x11-libs/gtk+:3[wayland]
+              x11-libs/libdrm
+              x11-libs/libxkbcommon[wayland(-)]
+            )
+            wifi? (
+              kernel_linux? (
+                dev-libs/dbus-glib
+                net-misc/networkmanager
+                sys-apps/dbus
+              )
+            )
+            X? (
+              virtual/opengl
+              x11-libs/cairo[X]
+              x11-libs/gtk+:3[X]
+              x11-libs/libX11
+              x11-libs/libXcomposite
+              x11-libs/libXdamage
+              x11-libs/libXext
+              x11-libs/libXfixes
+              x11-libs/libxkbcommon[X]
+              x11-libs/libXrandr
+              x11-libs/libXtst
+              x11-libs/libxcb:=
+            )
+          rdepend: |
+            ${CDEPEND}
+            jack? ( virtual/jack )
+            openh264? ( media-libs/openh264:*[plugin] )
+            pulseaudio? (
+              || (
+                media-sound/pulseaudio
+                media-sound/apulse
+              )
+            )
+          depend: |
+            ${CDEPEND}
+            pulseaudio? ( media-sound/pulseaudio )
+            X? (
+              x11-libs/libICE
+              x11-libs/libSM
+            )
+          body: |-
+            # Allow MOZ_GMP_PLUGIN_LIST to be set in an eclass or
+            # overridden in the enviromnent (advanced hackers only)
+            if [[ -z "${MOZ_GMP_PLUGIN_LIST+set}" ]] ; then
+              MOZ_GMP_PLUGIN_LIST=( gmp-gmpopenh264 gmp-widevinecdm )
+            fi
+            {{ .Values.src_unpack }}
+            {{ .Values.moz_install_xpi }}
+            pkg_setup() {
+              python-any-r1_pkg_setup
+
+              # Avoid PGO profiling problems due to enviroment leakage
+              # These should *always* be cleaned up anyway
+              unset \
+                DBUS_SESSION_BUS_ADDRESS \
+                DISPLAY \
+                ORBIT_SOCKETDIR \
+                SESSION_MANAGER \
+                XAUTHORITY \
+                XDG_CACHE_HOME \
+                XDG_SESSION_COOKIE
+
+              # Build system is using /proc/self/oom_score_adj, bug #604394
+              addpredict /proc/self/oom_score_adj
+
+              if use pgo ; then
+                # Allow access to GPU during PGO run
+                local ati_cards mesa_cards nvidia_cards render_cards
+                shopt -s nullglob
+
+                ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
+                if [[ -n "${ati_cards}" ]] ; then
+                  addpredict "${ati_cards}"
+                fi
+
+                mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
+                if [[ -n "${mesa_cards}" ]] ; then
+                  addpredict "${mesa_cards}"
+                fi
+
+                nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
+                if [[ -n "${nvidia_cards}" ]] ; then
+                  addpredict "${nvidia_cards}"
+                fi
+
+                render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
+                if [[ -n "${render_cards}" ]] ; then
+                  addpredict "${render_cards}"
+                fi
+
+                shopt -u nullglob
+              fi
+
+              # Ensure we use C locale when building, bug #746215
+              export LC_ALL=C
+            }
+            _clear_vendor_checksums() {
+              sed -i 's/\("files":{\)[^}]*/\1/' third_party/rust/$1/.cargo-checksum.json
+            }
+            src_prepare() {
+              default
+
+              # Copy Macaroni distribution.ini
+              cp ${FILESDIR}/distribution.ini "${WORKDIR}/"
+
+              eapply_user
+
+              # Make cargo respect MAKEOPTS
+              export CARGO_BUILD_JOBS="$(makeopts_jobs)"
+
+              # Make LTO respect MAKEOPTS
+              sed -i \
+                -e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
+                "${S}"/build/moz.configure/lto-pgo.configure \
+                || die "sed failed to set num_cores"
+
+              # Make ICU respect MAKEOPTS
+              sed -i \
+                -e "s/multiprocessing.cpu_count()/$(makeopts_jobs)/" \
+                "${S}"/intl/icu_sources_data.py \
+                || die "sed failed to set num_cores"
+
+              # sed-in toolchain prefix
+              sed -i \
+                -e "s/objdump/${CHOST}-objdump/" \
+                "${S}"/python/mozbuild/mozbuild/configure/check_debug_ranges.py \
+                || die "sed failed to set toolchain prefix"
+
+              sed -i \
+                -e 's/ccache_stats = None/return None/' \
+                "${S}"/python/mozbuild/mozbuild/controller/building.py \
+                || die "sed failed to disable ccache stats call"
+
+              einfo "Removing pre-built binaries ..."
+              find "${S}"/third_party -type f \( -name '*.so' -o -name '*.o' \) -print -delete || die
+
+              # Create build dir
+              BUILD_DIR="${WORKDIR}/${PN}_build"
+              mkdir -p "${BUILD_DIR}" || die
+
+              _clear_vendor_checksums audio_thread_priority
+              _clear_vendor_checksums libc
+
+              # Mozilla API keys (see https://location.services.mozilla.com/api)
+              # Note: These are for Gentoo Linux use ONLY. For your own distribution, please
+              # get your own set of keys.
+              if [[ -z "${MOZ_API_KEY_MOZILLA+set}" ]] ; then
+                MOZ_API_KEY_MOZILLA="edb3d487-3a84-46m0ap1e3-9dfd-92b5efaaa005"
+              fi
+
+              echo -n "${MOZ_API_KEY_MOZILLA//m0ap1/}" > "${S}"/api-mozilla.key || die
+
+              xdg_environment_reset
+            }
+            mozconfig_add_options_ac() {
+              local reason=${1}
+              shift
+              local option
+              for option in ${@} ; do
+                echo "ac_add_options ${option} # ${reason}" >>${MOZCONFIG}
+              done
+            }
+            mozconfig_add_options_mk() {
+              local reason=${1}
+              shift
+              local option
+              for option in ${@} ; do
+                echo "mk_add_options ${option} # ${reason}" >>${MOZCONFIG}
+              done
+            }
+            mozconfig_use_enable() {
+              local flag=$(use_enable "${@}")
+              mozconfig_add_options_ac "$(use ${1} && echo +${1} || echo -${1})" "${flag}"
+            }
+            mozconfig_use_with() {
+              local flag=$(use_with "${@}")
+              mozconfig_add_options_ac "$(use ${1} && echo +${1} || echo -${1})" "${flag}"
+            }
+            src_configure() {
+              if use clang; then
+                extra_cflags="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                export CPPFLAGS="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+                strip-unsupported-flags
+              fi
+
+              tc-export CC CXX LD AR NM OBJDUMP RANLIB PKG_CONFIG
+              # Pass the correct toolchain paths through cbindgen
+              if tc-is-cross-compiler ; then
+                export BINDGEN_CFLAGS="${SYSROOT:+--sysroot=${ESYSROOT}} --target=${CHOST} ${BINDGEN_CFLAGS-}"
+              fi
+
+              # Set MOZILLA_FIVE_HOME
+              export MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
+              # python/mach/mach/mixin/process.py fails to detect SHELL
+              export SHELL="${EPREFIX}/bin/bash"
+
+              # Set state path
+              export MOZBUILD_STATE_PATH="${BUILD_DIR}"
+
+              # Set MOZCONFIG
+              export MOZCONFIG="${S}/.mozconfig"
+
+              # Initialize MOZCONFIG
+              mozconfig_add_options_ac '' --enable-application=browser
+
+              export MOZILLA_OFFICIAL=1
+
+              export RUST_TARGET="x86_64-unknown-linux-gnu"
+
+              mozconfig_add_options_ac 'Macaroni default' \
+                --allow-addon-sideload \
+                --disable-cargo-incremental \
+                --disable-crashreporter \
+                --disable-install-strip \
+                --disable-parental-controls \
+                --disable-strip \
+                --disable-updater \
+                --enable-negotiateauth \
+                --enable-new-pass-manager \
+                --enable-official-branding \
+                --enable-release \
+                --enable-system-ffi \
+                --enable-system-pixman \
+                --host="${CBUILD:-${CHOST}}" \
+                --libdir="${EPREFIX}/usr/$(get_libdir)" \
+                --prefix="${EPREFIX}/usr" \
+                --target="${CHOST}" \
+                --without-ccache \
+                --without-wasm-sandboxed-libraries \
+                --with-intl-api \
+                --with-libclang-path="$(llvm-config --libdir)" \
+                --with-system-nspr \
+                --with-system-nss \
+                --with-system-zlib \
+                --with-toolchain-prefix="${CHOST}-" \
+                --with-unsigned-addon-scopes=app,system \
+                --update-channel=release
+
+                if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
+                  mozconfig_add_options_ac '' --enable-rust-simd
+                fi
+                mozconfig_add_options_ac '' --enable-sandbox
+                mozconfig_add_options_ac '' --with-mozilla-api-keyfile="${S}/api-mozilla.key"
+
+                mozconfig_use_with system-av1
+                mozconfig_use_with system-harfbuzz
+                mozconfig_use_with system-icu
+                mozconfig_use_with system-jpeg
+                mozconfig_use_with system-libevent
+                mozconfig_use_with system-libvpx
+                mozconfig_use_with system-pipewire
+                mozconfig_use_with system-png
+                mozconfig_use_with system-webp
+
+                mozconfig_use_enable dbus
+                mozconfig_use_enable libproxy
+
+                use eme-free && mozconfig_add_options_ac '+eme-free' --disable-eme
+
+                local myaudiobackends=""
+                use jack && myaudiobackends+="jack,"
+                use sndio && myaudiobackends+="sndio,"
+                use pulseaudio && myaudiobackends+="pulseaudio,"
+                ! use pulseaudio && myaudiobackends+="alsa,"
+
+                mozconfig_add_options_ac '--enable-audio-backends' --enable-audio-backends="${myaudiobackends::-1}"
+
+                mozconfig_use_enable wifi necko-wifi
+
+                if use X && use wayland ; then
+                  mozconfig_add_options_ac '+x11+wayland' --enable-default-toolkit=cairo-gtk3-x11-wayland
+                elif ! use X && use wayland ; then
+                  mozconfig_add_options_ac '+wayland' --enable-default-toolkit=cairo-gtk3-wayland-only
+                else
+                  mozconfig_add_options_ac '+x11' --enable-default-toolkit=cairo-gtk3-x11-only
+                fi
+
+                mozconfig_add_options_ac 'no wasm-sandbox' --without-wasm-sandboxed-libraries
+                mozconfig_use_with system-harfbuzz system-graphite2
+
+                # Debug flag was handled via configure
+                filter-flags '-g*'
+
+                # System-av1 fix
+                use system-av1 && append-ldflags "-Wl,--undefined-version"
+
+                # Make revdep-rebuild.sh happy; Also required for musl
+                append-ldflags -Wl,-rpath="${MOZILLA_FIVE_HOME}",--enable-new-dtags
+
+                # Pass $MAKEOPTS to build system
+                export MOZ_MAKE_FLAGS="${MAKEOPTS}"
+
+                # Use system's Python environment
+                export PIP_NETWORK_INSTALL_RESTRICTED_VIRTUALENVS=mach
+
+                export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE="none"
+
+                if ! use telemetry; then
+                  mozconfig_add_options_mk '-telemetry setting' "MOZ_CRASHREPORTER=0"
+                  mozconfig_add_options_mk '-telemetry setting' "MOZ_DATA_REPORTING=0"
+                  mozconfig_add_options_mk '-telemetry setting' "MOZ_SERVICES_HEALTHREPORT=0"
+                  mozconfig_add_options_mk '-telemetry setting' "MOZ_TELEMETRY_REPORTING=0"
+                fi
+
+                mozconfig_use_enable test tests
+
+                # Disable notification when build system has finished
+                export MOZ_NOSPAM=1
+
+                # Portage sets XARGS environment variable to "xargs -r" by default which
+                # breaks build system's check_prog() function which doesn't support arguments
+                mozconfig_add_options_ac 'Gentoo default' "XARGS=${EPREFIX}/usr/bin/xargs"
+
+                # Set build dir
+                mozconfig_add_options_mk 'Gentoo default' "MOZ_OBJDIR=${BUILD_DIR}"
+
+                # Show flags we will use
+                einfo "Build BINDGEN_CFLAGS:\t${BINDGEN_CFLAGS:-no value set}"
+                einfo "Build CFLAGS:\t\t${CFLAGS:-no value set}"
+                einfo "Build CXXFLAGS:\t\t${CXXFLAGS:-no value set}"
+                einfo "Build LDFLAGS:\t\t${LDFLAGS:-no value set}"
+                einfo "Build RUSTFLAGS:\t\t${RUSTFLAGS:-no value set}"
+
+                # Handle EXTRA_CONF and show summary
+                local ac opt hash reason
+
+                ./mach configure || die
+            }
+            src_compile() {
+              local virtx_cmd=
+
+              if use pgo ; then
+                virtx_cmd=virtx
+
+                # Reset and cleanup environment variables used by GNOME/XDG
+                gnome2_environment_reset
+
+                addpredict /root
+              fi
+
+              if ! use X && use wayland; then
+                local -x GDK_BACKEND=wayland
+              else
+                local -x GDK_BACKEND=x11
+              fi
+
+              ${virtx_cmd} ./mach build --verbose \
+                || die
+            }
+            src_install() {
+              # Set MOZILLA_FIVE_HOME
+              local MOZILLA_FIVE_HOME="/usr/$(get_libdir)/${PN}"
+
+              # xpcshell is getting called during install
+              pax-mark m \
+                "${BUILD_DIR}"/dist/bin/xpcshell \
+                "${BUILD_DIR}"/dist/bin/${PN} \
+                "${BUILD_DIR}"/dist/bin/plugin-container
+
+              DESTDIR="${D}" ./mach install || die
+
+              # Upstream cannot ship symlink but we can (bmo#658850)
+              rm "${ED}${MOZILLA_FIVE_HOME}/${PN}-bin" || die
+              dosym ${PN} ${MOZILLA_FIVE_HOME}/${PN}-bin
+
+              # Don't install llvm-symbolizer from sys-devel/llvm package
+              if [[ -f "${ED}${MOZILLA_FIVE_HOME}/llvm-symbolizer" ]] ; then
+                rm -v "${ED}${MOZILLA_FIVE_HOME}/llvm-symbolizer" || die
+              fi
+
+              # Install policy (currently only used to disable application updates)
+              insinto "${MOZILLA_FIVE_HOME}/distribution"
+              newins "${FILESDIR}"/distribution.ini distribution.ini
+              newins "${FILESDIR}"/disable-auto-update.policy.json policies.json
+
+              # Install system-wide preferences
+              local PREFS_DIR="${MOZILLA_FIVE_HOME}/browser/defaults/preferences"
+              insinto "${PREFS_DIR}"
+              newins "${FILESDIR}"/macaroni-default-prefs.js macaroni-prefs.js
+
+              local MACARONI_PREFS="${ED}${PREFS_DIR}/gentoo-prefs.js"
+
+              if ! use gmp-autoupdate ; then
+                local plugin
+                for plugin in "${MOZ_GMP_PLUGIN_LIST[@]}" ; do
+                  einfo "Disabling auto-update for ${plugin} plugin ..."
+                  echo "pref(\"media.${plugin}.autoupdate\",   false);\n" >> "${MACARONI_PREFS}"
+                done
+              fi
+
+              # Force the graphite pref if USE=system-harfbuzz is enabled, since the pref cannot disable it
+              if use system-harfbuzz ; then
+                echo "sticky_pref(\"gfx.font_rendering.graphite.enabled\", true);\n" >> "${MACARONI_PREFS}"
+              fi
+
+              # Install language packs
+              local langpacks=( $(find "${WORKDIR}/language_packs" -type f -name '*.xpi') )
+              if [[ -n "${langpacks}" ]] ; then
+                moz_install_xpi "${MOZILLA_FIVE_HOME}/distribution/extensions" "${langpacks[@]}"
+              fi
+
+              # Install icons
+              local icon_srcdir="${S}/browser/branding/official"
+              local icon_symbolic_file="${FILESDIR}/icon/firefox-symbolic.svg"
+              insinto /usr/share/icons/hicolor/symbolic/apps
+              newins "${icon_symbolic_file}" ${PN}-symbolic.svg
+
+              local icon size
+              for icon in "${icon_srcdir}"/default*.png ; do
+                size=${icon%.png}
+                size=${size##*/default}
+                if [[ ${size} -eq 48 ]] ; then
+                  newicon "${icon}" ${PN}.png
+                fi
+                newicon -s ${size} "${icon}" ${PN}.png
+              done
+
+              # Install menu
+              local app_name="Mozilla ${MOZ_PN^}"
+              local desktop_file="${FILESDIR}/icon/${PN}.desktop"
+              local desktop_filename="${PN}.desktop"
+              local exec_command="${PN}"
+              local icon="${PN}"
+              local use_wayland="false"
+
+              if use wayland ; then
+                use_wayland="true"
+              fi
+
+              cp "${desktop_file}" "${WORKDIR}/${PN}.desktop-template" || die
+
+              sed -i \
+                -e "s:@NAME@:${app_name}:" \
+                -e "s:@EXEC@:${exec_command}:" \
+                -e "s:@ICON@:${icon}:" \
+                "${WORKDIR}/${PN}.desktop-template" \
+                || die
+
+              newmenu "${WORKDIR}/${PN}.desktop-template" "${desktop_filename}"
+
+              rm "${WORKDIR}/${PN}.desktop-template" || die
+
+              # Install wrapper script
+              [[ -f "${ED}/usr/bin/${PN}" ]] && rm "${ED}/usr/bin/${PN}"
+              newbin "${FILESDIR}/${PN}.sh" ${PN}
+
+              # Update wrapper
+              sed -i \
+                -e "s:@PREFIX@:${EPREFIX}/usr:" \
+                -e "s:@MOZ_FIVE_HOME@:${MOZILLA_FIVE_HOME}:" \
+                -e "s:@APULSELIB_DIR@:${apulselib}:" \
+                -e "s:@DEFAULT_WAYLAND@:${use_wayland}:" \
+                "${ED}/usr/bin/${PN}" \
+                || die
+
+            }
+            pkg_preinst() {
+              xdg_pkg_preinst
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+            }
+
     - firefox-bin:
         vars:
           # This system will be unable to play DRM-protected content without CONFIG_SECCOMP kernel option
           homepage: https://www.mozilla.org/en-US/firefox/
-          desc: Firefox Web Browser (stable)
+          desc: Firefox Web Browser Precompiled (stable)
           license: MPL-2.0 GPL-2 LGPL-2.1
           s: "${WORKDIR}/firefox"
           inherit:
@@ -772,58 +1411,8 @@ firefox-bin:
             if [[ -z "${MOZ_GMP_PLUGIN_LIST+set}" ]] ; then
               MOZ_GMP_PLUGIN_LIST=( gmp-gmpopenh264 gmp-widevinecdm )
             fi
-            moz_install_xpi() {
-              debug-print-function ${FUNCNAME} "$@"
-
-              if [[ ${#} -lt 2 ]] ; then
-                die "${FUNCNAME} requires at least two arguments"
-              fi
-
-              local DESTDIR=${1}
-              shift
-
-              insinto "${DESTDIR}"
-
-              local emid xpi_file xpi_tmp_dir
-              for xpi_file in "${@}" ; do
-                emid=
-                xpi_tmp_dir=$(mktemp -d --tmpdir="${T}")
-                # Unpack XPI
-                unzip -qq "${xpi_file}" -d "${xpi_tmp_dir}" || die
-                # Determine extension ID
-                if [[ -f "${xpi_tmp_dir}/install.rdf" ]] ; then
-                  emid=$(
-                    sed -n -e '/install-manifest/,$ { /em:id/!d; s/.*[\">]\([^\"<>]*\)[\"<].*/\1/; p; q }' \
-                    "${xpi_tmp_dir}/install.rdf")
-                  [[ -z "${emid}" ]] && die "failed to determine extension id from install.rdf"
-                elif [[ -f "${xpi_tmp_dir}/manifest.json" ]] ; then
-                  emid=$(sed -n -e 's/.*"id": "\([^"]*\)".*/\1/p' "${xpi_tmp_dir}/manifest.json")
-                  [[ -z "${emid}" ]] && die "failed to determine extension id from manifest.json"
-                else
-                  die "failed to determine extension id"
-                fi
-
-                einfo "Installing ${emid}.xpi into ${ED}/${DESTDIR} ..."
-                newins "${xpi_file}" "${emid}.xpi"
-              done
-            }
-            src_unpack() {
-              einfo "${A}"
-              local _lp_dir="${WORKDIR}/language_packs"
-              local _src_file
-
-              if [[ ! -d "${_lp_dir}" ]] ; then
-                mkdir "${_lp_dir}" || die
-              fi
-
-              for _src_file in ${A} ; do
-                if [[ ${_src_file} == *.xpi ]]; then
-                  cp "${DISTDIR}/${_src_file}" "${_lp_dir}" || die "Failed to copy '${_src_file}' to '${_lp_dir}'!"
-                else
-                  unpack ${_src_file}
-                fi
-              done
-            }
+            {{ .Values.src_unpack }}
+            {{ .Values.moz_install_xpi }}
             src_install() {
               local MOZILLA_FIVE_HOME=/opt/{{ .Values.pn | replace "-bin" "" }}
               dodir /opt

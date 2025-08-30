@@ -670,3 +670,31 @@ sys_apps_github:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             matcher: "libffi-.*.tar.gz"
+
+
+app_arch_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: app-arch
+    template: ../../templates/simple-github.tmpl
+
+  packages:
+    - brotli:
+        github:
+          user: google
+
+        vars:
+          inherit:
+            - cmake
+          pdepend: |
+            python? ( dev-python/brotlipy )
+          iuse: python
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=false
+              )
+              cmake_src_configure
+            }
+

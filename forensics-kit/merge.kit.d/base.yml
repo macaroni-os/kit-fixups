@@ -2,12 +2,16 @@ sources:
 # We need this to inherit the eclass used for kit cache JSON generation
 - name: "core-kit"
   url: "https://github.com/macaroni-os/core-kit"
-  branch: "mark-unstable"
+  branch: "mark-iii"
+
+- name: forensics-kit
+  url: "https://github.com/macaroni-os/forensics-kit"
+  branch: mark-unstable
 
 target:
   name: forensics-kit
   url: "https://github.com/macaroni-os/forensics-kit"
-  branch: mark-unstable
+  branch: mark-iii
 
   fixups:
     include:
@@ -21,3 +25,4 @@ target:
     max_versions: 3
 
   atoms:
+    - pkg: app-forensics/gobuster

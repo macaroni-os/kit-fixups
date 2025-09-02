@@ -710,6 +710,33 @@ net_misc_github:
       opts:
 
   packages:
+    - coredns:
+        extensions:
+          - golang
+        category: net-dns
+        vars:
+          inherit:
+            - go-module
+          bdepend: |
+            dev-lang/go
+          body: |
+            src_compile() {
+              FORCE_HOST_GO=yes
+              echo "$(go env GOVERSION | sed 's/go//g')" > .go-version
+              emake
+            }
+
+            src_install() {
+              dobin ${PN}
+              insinto /etc/"${PN}"
+              doins "${FILESDIR}"/Corefile
+              dodoc README.md
+              doman man/*
+              newinitd "${FILESDIR}"/"${PN}".initd ${PN}
+              newconfd "${FILESDIR}"/"${PN}".confd ${PN}
+              keepdir /var/log/"${PN}"
+            }
+
     - rclone:
         extensions:
           - golang

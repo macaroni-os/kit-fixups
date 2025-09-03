@@ -89,3 +89,58 @@ sys_cluster_github:
           patches:
             - 11.0-extras-defer-invoking-of-gluster-volume-set-help.patch
 
+wwwservers_go_github:
+  generator: builtin-github
+  defaults:
+    category: www-servers
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    extensions:
+      - golang
+    vars:
+      bdepend: dev-lang/go
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - caddy:
+        github:
+          user: caddyserver
+        vars:
+          inherit:
+            - fcaps
+            - go-module
+            - user
+          body: |
+            CADDY_USER="${PN}"
+            CADDY_HOME="/var/www/${CADDY_USER}"
+            pkg_setup() {
+              enewgroup ${CADDY_USER}
+              enewuser ${CADDY_USER} -1 -1 "${CADDY_HOME}" ${CADDY_USER}
+            }
+            # Upstream reference to set custom compile time Caddy versions:
+            # https://github.com/caddyserver/caddy/pull/5072/files
+            src_compile() {
+              go build -ldflags '-X github.com/caddyserver/caddy/v2.CustomVersion=v{{ .Values.version }}-{{ substr 0 7 .Values.sha }}-macaroni' \
+              -mod=mod ./cmd/caddy || die "compile failed"
+            }
+            src_install() {
+              dobin ${PN}
+              dodoc README.md
+              insinto /etc/"${PN}"
+              doins "${FILESDIR}"/Caddyfile
+              newconfd "${FILESDIR}/${PN}".confd ${PN}
+              newinitd "${FILESDIR}/${PN}".initd ${PN}
+              keepdir /var/log/"${PN}"
+              keepdir /var/www/"${PN}"
+              fowners "${CADDY_USER}:${CADDY_USER}" /var/log/"${PN}"
+              fowners "${CADDY_USER}:${CADDY_USER}" /var/www/"${PN}"
+              fperms 0750 /var/log/"${PN}"
+              fperms 0750 /var/www/"${PN}"
+            }
+            pkg_postinst() {
+              fcaps cap_net_bind_service=eip /usr/bin/caddy
+            }
+

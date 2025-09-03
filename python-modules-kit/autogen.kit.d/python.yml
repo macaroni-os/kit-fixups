@@ -162,6 +162,19 @@ setuptools_modules:
             - six
             - webencodings
 
+    - pycamera:
+        vars:
+          cdepend: |
+            media-libs/opencv[python]
+          rdepend: '${CDEPEND}'
+        pydeps:
+          py:all:tool:
+            - numpy
+          py:all:runtime:
+            - numpy
+
+    - spidev:
+
     - setuptools_scm_git_archive:
         pypi_name: setuptools_scm_git_archive
         vars:

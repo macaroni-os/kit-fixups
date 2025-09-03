@@ -133,6 +133,11 @@ setuptools_modules:
               distutils-r1_python_compile
             }
 
+    - embit:
+        pydeps:
+          py:all:build:
+            - wheel
+
     - falcon:
         vars:
           license: Apache-2.0
@@ -182,6 +187,21 @@ setuptools_modules:
         pydeps:
           py:all:tool:
             - setuptools_scm
+
+poetry_modules:
+  generator: builtin-pypi
+  template:
+    engine: j2cli
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic.tmpl"
+    vars:
+      du_pep517: poetry
+    python_compat: "python3+"
+
+  packages:
+    - qrcode:
 
 standalone_modules:
   generator: builtin-pypi

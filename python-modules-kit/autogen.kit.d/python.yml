@@ -178,6 +178,18 @@ setuptools_modules:
           py:all:runtime:
             - numpy
 
+    - picamera:
+        vars:
+          body: |
+            src_prepare() {
+                distutils-r1_src_prepare
+                sed -e "s/^ *if not is_raspberry_pi():/if False:/" \
+                    -e "s/raise ValueError('Unable to determine if this system is a Raspberry Pi')/print('picamera: skipping Raspberry Pi hardware check via ebuild')/" \
+                    -i setup.py || die
+            }
+
+    - picamera2:
+
     - spidev:
 
     - setuptools_scm_git_archive:

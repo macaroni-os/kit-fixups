@@ -190,6 +190,10 @@ setuptools_modules:
 
     - picamera2:
 
+    - pycryptodomex:
+        vars:
+          license: BSD
+
     - spidev:
 
     - setuptools_scm_git_archive:
@@ -367,6 +371,24 @@ standalone_github:
       python_compat: "python3+"
 
   packages:
+
+    - monero:
+        vars:
+          inherit:
+            - distutils-r1
+          cdepend: |
+            >=dev-python/pycryptodomex-3.14
+            dev-python/pynacl[${PYTHON_USEDEP}]
+            dev-python/PySocks[${PYTHON_USEDEP}]
+            dev-python/requests[${PYTHON_USEDEP}]
+            dev-python/ipaddress[${PYTHON_USEDEP}]
+          rdepend: '${CDEPEND}'
+          depend: '${CDEPEND}'
+        github:
+          query: tags
+          user: DiosDelRayo
+          repo: monero-python
+
     - pyzbar:
         vars:
           inherit:

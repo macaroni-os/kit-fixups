@@ -357,3 +357,42 @@ bdepend_modules:
     - rpi-gpio:
         pypi_name: RPi.GPIO
 
+standalone_github:
+  generator: builtin-github
+
+  defaults:
+    category: dev-python
+    template: ../../templates/simple-github.tmpl
+    vars:
+      python_compat: "python3+"
+
+  packages:
+    - pyzbar:
+        vars:
+          inherit:
+            - distutils-r1
+          desc: 'Read one-dimensional barcodes and QR codes from Python 2 and 3 (seedsigner fork)'
+        github:
+          user: SeedSigner
+        transform:
+          - kind: string
+            match: '-ss Release'
+            replace: ''
+
+    - polyseed:
+        vars:
+          inherit:
+            - distutils-r1
+        github:
+          query: tags
+          user: DiosDelRayo
+          repo: polyseed-python
+
+    - urtypes:
+        vars:
+          inherit:
+            - distutils-r1
+        github:
+          user: selfcustody
+
+

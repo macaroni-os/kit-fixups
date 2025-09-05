@@ -1,0 +1,739 @@
+libreoffice:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-office
+
+    vars:
+      fullversion_base_url: 'https://downloadarchive.documentfoundation.org/libreoffice/old'
+      # Using GARR mirror. downloadarchive generate tons of broken tarballs on download.
+      base_url: 'https://tdf.mirror.garr.it/libreoffice/testing'
+      homepage: https://www.libreoffice.org
+
+    dir:
+      url: '{{ .Values.fullversion_base_url }}'
+      matcher: '^25'
+      exclude: 'alpha|beta'
+
+
+  packages:
+    - libreoffice-bin:
+
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_Linux_x86-64_rpm.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm.tar.gz'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_Linux_aarch64_rpm.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/aarch64/LibreOffice_{{ .Values.version }}_Linux_aarch64_rpm.tar.gz'
+            use: arm64
+
+        vars:
+          desc: A full office productivity suite. Binary package
+          iuse: amd64 arm64 gnome +gtk java kde
+          license: LGPL-3
+          inherit:
+            - prefix
+            - rpm
+            - toolchain-funcs
+            - xdg-utils
+          rdepend: |
+            app-text/libexttextcat
+            app-text/libmwaw
+            dev-libs/icu
+            media-gfx/graphite2
+            media-libs/harfbuzz[graphite,icu]
+            app-crypt/mit-krb5
+            dev-libs/glib
+            dev-libs/nspr
+            dev-libs/nss
+            media-libs/fontconfig
+            media-libs/freetype
+            media-libs/gst-plugins-base
+            media-libs/gstreamer
+            net-dns/avahi
+            net-print/cups
+            sys-apps/dbus
+            sys-devel/gcc
+            sys-libs/e2fsprogs-libs
+            sys-libs/glibc
+            sys-libs/zlib
+            x11-libs/libICE
+            x11-libs/libSM
+            x11-libs/libXext
+            x11-libs/libXinerama
+            x11-libs/libXrandr
+            x11-libs/libXrender
+            app-arch/unzip
+            app-arch/zip
+            media-fonts/liberation-fonts
+            java? ( virtual/jre )
+            gtk? (
+              dev-libs/atk
+              x11-libs/cairo
+              x11-libs/gdk-pixbuf
+              x11-libs/gtk+
+              x11-libs/pango
+            )
+            kde? (
+              dev-qt/qtcore:5
+              dev-qt/qtgui:5
+              dev-qt/qtwidgets:5
+              dev-qt/qtx11extras:5
+              kde-frameworks/kconfig:5
+              kde-frameworks/kcoreaddons:5
+              kde-frameworks/ki18n:5
+              kde-frameworks/kio:5
+              kde-frameworks/kwindowsystem:5
+            )
+          pdepend: |
+            =app-office/libreoffice-l10n-{{ .Values.version }}*
+          depend: |
+            app-arch/rpm
+          required_use: |
+            gnome? ( gtk )
+          restrict: strip
+          s: '${WORKDIR}'
+          extra_envs:
+            - 'QA_PREBUILT="/usr/*"'
+          body: |
+            src_prepare() {
+              {{- $v := .Values.version  }}
+              local major={{ join "." ( slice ( splitList "." $v ) 0 2 ) }}
+              cp "${FILESDIR}"/50-${PN} "${T}"
+              eprefixify "${T}"/50-${PN}
+              default
+
+              local rpmdir
+              use amd64 && rpmdir="LibreOffice_${PV}_Linux_x86-64_rpm/RPMS/"
+              [[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
+
+              # Unpack RPMs but consider USE flags
+              for rpms in ./${rpmdir}/*.rpm; do
+                if [[ ${rpms} == "./${rpmdir}/libobasis${major}-kde-integration-${PV}-${major}.x86_64.rpm" ]]; then
+                  use kde && rpm_unpack ${rpms}
+                elif [[ ${rpms} == "./${rpmdir}/libobasis${major}-gnome-integration-${PV}-${major}.x86_64.rpm" ]]; then
+                  use gtk && rpm_unpack ${rpms}
+                else
+                  rpm_unpack ${rpms}
+                fi
+              done
+
+              # Remove files that require java if USE flag not set
+              use java || rm -f ./opt/libreoffice${major}/program/libofficebean.so
+            }
+            src_configure() { :; }
+            src_compile() { :; }
+            src_install() {
+              {{- $v := .Values.version  }}
+              local major={{ join "." ( slice ( splitList "." $v ) 0 2 ) }}
+              local progdir=/usr/$(get_libdir)/libreoffice
+              dodir ${progdir}
+              mv "${S}"/opt/libreoffice"${major}"/* "${ED}"/"${progdir}"/
+              rm ./usr/bin/libreoffice"${major}"
+              dosym "${progdir}"/program/soffice /usr/bin/libreoffice"${major}"
+              dosym "${progdir}"/program/soffice /usr/bin/libreoffice
+              dosym "${progdir}"/program/soffice /usr/bin/loffice
+              dosym "${progdir}"/program/soffice /usr/bin/soffice
+              for prog in base impress calc math writer draw; do
+                dosym "${progdir}"/program/s"${prog}" /usr/bin/lo"${prog}"
+              done
+              rm ./usr/share/applications/*
+              mkdir -p "${ED}"/usr/share/applications
+              for prog in base impress startcenter calc math writer draw xsltfilter; do
+                cp "${ED}"/"${progdir}"/share/xdg/"${prog}".desktop "${ED}"/usr/share/applications/libreoffice"${major}"-"${prog}".desktop
+              done
+              doins -r usr
+              # prevent revdep-rebuild from attempting to rebuild all the time
+              insinto /etc/revdep-rebuild && doins "${T}/50-${PN}"
+            }
+            pkg_postinst() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+              use java || \
+                ewarn 'If you plan to use lbase application you should enable java or you will get various crashes.'
+            }
+            pkg_postrm() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+            }
+
+
+    - libreoffice-l10n:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ab.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ab.tar.gz'
+            use: l10n_ab
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_af.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_af.tar.gz'
+            use: l10n_af
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_am.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_am.tar.gz'
+            use: l10n_am
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ar.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ar.tar.gz'
+            use: l10n_ar
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_as.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_as.tar.gz'
+            use: l10n_as
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ast.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ast.tar.gz'
+            use: l10n_ast
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_be.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_be.tar.gz'
+            use: l10n_be
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_bg.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_bg.tar.gz'
+            use: l10n_bg
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_bn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_bn.tar.gz'
+            use: l10n_bn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_bn-IN.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_bn-IN.tar.gz'
+            use: l10n_bn-IN
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_bo.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_bo.tar.gz'
+            use: l10n_bo
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_br.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_br.tar.gz'
+            use: l10n_br
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_brx.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_brx.tar.gz'
+            use: l10n_brx
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_bs.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_bs.tar.gz'
+            use: l10n_bs
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ca.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ca.tar.gz'
+            use: l10n_ca
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ca-valencia.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ca-valencia.tar.gz'
+            use: l10n_ca-valencia
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ckb.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ckb.tar.gz'
+            use: l10n_ckb
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_cs.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_cs.tar.gz'
+            use: l10n_cs
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_cy.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_cy.tar.gz'
+            use: l10n_cy
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_da.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_da.tar.gz'
+            use: l10n_da
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_de.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_de.tar.gz'
+            use: l10n_de
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_dgo.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_dgo.tar.gz'
+            use: l10n_dgo
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_dsb.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_dsb.tar.gz'
+            use: l10n_dsb
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_dz.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_dz.tar.gz'
+            use: l10n_dz
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_el.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_el.tar.gz'
+            use: l10n_el
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_en-GB.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_en-GB.tar.gz'
+            use: l10n_en-GB
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_en-ZA.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_en-ZA.tar.gz'
+            use: l10n_en-ZA
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_eo.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_eo.tar.gz'
+            use: l10n_eo
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_es.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_es.tar.gz'
+            use: l10n_es
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_et.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_et.tar.gz'
+            use: l10n_et
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_eu.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_eu.tar.gz'
+            use: l10n_eu
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_fa.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_fa.tar.gz'
+            use: l10n_fa
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_fi.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_fi.tar.gz'
+            use: l10n_fi
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_fr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_fr.tar.gz'
+            use: l10n_fr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_fur.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_fur.tar.gz'
+            use: l10n_fur
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_fy.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_fy.tar.gz'
+            use: l10n_fy
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ga.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ga.tar.gz'
+            use: l10n_ga
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_gd.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_gd.tar.gz'
+            use: l10n_gd
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_gl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_gl.tar.gz'
+            use: l10n_gl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_gu.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_gu.tar.gz'
+            use: l10n_gu
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_gug.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_gug.tar.gz'
+            use: l10n_gug
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_he.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_he.tar.gz'
+            use: l10n_he
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_hi.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_hi.tar.gz'
+            use: l10n_hi
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_hr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_hr.tar.gz'
+            use: l10n_hr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_hsb.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_hsb.tar.gz'
+            use: l10n_hsb
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_hu.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_hu.tar.gz'
+            use: l10n_hu
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_hy.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_hy.tar.gz'
+            use: l10n_hy
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_id.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_id.tar.gz'
+            use: l10n_id
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_is.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_is.tar.gz'
+            use: l10n_is
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_it.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_it.tar.gz'
+            use: l10n_it
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ja.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ja.tar.gz'
+            use: l10n_ja
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ka.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ka.tar.gz'
+            use: l10n_ka
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_kab.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_kab.tar.gz'
+            use: l10n_kab
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_kk.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_kk.tar.gz'
+            use: l10n_kk
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_km.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_km.tar.gz'
+            use: l10n_km
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_kmr-Latn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_kmr-Latn.tar.gz'
+            use: l10n_kmr-Latn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_kn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_kn.tar.gz'
+            use: l10n_kn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ko.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ko.tar.gz'
+            use: l10n_ko
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_kok.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_kok.tar.gz'
+            use: l10n_kok
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ks.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ks.tar.gz'
+            use: l10n_ks
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_lb.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_lb.tar.gz'
+            use: l10n_lb
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_lo.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_lo.tar.gz'
+            use: l10n_lo
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_lt.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_lt.tar.gz'
+            use: l10n_lt
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_lv.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_lv.tar.gz'
+            use: l10n_lv
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_mai.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_mai.tar.gz'
+            use: l10n_mai
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_mk.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_mk.tar.gz'
+            use: l10n_mk
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ml.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ml.tar.gz'
+            use: l10n_ml
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_mn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_mn.tar.gz'
+            use: l10n_mn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_mni.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_mni.tar.gz'
+            use: l10n_mni
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_mr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_mr.tar.gz'
+            use: l10n_mr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_my.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_my.tar.gz'
+            use: l10n_my
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_nb.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_nb.tar.gz'
+            use: l10n_nb
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ne.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ne.tar.gz'
+            use: l10n_ne
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_nl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_nl.tar.gz'
+            use: l10n_nl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_nn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_nn.tar.gz'
+            use: l10n_nn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_nr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_nr.tar.gz'
+            use: l10n_nr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_nso.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_nso.tar.gz'
+            use: l10n_nso
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_oc.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_oc.tar.gz'
+            use: l10n_oc
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_om.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_om.tar.gz'
+            use: l10n_om
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_or.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_or.tar.gz'
+            use: l10n_or
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_pa-IN.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_pa-IN.tar.gz'
+            use: l10n_pa-IN
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_pl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_pl.tar.gz'
+            use: l10n_pl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_pt.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_pt.tar.gz'
+            use: l10n_pt
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_pt-BR.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_pt-BR.tar.gz'
+            use: l10n_pt-BR
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ro.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ro.tar.gz'
+            use: l10n_ro
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ru.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ru.tar.gz'
+            use: l10n_ru
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_rw.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_rw.tar.gz'
+            use: l10n_rw
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sa-IN.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sa-IN.tar.gz'
+            use: l10n_sa-IN
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sat.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sat.tar.gz'
+            use: l10n_sat
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sat-Olck.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sat-Olck.tar.gz'
+            use: l10n_sat-Olck
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sd.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sd.tar.gz'
+            use: l10n_sd
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_si.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_si.tar.gz'
+            use: l10n_si
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sid.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sid.tar.gz'
+            use: l10n_sid
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sk.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sk.tar.gz'
+            use: l10n_sk
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sl.tar.gz'
+            use: l10n_sl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sq.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sq.tar.gz'
+            use: l10n_sq
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sr.tar.gz'
+            use: l10n_sr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sr-Latn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sr-Latn.tar.gz'
+            use: l10n_sr-Latn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ss.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ss.tar.gz'
+            use: l10n_ss
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_st.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_st.tar.gz'
+            use: l10n_st
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sv.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sv.tar.gz'
+            use: l10n_sv
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_sw-TZ.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_sw-TZ.tar.gz'
+            use: l10n_sw-TZ
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_szl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_szl.tar.gz'
+            use: l10n_szl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ta.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ta.tar.gz'
+            use: l10n_ta
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_te.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_te.tar.gz'
+            use: l10n_te
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_tg.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_tg.tar.gz'
+            use: l10n_tg
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_th.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_th.tar.gz'
+            use: l10n_th
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_tl.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_tl.tar.gz'
+            use: l10n_tl
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_tn.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_tn.tar.gz'
+            use: l10n_tn
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_tr.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_tr.tar.gz'
+            use: l10n_tr
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ts.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ts.tar.gz'
+            use: l10n_ts
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_tt.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_tt.tar.gz'
+            use: l10n_tt
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ug.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ug.tar.gz'
+            use: l10n_ug
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_uk.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_uk.tar.gz'
+            use: l10n_uk
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_uz.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_uz.tar.gz'
+            use: l10n_uz
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_ve.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_ve.tar.gz'
+            use: l10n_ve
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_vec.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_vec.tar.gz'
+            use: l10n_vec
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_vi.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_vi.tar.gz'
+            use: l10n_vi
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_xh.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_xh.tar.gz'
+            use: l10n_xh
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_zh-CN.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_zh-CN.tar.gz'
+            use: l10n_zh-CN
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_zh-TW.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_zh-TW.tar.gz'
+            use: l10n_zh-TW
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}_rpm_langpack_zu.tar.gz'
+            url: '{{ .Values.base_url }}/{{- $v := .Values.version  }}{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}/rpm/x86_64/LibreOffice_{{ .Values.version }}_Linux_x86-64_rpm_langpack_zu.tar.gz'
+            use: l10n_zu
+
+        vars:
+          desc: 'Translations for the Libreoffice suite'
+          license: '|| ( LGPL-3 MPL-1.1 )'
+          iuse: |
+            amd64 arm64 l10n_ab l10n_af l10n_am l10n_ar l10n_as l10n_ast
+            l10n_be l10n_bg l10n_bn l10n_bn-IN l10n_bo l10n_br l10n_brx l10n_bs l10n_ca
+            l10n_ca-valencia l10n_ckb l10n_cs l10n_cy l10n_da l10n_de l10n_dgo l10n_dsb
+            l10n_dz l10n_el l10n_en-GB l10n_en-ZA l10n_eo l10n_es l10n_et l10n_eu l10n_fa
+            l10n_fi l10n_fr l10n_fur l10n_fy l10n_ga l10n_gd l10n_gl l10n_gu l10n_gug l10n_he
+            l10n_hi l10n_hr l10n_hsb l10n_hu l10n_hy l10n_id l10n_is l10n_it l10n_ja l10n_ka
+            l10n_kab l10n_kk l10n_km l10n_kmr-Latn l10n_kn l10n_ko l10n_kok l10n_ks l10n_lb
+            l10n_lo l10n_lt l10n_lv l10n_mai l10n_mk l10n_ml l10n_mn l10n_mni l10n_mr l10n_my
+            l10n_nb l10n_ne l10n_nl l10n_nn l10n_nr l10n_nso l10n_oc l10n_om l10n_or l10n_pa-IN
+            l10n_pl l10n_pt l10n_pt-BR l10n_ro l10n_ru l10n_rw l10n_sa-IN l10n_sat l10n_sat-Olck
+            l10n_sd l10n_si l10n_sid l10n_sk l10n_sl l10n_sq l10n_sr l10n_sr-Latn l10n_ss
+            l10n_st l10n_sv l10n_sw-TZ l10n_szl l10n_ta l10n_te l10n_tg l10n_th l10n_tl
+            l10n_tn l10n_tr l10n_ts l10n_tt l10n_ug l10n_uk l10n_uz l10n_ve l10n_vec
+            l10n_vi l10n_xh l10n_zh-CN l10n_zh-TW l10n_zu
+
+          extra_envs:
+            - |
+              LANGUAGES="
+                ab af am ar as ast be bg bn bn-IN bo br brx bs ca ca-valencia
+                ckb cs cy da de dgo dsb dz el en-GB en-ZA eo es et eu fa fi fr
+                fur fy ga gd gl gu gug he hi hr hsb hu hy id is it ja ka kab kk
+                km kmr-Latn kn ko kok ks lb lo lt lv mai mk ml mn mni mr my nb
+                ne nl nn nr nso oc om or pa-IN pl pt pt-BR ro ru rw sa-IN sat
+                sat-Olck sd si sid sk sl sq sr sr-Latn ss st sv sw-TZ szl ta te
+                tg th tl tn tr ts tt ug uk uz ve vec vi xh zh-CN zh-TW zu
+              "
+
+            # For now I disable the offlinehelp. Open an issue if this could be
+            # critical.
+            #- |
+            #  LANGUAGES_HELP="
+            #    am ar ast bg bn bn-IN bo bs ca ca-valencia cs da de dsb dz el en-GB
+            #    en-ZA en:en-US eo es et eu fi fr gl gu he hi hr hsb hu id is it ja
+            #    ka km ko lo lt lv mk nb ne nl nn om pl pt pt-BR ro ru si sid sk sl
+            #    sq sv ta tg tl tr ug uk vi zh-CN zh-TW
+            #  "
+
+          rdepend: |
+            app-text/hunspell
+
+          restrict: strip
+          s: '${WORKDIR}'
+          inherit:
+            - rpm
+          body: |
+            src_prepare() {
+              default
+              local lang dir rpmdir version
+              # First remove dictionaries, we want to use system ones.
+              find "${S}" -name *dict*.rpm -delete || die "Failed to remove dictionaries"
+              for lang in ${LANGUAGES}; do
+                # Sometimes the packs can have differing versions from the main ebuild. In this case,
+                # we encode the version in a trailing "/{version}". If this is missing, just use ${PV}.
+                version=${lang##*/}
+                [ "${version}" == "${lang}" ] && version="${PV}"
+                lang=${lang%/*}
+                # break away if not enabled
+                use l10n_${lang%:*} || continue
+                dir=${lang#*:}
+                if [[ ${lang%:*} != en ]]; then
+                  rpmdir="LibreOffice_${version}_Linux_x86-64_rpm_langpack_${dir}/RPMS/"
+                  [[ -d ${rpmdir} ]] || die "Missing directory: ${rpmdir}"
+                  rpm_unpack ./${rpmdir}/*.rpm
+                fi
+              done
+            }
+            src_configure() { :; }
+            src_compile() { :; }
+            src_install() {
+              local dir="${S}"/opt/${PN/-l10n/}$(ver_cut 1-2)/
+              if [[ -d "${dir}" ]] ; then
+                insinto /usr/$(get_libdir)/${PN/-l10n/}/
+                doins -r "${dir}"/*
+              fi
+              # remove extensions that are in l10n for some weird reason
+              rm -rf "${ED}"/usr/$(get_libdir)/${PN/-l10n/}/share/extensions/ || \
+                die "Failed to remove extensions"
+            }
+
+

@@ -302,7 +302,8 @@ _go-module_check_gotoolchain() {
 	fi
 	if [ "${gotoolchain_local}" != "${gotoolchain_pkg}" ] ; then
 		ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
-		sed -i -e "s|^go.*|go $(go env GOVERSION | sed -e 's|go||g')|g" go.mod
+		# Avoid to replace 'godebug ...' rule (show restic package)
+		sed -i -e "s|^go .*|go $(go env GOVERSION | sed -e 's|go||g')|g" go.mod
 	fi
 }
 

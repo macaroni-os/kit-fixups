@@ -380,3 +380,112 @@ shells_go_github:
               fi
             }
 
+backup_go_github:
+  generator: builtin-github
+  defaults:
+    category: app-backup
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    extensions:
+      - golang
+    vars:
+      bdepend: dev-lang/go
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - backrest:
+        github:
+          user: garethgeorge
+        vars:
+          inherit:
+            - go-module
+            - systemd
+            - user
+          extra_envs:
+            - 'EGO_SKIP_TIDY=1'
+          restrict: 'network-sandbox'
+          rdepend: |
+            app-backup/restic
+          depend: |
+            ${RDEPEND}
+            net-libs/nodejs
+          iuse: systemd
+          body: |
+            pkg_setup() {
+              ebegin "Ensuring backrest group and user exist"
+              enewgroup backrest
+              enewuser backrest -1 -1 /var/lib/backrest backrest
+              eend $?
+            }
+
+            src_compile() {
+              pushd webui 2>&1 >/dev/null
+              npm install . || die
+              popd 2>&1 >/dev/null
+              GOOS=linux BACKREST_BUILD_VERSION={{ .Values.version }} \
+                go generate ./...
+              CGO_ENABLED=0 \
+                go build \
+                -asmflags "-trimpath=${S}" \
+                -gcflags "-trimpath=${S}" \
+                -o backrest ./cmd/backrest
+            }
+
+            src_install() {
+              dobin backrest
+              diropts -m0750 -o backrest -g backrest
+              dodir /var/lib/backrest/
+              fowners backrest:backrest /var/lib/backrest
+              keepdir /var/lib/backrest
+              if use systemd ; then
+                systemd_newunit "${FILESDIR}"/backrest.service backrest.service || die
+              else
+                newinitd "${FILESDIR}"/backrest.initd backrest
+              fi
+              newconfd "${FILESDIR}"/backrest.confd backrest
+            }
+
+
+
+
+    - restic:
+        transform:
+          - kind: string
+            match: 'restic '
+            replace: ''
+          #- kind: regex
+          #  match: ' -.*'
+          #  replace: ''
+        vars:
+          inherit:
+            - go-module
+            - bash-completion-r1
+          cdepend: |
+            sys-fs/fuse:0
+          rdepend: '${CDEPEND}'
+          depend: '${CDEPEND}'
+          body: |
+            src_compile() {
+              go build -ldflags '-X main.version={{ .Values.version }}' \
+                -asmflags "-trimpath=${S}" \
+                -gcflags "-trimpath=${S}" \
+                -o restic ./cmd/restic
+            }
+            src_install() {
+              dobin restic
+
+              newbashcomp doc/bash-completion.sh "{{ .Values.pn }}"
+
+              insinto /usr/share/zsh/site-functions
+              newins doc/zsh-completion.zsh _restic
+
+              insinto /usr/share/fish/vendor_completions.d/
+              newins doc/fish-completion.fish "{{ .Values.pn }}"
+
+              doman doc/man/*
+              dodoc doc/*.rst
+            }
+

@@ -1,0 +1,44 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+name="backrest daemon"
+description="Restic WebUI Orchestrator"
+command=/usr/bin/backrest
+command_args="${backrest_args}"
+buser=${backrest_user:-backrest}
+bgroup=${backrest_group:-backrest}
+
+if [ -n "${BACKREST_PORT}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env BACKREST_PORT=${BACKREST_PORT}"
+fi
+if [ -n "${BACKREST_RESTIC_COMMAND}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env BACKREST_RESTIC_COMMAND=${BACKREST_RESTIC_COMMAND}"
+fi
+if [ -n "${BACKREST_DATA}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env BACKREST_DATA=${BACKREST_DATA}"
+fi
+if [ -n "${BACKREST_CONFIG}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env BACKREST_CONFIG=${BACKREST_CONFIG}"
+fi
+
+depend() {
+	need net
+}
+
+start() {
+	ebegin "Starting backrest service"
+	start-stop-daemon --start \
+		--user ${buser} \
+		--group ${bgroup} \
+		--pidfile ${PIDFILE} \
+		--exec ${command} \
+		--background \
+		${start_stop_daemon_args} \
+		--make-pidfile
+
+	eend ${?}
+}

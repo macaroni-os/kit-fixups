@@ -34,7 +34,7 @@ DEB_PV="${KERNEL_TRIPLET}-${DEB_PATCHLEVEL}"
 
 RESTRICT="binchecks strip"
 LICENSE="{{ .Values.license }}"
-KEYWORDS="{{- if ne .Values.level "unstable" }}*{{- end }}"
+KEYWORDS="*"
 IUSE="{{ .Values.iuse }}"
 
 RDEPEND="{{ .Values.rdepend }}"
@@ -373,15 +373,18 @@ pkg_postinst() {
 	# Finally, generate a new initramfs with dracut, via whip
 	# NOTE: For now, the initramfs is generic.
 	if use binary && use dracut; then
-		DRACUT_ADD_MODULES="
+		dracut_modules_pre="
 			$(use lvm && echo lvm)
 			$(use luks && echo crypt)
-			$(use mdadm && echo dmraid)
+			$(use mdadm && echo mdraid)
 			$(use btrfs && echo btrfs)
 			$(use sshd && echo sshd)
-		" DRACUT_ADD_DRIVERS="
+		"
+		dracut_drivers_pre="
 			$(use luks && echo dm-crypt)
-		" \
+		"
+		DRACUT_ADD_MODULES="$(echo ${dracut_modules_pre} | xargs)" \
+		DRACUT_ADD_DRIVERS="$(echo ${dracut_drivers_pre} | xargs)" \
 		KVER="${KERN_ARCH}-${MACARONI_KVER}" \
 		KTYPE="${MACARONI_KTYPE}" \
 		KSUFFIX="${MACARONI_KSUFFIX}" \

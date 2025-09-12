@@ -823,7 +823,6 @@ net_libs_github:
               meson_src_configure
             }
 
-
 flatpak:
   generator: builtin-github
   defaults:
@@ -1130,6 +1129,81 @@ gitea:
       opts:
 
   packages:
+    - gogs:
+        vars:
+          iuse: pam cert mysql postgres +sqlite ssh systemd
+          extra_envs:
+            - 'EGO_SKIP_TIDY=1'
+          inherit:
+            - go-module
+            - systemd
+
+          bdepend: dev-lang/go
+          cdepend: |
+            pam? (
+              sys-libs/pam
+            )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            dev-vcs/git
+            ssh? ( net-misc/openssh )
+            mysql? (
+              || (
+                dev-db/mariadb
+                dev-db/mysql-community
+              )
+            )
+            postgres? ( dev-db/postgresql )
+            sqlite? ( dev-db/sqlite )
+          docs:
+            - CHANGELOG.md
+            - README.md
+            - SECURITY.md
+          body: |
+            src_compile() {
+              local tags=()
+              local custom_flags=()
+
+              if use pam ; then
+                tags+=( pam )
+              fi
+              if use cert ; then
+                tags+=( cert )
+              fi
+
+              if [ "${#tags[@]}" != "0" ] ; then
+                custom_flags=(-tags "${tags[@]}" )
+              fi
+
+              local withcgo="0"
+              if use sqlite ; then
+                # Sqlite requires CGO
+                withcgo="1"
+              fi
+              CGO_ENABLED=${withcgo} go build ${custom_ldflags[*]} \
+                -o ${PN} -v -x . || die
+            }
+            src_install() {
+              dobin {{ .Values.pn }}
+              einstalldocs
+              newconfd "${FILESDIR}/{{ .Values.pn }}.confd" {{ .Values.pn }}
+              if use systemd ; then
+                systemd_newunit "${FILESDIR}"/gogs.service gogs.service
+              else
+                newinitd "${FILESDIR}/gogs.initd" gogs
+              fi
+              insinto /usr/share/gogs/
+              newins conf/app.ini app.example.ini
+              insinto /usr/share/gogs/auth.d
+              for i in conf/auth.d/*.example ; do
+                doins ${i}
+              done
+              diropts -m0750 -o git -g git
+              keepdir /var/lib/gogs /var/lib/gogs/custom/https /var/log/gogs /etc/gogs
+            }
+
+
     - gitea:
         github:
           user: go-gitea

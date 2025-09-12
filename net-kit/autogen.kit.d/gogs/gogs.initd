@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Gogs, a painless self-hosted Git service"
+
+: ${GOGS_CONF:=/etc/gogs/app.ini}
+: ${GOGS_USER:=git}
+: ${GOGS_GROUP:=git}
+: ${GOGS_PORT:=3000}
+: ${GOGS_WORK_DIR:=/var/lib/gogs}
+
+start_stop_daemon_args="--user ${GOGS_USER} --chdir ${GOGS_WORK_DIR}"
+command="/usr/bin/gogs"
+command_args="web -port ${GOGS_PORT} -c ${GOGS_CONF}"
+command_background=yes
+pidfile=/var/run/gogs.pid
+
+depend()
+{
+    need net
+}

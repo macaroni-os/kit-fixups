@@ -24,6 +24,7 @@ debian_sources:
       rdepend: |
         sys-apps/gawk
         dracut? (
+          sys-apps/whip-catalog
           sys-kernel/dracut
           virtual/dracut-mark
         )
@@ -33,6 +34,7 @@ debian_sources:
         zfs? ( sys-fs/zfs )
         luks? ( sys-fs/cryptsetup )
         lvm? ( sys-fs/lvm2 )
+        mdadm? ( sys-fs/mdadm )
       required_use: |
         binary? (
           ^^ ( dracut )
@@ -60,7 +62,7 @@ debian_sources:
     - debian-sources:
         vars:
           level: testing
-          branch: trixie
+          branch: forky
           slot: trixie
           track_openzfs: True
           patches:
@@ -69,6 +71,15 @@ debian_sources:
     - debian-sources:
         vars:
           level: stable
+          branch: trixie
+          slot: trixie
+          track_openzfs: True
+          patches:
+            - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+          config_extract: 6.6
+    - debian-sources:
+        vars:
+          level: oldstable
           branch: bookworm
           slot: bookworm
           track_openzfs: True

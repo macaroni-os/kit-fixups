@@ -83,6 +83,8 @@ export GOFLAGS="-v -x -mod=readonly"
 
 EGO_BUNDLE_POSTFIX="${EGO_BUNDLE_POSTFIX:-mark-go-bundle}"
 
+EGO_OVERRIDE_GOMOD="${EGO_OVERRIDE_GOMOD:-1}"
+
 # Do not complain about CFLAGS etc since go projects do not use them.
 QA_FLAGS_IGNORED='.*'
 
@@ -300,6 +302,9 @@ _go-module_check_gotoolchain() {
 	if [ "${gotoolchain_pkg}" == "" ] ; then
 		return
 	fi
+	if [ "${EGO_OVERRIDE_GOMOD}" == "0" ] ; then
+		return
+	fi
 	if [ "${gotoolchain_local}" != "${gotoolchain_pkg}" ] ; then
 		ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
 		# Avoid to replace 'godebug ...' rule (show restic package)
@@ -494,15 +499,17 @@ _go-module_src_prepare_verify_gosum() {
 
 	cd "${S}"
 
-	# Cleanup the modules before starting anything else
-	# This will print 'downloading' messages, but it's accessing content from
-	# the $GOPROXY file:/// URL!
-	einfo "Tidying go.mod/go.sum"
-	_go_mod_tidy_output=$(go mod tidy 2>&1 >/dev/null)
-	if [[ $? -ne 0 ]]; then
-		die "Failed to tidy go.mod/go.sum: ${_go_mod_tidy_output}"
+	if [ -z "${EGO_SKIP_TIDY}" ] ; then
+		# Cleanup the modules before starting anything else
+		# This will print 'downloading' messages, but it's accessing content from
+		# the $GOPROXY file:/// URL!
+		einfo "Tidying go.mod/go.sum"
+		_go_mod_tidy_output=$(go mod tidy 2>&1 >/dev/null)
+		if [[ $? -ne 0 ]]; then
+			die "Failed to tidy go.mod/go.sum: ${_go_mod_tidy_output}"
+		fi
+		unset _go_mod_tidy_output
 	fi
-	unset _go_mod_tidy_output
 
 	# This used to call 'go get' to verify by fetching everything from the main
 	# go.mod. However 'go get' also turns out to recursively try to fetch

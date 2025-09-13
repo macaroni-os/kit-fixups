@@ -1176,8 +1176,8 @@ forgejo:
               enewuser git -1 /bin/bash /var/lib/forgejo git
             }
             src_prepare() {
-              default
               sed -i -e "s#^MODE = console#MODE = file#" custom/conf/app.example.ini || die
+              go-module_src_prepare
             }
             src_configure() {
               # bug 832756 - PIE build issues
@@ -1203,6 +1203,7 @@ forgejo:
               # Use variable STORED_VERSION_FILE (the "${S}/VERSION" file) to set version,
               # and prevent executing git command when it's not a live version.
               makeenv+=( GITHUB_REF_NAME="" )
+              # We need frontend for assets
               env "${makeenv[@]}" emake -j1 frontend
               env "${makeenv[@]}" emake -j1 backend
             }

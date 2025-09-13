@@ -81,7 +81,7 @@ export GOCACHE="${T}/go-build"
 # -mod=vendor use the vendor directory instead of downloading dependencies
 export GOFLAGS="-v -x -mod=readonly"
 
-EGO_BUNDLE_POSTFIX="${EGO_BUNDLE_POSTFIX:-mark-go-bundle}"
+EGO_BUNDLE_POSTFIX="${EGO_BUNDLE_POSTFIX:-mark-go-bundle-}"
 
 EGO_OVERRIDE_GOMOD="${EGO_OVERRIDE_GOMOD:-1}"
 
@@ -280,7 +280,7 @@ go-module_set_globals() {
 #	local go proxy.
 # - Otherwise do a normal unpack.
 go-module_src_unpack() {
-	if [ "${A/${P}-${EGO_BUNDLE_POSTFIX}-/}" != "${A}" ]; then
+	if [ "${A/${P}-${EGO_BUNDLE_POSTFIX}/}" != "${A}" ]; then
 		_go-module_src_unpack_mark_bundle
 	# Keep this here until all old packages are been autogen
 	elif [ "${A/${P}-funtoo-go-bundle-/}" != "${A}" ]; then

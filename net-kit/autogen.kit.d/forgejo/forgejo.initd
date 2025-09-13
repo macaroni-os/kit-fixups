@@ -1,0 +1,21 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Forgejo, a self-hosted Git service"
+
+: ${FORGEJO_CONF:=/etc/forgejo/app.ini}
+: ${FORGEJO_USER:=git}
+: ${FORGEJO_GROUP:=git}
+: ${FORGEJO_WORK_DIR:=/var/lib/forgejo}
+: ${FORGEJO_CUSTOM:=${FORGEJO_WORK_DIR}/custom}
+
+command="/usr/bin/forgejo web"
+command_args="--config ${FORGEJO_CONF}"
+command_background="true"
+command_user="${FORGEJO_USER}:${FORGEJO_GROUP}"
+error_log="/var/log/${RC_SVCNAME}/${RC_SVCNAME}.err"
+pidfile="/run/${RC_SVCNAME}.pid"
+required_files="${FORGEJO_CONF}"
+start_stop_daemon_args="-d ${FORGEJO_WORK_DIR}"
+start_stop_daemon_args="${start_stop_daemon_args} -e FORGEJO_WORK_DIR=${FORGEJO_WORK_DIR}"
+start_stop_daemon_args="${start_stop_daemon_args} -e FORGEJO_CUSTOM=${FORGEJO_CUSTOM}"

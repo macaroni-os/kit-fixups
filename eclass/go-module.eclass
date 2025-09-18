@@ -340,7 +340,7 @@ _go-module_src_unpack_mark_bundle() {
 	local f
 	local dep
 	local goproxy_mod_dir
-	local go_srcdir="${WORKDIR}"/${EGO_BUNDLE_POSTFIX}-"${PN}"
+	local go_srcdir="${WORKDIR}"/${EGO_BUNDLE_POSTFIX%-}-"${PN}"
 
 	unpack ${A}
 

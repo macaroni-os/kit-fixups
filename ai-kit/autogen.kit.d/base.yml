@@ -100,7 +100,10 @@ ollama:
             }
             src_compile() {
               cmake_src_compile
-              go build -mod=mod . || die "compile failed"
+              local ollama_ldflags=(
+                 "-X github.com/ollama/ollama/version.Version=${PV}"
+              )
+              go build --ldflags "${ollama_ldflags[*]}" -mod=mod . || die "compile failed"
             }
             src_install() {
               cmake_src_install

@@ -1,0 +1,29 @@
+# Define the binding address
+OLLAMA_HOST="127.0.0.1"
+
+# Define the models directory
+OLLAMA_MODELS=/var/lib/ollama/models/
+
+# Working dir of the daemon
+# OLLAMA_WORKDIR=/var/lib/ollama
+
+# See ollama documentation for all available options
+# OLLAMA_MAX_LOADED_MODELS=1
+# OLLAMA_KEEP_ALIVE=1800
+# OLLAMA_MAX_VRAM=5368709120
+# OLLAMA_NUM_PARALLEL=4
+# OLLAMA_SCHED_SPREAD=1
+# OLLAMA_DEBUG=1
+
+# Force using of CUDA for a specific
+# GPU by id. In the example, GPU 0.
+# CUDA_VISIBLE_DEVICES=0
+
+OLLAMA_NOPRUNE=1
+
+# Enable logging using deamon output redirect.
+# OLLAMA_LOGGING=1
+
+# In order to use libcuda library correctly
+# set the path of the active nvidia driver
+# LD_LIBRARY_PATH=/opt/nvidia/nvidia-drivers-565.77/lib64/

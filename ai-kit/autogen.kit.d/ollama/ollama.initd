@@ -1,0 +1,64 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+PIDFILE=/run/ollama.pid
+description="Ollama OpenAI Daemon"
+command="/usr/bin/ollama"
+command_args="${command_args:-serve}"
+OLLAMA_WORKDIR=${OLLAMA_WORKDIR:-/var/lib/ollama}
+OLLAMA_USER="${OLLAMA_USER:-ollama}"
+
+ollama_envs=(
+	OLLAMA_DEBUG
+	OLLAMA_CONTEXT_LENGTH
+	OLLAMA_KEEP_ALIVE
+	OLLAMA_MAX_LOADED_MODELS
+	OLLAMA_MAX_QUEUE
+	OLLAMA_NUM_PARALLEL
+	OLLAMA_NOPRUNE
+	OLLAMA_ORIGINS
+	OLLAMA_SCHED_SPREAD
+	OLLAMA_FLASH_ATTENTION
+	OLLAMA_KV_CACHE_TYPE
+	OLLAMA_LLM_LIBRARY
+	OLLAMA_GPU_OVERHEAD
+	OLLAMA_LOAD_TIMEOUT
+	CUDA_VISIBLE_DEVICES
+	LD_LIBRARY_PATH
+)
+
+start_stop_daemon_args="--background --chdir ${OLLAMA_WORKDIR} --make-pidfile --pidfile ${PIDFILE}"
+
+if [ -n "${OLLAMA_HOST}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env OLLAMA_HOST=${OLLAMA_HOST}"
+else
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--env OLLAMA_HOST=127.0.0.1"
+fi
+
+if [ -n "${OLLAMA_MODELS}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env OLLAMA_MODELS=${OLLAMA_MODELS}"
+else
+	start_stop_daemon_args="${start_stop_daemon_args} \
+	--env OLLAMA_MODELS=/var/lib/ollama/models/"
+fi
+
+for env in ${ollama_envs[@]} ; do
+	if [[ -n "${!env}" ]] ; then
+		start_stop_daemon_args="${start_stop_daemon_args} \
+		--env ${env}=${!env}"
+	fi
+done
+
+
+if [ "${OLLAMA_LOGGING}" = "1" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} \
+		--stdout /var/log/${SVCNAME}.log \
+		--stderr /var/log/${SVCNAME}.log"
+fi
+
+depend() {
+	need net
+}

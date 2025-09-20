@@ -90,9 +90,16 @@ ollama:
           inherit:
             - go-module
             - cmake
+            - user
+          iuse: systemd
           bdepend: |
             >=dev-lang/go-1.24
           body: |
+            pkg_setup() {
+              ebegin "Ensuring ollama user/group exist"
+              enewgroup ollama
+              enewuser ollama -1 -1 /var/lib/ollama ollama
+            }
             src_prepare() {
               default
               go-module_src_prepare
@@ -108,7 +115,18 @@ ollama:
             src_install() {
               cmake_src_install
               dobin {{ .Values.pn }}
+              diropts -m0750 -o ollama -g ollama
+              dodir /var/lib/ollama /var/lib/ollama/models/
+              keepdir /var/lib/ollama/
+              diropts
               dodoc README.md
+              newconfd "${FILESDIR}"/ollama.confd ollama
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/ollama.service
+              else
+                newinitd "${FILESDIR}"/ollama.initd ollama
+              fi
+              newenvd "${FILESDIR}"/ollama.envd "90ollama"
             }
 
 

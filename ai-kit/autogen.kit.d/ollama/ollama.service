@@ -1,0 +1,15 @@
+[Unit]
+Description=Ollama OpenAI Service
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/conf.d/ollama
+ExecStart=/usr/bin/ollama serve
+User=ollama
+Group=ollama
+Restart=always
+RestartSec=3
+WorkingDirectory=/var/lib/ollama
+
+[Install]
+WantedBy=multi-user.target

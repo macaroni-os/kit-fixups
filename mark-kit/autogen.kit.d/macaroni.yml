@@ -92,6 +92,13 @@ macaroni:
               done
             }
 
+    - tar-formers:
+        github:
+          user: geaaru
+        vars:
+          bdepend: |
+            >=dev-lang/go-1.24.0
+          ldflags_ns: cmd
 
 geaaru_tools:
   generator: builtin-github

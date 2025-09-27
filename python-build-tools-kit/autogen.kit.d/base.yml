@@ -1,0 +1,38 @@
+pep517_standalone:
+  generator: builtin-pypi
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    vars:
+      du_pep517: standalone
+    python_compat: "python3+"
+
+  packages:
+    - pdm-backend:
+        pypi_name: pdm_backend
+        pydeps:
+          py:all:runtime:
+            - packaging >= 24.0
+            - editables
+            - pyproject-metadata
+            - tomli
+            - tomli-w
+          py:all:tool:
+            - packaging >= 24.0
+            - editables
+            - pyproject-metadata
+            - tomli
+            - tomli-w
+        vars:
+          body: |
+            src_prepare() {
+                rm -r src/pdm/backend/_vendor || die
+                find -name '*.py' -exec sed \
+                    -e 's:from pdm\.backend\._vendor\.:from :' \
+                    -e 's:from pdm\.backend\._vendor ::' \
+                    -e 's:import pdm\.backend\._vendor\.:import :' \
+                    -i {} + || die
+                distutils-r1_src_prepare
+            }
+

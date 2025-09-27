@@ -1,0 +1,132 @@
+# Distributed under the terms of the GNU General Public License v2
+# Autogen by MARK Devkit
+
+EAPI={{ .Values.eapi | default "7" }}
+
+{{- if .Values.python_compat | default false }}
+PYTHON_COMPAT=( {{ .Values.python_compat }} )
+{{- end }}
+{{- if .Values.du_setuptools | default false }}
+DISTUTILS_USE_SETUPTOOLS="{{ .Values.du_setuptools }}"
+{{- end }}
+{{- if .Values.du_pep517 | default false }}
+DISTUTILS_USE_PEP517="{{ .Values.du_pep517 }}"
+{{- end }}
+
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- else }}
+inherit distutils-r1
+{{- end }}
+
+DESCRIPTION="{{ .Values.desc }}"
+{{- if .Values.homepage | default false }}
+HOMEPAGE="{{ .Values.homepage }}"
+{{- end }}
+
+{{- $assets_len := .Values.artefacts | len }}
+{{- if gt $assets_len 1 }}
+SRC_URI="{{- range $k, $v := .Values.artefacts }}
+{{- if eq $v.Use "" }}
+{{ $v.SrcUri | first }} -> {{ $v.Name }}
+{{- else }}
+{{ $v.Use }}? ( {{ $v.SrcUri | first }} -> {{ $v.Name }} )
+{{- end }}
+{{- end }}"
+{{- else }}
+{{- if .Values.src_uri | default false }}
+SRC_URI="{{ .Values.src_uri }}"
+{{- end }}
+{{- end }}
+
+{{- if .Values.license | default false }}
+LICENSE="{{ .Values.license }}"
+{{- end }}
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+{{- if .Values.patches | default false }}
+PATCHES=(
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
+)
+{{- end }}
+
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
+{{- if .Values.iuse | default false }}
+IUSE="{{ .Values.iuse }}"
+{{- end }}
+{{- if .Values.required_use | default false }}
+REQUIRED_USE="{{ .Values.required_use }}"
+{{- end }}
+{{- if .Values.restrict | default false }}
+RESTRICT="{{ .Values.restrict }}"
+{{- end }}
+
+
+{{- if .Values.cdepend | default false }}
+# Commons depends
+CDEPEND="{{ regexReplaceAll "\\n" .Values.cdepend "\n\t" }}
+"
+{{- end }}
+
+{{- if or (.Values.bdepend | default false) ( .Values.py_bdepend | default false ) }}
+BDEPEND="
+{{- if .Values.bdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
+{{- end }}
+{{- if .Values.py_bdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.py_bdepend "\n\t" }}
+{{- end }}
+"
+{{- end }}
+{{- if or (.Values.rdepend | default false) ( .Values.py_rdepend | default false ) }}
+RDEPEND="
+{{- if .Values.rdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+{{- end }}
+{{- if .Values.py_rdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.py_rdepend "\n\t" }}
+{{- end }}
+"
+{{- end }}
+{{- if or (.Values.depend | default false) ( .Values.py_depend | default false ) }}
+DEPEND="
+{{- if .Values.depend | default false }}
+{{- regexReplaceAll "\\n" .Values.depend "\n\t" }}
+{{- end }}
+{{- if .Values.py_depend | default false }}
+{{- regexReplaceAll "\\n" .Values.py_depend "\n\t" }}
+{{- end }}
+"
+{{- end }}
+{{- if or (.Values.pdepend | default false) (.Values.py_pdepend | default false ) }}
+PDEPEND="
+{{- if .Values.pdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
+{{- end }}
+{{- if .Values.py_pdepend | default false }}
+{{- regexReplaceAll "\\n" .Values.py_pdepend "\n\t" }}
+{{- end }}
+"
+{{- end }}
+
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- else }}
+S="${WORKDIR}/{{.Values.pypi_name}}-{{.Values.pypi_version}}"
+{{- end }}
+
+{{- if .Values.body }}
+{{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
+{{- end }}
+
+# vim: filetype=ebuild

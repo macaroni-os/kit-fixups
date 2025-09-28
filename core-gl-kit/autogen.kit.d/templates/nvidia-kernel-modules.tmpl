@@ -10,8 +10,7 @@ SRC_URI=""
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="{{ .Values.slot }}"
-KEYWORDS="-* ~amd64 ~arm64"
-RESTRICT="bindist"
+KEYWORDS="*"
 
 IUSE="+kms +uvm videogroup open-kernel"
 
@@ -156,6 +155,11 @@ pkg_postinst() {
 	einfo "app-admin/gpu-configurator tool."
 	einfo "Uses: gpu-configurator nvidia kernel ${PV} [kernel-version]"
 	einfo "to add hardlink to kernel path and/or to change configuration."
+}
+
+pkg_postrm() {
+	einfo "Try to run gpu-configurator nvidia kernel --purge ${PV} ${KV_FULL} ..."
+	gpu-configurator nvidia kernel --purge ${PV} ${KV_FULL} || true
 }
 
 # vim: filetype=ebuild

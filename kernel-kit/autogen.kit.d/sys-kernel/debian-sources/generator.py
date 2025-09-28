@@ -27,6 +27,14 @@ debian_packages_url = [
 debian_sources_url = 'https://deb.debian.org/debian/pool/main/l/linux'
 kernel_dot_org_url = 'https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x'
 
+# used to encode branches like _p{deb_patchlevel}{code}
+branch_codes = {
+    'bookworm' : '0',
+    'trixie' : '1',
+    'forky' : '2',
+    'sid' : '999'
+}
+
 # filled by read_vars()
 vars_d = {}
 
@@ -210,13 +218,13 @@ async def do_process(*, input_file:str, versions_file:str):
                 'triplet' : triplet,
                 'debpatch' : debpatch,
                 'branch' : {
-                    'level' : k,
+                    'level' : config['level'],
                     'name' : config['branch'],
                 },
-                'slot' : f"{config['branch']}/{ver}",
+                'slot' : f"{config['branch']}/{ver}",#"{branch_codes[config['branch']]}",
             }
         )
-        versions_d['vars']['versions'].append(ver)
+        versions_d['vars']['versions'].append(f"{ver}{branch_codes[config['branch']]}")
         versions_d['artefacts'] = [
             {
                 'url' : f'{debian_sources_url}/linux_{triplet}-{debpatch}.debian.tar.xz',

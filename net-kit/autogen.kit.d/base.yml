@@ -1155,7 +1155,7 @@ forgejo:
             - README.md
           extra_envs:
             - 'EGO_BUNDLE_POSTFIX="mark-go-bundle"'
-            - 'EGO_SKIP_TIDY=1'
+            #- 'EGO_SKIP_TIDY=1'
             - FILECAPS=( -m 711 cap_net_bind_service+ep usr/bin/forgejo )
           cdepend: sys-libs/pam
           rdepend: |
@@ -1348,6 +1348,7 @@ git_servers:
             ${CDEPEND}
             dev-vcs/git
           depend: ${CDEPEND}
+          # Atm we haven't node_modules from bundle.
           restrict: 'network-sandbox'
           bdepend: dev-lang/go
           body: |

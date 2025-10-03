@@ -183,8 +183,8 @@ fish_github:
           depend: |
             ${RDEPEND}
             nls? ( sys-devel/gettext )
-          patches:
-            - fish-4.0.2-use-cargo-eclass-for-build.patch
+          extra_envs:
+            - CMAKE_BUILD_TYPE=RelWithDebInfo
           body: |
             src_unpack() {
               cargo_src_unpack
@@ -205,7 +205,6 @@ fish_github:
                 -DCMAKE_INSTALL_SYSCONFDIR="${EPREFIX}/etc"
                 -DCMAKE_INSTALL_LIBDIR="${EPREFIX}/lib"
                 -DBUILD_SHARED_LIBS=True
-                -DCMAKE_BUILD_TYPE=RelWithDebInfo
                 -DINSTALL_DOCS=OFF
                 -DWITH_GETTEXT="$(usex nls)"
               )

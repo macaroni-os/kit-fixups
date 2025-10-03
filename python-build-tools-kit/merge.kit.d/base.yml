@@ -1,0 +1,39 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+- name: "python-build-tools-kit"
+  url: "https://github.com/macaroni-os/python-build-tools-kit"
+  branch: "mark-unstable"
+
+target:
+  name: python-build-tools-kit
+  url: "https://github.com/macaroni-os/python-build-tools-kit"
+  branch: mark-31
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+      - dir: ../../.github/workflows
+        to: .github/workflows
+
+      - file: ../../.goreleaser.yml
+        to: .goreleaser.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: dev-python/flit_core
+    - pkg: dev-python/pdm-backend
+    - pkg: dev-python/poetry-core
+    - pkg: dev-python/setuptools
+    - pkg: dev-python/trove-classifiers
+    - pkg: dev-python/virtualenv

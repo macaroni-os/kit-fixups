@@ -80,3 +80,24 @@ setuptools:
               distutils-r1_python_install
             }
 
+hatchling_modules:
+  generator: builtin-pypi
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    vars:
+      du_pep517: hatchling
+
+  packages:
+    - virtualenv:
+        pydeps:
+          py:all:tool:
+            - hatch-vcs
+          py:all:both:
+            - distlib < 1
+            - filelock < 4
+            - platformdirs < 5
+        python_compat: "python3+"
+        vars:
+          license: MIT

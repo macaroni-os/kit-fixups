@@ -68,6 +68,8 @@ debian_sources:
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.6
+        selector:
+          - '<6.16.9'
     - debian-sources:
         vars:
           level: stable
@@ -77,6 +79,8 @@ debian_sources:
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.6
+        selector:
+          - '<6.13'
     - debian-sources:
         vars:
           level: oldstable
@@ -86,6 +90,8 @@ debian_sources:
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.1
+        selector:
+          - '<6.2'
 
 
 # TODO: move to separate file, as it's not specifically debian-sources--related

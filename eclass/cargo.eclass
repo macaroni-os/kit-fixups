@@ -180,11 +180,12 @@ cargo_src_unpack() {
 
 		local extra
 		for extra in "${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"/*.tar.*; do
-			if $(basename $extra) = "*.tar.*" ; then
+			local base=$(basename "${extra}")
+			if [ "${base}" = "*.tar.*" ] ; then
 				# No extra found
 				continue
 			fi
-			tar xf "${extra}"
+			tar -xf "${extra}"
 			local filename=$(basename "${extra}")
 			local unpack_dir="${filename%.tar.*}"
 

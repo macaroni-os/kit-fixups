@@ -117,6 +117,10 @@ setuptools_modules:
               distutils-r1_src_prepare
             }
 
+    - certifi:
+        vars:
+          rdepend: app-misc/ca-certificates
+
     - dependency-injector:
         pypi_name: dependency_injector
         vars:

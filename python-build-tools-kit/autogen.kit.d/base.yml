@@ -101,3 +101,21 @@ hatchling_modules:
         python_compat: "python3+"
         vars:
           license: MIT
+
+
+setuptools_modules:
+  generator: builtin-pypi
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    vars:
+      du_pep517: setuptools
+    python_compat: "python3+"
+
+  packages:
+    - trove-classifiers:
+        pypi_name: trove_classifiers
+        pydeps:
+          py:all:tool:
+            - calver

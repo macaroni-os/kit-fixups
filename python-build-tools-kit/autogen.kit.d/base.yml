@@ -38,3 +38,29 @@ pep517_standalone:
                 distutils-r1_src_prepare
             }
 
+
+setuptools:
+  generator: builtin-pypi
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    vars:
+      du_setuptools: no
+    python_compat: "python3+"
+    pydeps:
+      py:all:post:
+        - certifi >= 2016.9.26
+
+  packages:
+    - setuptools:
+        vars:
+          depend: |
+            app-arch/unzip
+          body: |
+            SETUPTOOLS_USE_DISTUTILS=stdlib
+            python_install() {
+              export DISTRIBUTE_DISABLE_VERSIONED_EASY_INSTALL_SCRIPT=1
+              distutils-r1_python_install
+            }
+

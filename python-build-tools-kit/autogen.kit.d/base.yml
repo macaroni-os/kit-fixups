@@ -42,6 +42,19 @@ pep517_standalone:
                 distutils-r1_src_prepare
             }
 
+    - poetry_core:
+        pypi_name: poetry_core
+        pydeps:
+          py:all:both:
+            - attrs
+            - jsonschema
+            - lark
+            - packaging
+            - pyparsing
+            - pyrsistent
+            - six
+            - tomlkit
+
 setuptools:
   generator: builtin-pypi
 

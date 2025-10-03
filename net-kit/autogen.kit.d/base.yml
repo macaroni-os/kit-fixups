@@ -165,10 +165,12 @@ bind_dirlisting:
 
     # Development release 9.21.x
     - bind:
+        template: templates/bind-21.tmpl
         selector:
           - '>9.21.0'
           - '<9.22.0'
     - bind-tools:
+        template: templates/bind-tools-21.tmpl
         selector:
           - '>9.21.0'
           - '<9.22.0'

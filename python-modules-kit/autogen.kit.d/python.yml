@@ -17,6 +17,15 @@ hatchling_modules:
         vars:
           license: MIT
 
+    - platformdirs:
+        vars:
+          desc: A small Python package for determining appropriate platform-specific dirs
+        pydeps:
+          py:all:build:
+            - hatch-vcs
+
+
+
 flit_modules:
   generator: builtin-pypi
   template:
@@ -92,7 +101,6 @@ flit_modules:
           - 'extra == "test"'
         selector:
           - '<25'
-
 
 setuptools_modules:
   generator: builtin-pypi

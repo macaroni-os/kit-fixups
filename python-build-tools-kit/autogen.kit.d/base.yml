@@ -9,6 +9,10 @@ pep517_standalone:
     python_compat: "python3+"
 
   packages:
+
+    - flit_core:
+        pypi_name: flit_core
+
     - pdm-backend:
         pypi_name: pdm_backend
         pydeps:
@@ -37,7 +41,6 @@ pep517_standalone:
                     -i {} + || die
                 distutils-r1_src_prepare
             }
-
 
 setuptools:
   generator: builtin-pypi

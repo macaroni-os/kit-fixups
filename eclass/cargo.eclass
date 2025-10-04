@@ -38,7 +38,7 @@ IUSE="${IUSE} debug"
 
 ECARGO_HOME="${WORKDIR}/cargo_home"
 ECARGO_VENDOR="${ECARGO_HOME}/gentoo"
-ECARGO_BUNDLE_POSTFIX="${ECARGO_BUNDLE_POSTFIX:-mark-rust-bundle}"
+ECARGO_BUNDLE_POSTFIX="${ECARGO_BUNDLE_POSTFIX:-mark-rust-bundle-}"
 ECARGO_BUNDLE_CONFIG="${ECARGO_BUNDLE_CONFIG:-mark_config.toml}"
 
 # @ECLASS-VARIABLE: CARGO_OPTIONAL
@@ -165,11 +165,12 @@ cargo_src_unpack() {
 
 	cargo_gen_config
 
-	if [ "${A/${P}-${ECARGO_BUNDLE_POSTFIX}-/}" != "${A}" ]; then
+	if [ "${A/${P}-${ECARGO_BUNDLE_POSTFIX}/}" != "${A}" ]; then
+		einfo "Using Macaroni Rust Bundle..."
 
 		unpack ${A}
 
-		local crates_dir="${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"
+		local crates_dir="${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX%-}-"${PN}"
 
 		local crate
 		for crate in "${crates_dir}"/*.crate; do
@@ -179,7 +180,7 @@ cargo_src_unpack() {
 		pushd "${crates_dir}" >/dev/null
 
 		local extra
-		for extra in "${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX}-"${PN}"/*.tar.*; do
+		for extra in "${WORKDIR}"/${ECARGO_BUNDLE_POSTFIX%-}-"${PN}"/*.tar.*; do
 			local base=$(basename "${extra}")
 			if [ "${base}" = "*.tar.*" ] ; then
 				# No extra found

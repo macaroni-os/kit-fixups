@@ -102,6 +102,28 @@ flit_modules:
         selector:
           - '<25'
 
+    - zipp:
+        pydeps_ignore:
+          - 'extra'
+        vars:
+          body: |
+            src_configure() {
+              grep -q 'build-backend = "setuptools' pyproject.toml ||
+                die "Upstream changed build-backend, recheck"
+              # write a custom pyproject.toml to avoid circular dependencies
+              # with importlib_metadata and setuptools_scm
+              cat > pyproject.toml <<-EOF || die
+                [build-system]
+                requires = ["flit_core >=3.2,<4"]
+                build-backend = "flit_core.buildapi"
+
+                [project]
+                name = "zipp"
+                version = "${PV}"
+                description = "Backport of pathlib-compatible object wrapper for zip files"
+              EOF
+            }
+
 setuptools_modules:
   generator: builtin-pypi
   template:

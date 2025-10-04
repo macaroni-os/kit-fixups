@@ -151,6 +151,8 @@ setuptools_modules:
         vars:
           rdepend: app-misc/ca-certificates
 
+
+
     - dependency-injector:
         pypi_name: dependency_injector
         vars:
@@ -457,3 +459,50 @@ standalone_github:
           user: selfcustody
 
 
+cryptography:
+  generator: builtin-pypi
+
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    vars:
+      du_pep517: maturin
+    python_compat: "python3+"
+    extensions:
+      - rust
+
+  packages:
+
+    - cryptography:
+        pydeps:
+          py:all:both:
+            - cffi >= 1.11.3
+            - six >= 1.4.1
+          py:all:build:
+            - setuptools-rust >= 0.12.1
+          py:all:runtime:
+            - ipaddress
+          use:idna:runtime:
+            - idna >= 2.1
+        vars:
+          iuse: idna
+          inherit:
+            - cargo
+            - distutils-r1
+          depend: |
+            virtual/rust
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+            - 'CARGO_OPTIONAL="yes"'
+          body: |
+            src_unpack() {
+              if [[ ${CRYPTOGRAPHY_DONT_BUILD_RUST} ]] ; then
+                default
+              else
+                cargo_src_unpack
+              fi
+            }

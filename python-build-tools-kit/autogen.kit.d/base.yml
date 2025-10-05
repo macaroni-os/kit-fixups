@@ -90,6 +90,12 @@ hatchling_modules:
       du_pep517: hatchling
 
   packages:
+
+    - hatch-vcs:
+        pydeps:
+          py:all:both:
+            - setuptools_scm
+
     - virtualenv:
         pydeps:
           py:all:tool:
@@ -114,6 +120,14 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+    - setuptools_scm_git_archive:
+        pypi_name: setuptools_scm_git_archive
+        vars:
+          license: MIT
+        pydeps:
+          py:all:tool:
+            - setuptools_scm
+
     - trove-classifiers:
         pypi_name: trove_classifiers
         pydeps:

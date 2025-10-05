@@ -119,3 +119,66 @@ setuptools_modules:
         pydeps:
           py:all:tool:
             - calver
+
+maturin:
+  generator: builtin-pypi
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    category: dev-util
+    template: "../../templates/pypi-generic-helm.tmpl"
+    python_compat: "python3+"
+    extensions:
+      - rust
+
+  packages:
+    - maturin:
+        pydeps:
+          py:all:tool:
+            - setuptools-rust
+          py:all:runtime:
+            - tomli
+        vars:
+          inherit:
+            - cargo
+            - distutils-r1
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+            - 'CARGO_OPTIONAL="yes"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+            }
+            src_prepare() {
+              distutils-r1_src_prepare
+              # we build the Rust executable (just once) via cargo_src_compile
+              sed -i -e '/setuptools_rust/d' -e '/rust_extensions/d' setup.py || die
+            }
+            src_configure() {
+              export OPENSSL_NO_VENDOR=1
+              export ZSTD_SYS_USE_PKG_CONFIG=1
+              local myfeatures=(
+                full
+                password-storage
+                native-tls
+              )
+              cargo_src_configure --no-default-features
+            }
+            src_compile() {
+              cargo_src_compile
+              distutils-r1_src_compile
+            }
+            src_install() {
+              dobin target/release/maturin
+              dodoc Changelog.md README.md
+              local maturin=target/release/maturin
+              mkdir -p "${D}"/usr/share/{bash-completion/completions/,fish/vendor_completions.d/,zsh/site-functions/} || die
+              "${maturin}" completions bash > "${D}"/usr/share/bash-completion/${PN} || die
+              "${maturin}" completions fish > "${D}"/usr/share/fish/vendor_completions.d//${PN}.fish || die
+              "${maturin}" completions zsh > "${D}"/usr/share/zsh/site-functions/_${PN} || die
+              distutils-r1_src_install
+            }
+
+

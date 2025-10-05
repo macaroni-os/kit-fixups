@@ -12,6 +12,11 @@ DISTUTILS_USE_SETUPTOOLS="{{ .Values.du_setuptools }}"
 {{- if .Values.du_pep517 | default false }}
 DISTUTILS_USE_PEP517="{{ .Values.du_pep517 }}"
 {{- end }}
+{{- if .Values.extra_envs | default false }}
+{{- range $p := .Values.extra_envs }}
+{{ $p }}
+{{- end }}
+{{- end }}
 
 {{- if .Values.inherit | default false }}
 inherit {{ .Values.inherit | join " " }}

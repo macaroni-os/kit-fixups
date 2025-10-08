@@ -1,0 +1,102 @@
+diff --git a/configure.pri b/configure.pri
+index cb53c93b0..983420af4 100644
+--- a/configure.pri
++++ b/configure.pri
+@@ -7,17 +7,7 @@ QTWEBENGINE_SOURCE_TREE = $$PWD
+ equals(QMAKE_HOST.os, Windows): EXE_SUFFIX = .exe
+ 
+ defineTest(isPythonVersionSupported) {
+-    python = $$system_quote($$system_path($$1))
+-    python_version = $$system('$$python -c "import sys; print(sys.version_info[0:3])"')
+-    python_version ~= s/[()]//g
+-    python_version = $$split(python_version, ',')
+-    python_major_version = $$first(python_version)
+-    python_minor_version = $$member(python_version, 1)
+-    python_patch_version = $$member(python_version, 2)
+-    greaterThan(python_major_version, 2): greaterThan(python_minor_version, 7): return(true)
+-    greaterThan(python_major_version, 1): greaterThan(python_minor_version, 6): greaterThan(python_patch_version, 4): return(true)
+-    qtLog("Unsupported python version: $${python_major_version}.$${python_minor_version}.$${python_patch_version}.")
+-    return(false)
++    return(true)
+ }
+ 
+ defineTest(qtConfTest_detectJumboBuild) {
+@@ -49,28 +39,8 @@ defineTest(qtConfReport_jumboBuild) {
+     qtConfReportPadded($${1}, $$mergeLimit)
+ }
+ 
+-defineTest(qtConfTest_detectPython2) {
+-    pythonOverride = $$eval(config.input.python_override)
+-    !isEmpty(pythonOverride) {
+-        python = $$qtConfFindInPath("$$pythonOverride$$EXE_SUFFIX")
+-        isEmpty(python) {
+-           qtLog("User selected '$$pythonOverride$$EXE_SUFFIX' was not found in PATH. Giving up.")
+-           return(false)
+-        }
+-    }
+-
+-    win32 {
+-        # the default name of the python 2 executable on windows is just
+-        # python, so try that first
+-        isEmpty(python):python = $$qtConfFindInPath("python$$EXE_SUFFIX")
+-        isEmpty(python):python = $$qtConfFindInPath("python2$$EXE_SUFFIX")
+-        isEmpty(python):python = $$qtConfFindInPath("python3$$EXE_SUFFIX")
+-    } else {
+-        isEmpty(python):python = $$qtConfFindInPath("python2$$EXE_SUFFIX")
+-        isEmpty(python):python = $$qtConfFindInPath("python3$$EXE_SUFFIX")
+-        isEmpty(python):python = $$qtConfFindInPath("python$$EXE_SUFFIX")
+-    }
+-
++defineTest(qtConfTest_detectPython) {
++    python = $$qtConfFindInPath("python$$EXE_SUFFIX")
+     isEmpty(python) {
+         qtLog("Python not found in PATH. Giving up.")
+         return(false)
+diff --git a/mkspecs/features/functions.prf b/mkspecs/features/functions.prf
+index 7f630588a..65500776b 100644
+--- a/mkspecs/features/functions.prf
++++ b/mkspecs/features/functions.prf
+@@ -44,11 +44,11 @@ defineReplace(which) {
+ 
+ # Returns the unquoted path to the python executable.
+ defineReplace(pythonPath) {
+-    isEmpty(QMAKE_PYTHON2) {
++    isEmpty(QMAKE_PYTHON) {
+         # Fallback for building QtWebEngine with Qt < 5.8
+-        QMAKE_PYTHON2 = python
++        QMAKE_PYTHON = python
+     }
+-    return($$QMAKE_PYTHON2)
++    return($$QMAKE_PYTHON)
+ }
+ 
+ # Returns the python executable for use with shell / make targets.
+diff --git a/src/buildtools/configure.json b/src/buildtools/configure.json
+index 5e5d9d725..17fc65106 100644
+--- a/src/buildtools/configure.json
++++ b/src/buildtools/configure.json
+@@ -318,8 +318,8 @@
+             "type": "detectNinja"
+         },
+         "webengine-python": {
+-            "label": "python2",
+-            "type": "detectPython2",
++            "label": "python",
++            "type": "detectPython",
+             "log": "location"
+         },
+         "webengine-winversion": {
+@@ -446,11 +446,11 @@
+             "output": [ "privateFeature" ]
+         },
+         "webengine-python": {
+-            "label": "python2",
++            "label": "python",
+             "condition": "tests.webengine-python",
+             "output": [
+                 "privateFeature",
+-                { "type": "varAssign", "name": "QMAKE_PYTHON2", "value": "tests.webengine-python.location" }
++                { "type": "varAssign", "name": "QMAKE_PYTHON", "value": "tests.webengine-python.location" }
+             ]
+         },
+         "webengine-gperf": {

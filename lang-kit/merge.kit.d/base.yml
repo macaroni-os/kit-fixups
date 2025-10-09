@@ -56,22 +56,6 @@ target:
 
     - pkg: net-libs/deno
 
-    # Nodejs
-    - pkg: net-libs/nodejs::geaaru-kit
-      conditions:
-        - '>=net-libs/nodejs-14.0.0'
-        - '<net-libs/nodejs-15.0.0'
-
-    - pkg: net-libs/nodejs
-      conditions:
-        - '>=net-libs/nodejs-20.0.0'
-        - '<net-libs/nodejs-21.0.0'
-
-    - pkg: net-libs/nodejs
-      conditions:
-        - '>=net-libs/nodejs-22.0.0'
-        - '<net-libs/nodejs-23.0.0'
-
     # Pascal
     - pkg: dev-lang/fpc
     - pkg: dev-lang/lazarus

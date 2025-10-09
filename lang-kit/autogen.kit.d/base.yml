@@ -158,3 +158,54 @@ golang:
         selector:
           - '<1.26.0'
           - '>=1.25.0'
+
+nodejs:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: net-libs
+    github:
+      query: tags
+      user: nodejs
+      repo: node
+      num_pages: 5
+    vars:
+      license: Apache-1.1 Apache-2.0 BSD BSD-2 MIT
+      inherit:
+        - python-any-r1
+      python_compat: python3+
+      bdepend: |
+        ${PYTHON_DEPS}
+      body: |
+        src_configure() {
+          configure_options=(
+            # By default, prefix is /usr/local, which is outside of PATH,
+            # set it to /usr instead:
+            --prefix="${EPREFIX}"/usr
+          )
+          # NOTE: `econf` default flags appear to trip up the configure process,
+          #       directly call the ./configure script instead.
+          ./configure "${configure_options[@]}"
+        }
+
+
+  packages:
+    # Release 24
+    - nodejs:
+        selector:
+          - '<25.0.0'
+          - '>=24.0.0'
+
+    # Release 22
+    - nodejs:
+        selector:
+          - '<23.0.0'
+          - '>=22.0.0'
+
+    # Release 20
+    - nodejs:
+        selector:
+          - '<21.0.0'
+          - '>=20.0.0'
+

@@ -919,3 +919,117 @@ gnu_savannah_atoms:
               return 0
             }
 
+
+
+lttng:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-util
+    dir:
+      url: 'https://lttng.org/files/{{ .Values.pn }}/'
+      exclude: '-rc|-latest'
+    vars:
+      homepage: https://lttng.org
+      license: GPL-2
+
+  packages:
+    - lttng-tools:
+        dir:
+          matcher: "lttng-tools-.*.tar.bz2$"
+        transform:
+          - kind: string
+            match: 'lttng-tools-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: Linux Trace Toolkit - next generation
+          iuse: +ust
+          rdepend: |
+            dev-libs/userspace-rcu:=
+            dev-libs/popt
+            dev-libs/libxml2
+            ust? ( dev-util/lttng-ust:= )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              econf $(usex ust "" --without-lttng-ust) --disable-static --enable-tests=no
+            }
+            src_install() {
+              default
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+    - lttng-modules:
+        dir:
+          matcher: "lttng-modules-.*.tar.bz2$"
+        transform:
+          - kind: string
+            match: 'lttng-modules-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: LTTng Kernel Tracer Modules
+          inherit:
+            - linux-mod
+          extra_envs:
+            - 'BUILD_TARGETS="default"'
+            - 'MODULE_NAMES="true"'
+          body: |
+            src_compile() {
+              BUILD_FIXES="KERNELDIR=$KERNEL_DIR" linux-mod_src_compile
+            }
+            src_install() {
+              for i in $(find "${S}" -name "*.ko" -print); do
+                local val=${i##${S}/}
+                local modules+="${val%%.ko}(misc:) "
+              done
+              MODULE_NAMES=${modules}
+              linux-mod_src_install
+              dodoc ChangeLog README.md
+            }
+
+    - lttng-ust:
+        dir:
+          matcher: "lttng-ust-.*.tar.bz2$"
+        transform:
+          - kind: string
+            match: 'lttng-ust-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: Linux Trace Toolkit - UST library
+          iuse: examples numa python java jni
+          rdepend: |
+            dev-libs/userspace-rcu:=
+            numa? ( sys-process/numactl )
+          depend: '${RDEPEND}'
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              if ! use examples; then
+                sed -i -e '/SUBDIRS/s:examples::' doc/Makefile.am || die
+              fi
+              eautoreconf
+            }
+            src_configure() {
+              econf \
+                $(use_enable numa) \
+                $(use_enable python python-agent) \
+                $(use_enable java java-agent-all) \
+                $(use_enable jni jni-interface)
+            }
+            src_install() {
+              default
+              find "${ED}" -name '*.la' -delete || die
+            }

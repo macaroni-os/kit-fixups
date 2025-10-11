@@ -209,3 +209,118 @@ nodejs:
           - '<21.0.0'
           - '>=20.0.0'
 
+
+zig:
+  generator: builtin-json
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-lang
+    vars:
+      homepage: https://ziglang.org/
+      desc: General-purpose programming language for robust, optimal, and reusable software
+      license: MIT
+      baseurl: https://ziglang.org/download
+
+    json:
+      url: '{{ .Values.baseurl }}/index.json'
+      version_filter: '$'
+
+  packages:
+    - zig:
+        json:
+          src_uri_filter: "$['{{ .Values.version }}'].src.tarball"
+        vars:
+          inherit:
+            - cmake
+          extra_envs:
+            - 'BUILD_DIR="${S}/build"'
+            - CMAKE_BUILD_TYPE=Release
+          iuse: +clang
+          llvm_targets:
+            - AArch64
+            - AMDGPU
+            - ARM
+            - AVR
+            - BPF
+            - Hexagon
+            - Lanai
+            - Mips
+            - MSP430
+            - NVPTX
+            - PowerPC
+            - RISCV
+            - SystemZ
+            - Sparc
+            - SPIRV
+            - VE
+            - WebAssembly
+            - X86
+            - XCore
+            - LoongArch
+          # We need to force the valid targets else zig wants all standards targets.
+          #sed -e "s|set(ZIG_LLVM_REQUIRED_TARGETS .*|set(ZIG_LLVM_REQUIRED_TARGETS \"${LLVM_TARGETS// /;}\")|g" -i \
+          #  cmake/Findllvm.cmake
+          body: |
+            src_configure() {
+              local llvm_version=$(clang --version  | grep version  | cut -d' ' -f 4 | cut -d'.' -f1)
+              if use clang; then
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+              fi
+              einfo "Using LLVM Targets: ${LLVM_TARGETS// /;}"
+              local mycmakeargs=(
+                -DZIG_SHARED_LLVM=ON
+                -DCMAKE_INSTALL_PREFIX=/usr
+                -DCMAKE_PREFIX_PATH=/usr
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+                -DZIG_VERSION="${PV}"
+                -DCLANG_INCLUDE_DIRS=/usr/lib/llvm/${llvm_version}/include
+              )
+              cmake_src_configure
+            }
+
+    - zig:
+        category: virtual
+        template: ../../templates/simple.tmpl
+        ignore_artefacts: true
+        vars:
+          desc: Virtual for Zig language compiler
+          rdepend: |
+            || ( ~dev-lang/zig-bin-{{ .Values.version }} ~dev-lang/zig-{{ .Values.version }} )
+
+    - zig-bin:
+        template: ../../templates/simple.tmpl
+        assets:
+          - name: "{{ .Values.pn }}-x86_64-linux-{{ .Values.version }}.tar.xz"
+            url: '{{ .Values.baseurl }}/{{ .Values.version }}/zig-x86_64-linux-{{ .Values.version }}.tar.xz'
+            use: amd64
+          - name: "{{ .Values.pn }}-arm-linux-{{ .Values.version }}.tar.xz"
+            url: '{{ .Values.baseurl }}/{{ .Values.version }}/zig-arm-linux-{{ .Values.version }}.tar.xz'
+            use: arm
+          - name: "{{ .Values.pn }}-aarch64-linux-{{ .Values.version }}.tar.xz"
+            url: '{{ .Values.baseurl }}/{{ .Values.version }}/zig-aarch64-linux-{{ .Values.version }}.tar.xz'
+            use: arm64
+          - name: "{{ .Values.pn }}-riscv64-linux-{{ .Values.version }}.tar.xz"
+            url: '{{ .Values.baseurl }}/{{ .Values.version }}/zig-riscv64-linux-{{ .Values.version }}.tar.xz'
+            use: riscv64
+
+        vars:
+          iuse: doc amd64 arm arm64 riscv64
+          depend: app-arch/tar
+          desc: General-purpose programming language for robust, optimal, and reusable software (upstream build)
+          rdepend: |
+            !dev-lang/zig
+          body: |
+            src_unpack() {
+              default
+              mv "${WORKDIR}/"* "${S}"
+            }
+            src_install() {
+              use doc || rm -rf "${S}"/doc
+              dodir /opt
+              mv "${S}" "${ED}"/opt/ || die
+              dodir /usr/bin
+              dosym "${ED}"/opt/${P}/zig /usr/bin/zig
+              fperms 0755 /usr/bin/zig
+            }
+

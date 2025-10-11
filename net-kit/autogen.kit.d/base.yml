@@ -789,6 +789,30 @@ net_libs_github:
       query: tags
 
   packages:
+    - enet:
+        github:
+          user: lsalzman
+        selector:
+          - '<1.4'
+        vars:
+          slot: "1.3"
+          inherit:
+            - autotools
+            - ltprune
+          iuse: static-libs
+          body: |
+            src_prepare() {
+              default
+              eautoreconf --force
+            }
+            src_configure() {
+              econf $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              prune_libtool_files
+            }
+
     - libqmi:
         github:
           user: linux-mobile-broadband

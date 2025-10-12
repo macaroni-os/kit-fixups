@@ -588,6 +588,33 @@ dev_github:
 
   packages:
 
+    - bindgen:
+        extensions:
+          - rust
+        github:
+          # Force tags to avoid issues with tarball url:
+          # Received invalid response - 300 Multiple Choices
+          query: tags
+          user: rust-lang
+          repo: rust-bindgen
+        vars:
+          inherit:
+            - cargo
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="/usr/bin/bindgen"'
+          rdepend: |
+            sys-devel/clang
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user}}-{{ .Values.github_repo }}-* ${S} || die
+            }
+            src_install() {
+              cargo_src_install --path "${S}/bindgen-cli"
+              einstalldocs
+            }
+
     - cbindgen:
         extensions:
           - rust

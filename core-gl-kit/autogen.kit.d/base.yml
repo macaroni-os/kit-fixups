@@ -1,23 +1,23 @@
-github_modules:
+vulkan_pkgs:
   generator: builtin-github
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple-github.tmpl
     category: dev-util
     github:
-      query: releases
+      user: KhronosGroup
+      match: "vulkan-sdk-"
+      query: tags
+    transform:
+      - kind: string
+        match: "vulkan-sdk-"
+        replace: ""
 
   packages:
+
     - spirv-tools:
         github:
-          user: KhronosGroup
           repo: SPIRV-Tools
-          query: tags
-          match: "vulkan-sdk-"
-        transform:
-          - kind: string
-            match: "vulkan-sdk-"
-            replace: ""
         exclude:
           # Temporary until mark-devkit > 0.26.0
           - "^20[0-9][0-9]"
@@ -45,6 +45,194 @@ github_modules:
             }
 
 
+    - volk:
+        github:
+          user: zeux
+        vars:
+          inherit:
+            - cmake-utils
+          rdepend: |
+            >=media-libs/vulkan-loader-{{ .Values.version }}
+          depend: |
+            ${RDEPEND}
+            >=dev-util/vulkan-headers-{{ .Values.version }}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DVOLK_INSTALL=on
+              )
+              cmake-utils_src_configure
+            }
+
+    - vulkan-headers:
+        github:
+          repo: Vulkan-Headers
+        vars:
+          inherit:
+            - cmake-utils
+          bdepend: |
+            dev-util/cmake
+
+    - vulkan-layers:
+        category: media-libs
+        github:
+          repo: Vulkan-ValidationLayers
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake-utils
+            - python-any-r1
+          iuse: wayland X
+          bdepend: |
+            dev-util/cmake
+            ${PYTHON_DEPS}
+          depend: |
+            dev-util/glslang
+            dev-util/spirv-tools
+            dev-util/vulkan-headers
+            dev-util/vulkan-utility-libraries
+            dev-cpp/robin-hood-hashing
+            wayland? ( dev-libs/wayland:= )
+            X? (
+              x11-libs/libX11:=
+              x11-libs/libXrandr:=
+            )
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DCMAKE_SKIP_RPATH=ON
+                -DBUILD_WSI_WAYLAND_SUPPORT=$(usex wayland)
+                -DBUILD_WSI_XCB_SUPPORT=$(usex X)
+                -DBUILD_WSI_XLIB_SUPPORT=$(usex X)
+                -DBUILD_TESTS=OFF
+                -DGLSLANG_INSTALL_DIR="/usr"
+                -DCMAKE_INSTALL_INCLUDEDIR="/usr/include/"
+                -DSPIRV_HEADERS_INSTALL_DIR="/usr"
+              )
+              cmake-utils_src_configure
+            }
+
+    - vulkan-loader:
+        category: media-libs
+        github:
+          repo: Vulkan-Loader
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake-utils
+            - python-any-r1
+          iuse: layers wayland X
+          bdepend: |
+            dev-util/cmake
+          depend: |
+            {{- $v := .Values.version }}
+            ${PYTHON_DEPS}
+            >=dev-util/vulkan-headers-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}
+            wayland? ( dev-libs/wayland:= )
+            X? (
+              x11-libs/libX11:=
+              x11-libs/libXrandr:=
+            )
+          pdepend: |
+            {{- $v := .Values.version }}
+            layers? (
+              >=media-libs/vulkan-layers-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}
+            )
+          body: |
+            post_src_prepare() {
+              # on 64-bit systems, have pkgconfig file reference 'libvulkan' not 'libvulkan64'.
+              sed -i -e s'/^Libs:.*$/Libs: -L${libdir} -lvulkan/' loader/vulkan.pc.in || die
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DCMAKE_SKIP_RPATH=ON
+                -DBUILD_TESTS=OFF
+                -DBUILD_LOADER=ON
+                -DBUILD_WSI_WAYLAND_SUPPORT=$(usex wayland)
+                -DBUILD_WSI_XCB_SUPPORT=$(usex X)
+                -DBUILD_WSI_XLIB_SUPPORT=$(usex X)
+                -DVULKAN_HEADERS_INSTALL_DIR="${ESYSROOT}/usr"
+              )
+              cmake-utils_src_configure
+            }
+            src_install() {
+              keepdir /etc/vulkan/icd.d
+              cmake-utils_src_install
+            }
+
+    - vulkan-tools:
+        github:
+          repo: Vulkan-Tools
+        vars:
+          python_compat: python3+
+          iuse: cube wayland +X
+          required_use: |
+            !cube? ( || ( X wayland ) ) cube? ( ^^ ( X wayland ) )
+          inherit:
+            - cmake-utils
+            - python-any-r1
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/cmake
+            cube? ( dev-util/glslang:= )
+          rdepend: |
+            {{- $v := .Values.version }}
+            >=media-libs/vulkan-loader-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}:=[wayland,X?]
+            wayland? ( dev-libs/wayland:= )
+            X? (
+              x11-libs/libX11:=
+              x11-libs/libXrandr:=
+            )
+          depend: |
+            {{- $v := .Values.version }}
+            ${RDEPEND}
+            >=dev-util/vulkan-headers-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}
+            >=dev-util/volk-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}
+          body: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DCMAKE_SKIP_RPATH=ON
+                -DBUILD_VULKANINFO=ON
+                -DBUILD_CUBE=$(usex cube)
+                -DBUILD_WSI_WAYLAND_SUPPORT=$(usex wayland)
+                -DBUILD_WSI_XCB_SUPPORT=$(usex X)
+                -DBUILD_WSI_XLIB_SUPPORT=$(usex X)
+                -DVULKAN_HEADERS_INSTALL_DIR="${EPREFIX}/usr"
+              )
+              use cube && mycmakeargs+=(
+                -DGLSLANG_INSTALL_DIR="${EPREFIX}/usr"
+                -DCUBE_WSI_SELECTION=$(usex X XCB WAYLAND)
+              )
+              cmake-utils_src_configure
+            }
+            src_install() {
+              cmake-utils_src_install
+            }
+
+    - vulkan-utility-libraries:
+        github:
+          repo: Vulkan-Utility-Libraries
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake-utils
+            - python-any-r1
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/cmake
+          depend: |
+            {{- $v := .Values.version }}
+            >=dev-util/vulkan-headers-{{ join "." ( slice ( splitList "." $v ) 0 3 ) }}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTS=OFF
+              )
+              cmake-utils_src_configure
+            }
 
 mesa:
   generator: builtin-dirlisting

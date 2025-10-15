@@ -161,6 +161,10 @@ maturin:
           extra_envs:
             - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
             - 'CARGO_OPTIONAL="yes"'
+          # setuptools-rust doesn't inject rust as dependency.
+          # we need add this directly on bdepend.
+          bdepend: |
+            virtual/rust
           body: |
             src_unpack() {
               cargo_src_unpack

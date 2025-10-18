@@ -1695,10 +1695,10 @@ vivaldi:
       - name: "{{ .Values.pn }}-{{ .Values.version }}_amd64.deb"
         url: "https://downloads.vivaldi.com/stable/vivaldi-stable_{{ .Values.version }}-1_amd64.deb"
         use: amd64
-
-      - name: "{{ .Values.pn }}-{{ .Values.version }}_armhf.deb"
-        url: "https://downloads.vivaldi.com/stable/vivaldi-stable_{{ .Values.version }}-1_armhf.deb"
-        use: arm
+# Disable arm package for now. Website is broken.
+#      - name: "{{ .Values.pn }}-{{ .Values.version }}_armhf.deb"
+#        url: "https://downloads.vivaldi.com/stable/vivaldi-stable_{{ .Values.version }}-1_armhf.deb"
+#        use: arm
 
       - name: "{{ .Values.pn }}-{{ .Values.version }}_arm64.deb"
         url: "https://downloads.vivaldi.com/stable/vivaldi-stable_{{ .Values.version }}-1_arm64.deb"

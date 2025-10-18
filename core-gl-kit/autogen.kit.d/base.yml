@@ -779,3 +779,102 @@ nvidia_stuff:
             }
 
 
+x11_input_drivers:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-drivers
+
+    dir:
+      url: https://www.x.org/releases/individual/driver/
+      exclude: "99.*"
+    vars:
+      inherit:
+        - autotools
+        - flag-o-matic
+      extra_envs:
+        - 'WANT_AUTOCONF="latest"'
+        - 'WANT_AUTOMAKE="latest"'
+        - 'AUTOTOOLS_AUTORECONF="1"'
+      desc: Driver for xorg-server
+
+  packages:
+    - xf86-input-evdev:
+        dir:
+          matcher: "xf86-input-evdev-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-input-evdev-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          rdepend: |
+            x11-base/xorg-server
+            x11-misc/util-macros
+            dev-libs/libevdev
+            x11-libs/libXi
+            x11-libs/libXtst
+          depend: |
+            ${RDEPEND}
+            sys-kernel/linux-headers
+            x11-base/xorg-proto
+            sys-devel/libtool
+            sys-devel/m4
+            sys-libs/mtdev
+          body: |
+            pkg_setup() {
+              append-ldflags -Wl,-z,lazy
+            }
+            src_prepare() {
+              eautoreconf || die
+              default
+            }
+            src_install() {
+              default
+              find "${D}" -type f -name '*.la' -delete || die
+            }
+
+    - xf86-input-libinput:
+        dir:
+          matcher: "xf86-input-libinput-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-input-libinput-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          rdepend: |
+            x11-base/xorg-server
+            x11-misc/util-macros
+            dev-libs/libinput
+            x11-libs/libXi
+            x11-libs/libXtst
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+            sys-devel/libtool
+            sys-devel/m4
+            sys-libs/mtdev
+          body: |
+            pkg_setup() {
+              append-ldflags -Wl,-z,lazy
+            }
+            src_prepare() {
+              eautoreconf || die
+              default
+            }
+            src_install() {
+              default
+              find "${D}" -type f -name '*.la' -delete || die
+              # See FL-7952: Make libinput take priority over synaptics.
+              (cd ${D}/usr/share/X11/xorg.conf.d/ && mv 40-libinput.conf 80-libinput.conf) || die
+            }
+
+
+

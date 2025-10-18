@@ -799,6 +799,24 @@ x11_input_drivers:
         - 'WANT_AUTOMAKE="latest"'
         - 'AUTOTOOLS_AUTORECONF="1"'
       desc: Driver for xorg-server
+      body: |
+        pkg_setup() {
+          append-ldflags -Wl,-z,lazy
+        }
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+        }
+      depend: |
+        ${RDEPEND}
+        x11-base/xorg-proto
+        sys-devel/libtool
+        sys-devel/m4
+        sys-libs/mtdev
 
   packages:
     - xf86-input-evdev:
@@ -825,18 +843,6 @@ x11_input_drivers:
             sys-devel/libtool
             sys-devel/m4
             sys-libs/mtdev
-          body: |
-            pkg_setup() {
-              append-ldflags -Wl,-z,lazy
-            }
-            src_prepare() {
-              eautoreconf || die
-              default
-            }
-            src_install() {
-              default
-              find "${D}" -type f -name '*.la' -delete || die
-            }
 
     - xf86-input-libinput:
         dir:
@@ -855,12 +861,6 @@ x11_input_drivers:
             dev-libs/libinput
             x11-libs/libXi
             x11-libs/libXtst
-          depend: |
-            ${RDEPEND}
-            x11-base/xorg-proto
-            sys-devel/libtool
-            sys-devel/m4
-            sys-libs/mtdev
           body: |
             pkg_setup() {
               append-ldflags -Wl,-z,lazy
@@ -876,5 +876,78 @@ x11_input_drivers:
               (cd ${D}/usr/share/X11/xorg.conf.d/ && mv 40-libinput.conf 80-libinput.conf) || die
             }
 
+    - xf86-input-mouse:
+        dir:
+          matcher: "xf86-input-mouse-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-input-mouse-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          rdepend: |
+            x11-base/xorg-server
+            x11-misc/util-macros
+            dev-libs/libinput
+            x11-libs/libXi
+            x11-libs/libXtst
 
+    - xf86-input-synaptics:
+        dir:
+          matcher: "xf86-input-synaptics-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-input-synaptics-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          rdepend: |
+            x11-base/xorg-server
+            x11-misc/util-macros
+            dev-libs/libevdev
+            x11-libs/libXi
+            x11-libs/libXtst
+
+    - xf86-input-vmmouse:
+        dir:
+          matcher: "xf86-input-mouse-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-input-vmmouse-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          rdepend: |
+            x11-base/xorg-server
+            x11-misc/util-macros
+            x11-libs/libXi
+            x11-libs/libXtst
+          body: |
+            pkg_setup() {
+              append-ldflags -Wl,-z,lazy
+            }
+            src_prepare() {
+              eautoreconf || die
+              default
+            }
+            src_configure() {
+              XORG_CONFIGURE_OPTIONS=(
+                --with-hal-bin-dir=/punt
+                --with-hal-callouts-dir=/punt
+                --with-hal-fdi-dir=/punt
+                --with-udev-rules-dir=$(get_udevdir)/rules.d
+              )
+              econf ${XORG_CONFIGURE_OPTIONS[@]} || die
+            }
+            src_install() {
+              default
+              find "${D}" -type f -name '*.la' -delete || die
+              rm -rf "${ED}"/punt
+            }
 

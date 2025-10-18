@@ -234,6 +234,51 @@ vulkan_pkgs:
               cmake-utils_src_configure
             }
 
+
+glu:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+
+    dir:
+      url: https://archive.mesa3d.org/glu/
+      matcher: "glu-.*.tar.xz$"
+      exclude: "rc"
+
+    transform:
+      - kind: string
+        match: 'glu-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+    vars:
+      desc: The OpenGL Utility Library
+      homepage: https://gitlab.freedesktop.org/mesa/glu
+      inherit:
+        - meson
+      iuse: +libglvnd
+      license: SGI-B-2.0
+      rdepend: |
+        virtual/opengl
+        libglvnd? ( media-libs/libglvnd )
+      depend: '${RDEPEND}'
+      body: |
+        src_configure() {
+          local emesonargs=(
+            -Dgl_provider=$(usex glvnd libglvnd gl)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - glu:
+
+
 mesa:
   generator: builtin-dirlisting
 

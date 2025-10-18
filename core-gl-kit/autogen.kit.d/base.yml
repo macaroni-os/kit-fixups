@@ -235,6 +235,42 @@ vulkan_pkgs:
             }
 
 
+opencl_stuff:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-util
+    github:
+      user: KhronosGroup
+      query: tags
+
+  packages:
+    - opencl-headers:
+        github:
+          repo: OpenCL-Headers
+        vars:
+          inherit:
+            - cmake
+
+    - opencl-icd-loader:
+        github:
+          repo: OpenCL-ICD-Loader
+        vars:
+          rdepend: |
+            !dev-libs/ocl-icd
+          depend: |
+            >=dev-util/opencl-headers-{{ .Values.version }}
+          inherit:
+            - cmake
+            - prefix
+          body: |
+            src_prepare() {
+              hprefixify loader/icd_platform.h
+              cmake_src_prepare
+            }
+
+
 glu:
   generator: builtin-dirlisting
 
@@ -525,6 +561,50 @@ mesa:
 
   packages:
     - mesa:
+
+
+ocl_icd:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      user: OCL-dev
+      query: tags
+
+  packages:
+    - ocl-icd:
+        vars:
+          inherit:
+            - autotools
+            - flag-o-matic
+            - ruby-single
+          extra_envs:
+            - 'USE_RUBY="ruby30 ruby31 ruby32"'
+          bdepend: |
+            ${RUBY_DEPS}
+          depend: |
+            dev-util/opencl-headers
+            app-text/asciidoc
+          rdepend: |
+            !dev-libs/opencl-icd-loader
+          body: |
+            src_prepare() {
+              replace-flags -Os -O2 # bug 646122
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # dev-util/opencl-headers ARE official Khronos Group headers, what this option
+              # does is disable the use of the bundled ones
+              ECONF_SOURCE="${S}" econf --enable-pthread-once --disable-official-khronos-headers
+            }
+            src_install() {
+              default
+              # Drop .la files
+              find "${ED}" -name '*.la' -delete || die
+            }
 
 nvidia_stuff:
   generator: builtin-github

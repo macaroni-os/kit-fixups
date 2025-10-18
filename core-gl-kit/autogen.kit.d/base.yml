@@ -526,18 +526,61 @@ mesa:
   packages:
     - mesa:
 
-libglvnd:
+nvidia_stuff:
   generator: builtin-github
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple-github.tmpl
-    category: media-libs
+    category: gui-libs
     github:
       user: NVIDIA
       query: tags
-
+    vars:
+      inherit:
+        - meson
   packages:
+
+    - egl-gbm:
+        vars:
+          rdepend: |
+            media-libs/mesa[gbm(+)]
+            x11-libs/libdrm
+          depend: |
+            ${RDEPEND}
+            gui-libs/eglexternalplatform
+            media-libs/libglvnd
+          body: |
+            src_install() {
+              meson_src_install
+              insinto /usr/share/egl/egl_external_platform.d
+              doins "${FILESDIR}"/15_nvidia_gbm.json
+            }
+
+    - egl-wayland:
+        vars:
+          rdepend: |
+            dev-libs/wayland
+            x11-libs/libdrm
+          depend: |
+            ${RDEPEND}
+            dev-libs/wayland-protocols
+            gui-libs/eglexternalplatform
+            media-libs/libglvnd
+          bdepend: |
+            dev-util/wayland-scanner
+          patches:
+            - egl-wayland-1.1.6-remove-werror.patch
+          body: |
+            src_install() {
+              meson_src_install
+              insinto /usr/share/egl/egl_external_platform.d
+              doins "${FILESDIR}"/10_nvidia_wayland.json
+            }
+
+    - eglexternalplatform:
+
     - libglvnd:
+        category: media-libs
         vars:
           python_compat: python3+
           inherit:

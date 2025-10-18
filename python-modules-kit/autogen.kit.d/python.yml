@@ -315,6 +315,10 @@ standalone_modules:
         vars:
           iuse: +native-extensions
           body: |
+            src_prepare() {
+              sed -i -e '/^freethreading_compatible/d' pyproject.toml
+              default
+            }
             python_compile() {
               local -x YARL_NO_EXTENSIONS=0
               if ! use native-extensions || [[ ${EPYTHON} != python* ]]; then

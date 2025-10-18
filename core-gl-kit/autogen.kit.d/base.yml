@@ -15,6 +15,32 @@ vulkan_pkgs:
 
   packages:
 
+    - glslang:
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake-utils
+            - python-any-r1
+          depend: |
+            dev-util/spirv-tools
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/spirv-tools
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DALLOW_EXTERNAL_SPIRV_TOOLS=1
+              )
+              cmake-utils_src_configure
+            }
+            # Override the src_install to add additonal libraries
+            src_install() {
+              default
+              cmake-utils_src_install
+              mv ${WORKDIR}/*glslang-*_build/OGLCompilersDLL/libOGLCompiler.a ${ED}/usr/lib64
+              mv ${WORKDIR}/*glslang-*_build/glslang/OSDependent/Unix/libOSDependent.a ${ED}/usr/lib64
+            }
+
     - spirv-tools:
         github:
           repo: SPIRV-Tools

@@ -296,6 +296,50 @@ opencl_stuff:
               cmake_src_prepare
             }
 
+freeglut:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: tags
+
+  packages:
+
+    - freeglut:
+        exclude:
+          - "rc"
+        vars:
+          inherit:
+            - cmake
+          iuse: static-libs
+          rdepend: |
+            virtual/glu
+            virtual/opengl
+            x11-libs/libX11
+            x11-libs/libXext
+            x11-libs/libXi
+            x11-libs/libXrandr
+            x11-libs/libXxf86vm
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                "-DFREEGLUT_GLES=OFF"
+                "-DFREEGLUT_BUILD_DEMOS=OFF"
+                "-DFREEGLUT_BUILD_STATIC_LIBS=$(usex static-libs ON OFF)"
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              cp "${ED}"/usr/$(get_libdir)/pkgconfig/{,free}glut.pc || die
+            }
 
 glu:
   generator: builtin-dirlisting

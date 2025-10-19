@@ -1008,9 +1008,8 @@ wacom:
             }
 
 
-x11_video_drivers:
+x11_video_drivers_meson:
   generator: builtin-dirlisting
-
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
@@ -1023,17 +1022,17 @@ x11_video_drivers:
       inherit:
         - meson
         - flag-o-matic
-      desc: Accelerated Open Source driver for AMDGPU cards
       license: MIT
       iuse: udev
       rdepend: |
-        x11-libs/libdrm[video_cards_amdgpu]
+        media-libs/mesa
         x11-base/xorg-server
         udev? ( virtual/libudev:= )
+        x11-libs/libpciaccess
+        {{ .Values.rdepend_extra | default "" }}
       depend: |
         ${RDEPEND}
         x11-base/xorg-proto
-        x11-libs/libpciaccess
       bdepend: |
         virtual/pkgconfig
       body: |
@@ -1044,7 +1043,7 @@ x11_video_drivers:
         src_configure() {
           local emesonargs=(
             -Ddefault_library=shared
-            -Dglamor=enabled
+            {{ .Values.meson_opts }}
             $(meson_feature udev)
           )
           meson_src_configure
@@ -1053,12 +1052,184 @@ x11_video_drivers:
   packages:
     - xf86-video-amdgpu:
         vars:
+          meson_opts: |
+            -Dglamor=enabled
+          rdepend_extra: |
+            x11-libs/libdrm[video_cards_amdgpu]
           homepage: 'https://www.x.org/wiki/ https://gitlab.freedesktop.org/xorg/driver/xf86-video-amdgpu'
+          desc: Accelerated Open Source driver for AMDGPU cards
         dir:
           matcher: "xf86-video-amdgpu-.*.tar.xz$"
         transform:
           - kind: string
             match: 'xf86-video-amdgpu-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+
+x11_video_drivers_configure:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-drivers
+
+    dir:
+      url: https://www.x.org/releases/individual/driver/
+      exclude: "99.*"
+    vars:
+      inherit:
+        - autotools
+        - flag-o-matic
+      license: MIT
+      rdepend: |
+        media-libs/mesa
+        x11-base/xorg-server
+        x11-misc/util-macros
+        x11-libs/libpciaccess
+        {{ .Values.rdepend_extra | default "" }}
+      depend: |
+        ${RDEPEND}
+        x11-base/xorg-proto
+        sys-devel/m4
+        sys-devel/libtool
+      bdepend: |
+        virtual/pkgconfig
+      extra_envs:
+        - 'WANT_AUTOCONF="latest"'
+        - 'WANT_AUTOMAKE="latest"'
+        - 'AUTOTOOLS_AUTORECONF="1"'
+      body: |
+        pkg_setup() {
+          filter-flags -fno-plt
+          append-ldflags -Wl,-z,lazy
+        }
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local econfargs=(
+            --enable-shared
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+        }
+
+  packages:
+
+    - xf86-video-ati:
+        vars:
+          iuse: udev
+          econf_args_extra: |
+            --enable-glamor
+            $(use_enable udev)
+          rdepend_extra: |
+            x11-libs/libdrm[video_cards_radeon]
+            udev? ( virtual/libudev:= )
+          homepage: https://www.x.org/wiki/ati/
+          desc: "ATI video driver"
+        dir:
+          matcher: "xf86-video-ati-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-ati-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-dummy:
+        vars:
+          desc: "X.Org driver for dummy cards"
+        dir:
+          matcher: "xf86-video-dummy-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-dummy-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-fbdev:
+        vars:
+          desc: "video driver for framebuffer device"
+        dir:
+          matcher: "xf86-video-fbdev-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-fbdev-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-nouveau:
+        vars:
+          desc: "Accelerated Open Source driver for nVidia cards"
+          homepage: https://nouveau.freedesktop.org/ https://gitlab.freedesktop.org/xorg/driver/xf86-video-nouveau
+          rdepend_extra: |
+            x11-libs/libdrm[video_cards_nouveau]
+        dir:
+          matcher: "xf86-video-nouveau-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-nouveau-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-vbox:
+        vars:
+          desc: "Driver for xorg-server"
+          s: '"${WORKDIR}"/{{ .Values.pn }}video-{{ .Values.version }}'
+          rdepend_extra: |
+            x11-libs/libXcomposite
+        dir:
+          matcher: "xf86-video-vboxvideo-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-vboxvideo-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-vesa:
+        vars:
+          desc: "Driver for xorg-server"
+        dir:
+          matcher: "xf86-video-vesa-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-vesa-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - xf86-video-vmware:
+        vars:
+          desc: "Driver for xorg-server"
+          rdepend_extra: |
+            x11-libs/libdrm[libkms,video_cards_vmware]
+            || (
+              media-libs/mesa[xa]
+              media-libs/mesa[video_cards_xa]
+            )
+        dir:
+          matcher: "xf86-video-vmware-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-vmware-'
             replace: ''
           - kind: string
             match: '.tar.xz'

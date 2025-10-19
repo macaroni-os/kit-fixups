@@ -1006,3 +1006,60 @@ wacom:
                 rm -rf "${ED}"/lib/systemd
               fi
             }
+
+
+x11_video_drivers:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-drivers
+
+    dir:
+      url: https://www.x.org/releases/individual/driver/
+      exclude: "99.*"
+    vars:
+      inherit:
+        - meson
+        - flag-o-matic
+      desc: Accelerated Open Source driver for AMDGPU cards
+      license: MIT
+      iuse: udev
+      rdepend: |
+        x11-libs/libdrm[video_cards_amdgpu]
+        x11-base/xorg-server
+        udev? ( virtual/libudev:= )
+      depend: |
+        ${RDEPEND}
+        x11-base/xorg-proto
+        x11-libs/libpciaccess
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        pkg_setup() {
+          filter-flags -fno-plt
+          append-ldflags -Wl,-z,lazy
+        }
+        src_configure() {
+          local emesonargs=(
+            -Ddefault_library=shared
+            -Dglamor=enabled
+            $(meson_feature udev)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - xf86-video-amdgpu:
+        vars:
+          homepage: 'https://www.x.org/wiki/ https://gitlab.freedesktop.org/xorg/driver/xf86-video-amdgpu'
+        dir:
+          matcher: "xf86-video-amdgpu-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xf86-video-amdgpu-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''

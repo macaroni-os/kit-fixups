@@ -386,3 +386,63 @@ x11_base_dirlisting:
             video_cards_vmware? ( x11-drivers/xf86-video-vmware )
 
 
+x11_libs_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-libs
+    dir:
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      exclude: ".99"
+    vars:
+      license: MIT
+      xorg_path: lib/
+      inherit:
+        - autotools
+        - flag-o-matic
+      rdepend: |
+        x11-libs/libX11
+        x11-libs/libXext
+        {{ .Values.rdepend_extra }}
+      depend: |
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        x11-misc/util-macros
+        media-fonts/font-util
+        x11-base/xorg-proto
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local econfargs=(
+            --enable-shared
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+        }
+
+  packages:
+    - libXScrnSaver:
+        dir:
+          matcher: "libXScrnSaver-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'libXScrnSaver-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''

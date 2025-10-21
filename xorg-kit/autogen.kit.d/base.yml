@@ -12,10 +12,48 @@ x11_base_dirlisting:
       exclude: ".99"
     vars:
       license: MIT
-      inherit:
-        - meson
 
   packages:
+
+    - xcb-proto:
+        dir:
+          matcher: "xcb-proto-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xcb-proto-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc:  C-language Bindings protocol headers
+          homepage: https://xcb.freedesktop.org/ https://gitlab.freedesktop.org/xorg/proto/xcbproto
+          xorg_path: proto/
+          python_compat: python3+
+          required_use: '${PYTHON_REQUIRED_USE}'
+          inherit:
+            - python-r1
+          rdepend: |
+            ${PYTHON_DEPS}
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/libxml2
+          body: |
+            src_configure() {
+              PYTHON=true default
+            }
+            src_compile() {
+              :
+            }
+            xcbgen_install() {
+              emake -C xcbgen install DESTDIR="${D}" pythondir="$(python_get_sitedir)"
+              python_optimize
+            }
+            src_install() {
+              # Restrict SUBDIRS to prevent xcbgen with empty sitedir.
+              emake install DESTDIR="${D}" SUBDIRS=src
+              python_foreach_impl xcbgen_install
+            }
 
     - xorg-proto:
         dir:
@@ -154,6 +192,8 @@ x11_base_dirlisting:
           desc: x.org X server
           homepage: https://www.x.org/wiki
           iuse: kdrive xephyr xnest xorg xvfb debug +elogind minimal selinux +suid +udev unwind xcsecurity systemd
+          inherit:
+            - meson
           cdepend: |
             dev-libs/libbsd
             dev-libs/openssl
@@ -285,3 +325,64 @@ x11_base_dirlisting:
                 rm -rf "${EROOT}"/usr/$(get_libdir)/xorg/modules
               fi
             }
+
+    # NOTE: we use xorg-server version to generate xorg-drivers
+    - xorg-drivers:
+        ignore_artefacts: true
+        dir:
+          matcher: "xorg-server-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xorg-server-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          xorg_path: xserver/
+          desc: Meta package containing deps on all xorg drivers
+          iuse: '${IUSE_VIDEO_CARDS} ${USE_INPUT_DEVICES}'
+          extra_envs:
+            - |
+              USE_INPUT_DEVICES="
+                input_devices_evdev
+                input_devices_libinput
+                input_devices_mouse
+                input_devices_vmmouse
+                input_devices_synaptics
+                input_devices_wacom
+              "
+            - |
+              IUSE_VIDEO_CARDS="
+                video_cards_amdgpu
+                video_cards_dummy
+                video_cards_fbdev
+                video_cards_nouveau
+                video_cards_vesa
+                video_cards_virtualbox
+                video_cards_vmware
+                video_cards_nvidia
+              "
+          pdepend: |
+            input_devices_evdev? (
+              >=x11-base/xorg-server-{{ .Values.version }}[udev]
+              x11-drivers/xf86-input-evdev
+            )
+            input_devices_libinput?    (
+              >=x11-base/xorg-server-{{ .Values.version }}[udev]
+              x11-drivers/xf86-input-libinput
+            )
+            input_devices_mouse? ( x11-drivers/xf86-input-mouse )
+            input_devices_vmmouse? ( x11-drivers/xf86-input-vmmouse )
+            input_devices_synaptics? ( x11-drivers/xf86-input-synaptics )
+            input_devices_wacom? ( x11-drivers/xf86-input-wacom )
+            video_cards_amdgpu? ( x11-drivers/xf86-video-amdgpu )
+            video_cards_dummy? ( x11-drivers/xf86-video-dummy )
+            video_cards_fbdev? ( x11-drivers/xf86-video-fbdev )
+            video_cards_nouveau? ( x11-drivers/xf86-video-nouveau )
+            video_cards_nvidia? ( x11-drivers/nvidia-drivers )
+            video_cards_vesa? ( x11-drivers/xf86-video-vesa )
+            video_cards_virtualbox? ( x11-drivers/xf86-video-vbox )
+            video_cards_vmware? ( x11-drivers/xf86-video-vmware )
+
+

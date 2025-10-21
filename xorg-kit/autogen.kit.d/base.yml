@@ -8,16 +8,52 @@ x11_base_dirlisting:
     template: ../../templates/simple.tmpl
     category: x11-base
     dir:
-      url: https://www.x.org/releases/individual/xserver/
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
       exclude: ".99"
-    assets:
-      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
     vars:
       license: MIT
       inherit:
         - meson
 
   packages:
+
+    - xorg-proto:
+        dir:
+          matcher: "xorgproto-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'xorgproto-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: X.Org combined protocol headers
+          homepage: https://gitlab.freedesktop.org/xorg/proto/xorgproto
+          xorg_path: proto/
+          python_compat: python3+
+          s: '"${WORKSPACE}"/{{ .Values.pn | replace "-" "" }}'
+          inherit:
+            - meson
+            - python-any-r1
+          body: |
+            src_configure() {
+              local emesonargs=(
+                --datadir=/usr/share
+                -Dlegacy=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              DOCS=(
+                AUTHORS
+                PM_spec
+                $(set +f; echo COPYING-*)
+                $(set +f; echo *.txt | grep -v meson.txt)
+              )
+              einstalldocs
+            }
 
     - xwayland:
         dir:
@@ -33,6 +69,7 @@ x11_base_dirlisting:
           # xwayland 24 needs xorg-proto-2024.1
           - '<24.0'
         vars:
+          xorg_path: xserver/
           desc: Compatibility X server to run under Wayland
           homepage: https://wayland.freedesktop.org/xserver.html
           iuse: rpc selinux unwind video_cards_nvidia xcsecurity
@@ -113,6 +150,7 @@ x11_base_dirlisting:
             match: '.tar.xz'
             replace: ''
         vars:
+          xorg_path: xserver/
           desc: x.org X server
           homepage: https://www.x.org/wiki
           iuse: kdrive xephyr xnest xorg xvfb debug +elogind minimal selinux +suid +udev unwind xcsecurity systemd

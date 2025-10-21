@@ -105,15 +105,10 @@ target:
     - pkg: x11-apps/xwd
     - pkg: x11-apps/xwininfo
     - pkg: x11-apps/xwud
+
     - pkg: x11-base/xorg-drivers
 
-
     - pkg: x11-base/xcb-proto
-    - pkg: x11-base/xorg-proto
-    - pkg: x11-base/xorg-proto
-      conditions:
-        - '=x11-base/xorg-proto-2023.2'
-
 
     - pkg: x11-libs/cairo
     - pkg: x11-libs/libX11
@@ -257,5 +252,3 @@ target:
     - pkg: virtual/glu
     - pkg: virtual/opengl
     - pkg: virtual/freedesktop-icon-theme
-
-

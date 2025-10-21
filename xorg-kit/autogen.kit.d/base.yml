@@ -406,6 +406,7 @@ x11_libs_dirlisting:
         x11-libs/libXext
         {{ .Values.rdepend_extra }}
       depend: |
+        ${RDEPEND}
         sys-devel/autoconf
         sys-devel/automake
         sys-devel/libtool
@@ -439,6 +440,22 @@ x11_libs_dirlisting:
         transform:
           - kind: string
             match: 'libXScrnSaver-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+
+    - libXaw:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXmu
+            x11-libs/libXpm
+            x11-libs/libXt
+        dir:
+          matcher: "libXaw-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'libXaw-'
             replace: ''
           - kind: string
             match: '.tar.xz'

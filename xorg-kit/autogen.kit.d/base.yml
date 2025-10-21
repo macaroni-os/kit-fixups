@@ -103,9 +103,6 @@ x11_base_dirlisting:
           - kind: string
             match: '.tar.xz'
             replace: ''
-        selector:
-          # xwayland 24 needs xorg-proto-2024.1
-          - '<24.0'
         vars:
           xorg_path: xserver/
           desc: Compatibility X server to run under Wayland

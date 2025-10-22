@@ -395,16 +395,26 @@ x11_libs_dirlisting:
     dir:
       url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
       exclude: ".99"
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
     vars:
       license: MIT
       xorg_path: lib/
       inherit:
         - autotools
         - flag-o-matic
+      homepage: 'https://gitlab.freedesktop.org/xorg/lib/{{ .Values.pn }}'
+      desc: 'X.Org {{ .Values.pn | replace "lib" "" }} library'
       rdepend: |
         x11-libs/libX11
         x11-libs/libXext
-        {{ .Values.rdepend_extra }}
+        {{ .Values.rdepend_extra | default "" }}
       depend: |
         ${RDEPEND}
         sys-devel/autoconf
@@ -414,16 +424,24 @@ x11_libs_dirlisting:
         x11-misc/util-macros
         media-fonts/font-util
         x11-base/xorg-proto
+        {{ .Values.depend_extra | default "" }}
       bdepend: |
         virtual/pkgconfig
       body: |
+        {{ .Values.body_extra | default "" }}
         src_prepare() {
           eautoreconf || die
           default
         }
         src_configure() {
+          local no_static=""
+          # Check if package supports disabling of static libraries
+          if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+            no_static="--disable-static"
+          fi
           local econfargs=(
             --enable-shared
+            ${no_static}
             {{ .Values.econf_args_extra | default "" }}
           )
           econf "${econfargs[@]}"
@@ -431,19 +449,11 @@ x11_libs_dirlisting:
         src_install() {
           default
           find "${D}" -type f -name '*.la' -delete || die
+          {{ .Values.src_install_extra | default "" }}
         }
 
   packages:
     - libXScrnSaver:
-        dir:
-          matcher: "libXScrnSaver-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: 'libXScrnSaver-'
-            replace: ''
-          - kind: string
-            match: '.tar.xz'
-            replace: ''
 
     - libXaw:
         vars:
@@ -451,12 +461,273 @@ x11_libs_dirlisting:
             x11-libs/libXmu
             x11-libs/libXpm
             x11-libs/libXt
-        dir:
-          matcher: "libXaw-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: 'libXaw-'
-            replace: ''
-          - kind: string
-            match: '.tar.xz'
-            replace: ''
+
+    - libXcursor:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXrender
+            x11-libs/libXfixes
+          econf_args_extra: |
+            --with-icondir="${EPREFIX}"/usr/share/cursors/xorg-x11
+            --with-cursorpath='~/.cursors:~/.icons:/usr/local/share/cursors/xorg-x11:/usr/local/share/cursors:/usr/local/share/icons:/usr/local/share/pixmaps:/usr/share/cursors/xorg-x11:/usr/share/cursors:/usr/share/pixmaps/xorg-x11:/usr/share/icons:/usr/share/pixmaps'
+
+    - libXfont2:
+        vars:
+          iuse: bzip2 ipv6 truetype
+          rdepend_extra: |
+            x11-libs/libfontenc
+            x11-libs/xtrans
+            bzip2? ( app-arch/bzip2 )
+            truetype? ( media-libs/freetype )
+          econf_args_extra: |
+            $(use_enable ipv6)
+            $(use_with bzip2)
+            $(use_enable truetype freetype)
+            --without-fop
+
+    - libXinerama:
+
+    - libXpm:
+        vars:
+          depend_extra: |
+            sys-devel/gettext
+    - libXv:
+    - libXxf86dga:
+    - libdmx:
+    - libXau:
+    - libXdmcp:
+        vars:
+          rdepend: |
+            || (
+              sys-libs/glibc
+              dev-libs/libbsd
+            )
+          econf_args_extra: |
+            --without-fop
+          desc: X.Org X Display Manager Control Protocol library
+
+    - libXext:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+          econf_args_extra: |
+            --without-fop
+
+    - libXrender:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+
+    - libfontenc:
+        vars:
+          rdepend: |
+            sys-libs/zlib
+          econf_args_extra: |
+            --with-encodingsdir="${EPREFIX}/usr/share/fonts/encodings"
+
+    - libICE:
+        vars:
+          iuse: ipv6
+          rdepend: |
+            || (
+              sys-libs/glibc
+              dev-libs/libbsd
+            )
+            x11-libs/xtrans
+          econf_args_extra: |
+            $(use_enable ipv6)
+            --disable-docs
+            --disable-specs
+            --without-fop
+
+    - libSM:
+        vars:
+          iuse: +uuid ipv6
+          rdepend: |
+            uuid? ( sys-apps/util-linux )
+            x11-libs/libICE
+          depend_extra: |
+            x11-libs/xtrans
+          econf_args_extra: |
+            $(use_enable ipv6)
+            $(use_with uuid libuuid)
+            --disable-docs
+            --without-fop
+
+    - libXcomposite:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+          depend_extra: |
+            x11-libs/libXfixes
+
+    - libXdamage:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+          depend_extra: |
+            x11-libs/libXfixes
+
+    - libXfixes:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+
+    - libXft:
+        vars:
+          rdepend_extra: |
+            media-libs/fontconfig
+            media-libs/freetype
+            virtual/ttf-fonts
+            x11-libs/libXrender
+
+    - libXi:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXfixes
+          econf_args_extra: |
+            --without-fop
+
+    - libXmu:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXt
+          econf_args_extra: |
+            --without-fop
+
+    - libXrandr:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXrender
+
+    - libXt:
+        vars:
+          desc: X.Org X Toolkit Intrinsics library
+          rdepend_extra: |
+            x11-libs/libICE
+            x11-libs/libSM
+          econf_args_extra: |
+            --without-fop
+
+    - libXtst:
+        vars:
+          desc: X.Org Xlib-based client API for the XTEST & RECORD extensions library
+          rdepend_extra: |
+            x11-libs/libXi
+
+    - libXxf86vm:
+
+    - libxcb:
+        vars:
+          iuse: +xkb
+          python_compat: python3+
+          extra_envs:
+            - 'PYTHON_REQ_USE=xml'
+          inherit:
+            - autotools
+            - flag-o-matic
+            - python-any-r1
+          rdepend: |
+            x11-libs/libXau
+            x11-libs/libXdmcp
+          depend_extra: |
+            >=x11-base/xcb-proto-${PV}
+          bdepend: |
+            virtual/pkgconfig
+            ${PYTHON_DEPS}
+          body_extra: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+          econf_args_extra: |
+            $(use_enable xkb)
+            --enable-xinput
+
+    - libX11:
+        vars:
+          iuse: ipv6
+          inherit:
+            - autotools
+            - flag-o-matic
+            - toolchain-funcs
+          rdepend: |
+            x11-libs/libxcb
+            x11-misc/compose-tables
+          depend_extra: |
+            x11-libs/xtrans
+          econf_args_extra: |
+            $(use_enable ipv6)
+            --without-fop
+            --with-keysymdefdir="${ESYSROOT}/usr/include/X11"
+          src_install_extra: |
+            rm -rf "${ED}"/usr/share/X11/locale
+
+    - xtrans:
+        vars:
+          rdepend:
+          econf_args_extra: |
+            --without-fop
+
+
+x11_libs_meson_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-libs
+    dir:
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      exclude: ".99"
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      license: MIT
+      xorg_path: lib/
+      inherit:
+        - meson
+        - flag-o-matic
+      homepage: 'https://gitlab.freedesktop.org/xorg/lib/{{ .Values.pn }}'
+      desc: 'X.Org {{ .Values.pn | replace "lib" "" }} library'
+      rdepend: |
+        x11-libs/libX11
+        x11-libs/libXext
+        {{ .Values.rdepend_extra | default "" }}
+      depend: |
+        ${RDEPEND}
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        x11-misc/util-macros
+        media-fonts/font-util
+        x11-base/xorg-proto
+        {{ .Values.depend_extra | default "" }}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        src_configure() {
+          local emesonargs=(
+            -Ddefault_library=shared
+            {{ .Values.emeson_args_extra | default "" }}
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - libXpresent:
+        vars:
+          rdepend_extra: |
+            x11-libs/libXfixes
+            x11-libs/libXrandr
+
+    - libXres:
+    - libXvMC:

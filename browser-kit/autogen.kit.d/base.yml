@@ -12,7 +12,7 @@ brave_github:
         github:
           user: brave
           repo: brave-browser
-          num_pages: 4
+          num_pages: 5
           per_page: 100
           match: Release
         transform:
@@ -35,6 +35,10 @@ brave_github:
         assets:
           - name: '{{ .Values.pn }}-{{ .Values.version }}-linux-amd64.zip'
             matcher: '{{ .Values.pn | replace "-bin" "" }}-browser-.*-linux-amd64.zip$'
+
+        exclude:
+          # Broken release without tarball
+          - 1.83.119
 
         vars:
           desc: Brave Web Browser

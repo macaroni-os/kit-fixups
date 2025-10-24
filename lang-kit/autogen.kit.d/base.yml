@@ -324,3 +324,47 @@ zig:
               fperms 0755 /usr/bin/zig
             }
 
+
+swig:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-lang
+    template: ../../templates/simple.tmpl
+
+    dir:
+      url: https://sourceforge.net/projects/swig/files/swig/
+      matcher: "swig-4"
+      exclude: "beta|timeline"
+    transform:
+      - kind: string
+        match: swig-
+        replace: ""
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+        url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+    vars:
+      desc: Simplified Wrapper and Interface Generator
+      license: GPL-3+ BSD BSD-2
+      homepage: http://www.swig.org/
+      iuse: ccache pcre
+      rdepend: |
+        pcre? ( dev-libs/libpcre )
+        ccache? ( sys-libs/zlib )
+      depend: '${RDEPEND}'
+      docs:
+        - ANNOUNCE
+        - CHANGES
+        - CHANGES.current
+        - README
+        - TODO
+      body: |
+        src_configure() {
+          econf \
+            $(use_enable ccache) \
+            $(use_with pcre)
+        }
+
+  packages:
+    - swig:

@@ -1289,3 +1289,40 @@ lttng:
               default
               find "${ED}" -name '*.la' -delete || die
             }
+
+
+devlibs_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      query: releases
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - jansson:
+        github:
+          user: akheron
+        vars:
+          iuse: static-libs
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              ECONF_SOURCE="${S}" econf \
+                $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              find "${D}" -name '*.la' -delete || die
+            }
+

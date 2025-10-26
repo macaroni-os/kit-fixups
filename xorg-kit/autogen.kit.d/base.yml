@@ -668,6 +668,10 @@ x11_libs_dirlisting:
           econf_args_extra: |
             --without-fop
 
+    - libxshmfence:
+        vars:
+          desc: Shared memory fences using futexes
+
 
 x11_libs_meson_dirlisting:
   generator: builtin-dirlisting
@@ -723,6 +727,19 @@ x11_libs_meson_dirlisting:
         }
 
   packages:
+
+    - libpciaccess:
+        vars:
+          iuse: zlib
+          desc: Library providing generic access to the PCI bus and devices
+          depend_extra: |
+            zlib? ( sys-libs/zlib:= )
+          rdepend_extra: |
+            sys-apps/hwdata
+          emeson_args_extra: |
+            -Dpci-ids="${EPREFIX}"/usr/share/hwdata
+            $(meson_feature zlib)
+
     - libXpresent:
         vars:
           rdepend_extra: |
@@ -850,7 +867,6 @@ compose_tables:
             --without-fop
             --disable-specs
             --disable-xkb
-
 
 libdrm:
   generator: builtin-dirlisting
@@ -1382,3 +1398,128 @@ x11_apps_econf_dirlisting:
           rdepend: |
             x11-libs/libXt
             x11-libs/libXmu
+
+
+x11_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: x11-libs
+    github:
+      query: tags
+
+  packages:
+    - libxkbcommon:
+        transform:
+          - kind: string
+            match: "xkbcommon-"
+            replace: ""
+        github:
+          user: xkbcommon
+        selector:
+          # >=1.10.0 requires bison 3.6
+          - '<=1.9.2'
+        vars:
+          inherit:
+            - meson
+          iuse: static-libs tools wayland X
+          bdepend: |
+            sys-devel/bison
+            wayland? ( dev-util/wayland-scanner )
+          rdepend: |
+            X? ( x11-libs/libxcb[xkb] )
+            wayland? ( dev-libs/wayland )
+            dev-libs/libxml2
+            x11-misc/compose-tables
+          depend: |
+            ${RDEPEND}
+            X? ( x11-base/xorg-proto )
+            wayland? ( dev-libs/wayland-protocols )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddefault_library="$(usex static-libs both shared)"
+                -Dxkb-config-root="${EPREFIX}/usr/share/X11/xkb"
+                -Denable-docs=false
+                $(meson_use tools enable-tools)
+                $(meson_use X enable-x11)
+                $(meson_use wayland enable-wayland)
+              )
+              meson_src_configure
+            }
+
+xcb_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-libs
+    dir:
+      url: 'https://xcb.freedesktop.org/dist/'
+      exclude: ".99"
+      matcher: "{{ .Values.pn }}-[0-9]+.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      homepage: https://xcb.freedesktop.org/
+      inherit:
+        - autotools
+        - flag-o-matic
+      rdepend: |
+        x11-libs/libxcb
+        {{ .Values.rdepend_extra | default "" }}
+      depend: |
+        ${RDEPEND}
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        dev-util/gperf
+        {{ .Values.depend_extra | default "" }}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        {{ .Values.body_extra | default "" }}
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local no_static=""
+          # Check if package supports disabling of static libraries
+          if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+            no_static="--disable-static"
+          fi
+          local econfargs=(
+            --enable-shared
+            ${no_static}
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+          {{ .Values.src_install_extra | default "" }}
+        }
+
+  packages:
+    - xcb-util:
+        pdepend: |
+          x11-libs/xcb-util-cursor:=
+          x11-libs/xcb-util-renderutil:=
+          >=x11-libs/xcb-util-image-{{ .Values.version }}:=
+          >=x11-libs/xcb-util-keysyms-{{ .Values.version }}:=
+          >=x11-libs/xcb-util-wm-{{ .Values.version }}:=
+
+
+

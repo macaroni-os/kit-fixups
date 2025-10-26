@@ -736,3 +736,10 @@ x11_libs_meson_dirlisting:
         vars:
           license: BSD
           desc: X.Org xcvt library and cvt program
+          rdepend:
+          depend: |
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+            x11-misc/util-macros

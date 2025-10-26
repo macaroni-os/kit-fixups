@@ -743,3 +743,186 @@ x11_libs_meson_dirlisting:
             sys-devel/libtool
             sys-devel/m4
             x11-misc/util-macros
+
+    - pixman:
+        vars:
+          rdepend:
+          depend: |
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+          desc: Low-level pixel manipulation routines
+          homepage: http://www.pixman.org/ https://gitlab.freedesktop.org/pixman/pixman/
+          iuse: |
+            cpu_flags_x86_mmxext cpu_flags_x86_sse2 cpu_flags_x86_ssse3 cpu_flags_ppc_altivec cpu_flags_arm_neon cpu_flags_arm_iwmmxt loongson2f cpu_flags_arm64_neon
+          emeson_args_extra: |
+            $(meson_feature cpu_flags_x86_mmxext mmx)
+            $(meson_feature cpu_flags_x86_sse2 sse2)
+            $(meson_feature cpu_flags_x86_ssse3 ssse3)
+            $(meson_feature cpu_flags_ppc_altivec vmx)
+            $(meson_feature cpu_flags_arm_neon neon)
+            $(meson_feature cpu_flags_arm64_neon a64-neon)
+            $(meson_feature loongson2f loongson-mmi)
+            -Ddemos=disabled
+            -Dgtk=disabled
+            -Dlibpng=disabled
+
+
+# Special package that use libX11 tarball
+compose_tables:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-misc
+    dir:
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      exclude: ".99"
+      matcher: "{{ .Values.tarball_prefix }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.tarball_prefix }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      license: MIT
+      xorg_path: lib/
+      inherit:
+        - autotools
+        - flag-o-matic
+      homepage: 'https://gitlab.freedesktop.org/xorg/lib/{{ .Values.pn }}'
+      desc: 'X.Org {{ .Values.pn | replace "lib" "" }} library'
+      rdepend: |
+        {{ .Values.rdepend_extra | default "" }}
+      depend: |
+        ${RDEPEND}
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        x11-misc/util-macros
+        media-fonts/font-util
+        x11-base/xorg-proto
+        {{ .Values.depend_extra | default "" }}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        {{ .Values.body_extra | default "" }}
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local no_static=""
+          # Check if package supports disabling of static libraries
+          if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+            no_static="--disable-static"
+          fi
+          local econfargs=(
+            --enable-shared
+            ${no_static}
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_compile() {
+          emake -C nls
+        }
+        src_install() {
+          emake DESTDIR="${D}" -C nls install
+          find "${D}" -type f -name '*.la' -delete || die
+        }
+
+  packages:
+    - compose-tables:
+        vars:
+          s: '${WORKDIR}/{{ .Values.tarball_prefix }}-{{ .Values.version }}'
+          tarball_prefix: libX11
+          econf_args_extra: |
+            --without-fop
+            --without-xmlto
+            --without-fop
+            --disable-specs
+            --disable-xkb
+
+
+libdrm:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-libs
+    dir:
+      url: 'https://dri.freedesktop.org/libdrm/'
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      inherit:
+        - meson
+      license: MIT
+      desc: X.Org libdrm library
+      homepage: https://dri.freedesktop.org/
+      video_cards:
+        - amdgpu
+        - radeon
+        - exynos
+        - freedreno
+        - intel
+        - nouveau
+        - omap
+        - radeon
+        - tegra
+        - vc4
+        - vivante
+        - vmware
+      rdepend: |
+        video_cards_intel? ( x11-libs/libpciaccess )
+      depend: |
+        ${RDEPEND}
+        valgrind? ( dev-util/valgrind )
+      iuse: |
+        libkms valgrind
+        {{- range $target := .Values.video_cards }} video_cards_{{ $target }} {{- end }}
+      body: |
+        VIDEO_CARDS="{{- range $target := .Values.video_cards }}{{ $target }} {{ end }}"
+        src_configure() {
+          local emesonargs=(
+            # Udev is only used by tests now.
+            -Dudev=false
+            -Dcairo-tests=disabled
+            $(meson_feature video_cards_amdgpu amdgpu)
+            $(meson_feature video_cards_radeon radeon)
+            $(meson_feature video_cards_exynos exynos)
+            $(meson_feature video_cards_freedreno freedreno)
+            $(meson_feature video_cards_intel intel)
+            $(meson_feature video_cards_nouveau nouveau)
+            $(meson_feature video_cards_omap omap)
+            $(meson_feature video_cards_radeon radeon)
+            $(meson_feature video_cards_tegra tegra)
+            $(meson_feature video_cards_vc4 vc4)
+            $(meson_feature video_cards_vivante etnaviv)
+            $(meson_feature video_cards_vmware vmwgfx)
+            # valgrind installs its .pc file to the pkgconfig for the primary arch
+            $(meson_feature valgrind)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - libdrm:
+

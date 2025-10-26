@@ -1305,6 +1305,66 @@ x11_apps_econf_dirlisting:
             x11-libs/libxcb
             x11-libs/libX11
 
+    - xwud:
+        vars:
+          desc: image displayer for X
+          rdepend: |
+            x11-libs/libX11
+
+    - xvidtune:
+        vars:
+          desc: video mode tuner for Xorg
+          rdepend: |
+            x11-libs/libXaw
+            x11-libs/libXmu
+            x11-libs/libX11
+            x11-libs/libXt
+            x11-libs/libXxf86vm
+
+    - xinit:
+        vars:
+          desc: X Window System initializer
+          iuse: +minimal
+          license: MIT GPL-2
+          rdepend: |
+            x11-apps/xauth
+            x11-libs/libX11
+          pdepend: |
+            x11-apps/xrdb
+            !minimal? (
+              x11-apps/xclock
+              x11-apps/xsm
+              x11-terms/xterm
+              x11-wm/twm
+            )
+          patches:
+            - xinit-1.4.4-gentoo-customizations.patch
+            - xinit-1.4.4-startx-current-vt.patch
+          econf_args_extra: |
+            --with-xinitdir="${EPREFIX}"/etc/X11/xinit
+          src_install_extra: |
+            exeinto /etc/X11
+            doexe "${FILESDIR}"/chooser.sh "${FILESDIR}"/startDM.sh
+            exeinto /etc/X11/Sessions
+            doexe "${FILESDIR}"/Xsession
+            exeinto /etc/X11/xinit
+            newexe "${FILESDIR}"/xserverrc.1 xserverrc
+            exeinto /etc/X11/xinit/xinitrc.d/
+            doexe "${FILESDIR}"/00-xhost
+            insinto /usr/share/xsessions
+            doins "${FILESDIR}"/Xsession.desktop
+          body_extra: |
+            pkg_postinst() {
+              ewarn "If you use startx to start X instead of a login manager like gdm/kdm,"
+              ewarn "you can set the XSESSION variable to anything in /etc/X11/Sessions/ or"
+              ewarn "any executable. When you run startx, it will run this as the login session."
+              ewarn "You can set this in a file in /etc/env.d/ for the entire system,"
+              ewarn "or set it per-user in ~/.bash_profile (or similar for other shells)."
+              ewarn "Here's an example of setting it for the whole system:"
+              ewarn "    echo XSESSION=\"Gnome\" > /etc/env.d/90xsession"
+              ewarn "    env-update && source /etc/profile"
+            }
+
     - sessreg:
         vars:
           desc: manage utmp/wtmp entries for non-init clients

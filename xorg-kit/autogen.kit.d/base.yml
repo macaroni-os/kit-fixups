@@ -926,3 +926,399 @@ libdrm:
   packages:
     - libdrm:
 
+x11_apps_econf_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-apps
+    dir:
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      exclude: ".99"
+      matcher: '{{ .Values.pn }}-.*.{{ .Values.tar_suffix | default "tar.xz" }}$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.{{ .Values.tar_suffix | default "tar.xz" }}'
+        replace: ''
+    vars:
+      license: MIT
+      xorg_path: app/
+      desc: 'X.Org {{ .Values.pn }} application'
+      inherit:
+        - autotools
+        - flag-o-matic
+      depend: |
+        ${RDEPEND}
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        x11-misc/util-macros
+        x11-base/xorg-proto
+        {{ .Values.depend_extra | default "" }}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        {{ .Values.body_extra | default "" }}
+        src_prepare() {
+          {{ .Values.src_prepare_extra | default "" }}
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local no_static=""
+          local shared=""
+          # Check if package supports disabling of static libraries
+          if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+            no_static="--disable-static"
+          fi
+          if grep -q -s "enable-shared" ${ECONF_SOURCE:-.}/configure; then
+            shared="--enable-shared"
+          fi
+          local econfargs=(
+            ${shared}
+            ${no_static}
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+          {{ .Values.src_install_extra | default "" }}
+        }
+
+  packages:
+    - appres:
+        vars:
+          desc: list X application resource database
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXt
+
+    - bitmap:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+            x11-libs/libXaw
+            x11-libs/libXt
+            x11-misc/xbitmaps
+          src_install_extra: |
+            rm -f "${ED}"/usr/bin/xkeystone || die
+
+    - bdftopcf:
+        vars:
+          tar_suffix: "tar.gz"
+
+    - iceauth:
+        vars:
+          rdepend: |
+            x11-libs/libICE
+
+    - luit:
+        vars:
+          tar_suffix: "tar.gz"
+          desc: 'Locale and ISO 2022 support for Unicode terminals'
+          rdepend: |
+            sys-libs/zlib
+            x11-libs/libX11
+            x11-libs/libfontenc
+          src_prepare_extra: |
+            sed -i 's/-D_XOPEN_SOURCE=500/-D_XOPEN_SOURCE=600/' configure.ac || die
+
+    - mkfontscale:
+        vars:
+          rdepend: |
+            ${CDEPEND}
+          cdepend: |
+            x11-libs/libfontenc
+            media-libs/freetype:2
+            sys-libs/zlib
+            app-arch/bzip2
+          desc: create an index of scalable font files for X
+          econf_args_extra: |
+            --with-bzip2
+
+    - rgb:
+        vars:
+          desc: uncompile an rgb color-name database
+
+    - xauth:
+        vars:
+          desc: X authority file utility
+          iuse: ipv6
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXau
+            x11-libs/libXext
+            x11-libs/libXmu
+          econf_args_extra:
+            $(use_enable ipv6)
+
+    - xbacklight:
+        vars:
+          desc: Sets backlight level using the RandR 1.2 BACKLIGHT output property
+          rdepend: |
+            x11-libs/libxcb
+            x11-libs/xcb-util
+
+    - xclock:
+        vars:
+          desc: analog / digital clock for X
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+            x11-libs/libXrender
+            x11-libs/libXft
+            x11-libs/libxkbfile
+            x11-libs/libXaw
+
+    - xcmsdb:
+        vars:
+          desc: Device Color Characterization utility for X Color Management System
+          rdepend: |
+            x11-libs/libX11
+
+    - xcursorgen:
+        vars:
+          desc: create an X cursor file from a collection of PNG images
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXcursor
+            media-libs/libpng:0=
+
+    - xdpyinfo:
+        vars:
+          desc: Display information utility for X
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXcomposite
+            x11-libs/libXext
+            x11-libs/libXi
+            x11-libs/libXrender
+            x11-libs/libXtst
+            x11-libs/libXxf86vm
+            x11-libs/libxcb
+            dga? ( x11-libs/libXxf86dga )
+            dmx? ( x11-libs/libdmx )
+            xinerama? ( x11-libs/libXinerama )
+          iuse: dga dmx xinerama
+          econf_args_extra: |
+            --without-xf86misc
+            $(use_with dga)
+            $(use_with dmx)
+            $(use_with xinerama)
+
+    - xdriinfo:
+        vars:
+          desc: query configuration information of DRI drivers
+          rdepend: |
+            x11-libs/libX11
+            virtual/opengl
+
+    - xev:
+        vars:
+          desc: Print contents of X events
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXrandr
+
+    - xf86dga:
+        vars:
+          tar_suffix: "tar.gz"
+          desc: Test program for the XFree86-DGA extension
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXxf86dga
+
+    - xgamma:
+        vars:
+          desc: Alter a monitor's gamma correction through the X server
+          rdepend: |
+            x11-libs/libXxf86vm
+            x11-libs/libX11
+
+    - xhost:
+        vars:
+          desc: Controls host and/or user access to a running X server
+          iuse: ipv6
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+            x11-libs/libXau
+          econf_args_extra: |
+            $(use_enable ipv6)
+
+    - xinput:
+        vars:
+          desc: Utility to set XInput device parameters
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXext
+            x11-libs/libXi
+            x11-libs/libXinerama
+            x11-libs/libXrandr
+
+    - xkbcomp:
+        vars:
+          desc: compile XKB keyboard description
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libxkbfile
+
+    - xkbevd:
+        vars:
+          desc: XKB event daemon
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libxkbfile
+
+    - xkbutils:
+        vars:
+          desc: X.Org xkbutils application
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXt
+            x11-libs/libXaw
+
+    - xkill:
+        vars:
+          desc: kill a client by its X resource
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+
+    - xlsatoms:
+        vars:
+          desc: list interned atoms defined on server
+          rdepend: |
+            x11-libs/libxcb
+
+    - xlsclients:
+        vars:
+          desc: X.Org xlsclients application
+          rdepend: |
+            x11-libs/libxcb
+            x11-libs/xcb-util
+
+    - xmessage:
+        vars:
+          desc: display a message or query in a window (X-based /bin/echo)
+          rdepend: |
+            x11-libs/libXaw
+            x11-libs/libXt
+
+    - xmodmap:
+        vars:
+          desc: utility for modifying keymaps and pointer button mappings in X
+          rdepend: |
+            x11-libs/libX11
+
+    - xpr:
+        vars:
+          rdepend: |
+            x11-libs/libXmu
+            x11-libs/libX11
+
+    - xprop:
+        vars:
+          desc: Property displayer for X
+          rdepend: |
+            x11-libs/libX11
+
+    - xrandr:
+        vars:
+          desc: primitive command line interface to RandR extension
+          rdepend: |
+            x11-libs/libXrandr
+            x11-libs/libXrender
+            x11-libs/libX11
+          src_install_extra: |
+            rm -f "${ED}"/usr/bin/xkeystone || die
+
+    - xrdb:
+        vars:
+          desc: X server resource database utility
+          rdepend: |
+            x11-libs/libXmu
+            x11-libs/libX11
+
+    - xset:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+            x11-libs/libXext
+          econf_args_extra: |
+            --without-xf86misc
+            --without-fontcache
+
+    - x11perf:
+        vars:
+          desc: X rendering operation stress test utility
+          tar_suffix: "tar.gz"
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXmu
+            x11-libs/libXft
+            x11-libs/libXrender
+            x11-libs/libXext
+
+    - xrefresh:
+        vars:
+          desc: refresh all or part of an X screen
+          rdepend: |
+            x11-libs/libX11
+
+    - xsetroot:
+        vars:
+          rdepend: |
+            x11-libs/libXmu
+            x11-libs/libX11
+            x11-libs/libXcursor
+            x11-misc/xbitmaps
+
+    - xwd:
+        vars:
+          desc: dump an image of an X window
+          rdepend: |
+            x11-libs/libX11
+
+    - xvinfo:
+        vars:
+          desc: Print out X-Video extension adaptor information
+          rdepend: |
+            x11-libs/libXv
+            x11-libs/libX11
+
+    - xwininfo:
+        vars:
+          desc: window information utility for X
+          rdepend: |
+            x11-libs/libxcb
+            x11-libs/libX11
+
+    - sessreg:
+        vars:
+          desc: manage utmp/wtmp entries for non-init clients
+
+    - setxkbmap:
+        vars:
+          desc: Controls the keyboard layout of a running X server
+          rdepend: |
+            x11-libs/libxkbfile
+            x11-libs/libX11
+
+    - smproxy:
+        vars:
+          desc: Session Manager Proxy
+          rdepend: |
+            x11-libs/libXt
+            x11-libs/libXmu

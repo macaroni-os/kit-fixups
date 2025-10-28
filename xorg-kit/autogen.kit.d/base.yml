@@ -495,6 +495,8 @@ x11_libs_dirlisting:
     - libXxf86dga:
     - libdmx:
     - libXau:
+        vars:
+          rdepend:
     - libXdmcp:
         vars:
           rdepend: |
@@ -1449,6 +1451,60 @@ x11_github:
               meson_src_configure
             }
 
+    - xcb-util-xrm:
+        template: ../../templates/simple.tmpl
+        github:
+          user: Airblader
+          query: releases
+        transform:
+          - kind: regex
+            match: " [–]+.*$"
+            replace: ""
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "xcb-util-xrm-.*.tar.gz$"
+        vars:
+          inherit:
+            - autotools
+            - flag-o-matic
+          rdepend: |
+            x11-libs/libxcb:=
+            x11-libs/xcb-util
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+            x11-libs/libX11
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            {{ .Values.body_extra | default "" }}
+            src_prepare() {
+              eautoreconf || die
+              default
+            }
+            src_configure() {
+              local no_static=""
+              # Check if package supports disabling of static libraries
+              if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+                no_static="--disable-static"
+              fi
+              local econfargs=(
+                --enable-shared
+                ${no_static}
+                {{ .Values.econf_args_extra | default "" }}
+              )
+              econf "${econfargs[@]}"
+            }
+            src_install() {
+              default
+              find "${D}" -type f -name '*.la' -delete || die
+              {{ .Values.src_install_extra | default "" }}
+            }
+
+
 xcb_dirlisting:
   generator: builtin-dirlisting
   template:
@@ -1471,11 +1527,12 @@ xcb_dirlisting:
         replace: ''
     vars:
       homepage: https://xcb.freedesktop.org/
+      desc: X C-language Bindings sample implementations
       inherit:
         - autotools
         - flag-o-matic
       rdepend: |
-        x11-libs/libxcb
+        x11-libs/libxcb:=
         {{ .Values.rdepend_extra | default "" }}
       depend: |
         ${RDEPEND}
@@ -1514,12 +1571,90 @@ xcb_dirlisting:
 
   packages:
     - xcb-util:
-        pdepend: |
-          x11-libs/xcb-util-cursor:=
-          x11-libs/xcb-util-renderutil:=
-          >=x11-libs/xcb-util-image-{{ .Values.version }}:=
-          >=x11-libs/xcb-util-keysyms-{{ .Values.version }}:=
-          >=x11-libs/xcb-util-wm-{{ .Values.version }}:=
+        vars:
+          pdepend: |
+            x11-libs/xcb-util-cursor:=
+            x11-libs/xcb-util-renderutil:=
+            >=x11-libs/xcb-util-image-{{ .Values.version }}:=
+            >=x11-libs/xcb-util-keysyms-{{ .Values.version }}:=
+            >=x11-libs/xcb-util-wm-{{ .Values.version }}:=
 
+    - xcb-util-cursor:
+        vars:
+          rdepend_extra: |
+            x11-libs/xcb-util-image
+            x11-libs/xcb-util-renderutil
+          depend_extra: |
+            x11-base/xcb-proto
+            x11-base/xorg-proto
+          econf_args_extra: |
+            --with-cursorpath='~/.cursors:~/.icons:/usr/local/share/cursors/xorg-x11:/usr/local/share/cursors:/usr/local/share/icons:/usr/local/share/pixmaps:/usr/share/cursors/xorg-x11:/usr/share/cursors:/usr/share/pixmaps/xorg-x11:/usr/share/icons:/usr/share/pixmaps'
+
+    - xcb-util-image:
+        vars:
+          rdepend_extra: |
+            >=x11-libs/xcb-util-${PV}
+          depend_extra: |
+            x11-base/xorg-proto
+
+    - xcb-util-keysyms:
+        vars:
+          depend_extra: |
+            x11-base/xorg-proto
+
+    - xcb-util-renderutil:
+    - xcb-util-wm:
+
+
+libinput_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/tags'
+      matcher: "/{{ .Values.pn }}/{{ .Values.pn }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/archive/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+      license: MIT
+      iuse: input_devices_wacom
+      rdepend: |
+        input_devices_wacom? ( dev-libs/libwacom )
+        >=dev-libs/libevdev-1.10.0
+        sys-libs/mtdev
+        virtual/libudev:=
+        virtual/udev
+      depend: '${RDEPEND}'
+      desc: Library to handle input devices in Wayland
+      homepage: 'https://www.freedesktop.org/wiki/Software/{{ .Values.pn }} https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}'
+      inherit:
+        - meson
+
+  packages:
+
+    - libinput:
+        vars:
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddebug-gui=false
+                -Ddocumentation=false
+                $(meson_use input_devices_wacom libwacom)
+                -Dtests=false # tests are restricted
+                -Dudev-dir="$(get_udevdir)"
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              udevadm hwdb --update --root="${ROOT}"
+            }
 
 

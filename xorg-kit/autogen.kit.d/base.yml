@@ -1606,7 +1606,7 @@ xcb_dirlisting:
     - xcb-util-wm:
 
 
-libinput_dirlisting:
+gitlab_freedesktop_dirlisting:
   generator: builtin-dirlisting
   template:
     engine: helm
@@ -1616,25 +1616,15 @@ libinput_dirlisting:
     template: ../../templates/simple.tmpl
     category: dev-libs
     dir:
-      url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/tags'
-      matcher: "/{{ .Values.pn }}/{{ .Values.pn }}/-/releases/[0-9.]+"
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
       # Skip release candidate/beta versions
       exclude: '90[0-9]$'
     assets:
       - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
-        url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/archive/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
     vars:
       license: MIT
-      iuse: input_devices_wacom
-      rdepend: |
-        input_devices_wacom? ( dev-libs/libwacom )
-        >=dev-libs/libevdev-1.10.0
-        sys-libs/mtdev
-        virtual/libudev:=
-        virtual/udev
-      depend: '${RDEPEND}'
-      desc: Library to handle input devices in Wayland
-      homepage: 'https://www.freedesktop.org/wiki/Software/{{ .Values.pn }} https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}'
       inherit:
         - meson
 
@@ -1642,6 +1632,18 @@ libinput_dirlisting:
 
     - libinput:
         vars:
+          gitlab_user: libinput
+          gitlab_repo: libinput
+          iuse: input_devices_wacom
+          rdepend: |
+            input_devices_wacom? ( dev-libs/libwacom )
+            >=dev-libs/libevdev-1.10.0
+            sys-libs/mtdev
+            virtual/libudev:=
+            virtual/udev
+          depend: '${RDEPEND}'
+          desc: Library to handle input devices in Wayland
+          homepage: 'https://www.freedesktop.org/wiki/Software/{{ .Values.pn }} https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}'
           body: |
             src_configure() {
               local emesonargs=(
@@ -1657,4 +1659,71 @@ libinput_dirlisting:
               udevadm hwdb --update --root="${ROOT}"
             }
 
+    - wayland:
+        vars:
+          gitlab_user: wayland
+          gitlab_repo: wayland
+          desc: Wayland protocol libraries
+          homepage: 'https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}'
+          bdepend: |
+            >=dev-util/wayland-scanner-{{ .Values.version }}
+            virtual/pkgconfig
+          rdepend: |
+            dev-libs/expat:=
+            dev-libs/libxml2:=
+            dev-libs/libffi:=
+          depend: '${RDEPEND}'
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.gitlab_repo }}-* ${S}
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddocumentation=false
+                -Ddtd_validation=true
+                -Dlibraries=true
+                -Dscanner=false
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+
+    - wayland-protocols:
+        vars:
+          gitlab_user: wayland
+          gitlab_repo: wayland-protocols
+          desc: Wayland protocol files
+          homepage: 'https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}'
+          bdepend: |
+            virtual/pkgconfig
+            dev-util/wayland-scanner
+          s: '${WORKDIR}/{{ .Values.gitlab_repo }}-{{ .Values.version }}'
+
+    - wayland-scanner:
+        category: dev-util
+        vars:
+          gitlab_user: wayland
+          gitlab_repo: wayland
+          desc: wayland-scanner tool
+          homepage: 'https://wayland.freedesktop.org/ https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}'
+          bdepend: |
+            virtual/pkgconfig
+          rdepend: |
+            dev-libs/expat:=
+          depend: '${RDEPEND}'
+          s: '${WORKDIR}/{{ .Values.gitlab_repo }}-{{ .Values.version }}'
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.gitlab_repo }}-* ${S}
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddocumentation=false
+                -Ddtd_validation=false
+                -Dlibraries=false
+                -Dscanner=true
+                -Dtests=false
+              )
+              meson_src_configure
+            }
 

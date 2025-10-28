@@ -1326,3 +1326,47 @@ devlibs_github:
               find "${D}" -name '*.la' -delete || die
             }
 
+libevdev_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/tags'
+      matcher: "/{{ .Values.pn }}/{{ .Values.pn }}/-/tags/{{ .Values.pn }}-1.[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}/-/archive/{{ .Values.pn }}-{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+      license: MIT
+      desc: Handler library for evdev events
+      homepage: 'https://www.freedesktop.org/wiki/Software/{{ .Values.pn }} https://gitlab.freedesktop.org/{{ .Values.pn }}/{{ .Values.pn }}'
+      iuse: static-libs
+      s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.pn }}-{{ .Values.version }}'
+      bdepend: |
+        virtual/pkgconfig
+      inherit:
+        - autotools
+
+  packages:
+    - libevdev:
+        vars:
+          body: |
+            src_prepare() {
+              eautoreconf || die
+              default
+            }
+            src_configure() {
+              ECONF_SOURCE="${S}" econf $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              find "${D}" -name '*.la' -delete || die
+            }
+

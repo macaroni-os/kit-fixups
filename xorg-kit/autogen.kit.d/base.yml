@@ -787,6 +787,50 @@ x11_libs_meson_dirlisting:
             -Dgtk=disabled
             -Dlibpng=disabled
 
+    - xorg-cf-files:
+        category: x11-misc
+        vars:
+          xorg_path: util/
+          desc: Old Imake-related build files
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddefault_library=shared
+                {{ .Values.emeson_args_extra | default "" }}
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+
+              echo "#define ManDirectoryRoot ${EPREFIX}/usr/share/man" >> \
+                "${ED}"/usr/$(get_libdir)/X11/config/host.def || die
+              sed -i -e "s|LibDirName *lib$|LibDirName $(get_libdir)|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/Imake.tmpl || die "failed libdir sed"
+              sed -i -e "s|LibDir Concat(ProjectRoot,/lib/X11)|LibDir Concat(ProjectRoot,/$(get_libdir)/X11)|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/X11.tmpl || die "failed libdir sed"
+              sed -i -e "s|\(EtcX11Directory \)\(/etc/X11$\)|\1${EPREFIX}\2|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/X11.tmpl || die "failed etcx11dir sed"
+              sed -i -e "/#  define Solaris64bitSubdir/d" \
+                "${ED}"/usr/$(get_libdir)/X11/config/sun.cf || die
+              sed -i -e 's/-DNOSTDHDRS//g' \
+                "${ED}"/usr/$(get_libdir)/X11/config/sun.cf || die
+
+              sed -r -i -e "s|LibDirName[[:space:]]+lib.*$|LibDirName $(get_libdir)|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/linux.cf || die "failed libdir sed"
+              sed -r -i -e "s|SystemUsrLibDir[[:space:]]+/usr/lib.*$|SystemUsrLibDir /usr/$(get_libdir)|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/linux.cf || die "failed libdir sed"
+              sed -r -i -e "s|TkLibDir[[:space:]]+/usr/lib.*$|TkLibDir /usr/$(get_libdir)|" \
+                "${ED}"/usr/$(get_libdir)/X11/config/linux.cf || die "failed libdir sed"
+            }
+
 
 # Special package that use libX11 tarball
 compose_tables:
@@ -1401,6 +1445,91 @@ x11_apps_econf_dirlisting:
             x11-libs/libXt
             x11-libs/libXmu
 
+    # X11 utils
+    - imake:
+        category: x11-misc
+        vars:
+          xorg_path: util/
+          rdepend: |
+            x11-misc/xorg-cf-files
+          econf_args_extra: |
+            --disable-selective-werror
+          patches:
+            - imake-1.0.8-cpp-args.patch
+            - imake-1.0.9-no-get-gcc.patch
+            - imake-1.0.8-respect-LD.patch
+            - imake-1.0.8-xmkmf-pass-cc-ld.patch
+
+    - makedepend:
+        category: x11-misc
+        vars:
+          desc: create dependencies in makefiles
+          xorg_path: util/
+          rdepend:
+          econf_args_extra: |
+            --disable-selective-werror
+
+    - gccmakedep:
+        category: x11-misc
+        vars:
+          desc: create dependencies in makefiles using 'gcc -M'
+          xorg_path: util/
+          rdepend:
+          econf_args_extra: |
+            --disable-selective-werror
+
+    - util-macros:
+        category: x11-misc
+        vars:
+          desc: X.Org autotools utility macros
+          xorg_path: util/
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+          body: |
+            src_compile() { true; }
+
+    - xbitmaps:
+        category: x11-misc
+        vars:
+          desc: X.Org bitmaps data
+          xorg_path: data/
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+          body: |
+            src_compile() { true; }
+
+    - xkeyboard-config:
+        category: x11-misc
+        vars:
+          tar_suffix: "tar.bz2"
+          desc: X keyboard configuration database
+          xorg_path: data/xkeyboard-config/
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            sys-devel/automake
+            sys-devel/libtool
+            sys-devel/m4
+            sys-devel/gettext
+            dev-util/intltool
+          econf_args_extra: |
+            --with-xkb-base="${EPREFIX}/usr/share/X11/xkb"
+            --enable-compat-rules
+            # do not check for runtime deps
+            --disable-runtime-deps
+            --with-xkb-rules-symlink=xorg
+
 
 x11_github:
   generator: builtin-github
@@ -1622,7 +1751,7 @@ gitlab_freedesktop_dirlisting:
       exclude: '90[0-9]$'
     assets:
       - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
-        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
     vars:
       license: MIT
       inherit:
@@ -1725,5 +1854,101 @@ gitlab_freedesktop_dirlisting:
                 -Dtests=false
               )
               meson_src_configure
+            }
+
+    - xdg-utils:
+        category: x11-misc
+        dir:
+          matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/v[0-9.]+"
+        transform:
+          - kind: string
+            match: 'v'
+            replace: ''
+        vars:
+          desc: Portland utils for cross-platform/cross-toolkit/cross-desktop interoperability
+          homepage: https://www.freedesktop.org/wiki/Software/xdg-utils/
+          gitlab_user: xdg
+          gitlab_repo: xdg-utils
+          inherit:
+            - autotools
+          iuse: dbus gnome doc
+          required_use: gnome? ( dbus )
+          rdepend: |
+            dev-util/desktop-file-utils
+            dev-perl/File-MimeInfo
+            dbus? (
+              sys-apps/dbus
+              gnome? (
+                dev-perl/Net-DBus
+                dev-perl/X11-Protocol
+              )
+            )
+            x11-misc/shared-mime-info
+            x11-apps/xprop
+            x11-apps/xset
+          bdepend: |
+            app-text/xmlto[text(+)]
+            virtual/awk
+          patches:
+            - xdg-utils-1.2.1-qtpaths.patch
+            - xdg-utils-1.2.1-xdg-mime-default.patch
+          body: |
+            post_src_unpack() {
+              mv xdg-utils-* ${S}
+            }
+            src_configure() {
+              export ac_cv_path_XMLTO="$(type -P xmlto) --skip-validation" #502166
+              default
+              emake -C scripts scripts-clean
+            }
+            src_install() {
+              default
+              dodoc RELEASE_NOTES
+              newdoc scripts/xsl/README README.xsl
+              use doc && dodoc -r scripts/html
+              # Install default XDG_DATA_DIRS, bug #264647
+              echo XDG_DATA_DIRS=\"${EPREFIX}/usr/local/share\" > 30xdg-data-local || die
+              echo 'COLON_SEPARATED="XDG_DATA_DIRS XDG_CONFIG_DIRS"' >> 30xdg-data-local || die
+              doenvd 30xdg-data-local
+              echo XDG_DATA_DIRS=\"${EPREFIX}/usr/share\" > 90xdg-data-base || die
+              echo XDG_CONFIG_DIRS=\"${EPREFIX}/etc/xdg\" >> 90xdg-data-base || die
+              doenvd 90xdg-data-base
+            }
+            pkg_postinst() {
+              [[ -x $(type -P gtk-update-icon-cache) ]] \
+                || elog "Install dev-util/gtk-update-icon-cache for the gtk-update-icon-cache command."
+            }
+
+
+    - shared-mime-info:
+        category: x11-misc
+        vars:
+          desc: The Shared MIME-info Database specification
+          homepage: https://gitlab.freedesktop.org/xdg/shared-mime-info
+          license: GPL-2
+          gitlab_user: xdg
+          gitlab_repo: shared-mime-info
+          inherit:
+            - meson
+            - xdg-utils
+          rdepend: |
+            dev-libs/glib
+            dev-libs/libxml2
+          depend: |
+            ${RDEPEND}
+            app-text/xmlto
+            dev-util/intltool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-tools=true
+                -Dupdate-mimedb=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              xdg_mimeinfo_database_update
             }
 

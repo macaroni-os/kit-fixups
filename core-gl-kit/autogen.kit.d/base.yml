@@ -1274,14 +1274,75 @@ gitlab_freedesktop_dirlisting:
           bdepend: |
             dev-util/wayland-scanner
           body: |
-            post_src_unpack() {
-              mv {{ .Values.gitlab_repo }}-* ${S}
-            }
             src_configure() {
               local emesonargs=(
                 -Ddrm=enabled
-                -Dtests=false
               )
               meson_src_configure
             }
 
+
+harfbuzz:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: releases
+    vars:
+      python_compat: python3+
+      inherit:
+        - flag-o-matic
+        - meson
+        - python-any-r1
+        - xdg-utils
+      license: Old-MIT ISC icu
+      iuse: +cairo debug experimental +glib +graphite icu +introspection +truetype
+      required_use: introspection?  ( glib )
+      rdepend: |
+        cairo? ( x11-libs/cairo )
+        glib? ( dev-libs/glib:2 )
+        graphite? ( media-gfx/graphite2 )
+        icu? ( dev-libs/icu )
+        introspection? ( dev-libs/gobject-introspection:= )
+        truetype? ( media-libs/freetype:2= )
+      depend: |
+        ${RDEPEND}
+        dev-libs/gobject-introspection-common
+      bdepend: |
+        ${PYTHON_DEPS}
+        virtual/pkgconfig
+        introspection? ( dev-util/glib-utils )
+      body: |
+        pkg_setup() {
+          python-any-r1_pkg_setup
+          if ! use debug ; then
+            append-cppflags -DHB_NDEBUG
+          fi
+        }
+        src_prepare() {
+          default
+          xdg_environment_reset
+        }
+        src_configure() {
+          # harfbuzz-gobject only used for introspection, bug #535852
+          local emesonargs=(
+            -Dcoretext="disabled"
+            -Dchafa="disabled"
+            -Ddocs="disabled"
+            -Dtests="disabled"
+            $(meson_feature glib)
+            $(meson_feature graphite graphite2)
+            $(meson_feature icu)
+            $(meson_feature introspection gobject)
+            $(meson_feature truetype freetype)
+            $(meson_feature cairo)
+            $(meson_feature introspection)
+            $(meson_use experimental experimental_api)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - harfbuzz:

@@ -2186,3 +2186,148 @@ media_github:
                 newdoc "${S}"/java/README README.java
               fi
             }
+
+
+libpng:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: media-libs
+    dir:
+      url: https://sourceforge.net/projects/{{ .Values.pn }}/files/{{ .Values.pn }}16/
+      matcher: "1.6.*"
+      exclude: "timeline"
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+        url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+
+      - name: "{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
+        url: "https://download.sourceforge.net/apng/{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
+        use: apng
+    vars:
+      desc: Portable Network Graphics library
+      homepage: http://www.libpng.org/
+      iuse: apng cpu_flags_x86_sse neon static-libs
+      inherit:
+        - libtool
+      rdepend: |
+        sys-libs/zlib
+      depend: |
+        ${RDEPEND}
+        app-arch/xz-utils
+      body: |
+        src_prepare() {
+          default
+          if use apng; then
+            eapply -p0 "${WORKDIR}"/${PN}-*-apng.patch
+            sed -i -e '/^check/s:scripts/symbols.chk::' Makefile.in || die
+          fi
+          elibtoolize
+        }
+        src_configure() {
+          local myeconfargs=(
+            $(use_enable cpu_flags_x86_sse intel-sse)
+            $(use_enable static-libs static)
+            --enable-arm-neon=$(usex neon)
+          )
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          DOCS=( ANNOUNCE CHANGES libpng-manual.txt README TODO )
+          einstalldocs
+          find "${ED}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - libpng:
+
+
+
+cairo:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: x11-libs
+    dir:
+      url: https://cairographics.org/releases/
+      matcher: "{{ .Values.pn }}-1[.0-9]+.*.tar.xz$"
+    vars:
+      inherit:
+        - meson
+        - python-any-r1
+
+  packages:
+    - cairo:
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          python_compat: python3+
+          desc: A vector graphics library with cross-device output support
+          homepage: https://www.cairographics.org/ https://gitlab.freedesktop.org/cairo/cairo
+          license: '|| ( LGPL-2.1 MPL-1.1 )'
+          iuse: X aqua debug +glib gtk-doc lzo
+          rdepend: |
+            media-libs/fontconfig
+            media-libs/freetype:2[png]
+            media-libs/libpng:0=
+            sys-libs/zlib
+            x11-libs/pixman
+            debug? ( sys-libs/binutils-libs:0= )
+            glib? ( dev-libs/glib:2 )
+            lzo? ( dev-libs/lzo:2 )
+            X? (
+              x11-libs/libXrender
+              x11-libs/libXext
+              x11-libs/libX11
+              x11-libs/libxcb
+            )
+          depend: |
+            ${RDEPEND}
+            X? ( x11-base/xorg-proto )
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+          patches:
+            - cairo-respect-fontconfig.patch
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddwrite=disabled
+                -Dfontconfig=enabled
+                -Dfreetype=enabled
+                -Dpng=enabled
+                $(meson_feature aqua quartz)
+                $(meson_feature X tee)
+                $(meson_feature X xcb)
+                $(meson_feature X xlib)
+                $(meson_feature lzo)
+                -Dxlib-xcb=disabled
+                -Dzlib=enabled
+                -Dtests=disabled
+                -Dgtk2-utils=disabled
+                $(meson_feature glib)
+                -Dspectre=disabled # only used for tests
+                $(meson_feature debug symbol-lookup)
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              einstalldocs
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/cairo || die
+                mv "${ED}"/usr/share/gtk-doc/{html/cairo,cairo/html} || die
+                rmdir "${ED}"/usr/share/gtk-doc/html || die
+              fi
+            }
+

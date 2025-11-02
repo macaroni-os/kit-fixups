@@ -791,6 +791,45 @@ dev_github:
               dobin swagger
             }
 
+    - hub:
+        category: dev-vcs
+        template: ../../templates/simple.tmpl
+        github:
+          user: github
+          query: releases
+        transform:
+          - kind: string
+            match: 'hub '
+            replace: ''
+        vars:
+          extra_envs:
+            - 'EGO_OVERRIDE_GOMOD=0'
+          inherit:
+            - bash-completion-r1
+            - go-module
+          rdepend: |
+            dev-vcs/git
+          bdepend: |
+            dev-lang/go
+            sys-apps/groff
+          body: |
+            post_src_unpack() {
+              mv "${WORKDIR}"/mislav-hub-* "${S}"
+            }
+            src_compile() {
+              export GOFLAGS="${GOFLAGS} -mod=vendor"
+              emake bin/hub man-pages
+            }
+            src_install() {
+              dobin bin/${PN}
+              dodoc README.md
+              doman share/man/man1/*.1
+              newbashcomp etc/${PN}.bash_completion.sh ${PN}
+              insinto /usr/share/vim/vimfiles
+              doins -r share/vim/vimfiles/*
+              insinto /usr/share/zsh/site-functions
+              newins etc/hub.zsh_completion _${PN}
+            }
 
     - jq-bin:
         category: app-misc

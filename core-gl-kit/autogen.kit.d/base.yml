@@ -1234,3 +1234,54 @@ x11_video_drivers_configure:
           - kind: string
             match: '.tar.xz'
             replace: ''
+
+
+gitlab_freedesktop_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-misc
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+      license: MIT
+      inherit:
+        - meson
+
+  packages:
+    - wayland-utils:
+        vars:
+          desc: Display information about supported Wayland protocols and current compositor
+          homepage: https://gitlab.freedesktop.org/wayland/wayland-utils
+          gitlab_user: wayland
+          gitlab_repo: wayland-utils
+          rdepend: |
+            dev-libs/wayland
+            x11-libs/libdrm
+          depend: |
+            ${RDEPEND}
+            dev-libs/wayland-protocols
+          bdepend: |
+            dev-util/wayland-scanner
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.gitlab_repo }}-* ${S}
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddrm=enabled
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+

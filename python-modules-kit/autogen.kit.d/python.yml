@@ -533,3 +533,73 @@ cryptography:
                 cargo_src_unpack
               fi
             }
+
+
+gnome_dirlisting:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-python
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|alpha|beta'
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      python_compat: python3+
+      license: MIT
+
+  packages:
+    - libxslt-python:
+        vars:
+          s: '${WORKDIR}/{{ .Values.tname }}-{{ .Values.version }}'
+          tname: libxslt
+          iuse: +crypt static-libs
+          inherit:
+            - flag-o-matic
+            - libtool
+            - distutils-r1
+          desc: XSLT libraries Python bindings
+          homepage: https://gitlab.gnome.org/GNOME/libxslt
+          release: 1.1
+          rdepend: |
+            =dev-libs/libxslt-{{ .Values.version }}:=[crypt?]
+          depend: |
+            ${RDEPEND}
+          body: |
+            src_prepare() {
+              default
+              elibtoolize
+            }
+            src_configure() {
+              # Remove this after upstream merge request to add AC_SYS_LARGEFILE lands:
+              # https://gitlab.gnome.org/GNOME/libxslt/-/merge_requests/55
+              append-lfs-flags
+              ECONF_SOURCE="${S}" econf \
+                --with-python \
+                $(use_with crypt crypto) \
+                $(use_enable static-libs static)
+              ( cd ${S}/python && ./generator.py ) || die
+              export S="${S}/python"
+              distutils-r1_src_configure
+            }
+            src_compile() {
+              distutils-r1_src_compile
+            }
+            src_install() {
+              distutils-r1_src_install
+            }
+

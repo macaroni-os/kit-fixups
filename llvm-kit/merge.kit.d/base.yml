@@ -35,9 +35,6 @@ target:
     - pkg: sys-libs/compiler-rt-sanitizers:16
 
     - pkg: sys-devel/clang-common
-      conditions:
-        - '>=sys-devel/clang-common-16.0.0'
-        - '<sys-devel/clang-common-17.0.0'
     - pkg: sys-devel/clang:16
     - pkg: sys-devel/clang-runtime:16
 
@@ -50,3 +47,18 @@ target:
     - pkg: sys-libs/libcxxabi
     - pkg: sys-libs/libomp
 
+
+    # LLVM 20
+    - pkg: sys-devel/lld:20
+    - pkg: sys-devel/llvm:20
+    - pkg: sys-devel/llvmgold:20
+
+    - pkg: sys-devel/clang:20
+    - pkg: sys-devel/clang-runtime:20
+
+    - pkg: dev-util/lldb:20
+    - pkg: dev-util/spirv-llvm-translator:20
+    - pkg: dev-util/spirv-headers
+
+    - pkg: sys-libs/compiler-rt:20
+    - pkg: sys-libs/compiler-rt-sanitizers:20

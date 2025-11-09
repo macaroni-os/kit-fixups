@@ -297,8 +297,6 @@ linear_packages:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             url: 'https://ftp.mozilla.org/pub/security/nss/releases/{{ .Values.original_version }}/src/{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
         vars:
-          patches:
-            - gyp-config.patch
           desc: Mozilla's Network Security Services library that implements PKI support
           homepage: https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS
           inherit:

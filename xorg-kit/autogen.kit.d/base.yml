@@ -3047,3 +3047,81 @@ libva_stuff:
               find "${ED}" -type f -name "*.la" -delete || die
             }
 
+
+mesa_progs:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: x11-apps
+    template: ../../templates/simple.tmpl
+
+    dir:
+      url: https://archive.mesa3d.org/demos/
+      matcher: "mesa-.*.tar.xz$"
+      exclude: "rc"
+
+    transform:
+      - kind: string
+        match: 'mesa-demos-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+    vars:
+      inherit:
+        - meson
+      license: LGPL-2
+      s: '${WORKDIR}/mesa-demos-{{ .Values.version }}/'
+      iuse: egl gles2 vulkan wayland X
+      desc: Mesa's OpenGL utility and demo programs (glxgears and glxinfo)
+      homepage: https://www.mesa3d.org/ https://mesa.freedesktop.org/
+      patches:
+        - 9.0.0-uint.patch
+      required_use: |
+        vulkan? ( || ( X wayland ) )
+      rdepend: |
+        media-libs/mesa[egl?,gles2?]
+        virtual/opengl
+        media-libs/libglvnd
+        vulkan? ( media-libs/vulkan-loader )
+        wayland? (
+          dev-libs/wayland
+          gui-libs/libdecor
+          x11-libs/libxkbcommon
+        )
+        X? (
+          x11-libs/libX11
+          vulkan? (
+            x11-libs/libxcb:=
+            x11-libs/libxkbcommon
+          )
+        )
+      depend: |
+        ${RDEPEND}
+        wayland? ( dev-libs/wayland-protocols )
+        X? ( x11-base/xorg-proto )
+        virtual/glu
+      bdepend: |
+        virtual/pkgconfig
+        vulkan? ( dev-util/glslang )
+        wayland? ( dev-util/wayland-scanner )
+      body: |
+        src_configure() {
+          local emesonargs=(
+            -Dlibdrm=disabled
+            $(meson_feature egl)
+            $(meson_feature gles2)
+            -Dgles1=disabled
+            -Dglut=disabled
+            -Dosmesa=disabled
+            $(meson_feature vulkan)
+            $(meson_feature wayland)
+            $(meson_feature X x11)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - mesa-progs:

@@ -2868,3 +2868,41 @@ gbinder_stuff:
               newins "${S}"/build/${PN}.pc "${PN}.pc"
             }
 
+
+mtdev:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    category: sys-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://bitmath.se/org/code/mtdev/
+      matcher: "{{ .Values.pn }}-.*.tar.bz2$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.bz2'
+        replace: ''
+    vars:
+      iuse: static-libs
+      license: MIT
+      desc: Multitouch Protocol Translation Library
+      homepage: http://bitmath.org/code/mtdev/
+      bdepend: |
+        sys-kernel/linux-headers
+      body: |
+        src_configure() {
+          econf $(use_enable static-libs static)
+        }
+        src_install() {
+          default
+          find "${ED}" -name '*.la' -exec rm -f {} +
+        }
+
+  packages:
+    - mtdev:

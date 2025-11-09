@@ -2635,6 +2635,58 @@ gnome_sources:
               fi
             }
 
+    - libnotify:
+        category: x11-libs
+        vars:
+          release: 0.8
+          python_compat: ''
+          inherit:
+            - meson
+            - xdg-utils
+          license: 'LGPL-2.1+'
+          iuse: +introspection
+          rdepend: |
+            app-eselect/eselect-notify-send
+            dev-libs/glib:2
+            x11-libs/gdk-pixbuf:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            dev-libs/gobject-introspection-common
+            dev-util/gtk-doc-am
+            app-text/docbook-xsl-ns-stylesheets
+          bdepend: |
+            virtual/pkgconfig
+          pdepend: |
+            virtual/notification-daemon
+          body: |
+            src_prepare() {
+              default
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=( \
+                -Dgtk_doc=false \
+                -Ddocbook_docs=disabled \
+                $(meson_feature introspection)
+                -Dtests=false
+              )
+              meson_src_configure
+              # work-around gtk-doc out-of-source brokedness
+              ln -s "${S}"/docs/reference/html docs/reference/html || die
+            }
+            src_install() {
+              meson_src_install
+              mv "${ED}"/usr/bin/{,libnotify-}notify-send || die #379941
+            }
+            pkg_postinst() {
+              eselect notify-send update ifunset
+            }
+            pkg_postrm() {
+              eselect notify-send update ifunset
+            }
+
+
     - pango:
         category: x11-libs
         vars:

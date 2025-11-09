@@ -47,7 +47,6 @@ target:
   atoms:
     - pkg: x11-apps/mesa-progs
 
-    - pkg: x11-libs/libcryptui
     - pkg: x11-libs/libfakekey
     - pkg: x11-libs/libfm-qt
     - pkg: x11-libs/libvdpau
@@ -57,6 +56,8 @@ target:
     - pkg: x11-libs/startup-notification
     - pkg: x11-libs/xapps
 
+    # TODO: This library seems deprecated. We need to investigate
+    - pkg: x11-libs/libcryptui
     # upstream archived. Keep this for old GPU
     - pkg: x11-libs/libva-intel-driver
     - pkg: x11-libs/libva-vdpau-driver

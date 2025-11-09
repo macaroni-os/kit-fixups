@@ -1409,3 +1409,82 @@ libevdev_dirlisting:
               find "${D}" -name '*.la' -delete || die
             }
 
+
+gnome_dirlisting:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|alpha|beta'
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      python_compat: python3+
+      license: MIT
+
+  packages:
+    - libxslt:
+        vars:
+          slot: 0/0
+          iuse: crypt debug python static-libs examples
+          inherit:
+            - flag-o-matic
+            - libtool
+            - python-single-r1
+          desc: XSLT libraries and tools
+          homepage: https://gitlab.gnome.org/GNOME/libxslt
+          release: 1.1
+          rdepend: |
+            dev-libs/libxml2:2
+            crypt?  ( dev-libs/libgcrypt:0= )
+            python? ( ${PYTHON_DEPS} )
+          depend: |
+            ${RDEPEND}
+            ${PYTHON_DEPS}
+          pdepend: |
+            python? ( dev-python/libxslt-python )
+          body: |
+            src_prepare() {
+              default
+              elibtoolize
+            }
+            src_configure() {
+              # Remove this after upstream merge request to add AC_SYS_LARGEFILE lands:
+              # https://gitlab.gnome.org/GNOME/libxslt/-/merge_requests/55
+              append-lfs-flags
+              ECONF_SOURCE="${S}" econf \
+                --without-python \
+                $(use_with crypt crypto) \
+                $(use_with debug) \
+                $(use_with debug mem-debug) \
+                $(use_enable static-libs static)
+            }
+            src_compile() {
+              # Peform the build, sans python:
+              default
+            }
+            src_install() {
+              emake DESTDIR="${D}" install
+              einstalldocs
+              if ! use examples ; then
+                rm -rf "${ED}"/usr/share/doc/${PF}/tutorial{,2} || die
+                rm -rf "${ED}"/usr/share/doc/${PF}/python/examples || die
+              fi
+              find "${ED}" -type f -name "*.la" -delete || die
+            }
+

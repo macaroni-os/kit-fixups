@@ -2759,3 +2759,58 @@ x11_software_dirlisting:
             - HACKING
             - NEWS
             - README
+
+libwacom:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    github:
+      user: linuxwacom
+      query: releases
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.xz'
+        matcher: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      iuse: doc
+      python_compat: python3+
+      inherit:
+        - meson
+        - python-any-r1
+        - udev
+      rdepend: |
+        dev-libs/glib:2
+        dev-libs/libevdev
+        dev-libs/libgudev:=
+      depend: |
+        ${RDEPEND}
+      bdepend: |
+        ${PYTHON_DEPS}
+        virtual/pkgconfig
+        doc? (
+          app-text/doxygen
+        )
+      body: |
+        src_configure() {
+          local emesonargs=(
+            $(meson_feature doc documentation)
+            -Dtests=disabled
+            -Dudev-dir=$(get_udevdir)
+          )
+          meson_src_configure
+        }
+        pkg_postinst() {
+          udev_reload
+        }
+        pkg_postrm() {
+          udev_reload
+        }
+
+  packages:
+    - libwacom:
+

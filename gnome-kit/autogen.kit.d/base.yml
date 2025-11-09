@@ -88,19 +88,20 @@ net_misc_cat:
     template: ../../templates/simple.tmpl
     category: net-misc
     dir:
-      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      s: '${WORKDIR}/{{ .Values.tname | default .Values.pn }}-{{ .Values.version }}'
 
   packages:
     - rygel:
-        dir:
-          matcher: "rygel-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: "rygel-"
-            replace: ""
-          - kind: string
-            match: ".tar.xz"
-            replace: ""
         vars:
           release: "0.40"
           desc: Rygel is an open source UPnP/DLNA MediaServer
@@ -167,6 +168,61 @@ net_misc_cat:
               )
               meson_src_configure
             }
+
+
+    - vala:
+        category: dev-lang
+        vars:
+          inherit:
+            - autotools
+            - gnome3
+          release: "0.56"
+          desc: Compiler for the GObject type system
+          homepage: https://wiki.gnome.org/Projects/Vala
+          license: LGPL-2.1+
+          rdepend: |
+            dev-libs/glib
+            >=dev-libs/vala-common-{{ .Values.version }}
+            media-gfx/graphviz
+            dev-libs/gobject-introspection:=
+          depend: |
+            ${RDEPEND}
+            dev-libs/libxslt
+            sys-devel/flex
+          bdepend: |
+            virtual/pkgconfig
+            virtual/yacc
+          body: |
+            src_configure() {
+                # weasyprint enables generation of PDF from HTML
+                gnome3_src_configure \
+                    --disable-unversioned \
+                    VALAC=: \
+                    WEASYPRINT=:
+            }
+            src_install() {
+                default
+                find "${D}" -name "*.la" -delete || die
+            }
+
+    - vala-common:
+        category: dev-libs
+        vars:
+          release: "0.56"
+          tname: vala
+          desc: Build infrastructure for packages that use Vala
+          homepage: https://wiki.gnome.org/Projects/Vala
+          license: LGPL-2.1+
+          body: |
+            src_configure() { :; }
+            src_compile() { :; }
+            src_install() {
+                insinto /usr/share/aclocal
+                doins vala.m4 vapigen/vapigen.m4
+                insinto /usr/share/vala
+                doins vapigen/Makefile.vapigen
+            }
+
 
 mail_apps:
   generator: builtin-dirlisting

@@ -14,10 +14,16 @@ target:
 
   atoms:
 
+    - pkg: dev-libs/glib:2
+    - pkg: dev-libs/gobject-introspection
+    - pkg: dev-libs/gobject-introspection-common
     - pkg: dev-libs/libinput
     - pkg: dev-libs/wayland
     - pkg: dev-libs/wayland-protocols
 
+    - pkg: dev-util/desktop-file-utils
+    - pkg: dev-util/gdbus-codegen
+    - pkg: dev-util/glib-utils
     - pkg: dev-util/wayland-scanner
 
     - pkg: x11-apps/appres
@@ -72,6 +78,7 @@ target:
     - pkg: x11-base/xwayland
 
     - pkg: x11-libs/cairo
+    - pkg: x11-libs/pango
 
     - pkg: x11-libs/libdrm
     - pkg: x11-libs/libdmx

@@ -453,6 +453,12 @@ x11_libs_dirlisting:
         }
 
   packages:
+
+    - libxkbfile:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+
     - libXScrnSaver:
 
     - libXaw:
@@ -2958,3 +2964,86 @@ mtdev:
 
   packages:
     - mtdev:
+
+libva_stuff:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-libs
+    github:
+      user: intel
+      query: releases
+    vars:
+      license: MIT
+      video_cards:
+        - nvidia
+        - intel
+        - i965
+        - nouveau
+
+  packages:
+    - libva:
+        transform:
+          - kind: string
+            match: 'libva '
+            replace: ''
+          - kind: string
+            match: 'Libva '
+            replace: ''
+        exclude:
+          - pre
+        github:
+          per_page: 100
+          num_pages: 4
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.bz2'
+            matcher: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        vars:
+          # Add subslot to avoid annoying messages from Portage
+          slot: 0/2
+          inherit:
+            - meson
+          iuse: |
+            +drm opengl vdpau wayland X
+            {{- range $target := .Values.video_cards }}
+            video_cards_{{ $target }}
+            {{- end }}
+          rdepend: |
+            x11-libs/libdrm
+            opengl? ( virtual/opengl )
+            wayland? ( dev-libs/wayland )
+            X? (
+              x11-libs/libX11
+              x11-libs/libXext
+              x11-libs/libXfixes
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          pdepend: |
+            video_cards_nvidia? ( x11-libs/libva-vdpau-driver )
+            video_cards_nouveau? ( x11-libs/libva-vdpau-driver )
+            vdpau? ( x11-libs/libva-vdpau-driver )
+            video_cards_intel? ( x11-libs/libva-intel-driver )
+            video_cards_i965? ( x11-libs/libva-intel-driver )
+          required_use: |
+            || ( drm wayland X )
+            opengl? ( X )
+          docs:
+            - NEWS
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddriverdir=/usr/$(get_libdir)/va/drivers
+                -Ddisable_drm=$(usex drm false true)
+                -Dwith_x11=$(usex X yes no)
+                -Dwith_wayland=$(usex wayland yes no)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              find "${ED}" -type f -name "*.la" -delete || die
+            }
+

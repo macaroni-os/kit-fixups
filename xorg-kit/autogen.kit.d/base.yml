@@ -2814,3 +2814,57 @@ libwacom:
   packages:
     - libwacom:
 
+gbinder_stuff:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: sys-libs
+    github:
+      query: tags
+    vars:
+      inherit:
+        - autotools
+        - toolchain-funcs
+
+  packages:
+    - libglibutil:
+        github:
+          user: sailfishos
+        vars:
+          body: |
+            src_compile() {
+              emake LIBDIR=/usr/$(get_libdir)
+            }
+            src_install() {
+              # Using install-dev instead of install to
+              # install includes files too.
+              emake install-dev LIBDIR=/usr/$(get_libdir) DESTDIR="${D}"
+              dodir /usr/share/pkgconfig
+              insinto /usr/share/pkgconfig
+              newins "${S}"/build/${PN}.pc "${PN}.pc"
+            }
+
+    - libgbinder:
+        github:
+          user: mer-hybris
+        vars:
+          rdepend: |
+            sys-libs/libglibutil
+          depend: '${RDEPEND}'
+          body: |
+            src_compile() {
+              emake LIBDIR=/usr/$(get_libdir)
+            }
+            src_install() {
+              # Using install-dev instead of install
+              # to install includes files.
+              emake install-dev \
+                LIBDIR=/usr/$(get_libdir) \
+                DESTDIR="${D}"
+
+              dodir /usr/share/pkgconfig
+              insinto /usr/share/pkgconfig
+              newins "${S}"/build/${PN}.pc "${PN}.pc"
+            }
+

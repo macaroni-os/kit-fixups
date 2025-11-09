@@ -110,6 +110,8 @@ nvidia_drivers:
         dir:
           matcher: "580.*"
         selector:
+          # version without aarch64 tarball
+          - '!=580.105.08'
           - '<581'
           - '>579'
 

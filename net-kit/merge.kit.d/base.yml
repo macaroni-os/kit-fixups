@@ -40,6 +40,10 @@ target:
     - pkg: mail-mta/nullmailer
     - pkg: mail-mta/sendmail
 
+    - pkg: net-mail/dovecot
+    - pkg: net-mail/mailbase
+    - pkg: net-mail/fetchmail
+
     - pkg: net-analyzer/arpwatch
     - pkg: net-analyzer/hping
     - pkg: net-analyzer/macchanger
@@ -162,9 +166,9 @@ target:
     - pkg: net-vpn/openconnect
     - pkg: net-vpn/openfortivpn
     - pkg: net-vpn/openvpn
+    - pkg: net-vpn/wireguard-tools
     - pkg: net-vpn/tailscale
     - pkg: net-vpn/vpnc
-    - pkg: net-vpn/wireguard-tools
 
     - pkg: net-wireless/crda
     - pkg: net-wireless/iwd
@@ -172,6 +176,7 @@ target:
     - pkg: net-wireless/wepattack
     - pkg: net-wireless/wireless-regdb
     - pkg: net-wireless/wireless-tools
+    - pkg: net-wireless/wpa_supplicant
 
     - pkg: sys-apps/iproute2
     - pkg: sys-apps/net-tools
@@ -185,3 +190,25 @@ target:
     - pkg: virtual/mailx
     - pkg: virtual/mta
     - pkg: virtual/resolvconf
+
+    # stable release 9.20
+    - pkg: net-dns/bind
+      conditions:
+        - '<net-dns/bind-9.21.0'
+    - pkg: net-dns/bind-tools
+      conditions:
+        - '<net-dns/bind-tools-9.21.0'
+    # development release 9.21
+    - pkg: net-dns/bind
+      conditions:
+        - '>=net-dns/bind-9.21.0'
+        - '<net-dns/bind-9.22.0'
+    - pkg: net-dns/bind-tools
+      conditions:
+        - '>=net-dns/bind-tools-9.21.0'
+        - '<net-dns/bind-tools-9.22.0'
+    - pkg: net-dns/unbound
+
+    - pkg: net-vpn/strongswan
+    - pkg: net-vpn/tor
+

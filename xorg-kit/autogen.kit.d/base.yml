@@ -70,7 +70,7 @@ x11_base_dirlisting:
           homepage: https://gitlab.freedesktop.org/xorg/proto/xorgproto
           xorg_path: proto/
           python_compat: python3+
-          s: '"${WORKSPACE}"/{{ .Values.pn | replace "-" "" }}'
+          s: '${WORKDIR}/{{ .Values.pn | replace "-" "" }}-{{ .Values.version }}'
           inherit:
             - meson
             - python-any-r1

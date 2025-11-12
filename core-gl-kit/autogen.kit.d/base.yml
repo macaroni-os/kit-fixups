@@ -488,6 +488,7 @@ mesa:
         vulkan? (
           dev-util/glslang
           >=dev-util/spirv-tools-1.4.328.1
+          dev-util/spirv-llvm-translator
         )
         {{- range $target := .Values.radeon_cards }}
         video_cards_{{ $target }}? (

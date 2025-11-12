@@ -107,7 +107,9 @@ x11_base_dirlisting:
           xorg_path: xserver/
           desc: Compatibility X server to run under Wayland
           homepage: https://wayland.freedesktop.org/xserver.html
-          iuse: rpc selinux unwind video_cards_nvidia xcsecurity
+          inherit:
+            - meson
+          iuse: rpc selinux unwind video_cards_nvidia xcsecurity libdecor
           cdepend: |
             dev-libs/libbsd
             dev-libs/openssl
@@ -133,6 +135,7 @@ x11_base_dirlisting:
               sys-process/audit
               sys-libs/libselinux
             )
+            libdecor? ( gui-libs/libdecor )
             unwind? ( sys-libs/libunwind )
             video_cards_nvidia? ( gui-libs/egl-wayland )
           depend: |
@@ -148,7 +151,7 @@ x11_base_dirlisting:
                 $(meson_use selinux xselinux)
                 $(meson_use unwind libunwind)
                 $(meson_use xcsecurity)
-                $(meson_use video_cards_nvidia xwayland_eglstream)
+                $(meson_use libdecor)
                 -Ddpms=true
                 -Ddri3=true
                 -Ddtrace=false

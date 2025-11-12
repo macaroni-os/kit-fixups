@@ -349,6 +349,26 @@ standalone_modules:
           rdepend: |
             dev-util/patchelf
 
+    - pyyaml:
+        pypi_name: pyyaml
+        pydeps:
+          py:all:build:
+            - cython
+            - setuptools
+        vars:
+          rdepend: |
+            dev-libs/libyaml:=
+          depend: '${RDEPEND}'
+          iuse: examples
+          body: |
+            src_install() {
+              distutils-r1_src_install
+              if use examples ; then
+                dodoc -r examples
+                docompress -x /usr/share/doc/${PF}
+              fi
+            }
+
     - propcache:
         pydeps:
           py:all:build:

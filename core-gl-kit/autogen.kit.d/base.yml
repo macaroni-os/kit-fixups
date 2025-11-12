@@ -1259,6 +1259,45 @@ gitlab_freedesktop_dirlisting:
         - meson
 
   packages:
+
+    - libdecor:
+        category: gui-libs
+        vars:
+          desc: A client-side decorations library for Wayland clients
+          homepage: https://gitlab.freedesktop.org/libdecor/libdecor
+          gitlab_user: libdecor
+          gitlab_repo: libdecor
+          license: MIT
+          iuse: +dbus +gtk examples
+          rdepend: |
+            dev-libs/wayland
+            x11-libs/pango
+            x11-libs/cairo
+            dbus? ( sys-apps/dbus )
+            gtk? ( x11-libs/gtk+:3 )
+            examples? (
+              media-libs/libglvnd
+              x11-libs/libxkbcommon
+            )
+          depend: |
+            ${RDEPEND}
+            dev-libs/wayland-protocols
+          bdepend: |
+            dev-util/wayland-scanner
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                # Avoid auto-magic, built-in feature of meson
+                -Dauto_features=disabled
+                $(meson_feature gtk)
+                $(meson_feature dbus)
+                $(meson_use examples demo)
+                -Dinstall_demo=true
+              )
+              meson_src_configure
+            }
+
     - wayland-utils:
         vars:
           desc: Display information about supported Wayland protocols and current compositor

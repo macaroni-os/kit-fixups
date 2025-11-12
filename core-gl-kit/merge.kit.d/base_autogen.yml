@@ -34,6 +34,9 @@ target:
     - pkg: dev-util/vulkan-tools
     - pkg: dev-util/vulkan-utility-libraries
 
+    # libdecor is needed to build mesa-progs tools
+    # for wayland.
+    - pkg: gui-libs/libdecor
     - pkg: gui-libs/eglexternalplatform
     - pkg: gui-libs/egl-gbm
     - pkg: gui-libs/egl-wayland

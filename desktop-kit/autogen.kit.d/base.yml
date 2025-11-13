@@ -599,3 +599,38 @@ zoom:
               xdg_icon_cache_update
             }
 
+wm_github:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple-github.tmpl
+    files_dir: '{{ .Values.pn }}'
+    category: x11-wm
+    github:
+      query: releases
+
+  packages:
+    - hypr:
+        github:
+          user: hyprwm
+          repo: Hypr
+        vars:
+          inherit:
+            - cmake
+          rdepend: |
+            dev-libs/glib
+            media-libs/harfbuzz
+            dev-cpp/cairomm:0
+            dev-cpp/gtkmm:3.0
+            x11-libs/xcb-util-keysyms
+            x11-libs/xcb-util-wm
+            x11-libs/xcb-util-cursor
+            x11-libs/libxcb
+          depend: '${RDEPEND}'
+          body: |
+            src_install() {
+              dobin ${BUILD_DIR}/Hypr
+              dodir /usr/share/xsessions
+              insinto /usr/share/xsessions
+              doins ${S}/example/hypr.desktop
+              dodoc ${S}/example/hypr.conf
+            }

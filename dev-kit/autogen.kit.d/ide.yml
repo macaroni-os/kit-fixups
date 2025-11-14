@@ -1,0 +1,79 @@
+vscodium_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-editors
+    github:
+      query: releases
+  packages:
+    - vscodium-bin:
+        github:
+          user: VSCodium
+          repo: vscodium
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-x64.tar.gz'
+            matcher: 'VSCodium-linux-x64-.*.tar.gz$'
+            use: amd64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64.tar.gz'
+            matcher: 'VSCodium-linux-arm64-.*.tar.gz$'
+            use: arm64
+        vars:
+          inherit:
+            - desktop
+            - eutils
+            - pax-utils
+            - xdg
+          iuse: amd64 arm64 libsecret hunspell
+          s: '${WORKDIR}'
+          cdepend: |
+            media-libs/libpng
+            x11-libs/gtk+:3
+            x11-libs/cairo
+            x11-libs/libXtst
+          rdepend: |
+            ${CDEPEND}
+            net-print/cups
+            x11-libs/libnotify
+            x11-libs/libXScrnSaver
+            dev-libs/nss
+            hunspell? ( app-text/hunspell )
+            libsecret? ( app-crypt/libsecret[crypt] )
+          depend: |
+            ${CDEPEND}
+          body: |
+            src_install() {
+              local instdir="/opt/{{ .Values.pn }}"
+              local exe="codium"
+
+              pax-mark m "${instdir}/${exe}"
+              insinto "${instdir}"
+              doins -r *
+              dosym "${instdir}/${exe}" "/usr/bin/{{ .Values.pn }}"
+              make_wrapper "{{ .Values.pn }}" "${instdir}/${exe}"
+              domenu ${FILESDIR}/{{ .Values.pn }}.desktop
+              newicon ${S}/resources/app/resources/linux/code.png {{ .Values.pn }}.png
+
+              fperms +x "${instdir}/${MY_EXEC}"
+              fperms 4755 "${instdir}/chrome-sandbox"
+              fperms +x "${instdir}/libEGL.so"
+              fperms +x "${instdir}/libGLESv2.so"
+              fperms +x "${instdir}/libffmpeg.so"
+
+              #fix Spawn EACESS bug #25848
+              insinto "/usr/share/licenses/{{ .Values.pn }}"
+              newins "${S}/resources/app/LICENSE.txt" "LICENSE.txt"
+            }
+            pkg_postinst() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+              elog "You may install some additional utils, so check them in:"
+              elog "https://code.visualstudio.com/Docs/setup#_additional-tools"
+            }
+            pkg_postrm() {
+              xdg_desktop_database_update
+              xdg_icon_cache_update
+            }
+
+
+

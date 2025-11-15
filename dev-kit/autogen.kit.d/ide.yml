@@ -76,4 +76,106 @@ vscodium_github:
             }
 
 
+vscode:
+  # Using GARR mirror more fast.
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-editors
+    dir:
+      url: https://code.visualstudio.com/updates
+      matcher: '/updates/v[0-9_]+'
+      #matcher: '[0-1][.][0-9]+[.].[0-9]+/linux-deb-x64/stable'
+    transform:
+      - kind: string
+        match: '_'
+        replace: '.'
+      - kind: string
+        match: 'v'
+        replace: ''
 
+      # When the version contains only one dot
+      # we need to add .0
+      - kind: regex
+        match: '^[0-1][.][0-9]+$'
+        replace: '$0.0'
+    assets:
+      - name: '{{ .Values.pn }}-linux-x64-{{ .Values.version }}.tar.gz'
+        url: 'https://update.code.visualstudio.com/{{ .Values.version }}/linux-x64/stable'
+        use: amd64
+
+      - name: '{{ .Values.pn }}-linux-arm64-{{ .Values.version }}.tar.gz'
+        url: 'https://update.code.visualstudio.com/{{ .Values.version }}/linux-arm64/stable'
+        use: arm64
+    vars:
+      license: |
+        Apache-2.0
+        BSD
+        BSD-1
+        BSD-2
+        BSD-4
+        CC-BY-4.0
+        ISC
+        LGPL-2.1+
+        Microsoft
+        MIT
+        MPL-2.0
+        openssl
+        PYTHON
+        TextMate-bundle
+        Unlicense
+        UoI-NCSA
+        W3C
+      iuse: amd64 arm64 zsh-completion
+      extra_envs:
+        - 'QA_PREBUILT="/opt/*"'
+      inherit:
+        - bash-completion-r1
+        - desktop
+        - eutils
+        - pax-utils
+        - xdg
+      body: |
+        src_unpack() {
+          default
+          mv "${WORKDIR}"/VSCode-linux-* "${S}" || die
+        }
+        src_install() {
+          local instdir="/opt/{{ .Values.pn }}"
+          local exe=code
+          # Cleanup
+          rm -r ${S}/resources/app/ThirdPartyNotices.txt || die
+          # Disable update server
+          sed -e "/updateUrl/d" -i ${S}/resources/app/product.json || die
+          pax-mark m "${instdir}/${exe}"
+          insinto "${instdir}"
+          doins -r *
+          dosym "${instdir}/${exec}" "/usr/bin/{{ .Values.pn }}"
+          make_wrapper "{{ .Values.pn }}" "${instdir}/${exe}"
+          domenu ${FILESDIR}/${PN}.desktop
+          newicon ${S}/resources/app/resources/linux/code.png {{ .Values.pn }}.png
+          dosym "${instdir}"/bin/"${exe}" "/usr/bin/code"
+          fperms +x "${instdir}/${exe}"
+          fperms +x "${instdir}/bin/${exe}"
+          fperms 4711 "${instdir}/chrome-sandbox"
+          if [ -e "${ED}"/"${instdir}"/chrome_crashpad_handler ]; then
+            fperms 4755 "${instdir}"/chrome_crashpad_handler
+          fi
+          insinto "/usr/share/licenses/{{ .Values.pn }}"
+          newins "resources/app/LICENSE.rtf" "LICENSE.rtf"
+          newbashcomp resources/completions/bash/code code
+          if use zsh-completion; then
+            insinto /usr/share/zsh/site-functions
+            doins "${S}"/resources/completions/zsh/_code
+          fi
+        }
+        pkg_postinst() {
+          xdg_desktop_database_update
+        }
+        pkg_postrm() {
+          xdg_desktop_database_update
+        }
+
+  packages:
+    - vscode-bin:

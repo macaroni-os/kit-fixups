@@ -179,3 +179,268 @@ vscode:
 
   packages:
     - vscode-bin:
+
+jetbrains_stuff:
+  generator: builtin-json
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: dev-util
+    json:
+      # Define the URL with params directly
+      url: 'https://data.services.jetbrains.com/products/releases'
+      params:
+        code: '{{ .Values.jid }}'
+        latest: 'true'
+        type: 'release'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64.tar.gz'
+        url: 'https://download.jetbrains.com/{{ .Values.download_path }}/{{ .Values.tarball_prefix }}-{{ .Values.version }}.tar.gz'
+        use: amd64
+
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-aarch64.tar.gz'
+        url: 'https://download.jetbrains.com/{{ .Values.download_path }}/{{ .Values.tarball_prefix }}-{{ .Values.version }}-aarch64.tar.gz'
+        use: arm64
+    vars:
+      inherit:
+        - desktop
+        - eutils
+        - xdg
+      iuse: +system-java +sysctl
+      rdepend: |
+        system-java? ( virtual/jre )
+        dev-libs/libdbusmenu
+        dev-python/pip
+      extra_envs:
+        - |
+          QA_PREBUILT="opt/${PN}/bin/fsnotifier
+            opt/${PN}/bin/fsnotifier64
+            opt/${PN}/bin/fsnotifier-arm
+            opt/${PN}/bin/libyjpagent-linux.so
+            opt/${PN}/bin/libyjpagent-linux64.so"
+
+      body: |
+        post_src_unpack() {
+          if [ ! -d "$S" ]; then
+            einfo "Renaming source directory to predictable name..."
+            mv $(ls "${WORKDIR}") "{{ .Values.srcdir }}-{{ .Values.version }}" || die
+          fi
+        }
+        src_install() {
+          patchelf --set-rpath '$ORIGIN' jbr/lib/jcef_helper jbr/lib/libjcef.so
+          local dir="/opt/{{ .Values.pn }}"
+          local dst="${D}${dir}"
+          insinto "${dir}"
+          mv "${S}"/* "${dst}"
+          local bundled_script_name="${PN%-*}.sh" # bundled script is always lowercase, and doesn't have -ultimate, -professional suffix.
+          make_wrapper "{{ .Values.pn }}" "${dir}/bin/$bundled_script_name" || die
+          local svgfile="$(find ${dst}/bin -maxdepth 1 -iname '*.svg')"
+          newicon $svgfile "{{ .Values.pn }}.svg" || die
+          local pngfile="$(find ${dst}/bin -maxdepth 1 -iname '*.png')"
+          newicon $pngfile "{{ .Values.pn }}.png" || die
+          make_desktop_entry {{ .Values.pn }} "{{ .Values.fullname }}" {{ .Values.pn }} "Development;IDE;" || die
+          if use system-java; then
+            rm -rf "$dst{jbr,jre{64}}" || die "Failed to remove bundled Java"
+          fi
+          if use sysctl; then
+            dodir /etc/sysctl.d
+            echo "fs.inotify.max_user_watches = 524288" > "${D}/etc/sysctl.d/30-{{ .Values.pn }}-idea-inotify-watches.conf" || die
+          fi
+        }
+        pkg_postinst() {
+          xdg_pkg_postinst
+          if use sysctl; then
+            ( /etc/init.d/sysctl restart >/dev/null 2>&1 )
+            einfo "An /etc/sysctl.d file was installed to optimally configure the IDE, with this"
+            einfo "setting:"
+          else
+            einfo "JetBrains recommends adding the following to /etc/sysctl.conf:"
+          fi
+          einfo
+          einfo "fs.inotify.max_user_watches = 524288"
+          einfo
+          einfo "See https://confluence.jetbrains.com/display/IDEADEV/Inotify+Watches+Limit for"
+          einfo "more information."
+          if use sysctl; then
+            einfo "If this change is undesired, set -sysctl in /etc/portage/package.use."
+          fi
+        }
+
+
+  packages:
+    - goland:
+        json:
+          version_filter: "$['GO'][0].version"
+        vars:
+          download_path: go
+          tarball_prefix: golang
+          jid: GO
+          fullname: GoLand
+          desc: Golang IDE by JetBrains
+          license: JetBrains
+          homepage: https://www.jetbrains.com/go
+          srcdir: GoLand
+
+    - clion:
+        json:
+          version_filter: "$['CL'][0].version"
+        vars:
+          download_path: cpp
+          tarball_prefix: CLion
+          fullname: CLion
+          description: Cross-platform IDE for C and C++
+          license: JetBrains
+          homepage: https://www.jetbrains.com/clion
+          jid: CL
+          srcdir: CLion
+
+    - datagrip:
+        json:
+          version_filter: "$['DG'][0].version"
+        vars:
+          download_path: datagrip
+          tarball_prefix: datagrip
+          fullname: DataGrip
+          description: Cross-Platform IDE for Databases & SQL
+          license: JetBrains
+          homepage: https://www.jetbrains.com/datagrip
+          jid: DG
+          srcdir: DataGrip
+
+    - idea-community:
+        json:
+          version_filter: "$['IIC'][0].version"
+        vars:
+          download_path: idea
+          tarball_prefix: ideaIC
+          fullname: IntelliJ IDEA Community Edition
+          description: a Java IDE by JetBrains (Community Edition)
+          license: JetBrains
+          homepage: https://www.jetbrains.com/idea
+          jid: IIC
+          srcdir: idea-IC
+
+    - idea-ultimate:
+        json:
+          version_filter: "$['IIU'][0].version"
+        vars:
+          download_path: idea
+          tarball_prefix: ideaIU
+          fullname: IntelliJ IDEA Ultimate
+          description: a Java IDE by JetBrains (Ultimate Edition)
+          license: JetBrains
+          homepage: https://www.jetbrains.com/idea
+          jid: IIU
+          srcdir: idea-IU
+
+    - phpstorm:
+        json:
+          version_filter: "$['PS'][0].version"
+        vars:
+          download_path: webide
+          tarball_prefix: PhpStorm
+          fullname: PhpStorm
+          description: a PHP IDE by JetBrains
+          license: JetBrains
+          homepage: https://www.jetbrains.com/phpstorm
+          jid: PS
+          srcdir: PhpStorm
+
+    - pycharm-community:
+        json:
+          version_filter: "$['PCC'][0].version"
+        vars:
+          download_path: python
+          tarball_prefix: pycharm-community
+          fullname: PyCharm Community Edition
+          description: Intelligent Python IDE with unique code assistance and analysis
+          license: JetBrains
+          homepage: https://www.jetbrains.com/python
+          jid: PCC
+          srcdir: pycharm
+
+    - pycharm-professional:
+        json:
+          version_filter: "$['PCP'][0].version"
+        vars:
+          download_path: python
+          tarball_prefix: pycharm
+          fullname: PyCharm Professional
+          description: Intelligent Python IDE with unique code assistance and analysis
+          license: JetBrains
+          homepage: https://www.jetbrains.com/python
+          jid: PCP
+          srcdir: pycharm
+
+    - rubymine:
+        json:
+          version_filter: "$['RM'][0].version"
+        vars:
+          download_path: ruby
+          tarball_prefix: RubyMine
+          fullname: RubyMine
+          description: The Most Intelligent Ruby and Rails IDE
+          license: JetBrains
+          homepage: https://www.jetbrains.com/ruby
+          jid: RM
+          srcdir: rubymine
+
+    - webstorm:
+        json:
+          version_filter: "$['WS'][0].version"
+        vars:
+          download_path: webstorm
+          tarball_prefix: WebStorm
+          fullname: WebStorm
+          description: The smartest JavaScript IDE
+          license: JetBrains
+          homepage: http://www.jetbrains.com/webstorm
+          jid: WS
+          srcdir: webstorm
+
+    - jetbrains-toolbox:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64.tar.gz'
+            url: 'https://download.jetbrains.com/{{ .Values.download_path }}/{{ .Values.tarball_prefix }}-{{ .Values.version }}.tar.gz'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64.tar.gz'
+            url: 'https://download.jetbrains.com/{{ .Values.download_path }}/{{ .Values.tarball_prefix }}-{{ .Values.version }}-arm64.tar.gz'
+            use: arm64
+        json:
+          version_filter: "$['TBA'][0].build"
+        vars:
+          inherit:
+            - desktop
+            - eutils
+            - xdg
+            - java-vm-2
+          download_path: toolbox
+          tarball_prefix: jetbrains-toolbox
+          fullname: JetBrains Toolbox
+          description: Manage all your JetBrains Projects and Tools
+          license: JetBrains
+          homepage: https://www.jetbrains.com/toolbox-app
+          jid: TBA
+          depend: sys-fs/fuse:0
+          rdepend:
+          extra_envs:
+            - 'QA_PREBUILT="opt/jetbrains-toolbox/jetbrains-toolbox"'
+          s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.version }}/bin'
+          body: |
+            src_install() {
+              keepdir /opt/jetbrains-toolbox
+              insinto /opt/jetbrains-toolbox
+              doins -r .
+              fperms +x /opt/{{ .Values.pn }}/{{ .Values.pn }}
+              newicon toolbox-tray-color.png "{{ .Values.pn }}.png"
+              make_wrapper "{{ .Values.pn }}" /opt/jetbrains-toolbox/jetbrains-toolbox
+              mkdir -p "${ED}"/usr/share/applications
+              insinto /usr/share/applications
+              doins "${PN}.desktop"
+            }
+            pkg_postinst() {
+              xdg_desktop_database_update
+            }
+            pkg_postrm() {
+              xdg_desktop_database_update
+            }

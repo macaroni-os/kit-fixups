@@ -1130,6 +1130,46 @@ dev_github:
               use emacs && elisp-site-regen
             }
 
+    - upx-bin:
+        category: app-arch
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64_linux.tar.xz'
+            matcher: 'upx-{{ .Values.version }}-amd64_linux.tar.xz$'
+            use: amd64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-armeb_linux.tar.xz'
+            matcher: 'upx-{{ .Values.version }}-armeb_linux.tar.xz$'
+            use: arm
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64_linux.tar.xz'
+            matcher: 'upx-{{ .Values.version }}-arm64_linux.tar.xz$'
+            use: arm64
+        transform:
+          - kind: string
+            match: 'UPX '
+            replace: ''
+        github:
+          user: upx
+          repo: upx
+        vars:
+          iuse: doc
+          inherit:
+            - pax-utils
+          extra_envs:
+            - 'QA_PREBUILT="/opt/bin/upx"'
+          body: |
+            post_src_unpack() {
+              mv upx-* "${S}" || die
+            }
+            src_install() {
+              into /usr
+              dobin upx
+              pax-mark -m "${ED}"/opt/bin/upx
+              doman upx.1
+              dodoc NEWS README*
+              if use doc ; then
+                local HTML_DOCS=( upx-doc.html )
+                einstalldocs
+              fi
+            }
 
 gnu_savannah_atoms:
   # Using GARR mirror more fast.

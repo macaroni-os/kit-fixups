@@ -439,3 +439,62 @@ jetbrains_stuff:
             pkg_postrm() {
               xdg_desktop_database_update
             }
+
+
+gitkraken:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-vcs
+    dir:
+      url: https://help.gitkraken.com/gitkraken-desktop/current/
+      matcher: 'version-11*'
+    transform:
+      - kind: string
+        match: '#version-'
+        replace: ''
+      - kind: string
+        match: '-'
+        replace: '.'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64.tar.gz'
+        url: 'https://release.gitkraken.com/linux/GitKraken-v{{ .Values.version }}.tar.gz'
+    vars:
+      inherit:
+        - eutils
+        - pax-utils
+        - xdg-utils
+      desc: "Git GUI client"
+      homepage: "https://www.gitkraken.com/"
+      license: "Axosoft, LLC"
+      rdepend: |
+        x11-libs/libXScrnSaver
+        gnome-base/libgnome-keyring
+        dev-libs/nss
+      depend: '${RDEPEND}'
+      s: '${WORKDIR}/{{ .Values.pn }}'
+      body: |
+        src_install() {
+          declare GITKRAKEN_HOME=/opt/${PN}
+          # Install gitkraken in /opt
+          dodir ${GITKRAKEN_HOME%/*}
+          mv "${S}" "${ED}"${GITKRAKEN_HOME} || die
+          insinto ${GITKRAKEN_HOME}
+          doins "${FILESDIR}/gitkraken.png"
+          # Create /usr/bin/gitkraken
+          dodir /usr/bin/
+          echo '#!/bin/sh' > "${ED}"/usr/bin/${PN}
+          echo 'exec /opt/${PN}/${PN} "\$@"' >> "${ED}"/usr/bin/${PN}
+          fperms 0755 /usr/bin/${PN}
+          fperms 4755 /opt/gitkraken/chrome-sandbox
+          insinto /usr/share/applications
+          doins "${FILESDIR}/gitkraken.desktop"
+        }
+        pkg_postinst() {
+          xdg_desktop_database_update
+        }
+
+  packages:
+    - gitkraken:
+

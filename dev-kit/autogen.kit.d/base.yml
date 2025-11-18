@@ -1214,7 +1214,7 @@ gnu_savannah_atoms:
           body: |
             src_prepare() {
               default
-              mv "${WORKDIR}"/UnicodeData-${UNI_PV}.txt unicode || die
+              mv "${WORKDIR}"/miscfiles-UnicodeData-{{ .Values.unicode_extra_pv }}.txt unicode || die
             }
             src_configure() {
               econf --datadir="${EPREFIX%/}"/usr/share/misc

@@ -1198,3 +1198,730 @@ gnome_stuff:
               meson_src_configure
             }
 
+
+graphviz_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-gfx
+    dir:
+      url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
+      # https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.0.2/graphviz-14.0.2.tar.xz
+      # Skip release candidate/beta versions
+      #exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+  packages:
+    - graphviz:
+        vars:
+          gitlab_user: graphviz
+          gitlab_repo: graphviz
+          python_compat: python3+
+          inherit:
+            - autotools
+            - flag-o-matic
+            - java-pkg-opt-2
+            - python-single-r1
+            - qmake-utils
+          iuse: +cairo devil doc examples gdk-pixbuf gtk gts guile java lasi nls pdf perl postscript python qt5 qt6 ruby static-libs svg tcl X
+          rdepend: |
+            >=dev-libs/expat-2
+            >=dev-libs/glib-2.11.1:2
+            dev-libs/libltdl:0
+            >=media-libs/fontconfig-2.3.95
+            >=media-libs/freetype-2.1.10
+            >=media-libs/gd-2.0.34:=[fontconfig,jpeg,png,truetype,zlib]
+            >=media-libs/libpng-1.2:0=
+            sys-libs/zlib
+            virtual/jpeg:0
+            virtual/libiconv
+            cairo? (
+                >=x11-libs/cairo
+                >=x11-libs/pango-1.12
+            )
+            devil? ( media-libs/devil[png,jpeg] )
+            gtk? ( x11-libs/gtk+:2 )
+            gts? ( sci-libs/gts )
+            lasi? ( media-libs/lasi )
+            pdf? ( app-text/poppler )
+            perl? ( dev-lang/perl:= )
+            postscript? ( app-text/ghostscript-gpl )
+            python? ( ${PYTHON_DEPS} )
+            qt5? (
+                dev-qt/qtcore:5
+                dev-qt/qtgui:5
+                dev-qt/qtprintsupport:5
+                dev-qt/qtwidgets:5
+            )
+            ruby? ( dev-lang/ruby:* )
+            tcl? ( >=dev-lang/tcl-8.3:0= )
+            X? (
+                x11-libs/libX11
+                x11-libs/libXaw
+                x11-libs/libXmu
+                x11-libs/libXpm
+                x11-libs/libXt
+            )
+          depend: |
+            ${RDEPEND}
+            sys-devel/flex
+            sys-devel/libtool
+            virtual/pkgconfig
+            guile? ( dev-lang/swig dev-scheme/guile )
+            java? ( dev-lang/swig >=virtual/jdk-1.5 )
+            nls? ( >=sys-devel/gettext-0.14.5 )
+            perl? ( dev-lang/swig )
+            python? ( dev-lang/swig )
+            ruby? ( dev-lang/swig )
+            tcl? ( dev-lang/swig )
+
+          body: |
+            pkg_setup() {
+              use guile && guile-single_pkg_setup
+              use python && python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              ./autogen.sh
+              default
+              eautoreconf
+            }
+            src_configure() {
+                local myconf=(
+                  # Speeds up the libltdl configure
+                  --cache-file="${S}"/config.cache
+                  --enable-ltdl
+                  $(use_with cairo pangocairo)
+                  $(use_with devil)
+                  $(use_enable gdk-pixbuf)
+                  $(use_with gtk)
+                  $(use_with gts)
+                  $(use_with lasi)
+                  $(use_with pdf poppler)
+                  $(use_with postscript ghostscript)
+                  $(use_enable static-libs static)
+                  $(use_with X x)
+                  $(use_with X xaw)
+                  $(use_with X lefty)
+                  --with-digcola
+                  --with-fontconfig
+                  --with-freetype2
+                  --with-ipsepcola
+                  --with-libgd
+                  --with-sfdp
+                  --without-ming
+                  --without-rsvg
+                  # new/experimental features, to be tested, disable for now
+                  --with-cgraph
+                  --without-glitz
+                  --without-ipsepcola
+                  --without-smyrna
+                  --without-visio
+                  # Bindings:
+                  $(use_enable guile)
+                  $(use_enable java)
+                  $(use_enable perl)
+                  $(use_enable python python3)
+                  $(use_enable ruby)
+                  $(use_with svg rsvg)
+                  $(use_enable tcl)
+                  --disable-go
+                  --disable-io
+                  --disable-lua
+                  --disable-ocaml
+                  --disable-php
+                  --disable-python
+                  --disable-r
+                  --disable-sharp
+                  # libtool file collision, bug #276609
+                  --without-included-ltdl
+                  --disable-ltdl-install
+                )
+
+                if use qt6 || use qt5 ; then
+                  myconf+=(
+                    --with-qt
+                  )
+                fi
+                econf "${myconf[@]}"
+            }
+            src_install() {
+                default
+                find "${ED}" -name '*.la' -delete || die
+                use guile && guile_unstrip_ccache
+                use python && python_optimize \
+                    "${D}"$(python_get_sitedir) \
+                    "${ED}"/usr/$(get_libdir)/graphviz/python3
+            }
+            pkg_postinst() {
+                # We need to register all plugins before they become usable
+                dot -c || die
+            }
+            pkg_postrm() {
+                # Remove cruft, bug #547344
+                rm -rf "${EROOT}"/usr/$(get_libdir)/graphviz/config{,6} || die
+            }
+
+tiff:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: https://download.osgeo.org/libtiff/
+      matcher: 'tiff-.*.tar.xz$'
+      exclude: "beta|rc"
+    transform:
+      - kind: string
+        match: "tiff-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      desc: Tag Image File Format (TIFF) library
+      homepage: http://libtiff.maptools.org
+      license: libtiff
+      iuse: +cxx jbig jpeg lzma static-libs webp zlib zstd
+      inherit:
+        - autotools
+        - libtool
+      rdepend: |
+        jbig? ( media-libs/jbigkit:= )
+        jpeg? ( virtual/jpeg )
+        lzma? ( app-arch/xz-utils )
+        webp? ( media-libs/libwebp:= )
+        zlib? ( sys-libs/zlib )
+        zstd? ( app-arch/zstd:= )
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          default
+          eautoreconf
+        }
+        src_configure() {
+          local myeconfargs=(
+            --without-x
+            --with-docdir="${EPREFIX}"/usr/share/doc/${PF}
+            $(use_enable cxx)
+            $(use_enable jbig)
+            $(use_enable jpeg)
+            $(use_enable lzma)
+            $(use_enable static-libs static)
+            $(use_enable webp)
+            $(use_enable zlib)
+            $(use_enable zstd)
+          )
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${ED}" -type f -name '*.la' -delete || die
+        }
+  packages:
+    - tiff:
+
+
+gstreamer_stuff:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://gstreamer.freedesktop.org/src/{{ .Values.pkgpath | default .Values.pn }}'
+      matcher: '{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$'
+      exclude: "90"
+    transform:
+      - kind: string
+        match: '{{ .Values.pkgname | default .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      license: LGPL-2+
+      slot: '1.0'
+      homepage: https://gstreamer.freedesktop.org/
+      bdepend: |
+        virtual/perl-JSON-PP
+        virtual/pkgconfig
+        sys-apps/sed
+    selector:
+      # Stable release 1.26
+      - '<1.27'
+
+  packages:
+
+    - gst-plugins-ugly:
+        vars:
+          inherit:
+            - meson
+          desc: Ugly plugins for GStreamer
+          iuse: +x264 cdio dvdread a52dec mpeg2dec sidplay +orc +gpl
+          rdepend: |
+            >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}
+            orc? ( dev-lang/orc )
+            x264? ( media-libs/x264:= )
+            dvdread? ( media-libs/libdvdread:= )
+            a52dec? ( media-libs/a52dec:= )
+            cdio? ( dev-libs/libcdio:= )
+            mpeg2dec? ( media-libs/libmpeg2:= )
+            sidplay? ( media-libs/libsidplay:= )
+          depend: '${RDEPEND}'
+          gst_plugins:
+            - a52dec
+            - cdio
+            - dvdread
+            - mpeg2dec
+            - x264
+            - sidplay
+          body: |
+            src_configure() {
+              local emesonargs=(
+                {{- range $plugin := .Values.gst_plugins }}
+                -D{{ $plugin }}=enabled
+                {{- end }}
+                $(meson_feature x264)
+                $(meson_feature gpl)
+                $(meson_feature dvdread)
+                $(meson_feature a52dec)
+                $(meson_feature cdio)
+                $(meson_feature mpeg2dec)
+                $(meson_feature sidplay)
+                -Dpackage-name="GStreamer ugly plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+              )
+              meson_src_configure
+            }
+
+    - gst-plugins-good:
+        vars:
+          inherit:
+            - meson
+          desc: Good plugins for GStreamer
+          iuse: +orc
+          rdepend: |
+            >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}
+            app-arch/bzip2
+            sys-libs/zlib
+            orc? ( dev-lang/orc )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbz2=enabled
+                -Dpackage-name="GStreamer good plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+              )
+              meson_src_configure
+            }
+
+    - gst-plugins-bad:
+        vars:
+          inherit:
+            - meson
+          desc: Less plugins for GStreamer
+          iuse: X bzip2 +egl gles2 +introspection +opengl +orc udev vaapi vnc wayland
+          rdepend: |
+            >=media-libs/gstreamer-{{ .Values.version }}:{{ .Values.slot }}[introspection?]
+            introspection? ( dev-libs/gobject-introspection )
+            bzip2? ( app-arch/bzip2 )
+            vnc? ( X? ( x11-libs/libX11 ) )
+            wayland? (
+              dev-libs/wayland
+              x11-libs/libdrm
+              dev-libs/wayland-protocols
+            )
+            orc? ( dev-lang/orc )
+            vaapi? (
+              media-libs/libva
+              udev? ( dev-libs/libgudev )
+            )
+          depend: |
+            ${RDEPEND}
+            dev-util/gtk-doc-am
+          # TODO: there are a lot of others plugins to verify: flite, mpeg2
+          gst_plugins:
+            - bz2
+            - hls
+            - ipcpipeline
+            - librfb
+            - shm
+            - va
+            - wayland
+          body: |
+            src_prepare() {
+              default
+              addpredict /dev # Prevent sandbox violations bug #570624
+            }
+            src_configure() {
+              local emesonargs=(
+                {{- range $plugin := .Values.gst_plugins }}
+                -D{{ $plugin }}=enabled
+                {{- end }}
+                -Dtests=disabled
+                -Dhls=disabled
+                $(meson_feature vnc librfb)
+                $(meson_feature vaapi va)
+                -Dudev=$(usex udev $(usex vaapi enabled disabled) disabled)
+                $(meson_feature vnc librfb)
+                -Dx11=$(usex X $(usex vnc enabled disabled) disabled)
+                $(meson_feature wayland)
+                -Dpackage-name="GStreamer bad plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+              )
+              if use opengl || use gles2; then
+                myconf+=( -Dgl=enabled )
+              else
+                myconf+=( -Dgl=disabled )
+              fi
+              meson_src_configure
+            }
+
+
+
+    - gst-plugins-base:
+        vars:
+          inherit:
+            - flag-o-matic
+            - meson
+          desc: Basepack of plugins for gstreamer
+          license: GPL-2+ LGPL-2+
+          iuse: |
+            alsa +egl gbm gles2 +introspection +ogg +opengl
+            +orc +pango theora +vorbis wayland +X
+          required_use: |
+            theora? ( ogg )
+            vorbis? ( ogg )
+            opengl? (
+              || ( egl X ) || ( gbm wayland X )
+              wayland? ( egl )
+              gbm? ( egl )
+            )
+          rdepend: |
+            app-text/iso-codes
+            dev-libs/glib:2
+            sys-libs/zlib
+            alsa? ( media-libs/alsa-lib )
+            introspection? ( dev-libs/gobject-introspection:= )
+            ogg? ( media-libs/libogg )
+            orc? ( dev-lang/orc )
+            pango? ( x11-libs/pango )
+            theora? ( media-libs/libtheora )
+            vorbis? ( media-libs/libvorbis )
+            X? (
+              x11-libs/libX11
+              x11-libs/libXext
+              x11-libs/libXv
+            )
+            gles2? (
+              media-libs/mesa[egl(+)?,gbm(+)?,gles2?,wayland?]
+              egl? (
+                x11-libs/libdrm
+              )
+              gbm? (
+                dev-libs/libgudev
+                x11-libs/libdrm
+              )
+              wayland? (
+                dev-libs/wayland
+                dev-libs/wayland-protocols
+              )
+              media-libs/graphene
+              media-libs/libpng:0
+              virtual/jpeg
+            )
+            opengl? (
+              media-libs/mesa[egl(+)?,gbm(+)?,gles2?,wayland?]
+              egl? (
+                x11-libs/libdrm
+              )
+              gbm? (
+                dev-libs/libgudev
+                x11-libs/libdrm
+              )
+              wayland? (
+                dev-libs/wayland
+                dev-libs/wayland-protocols
+              )
+              media-libs/graphene
+              media-libs/libpng:0
+              virtual/jpeg
+            )
+          depend: |
+            ${RDEPEND}
+            dev-util/gtk-doc-am
+            X? ( x11-base/xorg-proto )
+          gst_plugins:
+            - alsa
+            - gl
+            - ogg
+            - pango
+            - theora
+            - vorbis
+            - x11
+            - xshm
+            - xvideo
+          body: |
+            src_configure() {
+              filter-flags -mno-sse -mno-sse2 -mno-sse4.1 #610340
+              local emesonargs=(
+                -Dtests=disabled
+                -Dtools=enabled
+                -Ddrm=enabled
+                -Dpackage-name="GStreamer base plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+                {{- range $plugin := .Values.gst_plugins }}
+                -D{{ $plugin }}=enabled
+                {{- end }}
+                $(meson_feature alsa)
+                $(meson_feature ogg)
+                $(meson_feature pango)
+                $(meson_feature theora)
+                $(meson_feature vorbis)
+                $(meson_feature X x11)
+                $(meson_feature X xshm)
+                $(meson_feature X xvideo)
+              )
+              if use opengl || use gles2; then
+                # because meson doesn't like extraneous commas
+                local gl_api=( $(use opengl && echo opengl) $(use gles2 && echo gles2) )
+                local gl_platform=( $(use X && use opengl && echo glx) $(use egl && echo egl) )
+                local gl_winsys=(
+                  $(use X && echo x11)
+                  $(use wayland && echo wayland)
+                  $(use egl && echo egl)
+                  $(use gbm && echo gbm)
+                )
+                emesonargs+=(
+                  -Dgl=enabled
+                  -Dgl-graphene=enabled
+                  -Dgl_api=$(IFS=, ; echo "${gl_api[*]}")
+                  -Dgl_platform=$(IFS=, ; echo "${gl_platform[*]}")
+                  -Dgl_winsys=$(IFS=, ; echo "${gl_winsys[*]}")
+                )
+              else
+                emesonargs+=(
+                  -Dgl=disabled
+                  -Dgl_api=
+                  -Dgl_platform=
+                  -Dgl_winsys=
+                )
+              fi
+              # Workaround EGL/eglplatform.h being built with X11 present
+              use X || export CFLAGS="${CFLAGS} -DEGL_NO_X11"
+              meson_src_configure
+            }
+
+
+    - gstreamer-editing-services:
+        vars:
+          pkgname: gst-editing-services
+          inherit:
+            - meson
+            - python-r1
+            - bash-completion-r1
+          python_compat: python3+
+          desc: SDK for making video editors and more
+          homepage: http://wiki.pitivi.org/wiki/GES
+          iuse: '+introspection bash-completion'
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/glib:2
+            dev-libs/libxml2:2=
+            >=media-libs/gstreamer-{{ .Values.version }}:1.0[introspection?]
+            >=media-libs/gst-plugins-base-{{ .Values.version }}:1.0[introspection?]
+            >=media-libs/gst-plugins-bad-{{ .Values.version }}:1.0[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+            bash-completion? ( app-shells/bash-completion )
+          depend: '${RDEPEND}'
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          body: |
+            src_configure() {
+              python_setup
+              local emesonargs=(
+                -Ddoc=disabled # hotdoc not packaged
+                -Dtests=disabled
+                -Dxptv=disabled
+                -Dpython=enabled
+                -Dvalidate=disabled
+                -Dexamples=disabled
+                $(meson_feature bash-completion)
+                $(meson_feature introspection)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_moduleinto gi.overrides
+              python_foreach_impl python_domodule bindings/python/gi/overrides/GES.py
+            }
+
+    - gstreamer:
+        vars:
+          inherit:
+            - meson
+          desc: Open source multimedia framework
+          iuse: +caps +introspection ptp unwind
+          rdepend: |
+            dev-libs/glib:2
+            caps? ( sys-libs/libcap )
+            introspection? ( dev-libs/gobject-introspection:= )
+            unwind? (
+              sys-libs/libunwind
+              dev-libs/elfutils
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/rust
+            virtual/yacc
+            sys-devel/flex
+            dev-util/gtk-doc-am
+          docs:
+            - ChangeLog
+            - NEWS
+            - MAINTAINERS
+            - README.md
+            - RELEASE
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbenchmarks=disabled
+                -Dexamples=disabled
+                -Dcheck=enabled
+                -Dtests=disabled
+                -Dpackage-name="GStreamer (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+                $(meson_feature introspection)
+                $(meson_feature unwind libunwind)
+                $(meson_feature unwind libdw)
+              )
+
+              if use caps ; then
+                emesonargs+=( -Dptp-helper-permissions=capabilities )
+              else
+                emesonargs+=(
+                  -Dptp-helper-permissions=setuid-root
+                  -Dptp-helper-setuid-user=nobody
+                  -Dptp-helper-setuid-group=nobody
+                )
+              fi
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+
+formulae_brew_pkgs:
+  # NOTE: we use adelielinux fork because the sourceforge
+  #       version seems unmaintained.
+  generator: builtin-json
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    json:
+      url: 'https://formulae.brew.sh/api/formula/{{ .Values.pn }}.json'
+      version_filter: '$.versions.stable'
+      src_uri_filter: '$.urls.stable.url'
+      map_filter_vars:
+        desc: '$.desc'
+        license: '$.license'
+        homepage: '$.homepage'
+
+  packages:
+    - libmpeg2:
+        vars:
+          inherit:
+            - autotools
+            - eutils
+            - libtool
+            - ltprune
+          iuse: sdl static-libs X
+          rdepend: |
+            sdl? ( media-libs/libsdl )
+            X? (
+              x11-libs/libXv
+              x11-libs/libICE
+              x11-libs/libSM
+              x11-libs/libXt
+            )
+          depend: |
+            ${RDEPEND}
+            X? ( x11-base/xorg-proto )
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - NEWS
+            - README
+            - TODO
+          body: |
+            src_configure() {
+              ECONF_SOURCE="${S}" \
+              econf \
+                $(use_enable static-libs static) \
+                --enable-shared \
+                $(use_enable sdl) \
+                $(use_with X x)
+            }
+            src_compile() {
+              emake OPT_CFLAGS="${CFLAGS}" \
+                MPEG2DEC_CFLAGS="${CFLAGS}" \
+                LIBMPEG2_CFLAGS=""
+            }
+            src_install() {
+              default
+              prune_libtool_files --all
+              einstalldocs
+            }
+
+    - a52dec:
+        vars:
+          inherit:
+            - autotools
+            - flag-o-matic
+          iuse: djbfft
+          rdepend: |
+            djbfft? ( sci-libs/djbfft )
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              sed -i -e '/^CFLAGS = @CFLAGS@ @LIBA52_CFLAGS@/d' liba52/Makefile.am || die
+              sed -i -e '/^LIBA52_CFLAGS="$LIBA52_CFLAGS -prefer-non-pic"/d' liba52/configure.incl || die
+              sed -i -e '/^CFLAGS = @A52DEC_CFLAGS@/d' src/Makefile.am || die
+              eautoreconf
+              filter-flags -fprefetch-loop-arrays
+            }
+            src_configure() {
+              ECONF_SOURCE="${S}" econf \
+                --disable-static \
+                --enable-shared \
+                $(use_enable djbfft) \
+                --disable-oss
+            }
+            src_compile() {
+              emake CFLAGS="${CFLAGS}"
+            }
+            src_install() {
+              default
+              einstalldocs
+              dodoc HISTORY doc/liba52.txt
+              find "${ED}" -name '*.la' -type f -delete || die
+            }
+
+

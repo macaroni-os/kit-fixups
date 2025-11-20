@@ -1915,3 +1915,61 @@ formulae_brew_pkgs:
             }
 
 
+media_libs_gh:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: releases
+  packages:
+    - graphene:
+        github:
+          user: ebassi
+        transform:
+          - kind: string
+            match: 'Graphene '
+            replace: ''
+          - kind: regex
+            match: ' \(.*$'
+            replace: ''
+        vars:
+          inherit:
+            - xdg-utils
+            - meson
+            - python-any-r1
+          iuse: cpu_flags_arm_neon cpu_flags_x86_sse2 doc +introspection
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          python_compat: python3+
+          bdepend: |
+            ${PYTHON_DEPS}
+            doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              xdg_environment_reset
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dgtk_doc=$(usex doc true false)
+                -Dgobject_types=true
+                -Dgcc_vector=true
+                -Dtests=false
+                $(meson_use cpu_flags_x86_sse2 sse2)
+                $(meson_use cpu_flags_arm_neon arm_neon)
+                $(meson_feature introspection)
+                -Dinstalled_tests=false
+              )
+              meson_src_configure
+            }
+
+

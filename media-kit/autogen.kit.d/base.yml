@@ -1072,19 +1072,18 @@ gnome_stuff:
     template: ../../templates/simple.tmpl
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
 
   packages:
     - gnome-music:
         category: media-sound
-        dir:
-          matcher: "gnome-music-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: "gnome-music-"
-            replace: ""
-          - kind: string
-            match: ".tar.xz"
-            replace: ""
         vars:
           patches:
             - gnome-music-meson36.patch
@@ -1140,15 +1139,6 @@ gnome_stuff:
 
     - libmediaart:
         category: media-libs
-        dir:
-          matcher: "libmediaart-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: "libmediaart-"
-            replace: ""
-          - kind: string
-            match: ".tar.xz"
-            replace: ""
         vars:
           python_compat: python3+
           release: "1.9"

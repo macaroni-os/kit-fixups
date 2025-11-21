@@ -176,7 +176,7 @@ net_misc_cat:
           inherit:
             - autotools
             - gnome3
-          slot: 0.56
+          slot: "0.56"
           release: "0.56"
           desc: Compiler for the GObject type system
           homepage: https://wiki.gnome.org/Projects/Vala
@@ -317,7 +317,142 @@ mail_apps:
               gnome3_schemas_update
             }
 
-extra_apps:
+glycin_gitlab:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: 'rc|beta|alpha'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/archive/{{ .Values.original_version }}/{{ .Values.gitlab_repo | default .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        #https://gitlab.gnome.org/GNOME/glycin/-/archive/2.0.7/glycin-2.0.7.tar.bz2?ref_type=tags
+
+    vars:
+      gitlab_user: GNOME
+      homepage: https://gitlab.gnome.org/GNOME/glycin/
+      inherit:
+        - cargo
+        - meson
+      s: '${WORKDIR}/{{ .Values.gitlab_repo | default .Values.pn }}-{{ .Values.version }}'
+      license: |
+        || ( LGPL-2.1+ MPL-2.0 )
+        Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD GPL-3+ IJG ISC
+        LGPL-3+ MIT Unicode-3.0
+        || ( LGPL-2.1+ MPL-2.0 )
+      slot: 2
+      # TODO: svg creates a dep cycle because
+      #       because librsvg requires gtk-pixbuf that requires gyncin-loaders
+      rdepend: |
+        dev-libs/glib:2
+        sys-libs/libseccomp
+        heif? ( >=media-libs/libheif-1.17.0:= )
+        jpegxl? ( media-libs/libjxl:= )
+        svg? (
+          gnome-base/librsvg:2
+          x11-libs/cairo
+        )
+      depend: '${RDEPEND}'
+
+  packages:
+
+    # Require glibc 2.43
+    - libglycin:
+        category: media-libs
+        extensions:
+          - rust
+        vars:
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          gitlab_repo: glycin
+          desc: Glycin C-Bindings for the library
+          iuse: heif jpeg2k jpegxl svg debug
+          inherit:
+            - cargo
+            - meson
+            - vala
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+            }
+            src_prepare() {
+              use vala && vala_src_prepare
+              default
+              # Fix integration with py3.9
+              sed -i -e 's|import tomllib|import tomli as tomllib|g' build-aux/crates-version.py || die
+            }
+            src_configure() {
+              local formats=(
+                $(usev heif glycin-heif)
+                $(usev jpeg2k glycin-jpeg2000)
+                $(usev jpegxl glycin-jxl)
+                $(usev svg glycin-svg)
+                glycin-image-rs
+              )
+              local formats_s=${formats[*]}
+              local emesonargs=(
+                -Dprofile=$(usex debug dev release)
+                -Dglycin-loaders=false
+                -Dloaders="${formats_s// /,}"
+                -Dtests=false
+                -Dlibglycin=true
+                -Dlibglycin-gtk4=false
+                -Dglycin-thumbnailer=false
+              )
+              meson_src_configure
+              ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+            }
+
+    - glycin-loaders:
+        category: media-libs
+        extensions:
+          - rust
+        vars:
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          gitlab_repo: glycin
+          desc: Loaders for glycin clients (glycin crate or libglycin)
+          iuse: heif jpeg2k jpegxl svg debug
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+            }
+            src_configure() {
+              local formats=(
+                $(usev heif glycin-heif)
+                $(usev jpeg2k glycin-jpeg2000)
+                $(usev jpegxl glycin-jxl)
+                $(usev svg glycin-svg)
+                glycin-image-rs
+              )
+              local formats_s=${formats[*]}
+              local emesonargs=(
+                -Dprofile=$(usex debug dev release)
+                -Dglycin-loaders=true
+                -Dloaders="${formats_s// /,}"
+                -Dtests=false
+                -Dlibglycin=false
+                -Dlibglycin-gtk4=false
+                -Dglycin-thumbnailer=false
+              )
+              meson_src_configure
+              ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+            }
+
+gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
@@ -329,18 +464,167 @@ extra_apps:
     category: gnome-extra
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+
+  extensions_defs:
+    rust:
+      opts:
 
   packages:
+
+    - gdk-pixbuf:
+        category: x11-libs
+        vars:
+          inherit:
+            - meson
+            - xdg
+            - gnome3
+          slot: 2
+          release: 2.44
+          desc: Image loading library for GTK+
+          homepage: https://gitlab.gnome.org/GNOME/gdk-pixbuf
+          license: LGPL-2.1+
+          iuse: gtk-doc +introspection gif jpeg tiff glycin
+          rdepend: |
+            dev-libs/glib:2
+            x11-misc/shared-mime-info
+            media-libs/libpng:=
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            tiff? ( media-libs/tiff:= )
+            glycin? ( media-libs/libglycin:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+            app-text/docbook-xsl-stylesheets
+            app-text/docbook-xml-dtd:4.3
+            dev-libs/libxslt
+            dev-python/docutils
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dpng=enabled
+                -Dtests=false
+                $(meson_feature gif)
+                -Dothers=enabled
+                $(meson_feature tiff)
+                $(meson_feature glycin)
+                $(meson_feature jpeg)
+                -Dbuiltin_loaders=png,jpeg
+                -Drelocatable=false
+                -Dinstalled_tests=false
+                -Dgio_sniffing=true
+                -Ddocumentation=$(usex gtk-doc true false)
+                -Dman=true
+                $(meson_feature introspection)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_preinst() {
+              xdg_pkg_preinst
+              # Make sure loaders.cache belongs to gdk-pixbuf alone
+              local cache="usr/$(get_libdir)/${PN}-2.0/2.10.0/loaders.cache"
+              if [[ -e ${EROOT}/${cache} ]]; then
+                cp "${EROOT}"/${cache} "${ED}"/${cache} || die
+              else
+                touch "${ED}"/${cache} || die
+              fi
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              xdg_pkg_postrm
+              if [[ -z ${REPLACED_BY_VERSION} ]]; then
+                rm -f "${EROOT}"/usr/lib*/${PN}-2.0/2.10.0/loaders.cache
+              fi
+            }
+
+    - librsvg:
+        category: gnome-base
+        extensions:
+          - rust
+        vars:
+          release: '2.61'
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          inherit:
+            - meson
+            - eutils
+            - gnome3
+            - vala
+            - ltprune
+            - cargo
+          desc: Scalable Vector Graphics (SVG) rendering library
+          homepage: https://wiki.gnome.org/Projects/LibRsvg
+          license: LGPL+2
+          slot: 2
+          iuse: gtk-doc +introspection +vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/cairo
+            x11-libs/pango
+            dev-libs/libxml2:2
+            dev-libs/libcroco
+            x11-libs/gdk-pixbuf:2[introspection?]
+            virtual/rust
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            dev-libs/gobject-introspection-common
+            dev-libs/vala-common
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+            virtual/pkgconfig
+            dev-util/cargo-c
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+            }
+            src_prepare() {
+              gnome3_src_prepare
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dtests=false
+                # TODO: check
+                -Davif=disabled
+                $(meson_feature introspection)
+                -Dpixbuf=enabled
+                -Dpixbuf-loader=enabled
+                $(meson_feature gtk-doc docs)
+                $(meson_feature vala)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              # causes segfault if set, see bug 375615
+              unset __GL_NO_DSO_FINALIZER
+              gnome3_pkg_postrm
+            }
+
+
     - gnome-weather:
-        dir:
-          matcher: "gnome-weather-.*.tar.xz$"
-        transform:
-          - kind: string
-            match: "gnome-weather-"
-            replace: ""
-          - kind: string
-            match: ".tar.xz"
-            replace: ""
         vars:
           patches:
             - gnome-weather-timezone.patch
@@ -372,6 +656,4 @@ extra_apps:
               sed -i -e "/'appdata'\,/d" data/meson.build
               gnome3_src_prepare
             }
-
-
 

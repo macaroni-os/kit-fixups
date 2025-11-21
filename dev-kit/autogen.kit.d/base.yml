@@ -613,6 +613,26 @@ dev_github:
               einstalldocs
             }
 
+    - cargo-c:
+        github:
+          user: lu-zero
+        extensions:
+          - rust
+        rdepend: |
+          sys-libs/zlib
+          dev-libs/openssl:0=
+          dev-vsc/git
+          net-misc/curl[ssl]
+        bdepend: |
+          virtual/rust
+        body: |
+          src_unpack() {
+            cargo_src_unpack
+            rm -rf ${S}
+            mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S} || die
+          }
+
+
     - cbindgen:
         extensions:
           - rust

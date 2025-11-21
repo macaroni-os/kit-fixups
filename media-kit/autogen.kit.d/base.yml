@@ -1018,7 +1018,7 @@ dav1d:
     category: media-libs
     dir:
       url: https://download.videolan.org/pub/videolan/{{ .Values.pn }}/
-      matcher: '[0.9.]+'
+      matcher: '[1.5.]+'
 
   packages:
     - dav1d:
@@ -1233,7 +1233,7 @@ graphviz_dirlisting:
             virtual/jpeg:0
             virtual/libiconv
             cairo? (
-                >=x11-libs/cairo
+                x11-libs/cairo
                 >=x11-libs/pango-1.12
             )
             devil? ( media-libs/devil[png,jpeg] )
@@ -1825,7 +1825,7 @@ formulae_brew_pkgs:
     template: ../../templates/simple.tmpl
     category: media-libs
     json:
-      url: 'https://formulae.brew.sh/api/formula/{{ .Values.pn }}.json'
+      url: 'https://formulae.brew.sh/api/formula/{{ .Values.jsonfile | default .Values.pn }}.json'
       version_filter: '$.versions.stable'
       src_uri_filter: '$.urls.stable.url'
       map_filter_vars:
@@ -1834,6 +1834,37 @@ formulae_brew_pkgs:
         homepage: '$.homepage'
 
   packages:
+
+    - lcms:
+        vars:
+          s: '${WORKDIR}/lcms2-{{ .Values.version }}'
+          jsonfile: little-cms2
+          slot: 2
+          inherit:
+            - meson
+          iuse: doc jpeg static-libs tiff
+          rdepend: |
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            tiff? ( media-libs/tiff:= )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddefault_library=$(usex static-libs both shared)
+                -Dthreaded=true
+                -Dfastfloat=true
+                -Dutils=true
+                -Dtests=disabled
+                $(meson_feature jpeg)
+                $(meson_feature tiff)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              use doc && dodoc doc/*.pdf
+            }
+
     - libmpeg2:
         vars:
           inherit:
@@ -1925,6 +1956,51 @@ media_libs_gh:
     github:
       query: releases
   packages:
+    - shaderc:
+        template: ../../templates/simple-noindent-github.tmpl
+        github:
+          user: google
+          query: tags
+        vars:
+          inherit:
+            - cmake
+            - python-any-r1
+          python_compat: python3+
+          rdepend: |
+            dev-util/glslang
+            dev-util/spirv-tools
+          depend: |
+            ${RDEPEND}
+            ${PYTHON_DEPS}
+            dev-util/spirv-headers
+          body: |
+            src_prepare() {
+            # Disable third party dependencies
+            sed -i -e '/add_subdirectory(third_party)/d' CMakeLists.txt
+            # Fix glslc test generation depending on third-party SPIRV-tool
+            sed -i -e "s|\$<TARGET_FILE:spirv-dis>|spirv-dis|" \
+              glslc/test/CMakeLists.txt || die
+            # Disable git versioning
+            sed -i -e '/build-version/d' glslc/CMakeLists.txt || die
+            # Manually create build-version.inc as we disabled git versioning
+            cat <<- EOF > glslc/src/build-version.inc || die
+              "${P}\n"
+              "$(best_version dev-util/spirv-tools)\n"
+              "$(best_version dev-util/glslang)\n"
+            EOF
+            cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DSHADERC_SKIP_TESTS="true"
+                -DSHADERC_ENABLE_WERROR_COMPILE="false"
+                -DSHADERC_ENABLE_EXAMPLES=OFF
+                -Dglslang_SOURCE_DIR=/usr/include/glslang
+              )
+              cmake_src_configure
+            }
+
+
     - graphene:
         github:
           user: ebassi

@@ -481,6 +481,141 @@ gnome_apps:
 
   packages:
 
+    - libsoup:
+        category: net-libs
+        vars:
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          slot: 2.4
+          release: '2.74'
+          homepage: https://libsoup.gnome.org
+          desc: HTTP client/server library for GNOME
+          inherit:
+            - meson
+            - vala
+            - xdg
+          iuse: brotli gssapi gtk-doc +introspection samba ssl +vala
+          required_use: vala? ( introspection )
+          cdepend: |
+            dev-libs/glib:2
+            dev-db/sqlite
+            dev-libs/libxml2
+            brotli? ( app-arch/brotli )
+            net-libs/libpsl
+            sys-libs/zlib
+            gssapi?  ( virtual/krb5 )
+            introspection? ( dev-libs/gobject-introspection:= )
+            samba? ( net-fs/samba )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            net-libs/glib-networking[ssl?]
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.1.2
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              xdg_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature gssapi)
+                -Dkrb5_config="${CHOST}-krb5-config"
+                $(meson_feature samba ntlm)
+                $(meson_feature brotli)
+                -Dntlm_auth="${EPREFIX}/usr/bin/ntlm_auth"
+                -Dtls_check=false # disables check, we still rdep on glib-networking
+                -Dgnome=false
+                $(meson_feature introspection)
+                $(meson_feature vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+                -Dtests=false
+                -Dinstalled_tests=false
+                -Dsysprof=disabled
+              )
+              meson_src_configure
+            }
+
+    - libsoup:
+        category: net-libs
+        vars:
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          slot: 3
+          release: '3.6'
+          homepage: https://libsoup.gnome.org
+          desc: HTTP client/server library for GNOME
+          inherit:
+            - meson
+            - vala
+            - xdg
+          iuse: brotli gssapi gtk-doc +introspection samba ssl +vala
+          required_use: vala? ( introspection )
+          cdepend: |
+            dev-libs/glib:2
+            net-libs/nghttp2:=
+            dev-db/sqlite
+            brotli? ( app-arch/brotli )
+            net-libs/libpsl
+            sys-libs/zlib
+            gssapi?  ( virtual/krb5 )
+            introspection? ( dev-libs/gobject-introspection:= )
+            samba? ( net-fs/samba )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            net-libs/glib-networking[ssl?]
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.1.2
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              xdg_src_prepare
+              # https://gitlab.gnome.org/GNOME/libsoup/issues/159 - could work with libnss-myhostname
+              sed -e '/hsts/d' -i tests/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                # Avoid auto-magic, built-in feature of meson
+                -Dauto_features=enabled
+                $(meson_feature gssapi)
+                $(meson_feature samba ntlm)
+                $(meson_feature brotli)
+                -Dntlm_auth="${EPREFIX}/usr/bin/ntlm_auth"
+                -Dtls_check=false
+                $(meson_feature introspection)
+                $(meson_feature vala vapi)
+                $(meson_feature gtk-doc docs)
+                -Ddoc_tests=false
+                -Dtests=false
+                -Dautobahn=disabled
+                -Dinstalled_tests=false
+                -Dpkcs11_tests=disabled
+                -Dsysprof=disabled
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/libsoup-3.0 "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
+
     - glib-networking:
         category: net-libs
         vars:

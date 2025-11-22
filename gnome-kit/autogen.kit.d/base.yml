@@ -472,12 +472,59 @@ gnome_apps:
       - kind: string
         match: ".tar.xz"
         replace: ""
+    vars:
+      license: LGPL-2.1+
 
   extensions_defs:
     rust:
       opts:
 
   packages:
+
+    - glib-networking:
+        category: net-libs
+        vars:
+          inherit:
+            - meson
+            - xdg
+            - gnome3
+          desc: Network-related giomodules for glib
+          homepage: https://gitlab.gnome.org/GNOME/glib-networking
+          release: '2.80'
+          iuse: +gnome +libproxy +ssl
+          rdepend: |
+            dev-libs/glib:2
+            libproxy? ( net-libs/libproxy )
+            net-libs/gnutls:=
+            ssl? ( app-misc/ca-certificates )
+            gnome? ( gnome-base/gsettings-desktop-schemas )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dgnutls=enabled
+                -Dopenssl=$(usex ssl enabled disabled)
+                $(meson_feature libproxy)
+                $(meson_feature gnome gnome_proxy)
+                -Dinstalled_tests=false
+                -Ddebug_logs=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+              gnome3_giomodule_cache_update || die "Update GIO modules cache failed (for ${ABI})"
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+              gnome3_giomodule_cache_update || die "Update GIO modules cache failed (for ${ABI})"
+            }
 
     - gdk-pixbuf:
         category: x11-libs
@@ -490,7 +537,6 @@ gnome_apps:
           release: 2.44
           desc: Image loading library for GTK+
           homepage: https://gitlab.gnome.org/GNOME/gdk-pixbuf
-          license: LGPL-2.1+
           iuse: gtk-doc +introspection gif jpeg tiff glycin
           rdepend: |
             dev-libs/glib:2

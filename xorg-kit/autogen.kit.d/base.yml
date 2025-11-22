@@ -2214,6 +2214,9 @@ libpng:
       - name: "{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
         url: "https://download.sourceforge.net/apng/{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
         use: apng
+    selector:
+      # 1.6.51 is currently without apng patch. We waiting this.
+      - '<1.6.51'
     vars:
       desc: Portable Network Graphics library
       homepage: http://www.libpng.org/

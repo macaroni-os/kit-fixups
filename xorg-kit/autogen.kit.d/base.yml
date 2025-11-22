@@ -2390,13 +2390,13 @@ gnome_sources:
             - gdbus-codegen-2.60.3-sitedir.patch
           body: |
             src_prepare() {
+              distutils-r1_src_prepare
               sed -e 's:@PYTHON@:python:' gdbus-codegen.in > gdbus-codegen || die
               sed -e "s:@VERSION@:${PV}:" \
                 -e "s:@MAJOR_VERSION@:$(ver_cut 1):" \
                 -e "s:@MINOR_VERSION@:$(ver_cut 2):" config.py.in > config.py || die
               cp "${FILESDIR}/setup.py-2.32.4" setup.py || die "cp failed"
               sed -e "s/@PV@/${PV}/" -i setup.py || die "sed setup.py failed"
-              distutils-r1_src_prepare
             }
             do_xsltproc_command() {
               # Taken from meson.build for manual manpage building - keep in sync (also copied to dev-util/glib-utils)

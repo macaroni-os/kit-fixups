@@ -300,6 +300,8 @@ standalone_modules:
     - brotlipy:
         pypi_name: Brotli
         depend: app-arch/brotli
+        vars:
+          s: '${WORKDIR}/brotli-{{ .Values.version }}'
 
     - yarl:
         pydeps:

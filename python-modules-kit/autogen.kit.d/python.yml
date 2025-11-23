@@ -571,20 +571,64 @@ gnome_dirlisting:
     template: ../../templates/simple.tmpl
     dir:
       url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
-      matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"
+      matcher: "{{ .Values.tname | default .Values.pn }}-.*{{ .Values.tarsuffix }}$"
       exclude: 'rc|alpha|beta'
     transform:
       - kind: string
         match: "{{ .Values.tname | default .Values.pn }}-"
         replace: ""
       - kind: string
-        match: ".tar.xz"
+        match: "{{ .Values.tarsuffix }}"
         replace: ""
     vars:
+      tarsuffix: '.tar.xz'
       python_compat: python3+
       license: MIT
 
   packages:
+
+    - pygobject:
+        vars:
+          tarsuffix: '.tar.gz'
+          python_compat: python3+
+          release: '3.55'
+          slot: 3
+          desc: Python bindings for GObject Introspection
+          homepage: https://pygobject.gnome.org/ https://gitlab.gnome.org/GNOME/pygobject/
+          inherit:
+            - meson
+            - xdg
+            - distutils-r1
+          license: LGPL-2.1+
+          iuse: +cairo
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/libffi:=
+            cairo? (
+              dev-python/pycairo[${PYTHON_USEDEP}]
+              x11-libs/cairo[glib]
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            python_configure() {
+              local emesonargs=(
+                $(meson_feature cairo pycairo)
+                -Dtests=false
+                -Dpython="${EPYTHON}"
+              )
+              meson_src_configure
+            }
+            python_compile() {
+              meson_src_compile
+            }
+            python_install() {
+              meson_src_install
+              python_optimize
+            }
+
     - libxslt-python:
         vars:
           s: '${WORKDIR}/{{ .Values.tname }}-{{ .Values.version }}'
@@ -623,5 +667,56 @@ gnome_dirlisting:
             }
             src_install() {
               distutils-r1_src_install
+            }
+
+github_pkgs:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  github:
+    query: releases
+
+  defaults:
+    category: dev-python
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    vars:
+      python_compat: python3+
+
+  packages:
+    - pycairo:
+        github:
+          user: pygobject
+        assets:
+          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+            matcher: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz$"
+        selector:
+          # Pin for now because it seems that upstream
+          # want py3.10 (but compiles also with py3.9)
+          - '<1.29.0'
+        vars:
+          license: '| ( LGPL-2.1 MPL-1.1 )'
+          inherit:
+            - distutils-r1
+            - meson
+          rdepend: |
+            x11-libs/cairo
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            python_compile() {
+              local emesonargs=(
+                  -Dpython.bytecompile=2
+                  -Dtests=false
+              )
+              meson_src_configure
+              meson_src_compile
+            }
+            python_install() {
+              meson_src_install
             }
 

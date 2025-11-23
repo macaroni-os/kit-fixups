@@ -586,6 +586,27 @@ dev_github:
 
   packages:
 
+    - highway:
+        template: ../../templates/simple-github.tmpl
+        category: dev-cpp
+        github:
+          user: google
+          query: tags
+        vars:
+          inherit:
+            - cmake
+          iuse: cpu_flags_arm_neon
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DHWY_CMAKE_ARM7=$(usex cpu_flags_arm_neon)
+                -DBUILD_TESTING=OFF
+                -DHWY_ENABLE_TESTS=OFF
+                -DHWY_WARNINGS_ARE_ERRORS=OFF
+              )
+              cmake_src_configure
+            }
+
     - bindgen:
         extensions:
           - rust

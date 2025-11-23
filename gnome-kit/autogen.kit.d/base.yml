@@ -452,6 +452,178 @@ glycin_gitlab:
               ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
             }
 
+
+gnome_release_pkgs:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: gnome-extra
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz"
+      exclude: "beta|rc"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+
+    vars:
+      license: LGPL-2.1+
+      release: 49
+
+  packages:
+
+    - gnome-backgrounds:
+        category: x11-themes
+        vars:
+          license: CC-BY-SA-2.0 CC-BY-SA-3.0 CC-BY-2.0 CC-BY-4.0
+          desc: A set of backgrounds packaged with the GNOME desktop
+          homepage: https://gitlab.gnome.org/GNOME/gnome-backgrounds
+          inherit:
+            - meson
+          rdepend: |
+            media-libs/libjxl[gdk-pixbuf]
+            gnome-base/librsvg
+            x11-libs/gdk-pixbuf[jpeg]
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+
+    - adwaita-icon-theme-legacy:
+        category: x11-themes
+        vars:
+          desc: Adwaita Icon Theme legacy
+          homepage: https://gitlab.gnome.org/GNOME/adwaita-icon-theme-legacy
+          release: 46
+          license: LGPL-3 CC-BY-SA-3.0
+          inherit:
+            - meson
+            - xdg
+          rdepend: |
+            x11-themes/hicolor-icon-theme
+            gnome-base/librsvg:2
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-util/gtk-update-icon-cache
+          body: |
+            src_install() {
+              meson_src_install
+              # https://gitlab.gnome.org/GNOME/adwaita-icon-theme-legacy/-/issues/3
+              mv "${ED}"/usr/share/licenses/adwaita-icon-theme \
+                "${ED}"/usr/share/licenses/adwaita-icon-theme-legacy || die
+            }
+
+    - adwaita-icon-theme:
+        category: x11-themes
+        vars:
+          desc: GNOME default icon theme
+          homepage: https://gitlab.gnome.org/GNOME/adwaita-icon-theme
+          license: '|| ( LGPL-3 CC-BY-SA-3.0 )'
+          inherit:
+            - meson
+            - xdg
+          rdepend: |
+            x11-themes/hicolor-icon-theme
+            gnome-base/librsvg:2
+            x11-themes/adwaita-icon-theme-legacy
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-util/gtk-update-icon-cache
+          body: |
+            src_install() {
+              meson_src_install
+              dosym ../../../../usr/share/icons/Adwaita/cursors /usr/share/cursors/xorg-x11/Adwaita
+            }
+            pkg_preinst() {
+              # Needed until bug #834600 is solved
+              if [[ -d "${EROOT}"/usr/share/cursors/xorg-x11/Adwaita ]] ; then
+                rm -r "${EROOT}"/usr/share/cursors/xorg-x11/Adwaita || die
+              fi
+              xdg_pkg_preinst
+            }
+
+    - sysprof:
+        category: dev-util
+        vars:
+          desc: System-wide Linux Profiler
+          homepage: https://www.sysprof.com/
+          iuse: gtk systemd
+          inherit:
+            - meson
+            - systemd
+            - gnome3
+          license: GPL-3+ GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            gtk? (
+              x11-libs/gtk:4
+              x11-libs/libadwaita
+              x11-libs/cairo
+              x11-libs/pango
+            )
+            systemd? ( sys-apps/systemd )
+            dev-libs/json-glib
+            dev-libs/libdex
+            x11-libs/libpanel
+            sys-libs/libunwind:=
+            sys-auth/polkit
+            dev-libs/elfutils
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-lbis/appstream-glib
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            sys-kernel/linux-headers
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use gtk)
+                -Dlibsysprof=true
+                -Dinstall-static=false
+                -Dsysprofd=bundled
+                -Dsystemdunitdir=$(systemd_get_systemunitdir)
+                # -Ddebugdir
+                -Dhelp=true
+                -Dtools=true
+                -Dtests=false
+                -Dexamples=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_preinst() {
+              gnome3_pkg_preinst
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
 gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
@@ -480,6 +652,369 @@ gnome_apps:
       opts:
 
   packages:
+
+    - gtk:
+        category: x11-libs
+        vars:
+          release: '4.21'
+          python_compat: python3+
+          license: LGPL-2+
+          inherit:
+            - meson
+            - gnome3
+            - python-any-r1
+            - toolchain-funcs
+          desc: GTK is a multi-platform toolkit for creating graphical user interfaces
+          homepage: https://www.gtk.org/ https://gitlab.gnome.org/GNOME/gtk/
+          required_use: |
+            || ( aqua wayland X )
+            gtk-doc? ( introspection )
+          iuse: |
+            aqua broadway cloudproviders colord cups cups examples
+            gstreamer gtk-doc +introspection sysprof vulkan wayland
+            +X
+          cdepend: |
+            dev-libs/glib:2
+            x11-libs/cairo[aqua?,glib,X?]
+            x11-libs/pango[introspection?]
+            dev-libs/fribidi
+            media-libs/harfbuzz:=
+            x11-libs/gdk-pixbuf:2[introspection?]
+            media-libs/libpng:=
+            media-libs/tiff:=
+            media-libs/libjpeg-turbo:=
+            gnome-base/librsvg:2
+            media-libs/libepoxy[egl(+),X(+)?]
+            media-libs/graphene[introspection?]
+            app-text/iso-codes
+            x11-misc/shared-mime-info
+            cloudproviders? ( net-libs/libcloudproviders )
+            colord? ( x11-misc/colord:= )
+            cups? ( net-print/cups )
+            examples? ( gnome-base/librsvg:2 )
+            gstreamer? (
+              media-libs/gstreamer
+              media-libs/gst-plugins-bad
+              || (
+                media-libs/gst-plugins-base[gles2]
+                media-libs/gst-plugins-base[opengl]
+              )
+            )
+            introspection? ( dev-libs/gobject-introspection:= )
+            vulkan? ( media-libs/vulkan-loader[wayland?,X?] )
+            wayland? (
+              dev-libs/wayland
+              dev-libs/wayland-protocols
+              media-libs/mesa[wayland]
+              x11-libs/libxkbcommon
+            )
+            X? (
+              media-libs/fontconfig
+              media-libs/mesa[X(+)]
+              x11-libs/libX11
+              x11-libs/libXi
+              x11-libs/libXext
+              x11-libs/libXcursor
+              x11-libs/libXfixes
+              x11-libs/libXdamage
+              x11-libs/libXinerama
+            )
+          depend: |
+            ${CDEPEND}
+            x11-libs/libdrm
+            sys-kernel/linux-headers
+            sysprof? ( dev-util/sysprof )
+            X? ( x11-base/xorg-proto )
+          rdepend: |
+            ${CDEPEND}
+            dev-util/gtk-update-icon-cache
+          pdepend: |
+            x11-themes/adwaita-icon-theme
+          bdepend: |
+            dev-libs/gobject-introspection-common
+            introspection? (
+              ${PYTHON_DEPS}
+              $(python_gen_any_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+            )
+            dev-python/docutils
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+            vulkan? ( media-libs/shaderc )
+            wayland? ( dev-util/wayland-scanner )
+          slot: 4
+          body: |
+            pkg_setup() {
+              use introspection && python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              xdg_environment_reset
+              # Nothing should use gtk4-update-icon-cache and an unversioned one
+              # is shipped by dev-util/gtk-update-icon-cache
+              sed -i \
+                -e '/gtk4-update-icon-cache/d' \
+                docs/reference/gtk/meson.build \
+                tools/meson.build \
+                || die
+            }
+            src_configure() {
+              local emesonargs=(
+                # GDK backends
+                $(meson_use X x11-backend)
+                $(meson_use wayland wayland-backend)
+                $(meson_use broadway broadway-backend)
+                -Dwin32-backend=false
+                -Dandroid-backend=false
+                $(meson_use aqua macos-backend)
+                # Media backends
+                $(meson_feature gstreamer media-gstreamer)
+                # Print backends
+                -Dprint-cpdb=disabled
+                $(meson_feature cups print-cups)
+                $(meson_feature vulkan)
+                $(meson_feature cloudproviders)
+                $(meson_feature sysprof)
+                -Dtracker=disabled  # tracker3 is not packaged in Gentoo yet
+                $(meson_feature colord)
+                -Dandroid-runtime=disabled
+                $(meson_feature introspection)
+                $(meson_use gtk-doc documentation)
+                -Dscreenshots=false
+                -Dman-pages=true
+                -Dprofile=default
+                $(meson_use examples build-demos)
+                $(meson_use examples build-examples)
+                -Dbuild-testsuite=false
+                -Dbuild-tests=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/{gtk4,gsk4,gdk4{,-wayland,-x11}} "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+            pkg_preinst() {
+              gnome3_pkg_preinst
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+              if ! has_version "app-text/evince"; then
+                elog "Please install app-text/evince for print preview functionality."
+                elog "Alternatively, check \"gtk-print-preview-command\" documentation and"
+                elog "add it to your settings.ini file."
+              fi
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - json-glib:
+        category: dev-libs
+        vars:
+          release: '1.10'
+          desc: Library providing GLib serialization and deserialization for the JSON format
+          homepage: https://wiki.gnome.org/Projects/JsonGlib
+          iuse: gtk-doc +introspection
+          inherit:
+            - meson
+            - xdg-utils
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/docbook-xml-dtd:4.1.2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            gtk-doc? ( dev-util/gi-docgen )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              xdg_environment_reset
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                # Never use gi-docgen subproject
+                --wrap-mode nofallback
+                -Dinstalled_tests=false
+                -Dman=true
+                -Dtests=false
+                $(meson_feature introspection)
+                $(meson_feature gtk-doc documentation)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              einstalldocs
+              if use gtk-doc ; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html || die
+                mv "${ED}"/usr/share/doc/json-glib-1.0 "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
+    - libdex:
+        category: dev-libs
+        vars:
+          release: '1.0'
+          inherit:
+            - meson
+            - vala
+          desc: Dex provides Future-based programming for GLib-based applications
+          homepage: https://gitlab.gnome.org/GNOME/libdex
+          iuse: +eventfd gtk-doc +introspection +liburing sysprof vala
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            liburing?  ( sys-libs/liburing:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+            sysprof? ( dev-util/sysprof )
+          depend: '${RDEPEND}'
+          bdepend: |
+            vala? ( $(vala_depend) )
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dexamples=false
+                -Dtests=false
+                $(meson_use gtk-doc docs)
+                $(meson_use vala vapi)
+                $(meson_feature introspection)
+                $(meson_use sysprof)
+                $(meson_feature liburing)
+                $(meson_feature eventfd)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/${PN}-1 "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
+    - libadwaita:
+        category: x11-libs
+        vars:
+          python_compat: python3+
+          release: 1.8
+          desc: Building blocks for modern GNOME applications
+          homepage: https://gnome.pages.gitlab.gnome.org/libadwaita/ https://gitlab.gnome.org/GNOME/libadwaita
+          iuse: doc +introspection +vala
+          inherit:
+            - meson
+            - python-any-r1
+            - vala
+            - xdg
+          required_use: |
+            doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4[introspection?]
+            dev-libs/appstream:=
+            dev-libs/fribidi
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            ${PYTHON_DEPS}
+            doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-lang/sassc
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                # Never use gi-docgen subproject
+                --wrap-mode nofallback
+                -Dprofiling=false
+                $(meson_feature introspection)
+                $(meson_use vala vapi)
+                $(meson_use doc documentation)
+                -Dtests=false
+                -Dexamples=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use doc; then
+                mv "${ED}"/usr/share/doc/{${PN}-${SLOT},${PF}/html} || die
+              fi
+            }
+
+    - libpanel:
+        category: x11-libs
+        vars:
+          release: 1.10
+          desc: A dock/panel library for GTK 4
+          homepage: https://gitlab.gnome.org/GNOME/libpanel
+          license: LGPL-3+
+          iuse: examples gtk-doc +introspection +vala
+          inherit:
+            - meson
+            - vala
+            - xdg
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4[introspection?]
+            x11-libs/libadwaita:1
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use examples install-examples)
+                $(meson_feature introspection)
+                $(meson_feature gtk-doc docs)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir "${ED}"/usr/share/gtk-doc || die
+                mv "${ED}"/usr/share/doc/panel-1.0 "${ED}"/usr/share/gtk-doc/ || die
+              fi
+            }
 
     - libcloudproviders:
         category: net-libs
@@ -520,7 +1055,7 @@ gnome_apps:
         vars:
           extra_envs:
             - 'VALA_USE_DEPEND="vapigen"'
-          slot: 2.4
+          slot: '2.4'
           release: '2.74'
           homepage: https://libsoup.gnome.org
           desc: HTTP client/server library for GNOME
@@ -648,7 +1183,6 @@ gnome_apps:
                 mv "${ED}"/usr/share/doc/libsoup-3.0 "${ED}"/usr/share/gtk-doc/html/ || die
               fi
             }
-
 
     - glib-networking:
         category: net-libs
@@ -837,7 +1371,6 @@ gnome_apps:
               unset __GL_NO_DSO_FINALIZER
               gnome3_pkg_postrm
             }
-
 
     - gnome-weather:
         vars:

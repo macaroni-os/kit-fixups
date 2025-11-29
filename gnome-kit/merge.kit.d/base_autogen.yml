@@ -22,8 +22,24 @@ target:
 
   atoms:
 
+    - pkg: app-accessibility/at-spi2-atk:2
+    - pkg: app-accessibility/at-spi2-core:2
+
+    - pkg: dev-cpp/atkmm:0
+    - pkg: dev-cpp/atkmm:2.36
+    - pkg: dev-cpp/cairomm:1
+    - pkg: dev-cpp/glibmm:2
+    - pkg: dev-cpp/glibmm:2.68
+    - pkg: dev-cpp/gtkmm:2.4
+    - pkg: dev-cpp/gtkmm:3.0
+    - pkg: dev-cpp/gtkmm:4.0
+    - pkg: dev-cpp/pangomm:1.4
+    - pkg: dev-cpp/pangomm:2.48
+    - pkg: dev-cpp/mm-common
+
     - pkg: dev-lang/vala:0.56
 
+    - pkg: dev-libs/atk
     - pkg: dev-libs/libdex
     - pkg: dev-libs/json-glib
     - pkg: dev-libs/vala-common
@@ -48,10 +64,15 @@ target:
     - pkg: net-misc/rygel
 
     - pkg: x11-libs/gdk-pixbuf
-    - pkg: x11-libs/gtk
+    - pkg: x11-libs/gtk:4
+    - pkg: x11-libs/gtk+:3
+    - pkg: x11-libs/gtk+:2
     - pkg: x11-libs/libadwaita
     - pkg: x11-libs/libpanel
 
     - pkg: x11-themes/adwaita-icon-theme
     - pkg: x11-themes/adwaita-icon-theme-legacy
     - pkg: x11-themes/gnome-backgrounds
+
+    - pkg: virtual/libgudev
+    - pkg: virtual/notification-daemon

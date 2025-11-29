@@ -635,7 +635,7 @@ gnome_apps:
     template: ../../templates/simple.tmpl
     category: gnome-extra
     dir:
-      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
     transform:
       - kind: string
@@ -653,10 +653,758 @@ gnome_apps:
 
   packages:
 
+    - mm-common:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          license: GPL-2
+          release: '1.0'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: Build infrastructure and utilities for GNOME C++ bindings
+          homepage: https://gtkmm.gnome.org/en/index.html
+          bdepend: |
+            ${PYTHON_DEPS}
+          body: |
+            src_prepare() {
+              default
+              # Include project version in docdir name
+              sed -i -e "s:^install_docdir.*:& + '-' + meson.project_version():" meson.build || die
+            }
+
+    - pangomm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '2.46'
+          slot: '1.4'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for pango
+          homepage: https://gtkmm.gnome.org/en/index.html
+          iuse: gtk-doc
+          rdepend: |
+            dev-cpp/cairomm:1
+            dev-cpp/glibmm:2
+            dev-libs/libsigc++:3
+            x11-libs/pango
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dmaintainer-mode=false
+                -Dbuild-documentation=$(usex gtk-doc true false)
+              )
+              meson_src_configure
+            }
+
+    - pangomm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '2.56'
+          slot: '2.48'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for pango
+          homepage: https://gtkmm.gnome.org/en/index.html
+          iuse: gtk-doc
+          rdepend: |
+            dev-cpp/cairomm:1
+            dev-cpp/glibmm:2.68
+            dev-libs/libsigc++:3
+            x11-libs/pango
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dmaintainer-mode=false
+                -Dbuild-documentation=$(usex gtk-doc true false)
+              )
+              meson_src_configure
+            }
+
+    - gtkmm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '4.21'
+          slot: '4.0'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for GTK+
+          homepage: https://gtkmm.gnome.org/en/index.html
+          license: LGPL-2.1+
+          iuse: gtk-doc
+          rdepend: |
+            dev-cpp/glibmm:2
+            x11-libs/gtk:4
+            dev-cpp/cairomm:1
+            dev-cpp/pangomm
+            x11-libs/gdk-pixbuf
+            media-libs/libepoxy
+          depend: |
+            ${RDEPEND}
+            gtk-doc? ( dev-libs/libsigc++:3 )
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              app-text/doxygen[dot]
+              dev-lang/perl
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-demos=false
+                -Dbuild-tests=false
+                -Dbuild-documentation=$(usex gtk-doc true false)
+              )
+              meson_src_configure
+            }
+
+    - gtkmm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '3.24'
+          slot: '3.0'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for GTK+
+          homepage: https://gtkmm.gnome.org/en/index.html
+          license: LGPL-2.1+
+          iuse: gtk-doc wayland X
+          rdepend: |
+            dev-cpp/atkmm:0
+            dev-cpp/glibmm:2
+            x11-libs/gtk+:3[wayland?,X=]
+            dev-cpp/cairomm:1
+            dev-cpp/pangomm:1.4
+            x11-libs/gdk-pixbuf
+            media-libs/libepoxy
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              app-text/doxygen[dot]
+              dev-lang/perl
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-demos=false
+                -Dbuild-tests=false
+                -Dbuild-documentation=$(usex gtk-doc true false)
+                -Dbuild-x11-api=$(usex X true false)
+              )
+              meson_src_configure
+            }
+
+    - gtkmm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '2.24'
+          slot: '2.4'
+          inherit:
+            - gnome3
+          desc: C++ interface for GTK+
+          homepage: https://gtkmm.gnome.org/en/index.html
+          license: LGPL-2.1+
+          iuse: gtk-doc examples
+          rdepend: |
+            dev-cpp/atkmm
+            dev-cpp/cairomm:0
+            dev-cpp/glibmm:2
+            dev-cpp/pangomm
+            dev-libs/libsigc++:2
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+:2
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              app-text/doxygen[dot]
+              media-gfx/graphviz
+              dev-libs/libxslt
+              dev-lang/perl
+            )
+          body: |
+            src_prepare() {
+              # don't waste time building tests
+              sed 's/^\(SUBDIRS =.*\)tests\(.*\)$/\1\2/' -i Makefile.am Makefile.in \
+                || die "sed 1 failed"
+              if ! use examples; then
+                sed 's/^\(SUBDIRS =.*\)demos\(.*\)$/\1\2/' -i Makefile.am Makefile.in \
+                  || die "sed 2 failed"
+              fi
+              gnome3_src_prepare
+            }
+            src_configure() {
+              ECONF_SOURCE="${S}" \
+              gnome3_src_configure \
+                --enable-api-atkmm \
+                $(use_enable gtk-doc documentation)
+            }
+            src_install() {
+              gnome3_src_install
+              DOCS="AUTHORS ChangeLog PORTING NEWS README"
+              einstalldocs
+            }
+
+    - atkmm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '2.28'
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for the ATK library
+          homepage: https://gtkmm.gnome.org/en/index.html
+          iuse: gtk-doc
+          rdepend: |
+            dev-cpp/glibmm:2[gtk-doc?]
+            >=dev-libs/atk-2.58.0
+            dev-libs/libsigc++
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-documentation=$(usex gtk-doc true false)
+              )
+              meson_src_configure
+            }
+
+
+    - atkmm:
+        category: dev-cpp
+        vars:
+          python_compat: python3+
+          release: '2.36'
+          slot: 2.36
+          inherit:
+            - meson
+            - python-any-r1
+          desc: C++ interface for the ATK library
+          homepage: https://gtkmm.gnome.org/en/index.html
+          iuse: gtk-doc
+          rdepend: |
+            dev-cpp/glibmm:2[gtk-doc?]
+            >=dev-libs/atk-2.58.0
+            dev-libs/libsigc++
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+            ${PYTHON_DEPS}
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-documentation=$(usex gtk-doc true false)
+              )
+              meson_src_configure
+            }
+
+    - at-spi2-core:
+        category: app-accessibility
+        vars:
+          release: '2.58'
+          inherit:
+            - meson
+            - systemd
+          desc: D-Bus accessibility specifications and registration daemon
+          homepage: https://gitlab.gnome.org/GNOME/at-spi2-core
+          slot: 2
+          iuse: X dbus-broker gtk-doc +introspection systemd
+          required_use: |
+            gtk-doc? ( X )
+          cdepend: |
+            sys-apps/dbus
+            dev-libs/glib:2
+            dev-libs/libxml2:2
+            introspection? ( dev-libs/gobject-introspection:= )
+            systemd? ( sys-apps/systemd )
+            X? (
+              x11-libs/libX11
+              x11-libs/libXtst
+              x11-libs/libXi
+            )
+            >=app-accessibility/at-spi2-atk-2.46.0
+            !<dev-libs/atk-2.58.0
+          rdepend: |
+            ${CDEPEND}
+            sys-devel/gettext
+            virtual/pkgconfig
+          depend: '${CDEPEND}'
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddefault_bus=dbus-daemon
+                $(meson_use systemd use_systemd)
+                -Dgtk2_atk_adaptor=true
+                -Dsystemd_user_dir="$(systemd_get_userunitdir)"
+                -Ddocs=$(usex gtk-doc true false)
+                $(meson_feature introspection)
+                $(meson_feature X x11)
+                -Datk_only=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              einstalldocs
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/{libatspi,atk} || die
+                mv "${ED}"/usr/share/doc/libatspi "${ED}"/usr/share/gtk-doc/libatspi/html || die
+                mv "${ED}"/usr/share/doc/atk "${ED}"/usr/share/gtk-doc/atk/html || die
+              fi
+            }
+
+    - glibmm:
+        category: dev-cpp
+        vars:
+          release: 2.86
+          slot: 2.68
+          python_compat: python3+
+          iuse: gtk-doc debug
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libsigc++
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+            gtk-doc? (
+              app-text/doxygen
+              dev-lang/perl
+              dev-libs/libxslt
+            )
+          inherit:
+            - meson
+            - python-any-r1
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dwarnings=min
+                -Dbuild-deprecated-api=true
+                -Dbuild-documentation=$(usex gtk-doc true false)
+                $(meson_use debug debug-refcounting)
+                -Dbuild-examples=false
+              )
+              meson_src_configure
+            }
+
+    - glibmm:
+        category: dev-cpp
+        vars:
+          release: 2.66
+          slot: 2
+          python_compat: python3+
+          iuse: gtk-doc debug
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libsigc++
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+            gtk-doc? (
+              app-text/doxygen
+              dev-lang/perl
+              dev-libs/libxslt
+            )
+          inherit:
+            - meson
+            - python-any-r1
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dwarnings=min
+                -Dbuild-deprecated-api=true
+                -Dbuild-documentation=$(usex gtk-doc true false)
+                $(meson_use debug debug-refcounting)
+                -Dbuild-examples=false
+              )
+              meson_src_configure
+            }
+
+    - gtk+:
+        category: x11-libs
+        tarball: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+        dir:
+          matcher: "gtk%2B-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: "gtk%2B-"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+            category: x11-libs
+        vars:
+          release: '2.24'
+          slot: 2
+          desc: Gimp ToolKit +
+          homepage: https://www.gtk.org/
+          iuse: cups examples +introspection vim-syntax xinerama
+          inherit:
+            - autotools
+            - flag-o-matic
+            - gnome3
+          cdepend: |
+            app-accessibility/at-spi2-core[introspection?]
+            dev-libs/glib:2
+            media-libs/fontconfig
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf:2[introspection?]
+            x11-libs/pango[introspection?]
+
+            cups? ( net-print/cups:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+            x11-libs/cairo[X]
+            x11-libs/libXrender
+            x11-libs/libX11
+            x11-libs/libXi
+            x11-libs/libXext
+            x11-libs/libXrandr
+            x11-libs/libXcursor
+            x11-libs/libXfixes
+            x11-libs/libXcomposite
+            x11-libs/libXdamage
+            xinerama? ( x11-libs/libXinerama )
+          rdepend: |
+            ${CDEPEND}
+            dev-util/gtk-update-icon-cache
+            x11-themes/gnome-themes-standard
+          depend: |
+            ${CDEPEND}
+            app-text/docbook-xsl-stylesheets
+            app-text/docbook-xml-dtd:4.1.2
+            app-text/docbook-xml-dtd:4.3
+            dev-libs/libxslt
+            dev-libs/gobject-introspection-common
+            dev-util/gtk-doc-am
+            sys-devel/gettext
+            virtual/pkgconfig
+          pdepend: |
+            gnome-base/librsvg
+            x11-themes/adwaita-icon-theme
+            x11-themes/gtk-engines-adwaita
+            vim-syntax? ( app-vim/gtk-syntax )
+
+          body: |
+            strip_builddir() {
+              local rule=$1
+              shift
+              local directory=$1
+              shift
+              sed -e "s/^\(${rule} =.*\)${directory}\(.*\)$/\1\2/" -i $@ \
+                || die "Could not strip director ${directory} from build."
+            }
+            src_prepare() {
+              # Various glib marshaller churn could break build against a different
+              # glib version, force regeneration
+              rm -v gdk/gdkmarshalers.{c,h} gtk/gtkmarshal.{c,h} gtk/gtkmarshalers.{c,h} \
+                perf/marshalers.{c,h} gtk/gtkaliasdef.c gtk/gtkalias.h || die
+              # Stop trying to build unmaintained docs, bug #349754, upstream bug #623150
+              strip_builddir SUBDIRS tutorial docs/Makefile.{am,in}
+              strip_builddir SUBDIRS faq docs/Makefile.{am,in}
+              # -O3 and company cause random crashes in applications, bug #133469
+              replace-flags -O3 -O2
+              strip-flags
+              # don't waste time building tests
+              strip_builddir SRC_SUBDIRS tests Makefile.{am,in}
+              strip_builddir SUBDIRS tests gdk/Makefile.{am,in} gtk/Makefile.{am,in}
+
+              if ! use examples; then
+                # don't waste time building demos
+                strip_builddir SRC_SUBDIRS demos Makefile.{am,in}
+              fi
+
+              # Fix tests running when building out of sources, bug #510596, upstream bug #730319
+              eapply "${FILESDIR}"/${PN}-2.24.24-out-of-source.patch
+
+              # Rely on split gtk-update-icon-cache package, bug #528810
+              eapply "${FILESDIR}"/${PN}-2.24.31-update-icon-cache.patch
+
+              # Upstream gtk-2-24 branch up to 2018-09-08 state, bug #650536 safety
+              eapply "${FILESDIR}"/patches-2.24
+
+              # Fix compilation with cups 2.x
+              eapply "${FILESDIR}"/${PN}-2.0-cups2.patch
+
+              eautoreconf
+              gnome3_src_prepare
+            }
+            src_configure() {
+              ECONF_SOURCE=${S} \
+              gnome3_src_configure \
+                --with-gdktarget=x11 \
+                --with-xinput \
+                $(use_enable cups cups auto) \
+                $(use_enable introspection) \
+                $(use_enable xinerama) \
+                --disable-papi \
+                --enable-man \
+                --with-xml-catalog="${EPREFIX}"/etc/xml/catalog \
+                CUPS_CONFIG="${EPREFIX}/usr/bin/${CHOST}-cups-config"
+              # work-around gtk-doc out-of-source brokedness
+              local d
+              for d in gdk gtk libgail-util; do
+                ln -s "${S}"/docs/reference/${d}/html docs/reference/${d}/html || die
+              done
+            }
+            src_install() {
+              gnome3_src_install
+              # see bug #133241
+              # Also set more default variables in sync with gtk3 and other distributions
+              echo 'gtk-fallback-icon-theme = "gnome"' > "${T}/gtkrc"
+              echo 'gtk-theme-name = "Adwaita"' >> "${T}/gtkrc"
+              echo 'gtk-icon-theme-name = "Adwaita"' >> "${T}/gtkrc"
+              echo 'gtk-cursor-theme-name = "Adwaita"' >> "${T}/gtkrc"
+              insinto /usr/share/gtk-2.0
+              doins "${T}"/gtkrc
+              einstalldocs
+            }
+            pkg_preinst() {
+              gnome3_pkg_preinst
+              # Make immodules.cache belongs to gtk+ alone
+              local cache="usr/$(get_libdir)/gtk-2.0/2.10.0/immodules.cache"
+              if [[ -e ${EROOT}${cache} ]]; then
+                cp "${EROOT}"${cache} "${ED}"/${cache} || die
+              else
+                touch "${ED}"/${cache} || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+              gnome3_query_immodules_gtk2 \
+                || ewarn "Update immodules cache had some problems (for ${ABI}) (this may be transient)"
+              GTK2_CONFDIR="/etc/gtk-2.0/${CHOST}"
+              if [ -e "${EROOT%/}/etc/gtk-2.0/gtk.immodules" ]; then
+                elog "File /etc/gtk-2.0/gtk.immodules has been moved to \$CHOST"
+                elog "aware location. Removing deprecated file."
+                rm -f ${EROOT%/}/etc/gtk-2.0/gtk.immodules
+              fi
+              if [ -e "${EROOT%/}${GTK2_CONFDIR}/gtk.immodules" ]; then
+                elog "File /etc/gtk-2.0/gtk.immodules has been moved to"
+                elog "${EROOT%/}/usr/$(get_libdir)/gtk-2.0/2.10.0/immodules.cache"
+                elog "Removing deprecated file."
+                rm -f ${EROOT%/}${GTK2_CONFDIR}/gtk.immodules
+              fi
+              # pixbufs are now handled by x11-libs/gdk-pixbuf
+              if [ -e "${EROOT%/}${GTK2_CONFDIR}/gdk-pixbuf.loaders" ]; then
+                elog "File ${EROOT%/}${GTK2_CONFDIR}/gdk-pixbuf.loaders is now handled by x11-libs/gdk-pixbuf"
+                elog "Removing deprecated file."
+                rm -f ${EROOT%/}${GTK2_CONFDIR}/gdk-pixbuf.loaders
+              fi
+              # two checks needed since we dropped multilib conditional
+              if [ -e "${EROOT%/}/etc/gtk-2.0/gdk-pixbuf.loaders" ]; then
+                elog "File ${EROOT%/}/etc/gtk-2.0/gdk-pixbuf.loaders is now handled by x11-libs/gdk-pixbuf"
+                elog "Removing deprecated file."
+                rm -f ${EROOT%/}/etc/gtk-2.0/gdk-pixbuf.loaders
+              fi
+              if [ -e "${EROOT%/}"/usr/lib/gtk-2.0/2.[^1]* ]; then
+                elog "You need to rebuild ebuilds that installed into" "${EROOT%/}"/usr/lib/gtk-2.0/2.[^1]*
+                elog "to do that you can use qfile from portage-utils:"
+                elog "emerge -va1 \$(qfile -qC ${EPREFIX}/usr/lib/gtk-2.0/2.[^1]*)"
+              fi
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+              if [[ -z ${REPLACED_BY_VERSION} ]]; then
+                rm -f "${EROOT}"usr/$(get_libdir)/gtk-2.0/2.10.0/immodules.cache
+              fi
+            }
+
+    - gtk+:
+        category: x11-libs
+        vars:
+          pkgname: gtk
+          release: '3.24'
+          slot: 3
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          desc: Gimp ToolKit +
+          homepage: https://www.gtk.org/
+          iuse: broadway cloudproviders colord cups examples gtk-doc +introspection sysprof vim-syntax wayland +X xinerama
+          required_use: |
+            || ( wayland X )
+            xinerama? ( X )
+            colord? ( cups )
+          inherit:
+            - gnome3
+            - meson
+            - toolchain-funcs
+          patches:
+            - gtk+-3.24.36-update-icon-cache.patch
+          cdepend: |
+            app-accessibility/at-spi2-core[introspection?]
+            dev-libs/fribidi
+            dev-libs/glib:2
+            media-libs/fontconfig
+            media-libs/harfbuzz:=
+            media-libs/libepoxy[X(+)?,egl(+)]
+            virtual/libintl
+            x11-libs/cairo[glib,X?]
+            x11-libs/gdk-pixbuf:2[introspection?]
+            x11-libs/pango[introspection?]
+            x11-misc/shared-mime-info
+            cloudproviders? ( net-libs/libcloudproviders )
+            colord? ( x11-misc/colord:0= )
+            cups? ( net-print/cups )
+            introspection? ( dev-libs/gobject-introspection:= )
+            wayland? (
+              dev-libs/wayland
+              dev-libs/wayland-protocols
+              media-libs/mesa[wayland]
+              x11-libs/libxkbcommon
+            )
+            X? (
+              media-libs/libglvnd[X(+)]
+              x11-libs/libX11
+              x11-libs/libXcomposite
+              x11-libs/libXcursor
+              x11-libs/libXdamage
+              x11-libs/libXext
+              x11-libs/libXfixes
+              x11-libs/libXi
+              x11-libs/libXrandr
+              xinerama? ( x11-libs/libXinerama )
+            )
+          rdepend: |
+            ${CDEPEND}
+            dev-util/gtk-update-icon-cache
+          depend: |
+            ${CDEPEND}
+            sysprof? ( dev-util/sysprof )
+            X? ( x11-base/xorg-proto )
+          pdepend: |
+            gnome-base/librsvg
+            x11-themes/adwaita-icon-theme
+            vim-syntax? ( app-vim/gtk-syntax )
+          bdepend: |
+            app-text/docbook-xml-dtd:4.1.2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/gobject-introspection-common
+            dev-libs/libxslt
+            >=dev-util/gdbus-codegen-2.48
+            dev-util/glib-utils
+            dev-util/gtk-doc-am
+            wayland? ( dev-util/wayland-scanner )
+            sys-devel/gettext
+            virtual/pkgconfig
+            x11-libs/gdk-pixbuf
+            gtk-doc? (
+              app-text/docbook-xml-dtd:4.3
+              dev-util/gtk-doc
+            )
+
+          body: |
+            src_prepare() {
+              default
+              # Force sysprof-capture-4 instead of checking sysprof-capture-3 first; either is
+              # fine as far as deps are concerned, as it static links, but sysprof-capture-3
+              # links to glib which would be done statically if there's glib[static-libs],
+              # making the whole of gtk+ static link to glib instead of dynamic linking to glib.
+              sed -i -e "s/'sysprof-capture-3'/'sysprof-capture-4'/g" meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dquartz_backend=false
+                $(meson_use broadway broadway_backend)
+                $(meson_use cloudproviders)
+                $(meson_use examples demos)
+                $(meson_use examples)
+                -Dgtk_doc=$(usex gtk-doc true false)
+                -Dintrospection=$(usex introspection true false)
+                $(meson_use sysprof profiler)
+                $(meson_use wayland wayland_backend)
+                $(meson_use X x11_backend)
+                -Dcolord=$(usex colord yes no)
+                -Dprint_backends=$(usex cups cups,file,lpr file,lpr)
+                -Dxinerama=$(usex xinerama yes no)
+                # Include backend immodules into gtk itself, to avoid problems like
+                # https://gitlab.gnome.org/GNOME/gnome-shell/issues/109 from a
+                # user overridden GTK_IM_MODULE envvar
+                -Dbuiltin_immodules=backend
+                -Dman=true
+                -Dtests=false
+                -Dtracker3=false
+              )
+              meson_src_configure
+            }
+            src_install_all() {
+              meson_src_install
+              insinto /etc/gtk-3.0
+              doins "${FILESDIR}"/settings.ini
+              # Skip README.win32.md that would get installed by default
+              DOCS=( NEWS README.md )
+              einstalldocs
+            }
+            pkg_preinst() {
+              gnome3_pkg_preinst
+              # Make immodules.cache belongs to gtk+ alone
+              local cache="/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
+              if [[ -e ${EROOT}${cache} ]]; then
+                cp "${EROOT}${cache}" "${ED}${cache}" || die
+              else
+                touch "${ED}${cache}" || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+              if [[ -z ${REPLACED_BY_VERSION} ]]; then
+                rm -f "${EROOT}/usr/$(get_libdir)/gtk-3.0/3.0.0/immodules.cache"
+              fi
+            }
+
     - gtk:
         category: x11-libs
         vars:
-          release: '4.21'
+          release: '4.20'
           python_compat: python3+
           license: LGPL-2+
           inherit:
@@ -778,7 +1526,7 @@ gnome_apps:
                 $(meson_feature vulkan)
                 $(meson_feature cloudproviders)
                 $(meson_feature sysprof)
-                -Dtracker=disabled  # tracker3 is not packaged in Gentoo yet
+                -Dtracker=disabled  # tracker3 is not packaged
                 $(meson_feature colord)
                 -Dandroid-runtime=disabled
                 $(meson_feature introspection)
@@ -805,11 +1553,6 @@ gnome_apps:
             }
             pkg_postinst() {
               gnome3_pkg_postinst
-              if ! has_version "app-text/evince"; then
-                elog "Please install app-text/evince for print preview functionality."
-                elog "Alternatively, check \"gtk-print-preview-command\" documentation and"
-                elog "add it to your settings.ini file."
-              fi
             }
             pkg_postrm() {
               gnome3_pkg_postrm
@@ -1404,4 +2147,128 @@ gnome_apps:
               sed -i -e "/'appdata'\,/d" data/meson.build
               gnome3_src_prepare
             }
+
+
+cairo_stuff:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-cpp
+    dir:
+      url: https://cairographics.org/releases/
+      matcher: "{{ .Values.pn }}-1[.0-9]+.*.tar.xz$"
+    vars:
+      inherit:
+        - meson
+        - python-any-r1
+      python_compat: python3+
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+
+  packages:
+    - cairomm:
+        vars:
+          desc: C++ bindings for the Cairo vector graphics library
+          homepage: https://cairographics.org/cairomm/ https://gitlab.freedesktop.org/cairo/cairomm
+          license: LGPL-2+
+          slot: 1
+          iuse: gtk-doc X
+          rdepend: |
+            dev-libs/libsigc++:3
+            x11-libs/cairo
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              ${PYTHON_DEPS}
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+          body: |
+            pkg_setup() {
+              use gtk-doc && python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-documentation=$(usex gtk-doc true false)
+                -Dbuild-examples=false
+                -Dbuild-tests=false
+                -Dboost-shared=true
+              )
+              meson_src_configure
+            }
+
+
+virtual_pkgs:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+  packages:
+    # TODO: this package could be removed after the upgrade to GNOME 49
+    - atk:
+        category: dev-libs
+        vars:
+          desc: GTK+ & Gnome Accessibility Toolkit Metadata
+          homepage: https://wiki.gnome.org/Accessibility
+          iuse: +introspection
+          versions:
+            - "2.58.0"
+          rdepend: |
+            >=app-accessibility/at-spi2-core-2.58.0[introspection?]
+
+    # TODO: this package could be removed after the upgrade to GNOME 49
+    - at-spi2-atk:
+        category: app-accessibility
+        vars:
+          desc: Gtk module for bridging AT-SPI to Atk Metadata
+          homepage: https://wiki.gnome.org/Accessibility
+          slot: 2
+          versions:
+            - "2.46.0"
+          rdepend: |
+            >=app-accessibility/at-spi2-core-{{ .Values.version }}
+
+    - libgudev:
+        vars:
+          desc: Virtual for libgudev providers
+          iuse: introspection
+          rdepend: |
+            >=dev-libs/libgudev-237[introspection?]
+          versions:
+            - "237"
+
+    - notification-daemon:
+        vars:
+          desc: Virtual for notification daemon dbus service
+          iuse: gnome kde
+          versions:
+            - "1"
+          rdepend: |
+            gnome? ( || (
+                x11-misc/notification-daemon
+                gnome-base/gnome-shell
+              )
+            )
+            kde? ( kde-plasma/plasma-workspace )
+            !gnome? ( !kde? ( || (
+                  x11-misc/notification-daemon
+                  xfce-extra/xfce4-notifyd
+                  x11-wm/enlightenment[enlightenment_modules_notification]
+                  x11-wm/enlightenment[e_modules_notification]
+                  lxqt-base/lxqt-notificationd
+                )
+              )
+            )
+
 

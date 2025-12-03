@@ -930,8 +930,6 @@ inkscape:
           if [[ -e "${extdir}" ]] && [[ -n $(find "${extdir}" -mindepth 1) ]]; then
             python_optimize "${ED}"/usr/share/${PN}/extensions
           fi
-          # Empty directory causes sandbox issues, see Gentoo bug #761915
-          rm -r "${ED}/usr/share/inkscape/fonts" || die "Failed to remove fonts directory."
         }
 
   packages:

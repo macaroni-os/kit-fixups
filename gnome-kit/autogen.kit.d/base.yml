@@ -646,12 +646,98 @@ gnome_apps:
         replace: ""
     vars:
       license: LGPL-2.1+
+      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
 
   extensions_defs:
     rust:
       opts:
 
   packages:
+
+    - gssdp:
+        category: net-libs
+        vars:
+          inherit:
+            - meson
+            - vala
+            - xdg
+          desc: GObject-based API for handling resource discovery and announcement over SSDP
+          license: LGPL-2+
+          release: '1.6'
+          slot: '1.6'
+          iuse: gtk gtk-doc +introspection man +vala
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            net-libs/libsoup:3
+            gtk? ( x11-libs/gtk:4 )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            man? ( app-text/pandoc-bin )
+          bdepend: |
+            gtk-doc? (
+              dev-util/gi-docgen
+              app-text/docbook-xml-dtd:4.1.2
+            )
+            virtual/pkgconfig
+            vala? (
+              $(vala_depend)
+            )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                # Never use gi-docgen subproject
+                --wrap-mode nofallback
+                -Dgtk_doc=$(usex gtk-doc true false)
+                -Dsniffer=$(usex gtk true false)
+                -Dintrospection=$(usex introspection true false)
+                -Dmanpages=$(usex man true false)
+                -Dvapi=$(usex vala true false)
+                -Dexamples=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc ; then
+                mkdir "${ED}"/usr/share/gtk-doc || die
+                mv "${ED}"/usr/share/{doc,gtk-doc}/gssdp-1.6 || die
+              fi
+            }
+
+    - gdl:
+        category: dev-libs
+        vars:
+          desc: GNOME docking library
+          iuse: +introspection
+          slot: '3/5'
+          release: '3.40'
+          inherit:
+            - gnome3
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            dev-libs/libxml2:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            dev-util/gtk-doc-am
+          bdepend: |
+            dev-util/intltool
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                $(use_enable introspection) \
+                --disable-gtk-doc
+            }
 
     - mm-common:
         category: dev-cpp
@@ -2272,3 +2358,114 @@ virtual_pkgs:
             )
 
 
+formulae_brew_pkgs:
+  # NOTE: we use adelielinux fork because the sourceforge
+  #       version seems unmaintained.
+  generator: builtin-json
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    json:
+      url: 'https://formulae.brew.sh/api/formula/{{ .Values.jsonfile | default .Values.pn }}.json'
+      version_filter: '$.versions.stable'
+      src_uri_filter: '$.urls.stable.url'
+      map_filter_vars:
+        desc: '$.desc'
+        license: '$.license'
+        homepage: '$.homepage'
+
+  packages:
+    - librevenge:
+        vars:
+          iuse: doc
+          rdepend: |
+            sys-libs/zlib
+          depend: |
+            ${RDEPEND}
+            dev-libs/boost
+          bdepend: |
+            doc? ( app-text/doxygen[dot] )
+          body: |
+            src_configure() {
+              ECONF_SOURCE=${S} \
+              econf \
+                --disable-static \
+                --disable-werror \
+                --disable-tests
+                $(use_with doc docs)
+            }
+            src_install() {
+              default
+              einstalldocs
+              find "${D}" -name '*.la' -delete || die
+            }
+
+
+github_libs:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      query: tags
+  packages:
+
+    - appstream-glib:
+        github:
+          user: hughsie
+        transform:
+          - kind: string
+            match: 'appstream_glib_'
+            replace: ''
+          - kind: string
+            match: '_'
+            replace: '.'
+        vars:
+          inherit:
+            - bash-completion-r1
+            - gnome3
+            - meson
+          iuse: gtk-doc fonts +introspection
+          rdepend: |
+            dev-libs/glib:2
+            sys-apps/util-linux
+            app-arch/libarchive:=
+            net-misc/curl
+            dev-libs/json-glib
+            x11-libs/gdk-pixbuf:2[introspection?]
+            fonts? (
+              x11-libs/gtk+:3
+              media-libs/freetype:2
+            )
+            media-libs/fontconfig
+            dev-libs/libyaml
+            x11-libs/pango
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            app-text/docbook-xml-dtd:4.3
+            dev-libs/libxslt
+
+          bdepend: |
+            dev-util/gperf
+            gtk-doc? (
+              dev-util/gdk-doc
+              dev-util/gtk-doc-am
+            )
+            sys-devel/gettext
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddep11=true
+                -Dbuilder=true
+                -Drpm=false
+                -Dalpm=false
+                -Dman=true
+                $(meson_use fonts)
+                $(meson_use gtk-doc)
+                $(meson_use introspection)
+              )
+              meson_src_configure
+            }

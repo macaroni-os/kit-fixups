@@ -2211,13 +2211,16 @@ libpng:
       - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
         url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
 
-      - name: "{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
-        url: "https://download.sourceforge.net/apng/{{ .Values.pn }}-{{ .Values.version }}-apng.patch.gz"
+      - name: "{{ .Values.pn }}-{{ .Values.apng_version | default .Values.version }}-apng.patch.gz"
+        url: "https://download.sourceforge.net/apng/{{ .Values.pn }}-{{ .Values.apng_version | default .Values.version }}-apng.patch.gz"
         use: apng
     vars:
       desc: Portable Network Graphics library
       homepage: http://www.libpng.org/
       iuse: apng cpu_flags_x86_sse neon static-libs
+      apng_version: 1.6.51
+      #apng_repo: apng (it seems broken)
+      apng_repo: libpng-apng
       inherit:
         - libtool
       rdepend: |
@@ -2229,6 +2232,7 @@ libpng:
         src_prepare() {
           default
           if use apng; then
+            sed -i -e 's|1.6.51|{{ .Values.version }}|g' "${WORKDIR}"/${PN}-*-apng.patch || die
             eapply -p0 "${WORKDIR}"/${PN}-*-apng.patch
             sed -i -e '/^check/s:scripts/symbols.chk::' Makefile.in || die
           fi

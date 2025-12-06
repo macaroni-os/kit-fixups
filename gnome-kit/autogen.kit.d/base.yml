@@ -654,6 +654,97 @@ gnome_apps:
 
   packages:
 
+    - xdg-user-dirs-gtk:
+        category: x11-misc
+        vars:
+          release: '0.14'
+          desc: Integrates xdg-user-dirs into the Gnome desktop and Gtk+ applications
+          license: GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            x11-misc/xdg-user-dirs
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          inherit:
+            - meson
+          body: |
+            src_prepare() {
+              default
+              sed -i \
+                -e '/Encoding/d' \
+                -e 's:OnlyShowIn=GNOME;LXDE;Unity;:NotShowIn=KDE;:' \
+                user-dirs-update-gtk.desktop.in || die
+            }
+
+    - gupnp:
+        category: net-libs
+        vars:
+          python_compat: python3+
+          slot: '1.6'
+          release: '1.6'
+          inherit:
+            - meson
+            - python-single-r1
+            - vala
+            - xdg
+          desc: An object-oriented framework for creating UPnP devs and control points
+          iuse: connman gtk-doc +introspection networkmanager vala
+          required_use: |
+            ${PYTHON_REQUIRED_USE}
+            ?? ( connman networkmanager )
+          rdepend: |
+            dev-libs/glib:2
+            net-libs/gssdp:1.6=
+            net-libs/libsoup
+            dev-libs/libxml2:=
+            sys-apps/util-linux
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.1.2
+              app-text/docbook-xml-dtd:4.2
+            )
+            dev-libs/libxslt
+            app-text/docbook-xsl-stylesheets
+            virtual/pkgconfig
+            vala? (
+              $(vala_depend)
+              net-libs/gssdp:1.6[vala]
+              net-libs/libsoup:3[vala]
+            )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              sed -i -e '/-Werror=deprecated-declarations/d' meson.build || die
+            }
+            src_configure() {
+              local backend=linux
+              use connman && backend=connman
+              use networkmanager && backend=network-manager
+              local emesonargs=(
+                -Dcontext_manager=${backend}
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+                -Dexamples=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_fix_shebang "${ED}"/usr/bin/gupnp-binding-tool-1.6
+              if use gtk-doc ; then
+                mkdir "${ED}"/usr/share/gtk-doc || die
+                mv "${ED}"/usr/share/{doc,gtk-doc}/gupnp-1.6 || die
+              fi
+            }
+
     - gssdp:
         category: net-libs
         vars:
@@ -2469,3 +2560,153 @@ github_libs:
               )
               meson_src_configure
             }
+
+colord:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: x11-misc
+    dir:
+      url: https://www.freedesktop.org/software/colord/releases/
+      matcher: "{{ .Values.pn }}-1..*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      # keep 0/2 to quiet portage
+      slot: 0/2
+      homepage: https://www.freedesktop.org/software/colord/
+      desc: System service to accurately color manage input and output devices
+      license: GPL-2+
+      extra_envs:
+        - 'VALA_USE_DEPEND="vapigen"'
+      inherit:
+        - bash-completion-r1
+        - meson
+        - udev
+        - tmpfiles
+        - vala
+        - user
+      # TODO: check if add support to argyllcms. Atm, not available on tree.
+      iuse: gtk-doc examples extra-print-profiles +introspection scanner systemd vala
+      required_use: |
+        vala? ( introspection )
+      rdepend: |
+        dev-libs/glib:2
+        media-libs/lcms:=
+        dev-db/sqlite:3=
+        dev-libs/libgusb[introspection?]
+        dev-libs/libgudev:=
+        virtual/libudev:=
+        virtual/udev
+        systemd? (
+          sys-apps/systemd:=
+        )
+        scanner? (
+          media-gfx/sane-backends
+          sys-apps/dbus
+        )
+        sys-auth/polkit
+        introspection? ( dev-libs/gobject-introspection:= )
+      depend: |
+        ${RDEPEND}
+        dev-libs/libxslt
+        dev-util/gtk-doc-am
+        dev-util/intltool
+        sys-devel/gettext
+        virtual/pkgconfig
+        vala? ( $(vala_depend) )
+      body: |
+        pkg_setup() {
+          enewgroup colord
+          enewuser colord -1 -1 /var/lib/colord colord
+          use vala && vala_src_prepare
+        }
+        src_prepare() {
+          default
+          sed -i -e "/find_program('vapigen')/d" meson.build || die
+        }
+        src_configure() {
+          local emesonargs=(
+            -Ddaemon=true
+            -Dbash_completion=false
+            -Dudev_rules=true
+            $(meson_use systemd)
+            -Dlibcolordcompat=true
+            $(meson_use scanner sane)
+            $(meson_use introspection)
+            $(meson_use vala vapi)
+            $(meson_use extra-print-profiles print_profiles)
+            -Dtests=false
+            -Dinstalled_tests=false
+            -Ddaemon_user=colord
+            -Dman=true
+            $(meson_use gtk-doc docs)
+            --localstatedir="${EPREFIX}"/var
+          )
+          meson_src_configure
+        }
+        src_install() {
+          meson_src_install
+          newbashcomp data/colormgr colormgr
+          einstalldocs
+          # Ensure config and profile directories exist and /var/lib/colord/*
+          # is writable by colord user
+          keepdir /var/lib/color{,d}/icc
+          fowners colord:colord /var/lib/colord{,/icc}
+          if use examples; then
+            docinto examples
+            dodoc examples/*.c
+          fi
+        }
+        pkg_postinst() {
+          udev_reload
+          tmpfiles_process colord.conf
+        }
+        pkg_postrm() {
+          udev_reload
+        }
+
+  packages:
+    - colord:
+
+xdg_user_dirs:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: x11-misc
+    dir:
+      url: https://user-dirs.freedesktop.org/releases/
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      homepage: https://www.freedesktop.org/wiki/Software/xdg-user-dirs
+      desc: Tool to help manage 'well known' user directories
+      license: GPL-2+
+      inherit:
+        - meson
+      iuse: gtk
+      bdepend: |
+        app-text/docbook-xml-dtd:4.3
+        sys-devel/gettext
+      pdepend: |
+        gtk? ( x11-misc/xdg-user-dirs-gtk )
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+
+  packages:
+    - xdg-user-dirs:

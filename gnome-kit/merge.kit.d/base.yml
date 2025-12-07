@@ -48,8 +48,6 @@ target:
 
     - pkg: app-editors/gedit
 
-    - pkg: app-admin/system-config-printer
-
     - pkg: app-arch/file-roller
     - pkg: app-arch/gnome-autoar
 
@@ -64,7 +62,6 @@ target:
     - pkg: app-dicts/gnome-dictionary
 
     - pkg: app-misc/bijiben
-    - pkg: app-misc/geoclue
     - pkg: app-misc/gnote
     - pkg: app-misc/tracker
     - pkg: app-misc/tracker-miners
@@ -79,7 +76,6 @@ target:
     - pkg: dev-libs/gom
     - pkg: dev-libs/libcroco
     - pkg: dev-libs/libdazzle
-    - pkg: dev-libs/libgdata
     - pkg: dev-libs/libgee
     - pkg: dev-libs/libgit2-glib
     - pkg: dev-libs/libgnome-games-support
@@ -93,7 +89,6 @@ target:
     - pkg: dev-libs/newt
     - pkg: dev-libs/totem-pl-parser
     - pkg: dev-util/gi-docgen
-    - pkg: dev-util/glade
     - pkg: dev-util/gtk-update-icon-cache
 
     - pkg: dev-vcs/gitg
@@ -111,8 +106,6 @@ target:
 
     - pkg: net-im/telepathy-logger
     - pkg: net-im/telepathy-mission-control
-
-    - pkg: net-libs/gnome-online-accounts
 
     # old packages. check if we can remove them.
     - pkg: net-libs/gssdp:0
@@ -138,9 +131,12 @@ target:
     - pkg: net-wireless/gnome-bluetooth
     - pkg: sci-geosciences/geocode-glib
     - pkg: sci-geosciences/gnome-maps
-    - pkg: sys-apps/accountsservice
     - pkg: sys-apps/baobab
     - pkg: sys-apps/gnome-disk-utility
+
+    # Ebuild already updated but to autogen
+    - pkg: gnome-base/gnome-common
+    - pkg: gnome-base/libglade
 
     - pkg: gnome-base/adrien-gdm-keyboard
     - pkg: gnome-base/dconf
@@ -148,25 +144,16 @@ target:
     - pkg: gnome-base/gconf
     - pkg: gnome-base/gdm
     - pkg: gnome-base/gnome
-    - pkg: gnome-base/gnome-common
-    - pkg: gnome-base/gnome-control-center
     - pkg: gnome-base/gnome-core-apps
     - pkg: gnome-base/gnome-core-libs
-    - pkg: gnome-base/gnome-desktop
-    - pkg: gnome-base/gnome-keyring
     - pkg: gnome-base/gnome-menus
     - pkg: gnome-base/gnome-mime-data
     - pkg: gnome-base/gnome-session
-    - pkg: gnome-base/gnome-settings-daemon
     - pkg: gnome-base/gnome-shell
     - pkg: gnome-base/gnome-shell-common
-    - pkg: gnome-base/gsettings-desktop-schemas
-    - pkg: gnome-base/gvfs
-    - pkg: gnome-base/libglade
     - pkg: gnome-base/libgnomecanvas
     - pkg: gnome-base/libgnomekbd
     - pkg: gnome-base/libgnome-keyring
-    - pkg: gnome-base/libgtop
     - pkg: gnome-base/nautilus
 
     - pkg: gnome-extra/chrome-gnome-shell
@@ -257,9 +244,6 @@ target:
     - pkg: x11-libs/gtksourceview:4
     - pkg: x11-libs/amtk
     - pkg: x11-libs/colord-gtk
-    - pkg: x11-libs/vte
-
-    - pkg: sys-apps/xdg-desktop-portal-gtk
 
     - pkg: sys-libs/libosinfo
 
@@ -275,4 +259,3 @@ target:
     - pkg: x11-themes/gtk-engines-murrine
 
     - pkg: x11-wm/mutter
-

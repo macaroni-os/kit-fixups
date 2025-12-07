@@ -470,7 +470,7 @@ gnome_release_pkgs:
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz"
-      exclude: "beta|rc"
+      exclude: "beta|rc|alpha"
     transform:
       - kind: string
         match: "{{ .Values.pkgname | default .Values.pn }}-"
@@ -481,9 +481,341 @@ gnome_release_pkgs:
 
     vars:
       license: LGPL-2.1+
+      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
       release: 49
 
   packages:
+
+    - tecla:
+        vars:
+          inherit:
+            - flag-o-matic
+            - meson
+            - gnome3
+          desc: Tecla is a keyboard layout viewer
+          license: GPL-2+
+          rdepend: |
+            x11-libs/gtk:4[introspection,wayland?]
+            x11-libs/libadwaita
+            x11-libs/libxkbcommon
+          iuse: wayland
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              use wayland || append-cppflags -DGENTOO_GTK_HIDE_WAYLAND
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-settings-daemon:
+        category: gnome-base
+        vars:
+          python_compat: python3+
+          inherit:
+            - meson
+            - python-any-r1
+            - udev
+            - xdg
+          desc: Gnome Settings Daemon
+          license: GPL-2+ LGPL-2+
+          iuse: |
+            +colord +cups elogind +input_devices_wacom modemmanager networkmanager
+            smartcard systemd wayland
+          required_use: |
+            ^^ ( elogind systemd )
+          rdepend: |
+            sci-geosciences/geocode-glib
+            dev-libs/glib:2
+            gnome-base/gnome-desktop:=
+            >=gnome-base/gsettings-desktop-schemas-{{ .Values.release }}
+            x11-libs/gtk+:3[X,wayland?]
+            dev-libs/libgweather:=
+            colord? ( x11-misc/colord:= )
+            media-libs/libcanberra[gtk3(-)]
+            app-misc/geoclue
+            x11-libs/libnotify
+            media-sound/pulseaudio[glib]
+            sys-auth/polkit
+            sys-power/upower:=
+            x11-libs/libX11
+            x11-libs/libXfixes
+            dev-libs/libgudev:=
+            wayland? ( dev-libs/wayland )
+            input_devices_wacom? (
+              dev-libs/libwacom:=
+              x11-libs/pango
+              x11-libs/gdk-pixbuf:2
+            )
+            smartcard? ( app-crypt/gcr:= )
+            cups? ( net-print/cups[dbus] )
+            modemmanager? (
+              app-crypt/gcr
+              net-misc/modemmanager:=
+            )
+            networkmanager? ( net-misc/networkmanager )
+            media-libs/alsa-lib
+            x11-libs/libXi
+            x11-libs/libXext
+            media-libs/fontconfig
+            elogind? ( sys-auth/elogind )
+            systemd? ( sys-apps/systemd )
+          body: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dudev_dir="$(get_udevdir)"
+                -Dalsa=true
+                -Dgudev=true
+                -Dgcr3=false
+                -Drfkill=true
+                $(meson_use systemd)
+                $(meson_use elogind)
+                $(meson_use colord)
+                $(meson_use cups)
+                $(meson_use networkmanager network_manager)
+                $(meson_use smartcard)
+                $(meson_use input_devices_wacom wacom)
+                $(meson_use wayland)
+                $(meson_use modemmanager wwan)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # Don't auto-suspend by default on AC power
+              insinto /usr/share/glib-2.0/schemas
+              doins "${FILESDIR}"/org.gnome.settings-daemon.plugins.power.gschema.override
+            }
+            pkg_postinst() {
+              udev_reload
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              udev_reload
+              gnome3_pkg_postinst
+            }
+
+    - gnome-control-center:
+        category: gnome-base
+        vars:
+          inherit:
+            - meson
+            - python-any-r1
+            - xdg
+          python_compat: python3+
+          desc: GNOME's main interface to configure various aspects of the desktop
+          homepage: https://apps.gnome.org/Settings
+          license: GPL-2+ CC-BY-SA-2.5
+          # TODO: move to SLOT 0 in the near future
+          slot: 2
+          iuse: |
+            X +bluetooth +cups debug elogind +gnome-online-accounts +ibus input_devices_wacom
+            kerberos +geolocation networkmanager systemd wayland
+          required_use: |
+            ^^ ( elogind systemd )
+          rdepend: |
+            gnome-online-accounts? (
+              x11-libs/gtk+:3[X,wayland]
+              net-libs/gnome-online-accounts:=
+            )
+            media-sound/pulseaudio[glib]
+            x11-libs/gtk:4[X,wayland]
+            x11-libs/libadwaita
+            sys-apps/accountsservice
+            x11-misc/colord:=
+            x11-libs/gdk-pixbuf
+            dev-libs/glib:2
+            gnome-base/gnome-desktop:=
+            >=gnome-base/gnome-settings-daemon-{{ .Values.release }}[colord,input_devices_wacom?]
+            >=gnome-base/gsettings-desktop-schemas-{{ .Values.release }}
+            dev-libs/libxml2:2=
+            sys-power/upower:=
+            dev-libs/libgudev
+            x11-libs/libX11
+            x11-libs/libXi
+            media-libs/libepoxy
+            app-crypt/gcr
+            dev-libs/libpwquality
+            sys-auth/polkit
+            cups? (
+              net-print/cups[dbus]
+              net-fs/samba[client]
+            )
+            ibus? ( app-i18n/ibus )
+            networkmanager? (
+              net-libs/libnma
+              net-misc/networkmanager[modemmanager]
+              net-misc/modemmanager:=
+            )
+            bluetooth? ( net-wireless/gnome-bluetooth:= )
+            input_devices_wacom? ( dev-libs/libwacom:= )
+            kerberos? ( app-crypt/mit-krb5 )
+            x11-libs/cairo[glib]
+            x11-libs/colord-gtk:=
+            media-libs/fontconfig
+            gnome-base/libgtop:=
+            sys-fs/udisks:2
+            app-crypt/libsecret
+            net-libs/gnutls:=
+            media-libs/gsound
+            x11-libs/pango
+            media-libs/libcanberra[pulseaudio,sound(+)]
+            systemd? ( sys-apps/systemd )
+            elogind? (
+              app-admin/openrc-settingsd
+              sys-auth/elogind
+            )
+            x11-themes/adwaita-icon-theme
+            gnome-extra/gnome-color-manager
+            cups? (
+              app-admin/system-config-printer
+              net-print/cups-pk-helper
+            )
+            gnome-extra/tecla
+            wayland? ( dev-libs/libinput )
+            !wayland? (
+              x11-drivers/xf86-input-libinput
+              input_devices_wacom? ( x11-drivers/xf86-input-wacom )
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/libxslt
+            app-text/docbook-xsl-stylesheets
+            app-text/docbook-xml-dtd:4.2
+            x11-base/xorg-proto
+            dev-libs/libxml2:2
+            dev-util/gdbus-codegen
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              xdg_environment_reset
+            }
+            src_configure() {
+              # Do not trust with LTO either
+              append-flags -fno-strict-aliasing
+              filter-lto
+              local emesonargs=(
+                $(meson_use bluetooth)
+                $(meson_use cups)
+                $(meson_use ibus)
+                $(meson_use kerberos)
+                $(meson_use networkmanager network_manager)
+                $(meson_use input_devices_wacom wacom)
+                -Ddeprecated-declarations=disabled
+                -Ddocumentation=true # manpage
+                -Dlocation-services=$(usex geolocation enabled disabled)
+                -Dgoa=$(usex gnome-online-accounts enabled disabled)
+                -Dprivileged_group=wheel
+                -Dsnap=false
+                -Dtests=false
+                -Dmalcontent=false # unpackaged
+                -Ddistributor_logo=/usr/share/pixmaps/gnome-control-center-gentoo-logo.svg
+                -Ddark_mode_distributor_logo=/usr/share/pixmaps/gnome-control-center-gentoo-logo-dark.svg
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              insinto /usr/share/pixmaps
+              doins "${DISTDIR}"/gnome-control-center-gentoo-logo.svg
+              doins "${DISTDIR}"/gnome-control-center-gentoo-logo-dark.svg
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gsettings-desktop-schemas:
+        category: gnome-base
+        vars:
+          desc: Collection of GSettings schemas for GNOME desktop
+          inherit:
+            - meson
+            - gnome3
+          iuse: +introspection
+          bdepend: |
+            introspection? ( dev-libs/gobject-introspection:= )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use introspection)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - xdg-desktop-portal-gnome:
+        category: sys-apps
+        vars:
+          inherit:
+            - meson
+            - gnome3
+            - systemd
+          license: LGPL-2.1
+          iuse: wayland X
+          rdepend: |
+            dev-libs/glib:2
+            >=gnome-base/gsettings-desktop-schemas-{{ .Values.release }}
+            gnome-base/gnome-desktop
+            x11-libs/libadwaita
+            media-libs/fontconfig
+            sys-apps/dbus
+            sys-apps/xdg-desktop-portal
+            sys-apps/xdg-desktop-portal-gtk
+            x11-libs/gtk:4[wayland?,X?]
+            wayland? ( dev-libs/wayland )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            wayland? ( dev-util/wayland-scanner )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dsystemduserunitdir="$(systemd_get_userunitdir)"
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - gnome-backgrounds:
         category: x11-themes
@@ -637,6 +969,7 @@ gnome_apps:
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|beta|alpha'
     transform:
       - kind: string
         match: "{{ .Values.pkgname | default .Values.pn }}-"
@@ -653,6 +986,598 @@ gnome_apps:
       opts:
 
   packages:
+
+    - msgraph:
+        category: net-libs
+        vars:
+          release: '0.3'
+          inherit:
+            - meson
+          desc: GLib-based library for accessing online serive APIs using MS Graph protocol.
+          license: LGPL-2+
+          iuse: debug gtk-doc +introspection man
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib
+            net-libs/rest
+            net-libs/libsoup:3
+            net-libs/gnome-online-accounts:=
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-libs/gobject-introspection-common
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+
+    - libgdata:
+        category: dev-libs
+        vars:
+          release: '0.18'
+          inherit:
+            - meson
+            - gnome3
+            - vala
+          desc: GLib-based library for accessing online service APIs using the GData protocol
+          homepage: https://wiki.gnome.org/Projects/libgdata
+          iuse: +crypt gnome-online-accounts gtk-doc +introspection vala
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib[introspection?]
+            dev-libs/libxml2:2=
+            net-libs/libsoup:2.4[introspection?,vala?]
+            crypt? ( app-crypt/gcr:= )
+            gnome-online-accounts? ( net-libs/gnome-online-accounts[introspection?,vala?] )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              gnome3_environment_reset
+              # Don't waste time building a couple small demos that aren't installed
+              sed -i -e '/subdir.*demos/d' meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dgtk=disabled # only for demos
+                -Doauth1=disabled
+                -Dalways_build_tests=false
+                -Dinstalled_tests=false
+                -Dman=true
+                $(meson_feature crypt gnome)
+                $(meson_feature gnome-online-accounts goa)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+
+    - gvfs:
+        category: gnome-base
+        vars:
+          release: '1.58'
+          desc: Virtual filesystem implementation for GIO
+          homepage: https://gitlab.gnome.org/GNOME/gvfs
+          inherit:
+            - gnome3
+            - meson
+            - systemd
+            - tmpfiles
+          iuse: |
+            afp archive bluray cdda cdr elogind fuse google gnome-keyring
+            gnome-online-accounts gphoto2 onedrive +http ios nfs policykit +sftp
+            systemd +udev +udisks zeroconf samba +mtp
+          required_use: |
+            cdda? ( udev )
+            elogind? ( !systemd udisks )
+            google? ( gnome-online-accounts )
+            mtp? ( udev )
+            udisks? ( udev )
+            systemd? ( !elogind udisks )
+          rdepend: |
+            app-crypt/gcr:4=
+            dev-libs/glib:2
+            sys-apps/dbus
+            dev-libs/libxml2:2
+            afp? ( dev-libs/libgcrypt:0= )
+            archive? ( app-arch/libarchive:= )
+            bluray? ( media-libs/libbluray )
+            fuse? ( sys-fs/fuse:3= )
+            gnome-keyring? ( app-crypt/libsecret )
+            gnome-online-accounts? ( net-libs/gnome-online-accounts:= )
+            google? (
+              dev-libs/libgdata:=[crypt,gnome-online-accounts]
+              net-libs/gnome-online-accounts:=
+            )
+            gphoto2? ( media-libs/libgphoto2:= )
+            http? (
+              dev-libs/libxml2:=
+              net-libs/libsoup:3
+            )
+            ios? (
+              app-pda/libimobiledevice:=
+              app-pda/libplist:=
+            )
+            mtp? ( media-libs/libmtp:= )
+            nfs? ( net-fs/libnfs )
+            policykit? (
+              sys-auth/polkit
+              sys-libs/libcap
+            )
+            samba? ( net-fs/samba[client] )
+            sftp? ( net-misc/openssh )
+            systemd? ( sys-apps/systemd:0= )
+            elogind? ( sys-auth/elogind:0= )
+            udev? (
+              cdda? ( dev-libs/libcdio-paranoia )
+              virtual/libgudev:=
+            )
+            onedrive? (
+              dev-libs/libgdata:=[crypt,gnome-online-accounts]
+              net-libs/msgraph
+            )
+            udisks? ( sys-fs/udisks:2 )
+            zeroconf? ( net-dns/avahi )
+          depend: |
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-util/gtk-doc-am
+          body: |
+            src_prepare() {
+              sed -i -e '/policy,/d' daemon/meson.build
+              gnome3_src_prepare
+            }
+            src_configure() {
+              local enable_logind="false"
+              if use systemd || use elogind; then
+                enable_logind="true"
+              fi
+              local enable_gcrypt="false"
+              if use afp; then
+                enable_gcrypt="true"
+              fi
+              local enable_libusb="false"
+              if use mtp; then
+                enable_libusb="true"
+              fi
+              local emesonargs=(
+                -Dsystemduserunitdir="$(usex systemd $(systemd_get_userunitdir) no)"
+                -Dtmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
+                $(meson_use policykit admin)
+                $(meson_use ios afc)
+                $(meson_use afp)
+                $(meson_use archive)
+                $(meson_use cdr burn)
+                $(meson_use cdda)
+                $(meson_use zeroconf dnssd)
+                $(meson_use gnome-online-accounts goa)
+                $(meson_use google)
+                $(meson_use gphoto2)
+                $(meson_use http)
+                $(meson_use mtp)
+                $(meson_use nfs)
+                $(meson_use onedrive)
+                $(meson_use sftp)
+                $(meson_use samba smb)
+                $(meson_use udisks udisks2)
+                $(meson_use bluray)
+                $(meson_use fuse)
+                $(meson_use udev gudev)
+                $(meson_use gnome-keyring keyring)
+                -Dgcr=true
+                -Dgcrypt=${enable_gcrypt}
+                -Ddeprecated_apis=false
+                -Dlogind=${enable_logind}
+                -Dlibusb=${enable_libusb}
+                -Ddevel_utils=false
+                -Dinstalled_tests=false
+                -Dman=true
+                -Dprivileged_group=wheel
+              )
+              meson_src_configure
+            }
+            src_compile() {
+              meson_src_compile
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              if use fuse; then
+                tmpfiles_process gvfsd-fuse-tmpfiles.conf
+              fi
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-keyring:
+        category: gnome-base
+        vars:
+          desc: Password and keyring managing daemon
+          release: '48'
+          iuse: caps pam ssh-agent systemd
+          inherit:
+            - fcaps
+            - meson
+            - gnome3
+            - pam
+          patches:
+            - gnome-keyring-48.0-collection-registering.patch
+            - gnome-keyring-48.0-gkm_marshal-header.patch
+            - gnome-keyring-48.0-disable-libcap-ng-automagic.patch
+            - gnome-keyring-48.0-fix-pam-install.patch
+          rdepend: |
+            dev-libs/glib:2
+            app-crypt/gcr:=[gtk]
+            dev-libs/libgcrypt:=
+            app-crypt/p11-kit
+            app-eselect/eselect-pinentry
+            app-misc/ca-certificates
+            caps? ( sys-libs/libcap-ng )
+            systemd? ( sys-apps/systemd )
+            ssh-agent? ( net-misc/openssh )
+          depend: |
+            ${RDEPEND}
+            app-text/docbook-xml-dtd:4.3
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dselinux=disabled
+                $(meson_feature caps libcap-ng)
+                $(meson_feature systemd)
+                $(meson_use ssh-agent)
+                $(meson_use pam)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - glade:
+        category: dev-util
+        vars:
+          release: '3.40'
+          python_compat: python3+
+          desc: A user interface designer for GTK+ and GNOME
+          homepage: https://glade.gnome.org https://gitlab.gnome.org/GNOME/glade
+          license: GPL-2+ FDL-1.1+
+          slot: '3.10/13'
+          iuse: X gjs gtk-doc +introspection python wayland webkit
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            app-accessibility/at-spi2-core[introspection?]
+            dev-libs/glib:2
+            dev-libs/libxml2:2=
+            x11-libs/cairo:=
+            x11-libs/gdk-pixbuf:2[introspection?]
+            x11-libs/gtk+:3[X?,introspection?,wayland?]
+            x11-libs/pango[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+            gjs? ( dev-libs/gjs )
+            python? (
+              ${PYTHON_DEPS}
+              x11-libs/gtk+:3[introspection]
+              $(python_gen_cond_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+            )
+            webkit? ( net-libs/webkit-gtk:4.1 )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.2
+            )
+            dev-libs/libxslt
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - python-single-r1
+            - meson
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_configure() {
+              use X || append-cppflags -DGENTOO_GTK_HIDE_X11
+              use wayland || append-cppflags -DGENTOO_GTK_HIDE_WAYLAND
+              local emesonargs=(
+                -Dgladeui=true
+                $(meson_feature gjs)
+                $(meson_feature python)
+                $(meson_feature webkit webkit2gtk)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+
+    - vte:
+        category: x11-libs
+        vars:
+          python_compat: python3+
+          release: '0.82'
+          desc: Library providing a virtual terminal emulator widget
+          license: 'LGPL-3+ GPL-3+'
+          slot: '2.91'
+          # ICU version required 75 but meson option reports legacy option
+          iuse: +crypt debug +glade gtk-doc icu +introspection elogind systemd +vala gtk4
+          inherit:
+            - flag-o-matic
+            - meson
+            - python-any-r1
+            - vala
+            - gnome3
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            app-arch/lz4
+            dev-libs/glib:2
+            dev-libs/libpcre2
+            x11-libs/gtk+:3[introspection?]
+            dev-libs/fribidi
+            x11-libs/pango
+            sys-libs/zlib
+            gtk4? ( x11-libs/gtk:4[introspection?] )
+            elogind? ( sys-auth/elogind )
+            crypt? ( net-libs/gnutls:0= )
+            glade? ( dev-util/glade:3.10 )
+            introspection? ( dev-libs/gobject-introspection:= )
+            x11-libs/pango[introspection?]
+          depend: |
+            ${RDEPEND}
+            dev-util/gperf
+            dev-libs/libxml2:2
+            gtk-doc? (
+              dev-util/gtk-doc
+              dev-util/gtk-doc-am
+            )
+            dev-util/intltool
+            sys-devel/gettext
+            vala? ( $(vala_depend) )
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+              # -Ddebug option enables various debug support via VTE_DEBUG, but also ggdb3; strip the latter
+              sed -e '/ggdb3/d' -i meson.build || die
+              sed -i 's/vte_gettext_domain = vte_api_name/vte_gettext_domain = vte_gtk3_api_name/' meson.build || die
+            }
+            src_configure() {
+              # Upstream don't support LTO & error out on it in meson.build
+              filter-lto
+              local emesonargs=(
+                -Da11y=true
+                $(meson_use debug)
+                $(meson_use gtk-doc docs)
+                $(meson_use introspection gir)
+                -Dfribidi=true # pulled in by pango anyhow
+                -Dgtk3=true
+                $(meson_use crypt gnutls)
+                $(meson_use gtk4)
+                $(meson_use icu)
+                $(meson_use glade)
+                $(meson_use systemd _systemd)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use systemd; then
+                rm "${ED}"/usr/lib/systemd/user/vte-spawn-.scope.d/defaults.conf || die
+              fi
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/ || die
+                mv "${ED}"/usr/share/doc/vte-${SLOT} "${ED}"/usr/share/gtk-doc/vte-${SLOT}-gtk3 || die
+              fi
+              mv "${ED}"/etc/profile.d/vte{,-${SLOT}}.sh || die
+            }
+
+    - libgtop:
+        category: gnome-base
+        vars:
+          release: '2.41'
+          desc: A library that provides top functionality to applications
+          slot: '2/11'
+          iuse: +introspection
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/gtk-doc-am
+            sys-devel/gettext
+            virtual/pkgconfig
+          inherit:
+            - gnome3
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                --disable-static \
+                $(use_enable introspection)
+            }
+
+    - gnome-online-accounts:
+        category: net-libs
+        vars:
+          release: '3.56'
+          inherit:
+            - meson
+            - vala
+            - xdg
+          desc: GNOME framework for accessing online accounts
+          license: LGPL-2+
+          iuse: debug doc gnome +introspection kerberos ms365 +vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            sys-apps/dbus
+            introspection? ( dev-libs/gobject-introspection:= )
+            x11-libs/libadwaita
+            x11-libs/gtk:4
+            dev-libs/json-glib
+            app-crypt/libsecret
+            net-libs/libsoup:3
+            sys-apps/keyutils
+            dev-libs/libxml2:2=
+            kerberos? (
+              app-crypt/gcr[gtk]
+              app-crypt/mit-krb5
+            )
+          pdepend: |
+            gnome? ( gnome-base/gnome-control-center[gnome-online-accounts(+)] )
+          depend: |
+            ${RDEPEND}
+            vala? ( $(vala_depend) )
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            dev-libs/gobject-introspection-common
+            gnome-base/gnome-common
+          bdepend: |
+            doc? ( dev-util/gi-docgen )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dgoabackend=true
+                -Dexchange=true
+                -Dfedora=false
+                -Dgoogle=true
+                -Dimap_smtp=true
+                -Downcloud=true
+                -Dwebdav=true
+                -Dman=true
+                $(meson_use kerberos)
+                $(meson_use doc documentation)
+                $(meson_use ms365 ms_graph)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use doc; then
+                mv "${ED}"/usr/share/doc/${PN} "${ED}"/usr/share/doc/${PF} || die
+              fi
+            }
+
+    - gnome-desktop:
+        category: gnome-base
+        vars:
+          inherit:
+            - meson
+            - xdg
+          release: '44'
+          desc: Library with common API for various GNOME modules
+          license: GPL-2+ LGPL-2+ FDL-1.1+
+          slot: 0
+          iuse: debug gtk-doc seccomp systemd udev
+          rdepend: |
+            x11-libs/gdk-pixbuf[introspection]
+            x11-libs/gtk:4[introspection]
+            dev-libs/glib:2
+            gnome-base/gsettings-desktop-schemas[introspection]
+            x11-misc/xkeyboard-config
+            x11-libs/libxkbcommon
+            app-text/iso-codes
+            systemd? ( sys-apps/systemd:= )
+            udev? ( virtual/libudev:= )
+            seccomp? ( sys-libs/libseccomp )
+            x11-libs/cairo
+            dev-libs/gobject-introspection:=
+            !<gnome-base/gnome-desktop-{{ .Values.version }}:3
+          depend: |
+            ${RDEPEND}
+            media-libs/fontconfig
+          bdepend: |
+            app-text/docbook-xml-dtd:4.1.2
+            dev-util/gdbus-codegen
+            gtk-doc? ( dev-util/gtk-doc )
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              xdg_environment_reset
+              # Don't build manual test programs that will never get run
+              sed -i -e "/'test-.*'/d" libgnome-desktop/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddesktop_docs=true
+                $(meson_use debug debug_tools)
+                $(meson_feature udev)
+                $(meson_feature systemd)
+                $(meson_use gtk-doc gtk_doc)
+                -Dinstalled_tests=false
+                -Dbuild_gtk4=true
+                -Dlegacy_library=false
+                -Dintrospection=true
+              )
+              meson_src_configure
+            }
 
     - xdg-user-dirs-gtk:
         category: x11-misc
@@ -2503,6 +3428,121 @@ github_libs:
       query: tags
   packages:
 
+    - system-config-printer:
+        template: ../../templates/simple.tmpl
+        github:
+          user: OpenPrinting
+          query: releases
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        category: app-admin
+        vars:
+          desc: Graphical user interface for CUPS administration
+          python_compat: python3+
+          extra_envs:
+            - 'DISTUTILS_USE_PEP517=setuptools'
+            - 'DISTUTILS_SINGLE_IMPL=1'
+          inherit:
+            - distutils-r1
+            - systemd
+            - udev
+            - xdg
+          iuse: gnome-keyring policykit
+          patches:
+            - system-config-printer-1.5.18-fix-debugprint-exception.patch
+          cdepend: |
+            dev-libs/glib:2
+            net-print/cups[dbus]
+            virtual/libusb:1
+            virtual/udev
+            x11-libs/gtk+:3[introspection]
+            x11-libs/libnotify[introspection]
+            x11-libs/pango[introspection]
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            $(python_gen_cond_dep '
+              dev-python/dbus-python[${PYTHON_USEDEP}]
+              dev-python/pycairo[${PYTHON_USEDEP}]
+              dev-python/pycups[${PYTHON_USEDEP}]
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+              dev-python/requests[${PYTHON_USEDEP}]
+              dev-python/urllib3[${PYTHON_USEDEP}]
+            ')
+            gnome-keyring? ( app-crypt/libsecret[introspection] )
+            policykit? ( net-print/cups-pk-helper )
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                --with-xmlto
+                --enable-nls
+                --with-desktop-vendor=MacaroniOS
+                --with-udev-rules
+                --with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_compile() {
+              emake PYTHON=:
+              distutils-r1_src_compile
+            }
+            src_install() {
+              emake DESTDIR="${D}" PYTHON=: install
+              python_fix_shebang "${ED}"
+              distutils-r1_src_install
+            }
+            pkg_postinst() {
+              udev_reload
+            }
+            pkg_postrm() {
+              udev_reload
+            }
+
+    - xdg-desktop-portal-gtk:
+        template: ../../templates/simple.tmpl
+        github:
+          user: flatpak
+          query: releases
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        category: sys-apps
+        vars:
+          inherit:
+            - meson
+            - systemd
+          iuse: wayland X
+          rdepend: |
+            dev-libs/glib:2
+            gnome-base/gsettings-desktop-schemas
+            media-libs/fontconfig
+            sys-apps/dbus
+            sys-apps/xdg-desktop-portal
+            x11-libs/cairo[X?]
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+:3[wayland?,X?]
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              # All backends that are disabled are instead provided by
+              # xdg-desktop-portal-gnome to keep this package free of GNOME dependencies.
+              # The appchooser and settings backends are enabled for non-GNOME GTK
+              # applications.
+              local emesonargs=(
+                -Dsystemd-user-unit-dir="$(systemd_get_userunitdir)"
+                -Dappchooser=enabled
+                -Dsettings=enabled
+                -Dlockdown=disabled
+                -Dwallpaper=disabled
+              )
+              meson_src_configure
+            }
+
     - appstream-glib:
         github:
           user: hughsie
@@ -2710,3 +3750,170 @@ xdg_user_dirs:
 
   packages:
     - xdg-user-dirs:
+
+gitlab_freedesktop_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-misc
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+
+  packages:
+    - geoclue:
+        vars:
+          gitlab_user: geoclue
+          gitlab_repo: geoclue
+          python_compat: python3+
+          desc: Location information D-Bus service
+          homepage: https://gitlab.freedesktop.org/geoclue/geoclue/-/wikis/home
+          inherit:
+            - meson
+            - python-any-r1
+            - systemd
+            - vala
+            - xdg
+            - user
+          license: LGPL-2.1+ GPL-2+
+          slot: '2.0'
+          iuse: +introspection gtk-doc modemmanager vala zeroconf
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib
+            net-libs/libsoup:3
+            introspection? ( dev-libs/gobject-introspection:= )
+            modemmanager? ( net-misc/modemmanager )
+            zeroconf? ( net-dns/avahi )
+            x11-libs/libnotify
+            sys-apps/dbus
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/gdbus-codegen
+            gtk-doc? (
+              app-text/docbook-xml-dtd:4.1.2
+              dev-util/gtk-doc
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            pkg_preinst() {
+              enewgroup geoclue
+              enewuser geoclue -1 -1 /var/lib/geoclue geoclue
+            }
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dlibgeoclue=true
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc)
+                $(meson_use modemmanager 3g-source)
+                $(meson_use modemmanager cdma-source)
+                $(meson_use modemmanager modem-gps-source)
+                $(meson_use zeroconf nmea-source)
+                -Dcompass=true
+                -Denable-backend=true
+                -Ddemo-agent=true
+                -Dsystemd-system-unit-dir="$(systemd_get_systemunitdir)"
+                -Ddbus-srv-user=geoclue
+              )
+              meson_src_configure
+            }
+
+accountsservice:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    dir:
+      url: https://www.freedesktop.org/software/accountsservice/
+      matcher: "{{ .Values.pn }}-23..*.tar.xz$"
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      desc: D-Bus interfaces for querying and manipulating user account information
+      python_compat: python3+
+      inherit:
+        - meson
+        - python-any-r1
+        - systemd
+        - vala
+      homepage: https://www.freedesktop.org/wiki/Software/AccountsService/
+      license: GPL-3+
+      iuse: doc elogind gtk-doc +introspection systemd vala
+      required_use: |
+        ^^ ( elogind systemd )
+      rdepend: |
+        dev-libs/glib:2
+        sys-auth/polkit
+        elogind? ( sys-auth/elogind )
+        introspection? ( dev-libs/gobject-introspection:= )
+        systemd? ( sys-apps/systemd:= )
+      depend: |
+        ${RDEPEND}
+        dev-libs/libxslt
+      bdepend: |
+        dev-util/gdbus-codegen
+        dev-util/gtk-doc-am
+        dev-util/intltool
+        sys-devel/gettext
+        virtual/pkgconfig
+        doc? (
+          app-text/docbook-xml-dtd:4.1.2
+          app-text/xmlto
+        )
+      body: |
+        src_prepare() {
+          default
+          use vala && vala_src_prepare
+        }
+        src_configure() {
+          sed -e "/subdir('tests')/d" -i meson.build || die
+          local emesonargs=(
+            --localstatedir="${EPREFIX}/var"
+            -Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+            -Dadmin_group="wheel"
+            $(meson_use elogind)
+            $(meson_use introspection)
+            $(meson_use doc docbook)
+            $(meson_use gtk-doc gtk_doc)
+            $(meson_use vala vapi)
+          )
+          meson_src_configure
+        }
+        src_install() {
+          meson_src_install
+          # https://gitlab.freedesktop.org/accountsservice/accountsservice/-/issues/90
+          if use doc; then
+            mv "${ED}/usr/share/doc/${PN}" "${ED}/usr/share/doc/${PF}" || die
+          fi
+          # This directories are created at runtime when needed
+          rm -r "${ED}"/var/lib || die
+        }
+
+  packages:
+    - accountsservice:

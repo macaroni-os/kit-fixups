@@ -25,6 +25,10 @@ target:
     - pkg: app-accessibility/at-spi2-atk:2
     - pkg: app-accessibility/at-spi2-core:2
 
+    - pkg: app-admin/system-config-printer
+
+    - pkg: app-misc/geoclue
+
     - pkg: dev-cpp/atkmm:0
     - pkg: dev-cpp/atkmm:2.36
     - pkg: dev-cpp/cairomm:1
@@ -44,14 +48,24 @@ target:
     - pkg: dev-libs/gdl
     - pkg: dev-libs/json-glib
     - pkg: dev-libs/libdex
+    - pkg: dev-libs/libgdata
     - pkg: dev-libs/librevenge
     - pkg: dev-libs/vala-common
 
     - pkg: dev-util/sysprof
+    - pkg: dev-util/glade
 
+    - pkg: gnome-base/libgtop
     - pkg: gnome-base/librsvg
+    - pkg: gnome-base/gnome-control-center
+    - pkg: gnome-base/gnome-desktop
+    - pkg: gnome-base/gnome-keyring
+    - pkg: gnome-base/gnome-settings-daemon
+    - pkg: gnome-base/gsettings-desktop-schemas
+    - pkg: gnome-base/gvfs
 
     - pkg: gnome-extra/gnome-weather
+    - pkg: gnome-extra/tecla
 
     - pkg: mail-client/geary
 
@@ -60,11 +74,13 @@ target:
     #- pkg: media-libs/libglycin
 
     - pkg: net-libs/glib-networking
+    - pkg: net-libs/gnome-online-accounts
     - pkg: net-libs/gssdp:1.6
     - pkg: net-libs/gupnp:1.6
     - pkg: net-libs/libsoup:2.4
     - pkg: net-libs/libsoup:3
     - pkg: net-libs/libcloudproviders
+    - pkg: net-libs/msgraph
 
     - pkg: net-misc/rygel
 
@@ -74,6 +90,7 @@ target:
     - pkg: x11-libs/gtk+:2
     - pkg: x11-libs/libadwaita
     - pkg: x11-libs/libpanel
+    - pkg: x11-libs/vte
 
     - pkg: x11-misc/colord
     - pkg: x11-misc/xdg-user-dirs
@@ -82,6 +99,10 @@ target:
     - pkg: x11-themes/adwaita-icon-theme
     - pkg: x11-themes/adwaita-icon-theme-legacy
     - pkg: x11-themes/gnome-backgrounds
+
+    - pkg: sys-apps/accountsservice
+    - pkg: sys-apps/xdg-desktop-portal-gtk
+    - pkg: sys-apps/xdg-desktop-portal-gnome
 
     - pkg: virtual/libgudev
     - pkg: virtual/notification-daemon

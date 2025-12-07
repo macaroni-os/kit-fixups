@@ -1858,3 +1858,81 @@ thunderbird:
           - kind: string
             match: "esr"
             replace: ""
+
+gnome_apps:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-libs
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      license: LGPL-2.1
+      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
+
+  packages:
+    - rest:
+        vars:
+          slot: '1.0'
+          release: '0.9'
+          desc: Helper library for RESTful services
+          homepage: https://wiki.gnome.org/Projects/Librest
+          iuse: gtk-doc +introspection vala
+          inherit:
+            - meson
+            - vala
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            net-libs/libsoup:3
+            dev-libs/json-glib:0[introspection?]
+            dev-libs/libxml2:2=
+            app-misc/ca-certificates
+            introspection? ( dev-libs/gobject-introspection:= )
+            !net-libs/rest:0.7
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+          patches:
+            - 0001-rest_proxy_call_sync-bail-out-if-no-payload.patch
+            - 0002-Handle-some-potential-problems-in-parsing-oauth2-acc.patch
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              sed -i -e '/flickr/d' -e '/lastfm/d' tests/meson.build
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dca_certificates=true
+                -Dca_certificates_path="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                -Dexamples=false
+                $(meson_use gtk-doc gtk_doc)
+                -Dsoup2=false
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+

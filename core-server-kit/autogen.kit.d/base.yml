@@ -1,0 +1,161 @@
+general_github:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple-github.tmpl
+    files_dir: '{{ .Values.pn }}'
+    category: sys-fs
+    github:
+      query: releases
+
+  packages:
+
+    - fuse:
+        template: ../../templates/simple.tmpl
+        github:
+          user: libfuse
+          repo: libfuse
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            matcher: '{{ .Values.pn }}-.*.tar.gz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+        vars:
+          python_compat: python3+
+          inherit:
+            - flag-o-matic
+            - meson
+            - udev
+            - python-any-r1
+          slot: 3
+          iuse: +suid
+          bdepend: |
+            virtual/pkgconfig
+          rdepend: |
+            sys-fs/fuse-common
+          docs:
+            - AUTHORS
+            - ChangeLog.rst
+            - README.md
+            - doc/README.NFS
+            - doc/kernel.txt
+          body: |
+            src_configure() {
+              # bug #853058
+              filter-lto
+              local emesonargs=(
+                -Dexamples=false
+                -Dtests=false
+                -Duseroot=false
+                -Dinitscriptdir=
+                -Dudevrulesdir="${EPREFIX}$(get_udevdir)/rules.d"
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # Installed via fuse-common
+              rm -r "${ED}"{/etc,$(get_udevdir)} || die
+              # useroot=false prevents the build system from doing this.
+              use suid && fperms u+s /usr/bin/fusermount3
+              # manually install man pages to respect compression
+              rm -r "${ED}"/usr/share/man || die
+              doman doc/{fusermount3.1,mount.fuse3.8}
+            }
+
+
+    - libostree:
+        template: ../../templates/simple.tmpl
+        github:
+          user: ostreedev
+          repo: ostree
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        vars:
+          inherit:
+            - autotools
+            - systemd
+            - tmpfiles
+          iuse: |
+            avahi curl dracut gnutls +gpg +http2 introspection
+            doc +libmount man openssl systemd sodium +soup
+          required_use: |
+            || ( soup curl )
+          # We force using of soup 3 for new releases.
+          rdepend: |
+            dev-libs/glib:2
+            app-arch/xz-utils
+            app-arch/libarchive
+            sys-libs/zlib
+            sys-fs/fuse:3=
+            avahi? ( net-dns/avahi )
+            curl? ( net-misc/curl )
+            gnutls? ( net-libs/gnutls )
+            openssl? ( dev-libs/openssl )
+            sodium? ( dev-libs/libsodium )
+            soup? ( net-libs/libsoup:3 )
+            libmount? ( sys-apps/util-linux )
+          depend: |
+            ${RDEPEND}
+            curl? ( net-libs/libsoup:3 )
+            introspection? ( dev-libs/gobject-introspection )
+            doc? ( dev-util/gtk-doc )
+            man? ( dev-libs/libxslt )
+          bdepend: |
+            virtual/pkgconfig
+            sys-fs/e2fsprogs
+            sys-devel/bison
+          body: |
+            src_prepare() {
+                default
+                eautoreconf
+            }
+            src_configure() {
+                unset YACC
+                local econfargs=(
+                    --enable-man
+                    --enable-shared
+                    --with-grub2-mkconfig-path=grub-mkconfig
+                    --with-modern-grub
+                    --with-libarchive
+                    --without-selinux
+                    $(use_with curl)
+                    $(use_with dracut dracut yesbutnoconf) #816867
+                    $(use_enable doc gtk-doc)
+                    $(usex introspection --enable-introspection={,} yes no)
+                    $(use_with gpg gpgme)
+                    $(use_enable http2)
+                    $(use_with soup soup3)
+                    --without-soup # libsoup:2.4
+                    $(use_with libmount)
+                    $(use_with sodium ed25519-libsodium)
+                    $(use_with systemd libsystemd)
+                    $(use_with avahi)
+                )
+                if use systemd; then
+                    econfargs+=( --with-systemdsystemunitdir="$(systemd_get_systemunitdir)" )
+                fi
+                # Crypto for checksums:
+                # prefer gnutls over openssl if both are selected
+                if use gnutls; then
+                    econfargs+=( --with-crypto=gnutls )
+                elif use openssl; then
+                    econfargs+=( --with-crypto=openssl )
+                else
+                    econfargs+=( --with-crypto=glib )
+                fi
+                unset ${!XDG_*}
+                econf "${econfargs[@]}"
+            }
+            src_install() {
+                default
+                rm -f ${D}/etc/grub.d/15_ostree
+                dotmpfiles src/boot/ostree-tmpfiles.conf #901797
+                find "${D}" -name '*.la' -type f -delete || die
+            }
+            pkg_postinst() {
+                tmpfiles_process ostree-tmpfiles.conf
+            }
+

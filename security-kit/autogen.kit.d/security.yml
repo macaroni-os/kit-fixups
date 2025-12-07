@@ -253,4 +253,100 @@ sys_auth_pkgs:
                 chown polkitd "${EROOT}"/{etc,usr/share}/polkit-1/rules.d
             }
 
+gnome_apps:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
 
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-crypt
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      license: LGPL-2.1
+      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
+
+  packages:
+    - gcr:
+        vars:
+          slot: '4'
+          release: '4.4'
+          desc: Libraries for cryptographic UIs and accessing PKCS#11 modules
+          license: 'GPL-2 LGPL-2+'
+          iuse: gnutls gtk gtk-doc +introspection systemd +vala
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            !gnutls? ( dev-libs/libgcrypt:0= )
+            gnutls? ( net-libs/gnutls:0 )
+            app-crypt/p11-kit
+            app-crypt/libsecret
+            systemd? ( sys-apps/systemd:= )
+            gtk? ( x11-libs/gtk:4[introspection?] )
+            sys-apps/dbus
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk? ( dev-libs/libxml2:2 )
+            dev-util/gdbus-codegen
+            dev-util/glib-utils
+            gtk-doc? ( dev-util/gi-docgen )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - meson
+            - vala
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              filter-lto # https://gitlab.gnome.org/GNOME/gcr/-/issues/43
+              local emesonargs=(
+                  $(meson_use introspection)
+                  $(meson_use gtk gtk4)
+                  $(meson_use gtk-doc gtk_doc)
+                  $(meson_feature systemd)
+                  $(meson_use vala vapi)
+                  -Dgpg_path="${EPREFIX}"/usr/bin/gpg
+                  -Dssh_agent=true
+              )
+              if use gnutls; then
+                  emesonargs+=( -Dcrypto=gnutls )
+              else
+                  emesonargs+=( -Dcrypto=libgcrypt )
+              fi
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                  mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                  mv "${ED}"/usr/share/doc/{gck-2,gcr-4} "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_posrm
+            }

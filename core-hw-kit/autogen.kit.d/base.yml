@@ -195,3 +195,90 @@ fwupd_packages:
               )
               meson_src_configure
             }
+
+
+
+upower:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-power
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/v[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    transform:
+      - kind: string
+        match: 'v'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+      license: GPL-2+
+      python_compat: python3+
+      iuse: gtk-doc +introspection policykit
+      inherit:
+        - meson
+        - python-any-r1
+        - systemd
+        - udev
+        - xdg-utils
+      rdepend: |
+        dev-libs/glib:2
+        sys-apps/dbus:=
+        introspection? ( dev-libs/gobject-introspection:= )
+        policykit? ( sys-auth/polkit )
+        dev-libs/libgudev:=
+        virtual/udev
+      depend: '${RDEPEND}'
+      bdepend: |
+        app-text/docbook-xsl-stylesheets
+        dev-libs/libxslt
+        dev-util/gdbus-codegen
+        sys-devel/gettext
+        gtk-doc? ( dev-util/gtk-doc )
+      body: |
+        post_src_unpack() {
+          mv upower-v* "${S}"
+        }
+        src_prepare() {
+          default
+          xdg_environment_reset
+          # https://bugs.gentoo.org/935575
+          unset XDG_CONFIG_DIRS XDG_DATA_DIRS
+        }
+        src_configure() {
+          local backend=linux
+          local emesonargs=(
+            --localstatedir "${EPREFIX}"/var
+            -Dman=true
+            -Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+            -Dos_backend="${backend}"
+            -Didevice=disabled
+            $(meson_use gtk-doc)
+            $(meson_feature introspection)
+            $(meson_feature policykit polkit)
+          )
+          meson_src_configure
+        }
+        src_install() {
+            meson_src_install
+            keepdir /var/lib/upower #383091
+        }
+        pkg_postinst() {
+            udev_reload
+        }
+        pkg_postrm() {
+            udev_reload
+        }
+
+  packages:
+    - upower:
+        vars:
+          gitlab_user: upower
+          gitlab_repo: upower
+          desc: D-Bus abstraction for enumerating power devices, querying history and statistics
+          homepage: https://upower.freedesktop.org/

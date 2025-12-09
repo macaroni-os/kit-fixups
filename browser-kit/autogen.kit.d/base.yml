@@ -2105,8 +2105,8 @@ spidermonkey:
             }
             src_configure() {
               if use clang; then
-                extra_cflags="-I/usr/lib/clang/{{ .Values.slot }}/include/"
-                export CPPFLAGS="-I/usr/lib/clang/{{ .Values.slot }}/include/"
+                extra_cflags="-I/usr/lib/clang/{{ .Values.llvm_slot }}/include/"
+                export CPPFLAGS="-I/usr/lib/clang/{{ .Values.llvm_slot }}/include/"
                 local -x CC=${CHOST}-clang
                 local -x CXX=${CHOST}-clang++
                 strip-unsupported-flags

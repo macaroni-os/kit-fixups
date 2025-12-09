@@ -1,0 +1,25 @@
+--- a/meson.build	2025-12-08 17:10:30.393610531 -0000
++++ b/meson.build	2025-12-08 17:12:42.816444868 -0000
+@@ -90,12 +90,18 @@
+   dependency('json-glib-1.0', version: '>= 0.10')
+ ]
+ 
+-libsystemd_dep = dependency('libsystemd', version: '>= 209', required: true)
+-config_h.set('SYSTEMD_STRICT_ENV',
+-              libsystemd_dep.version().version_compare('< 248'))
++libsystemd_dep = dependency('libsystemd', version: '>= 209', required: false)
++if libsystemd_dep.found()
++  session_deps += libsystemd_dep
++  config_h.set('SYSTEMD_STRICT_ENV',
++                libsystemd_dep.version().version_compare('< 248'))
++
++else
++  elogind_dep = dependency('libelogind', version: '>=209', required: true)
++  session_deps += elogind_dep
++endif
+ 
+ session_bin_deps = session_deps + [
+-  libsystemd_dep,
+   dependency('gio-unix-2.0', version: glib_req_version),
+ ]
+ 

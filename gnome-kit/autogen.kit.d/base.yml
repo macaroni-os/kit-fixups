@@ -486,6 +486,168 @@ gnome_release_pkgs:
 
   packages:
 
+    - gnome-weather:
+        vars:
+          desc: A weather application for GNOME
+          homepage: https://wiki.gnome.org/Design/Apps/Weather
+          license: GPL-2+ LGPL-2+ MIT CC-BY-3.0 CC-BY-SA-3.0
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - python-any-r1
+            - virtualx
+            - meson
+          rdepend: |
+            app-misc/geoclue:2.0
+            dev-libs/gjs
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/libgweather:=
+            gnome-base/gsettings-desktop-schemas
+            x11-libs/gtk:4
+          depend: |
+            ${RDEPEND}
+            dev-libs/appstream-glib
+            dev-node/typescript
+            dev-util/intltool
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              meson_src_configure -Dprofile=default -Ddogtail=false
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_posrm
+            }
+
+
+    - gnome-session:
+        category: gnome-base
+        vars:
+          inherit:
+            - gnome3
+            - meson
+            - systemd
+          desc: Gnome session manager
+          license: GPL-2 LGPL-2 FDL-1.1
+          iuse: doc elogind systemd X
+          required_use: |
+            ^^ ( elogind systemd )
+          cdepend: |
+            dev-libs/glib:2
+            X? (
+              x11-libs/gtk:4
+              x11-libs/libICE
+              x11-libs/libSM
+              x11-libs/libX11
+            )
+            gnome-base/gnome-desktop
+            dev-libs/json-glib
+            media-libs/libglvnd[X]
+            media-libs/libepoxy
+            x11-libs/libXcomposite
+            systemd? ( sys-apps/systemd:= )
+            elogind? ( sys-auth/elogind:= )
+          rdepend: |
+            ${CDEPEND}
+            gnome-base/gnome-settings-daemon
+            gnome-base/gsettings-desktop-schemas
+            sys-apps/dbus[elogind=,systemd=,X]
+            x11-misc/xdg-user-dirs
+            x11-misc/xdg-user-dirs-gtk
+          depend: |
+            ${CDEPEND}
+            x11-libs/xtrans
+          bdepend: |
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            doc? (
+              app-text/xmlto
+              app-text/docbook-xml-dtd:4.1.2
+            )
+          patches:
+            - gnome-session-49-elogind.patch
+          body: |
+            src_prepare() {
+              default
+              gnome3_environment_reset
+              # Install USE=doc in ${PF} if enabled
+              #sed -i -e "s:meson\.project_name(), 'dbus':'${PF}', 'dbus':" doc/dbus/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddeprecation_flags=false
+                -Dman=true
+                -Dsystemduserunitdir="$(systemd_get_userunitdir)"
+                $(meson_use doc docbook)
+                $(meson_use X x11)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              exeinto /etc/X11/Sessions
+              doexe "${FILESDIR}/Gnome"
+              newmenu "${FILESDIR}/defaults.list-r7" gnome-mimeapps.list
+              exeinto /etc/X11/xinit/xinitrc.d/
+              newexe "${FILESDIR}/15-xdg-data-gnome-r1" 15-xdg-data-gnome
+              # This should be done here as discussed in bug #270852
+              newexe "${FILESDIR}/10-user-dirs-update-gnome-r1" 10-user-dirs-update-gnome
+              # Set XCURSOR_THEME from current dconf setting instead of installing
+              # default cursor symlink globally and affecting other DEs (bug #543488)
+              # https://bugzilla.gnome.org/show_bug.cgi?id=711703
+              newexe "${FILESDIR}/90-xcursor-theme-gnome" 90-xcursor-theme-gnome
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - dconf-editor:
+        category: gnome-base
+        vars:
+          inherit:
+            - meson
+            - gnome3
+            - vala
+          desc: Graphical tool for editing the dconf configuration database
+          license: GPL-3+
+          rdepend: |
+            gnome-base/dconf
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            dev-libs/libhandy[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - tecla:
         vars:
           inherit:
@@ -531,7 +693,7 @@ gnome_release_pkgs:
           desc: Gnome Settings Daemon
           license: GPL-2+ LGPL-2+
           iuse: |
-            +colord +cups elogind +input_devices_wacom modemmanager networkmanager
+            +colord +cups elogind +input_devices_wacom modemmanager +networkmanager
             smartcard systemd wayland
           required_use: |
             ^^ ( elogind systemd )
@@ -582,14 +744,14 @@ gnome_release_pkgs:
                 -Dgudev=true
                 -Dgcr3=false
                 -Drfkill=true
+                -Dx11=true
                 $(meson_use systemd)
                 $(meson_use elogind)
                 $(meson_use colord)
                 $(meson_use cups)
                 $(meson_use networkmanager network_manager)
                 $(meson_use smartcard)
-                $(meson_use input_devices_wacom wacom)
-                $(meson_use wayland)
+                $(meson_use wayland xwayland)
                 $(meson_use modemmanager wwan)
               )
               meson_src_configure
@@ -986,6 +1148,303 @@ gnome_apps:
       opts:
 
   packages:
+
+    - gjs:
+        category: dev-libs
+        vars:
+          license: MIT || ( MPL-1.1 LGPL-2+ GPL-2+ )
+          release: '1.86'
+          inherit:
+            - flag-o-matic
+            - meson
+          desc: Javascript bindings for GNOME
+          iuse: +clang examples readline sysprof
+          llvm_slot: 20
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libffi:=
+            dev-libs/gobject-introspection:=
+            dev-lang/spidermonkey
+            x11-libs/cairo[X,glib]
+            readline? ( sys-libs/readline:= )
+          depend: |
+            ${RDEPEND}
+            sysprof? ( dev-util/sysprof )
+            clang? (
+              sys-devel/clang:{{ .Values.llvm_slot }}
+              sys-devel/llvm:{{ .Values.llvm_slot }}
+              sys-devel/lld
+            )
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              if use clang; then
+                export CPPFLAGS="${CPPFLAGS} -I/usr/lib/clang/{{ .Values.llvm_slot }}/include/"
+                local -x CC=${CHOST}-clang
+                local -x CXX=${CHOST}-clang++
+                strip-unsupported-flags
+              fi
+
+              # TODO: check why OS is not correctly identified
+              # and i need to add -DXP_UNIX
+              append-cppflags -DG_DISABLE_CAST_CHECKS -DXP_UNIX
+              local emesonargs=(
+                $(meson_feature readline)
+                $(meson_feature sysprof profiler)
+                -Dinstalled_tests=false
+                -Dskip_dbus_tests=true
+                -Dskip_gtk_tests=true
+                -Db_pch=True
+              )
+              meson_src_configure
+            }
+
+    - geocode-glib:
+        category: sci-geosciences
+        vars:
+          release: '3.26'
+          inherit:
+            - meson
+            - xdg
+          desc: GLib helper library for geocoding services
+          license: LGPL-2+
+          iuse: gtk-doc +introspection
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib[introspection?]
+            net-libs/libsoup:3[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Denable-installed-tests=false
+                $(meson_use introspection enable-introspection)
+                $(meson_use gtk-doc enable-gtk-doc)
+                -Dsoup2=false
+              )
+              meson_src_configure
+            }
+
+    - libgweather:
+        category: dev-libs
+        vars:
+          release: '4.4'
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+            - vala
+          desc: Location and timezone database and weather-lookup library
+          slot: 4
+          license: GPL-2+
+          iuse: gtk-doc +introspection +vala
+          required_use: |
+            vala? ( introspection )
+            gtk-doc? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            net-libs/libsoup:3
+            sci-geosciences/geocode-glib
+            dev-libs/libxml2:2
+            dev-libs/json-glib
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+            sys-devel/gettext
+            virtual/pkgconfig
+            ${PYTHON_DEPS}
+            $(python_gen_any_dep 'dev-python/pygobject[${PYTHON_USEDEP}]')
+            vala? ( $(vala_depend) )
+          body: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              gnome3_environment_reset
+              use vala && vala_src_prepare
+              sed -i -e '/metar/d' libgweather/tests/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use vala enable_vala)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                -Dsoup2=false
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/ || die
+                mv "${ED}"/usr/share/doc/libgweather-4.0 "${ED}"/usr/share/gtk-doc/ || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libhandy:
+        category: dev-libs
+        vars:
+          release: '1.8'
+          inherit:
+            - meson
+            - vala
+            - xdg
+          desc: Building blocks for modern adaptive GNOME apps
+          iuse: examples glade gtk-doc +introspection +vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            glade? ( dev-util/glade:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-util/gi-docgen
+              app-text/docbook-xml-dtd:4.3
+            )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dprofiling=false # -pg passing
+                -Dtests=false
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use examples)
+                $(meson_feature introspection)
+                $(meson_feature glade glade_catalog)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+
+    - libgudev:
+        category: dev-libs
+        vars:
+          release: '238'
+          inherit:
+            - meson
+          desc: GObject bindings for libudev
+          homepage: https://wiki.gnome.org/Projects/libgudev
+          iuse: introspection
+          rdepend: |
+            dev-libs/glib:2
+            virtual/udev
+            introspection? ( dev-libs/gobject-introspection )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature introspection)
+                -Dgtk_doc=false
+                -Dtests=disabled
+                -Dvapi=disabled
+              )
+              meson_src_configure
+            }
+
+    - dconf:
+        category: gnome-base
+        vars:
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          release: '0.49'
+          inherit:
+            - gnome3
+            - meson
+            - systemd
+            - vala
+          desc: Simple low-level configuration system
+          homepage: https://wiki.gnome.org/Projects/dconf
+          iuse: gtk-doc bash-completion
+          rdepend: |
+            dev-libs/glib:2
+            sys-apps/dbus
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/docbook-xml-dtd:4.2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            gtk-doc? ( dev-util/gtk-doc )
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              vala_src_prepare
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dman=true
+                -Dvapi=true
+                -Dsystemduserunitdir=$(systemd_get_userunitdir)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use bash-completion bash_completion)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # GSettings backend may be one of: memory, gconf, dconf
+              # Only dconf is really considered functional by upstream
+              # must have it enabled over gconf if both are installed
+              # This snippet can't be removed until gconf package is
+              # ensured to not install a /etc/env.d/50gconf and then
+              # still consider the CONFIG_PROTECT_MASK bit.
+              echo 'CONFIG_PROTECT_MASK="/etc/dconf"' >> 51dconf
+              echo 'GSETTINGS_BACKEND="dconf"' >> 51dconf
+              doenvd 51dconf
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+              # Kill existing dconf-service processes as recommended by upstream due to
+              # possible changes in the dconf private dbus API.
+              # dconf-service will be dbus-activated on next use.
+              pids=$(pgrep -x dconf-service)
+              if [[ $? == 0 ]]; then
+                ebegin "Stopping dconf-service; it will automatically restart on demand"
+                kill ${pids}
+                eend $?
+              fi
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - msgraph:
         category: net-libs
@@ -3217,39 +3676,6 @@ gnome_apps:
               gnome3_pkg_postrm
             }
 
-    - gnome-weather:
-        vars:
-          patches:
-            - gnome-weather-timezone.patch
-          release: "3.36"
-          desc: A weather application for GNOME
-          homepage: https://wiki.gnome.org/Design/Apps/Weather
-          license: GPL-2+ LGPL-2+ MIT CC-BY-3.0 CC-BY-SA-3.0
-          python_compat: python3+
-          inherit:
-            - gnome3
-            - python-any-r1
-            - virtualx
-            - meson
-          rdepend: |
-            app-misc/geoclue:2.0
-            dev-libs/gjs
-            dev-libs/glib:2
-            dev-libs/gobject-introspection:=
-            dev-libs/libgweather:=
-            gnome-base/gsettings-desktop-schemas
-            x11-libs/gtk+:3
-          depend: |
-            ${RDEPEND}
-            dev-libs/appstream-glib
-            dev-util/intltool
-            virtual/pkgconfig
-          body: |
-            src_prepare() {
-              sed -i -e "/'appdata'\,/d" data/meson.build
-              gnome3_src_prepare
-            }
-
 
 cairo_stuff:
   generator: builtin-dirlisting
@@ -3346,9 +3772,9 @@ virtual_pkgs:
           desc: Virtual for libgudev providers
           iuse: introspection
           rdepend: |
-            >=dev-libs/libgudev-237[introspection?]
+            >=dev-libs/libgudev-238[introspection?]
           versions:
-            - "237"
+            - "238"
 
     - notification-daemon:
         vars:

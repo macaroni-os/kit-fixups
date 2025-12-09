@@ -368,3 +368,30 @@ swig:
 
   packages:
     - swig:
+
+typescript:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-node
+    github:
+      query: releases
+      user: microsoft
+      repo: TypeScript
+    vars:
+      inherit:
+        - npmv1
+      rdepend: '${DEPEND}'
+      extra_envs:
+        - 'NPM_NO_DEPS=1'
+      s: '${WORKDIR}/package'
+    transform:
+      - kind: string
+        match: 'TypeScript '
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tgz'
+
+  packages:
+    - typescript:

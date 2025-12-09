@@ -2,7 +2,7 @@
 #
 # @ECLASS: npmv1.eclass
 # @MAINTAINER:
-# geaaru<at>gmail.com
+# geaaru<at>macaronios.org
 # @AUTHOR:
 # Daniele Rondina geaaru<at>macaronios.org
 # @DESCRIPTION:
@@ -67,7 +67,12 @@ _npmv1_set_metadata() {
 		"
 		if [[ -z "${NPM_DEFAULT_OPTS}" ]] ; then
 			# Retrieve the nodejs major version
-			local node_version=$(node --version)
+			node --version >/dev/null 2>&1
+			local nodeispresent=$?
+			local node_version=20
+			if [ "${nodeispresent}" = "0" ] ; then
+				node_version=$(node --version)
+			fi
 			node_version=${node_version/v}
 			node_version=${node_version/\.*}
 			if [ "${node_version}" -ge 20 ] ; then

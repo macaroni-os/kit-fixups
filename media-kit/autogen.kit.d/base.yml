@@ -1588,7 +1588,7 @@ gstreamer_stuff:
           desc: Basepack of plugins for gstreamer
           license: GPL-2+ LGPL-2+
           iuse: |
-            alsa +egl gbm gles2 +introspection +ogg +opengl
+            alsa +egl gbm gles2 +introspection +ogg +opus +opengl
             +orc +pango theora +vorbis wayland +X
           required_use: |
             theora? ( ogg )
@@ -1609,6 +1609,7 @@ gstreamer_stuff:
             pango? ( x11-libs/pango )
             theora? ( media-libs/libtheora )
             vorbis? ( media-libs/libvorbis )
+            opus? ( media-libs/opus )
             X? (
               x11-libs/libX11
               x11-libs/libXext
@@ -1656,6 +1657,7 @@ gstreamer_stuff:
             - alsa
             - gl
             - ogg
+            - opus
             - pango
             - theora
             - vorbis
@@ -1676,6 +1678,7 @@ gstreamer_stuff:
                 {{- end }}
                 $(meson_feature alsa)
                 $(meson_feature ogg)
+                $(meson_feature opus)
                 $(meson_feature pango)
                 $(meson_feature theora)
                 $(meson_feature vorbis)

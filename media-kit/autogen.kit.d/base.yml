@@ -1823,6 +1823,7 @@ formulae_brew_pkgs:
   #       version seems unmaintained.
   generator: builtin-json
   defaults:
+    files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     category: media-libs
     json:
@@ -1835,6 +1836,29 @@ formulae_brew_pkgs:
         homepage: '$.homepage'
 
   packages:
+
+    - svt-av1:
+        vars:
+          inherit:
+            - cmake
+          s: '${WORKDIR}/SVT-AV1-v{{ .Values.version }}'
+          bdepend: |
+            dev-lang/yasm
+          body: |
+            src_prepare() {
+              # Unused project that triggers the cmake eclasses minimum required cmake check
+              rm -rf gstreamer-plugin || die
+              cmake_src_prepare
+              # Lets not install tests
+              sed -e '/install(/d' -i test/CMakeLists.txt || die
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DCMAKE_OUTPUT_DIRECTORY="${BUILD_DIR}"
+              )
+              cmake_src_configure
+            }
 
     - libvisio:
         vars:

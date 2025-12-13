@@ -1836,6 +1836,35 @@ formulae_brew_pkgs:
 
   packages:
 
+    - libvisio:
+        vars:
+          iuse: doc tools
+          rdepend: |
+            dev-libs/icu:=
+            dev-libs/librevenge
+            dev-libs/libxml2:=
+          depend: |
+            ${RDEPEND}
+            dev-libs/boost
+            dev-util/gperf
+            sys-devel/libtool
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( app-text/doxygen )
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                $(use_with doc docs)
+                $(use_enable tools)
+                --disable-tests
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              find "${ED}" -name '*.la' -delete || die
+            }
+
     - lcms:
         vars:
           s: '${WORKDIR}/lcms2-{{ .Values.version }}'

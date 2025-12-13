@@ -729,7 +729,7 @@ libxml2_python:
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
-    category: dev-libs
+    category: dev-python
     dir:
       url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"

@@ -720,3 +720,72 @@ github_pkgs:
               meson_src_install
             }
 
+libxml2_python:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.tname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.tname | default .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.tname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      s: '${WORKDIR}/{{ .Values.tname | default .Values.pn }}-{{ .Values.version }}'
+      slot: '2'
+      tname: libxml2
+      python_compat: python3+
+      inherit:
+        - distutils-r1
+        - meson
+      desc: Python binding of XML C parser and toolkit
+      homepage: https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home
+      iuse: +icu +lzma readline static-libs
+      rdepend: |
+        =dev-libs/libxml2-{{ .Values.version }}:=[lzma?,icu?,readline?,static-libs?]
+      depend: |
+        ${RDEPEND}
+        app-doc/doxygen[dot]
+      release: '2.15'
+      body: |
+        src_prepare() {
+          default
+          sed -e "/^dir_doc/ s/meson.project_name()$/\'${PF}\'/" -i meson.build || die
+        }
+        src_configure() {
+          local emesonargs=(
+            -Ddefault_library=$(usex static-libs both shared)
+            -Ddocs=disabled
+            $(meson_feature icu)
+            $(meson_feature readline)
+            $(meson_feature readline history)
+            -Dpython=enabled
+            -Dschematron=enabled
+            -Dlegacy=disabled
+          )
+          meson_src_configure
+          export S="${S}/python"
+          distutils-r1_src_configure
+        }
+        src_compile() {
+          meson_src_compile
+        }
+        src_install() {
+          meson_src_install
+          # Remove files supplied by libxml2 library
+          rm -r "${ED}"/usr/{lib64,bin,include} || die
+        }
+
+  packages:
+    - libxml2-python:
+

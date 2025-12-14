@@ -586,6 +586,37 @@ dev_github:
 
   packages:
 
+    - libmspack:
+        category: dev-libs
+        github:
+          user: kyz
+          query: tags
+        vars:
+          s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.version }}/{{ .Values.pn }}'
+          inherit:
+            - autotools
+          iuse: debug doc
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-* {{ .Values.pn }}-{{ .Values.version }}
+            }
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              econf $(use_enable debug)
+            }
+            src_install() {
+              use doc && HTML_DOCS=( doc/. )
+              default
+              if use doc ; then
+                rm "${ED}"/usr/share/doc/"${PF}"/html/{Makefile*,Doxyfile*} || die
+              fi
+              find "${ED}" -name '*.la' -delete || die
+              find "${ED}" -name "*.a" -delete || die
+            }
+
     - highway:
         template: ../../templates/simple-github.tmpl
         category: dev-cpp

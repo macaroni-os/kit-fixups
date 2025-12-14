@@ -1,0 +1,27 @@
+dev_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: app-text
+    github:
+      query: tags
+
+  packages:
+    - cmark:
+        github:
+          user: commonmark
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DCMARK_LIB_FUZZER=OFF
+                -DBUILD_SHARED_LIBS=ON
+                -DBUILD_TESTING=OFF
+              )
+              cmake_src_configure
+            }
+

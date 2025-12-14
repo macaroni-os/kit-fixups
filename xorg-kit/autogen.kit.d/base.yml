@@ -1768,6 +1768,81 @@ gitlab_freedesktop_dirlisting:
 
   packages:
 
+    - libdisplay-info:
+        category: media-libs
+        vars:
+          gitlab_user: emersion
+          gitlab_repo: libdisplay-info
+          python_compat: python3+
+          bdepend: |
+            ${PYTHON_DEPS}
+            sys-apps/hwdata
+            virtual/pkgconfig
+          inherit:
+            - meson
+            - python-any-r1
+
+    - libei:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+            url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-munin-{{ substr 0 7 .Values.munin_sha }}.tar.gz'
+            url: 'https://github.com/nemequ/munit/archive/{{ .Values.munin_sha }}.tar.gz'
+        vars:
+          # This could be managed from a meson-wrap extensions in mark-devkit
+          # in the near future.
+          munin_sha: fbbdf1467eb0d04a6ee465def2e529e4c87f2118
+          gitlab_user: libinput
+          gitlab_repo: libei
+          iuse: +elogind systemd
+          python_compat: python3+
+          inherit:
+            - meson
+            - python-any-r1
+          desc: Library for Emulated Input, primarily aimed at the Wayland stack
+          homepage: https://gitlab.freedesktop.org/libinput/libei
+          # TODO: add support to basu
+          rdepend: |
+            dev-libs/libevdev
+            systemd? ( sys-apps/systemd )
+            elogind? ( sys-auth/elogind )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            $(python_gen_any_dep '
+              dev-python/jinja[${PYTHON_USEDEP}]
+            ')
+          body: |
+            src_unpack() {
+              if [[ -n ${A} ]]; then
+                unpack ${A}
+                mv "${WORKDIR}"/munit-* "${WORKDIR}"/${P}/subprojects/munit || die
+                rm "${WORKDIR}"/${P}/subprojects/munit.wrap || die
+              fi
+            }
+            src_prepare() {
+              default
+              sed -i -e 's:^valgrind = .*:valgrind = disabler():g' test/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddocumentation=""
+                -Dliboeffis=enabled
+                -Dtests=disabled
+              )
+              if use systemd; then
+                emesonargs+=(-Dsd-bus-provider=libsystemd)
+              elif use elogind; then
+                emesonargs+=(-Dsd-bus-provider=libelogind)
+              #else
+              #  emesonargs+=(-Dsd-bus-provider=basu)
+              fi
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+
     - libinput:
         vars:
           gitlab_user: libinput

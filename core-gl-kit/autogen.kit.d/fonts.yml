@@ -36,3 +36,52 @@ media_fonts_noop:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.zip"
             url: https://font.download/dl/font/sedgwick-ave-display.zip
+
+
+gnome_release_pkgs:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-fonts
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz"
+      exclude: "beta|rc|alpha"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+
+    vars:
+      license: OFL-1.1
+      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
+      release: 49
+      inherit:
+        - font
+        - meson
+
+  packages:
+
+    - adwaita-fonts:
+        vars:
+          desc: The typefaces for GNOME
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddatadir="${EPREFIX}/usr/share"
+              )
+              meson_src_configure
+            }
+

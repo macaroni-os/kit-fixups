@@ -1936,3 +1936,39 @@ gnome_apps:
               meson_src_install
             }
 
+
+mail_github:
+  generator: builtin-github
+  defaults:
+    category: net-mail
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: tags
+
+  packages:
+
+    - ytnef:
+        github:
+          match: '^v2.'
+          user: Yeraze
+          num_pages: 3
+        vars:
+          inherit:
+            - autotools
+          iuse: static-libs
+          rdepend: |
+            sys-devel/libtool
+            dev-perl/MIME-tools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              econf $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              find "${ED}" -name "*.la" -delete || die
+            }

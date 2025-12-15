@@ -109,7 +109,7 @@ x11_base_dirlisting:
           homepage: https://wayland.freedesktop.org/xserver.html
           inherit:
             - meson
-          iuse: rpc selinux unwind video_cards_nvidia xcsecurity libdecor
+          iuse: rpc libei unwind video_cards_nvidia xcsecurity libdecor
           cdepend: |
             dev-libs/libbsd
             dev-libs/openssl
@@ -131,10 +131,7 @@ x11_base_dirlisting:
             x11-libs/pixman
             x11-libs/xtrans
             x11-misc/xkeyboard-config
-            selinux? (
-              sys-process/audit
-              sys-libs/libselinux
-            )
+            libei? ( dev-libs/libei )
             libdecor? ( gui-libs/libdecor )
             unwind? ( sys-libs/libunwind )
             video_cards_nvidia? ( gui-libs/egl-wayland )
@@ -142,16 +139,15 @@ x11_base_dirlisting:
             ${CDEPEND}
           rdepend: |
             ${CDEPEND}
-            selinux? ( sec-policy/selinux-xserver )
             !<=x11-base/xorg-server-1.20.11
           body: |
             src_configure() {
               local emesonargs=(
                 $(meson_use rpc secure-rpc)
-                $(meson_use selinux xselinux)
                 $(meson_use unwind libunwind)
                 $(meson_use xcsecurity)
                 $(meson_use libdecor)
+                -Dxselinux=false
                 -Ddpms=true
                 -Ddri3=true
                 -Ddtrace=false
@@ -165,7 +161,9 @@ x11_base_dirlisting:
                 -Dxinerama=true
                 -Dxvfb=true
                 -Dxv=true
+                -Ddrm=true
                 -Dxwayland-path="${EPREFIX}"/usr/bin
+                -Dxwayland_ei=$(usex libei portal false)
               )
               meson_src_configure
             }
@@ -664,6 +662,7 @@ x11_libs_dirlisting:
           rdepend: |
             x11-libs/libxcb
             x11-misc/compose-tables
+            !x11-libs/libxcb:0/1.12
           depend_extra: |
             x11-libs/xtrans
           econf_args_extra: |

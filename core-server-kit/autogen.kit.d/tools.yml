@@ -488,3 +488,168 @@ backup_go_github:
               dodoc doc/*.rst
             }
 
+
+tevent:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-libs
+    dir:
+      url: 'https://download.samba.org/pub/{{ .Values.pkgname | default .Values.pn }}{{ .Values.suffix | default "" }}'
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.gz$"
+      exclude: "rc"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      license: GPL-3
+      python_compat: python3+
+  packages:
+
+    - tdb:
+        vars:
+          inherit:
+            - python-single-r1
+            - autotools
+          iuse: python
+          desc:  LSimple database API
+          homepage: https://tdb.samba.org/
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            dev-libs/libbsd
+            python? ( ${PYTHON_DEPS} )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            app-text/docbook-xml-dtd:4.2
+          body: |
+            src_prepare() {
+              default
+              python_fix_shebang .
+            }
+            src_configure() {
+              local extra_opts=(
+                --libdir="${EPREFIX}/usr/$(get_libdir)"
+                --disable-warnings-as-errors
+              )
+              if ! use python; then
+                extra_opts+=( --disable-python )
+              fi
+              econf "${extra_opts[@]}"
+            }
+            src_install() {
+              emake DESTDIR="${ED}" install
+              use python && python_optimize
+            }
+
+    - ldb:
+        vars:
+          desc: LDAP-like embedded database
+          homepage: https://ldb.samba.org
+          patches:
+            - ldb-1.1.31-fix_PKGCONFIGDIR-when-python-disabled.patch
+            - ldb-2.9.0-optional_packages.patch
+            - ldb-2.5.2-skip-wav-tevent-check.patch
+          inherit:
+            - python-single-r1
+            - autotools
+          iuse: +ldap +lmdb python
+          rdepend: |
+            dev-libs/libbsd
+            dev-libs/popt
+            dev-util/cmocka
+            sys-libs/talloc
+            sys-libs/tdb
+            sys-libs/tevent
+            ldap? ( net-nds/openldap )
+            python? (
+              ${PYTHON_DEPS}
+              sys-libs/talloc[python,${PYTHON_USEDEP}]
+              sys-libs/tdb[python,${PYTHON_USEDEP}]
+              sys-libs/tevent[python,${PYTHON_USEDEP}]
+            )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/libxslt
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              export DISTCC_DISABLE=1
+              python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+            }
+            src_configure() {
+              local myconf=(
+                $(usex ldap '' --disable-ldap)
+                $(usex lmdb '' --without-ldb-lmdb)
+                --disable-rpath
+                --disable-rpath-install --bundled-libraries=NONE
+                --with-modulesdir="${EPREFIX}"/usr/$(get_libdir)/samba
+                --builtin-libraries=NONE
+              )
+              use python || myconf+=( --disable-python )
+              econf "${myconf[@]}"
+            }
+            src_install() {
+              emake DESTDIR="${ED}" install
+              use python && python_optimize
+            }
+
+    - tevent:
+        vars:
+          inherit:
+            - python-single-r1
+            - autotools
+          desc: Samba tevent library
+          homepage: https://tevent.samba.org/
+          iuse: python
+          required_use: |
+            ${PYTHON_REQUIRED_USE}
+          rdepend: |
+            dev-libs/libbsd
+            sys-libs/talloc
+            python? (
+              ${PYTHON_DEPS}
+              sys-libs/talloc[python,${PYTHON_USEDEP}]
+            )
+          depend: |
+            ${RDEPEND}
+            net-libs/libtirpc
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+            }
+            src_configure() {
+              econf \
+                --libdir="${EPREFIX}/usr/$(get_libdir)" \
+                --disable-dependency-tracking \
+                --disable-warnings-as-errors \
+                --bundled-libraries=NONE \
+                --builtin-libraries=NONE \
+                $(usex python '' '--disable-python')
+            }
+            src_install() {
+              emake DESTDIR="${ED}" install
+              use python && python_domodule tevent.py
+              insinto /usr/include
+              doins tevent_internal.h
+            }

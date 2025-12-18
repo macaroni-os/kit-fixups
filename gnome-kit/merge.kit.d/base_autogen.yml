@@ -27,6 +27,8 @@ target:
 
     - pkg: app-admin/system-config-printer
 
+    - pkg: app-arch/gnome-autoar
+
     - pkg: app-misc/geoclue
 
     - pkg: dev-cpp/atkmm:0
@@ -63,17 +65,25 @@ target:
     - pkg: gnome-base/dconf-editor
     - pkg: gnome-base/libgtop
     - pkg: gnome-base/librsvg
+    - pkg: gnome-base/gdm
     - pkg: gnome-base/gnome-control-center
     - pkg: gnome-base/gnome-desktop
     - pkg: gnome-base/gnome-keyring
     - pkg: gnome-base/gnome-session
     - pkg: gnome-base/gnome-settings-daemon
+    - pkg: gnome-base/gnome-shell
     - pkg: gnome-base/gsettings-desktop-schemas
     - pkg: gnome-base/gvfs
 
+    - pkg: gnome-extra/evolution-data-server
+    - pkg: gnome-extra/evolution-ews
+    - pkg: gnome-extra/gnome-color-manager
+    - pkg: gnome-extra/gnome-shell-extensions
     - pkg: gnome-extra/gnome-weather
+    - pkg: gnome-extra/mousetweaks
     - pkg: gnome-extra/tecla
 
+    - pkg: mail-client/evolution
     - pkg: mail-client/geary
 
     - pkg: media-libs/gexiv2
@@ -88,8 +98,11 @@ target:
     - pkg: net-libs/libsoup:3
     - pkg: net-libs/libcloudproviders
     - pkg: net-libs/msgraph
+    - pkg: net-libs/webkit-gtk
 
     - pkg: net-misc/rygel
+
+    - pkg: net-wireless/gnome-bluetooth
 
     - pkg: x11-libs/gdk-pixbuf
     - pkg: x11-libs/gtk:4
@@ -102,6 +115,8 @@ target:
     - pkg: x11-misc/colord
     - pkg: x11-misc/xdg-user-dirs
     - pkg: x11-misc/xdg-user-dirs-gtk
+
+    - pkg: x11-wm/mutter
 
     - pkg: x11-themes/adwaita-icon-theme
     - pkg: x11-themes/adwaita-icon-theme-legacy

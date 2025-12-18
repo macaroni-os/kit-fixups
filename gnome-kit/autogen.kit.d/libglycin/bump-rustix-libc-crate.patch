@@ -1,0 +1,105 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index c192a992a..3f58f0ff1 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -624,7 +624,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "778e2ac28f6c47af28e4907f13ffd1e1ddbd400980a9abd7c8df189bf578a5ad"
+ dependencies = [
+  "libc",
+- "windows-sys 0.60.2",
++ "windows-sys 0.52.0",
+ ]
+ 
+ [[package]]
+@@ -965,7 +965,7 @@ dependencies = [
+  "gobject-sys",
+  "libc",
+  "system-deps",
+- "windows-sys 0.60.2",
++ "windows-sys 0.52.0",
+ ]
+ 
+ [[package]]
+@@ -1558,9 +1558,9 @@ checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
+ 
+ [[package]]
+ name = "libc"
+-version = "0.2.175"
++version = "0.2.178"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "6a82ae493e598baaea5209805c49bbf2ea7de956d50d7da0da1164f9c6d28543"
++checksum = "37c93d8daa9d8a012fd8ab92f088405fb202ea0b6ab73ee2482ae66af4f42091"
+ 
+ [[package]]
+ name = "libglycin"
+@@ -1617,7 +1617,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "07033963ba89ebaf1584d767badaa2e8fcec21aedea6b8c0346d487d49c28667"
+ dependencies = [
+  "cfg-if",
+- "windows-targets 0.53.3",
++ "windows-targets 0.48.5",
+ ]
+ 
+ [[package]]
+@@ -1695,9 +1695,9 @@ checksum = "60276e2d41bbb68b323e566047a1bfbf952050b157d8b5cdc74c07c1bf4ca3b6"
+ 
+ [[package]]
+ name = "linux-raw-sys"
+-version = "0.9.4"
++version = "0.11.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
++checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
+ 
+ [[package]]
+ name = "log"
+@@ -2242,15 +2242,15 @@ checksum = "56f7d92ca342cea22a06f2121d944b4fd82af56988c270852495420f961d4ace"
+ 
+ [[package]]
+ name = "rustix"
+-version = "1.0.8"
++version = "1.1.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "11181fbabf243db407ef8df94a6ce0b2f9a733bd8be4ad02b4eda9602296cac8"
++checksum = "cd15f8a2c5551a84d56efdc1cd049089e409ac19a3072d5037a17fd70719ff3e"
+ dependencies = [
+  "bitflags 2.9.3",
+  "errno",
+  "libc",
+  "linux-raw-sys",
+- "windows-sys 0.60.2",
++ "windows-sys 0.52.0",
+ ]
+ 
+ [[package]]
+@@ -2481,7 +2481,7 @@ dependencies = [
+  "getrandom",
+  "once_cell",
+  "rustix",
+- "windows-sys 0.60.2",
++ "windows-sys 0.52.0",
+ ]
+ 
+ [[package]]
+@@ -2869,7 +2869,7 @@ version = "0.1.10"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "0978bf7171b3d90bac376700cb56d606feb40f251a475a5d6634613564460b22"
+ dependencies = [
+- "windows-sys 0.60.2",
++ "windows-sys 0.48.0",
+ ]
+ 
+ [[package]]
+diff --git a/Cargo.toml b/Cargo.toml
+index 2e3877b47..482344233 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -77,7 +77,7 @@ half = "2.4.1"
+ image = { version = "0.25.7", default-features = false }
+ lcms2 = "6.0.3"
+ lcms2-sys = "4.0.4"
+-libc = "0.2.152"
++libc = "0.2.175"
+ libseccomp = "0.4.0"
+ log = "0.4.0"
+ memfd = "0.6.3"

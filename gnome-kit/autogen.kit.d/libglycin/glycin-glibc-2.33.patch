@@ -1,0 +1,16 @@
+diff --git a/glycin/src/sandbox.rs b/glycin/src/sandbox.rs
+index d840674..ca0419f 100644
+--- a/glycin/src/sandbox.rs
++++ b/glycin/src/sandbox.rs
+@@ -248,11 +248,6 @@ impl Sandbox {
+ 
+         unsafe {
+             command.pre_exec(move || {
+-                #[cfg(not(all(target_os = "linux", target_env = "musl")))]
+-                {
+-                    libc::close_range(3, libc::c_uint::MAX, libc::CLOSE_RANGE_CLOEXEC as i32);
+-                }
+-                #[cfg(all(target_os = "linux", target_env = "musl"))]
+                 {
+                     libc::syscall(
+                         libc::SYS_close_range,

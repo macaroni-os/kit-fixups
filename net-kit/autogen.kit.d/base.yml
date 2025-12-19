@@ -494,9 +494,6 @@ netfilters_dir:
 
 net_wireless_noop:
   generator: builtin-noop
-  template:
-    engine: helm
-
   defaults:
     files_dir: "{{ .Values.pn }}"
     category: net-wireless
@@ -789,6 +786,54 @@ net_libs_github:
       query: tags
 
   packages:
+
+    - ngtcp2:
+        github:
+          query: releases
+        transform:
+          - kind: string
+            match: 'ngtcp2 v'
+            replace: ''
+        vars:
+          inherit:
+            - autotools
+          iuse: +gnutls openssl +ssl
+          required_use: |
+            ssl? ( || ( gnutls openssl ) )
+          rdepend: |
+            ssl? (
+              gnutls? ( net-libs/gnutls:= )
+              openssl? ( dev-libs/openssl:= )
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              local myeconfargs=(
+                --disable-werror
+                --enable-lib-only
+                $(use_with openssl)
+                $(use_with gnutls)
+                --without-boringssl
+                --without-picotls
+                --without-wolfssl
+                --without-libev
+                --without-libnghttp3
+                --without-jemalloc
+              )
+              ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              einstalldocs
+              find "${ED}"/usr -type f -name '*.la' -delete || die
+            }
+
     - enet:
         github:
           user: lsalzman
@@ -943,8 +988,6 @@ flatpak:
 
 alpine:
   generator: builtin-noop
-  template:
-    engine: helm
 
   defaults:
     category: mail-client
@@ -1886,6 +1929,8 @@ gnome_apps:
       homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
 
   packages:
+
+
     - rest:
         vars:
           slot: '1.0'
@@ -1973,3 +2018,559 @@ mail_github:
               default
               find "${ED}" -name "*.la" -delete || die
             }
+
+samba:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-fs
+    dir:
+      url: 'https://download.samba.org/pub/{{ .Values.pkgname | default .Values.pn }}{{ .Values.suffix | default "" }}'
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.gz$"
+      exclude: "rc"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      license: GPL3
+      python_compat: python3+
+  packages:
+
+    - samba:
+        vars:
+          suffix: '/stable/'
+          inherit:
+            - python-single-r1
+            - systemd
+            - pam
+          desc: Samba Suite Version 4
+          homepage: https://samba.org/
+          patches:
+            - ldb-2.5.2-skip-wav-tevent-check.patch
+          iuse: |
+            acl addc ads ceph client cluster cups debug dmapi fam glusterfs
+            gpg iprint json ldap pam profiling-data python quota +regedit
+            snapper spotlight syslog system-heimdal +system-mitkrb5 systemd winbind
+            zeroconf
+          required_use: |
+            ${PYTHON_REQUIRED_USE}
+            addc? ( json python !system-mitkrb5 winbind )
+            ads? ( acl ldap python winbind )
+            cluster? ( ads )
+            gpg? ( addc )
+            ldap? ( ads )
+            spotlight? ( json )
+            !ads? ( !addc )
+            ?? ( system-heimdal system-mitkrb5 )
+          rdepend: |
+            app-arch/libarchive
+            dev-lang/perl:=
+            spotlight? ( dev-libs/icu:= )
+            dev-libs/libbsd
+            dev-libs/libtasn1
+            dev-libs/popt
+            dev-perl/Parse-Yapp
+            net-libs/gnutls
+            net-libs/libnsl
+            net-libs/ngtcp2
+            sys-libs/e2fsprogs-libs
+            sys-libs/ldb[ldap(+)?]
+            sys-libs/libcap
+            sys-libs/liburing
+            sys-libs/ncurses:0=
+            sys-libs/readline:0=
+            sys-libs/talloc
+            sys-libs/tdb
+            sys-libs/tevent
+            sys-libs/zlib
+            virtual/libiconv
+            acl? ( virtual/acl )
+            $(python_gen_cond_dep "
+              dev-python/subunit[\${PYTHON_USEDEP}]
+            ")
+            systemd? ( sys-apps/systemd:= )
+            ceph? ( sys-cluster/ceph )
+            cluster? ( net-libs/rpcsvc-proto )
+            cups? ( net-print/cups )
+            debug? ( dev-util/lttng-ust )
+            dmapi? ( sys-apps/dmapi )
+            fam? ( virtual/fam )
+            gpg? ( app-crypt/gpgme )
+            json? ( dev-libs/jansson )
+            ldap? ( net-nds/openldap )
+            pam? ( sys-libs/pam )
+            python? (
+              sys-libs/ldb[python,${PYTHON_USEDEP}]
+              sys-libs/talloc[python,${PYTHON_USEDEP}]
+              sys-libs/tdb[python,${PYTHON_USEDEP}]
+              sys-libs/tevent[python,${PYTHON_USEDEP}]
+            )
+            snapper? ( sys-apps/dbus )
+            system-heimdal? ( >=app-crypt/heimdal-1.5[-ssl] )
+            system-mitkrb5? ( >=app-crypt/mit-krb5-1.15.1 )
+            zeroconf? ( net-dns/avahi[dbus] )
+            client? ( net-fs/cifs-utils[ads?] )
+          depend: |
+            ${RDEPEND}
+            dev-perl/JSON
+            net-libs/libtirpc
+            net-libs/rpcsvc-proto
+            spotlight? ( dev-libs/glib )
+          bdepend: |
+            ${PYTHON_DEPS}
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            virtual/pkgconfig
+          extra_envs:
+            - 'WAF_BINARY="${S}/buildtools/bin/waf"'
+            - 'SHAREDMODS=""'
+          body: |
+            pkg_setup() {
+              export DISTCC_DISABLE=1
+              python-single-r1_pkg_setup
+              SHAREDMODS="$(usex snapper '' '!')vfs_snapper"
+              if use cluster ; then
+                SHAREDMODS+=",idmap_rid,idmap_tdb2,idmap_ad"
+              elif use ads ; then
+                SHAREDMODS+=",idmap_ad"
+              fi
+            }
+            src_prepare() {
+              default
+              # un-bundle dnspython
+              sed -i -e '/"dns.resolver":/d' "${S}"/third_party/wscript || die
+              # unbundle iso8601 unless tests are enabled
+              sed -i -e '/"iso8601":/d' "${S}"/third_party/wscript || die
+              sed -e 's:<gpgme\.h>:<gpgme/gpgme.h>:' \
+                -i source4/dsdb/samdb/ldb_modules/password_hash.c \
+                || die
+            }
+            src_configure() {
+              # when specifying libs for samba build you must append NONE to the end to
+              # stop it automatically including things
+              local bundled_libs="NONE"
+              if ! use system-heimdal && ! use system-mitkrb5 ; then
+                bundled_libs="heimbase,heimntlm,hdb,kdc,krb5,wind,gssapi,hcrypto,hx509,roken,asn1,com_err,NONE"
+              fi
+
+              bundled_libs="libquic,${bundled_libs}"
+
+              local myconf=(
+                --enable-fhs
+                --sysconfdir="${EPREFIX}/etc"
+                --localstatedir="${EPREFIX}/var"
+                --with-modulesdir="${EPREFIX}/usr/$(get_libdir)/samba"
+                --with-piddir="${EPREFIX}/run/${PN}"
+                --bundled-libraries="${bundled_libs}"
+                --builtin-libraries=NONE
+                --disable-rpath
+                --disable-rpath-install
+                --nopyc
+                --nopyo
+                --without-winexe
+                $(use_with acl acl-support)
+                $(usex addc '' '--without-ad-dc')
+                $(use_with ads)
+                $(use_enable ceph cephfs)
+                $(use_with cluster cluster-support)
+                $(use_enable cups)
+                $(use_with dmapi)
+                $(use_with fam)
+                $(use_enable glusterfs)
+                $(use_with gpg gpgme)
+                $(use_with json)
+                $(use_enable iprint)
+                $(use_with pam)
+                $(usex pam "--with-pammodulesdir=${EPREFIX}/$(get_libdir)/security" '')
+                $(use_with quota quotas)
+                $(use_with regedit)
+                $(use_enable spotlight)
+                $(use_with syslog)
+                $(use_with winbind)
+                $(usex python '' '--disable-python')
+                $(use_enable zeroconf avahi)
+                $(usex system-mitkrb5 "--with-system-mitkrb5 $(usex addc --with-experimental-mit-ad-dc '')" '')
+                $(use_with debug lttng)
+                $(use_with ldap)
+                $(use_with profiling-data)
+                --with-shared-modules=${SHAREDMODS}
+                --jobs 1
+              )
+
+              if use systemd ; then
+                myconf+=(
+                  --systemd-install-services
+                  --with-systemddir="$(systemd_get_systemunitdir)"
+                )
+              fi
+              CPPFLAGS="-I${SYSROOT}${EPREFIX}/usr/include/et ${CPPFLAGS}" \
+                econf ${myconf[@]}
+            }
+            src_install() {
+              emake DESTDIR="${ED}" install
+              # Make all .so files executable
+              find "${ED}" -type f -name "*.so" -exec chmod +x {} + || die
+              # install ldap schema for server (bug #491002)
+              if use ldap ; then
+                insinto /etc/openldap/schema
+                doins examples/LDAP/samba.schema
+              fi
+              # create symlink for cups (bug #552310)
+              if use cups ; then
+                dosym ../../../bin/smbspool /usr/libexec/cups/backend/smb
+              fi
+              # install example config file
+              insinto /etc/samba
+              doins examples/smb.conf.default
+              # Fix paths in example file (#603964)
+              sed \
+                -e '/log file =/s@/usr/local/samba/var/@/var/log/samba/@' \
+                -e '/include =/s@/usr/local/samba/lib/@/etc/samba/@' \
+                -e '/path =/s@/usr/local/samba/lib/@/var/lib/samba/@' \
+                -e '/path =/s@/usr/local/samba/@/var/lib/samba/@' \
+                -e '/path =/s@/usr/spool/samba@/var/spool/samba@' \
+                -i "${ED}"/etc/samba/smb.conf.default || die
+              # Install init script and conf.d file
+              if use systemd ; then
+                if ! use addc ; then
+                  rm "${D}/$(systemd_get_systemunitdir)/samba.service"
+                fi
+              else
+                newinitd "${FILESDIR}/samba4.initd-r1" samba
+              fi
+              newconfd "${FILESDIR}/samba4.confd" samba
+              if use pam && use winbind ; then
+                newpamd "${FILESDIR}/system-auth-winbind.pam" system-auth-winbind
+                # bugs #376853 and #590374
+                insinto /etc/security
+                doins examples/pam_winbind/pam_winbind.conf
+              fi
+
+              # Remove libdb files available in the sys-libs/libdb package
+              einfo "Removing files owned by sys-libs/libdb package..."
+              rm "${D}"/usr/bin/ldb* -v
+              rm "${D}"/usr/lib/python*/site-packages/{_ldb_*,ldb.cpython*} -v
+              rm "${D}"/usr/lib64/pkgconfig/ldb.pc -v
+              rm "${D}"/usr/lib64/samba/ldb/ -rfv
+              rm "${D}"/usr/share/man/man1/ldb* -v
+              rm "${D}"/usr/share/man/man3/ldb.* -v
+
+              keepdir /var/cache/samba
+              keepdir /var/lib/ctdb
+              keepdir /var/lib/samba/{bind-dns,private}
+              keepdir /var/lock/samba
+              keepdir /var/log/samba
+            }
+gitlab_freedesktop_dirlisting:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-misc
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: 'rc|dev'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+
+  packages:
+
+    - networkmanager:
+        category: net-misc
+        vars:
+          gitlab_repo: NetworkManager
+          gitlab_user: NetworkManager
+          python_compat: python3+
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          desc: A set of co-operative tools that make networking simple and straightforward
+          license: GPL-2+ LGPL-2.1
+          inherit:
+            - meson
+            - python-any-r1
+            - toolchain-funcs
+            - udev
+            - user
+            - vala
+          pkgname: NetworkManager
+          iuse: |
+            audit bluetooth +concheck connection-sharing debug dhclient dhcpcd
+            elogind gnutls +gtk-doc +introspection iptables iwd psl libedit lto
+            +nss nftables +modemmanager ofono ovs policykit +ppp resolvconf syslog
+            systemd teamd +tools +vala +wext +wifi
+          cdepend: |
+            sys-apps/util-linux
+            elogind? ( sys-auth/elogind )
+            virtual/libudev:=
+            sys-apps/dbus
+            net-libs/libndp
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+            audit? ( sys-process/audit )
+            teamd? (
+              dev-libs/jansson:=
+              net-misc/libteam
+            )
+            policykit? ( sys-auth/polkit )
+            nss? ( dev-libs/nss:= )
+            gnutls? (
+              net-libs/gnutls:=
+            )
+            ppp? ( net-dialup/ppp:=[ipv6] )
+            modemmanager? (
+              net-misc/mobile-broadband-provider-info
+              net-misc/modemmanager:=
+            )
+            bluetooth? ( net-wireless/bluez )
+            ofono? ( net-misc/ofono )
+            dhclient? ( net-misc/dhcp[client] )
+            dhcpcd? ( net-misc/dhcpcd )
+            ovs? ( dev-libs/jansson:= )
+            resolvconf? ( virtual/resolvconf )
+            connection-sharing? (
+              net-dns/dnsmasq[dbus,dhcp]
+              iptables? ( net-firewall/iptables )
+              nftables? ( net-firewall/nftables )
+            )
+            psl? ( net-libs/libpsl )
+            concheck? ( net-misc/curl )
+            tools? (
+              dev-libs/newt
+              libedit? ( dev-libs/libedit )
+              !libedit? ( sys-libs/readline:= )
+            )
+          rdepend: |
+            ${CDEPEND}
+            || (
+              net-misc/iputils[arping(+)]
+              net-analyzer/arping
+            )
+            wifi? (
+              !iwd? ( net-wireless/wpa_supplicant[dbus] )
+              iwd? ( net-wireless/iwd )
+            )
+          depend: |
+            ${CDEPEND}
+            sys-kernel/linux-headers
+            net-libs/libndp
+            dev-libs/jansson
+          bdepend: |
+            dev-util/gdbus-codegen
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.1.2
+            )
+            dev-util/intltool
+            sys-devel/gettext
+            introspection? (
+              $(python_gen_any_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+              dev-lang/perl
+              dev-libs/libxslt
+            )
+            vala? ( $(vala_depend) )
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.gitlab_user }}-* "${S}"
+            }
+            pkg_setup() {
+              enewgroup plugdev
+              if use introspection; then
+                python-any-r1_pkg_setup
+              fi
+            }
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              sed -i \
+                -e 's#/usr/bin/sed#/bin/sed#' \
+                data/84-nm-drivers.rules \
+                || die
+            }
+            meson_nm_program() {
+              usex "$1" "-D${2:-$1}=$3" "-D${2:-$1}=no"
+            }
+            src_configure() {
+              local emesonargs=(
+                --localstatedir="${EPREFIX}/var"
+
+                -Dsystem_ca_path=/etc/ssl/certs
+                -Dudev_dir=$(get_udevdir)
+                -Ddbus_conf_dir=/usr/share/dbus-1/system.d
+                -Dkernel_firmware_dir=/lib/firmware
+                -Diptables=/sbin/iptables
+                -Dnft=/sbin/nft
+                -Ddnsmasq=/usr/sbin/dnsmasq
+
+                -Ddist_version=${PVR}
+                $(meson_use policykit polkit)
+                $(meson_use policykit config_auth_polkit_default)
+                -Dmodify_system=true
+                -Dpolkit_agent_helper_1=/usr/lib/polkit-1/polkit-agent-helper-1
+                -Dselinux=false
+                # TODO: check if we can customize this for macaroni
+                -Dhostname_persist=gentoo
+                -Dlibaudit=$(usex audit)
+
+                $(meson_use wext)
+                $(meson_use wifi)
+                $(meson_use iwd)
+                $(meson_use ppp)
+                -Dpppd=/usr/sbin/pppd
+                $(meson_use modemmanager modem_manager)
+                $(meson_use ofono)
+                $(meson_use concheck)
+                $(meson_use teamd teamdctl)
+                $(meson_use ovs)
+                $(meson_use tools nmcli)
+                $(meson_use tools nmtui)
+                $(meson_use tools nm_cloud_setup)
+                $(meson_use bluetooth bluez5_dun)
+                -Debpf=true
+
+                -Dconfig_wifi_backend_default=$(usex iwd iwd default)
+                -Dconfig_plugins_default=keyfile
+                -Difcfg_rh=false
+                -Difupdown=false
+
+                $(meson_nm_program resolvconf "" /sbin/resolvconf)
+                -Dnetconfig=no
+                -Dconfig_dns_rc_manager_default=auto
+
+                $(meson_nm_program dhclient "" /sbin/dhclient)
+                $(meson_nm_program dhcpcd "" /sbin/dhcpcd)
+
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc docs)
+                -Dtests=no
+                -Dfirewalld_zone=true
+                -Dmore_asserts=0
+                $(meson_use debug more_logging)
+                -Dvalgrind=no
+                -Dvalgrind_suppressions=
+                -Dld_gc=false
+                $(meson_use psl libpsl)
+                -Dqt=false
+                # For now disable NVME Boot firmware Table
+                -Dnbft=false
+
+                -Dsession_tracking_consolekit=false
+                $(meson_use lto b_lto)
+              )
+
+              if use elogind; then
+                emesonargs+=(
+                  -Dsession_tracking=elogind
+                  -Dsuspend_resume=elogind
+                  -Dsystemdsystemunitdir=false
+                  -Dsystemd_journal=false
+                )
+              else
+                if use systemd; then
+                  emesonargs+=(
+                    -Dsuspend_resume=systemd
+                    -Dsession_tracking=systemd
+                    -Dsystemdsystemunitdir=$(systemd_get_systemunitdir)
+                    -Dsystemd_journal=true
+                  )
+                else
+                  emesonargs+=(
+                    -Dsession_tracking=no
+                    -Dsystemdsystemunitdir=false
+                    -Dsystemd_journal=false
+                  )
+                fi
+              fi
+
+
+              if use syslog; then
+                emesonargs+=( -Dconfig_logging_backend_default=syslog )
+              else
+                emesonargs+=( -Dconfig_logging_backend_default=default )
+              fi
+
+              if use dhclient; then
+                emesonargs+=( -Dconfig_dhcp_default=dhclient )
+              elif use dhcpcd; then
+                emesonargs+=( -Dconfig_dhcp_default=dhcpcd )
+              else
+                emesonargs+=( -Dconfig_dhcp_default=internal )
+              fi
+
+              if use nss; then
+                emesonargs+=( -Dcrypto=nss )
+              else
+                emesonargs+=( -Dcrypto=gnutls )
+              fi
+
+              if use tools ; then
+                emesonargs+=( -Dreadline=$(usex libedit libedit libreadline) )
+              else
+                emesonargs+=( -Dreadline=none )
+              fi
+
+              # Same hack as net-dialup/pptpd to get proper plugin dir for ppp, bug #519986
+              if use ppp; then
+                local PPPD_VER=`best_version net-dialup/ppp`
+                PPPD_VER=${PPPD_VER#*/*-} #reduce it to ${PV}-${PR}
+                PPPD_VER=${PPPD_VER%%[_-]*} # main version without beta/pre/patch/revision
+                emesonargs+=( -Dpppd_plugin_dir=/usr/$(get_libdir)/pppd/${PPPD_VER} )
+              fi
+
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+
+              newinitd "${FILESDIR}/init.d.NetworkManager-r2" NetworkManager
+              newconfd "${FILESDIR}/conf.d.NetworkManager" NetworkManager
+
+              # Need to keep the /etc/NetworkManager/dispatched.d for dispatcher scripts
+              keepdir /etc/NetworkManager/dispatcher.d
+
+              # Provide openrc net dependency only when nm is connected
+              exeinto /etc/NetworkManager/dispatcher.d
+              newexe "${FILESDIR}/10-openrc-status-r4" 10-openrc-status
+              sed -e "s:@EPREFIX@:${EPREFIX}:g" \
+                -i "${ED}/etc/NetworkManager/dispatcher.d/10-openrc-status" || die
+
+              keepdir /etc/NetworkManager/system-connections
+              chmod 0600 "${ED}"/etc/NetworkManager/system-connections/.keep* 
+
+              # Allow users in plugdev group to modify system connections
+              insinto /usr/share/polkit-1/rules.d/
+              doins "${FILESDIR}"/01-org.freedesktop.NetworkManager.settings.modify.system.rules
+
+              insinto /usr/lib/NetworkManager/conf.d #702476
+              doins "${S}"/examples/nm-conf.d/31-mac-addr-change.conf
+
+              if use iwd; then
+                # This goes to $nmlibdir/conf.d/ and $nmlibdir is
+                # '${prefix}'/lib/$PACKAGE, thus always lib, not get_libdir
+                local f="${ED}"/usr/lib/NetworkManager/conf.d/iwd.conf
+                echo "[device]" > ${f}
+                echo "wifi.backend=iwd" >> ${f}
+              fi
+
+              mv "${ED}"/usr/share/doc/{NetworkManager/examples/,${PF}} || die
+              rmdir "${ED}"/usr/share/doc/NetworkManager || die
+
+              # Empty
+              rmdir "${ED}"/var{/lib{/NetworkManager,},} || die
+            }
+
+

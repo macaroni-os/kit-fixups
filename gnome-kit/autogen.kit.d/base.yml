@@ -513,6 +513,7 @@ gnome_release_pkgs:
             - pam
             - systemd
             - udev
+            - user
           cdepend: |
             virtual/udev
             dev-libs/libgudev:=
@@ -611,9 +612,6 @@ gnome_release_pkgs:
             }
             src_install() {
               meson_src_install
-              if ! use accessibility ; then
-                rm "${ED}"/usr/share/gdm/greeter/autostart/orca-autostart.desktop || die
-              fi
               if ! use bluetooth-sound ; then
                 insinto /var/lib/gdm/.config/pulse
                 doins "${FILESDIR}"/default.pa
@@ -966,6 +964,8 @@ gnome_release_pkgs:
               sed -e "s:python\.full_path():'/usr/bin/env ${EPYTHON}':" -i src/meson.build || die
             }
             src_configure() {
+              # It seems that -ldl is missed
+              append-ldflags "-ldl"
               local emesonargs=(
                 $(meson_use pipewire camera_monitor)
                 -Dextensions_tool=true
@@ -983,7 +983,7 @@ gnome_release_pkgs:
               gnome3_pkg_postinst
             }
             pkg_postrm() {
-              gnome3_pkg_posrm
+              gnome3_pkg_postrm
             }
 
     - gnome-weather:
@@ -1274,7 +1274,9 @@ gnome_release_pkgs:
         category: gnome-base
         vars:
           inherit:
+            - gnome3
             - meson
+            - flag-o-matic
             - python-any-r1
             - xdg
           python_compat: python3+
@@ -1318,7 +1320,7 @@ gnome_release_pkgs:
             )
             ibus? ( app-i18n/ibus )
             networkmanager? (
-              net-libs/libnma
+              net-libs/libnma[gtk4]
               net-misc/networkmanager[modemmanager]
               net-misc/modemmanager:=
             )
@@ -1362,6 +1364,7 @@ gnome_release_pkgs:
             dev-libs/libxml2:2
             dev-util/gdbus-codegen
             dev-util/glib-utils
+            dev-util/blueprint-compiler
             sys-devel/gettext
             virtual/pkgconfig
           body: |
@@ -1377,30 +1380,25 @@ gnome_release_pkgs:
               append-flags -fno-strict-aliasing
               filter-lto
               local emesonargs=(
-                $(meson_use bluetooth)
-                $(meson_use cups)
+                $(meson_use X x11)
                 $(meson_use ibus)
-                $(meson_use kerberos)
-                $(meson_use networkmanager network_manager)
-                $(meson_use input_devices_wacom wacom)
                 -Ddeprecated-declarations=disabled
                 -Ddocumentation=true # manpage
                 -Dlocation-services=$(usex geolocation enabled disabled)
-                -Dgoa=$(usex gnome-online-accounts enabled disabled)
                 -Dprivileged_group=wheel
                 -Dsnap=false
                 -Dtests=false
                 -Dmalcontent=false # unpackaged
-                -Ddistributor_logo=/usr/share/pixmaps/gnome-control-center-gentoo-logo.svg
-                -Ddark_mode_distributor_logo=/usr/share/pixmaps/gnome-control-center-gentoo-logo-dark.svg
+                -Ddistributor_logo=/usr/share/pixmaps/gnome-control-center-macaroni-logo.svg
+                -Ddark_mode_distributor_logo=/usr/share/pixmaps/gnome-control-center-macaroni-logo-dark.svg
               )
               meson_src_configure
             }
             src_install() {
               meson_src_install
               insinto /usr/share/pixmaps
-              doins "${DISTDIR}"/gnome-control-center-gentoo-logo.svg
-              doins "${DISTDIR}"/gnome-control-center-gentoo-logo-dark.svg
+              doins "${FILESDIR}"/gnome-control-center-macaroni-logo.svg
+              doins "${FILESDIR}"/gnome-control-center-macaroni-logo-dark.svg
             }
             pkg_postinst() {
               gnome3_pkg_postinst
@@ -1648,6 +1646,41 @@ gnome_apps:
 
   packages:
 
+    - blueprint-compiler:
+        category: dev-util
+        vars:
+          release: '0.18'
+          python_compat: python3+
+          desc: Compiler for Blueprint, a markup language for GTK user interfaces
+          license: LGPL-3+
+          inherit:
+            - meson
+            - python-single-r1
+          required_use: |
+            ${PYTHON_REQUIRED_USE}
+          rdepend: |
+            ${PYTHON_DEPS}
+            $(python_gen_cond_dep '
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            ')
+          docs:
+            - CONTRIBUTING.md
+            - MAINTENANCE.md
+            - NEWS.md
+            - README.md
+          body: |
+            src_configure() {
+              local -a emesonargs=(
+                -Ddocs=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_fix_shebang "${ED}/usr/bin"
+              python_optimize
+            }
+
     - mousetweaks:
         revision: 1
         vars:
@@ -1732,6 +1765,7 @@ gnome_apps:
             virtual/udev
             introspection? ( dev-libs/gobject-introspection:= )
             net-wireless/bluez
+            !net-wireless/gnome-bluetooth:2/13
           depend: '${RDEPEND}'
           bdepend: |
             ${PYTHON_DEPS}
@@ -4978,102 +5012,154 @@ colord:
         match: ".tar.xz"
         replace: ""
     vars:
-      # keep 0/2 to quiet portage
-      slot: 0/2
       homepage: https://www.freedesktop.org/software/colord/
-      desc: System service to accurately color manage input and output devices
-      license: GPL-2+
-      extra_envs:
-        - 'VALA_USE_DEPEND="vapigen"'
-      inherit:
-        - bash-completion-r1
-        - meson
-        - udev
-        - tmpfiles
-        - vala
-        - user
-      # TODO: check if add support to argyllcms. Atm, not available on tree.
-      iuse: gtk-doc examples extra-print-profiles +introspection scanner systemd vala
-      required_use: |
-        vala? ( introspection )
-      rdepend: |
-        dev-libs/glib:2
-        media-libs/lcms:=
-        dev-db/sqlite:3=
-        dev-libs/libgusb[introspection?]
-        dev-libs/libgudev:=
-        virtual/libudev:=
-        virtual/udev
-        systemd? (
-          sys-apps/systemd:=
-        )
-        scanner? (
-          media-gfx/sane-backends
-          sys-apps/dbus
-        )
-        sys-auth/polkit
-        introspection? ( dev-libs/gobject-introspection:= )
-      depend: |
-        ${RDEPEND}
-        dev-libs/libxslt
-        dev-util/gtk-doc-am
-        dev-util/intltool
-        sys-devel/gettext
-        virtual/pkgconfig
-        vala? ( $(vala_depend) )
-      body: |
-        pkg_setup() {
-          enewgroup colord
-          enewuser colord -1 -1 /var/lib/colord colord
-          use vala && vala_src_prepare
-        }
-        src_prepare() {
-          default
-          sed -i -e "/find_program('vapigen')/d" meson.build || die
-        }
-        src_configure() {
-          local emesonargs=(
-            -Ddaemon=true
-            -Dbash_completion=false
-            -Dudev_rules=true
-            $(meson_use systemd)
-            -Dlibcolordcompat=true
-            $(meson_use scanner sane)
-            $(meson_use introspection)
-            $(meson_use vala vapi)
-            $(meson_use extra-print-profiles print_profiles)
-            -Dtests=false
-            -Dinstalled_tests=false
-            -Ddaemon_user=colord
-            -Dman=true
-            $(meson_use gtk-doc docs)
-            --localstatedir="${EPREFIX}"/var
-          )
-          meson_src_configure
-        }
-        src_install() {
-          meson_src_install
-          newbashcomp data/colormgr colormgr
-          einstalldocs
-          # Ensure config and profile directories exist and /var/lib/colord/*
-          # is writable by colord user
-          keepdir /var/lib/color{,d}/icc
-          fowners colord:colord /var/lib/colord{,/icc}
-          if use examples; then
-            docinto examples
-            dodoc examples/*.c
-          fi
-        }
-        pkg_postinst() {
-          udev_reload
-          tmpfiles_process colord.conf
-        }
-        pkg_postrm() {
-          udev_reload
-        }
-
   packages:
+
+    - colord-gtk:
+        dir:
+          matcher: "{{ .Values.pn }}-.*.tar.xz$"
+        category: x11-libs
+        vars:
+          inherit:
+            - meson
+            - vala
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          desc: GTK support library for colord
+          license: LGPL-3+
+          iuse: doc +introspection vala
+          required_use: vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            x11-misc/colord:=[introspection?,vala?]
+            x11-libs/gtk+:3[introspection?]
+            x11-libs/gtk:4[introspection?]
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+            doc? (
+              app-text/docbook-xml-dtd:4.1.2
+              dev-util/gtk-doc
+            )
+            app-text/docbook-xsl-ns-stylesheets
+            introspection? ( dev-libs/gobject-introspection:= )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local -a emesonargs=(
+                -Dgtk4=true
+                -Dgtk3=true
+                -Dgtk2=false
+                -Dtests=false
+                -Dman=true
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use doc docs)
+              )
+              meson_src_configure
+            }
+
     - colord:
+        vars:
+          # keep 0/2 to quiet portage
+          slot: 0/2
+          desc: System service to accurately color manage input and output devices
+          license: GPL-2+
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          inherit:
+            - bash-completion-r1
+            - meson
+            - udev
+            - tmpfiles
+            - vala
+            - user
+          # TODO: check if add support to argyllcms. Atm, not available on tree.
+          iuse: gtk-doc examples extra-print-profiles +introspection scanner systemd vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            media-libs/lcms:=
+            dev-db/sqlite:3=
+            dev-libs/libgusb[introspection?]
+            dev-libs/libgudev:=
+            virtual/libudev:=
+            virtual/udev
+            systemd? (
+              sys-apps/systemd:=
+            )
+            scanner? (
+              media-gfx/sane-backends
+              sys-apps/dbus
+            )
+            sys-auth/polkit
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            dev-libs/libxslt
+            dev-util/gtk-doc-am
+            dev-util/intltool
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            pkg_setup() {
+              enewgroup colord
+              enewuser colord -1 -1 /var/lib/colord colord
+              use vala && vala_src_prepare
+            }
+            src_prepare() {
+              default
+              sed -i -e "/find_program('vapigen')/d" meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddaemon=true
+                -Dbash_completion=false
+                -Dudev_rules=true
+                $(meson_use systemd)
+                -Dlibcolordcompat=true
+                $(meson_use scanner sane)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use extra-print-profiles print_profiles)
+                -Dtests=false
+                -Dinstalled_tests=false
+                -Ddaemon_user=colord
+                -Dman=true
+                $(meson_use gtk-doc docs)
+                --localstatedir="${EPREFIX}"/var
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              newbashcomp data/colormgr colormgr
+              einstalldocs
+              # Ensure config and profile directories exist and /var/lib/colord/*
+              # is writable by colord user
+              keepdir /var/lib/color{,d}/icc
+              fowners colord:colord /var/lib/colord{,/icc}
+              if use examples; then
+                docinto examples
+                dodoc examples/*.c
+              fi
+            }
+            pkg_postinst() {
+              udev_reload
+              tmpfiles_process colord.conf
+            }
+            pkg_postrm() {
+              udev_reload
+            }
+
 
 xdg_user_dirs:
   generator: builtin-dirlisting
@@ -5130,6 +5216,7 @@ gitlab_freedesktop_dirlisting:
         url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
 
   packages:
+
     - geoclue:
         vars:
           gitlab_user: geoclue
@@ -5495,4 +5582,76 @@ webkit:
         selector:
           # 2.51 is unstable branch
           - '<2.51'
+
+
+gitlab_gnome:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    category: net-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/tags/1[0-9.-]+.*"
+      # Skip release candidate/beta versions
+      exclude: 'rc|beta|alpha|dev'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/archive/{{ .Values.original_version }}/{{ .Values.gitlab_repo | default .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        #https://gitlab.gnome.org/GNOME/glycin/-/archive/2.0.7/glycin-2.0.7.tar.bz2?ref_type=tags
+
+    vars:
+      gitlab_user: GNOME
+      s: '${WORKDIR}/{{ .Values.gitlab_repo | default .Values.pn }}-{{ .Values.version }}'
+
+  packages:
+
+    - libnma:
+        vars:
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          license: GPL-2+ FDL-1.1+
+          iuse: gcr +gtk4 +introspection +vala
+          rdepend: |
+            app-text/iso-codes
+            net-misc/mobile-broadband-provider-info
+            dev-libs/glib:2[dbus]
+            dev-libs/gobject-introspection:=
+            x11-libs/gtk+:3[introspection?]
+            gtk4? (
+              x11-libs/gtk:4[introspection?]
+            )
+            gcr? (
+              app-crypt/gcr:=[gtk]
+            )
+            net-misc/networkmanager[vala?]
+          depend: |
+            ${RDEPEND}
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              vala_src_prepare
+              gnome3_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use gtk4 libnma_gtk4)
+                $(meson_use gcr)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
 

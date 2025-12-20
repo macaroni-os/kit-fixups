@@ -904,6 +904,60 @@ flatpak:
       query: releases
 
   packages:
+
+    - libportal:
+        category: dev-libs
+        github:
+          user: flatpak
+        vars:
+          inherit:
+            - meson
+            - vala
+          iuse: gtk gtk-doc +introspection qt5 qt6 +vala wayland X
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+            gtk? (
+              x11-libs/gtk+:3[introspection?,wayland?,X?]
+              x11-libs/gtk:4[introspection?,wayland?,X?]
+            )
+            qt5? ( dev-qt/qtcore:5 )
+            qt6? ( dev-qt/qtbase:6[gui] )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature gtk backend-gtk3)
+                $(meson_feature gtk backend-gtk4)
+                $(meson_feature qt5 backend-qt5)
+                $(meson_feature qt6 backend-qt6)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc docs)
+                -Dtests=false
+                -Dportal-tests=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/${PN}-1 "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
     - flatpak:
         github:
           user: flatpak

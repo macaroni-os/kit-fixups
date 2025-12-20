@@ -2,7 +2,7 @@ media_libs:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
   template:
     engine: helm
 
@@ -79,7 +79,7 @@ net_misc_cat:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
   template:
     engine: helm
 
@@ -229,7 +229,7 @@ mail_apps:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -321,7 +321,7 @@ glycin_gitlab:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
 
   extensions_defs:
     rust:
@@ -468,7 +468,7 @@ gnome_release_pkgs:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
 
   extensions_defs:
     rust:
@@ -1619,7 +1619,7 @@ gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -5588,7 +5588,7 @@ gitlab_gnome:
   generator: builtin-dirlisting
   generator_opts:
     # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+    rate_limiter: "2"
 
   extensions_defs:
     rust:

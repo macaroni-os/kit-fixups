@@ -46,9 +46,9 @@ target:
 
   atoms:
 
-    - pkg: app-editors/gedit
-
-    - pkg: app-arch/file-roller
+    # Deprecated libraries.
+    # amtk is been replaced by libgedit-amtk
+    #- pkg: x11-libs/amtk
 
     - pkg: app-accessibility/brltty
     - pkg: app-accessibility/caribou
@@ -224,7 +224,6 @@ target:
     - pkg: x11-libs/goffice
     - pkg: x11-libs/gtksourceview:3.0
     - pkg: x11-libs/gtksourceview:4
-    - pkg: x11-libs/amtk
 
     - pkg: sys-libs/libosinfo
 

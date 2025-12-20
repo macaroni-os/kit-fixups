@@ -1632,13 +1632,285 @@ gnome_apps:
         replace: ""
     vars:
       license: LGPL-2.1+
-      homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
+      homepage: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.pkgname | default .Values.pn }}'
+      gitlab_user: GNOME
 
   extensions_defs:
     rust:
       opts:
 
   packages:
+
+    - file-roller:
+        category: app-arch
+        vars:
+          inherit:
+            - gnome3
+            - meson
+          release: '44'
+          desc: Archive manager for GNOME
+          iuse: gtk-doc +introspection nautilus
+          required_use: gtk-doc? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4[introspection?]
+            x11-libs/libadwaita
+            nautilus? ( gnome-base/nautilus )
+            dev-libs/json-glib
+            app-arch/libarchive:=
+            introspection? ( dev-libs/gobject-introspection:= )
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf
+            x11-libs/pango
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+          body: |
+            src_prepare() {
+              cp -v "${FILESDIR}"/44.4-packages.match data/packages.match || die
+              default
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Drun-in-place=false
+                $(meson_feature nautilus nautilus-actions)
+                -Dnotification=enabled
+                -Duse_native_appchooser=false
+                -Dpackagekit=false
+                -Dlibarchive=enabled
+                $(meson_feature introspection)
+                $(meson_feature gtk-doc api_docs)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/ || die
+                mv "${ED}"/usr/share/doc/file-roller "${ED}"/usr/share/gtk-doc/file-roller || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libgedit-gfls:
+        category: dev-libs
+        vars:
+          gitlab_user: 'World/gedit'
+          release: '0.2'
+          inherit:
+            - meson
+          desc: A module dedicated to file loading and saving
+          license: LGPL-3+
+          iuse: gtk-doc
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            gnome-base/gsettings-desktop-schemas
+            dev-libs/gobject-introspection:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dgobject_introspection=true
+                -Dtests=false
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+
+    - libgedit-gtksourceview:
+        category: dev-libs
+        dir:
+          exclude: 'beta|alpha'
+        vars:
+          gitlab_user: 'World/gedit'
+          release: '299'
+          inherit:
+            - meson
+          iuse: gtk-doc
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/libxml2
+            dev-libs/gobject-introspection:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dgobject_introspection=true
+                -Dtests=false
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+
+    - libgedit-tepl:
+        category: dev-libs
+        vars:
+          release: '6.12'
+          gitlab_user: 'World/gedit'
+          inherit:
+            - meson
+          desc: GtkSourceView-based text editors and IDE helper library
+          license: LGPL-3+
+          iuse: gtk-doc
+          rdepend: |
+            !gui-libs/tepl
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/libgedit-gtksourceview
+            dev-libs/libgedit-amtk:=[introspection]
+            dev-libs/libgedit-gfls
+            dev-libs/icu:=
+            gnome-base/gsettings-desktop-schemas
+            dev-libs/gobject-introspection:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dgobject_introspection=true
+                -Dtests=false
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+
+    - libgedit-amtk:
+        category: dev-libs
+        vars:
+          release: '5.9'
+          gitlab_user: 'World/gedit'
+          inherit:
+            - meson
+          desc: Actions, Menus and Toolbars Kit for GTK applications
+          iuse: +introspection gtk-doc
+          rdepend: |
+            !x11-libs/amtk
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use introspection gobject_introspection)
+                $(meson_use gtk-doc gtk_doc)
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+
+    - gedit:
+        category: app-editors
+        vars:
+          release: '48'
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+            - vala
+          license: "GPL-2 CC-BY-SA-3.0"
+          desc: A text editor for the GNOME desktop
+          homepage: https://gedit-text-editor.org/
+          iuse: +python gtk-doc
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          cdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/libgedit-amtk:=
+            dev-libs/libgedit-tepl
+            dev-libs/libgedit-gtksourceview
+            dev-libs/libpeas[gtk]
+            dev-libs/gobject-introspection:=
+            app-text/gspell:=
+            python? (
+              ${PYTHON_DEPS}
+              $(python_gen_cond_dep '
+                dev-python/pycairo[${PYTHON_USEDEP}]
+                dev-python/pygobject:3[cairo,${PYTHON_USEDEP}]
+                dev-libs/libpeas:0[python,${PYTHON_SINGLE_USEDEP}]
+              ')
+            )
+          rdepend: |
+            ${CDEPEND}
+            x11-themes/adwaita-icon-theme
+            gnome-base/gsettings-desktop-schemas
+            gnome-base/gvfs
+          depend: '${CDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            gtk-doc? ( dev-util/gtk-doc )
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use gtk-doc gtk_doc)
+                -Duser_documentation=true
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use python; then
+                python_optimize
+                python_optimize "${ED}/usr/$(get_libdir)/gedit/plugins/"
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - blueprint-compiler:
         category: dev-util

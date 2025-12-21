@@ -1655,3 +1655,58 @@ unifdef:
 
   packages:
     - unifdef:
+
+osinfo_db_atoms:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    vars:
+      license: GPL-2+
+    dir:
+      url: https://releases.pagure.org/libosinfo/
+      matcher: '{{ .Values.pn }}-.*.tar.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+  packages:
+    - osinfo-db-tools:
+        vars:
+          inherit:
+            - meson
+          desc: Tools for managing the osinfo database
+          homepage: https://libosinfo.org/
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib
+            app-arch/libarchive:=
+            net-libs/libsoup:3
+            dev-libs/libxml2:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            sys-devel/gettext
+            dev-lang/perl
+
+    - osinfo-db:
+        dir:
+          url: https://releases.pagure.org/libosinfo/
+          matcher: '{{ .Values.pn }}-2.*.tar.xz$'
+        vars:
+          s: '${WORKDIR}/'
+          desc: Osinfo database for virtualization provisioning tools
+          homepage: https://libosinfo.org/ https://gitlab.com/libosinfo/osinfo-db
+          bdepend: |
+            sys-apps/osinfo-db-tools
+          body: |
+            src_unpack() { :; }
+            src_install() {
+              osinfo-db-import --root "${D}" --dir "/usr/share/osinfo" "${DISTDIR}/${A}"
+            }
+

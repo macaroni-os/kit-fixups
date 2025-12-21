@@ -25,3 +25,75 @@ dev_github:
               cmake_src_configure
             }
 
+
+gnome_apps:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-text
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      license: LGPL-2.1+
+      homepage: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.pkgname | default .Values.pn }}'
+      gitlab_user: GNOME
+
+  extensions_defs:
+    rust:
+      opts:
+
+  packages:
+
+    - libgxps:
+        vars:
+          release: '0.3'
+          iuse: +introspection jpeg lcms tiff
+          desc: Library for handling and rendering XPS documents
+          inherit:
+            - meson
+            - xdg-utils
+          rdepend: |
+            app-arch/libarchive
+            dev-libs/glib:2
+            media-libs/freetype:2
+            media-libs/libpng
+            x11-libs/cairo
+            introspection? ( dev-libs/gobject-introspection:= )
+            jpeg? ( virtual/jpeg:0 )
+            lcms? ( media-libs/lcms:2 )
+            tiff? ( media-libs/tiff:0[zlib] )
+          depend: |
+            ${RDEPEND}
+            app-text/docbook-xsl-stylesheets
+          bdepend: |
+            dev-libs/libxslt
+            dev-util/gtk-doc-am
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Denable-test=false
+                -Denable-gtk-doc=false
+                -Denable-man=true
+                -Ddisable-introspection=$(usex introspection false true)
+                -Dwith-liblcms2=$(usex lcms true false)
+                -Dwith-libjpeg=$(usex jpeg true false)
+                -Dwith-libtiff=$(usex tiff true false)
+              )
+              xdg_environment_reset
+              meson_src_configure
+            }

@@ -58,6 +58,248 @@ gnome_apps:
 
   packages:
 
+    - libspelling:
+        vars:
+          release: '0.4'
+          inherit:
+            - meson
+            - vala
+          desc: A GNOME library for spellchecking
+          iuse: gtk-doc sysprof vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/gtksourceview:5
+            app-text/enchant
+            dev-libs/icu:=
+          depend: |
+            ${RDEPEND}
+            sysprof? ( dev-util/sysprof )
+            vala? (
+              $(vala_depend)
+            )
+          bdepend: |
+            dev-libs/gobject-introspection
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                -Denchant=enabled
+                -Dinstall-static=false
+                $(meson_use gtk-doc docs)
+                $(meson_use sysprof)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/${PN}-${SLOT} "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
+    - papers:
+        extensions:
+          - rust
+        vars:
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          release: '49'
+          inherit:
+            - cargo
+            - gnome3
+            - meson
+          desc: A document viewer for the GNOME desktop
+          homepage: https://apps.gnome.org/Papers/
+          iuse: |
+            +comics djvu doc gnome-keyring introspection nautilus
+            +spell sysprof tiff
+          bdepend: |
+            virtual/pkgconfig
+            dev-libs/appstream-glib
+            doc? ( dev-util/gi-docgen )
+            sys-devel/gettext
+          cdepend: |
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf[introspection?]
+            media-libs/graphene
+            media-libs/libraw
+            x11-libs/pango[introspection?]
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            media-libs/exempi
+            x11-libs/cairo
+            sys-libs/zlib
+            sysprof? ( dev-util/sysprof )
+            nautilus? ( gnome-base/nautilus )
+            introspection? ( dev-libs/gobject-introspection )
+            spell? ( app-text/libspelling )
+            comics? ( app-arch/libarchive )
+            djvu? ( app-text/djvu )
+            app-text/poppler
+            x11-libs/cairo
+            tiff? ( media-libs/tiff )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            gnome-keyring? ( app-crypt/libsecret )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dpdf=enabled
+                -Dtests=false
+                $(meson_feature sysprof)
+                $(meson_use nautilus)
+                $(meson_feature comics)
+                $(meson_feature djvu)
+                $(meson_feature tiff)
+                $(meson_use doc documentation)
+                $(meson_use doc user_doc)
+                $(meson_feature introspection)
+                $(meson_feature sysprof)
+                $(meson_feature gnome-keyring keyring)
+                $(meson_feature spell spell_check)
+              )
+              meson_src_configure
+              ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+            }
+            src_install() {
+              meson_src_install
+              if use doc; then
+                mv "${ED}"/usr/share/doc/{libpps*,${PF}/.} || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - evince:
+        vars:
+          release: '48'
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - meson
+            - systemd
+          desc: Simple document viewer for GNOME
+          homepage: https://apps.gnome.org/Evince/
+          license: GPL-2+ CC-BY-SA-3.0
+          iuse: |
+            X cups djvu dvi gstreamer gnome keyring gtk-doc +introspection
+            postscript spell systemd tiff xps wayland
+          required_use: gtk-doc? ( introspection )
+          cdepend: |
+            app-accessibility/at-spi2-core
+            dev-libs/glib:2
+            dev-libs/libhandy
+            dev-libs/libxml2:=
+            sys-libs/zlib
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+:3[X?,cups?,introspection?,wayland?]
+            gnome-base/gsettings-desktop-schemas
+            x11-libs/cairo
+            app-text/poppler:=[cairo]
+            app-arch/libarchive:=
+            djvu? ( app-text/djvu:= )
+            dvi? (
+              app-text/libspectre:=
+              dev-libs/kpathsea:=
+            )
+            gstreamer? (
+              media-libs/gstreamer:1.0
+              media-libs/gst-plugins-base:1.0
+              media-libs/gst-plugins-good:1.0
+            )
+            gnome? ( gnome-base/gnome-desktop:= )
+            keyring? ( app-crypt/libsecret )
+            introspection? ( dev-libs/gobject-introspection:= )
+            postscript? ( app-text/libspectre:= )
+            spell? ( app-text/gspell:= )
+            tiff? ( media-libs/tiff:= )
+            xps? ( app-text/libgxps:= )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            gnome-base/gvfs
+            gnome-base/librsvg
+          bdepend: |
+            gtk-doc? (
+              dev-util/gi-docgen
+              app-text/docbook-xml:4.3
+            )
+            dev-libs/appstream-glib
+            dev-util/gdbus-codegen
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddevelopment=false
+                -Dplatform=gnome
+                -Dviewer=true
+                -Dpreviewer=true
+                -Dthumbnailer=true
+                -Dnautilus=false
+                -Dcomics=enabled
+                -Dpdf=enabled
+                -Duser_doc=true
+                -Ddbus=true
+                -Dinternal_synctex=true
+                $(meson_feature djvu)
+                $(meson_feature dvi)
+                $(meson_feature postscript ps)
+                $(meson_feature tiff)
+                $(meson_feature xps)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                $(meson_feature keyring)
+                $(meson_feature cups gtk_unix_print)
+                $(meson_feature gnome thumbnail_cache)
+                $(meson_feature gstreamer multimedia)
+                $(meson_feature spell gspell)
+              )
+
+              if use systemd ; then
+                emesonargs+=(
+                  -Dsystemduserunitdir="$(systemd_get_userunitdir)"
+                )
+              else
+                emesonargs+=(
+                  -Dsystemduserunitdir="no"
+                )
+              fi
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/{libevdocument,libevview} "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - libgxps:
         vars:
           release: '0.3'
@@ -97,3 +339,147 @@ gnome_apps:
               xdg_environment_reset
               meson_src_configure
             }
+
+popper:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-text
+    dir:
+      url: https://poppler.freedesktop.org/releases.html
+      matcher: '{{ .Values.pn }}-.*.{{ .Values.tarball_suffix }}$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.{{ .Values.tarball_suffix }}'
+        url: 'https://poppler.freedesktop.org/{{ .Values.pn }}-{{ .Values.version }}.{{ .Values.tarball_suffix }}'
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".{{ .Values.tarball_suffix }}"
+        replace: ""
+    vars:
+      license: BSD GPL-2 MIT
+      homepage: https://poppler.freedesktop.org/
+      tarball_suffix: 'tar.xz'
+
+  packages:
+
+    - poppler-data:
+        dir:
+          url: https://poppler.freedesktop.org/
+        vars:
+          tarball_suffix: 'tar.gz'
+          desc: Data files for poppler to support uncommon encodings without xpdfrc
+          body: |
+            src_install() {
+              emake prefix=/usr DESTDIR="${D}" install
+              dodir /usr/share/poppler/cMaps
+              cd "${D}"/usr/share/poppler/cMaps || die
+              find ../cMap -type f -exec ln -s {} . \; || die
+            }
+
+    - poppler:
+        vars:
+          desc: PDF rendering library based on the xpdf-3.0 code base
+          inherit:
+            - cmake
+            - toolchain-funcs
+            - xdg-utils
+          extra_envs:
+            - 'CMAKE_BUILD_TYPE="RelWithDebInfo"'
+          iuse: |
+            boost cairo cjk curl +cxx debug doc +introspection
+            +jpeg +jpeg2k +lcms nss png qt5 qt6 tiff +utils
+          bdepend: |
+            virtual/pkgconfig
+          cdepend: |
+            media-libs/fontconfig
+            media-libs/freetype
+            dev-libs/nss
+            sys-libs/zlib
+            cairo? (
+              dev-libs/glib:2
+              x11-libs/cairo
+              introspection? ( dev-libs/gobject-introspection:= )
+            )
+            curl? ( net-misc/curl )
+            jpeg? ( virtual/jpeg )
+            jpeg2k? ( media-libs/openjpeg:= )
+            lcms? ( media-libs/lcms )
+            nss? ( dev-libs/nss )
+            png? ( media-libs/libpng:= )
+            qt5? (
+              dev-qt/qtcore:5
+              dev-qt/qtgui:5
+              dev-qt/qtxml:5
+            )
+            qt6? (
+              dev-qt/qtbase:6
+            )
+            tiff? ( media-libs/tiff )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            cjk? ( app-text/poppler-data )
+          body: |
+            post_src_unpack() {
+              if [ ! -d "${S}" ]; then
+                mv ${WORKDIR}/poppler-poppler-* ${S} || die
+              fi
+            }
+            src_prepare() {
+              cmake_src_prepare
+              # Clang doesn't grok this flag, the configure nicely tests that, but
+              # cmake just uses it, so remove it if we use clang
+              if [[ ${CC} == clang ]] ; then
+                sed -e 's/-fno-check-new//' -i cmake/modules/PopplerMacros.cmake || die
+              fi
+              if ! grep -Fq 'cmake_policy(SET CMP0002 OLD)' CMakeLists.txt ; then
+                sed -e '/^cmake_minimum_required/acmake_policy(SET CMP0002 OLD)' \
+                  -i CMakeLists.txt || die
+              else
+                einfo "policy(SET CMP0002 OLD) - workaround can be removed"
+              fi
+            }
+            src_configure() {
+              xdg_environment_reset
+              local mycmakeargs=(
+                -DBUILD_GTK_TESTS=OFF
+                -DBUILD_QT5_TESTS=OFF
+                -DBUILD_CPP_TESTS=OFF
+                -DRUN_GPERF_IF_PRESENT=OFF
+                -DENABLE_BOOST=$(usex boost)
+                -DENABLE_ZLIB=ON
+                -DENABLE_ZLIB_UNCOMPRESS=OFF
+                -DENABLE_UNSTABLE_API_ABI_HEADERS=ON
+                -DUSE_FLOAT=OFF
+                -DWITH_Cairo=$(usex cairo)
+                -DENABLE_LIBCURL=$(usex curl)
+                -DENABLE_CPP=$(usex cxx)
+                -DWITH_JPEG=$(usex jpeg)
+                -DENABLE_DCTDECODER=$(usex jpeg libjpeg none)
+                -DENABLE_LIBOPENJPEG=$(usex jpeg2k openjpeg2 none)
+                -DENABLE_CMS=$(usex lcms lcms2 none)
+                -DWITH_NSS3=$(usex nss)
+                -DWITH_PNG=$(usex png)
+                $(cmake_use_find_package qt5 Qt5Core)
+                -DWITH_TIFF=$(usex tiff)
+                -DENABLE_UTILS=$(usex utils)
+                -DENABLE_QT5=$(usex qt5)
+                -DENABLE_QT6=$(usex qt6)
+                -DENABLE_GPGME=OFF
+              )
+              use cairo && mycmakeargs+=( -DWITH_GObjectIntrospection=$(usex introspection) )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+            }
+
+

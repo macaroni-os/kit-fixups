@@ -586,6 +586,30 @@ dev_github:
 
   packages:
 
+    - meson:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: mesonbuild
+        selector:
+          # Move ahead by steps
+          - '<1.9'
+        vars:
+          python_compat: python3+
+          extra_envs:
+            - 'DISTUTILS_USE_SETUPTOOLS="rdepend"'
+          inherit:
+            - bash-completion-r1
+            - distutils-r1
+            - toolchain-funcs
+          body: |
+            python_install_all() {
+              distutils-r1_python_install_all
+              insinto /usr/share/vim/vimfiles
+              doins -r data/syntax-highlighting/vim/{ftdetect,indent,syntax}
+              insinto /usr/share/zsh/site-functions
+              doins data/shell-completions/zsh/_meson
+            }
+
     - libmspack:
         category: dev-libs
         github:

@@ -497,6 +497,77 @@ gnome_release_pkgs:
 
   packages:
 
+    - nautilus:
+        category: gnome-base
+        vars:
+          desc: Default file manager for the GNOME desktop
+          homepage: https://apps.gnome.org/Nautilus/
+          license: GPL-3+ LGPL-2.1+
+          iuse: +cloudproviders doc gnome +gstreamer +introspection +previewer
+          required_use: doc? ( introspection )
+          cdepend: |
+            dev-libs/glib:2
+            media-libs/gexiv2
+            media-libs/gstreamer:1.0
+            media-libs/gst-plugins-base:1.0
+            app-arch/gnome-autoar
+            gnome-base/gnome-desktop
+            gnome-base/gsettings-desktop-schemas
+            x11-libs/gtk:4[X,introspection?,wayland]
+            x11-libs/libadwaita
+            dev-libs/libportal:=[gtk]
+            x11-libs/pango
+            app-misc/tinysparql
+            cloudproviders? ( net-libs/libcloudproviders )
+            introspection? ( dev-libs/gobject-introspection:= )
+          rdepend: |
+            ${CDEPEND}
+            app-misc/localsearch:=
+          depend: '${CDEPEND}'
+          bdepend: |
+            dev-util/gdbus-codegen
+            doc? (
+              app-text/docbook-xml-dtd:4.1.2
+              dev-util/gi-docgen
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          pdepend: |
+            gnome? ( x11-themes/adwaita-icon-theme )
+            previewer? ( gnome-extra/sushi )
+            gnome-base/gvfs[gtk(+)]
+          inherit:
+            - gnome3
+            - meson
+          body: |
+            src_prepare() {
+              default
+              xdg_environment_reset
+              # Disable -Werror
+              sed -e '/-Werror=/d' -i meson.build ||  die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dextensions=true # image file properties, also required for -Dgstreamer=true
+                -Dpackagekit=false
+                -Dselinux=false
+                -Dtests=none
+                $(meson_use cloudproviders)
+                $(meson_use doc docs)
+                $(meson_use introspection)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - gdm:
         category: gnome-base
         vars:
@@ -1646,6 +1717,451 @@ gnome_apps:
       opts:
 
   packages:
+
+    - sushi:
+        category: gnome-extra
+        vars:
+          desc: A quick previewer for Nautilus, the GNOME file manager
+          release: '46'
+          inherit:
+            - gnome3
+            - meson
+          license: GPL-2+
+          iuse: wayland +X +papers
+          required_use: '|| ( wayland X )'
+          cdepend: |
+            media-libs/libepoxy
+            papers? (
+              app-text/papers
+            )
+            !papers? (
+              app-text/evince[introspection]
+            )
+            media-libs/freetype
+            x11-libs/gdk-pixbuf[introspection]
+            dev-libs/glib:2
+            media-libs/gstreamer:1.0[introspection]
+            media-libs/gst-plugins-base:1.0[introspection]
+            x11-libs/gtk+:3[introspection,wayland?,X?]
+            x11-libs/gtksourceview:4[introspection]
+            media-libs/harfbuzz:=
+            dev-libs/gobject-introspection:=
+            dev-libs/gjs
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            gnome-base/nautilus
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature wayland)
+                $(meson_feature X X11)
+                -Dprofile=default
+              )
+              meson_src_configure
+            }
+            src_compile() {
+              local -x GST_PLUGIN_SYSTEM_PATH_1_0=
+              meson_src_compile
+            }
+            src_install() {
+              meson_src_install
+            }
+
+    - gtksourceview:
+        category: x11-libs
+        dir:
+          exclude: 'beta|alpha'
+        vars:
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          release: '5.18'
+          slot: '5'
+          iuse: gtk-doc +introspection sysprof +vala
+          required_use: |
+            gtk-doc? ( introspection )
+            vala? ( introspection )
+          desc: A text widget implementing syntax highlighting and other features
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4[introspection?]
+            dev-libs/libxml2:=
+            introspection? ( dev-libs/gobject-introspection:= )
+            dev-libs/fribidi
+            media-libs/fontconfig
+            x11-libs/pango[introspection?]
+            dev-libs/libpcre2:=
+            sysprof? ( dev-util/sysprof )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? ( dev-util/gi-docgen )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dinstall-tests=false
+                $(meson_feature introspection)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc documentation)
+                $(meson_use sysprof)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc ; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/${PN}${SLOT} "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+
+    - gtksourceview:
+        category: x11-libs
+        dir:
+          exclude: 'beta|alpha'
+        vars:
+          desc: A text widget implementing syntax highlighting and other features
+          homepage: https://wiki.gnome.org/Projects/GtkSourceView
+          release: '3.24'
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          iuse: glade +introspection +vala
+          required_use: vala? ( introspection )
+          inherit:
+            - gnome3
+            - vala
+          slot: '3.0'
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2:=
+            x11-libs/gtk+:3[introspection?]
+            glade? ( dev-util/glade )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/gtk-doc-am
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              gnome3_src_prepare
+            }
+            src_configure() {
+              gnome3_src_configure \
+                $(use_enable glade glade-catalog) \
+                $(use_enable introspection) \
+                $(use_enable vala)
+            }
+            src_install() {
+              gnome3_src_install
+            }
+
+    - gtksourceview:
+        dir:
+          exclude: 'beta|alpha'
+        category: x11-libs
+        vars:
+          desc: A text widget implementing syntax highlighting and other features
+          homepage: https://wiki.gnome.org/Projects/GtkSourceView
+          release: '4.8'
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          slot: '4'
+          iuse: glade gtk-doc +introspection +vala
+          required_use: vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            dev-libs/libxml2:=
+            glade? ( dev-util/glade )
+            introspection? ( dev-libs/gobject-introspection:= )
+            dev-libs/fribidi
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              xdg_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dinstall_tests=false
+                $(meson_use glade glade_catalog)
+                $(meson_use introspection gir)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # Avoid conflict with gtksourceview:3.0 glade-catalog
+              if use glade; then
+                mv "${ED}"/usr/share/glade/catalogs/gtksourceview.xml "${ED}"/usr/share/glade/catalogs/gtksourceview-${SLOT}.xml || die
+              fi
+            }
+
+    - totem-pl-parser:
+        category: dev-libs
+        vars:
+          release: '3.26'
+          inherit:
+            - meson
+            - flag-o-matic
+          desc: Playlist parsing library
+          homepage: https://developer.gnome.org/totem-pl-parser/stable/
+          iuse: archive crypt gtk-doc +introspection +uchardet
+          rdepend: |
+            dev-libs/glib:2
+            archive? ( app-arch/libarchive:= )
+            dev-libs/libxml2:=
+            crypt? ( dev-libs/libgcrypt:= )
+            uchardet? ( app-i18n/uchardet )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              # Disable tests requiring network access, bug #346127
+              # 3rd test fails on upgrade, not once installed
+              sed -e 's:\(g_test_add_func.*/parser/resolution.*\):/*\1*/:' \
+                -e 's:\(g_test_add_func.*/parser/parsing/itms_link.*\):/*\1*/:' \
+                -e 's:\(g_test_add_func.*/parser/parsability.*\):/*\1/:'\
+                -i plparse/tests/parser.c || die "sed failed"
+            }
+            src_configure() {
+              local emesonargs=(
+                -Denable-libarchive=$(usex archive)
+                -Denable-libgcrypt=$(usex crypt)
+                -Denable-uchardet=$(usex uchardet)
+                $(meson_use gtk-doc enable-gtk-doc)
+                $(meson_use introspection)
+              )
+              meson_src_configure
+            }
+
+    - localsearch:
+        category: app-misc
+        dir:
+          # just rc match with search and skip all versions
+          exclude: '\\.rc|beta|alpha'
+        vars:
+          release: '3.10'
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - meson
+            - systemd
+          desc: Indexer and search engine that powers desktop search for core GNOME components
+          license: GPL-2+ LGPL-2.1+
+          iuse: |
+            cue exif gif gsf +gstreamer iptc +iso +jpeg +pdf +playlist raw
+            seccomp +tiff upower +xml xmp xps
+          required_use: |
+            cue? ( gstreamer )
+          rdepend: |
+            app-misc/tinysparql
+            sys-apps/dbus
+            xmp? ( media-libs/exempi:= )
+            raw? ( media-libs/gexiv2 )
+            dev-libs/glib:2
+            dev-libs/libgudev
+            dev-libs/gobject-introspection:=
+            cue? ( media-libs/libcue:= )
+            exif? ( media-libs/libexif )
+            gsf? ( gnome-extra/libgsf )
+            xps? ( app-text/libgxps )
+            iptc? ( media-libs/libiptcdata )
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            iso? ( sys-libs/libosinfo )
+            media-libs/libpng:=
+            tiff? ( media-libs/tiff:= )
+            xml? ( dev-libs/libxml2:= )
+            pdf? ( app-text/poppler:=[cairo] )
+            playlist? ( dev-libs/totem-pl-parser:= )
+            gif? ( media-libs/giflib:= )
+            app-arch/gzip
+            upower? ( sys-power/upower:= )
+            dev-libs/icu:=
+            gstreamer? (
+              media-libs/gstreamer:1.0
+              media-libs/gst-plugins-base:1.0
+            )
+            media-video/ffmpeg:0=
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/asciidoc
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              gnome3_environment_reset
+            }
+            src_configure() {
+              append-cflags -DTRACKER_DEBUG -DG_DISABLE_CAST_CHECKS
+
+              local emesonargs=(
+                -Dman=true
+                -Dextract=true
+                -Dfunctional_tests=false
+                -Dtests_tap_protocol=false
+                -Dminer_fs=true
+                -Dwriteback=true
+                -Dabiword=true
+                -Dicon=true
+                -Dmp3=true
+                -Dps=true
+                -Dtext=true
+                -Dunzip_ps_gz_files=true # spawns gunzip
+                -Dlandlock=disabled
+                $(meson_feature cue)
+                $(meson_feature exif)
+                $(meson_feature gif)
+                $(meson_feature gsf)
+                $(meson_feature iptc)
+                $(meson_feature iso)
+                $(meson_feature jpeg)
+                $(meson_feature pdf)
+                $(meson_feature playlist)
+                -Dpng=enabled
+                $(meson_feature raw)
+                $(meson_feature tiff)
+                $(meson_feature xml)
+                $(meson_feature xmp)
+                $(meson_feature xps)
+                -Dbattery_detection=$(usex upower upower none)
+                -Dcharset_detection=icu
+                -Dsystemd_user_services_dir="$(systemd_get_userunitdir)"
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - tinysparql:
+        category: app-misc
+        vars:
+          release: '3.9'
+          inherit:
+            - bash-completion-r1
+            - flag-o-matic
+            - gnome3
+            - meson
+            - systemd
+            - vala
+          desc: Low-footprint RDF triple store with SPARQL 1.1 interface
+          license: GPL-2+ LGPL-2.1+
+          iuse: gtk-doc +localsearch stemmer systemd vala zeroconf
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/icu:=
+            dev-libs/json-glib
+            dev-libs/libxml2
+            dev-db/sqlite:3
+            net-libs/libsoup
+            sys-apps/dbus
+            zeroconf? ( net-dns/avahi )
+            systemd? ( sys-apps/systemd )
+            stemmer? ( dev-libs/snowball-stemmer:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/asciidoc
+            dev-libs/libxslt
+            $(vala_depend)
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-uti/gi-docgen
+              media-gfx/graphviz
+              app-text/xmlto
+            )
+            ${PYTHON_DEPS}
+          pdepend: |
+            localsearch? ( app-misc/localsearch )
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              append-cflags -DTRACKER_DEBUG -DG_DISABLE_CAST_CHECKS
+              local emesonargs=(
+                $(meson_use gtk-doc docs)
+                $(meson_feature stemmer)
+                $(meson_feature zeroconf avahi)
+                $(meson_feature vala vapi)
+                -Dtests=false
+                -Dman=true
+                -Dunicode_support=icu
+                -Dbash_completion_dir="$(get_bashcompdir)"
+                -Dintrospection=enabled
+              )
+              if use systemd ; then
+                emesonargs+=(
+                  -Dsystemd_user_services_dir="$(systemd_get_userunitdir)"
+                )
+              else
+                emesonargs+=(
+                  -Dsystemd_user_services_dir=false
+                )
+              fi
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use gtk-doc; then
+                mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+                mv "${ED}"/usr/share/doc/Tsparql-3.0 "${ED}"/usr/share/gtk-doc/html/ || die
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - file-roller:
         category: app-arch
@@ -5094,6 +5610,89 @@ github_libs:
       query: tags
   packages:
 
+    - libiptcdata:
+        template: ../../templates/simple.tmpl
+        category: media-libs
+        github:
+          user: ianw
+          query: releases
+        transform:
+          - kind: string
+            match: 'Release '
+            replace: ''
+          - kind: regex
+            match: ' -.*$'
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            matcher: '{{ .Values.pn }}-.*.tar.gz$'
+        vars:
+          iuse: doc examples python
+          extra_envs:
+            - 'DISTUTILS_EXT=1'
+            - 'DISTUTILS_OPTIONAL=1'
+            - 'DISTUTILS_USE_PEP517=setuptools'
+          python_compat: python3+
+          inherit:
+            - autotools
+            - distutils-r1
+            - flag-o-matic
+          rdepend: |
+            python? ( ${PYTHON_DEPS} )
+          bdepend: |
+            dev-util/gtk-doc-am
+            virtual/pkgconfig
+            doc? ( dev-util/gtk-doc )
+            sys-devel/gettext
+            python? (
+              ${PYTHON_DEPS}
+            )
+          required_use: python? ( ${PYTHON_REQUIRED_USE} )
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+              if use python; then
+                cd python || die
+                ln -s "../${PN}" . || die
+                distutils-r1_src_prepare
+              fi
+            }
+            src_configure () {
+              local myeconfargs=(
+                $(use_enable python)
+                $(use_enable doc gtk-doc)
+              )
+              econf "${myeconfargs[@]}"
+              if use python; then
+                # Workaround about include/linking issue
+                # with libiptcdata
+                append-cflags "-I."
+                append-ldflags "-L./{{ .Values.pn }}/.libs"
+                cd python || die
+                distutils-r1_src_configure
+              fi
+            }
+            src_compile() {
+              default
+              if use python; then
+                cd python || die
+                distutils-r1_src_compile
+              fi
+            }
+            src_install () {
+              default
+              find "${D}" -name '*.la' -delete || die "failed to remove *.la files"
+              if use python; then
+                cd python || die
+                distutils-r1_src_install
+              fi
+              if use examples; then
+                dodoc python/README
+                dodoc -r python/examples
+              fi
+            }
+
     - system-config-printer:
         template: ../../templates/simple.tmpl
         github:
@@ -5927,3 +6526,72 @@ gitlab_gnome:
               meson_src_configure
             }
 
+libosinfo:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-libs
+    dir:
+      url: https://releases.pagure.org/libosinfo/
+      matcher: '{{ .Values.pn }}-.*.tar.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      patches:
+        - libosinfo-1.12.0-libxml2-2.14.patch
+      desc: GObject library for managing information about real and virtual OSes
+      homepage: https://libosinfo.org/
+      license: GPL-2+ LGPL-2.1+
+      iuse: gtk-doc +introspection +vala
+      required_use: vala? ( introspection )
+      rdepend: |
+        dev-libs/glib:2
+        net-libs/libsoup:3
+        dev-libs/libxml2:=
+        dev-libs/libxslt
+        sys-apps/hwdata
+        sys-apps/osinfo-db
+        introspection? ( dev-libs/gobject-introspection:= )
+      depend: |
+        ${RDEPEND}
+        sys-apps/osinfo-db-tools
+      bdepend: |
+        dev-lang/perl
+        gtk-doc? (
+          dev-util/gtk-doc
+          app-text/docbook-xml-dtd:4.3
+        )
+        sys-devel/gettext
+        virtual/pkgconfig
+        vala? ( $(vala_depend) )
+      inherit:
+        - meson
+        - vala
+        - xdg
+      body: |
+        src_prepare() {
+          default
+          use vala && vala_src_prepare
+          xdg_environment_reset
+        }
+        src_configure() {
+          local emesonargs=(
+            $(meson_use gtk-doc enable-gtk-doc)
+            $(meson_feature introspection enable-introspection)
+            $(meson_feature vala enable-vala)
+            -Denable-tests=false
+            -Dlibsoup-abi=3.0
+            -Dwith-pci-ids-path="${EPREFIX}"/usr/share/hwdata/pci.ids
+            -Dwith-usb-ids-path="${EPREFIX}"/usr/share/hwdata/usb.ids
+          )
+          meson_src_configure
+        }
+
+  packages:
+    - libosinfo:

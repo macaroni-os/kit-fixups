@@ -32,8 +32,9 @@ target:
     - pkg: app-arch/file-roller
     - pkg: app-arch/gnome-autoar
 
-
+    - pkg: app-misc/localsearch
     - pkg: app-misc/geoclue
+    - pkg: app-misc/tinysparql
 
     - pkg: dev-cpp/atkmm:0
     - pkg: dev-cpp/atkmm:2.36
@@ -64,6 +65,7 @@ target:
     - pkg: dev-libs/libgudev
     - pkg: dev-libs/libhandy
     - pkg: dev-libs/librevenge
+    - pkg: dev-libs/totem-pl-parser
     - pkg: dev-libs/vala-common
 
     - pkg: dev-util/sysprof
@@ -83,6 +85,7 @@ target:
     - pkg: gnome-base/gnome-shell
     - pkg: gnome-base/gsettings-desktop-schemas
     - pkg: gnome-base/gvfs
+    - pkg: gnome-base/nautilus
 
     - pkg: gnome-extra/evolution-data-server
     - pkg: gnome-extra/evolution-ews
@@ -90,6 +93,7 @@ target:
     - pkg: gnome-extra/gnome-shell-extensions
     - pkg: gnome-extra/gnome-weather
     - pkg: gnome-extra/mousetweaks
+    - pkg: gnome-extra/sushi
     - pkg: gnome-extra/tecla
 
     - pkg: mail-client/evolution
@@ -98,6 +102,7 @@ target:
     - pkg: media-libs/gexiv2
     - pkg: media-libs/glycin-loaders
     - pkg: media-libs/libglycin
+    - pkg: media-libs/libiptcdata
 
     - pkg: net-libs/glib-networking
     - pkg: net-libs/gnome-online-accounts
@@ -120,6 +125,9 @@ target:
     - pkg: x11-libs/gtk:4
     - pkg: x11-libs/gtk+:3
     - pkg: x11-libs/gtk+:2
+    - pkg: x11-libs/gtksourceview:3.0
+    - pkg: x11-libs/gtksourceview:4
+    - pkg: x11-libs/gtksourceview:5
     - pkg: x11-libs/libadwaita
     - pkg: x11-libs/libpanel
     - pkg: x11-libs/vte
@@ -139,6 +147,8 @@ target:
     - pkg: sys-apps/accountsservice
     - pkg: sys-apps/xdg-desktop-portal-gtk
     - pkg: sys-apps/xdg-desktop-portal-gnome
+
+    - pkg: sys-libs/libosinfo
 
     - pkg: virtual/libgudev
     - pkg: virtual/notification-daemon

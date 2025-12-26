@@ -2011,6 +2011,57 @@ media_libs_gh:
       query: releases
   packages:
 
+    - libraw:
+        github:
+          query: tags
+          user: LibRaw
+          repo: LibRaw
+        vars:
+          inherit:
+            - flag-o-matic
+            - libtool
+            - autotools
+            - toolchain-funcs
+          iuse: examples hardened jpeg +lcms openmp zlib
+          rdepend: |
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            lcms? ( media-libs/lcms )
+            zlib? ( sys-libs/zlib )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          docs:
+            - Changelog.txt
+            - README.md
+          body: |
+            src_prepare() {
+              default
+              elibtoolize
+              eautoreconf
+              if tc-is-clang && use openmp ; then
+                append-libs omp
+              fi
+            }
+            src_configure() {
+              # added in 0.21.3 if selected calloc() will be used to prevent uninitialized heap data leak
+              use hardened && append-cppflags "-DLIBRAW_CALLOC_RAWSTORE"
+              local myeconfargs=(
+                --disable-jasper
+                $(use_enable examples)
+                $(use_enable jpeg)
+                $(use_enable lcms)
+                $(use_enable openmp)
+                $(use_enable zlib)
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              einstalldocs
+              # package installs .pc files
+              find "${D}" -name '*.la' -name '*.a' -delete || die
+            }
+
     - libjxl:
         github:
           query: tags

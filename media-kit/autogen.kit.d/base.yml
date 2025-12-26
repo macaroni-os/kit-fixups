@@ -2240,3 +2240,507 @@ exempi:
 
     - exempi:
 
+ffmpeg:
+  markdevkit_min_version: 0.28.2
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-video
+    dir:
+      url: https://ffmpeg.org/releases/
+      matcher: '{{ .Values.pn }}-.*.tar.xz$'
+
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      desc: Complete solution to record/convert/stream audio and video. Includes libavcodec.
+      homepage: https://ffmpeg.org/
+      inherit:
+        - eutils
+        - flag-o-matic
+        - autotools
+        - toolchain-funcs
+      flag_map:
+        - +bzip2:bzlib
+        - cpudetection:runtime-cpudetect
+        - debug
+        - gcrypt
+        - +gnutls
+        - gmp
+        - +gpl
+        - hardcoded-tables
+        - +iconv
+        - libxml2
+        - lzma
+        - +network
+        - opencl
+        - openssl
+        - samba:libsmbclient
+        - sdl:ffplay
+        - sdl:sdl2
+        - vaapi
+        - vdpau
+        - vulkan
+        - X:xlib
+        - X:libxcb
+        - X:libxcb-shm
+        - X:libxcb-xfixes
+        - +zlib
+        # libavdevice options
+        - cdio:libcdio
+        - iec61883:libiec61883
+        - ieee1394:libdc1394
+        - libcaca
+        - openal
+        - opengl
+        # indevs
+        - libv4l:libv4l2
+        - pulseaudio:libpulse
+        - libdrm
+        - jack:libjack
+        # decoders
+        - amr:libopencore-amrwb
+        - amr:libopencore-amrnb
+        - codec2:libcodec2
+        - +dav1d:libdav1d
+        - fdk:libfdk-aac
+        - jpeg2k:libopenjpeg
+        - bluray:libbluray
+        - gme:libgme
+        - gsm:libgsm
+        - libaribb24
+        - mmal
+        - modplug:libmodplug
+        - opus:libopus
+        - libilbc
+        - librtmp
+        - ssh:libssh
+        - speex:libspeex
+        - srt:libsrt
+        - svg:librsvg
+        - video_cards_nvidia:ffnvcodec
+        - vorbis:libvorbis
+        - vpx:libvpx
+        - zvbi:libzvbi
+        # libavfilter options
+        - appkit
+        - bs2b:libbs2b
+        - chromaprint
+        - cuda:cuda-llvm
+        - flite:libflite
+        - frei0r
+        - fribidi:libfribidi
+        - fontconfig
+        - ladspa
+        - libass
+        - libtesseract
+        - lv2
+        - truetype:libfreetype
+        - vidstab:libvidstab
+        - rubberband:librubberband
+        - zeromq:libzmq
+        - zimg:libzimg
+        # libswresample options
+        - libsoxr
+        # Threads; we only support pthread for now but ffmpeg supports more
+        - +threads:pthreads
+      encoder_flag_map:
+        - amrenc:libvo-amrwbenc
+        - mp3:libmp3lame
+        - kvazaar:libkvazaar
+        - libaom
+        - openh264:libopenh264
+        - rav1e:librav1e
+        - snappy:libsnappy
+        - theora:libtheora
+        - twolame:libtwolame
+        - wavpack:libwavpack
+        - webp:libwebp
+        - x264:libx264
+        - x265:libx265
+        - xvid:libxvid
+      arm_cpu_features:
+        - cpu_flags_arm_thumb:armv5te
+        - cpu_flags_arm_v6:armv6
+        - cpu_flags_arm_thumb2:armv6t2
+        - cpu_flags_arm_neon:neon
+        - cpu_flags_arm_vfp:vfp
+        - cpu_flags_arm_vfpv3:vfpv3
+        - cpu_flags_arm_v8:armv8
+      arm_cpu_required_use:
+        - arm64? ( cpu_flags_arm_v8 )
+        - cpu_flags_arm_neon? ( cpu_flags_arm_thumb2 cpu_flags_arm_vfp )
+        - cpu_flags_arm_vfpv3? ( cpu_flags_arm_vfp )
+        - cpu_flags_arm_thumb2? ( cpu_flags_arm_v6 )
+        - cpu_flags_arm_v6? ( cpu_flags_arm_thumb )
+      mips_cpu_features:
+        - mipsdspr1:mipsdsp
+        - mipsdspr2
+        - mipsfpu
+      x86_cpu_features_raw:
+        - 3dnow:amd3dnow
+        - 3dnowext:amd3dnowext
+        - aes:aesni
+        - avx:avx
+        - avx2:avx2
+        - fma3:fma3
+        - fma4:fma4
+        - mmx:mmx
+        - mmxext:mmxext
+        - sse:sse
+        - sse2:sse2
+        - sse3:sse3
+        - ssse3:ssse3
+        - sse4_1:sse4
+        - sse4_2:sse42
+        - xop:xop
+      x86_cpu_required_use:
+        - cpu_flags_x86_avx2? ( cpu_flags_x86_avx )
+        - cpu_flags_x86_fma4? ( cpu_flags_x86_avx )
+        - cpu_flags_x86_fma3? ( cpu_flags_x86_avx )
+        - cpu_flags_x86_xop?  ( cpu_flags_x86_avx )
+        - cpu_flags_x86_avx?  ( cpu_flags_x86_sse4_2 )
+        - cpu_flags_x86_aes? ( cpu_flags_x86_sse4_2 )
+        - cpu_flags_x86_sse4_2?  ( cpu_flags_x86_sse4_1 )
+        - cpu_flags_x86_sse4_1?  ( cpu_flags_x86_ssse3 )
+        - cpu_flags_x86_ssse3?  ( cpu_flags_x86_sse3 )
+        - cpu_flags_x86_sse3?  ( cpu_flags_x86_sse2 )
+        - cpu_flags_x86_sse2?  ( cpu_flags_x86_sse )
+        - cpu_flags_x86_sse?  ( cpu_flags_x86_mmxext )
+        - cpu_flags_x86_mmxext?  ( cpu_flags_x86_mmx )
+        - cpu_flags_x86_3dnowext?  ( cpu_flags_x86_3dnow )
+        - cpu_flags_x86_3dnow?  ( cpu_flags_x86_mmx )
+      gpl_required_use: |
+        frei0r? ( gpl )
+        cdio? ( gpl )
+        rubberband? ( gpl )
+        vidstab? ( gpl )
+        samba? ( gpl )
+        encode? (
+          x264? ( gpl )
+          x265? ( gpl )
+          xvid? ( gpl )
+        )
+
+      fftools:
+        - aviocat
+        - cws2fws
+        - ffescape
+        - ffeval
+        - ffhash
+        - fourcecc2pixfmt
+        - graph2dot
+        - ismindex
+        - pktdumper
+        - qt-faststart
+        - sidxindex
+        - trasher
+
+      rdepend: |
+        alsa? ( media-libs/alsa-lib )
+        amr? ( media-libs/opencore-amr )
+        bluray? ( media-libs/libbluray )
+        bs2b? ( media-libs/libbs2b )
+        bzip2? ( app-arch/bzip2 )
+        cdio? ( dev-libs/libcdio-paranoia )
+        chromaprint? ( media-libs/chromaprint )
+        codec2? ( media-libs/codec2 )
+        dav1d? ( media-libs/dav1d:= )
+        encode? (
+          amrenc? ( media-libs/vo-amrwbenc )
+          kvazaar? ( media-libs/kvazaar )
+          mp3? ( media-sound/lame )
+          openh264? ( media-libs/openh264:= )
+          rav1e? ( media-video/rav1e:=[capi] )
+          snappy? ( app-arch/snappy:= )
+          theora? (
+            media-libs/libtheora[encode]
+            media-libs/libogg
+          )
+          twolame? ( media-sound/twolame )
+          wavpack? ( media-sound/wavpack )
+          webp? ( media-libs/libwebp:= )
+          x264? ( media-libs/x264:= )
+          x265? ( media-libs/x265:= )
+          xvid? ( media-libs/xvid )
+        )
+        fdk? ( media-libs/fdk-aac:= )
+        flite? ( app-accessibility/flite )
+        fontconfig? ( media-libs/fontconfig )
+        frei0r? ( media-plugins/frei0r-plugins )
+        fribidi? ( dev-libs/fribidi )
+        gcrypt? ( dev-libs/libgcrypt:= )
+        gme? ( media-libs/game-music-emu )
+        gmp? ( dev-libs/gmp:= )
+        iec61883? (
+          media-libs/libiec61883
+          sys-libs/libraw1394
+          sys-libs/libavc1394
+        )
+        ieee1394? (
+          media-libs/libdc1394:=
+          sys-libs/libraw1394
+        )
+        jack? ( virtual/jack )
+        jpeg2k? ( media-libs/openjpeg )
+        libaribb24? ( media-libs/aribb24 )
+        libass? ( media-libs/libass:= )
+        libcaca? ( media-libs/libcaca )
+        libdrm? ( x11-libs/libdrm )
+        librtmp? ( media-video/rtmpdump )
+        libsoxr? ( media-libs/soxr )
+        libtesseract? ( app-text/tesseract )
+        libv4l? ( media-libs/libv4l )
+        libxml2? ( dev-libs/libxml2:= )
+        lv2? (
+          media-libs/liv2
+          media-libs/lilv
+        )
+        lzma? ( app-arch/xz-utils )
+        mmal? ( media-libs/raspberrypi-userland )
+        modplug? ( media-libs/libmodplug )
+        openal? ( media-libs/openal )
+        opencl? ( virtual/opencl )
+        opengl? ( virtual/opengl )
+        opus? ( media-libs/opus )
+        pulseaudio? ( media-sound/pulseaudio )
+        rubberband? ( media-libs/rubberband )
+        samba? ( net-fs/samba[client] )
+        sdl? ( media-libs/libsdl2[sound,video] )
+        speex? ( media-libs/speex )
+        srt? ( net-libs/srt )
+        ssh? ( net-libs/libssh )
+        svg? ( gnome-base/librsvg:= )
+        truetype? ( media-libs/freetype )
+        vaapi? ( x11-libs/libva:= )
+        vdpau? ( x11-libs/libvdpau )
+        vidstab? ( media-libs/vidstab )
+        vorbis? (
+          media-libs/libvorbis
+          media-libs/libogg
+        )
+        vpx? ( media-libs/libvpx:= )
+        vulkan? ( media-libs/vulkan-loader:= )
+        X? (
+          x11-libs/libX11
+          x11-libs/libXext
+          x11-libs/libXv
+          x11-libs/libxcb
+        )
+        zeromq? ( net-libs/zeromq )
+        zimg? ( media-libs/zimg:= )
+        zlib? ( sys-libs/zlib )
+        zvbi? ( media-libs/zvbi )
+        openssl? (
+          dev-libs/openssl
+        )
+        !openssl? (
+          gnutls? (
+            net-libs/gnutls:=
+          )
+        )
+      depend: |
+        ${RDEPEND}
+        video_cards_nvidia? ( media-libs/nv-codec-headers )
+        ladspa? ( media-libs/ladspa-sdk )
+        v4l? ( sys-kernel/linux-headers )
+      bdepend: |
+        sys-devel/make
+        virtual/pkgconfig
+        cpu_flags_x86_mmx? (
+          || (
+            dev-lang/nasm
+            dev-lang/yasm
+          )
+        )
+        cuda? ( sys-devel/clang[llvm_targets_NVPTX] )
+        doc? ( sys-apps/texinfo )
+
+      required_use: |
+        cuda? ( video_cards_nvidia )
+        libv4l? ( v4l )
+        fftools_cws2fws? ( zlib )
+        {{ .Values.gpl_required_use }}
+        {{- range $p := .Values.arm_cpu_required_use }}
+        {{ $p }}
+        {{- end }}
+        {{- range $p := .Values.x86_cpu_required_use }}
+        {{ $p }}
+        {{- end }}
+
+      iuse: |
+        alsa chromium doc +encode oss pic static-libs v4l
+        +bzip2 cpudetection debug gcrypt +gnutls gmp +gpl
+        hardcoded-tables +iconv libxml2 lzma +network opencl
+        openssl samba sdl vaapi vdpau vulkan X
+        +zlib cdio iec61883 ieee1394 libcaca openal libv4l
+        pulseaudio libdrm jack amr codec2 +dav1d fdk jpeg2k
+        bluray gme gsm libaribb24 mmal modplug opus libilbc
+        librtmp ssh speex srt svg video_cards_nvidia vorbis
+        vpx zvbi appkit bs2b chromaprint cuda flite frei0r
+        fribidi fontconfig ladspa libass libtesseract lv2
+        truetype vidstab rubberband zeromq zimg libsoxr
+        +threads amrenc mp3 kvazaar libaom openh264 rav1e
+        snappy theora twolame wavpack webp x264 x265 xvid
+        opengl
+        {{- range $p := .Values.fftools }}
+        fftools_{{ $p }}
+        {{- end }}
+        {{- range $p := .Values.arm_cpu_features }}
+        {{- $flag := ( slice ( splitList ":" $p ) 0 1 ) }}
+        {{ ( index $flag 0 ) }}
+        {{- end }}
+        {{- range $p := .Values.x86_cpu_features_raw }}
+        cpu_flags_x86_{{ ( index ( slice ( splitList ":" $p ) 0 1 ) 0 ) }}
+        {{- end }}
+
+      body: |
+        FFTOOLS=(
+          {{- range $t := .Values.fftools }}
+          {{ $t }}
+          {{- end }}
+        )
+        src_prepare() {
+          export revision=git-N-{{ .Values.version }}
+          default
+        }
+        src_configure() {
+          local myconf=(
+            --enable-avfilter
+            --disable-stripping
+            --disable-optimizations
+            --disable-libcelt
+            --prefix="/usr"
+            --libdir="/usr/$(get_libdir)"
+            --shlibdir="/usr/$(get_libdir)"
+            --docdir="/usr/share/doc/{{ .Values.pn }}-{{ .Values.version }}/html"
+            --mandir="/usr/share/man"
+            --enable-shared
+            --cc="$(tc-getCC)"
+            --cxx="$(tc-getCXX)"
+            --ar="$(tc-getAR)"
+            --nm="$(tc-getNM)"
+            --ranlib="$(tc-getRANLIB)"
+            --pkg-config="$(tc-getPKG_CONFIG)"
+            --optflags="${CFLAGS}"
+            --target-os=linux
+            $(use_enable static-libs static)
+          )
+
+          if use openssl && use gpl ; then
+            myconf+=( --enable-nonfree )
+          fi
+          use samba && myconf+=( --enable-version3 )
+
+          # Encoders
+          if use encode ; then
+            if use amrenc ; then
+              myconf+=( --enable-version3 )
+            fi
+          else
+            myconf+=( --disable-encoders )
+          fi
+
+          # Indevs
+          use v4l || myconf+=( --disable-indev=v4l2 --disable-outdev=v4l2 )
+          for i in alsa oss jack ; do
+            use ${i} || myconf+=( --disable-indev=${i} )
+          done
+
+          # Outdevs
+          for i in alsa oss ; do
+            use ${i} || myconf+=( --disable-outdev=${i} )
+          done
+
+          # Decoders
+          use amr && myconf+=( --enable-version3 )
+          use gmp && myconf+=( --enable-version3 )
+          use libaribb24 && myconf+=( --enable-version3 )
+          use fdk && use gpl && myconf+=( --enable-nonfree )
+
+          {{- range $p := .Values.flag_map }}
+          {{- $p := $p | replace "+" "" }}
+          {{- if contains ":" $p }}
+          {{- $use := ( index ( slice ( splitList ":" $p ) 0 1 ) 0 ) }}
+          {{- $flag := ( index ( slice ( splitList ":" $p ) 1 2 ) 0 ) }}
+          if use {{ $use }} ; then
+            myconf+=( --enable-{{ $flag }} )
+          else
+            myconf+=( --disable-{{ $flag }} )
+          fi
+          {{- else }}
+          if use {{ $p }} ; then
+            myconf+=( --enable-{{ $p }} )
+          else
+            myconf+=( --disable-{{ $p }} )
+          fi
+          {{- end }}
+          {{- end }}
+
+          if use pic ; then
+            myconf+=( --enable-pic )
+            [[ ${ABI} == x86 ]] && myconf+=( --disable-asm )
+          fi
+
+          if use openssl ; then
+            myconf+=( --disable-gnutls )
+          fi
+
+          # CPU features
+          {{- range $cpu := .Values.arm_cpu_features }}
+          {{- if contains ":" $cpu }}
+          {{- $use := ( index ( slice ( splitList ":" $cpu ) 0 1 ) 0 )}}
+          {{- $flag := ( index ( slice ( splitList ":" $cpu ) 1 2 ) 0 )}}
+          if ! use {{ $use }} ; then
+            myconf+=( --disable-{{ $flag }} )
+          fi
+          {{- else }}
+          if ! use {{ $cpu }} ; then
+            myconf+=( --disable-{{ $cpu }} )
+          fi
+          {{- end }}
+          {{- end }}
+
+          # LTO support
+          is-flagq "-flto*" && myconf+=( "--enable-lto" )
+
+          einfo "Configure flags\n${myconf[*]}"
+          "${S}"/configure "${myconf[@]}" || die "configure failed"
+        }
+        src_compile() {
+          emake V=1
+          {{- range $t := .Values.fftools }}
+          if use fftools_{{ $t }} ; then
+            emake V=1 tools/{{ $t }}$(get_exeext)
+          fi
+          {{- end }}
+          if use chromium ; then
+            emake V=1 libffmpeg
+          fi
+        }
+        src_install() {
+          emake V=1 DESTDIR="${D}" install install-doc
+
+          {{- range $t := .Values.fftools }}
+          if use fftools_{{ $t }} ; then
+            dobin tools/{{ $t }}$(get_exeext)
+          fi
+          {{- end }}
+
+          if use chromium ; then
+            emake V=1 DESTDIR="${D}" install-libffmpeg
+            QA_FLAGS_IGNORED+=" usr/$(get_libdir)/chromium/.*"
+          fi
+        }
+
+
+  packages:
+
+    - ffmpeg:

@@ -243,6 +243,30 @@ target:
         - https://distfiles-flat.macaronios.org/distfiles
         - https://distfiles-flat.macaronios.org/
 
+  fixups:
+    include:
+      - dir: ../../static/licenses
+        to: licenses
+
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+      - dir: ../profiles/
+        to: profiles
+        keep_files:
+          # Avoid to remove generated files.
+          - categories$
+          - repo_name$
+          - thirdpartymirrors$
+
+      - dir: ../../eclass/
+        to: eclass
+
+      - dir: ../sets/
+        to: sets
 
   atoms_defaults:
     max_versions: 3

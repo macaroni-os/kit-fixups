@@ -91,12 +91,6 @@ target:
     # tepl seems deprecated with libgedit-tepl
     #- pkg: gui-libs/tepl
 
-    - pkg: media-gfx/shotwell
-    - pkg: media-gfx/simple-scan
-    - pkg: media-video/cheese
-    - pkg: media-video/gnome-video-effects
-    - pkg: media-video/totem
-
     - pkg: net-analyzer/gnome-nettool
 
     - pkg: net-im/telepathy-logger
@@ -117,6 +111,7 @@ target:
 
     - pkg: net-misc/connman-gtk
     - pkg: net-misc/connman-ui
+    # updated but to autogen
     - pkg: net-misc/gnome-online-miners
     - pkg: net-misc/vinagre
     - pkg: net-misc/vino
@@ -131,18 +126,19 @@ target:
     # Ebuild already updated but to autogen
     - pkg: gnome-base/gnome-common
     - pkg: gnome-base/libglade
+    - pkg: gnome-base/libgnomecanvas
     - pkg: gnome-base/gconf
 
+
     - pkg: gnome-base/adrien-gdm-keyboard
-    - pkg: gnome-base/gnome
-    - pkg: gnome-base/gnome-core-apps
-    - pkg: gnome-base/gnome-core-libs
-    - pkg: gnome-base/gnome-menus
-    - pkg: gnome-base/gnome-mime-data
+
+    # Packages replaced by sets
+    #- pkg: gnome-base/gnome
+    #- pkg: gnome-base/gnome-core-apps
+    #- pkg: gnome-base/gnome-core-libs
+
     # gnome-shell-common is a deprecated package
     # - pkg: gnome-base/gnome-shell-common
-    - pkg: gnome-base/libgnomecanvas
-    - pkg: gnome-base/libgnomekbd
     - pkg: gnome-base/libgnome-keyring
 
     - pkg: gnome-extra/chrome-gnome-shell

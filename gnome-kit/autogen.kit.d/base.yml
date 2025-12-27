@@ -497,6 +497,102 @@ gnome_release_pkgs:
 
   packages:
 
+    - simple-scan:
+        category: media-gfx
+        vars:
+          python_compat: python3+
+          desc: Simple document scanning utility
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+            - vala
+          iuse: colord webp
+          license: GPL-3+
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            sys-libs/zlib
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf
+            dev-libs/libgusb
+            colord? ( x11-misc/colord:=[udev(+)] )
+            webp? ( media-libs/libwebp:= )
+            media-gfx/sane-backends
+            x11-misc/xdg-utils
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            $(vala_depend)
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            x11-libs/libadwaita[vala]
+            dev-libs/libgusb[vala]
+            colord? ( x11-misc/colord[vala] )
+          patches:
+            - 46.0-add-control-optional-deps.patch
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              xdg_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dpackagekit=false
+                $(meson_use colord)
+                $(meson_use webp)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - showtime:
+        # TODO: needs py3.10
+        category: media-video
+        vars:
+          desc: Gnome Video Player
+          license: GPL-3.0-or-later
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - python-single-r1
+            - meson
+          rdepend: |
+            >=dev-lang/python-3.10
+            x11-libs/gtk:4[introspection]
+            x11-libs/libadwaita
+            $(python_gen_cond_dep '
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            ')
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_install() {
+              meson_src_install
+              # fix shebang (python_fix_shebang doesn't work correctly for this).
+              sed -i -e '1s:#!.*:#!/usr/bin/python:g' "${ED}"/usr/bin/showtime
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - nautilus:
         category: gnome-base
         vars:
@@ -1698,16 +1794,17 @@ gnome_apps:
     category: gnome-extra
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
-      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.xz$"
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$"
       exclude: 'rc|beta|alpha'
     transform:
       - kind: string
         match: "{{ .Values.pkgname | default .Values.pn }}-"
         replace: ""
       - kind: string
-        match: ".tar.xz"
+        match: ".{{ .Values.tarball_suffix }}"
         replace: ""
     vars:
+      tarball_suffix: 'tar.xz'
       license: LGPL-2.1+
       homepage: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.pkgname | default .Values.pn }}'
       gitlab_user: GNOME
@@ -1718,8 +1815,346 @@ gnome_apps:
 
   packages:
 
+    - shotwell:
+        category: media-gfx
+        vars:
+          release: '0.32'
+          desc: Open source photo manager for GNOME
+          homepage: https://wiki.gnome.org/Apps/Shotwell
+          license: LGPL-2.1
+          iuse: opencv udev
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            x11-libs/gtk+:3
+            dev-libs/glib:2
+            dev-libs/libgee
+            net-libs/webkit-gtk:4
+            dev-libs/json-glib
+            dev-libs/libxml2
+            x11-libs/gdk-pixbuf:2
+            dev-db/sqlite:3
+            media-libs/gstreamer:1.0
+            media-libs/gst-plugins-base:1.0
+            media-libs/libgphoto2:=
+            udev? ( virtual/libgudev:= )
+            media-libs/gexiv2
+            media-libs/libraw:=
+            media-libs/libexif:=
+            dev-libs/libgdata
+            app-crypt/gcr:=[gtk,vala]
+            x11-libs/cairo
+            opencv? ( media-libs/opencv:= )
+            media-libs/libchamplain[vala]
+          depend: |
+            ${RDEPEND}
+            net-libs/libsoup:2.4[vala]
+            dev-libs/appstream-glib
+          bdepend: |
+            $(vala_depend)
+            virtual/pkgconfig
+            sys-devel/gettext
+            dev-util/itstool
+          body: |
+            src_prepare() {
+              xdg_src_prepare
+              vala_src_prepare
+              if use opencv ; then
+                # opencv package doesn't supply pkg-config atm
+                # so i forcing detection
+                sed -i -e "s|^facedetect_dep.*|facedetect_dep = dependency('opencv4', version: ['>=2.3.0'], required : true)|g" \
+                subprojects/shotwell-facedetect/meson.build
+              fi
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dunity_support=false
+                -Ddupe_detection=true
+                -Dinstall_apport_hook=false
+                $(meson_use udev)
+                $(meson_use opencv face_detection)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - totem:
+        category: media-video
+        vars:
+          python_compat: python3+
+          release: '43'
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+          desc: Legacy Media player for GNOME
+          homepage: https://apps.gnome.org/Totem/
+          license: GPL-2+ LGPL-2+
+          iuse: gtk-doc +python
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          cdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/libhandy
+            media-libs/gstreamer:1.0
+            media-libs/gst-plugins-base:1.0[pango]
+            media-libs/gst-plugins-good:1.0
+            media-libs/grilo[playlist]
+            dev-libs/libpeas[gtk]
+            dev-libs/totem-pl-parser:=[introspection]
+            gnome-base/gnome-desktop:=
+            gnome-base/gsettings-desktop-schemas
+            media-libs/libepoxy
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf
+            dev-libs/gobject-introspection:=
+            python? (
+              ${PYTHON_DEPS}
+              $(python_gen_cond_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+            )
+          rdepend: |
+            ${CDEPEND}
+            media-plugins/grilo-plugins
+            x11-themes/adwaita-icon-theme
+            dev-libs/libportal:=[gtk]
+            python? (
+              x11-libs/pango[introspection]
+              dev-libs/libpeas[python,${PYTHON_SINGLE_USEDEP}]
+              $(python_gen_cond_dep '
+                dev-python/dbus-python[${PYTHON_USEDEP}]
+              ')
+            )
+          depend: |
+            ${CDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            dev-lang/perl
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.5
+            )
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              xdg_environment_reset
+              # Drop pointless samplepython plugin from build
+              sed -e '/samplepython/d' -i src/plugins/meson.build || die
+            }
+            src_configure() {
+              # work around sandbox violation
+              for card in /dev/dri/card* ; do
+                addpredict "${card}"
+              done
+              local emesonargs=(
+                -Dhelp=true
+                -Denable-easy-codec-installation=yes
+                -Denable-python=$(usex python yes no)
+                -Dlibportal=enabled
+                -Dwith-plugins=all
+                -Dui-tests=false
+                $(meson_use gtk-doc enable-gtk-doc)
+                -Dprofile=default
+                -Dinspector-page=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              local -x GST_PLUGIN_SYSTEM_PATH_1_0= # bug 812170
+              meson_src_install
+              if use python ; then
+                python_optimize "${ED}"/usr/$(get_libdir)/totem/plugins/
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-video-effects:
+        category: media-video
+        vars:
+          release: '0.6'
+          inherit:
+            - meson
+          desc: Effects for Cheese, the webcam video and picture application
+          homepage: https://wiki.gnome.org/Projects/GnomeVideoEffects
+          license: GPL-2
+          bdepend: |
+            sys-devel/gettext
+
+    - cheese:
+        category: media-video
+        revision: 1
+        vars:
+          release: '44'
+          inherit:
+            - gnome3
+            - vala
+            - meson
+          desc: A cheesy program to take pictures and videos from your webcam
+          homepage: https://wiki.gnome.org/Apps/Cheese
+          license: GPL-2+
+          iuse: +introspection
+          cdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            gnome-base/gnome-desktop
+            media-libs/libcanberra[gtk3]
+            media-libs/clutter[introspection?]
+            media-libs/clutter-gtk
+            media-libs/clutter-gst
+            media-libs/cogl:=[introspection?]
+            media-video/gnome-video-effects
+            x11-libs/gdk-pixbuf:2[jpeg,introspection?]
+            x11-libs/libX11
+            x11-libs/libXtst
+            media-libs/gstreamer:1.0[introspection?]
+            media-libs/gst-plugins-base:1.0[introspection?,ogg,pango,theora,vorbis,X]
+            introspection? ( dev-libs/gobject-introspection:= )
+          rdepend: |
+            ${CDEPEND}
+            media-libs/gst-plugins-bad:1.0
+            media-libs/gst-plugins-good:1.0
+          depend: |
+            ${CDEPEND}
+            app-text/docbook-xml-dtd:4.3
+            app-text/yelp-tools
+            dev-libs/appstream-glib
+            dev-libs/libxml2
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            dev-util/gtk-doc-am
+            dev-util/itstool
+            x11-base/xorg-proto
+          bdepend: |
+            $(vala_depend)
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              vala_src_prepare
+              gnome3_src_prepare
+            }
+            src_configure() {
+              # work around sandbox violation
+              for card in /dev/dri/card* ; do
+                addpredict "${card}"
+              done
+              for render in /dev/dri/render* ; do
+                addpredict "${render}"
+              done
+              for video in /dev/video* ; do
+                addpredict "${video}"
+              done
+              local emesonargs=(
+                $(meson_use introspection)
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libgnomekbd:
+        category: gnome-base
+        vars:
+          release: '3.28'
+          inherit:
+            - meson
+          desc: Gnome keyboard configuration library
+          license: LGPL-2+
+          iuse: +introspection
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[X,introspection?]
+            x11-libs/libX11
+            x11-libs/libxklavier:=[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use introspection)
+                -Dvapi=false
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+
+    - gnome-mime-data:
+        category: gnome-base
+        revision: 1
+        vars:
+          tarball_suffix: 'tar.bz2'
+          desc: MIME data for Gnome
+          license: GPL-2
+          release: '2.18'
+          inherit:
+            - gnome3
+          bdepend: |
+            virtual/pkgconfig
+            dev-util/intltool
+          body: |
+            src_prepare() {
+              intltoolize --force || die "intltoolize failed"
+              gnome3_src_prepare
+            }
+
+    - gnome-menus:
+        category: gnome-base
+        vars:
+          desc: Library and layout configuration for the Desktop Menu fd.o specification
+          release: '3.38'
+          slot: 3
+          iuse: +introspection
+          license: GPL-2+ LGPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          inherit:
+            - gnome3
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - HACKING
+            - NEWS
+            - README
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                $(use_enable introspection) \
+                --disable-static
+            }
+
     - sushi:
-        category: gnome-extra
         vars:
           desc: A quick previewer for Nautilus, the GNOME file manager
           release: '46'
@@ -5499,6 +5934,7 @@ virtual_pkgs:
     template: ../../templates/simple.tmpl
     category: virtual
   packages:
+
     # TODO: this package could be removed after the upgrade to GNOME 49
     - atk:
         category: dev-libs

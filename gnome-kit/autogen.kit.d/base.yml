@@ -497,6 +497,38 @@ gnome_release_pkgs:
 
   packages:
 
+    - gnome-font-viewer:
+        category: media-gfx
+        vars:
+          desc: Font viewer utility for GNOME
+          homepage: https://apps.gnome.org/FontViewer/
+          license: GPL-2+ LGPL-2.1+
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            media-libs/harfbuzz:=
+            media-libs/fontconfig:1.0
+            media-libs/freetype:2
+            dev-libs/fribidi
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
     - gnome-software:
         vars:
           desc: Gnome install & update software
@@ -2326,6 +2358,305 @@ gnome_apps:
       opts:
 
   packages:
+
+    - gnome-photos:
+        category: media-gfx
+        vars:
+          release: '44'
+          inherit:
+            - gnome3
+            - meson
+          desc: Access, organize and share your photos on GNOME
+          gitlab_user: Archive
+          license: GPL-3+ LGPL-2+ CC0-1.0
+          iuse: upnp-av
+          cdepend: |
+            media-libs/babl
+            x11-libs/cairo
+            x11-libs/gdk-pixbuf:2
+            media-libs/gegl[cairo,raw]
+            sci-geosciences/geocode-glib
+            media-libs/gexiv2
+            dev-libs/glib:2
+            dev-libs/libportal:=[gtk]
+            net-libs/gnome-online-accounts:=
+            gnome-base/gsettings-desktop-schemas
+            x11-libs/gtk+:3
+            dev-libs/libdazzle
+            dev-libs/libhandy
+            media-libs/libjpeg-turbo:=
+            app-misc/tinysparql
+            sys-apps/dbus
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            upnp-av? ( net-libs/dleyna:= )
+            app-misc/localsearch
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-libs/libxslt
+            app-text/docbook-xsl-stylesheets
+            dev-util/desktop-file-utils
+            dev-util/gdbus-codegen
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              gnome3_environment_reset
+              sed -i -e "/photos_docdir.*=.*join_paths/s/meson.project_name()/'${PF}'/" meson.build
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dflatpak=false
+                -Dinstalled_tests=false
+                -Dmanuals=true
+                -Ddogtail=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - eog-plugins:
+        category: media-gfx
+        vars:
+          python_compat: python3+
+          release: '44'
+          desc: Eye of GNOME plugins
+          license: GPL-2
+          iuse: +exif map +python
+          inherit:
+            - meson
+            - python-single-r1
+          required_use: |
+            map? ( exif )
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libpeas
+            media-gfx/eog
+            exif? ( media-libs/libexif )
+            map? (
+              media-libs/libchamplain[gtk]
+              media-libs/clutter
+              media-libs/clutter-gtk
+            )
+            python? (
+              ${PYTHON_DEPS}
+              dev-libs/glib[dbus]
+              dev-libs/libpeas[gtk,python,${PYTHON_SINGLE_USEDEP}]
+              $(python_gen_cond_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+              gnome-base/gsettings-desktop-schemas
+              media-gfx/eog[introspection]
+              x11-libs/gtk+:3[introspection]
+              x11-libs/pango[introspection]
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dplugin_fit-to-width=true
+                -Dplugin_light-theme=true
+                -Dplugin_postasa=false
+                -Dplugin_postr=false
+                -Dplugin_send-by-mail=true
+                $(meson_use python plugin_fullscreenbg)
+                $(meson_use exif plugin_exif-display)
+                $(meson_use map plugin_map)
+                $(meson_use python plugin_export-to-folder)
+                $(meson_use python plugin_maximize-windows)
+                $(meson_use python plugin_pythonconsole)
+                $(meson_use python plugin_slideshowshuffle)
+              )
+              meson_src_configure
+            }
+
+    - eog:
+        category: media-gfx
+        vars:
+          release: '47'
+          desc: The Eye of GNOME image viewer
+          license: GPL-2+
+          inherit:
+            - gnome3
+            - meson
+          slot: 1
+          iuse: +exif gtk-doc +introspection +jpeg lcms +svg xmp tiff
+          required_use: |
+            exif? ( jpeg )
+            gtk-doc? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libpeas[gtk]
+            gnome-base/gnome-desktop
+            gnome-base/gsettings-desktop-schemas
+            x11-misc/shared-mime-info
+            x11-libs/gdk-pixbuf[jpeg?,tiff?]
+            x11-libs/gtk+:3[introspection,X]
+            dev-libs/libhandy
+            sys-libs/zlib
+            exif? ( media-libs/libexif )
+            lcms? ( media-libs/lcms )
+            xmp? ( media-libs/exempi:= )
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+            svg? ( gnome-base/librsvg )
+            x11-libs/libX11
+          depend: '${RDEPEND}'
+          bdepend: |
+            gtk-doc? (
+              dev-util/gi-docgen
+              app-text/docbook-xml-dtd:4.1.2
+            )
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use exif libexif)
+                $(meson_use lcms cms)
+                $(meson_use xmp)
+                $(meson_use jpeg libjpeg)
+                $(meson_use svg librsvg)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                -Dinstalled_tests=false
+                -Dlibportal=false # As of 40.3, all libportal usages are flatpak-specific
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-terminal:
+        category: x11-terms
+        vars:
+          release: '3.58'
+          python_compat: python3+
+          desc: A terminal emulator for GNOME
+          license: GPL-3+ GPL-3 CC-BY-SA-3.0 FDL-1.3
+          iuse: X debug gnome-shell nautilus
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - meson
+            - python-any-r1
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[X?]
+            dev-libs/libhandy
+            x11-libs/vte
+            dev-libs/libpcre2
+            gnome-base/gsettings-desktop-schemas
+            sys-apps/util-linux
+            gnome-shell? ( gnome-base/gnome-shell )
+            nautilus? ( gnome-base/nautilus )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/libxml2
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              # Upstream don't support LTO
+              filter-lto
+              local emesonargs=(
+                -Ddocs=false
+                $(meson_use debug dbg)
+                $(meson_use nautilus nautilus_extension)
+                $(meson_use gnome-shell search_provider)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gucharmap:
+        vars:
+          release: '17.0'
+          desc: Unicode character map viewer and library
+          homepage: https://wiki.gnome.org/Apps/Gucharmap
+          python_compat: python3+
+          license: GPL-3+
+          slot: 2.90
+          inherit:
+            - flag-o-matic
+            - gnome3
+            - meson
+            - python-any-r1
+            - vala
+          iuse: +introspection gtk-doc vala
+          required_use: vala? ( introspection )
+          rdepend: |
+            media-libs/freetype:2
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/libpcre2:=
+            app-i18n/unicode-data
+            x11-libs/pango[introspection]
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            app-text/docbook-xml-dtd:4.1.2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+            introspection? ( dev-libs/gobject-introspection:= )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              # Upstream don't support LTO
+              filter-lto
+              local emesonargs=(
+                -Dcharmap=true
+                -Ddbg=false
+                -Dgtk3=true
+                -Ducd_path="${EPREFIX}/usr/share/unicode-data"
+                $(meson_use gtk-doc docs)
+                $(meson_use introspection gir)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - nm-applet:
         vars:

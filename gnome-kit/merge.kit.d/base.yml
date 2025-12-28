@@ -145,15 +145,14 @@ target:
     #- pkg: gnome-extra/gnome-todo
     - pkg: gnome-extra/gnome-user-docs
     - pkg: gnome-extra/gnome-user-share
-    - pkg: gnome-extra/gucharmap
     - pkg: gnome-extra/yelp
     - pkg: gnome-extra/libgsf
     - pkg: gnome-extra/nautilus-sendto
-    - pkg: gnome-extra/nm-applet
     - pkg: gnome-extra/polkit-gnome
 
     - pkg: games-arcade/gnome-nibbles
     - pkg: games-arcade/gnome-robots
+
     - pkg: games-board/aisleriot
     - pkg: games-board/crafty
     - pkg: games-board/four-in-a-row
@@ -165,6 +164,7 @@ target:
     - pkg: games-board/sjeng
     - pkg: games-board/stockfish
     - pkg: games-board/tali
+
     - pkg: games-puzzle/atomix
     - pkg: games-puzzle/five-or-more
     - pkg: games-puzzle/gnome-klotski
@@ -177,12 +177,6 @@ target:
     - pkg: games-puzzle/quadrapassel
     - pkg: games-puzzle/swell-foop
 
-    - pkg: media-gfx/eog
-    - pkg: media-gfx/eog-plugins
-    - pkg: media-gfx/gnome-font-viewer
-    - pkg: media-gfx/gnome-photos
-    - pkg: media-gfx/gnome-screenshot
-
     - pkg: media-libs/babl
     - pkg: media-libs/clutter
     - pkg: media-libs/clutter-gst
@@ -192,11 +186,12 @@ target:
     - pkg: media-libs/grilo
     - pkg: media-libs/gsound
 
+    # upstream repository archived.
+    # gnome-shell supply native screenshot feature.
+    #- pkg: media-gfx/gnome-screenshot
+
     - pkg: x11-libs/goffice
 
-    - pkg: sys-libs/libosinfo
-
-    - pkg: x11-terms/gnome-terminal
     - pkg: x11-terms/tilix-bin
 
     - pkg: x11-themes/funtoo-gnome-shell-theme

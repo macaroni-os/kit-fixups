@@ -497,6 +497,518 @@ gnome_release_pkgs:
 
   packages:
 
+    - gnome-software:
+        vars:
+          desc: Gnome install & update software
+          homepage: https://wiki.gnome.org/Apps/Software
+          license: GPL-2+
+          iuse: dkms +firmware +flatpak gnome gtk-doc sysprof spell udev
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/appstream:=
+            x11-libs/gdk-pixbuf
+            dev-libs/libxmlb:=
+            x11-libs/gtk:4
+            dev-libs/glib:2
+            dev-libs/json-glib
+            net-libs/libsoup:3
+            x11-libs/libadwaita
+            sysprof? ( dev-util/sysprof )
+            gnome-base/gsettings-desktop-schemas
+            sys-auth/polkit
+            firmware? ( sys-apps/fwupd )
+            flatpak? (
+              sys-apps/flatpak
+              sys-fs/libostree
+            )
+            udev? ( dev-libs/libgudev )
+            gnome-base/gsettings-desktop-schemas
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              xdg_src_prepare
+              sed -i -e '/install_data.*README\.md.*share\/doc\/gnome-software/d' meson.build || die
+              # We don't need language packs download support, and it fails tests in 3.34.2 for us (if they are enabled)
+              sed -i -e '/subdir.*fedora-langpacks/d' plugins/meson.build || die
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dtests=false
+                -Dman=true
+                -Dpackagekit=false
+                -Deos_updater=false # Endless OS update
+                -Dopensuse-distro-upgrade=false
+                # -Dpackagekit_autoremove
+                -Dpolkit=true
+                -Dmalcontent=false
+                -Drpm_ostree=false
+                -Dwebapps=true
+                -Ddefault_featured_apps=true
+                -Dhardcoded_curated=true
+                -Dhardcoded_foss_webapps=true
+                -Dhardcoded_proprietary_webapps=true
+                -Dapt=false
+                -Dexternal_appstream=false
+                -Dhardcoded_curated=true
+                # TODO: Will this be beneficial to us with flatpak at least? If
+                # enabled, it shows some apps under installed (probably merely due to
+                # /usr/share/app-info presence), but launching and removal of them is
+                # broken
+                -Ddefault_featured_apps=false
+                -Dmogwai=false #TODO?
+                -Dprofile=''
+                -Dsnap=false
+                -Dopensuse-distro-upgrade=false
+                $(meson_use dkms)
+                $(meson_use firmware fwupd)
+                $(meson_use flatpak)
+                $(meson_use udev gudev)
+                $(meson_feature sysprof)
+                $(meson_use gtk-doc gtk_doc)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-tweaks:
+        vars:
+          # Temporary downgrade this because we needs py3.10
+          release: '45'
+          desc: Customize advanced GNOME options
+          license: GPL-3+ CC0-1.0
+          python_compat: python3+
+          required_use: "${PYTHON_REQUIRED_USE}"
+          cdepend: '${PYTHON_DEPS}'
+          depend: '${CDEPEND}'
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+          rdepend: |
+            ${CDEPEND}
+            $(python_gen_cond_dep '
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            ')
+            gnome-base/gnome-settings-daemon
+            x11-themes/sound-theme-freedesktop
+            dev-libs/glib:2
+            dev-libs/gobject-introspection
+            x11-libs/gtk:4[introspection]
+            x11-libs/libadwaita[introspection]
+            dev-libs/libgudev[introspection]
+            gnome-base/gnome-desktop
+            x11-libs/libnotify[introspection]
+            x11-libs/pango[introspection]
+            gnome-base/gsettings-desktop-schemas[introspection]
+            gnome-base/gnome-shell
+            x11-wm/mutter
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_install() {
+              meson_src_install
+              python_optimize
+              python_fix_shebang "${ED}"/usr/bin/
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-system-monitor:
+        vars:
+          desc: Gnome System Monitor
+          homepage: https://apps.gnome.org/SystemMonitor/
+          inherit:
+            - gnome3
+            - meson
+            - flag-o-matic
+          license: GPL-2+
+          iuse: systemd
+          rdepend: |
+            dev-cpp/glibmm:2.68
+            dev-cpp/gtkmm:4.0
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            gnome-base/libgtop:=
+            x11-libs/libadwaita
+            gnome-base/librsvg
+            systemd? ( sys-apps/systemd:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-cpp/catch
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            sys-auth/polkit
+          body: |
+            src_prepare() {
+              default
+              # Drop test units fails for linking with catch
+              sed -e '/test\/cgroups.cpp/d' -e '/test\/join.cpp/d' -i src/meson.build
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use systemd)
+                -Ddevelopment=false
+                --wrap-mode nodownload
+                --libdir lib64
+                --localstatedir /var/lib
+                --prefix /usr
+                --sysconfdir /etc
+              )
+              # meson_src_configure breaks compilation. Override it.
+              einfo "meson setup "${S}"-build ${emesonargs[@]}"
+              export BUILD_DIR="${BUILD_DIR:-${WORKDIR}/${P}-build}"
+              meson setup ${BUILD_DIR} ${emesonargs[@]}
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-contacts:
+        vars:
+          desc: GNOME contact management application
+          homepage: https://apps.gnome.org/Contacts/
+          license: GPL-2+
+          iuse: +gnome-online-accounts
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+            - vala
+          python_compat: python3+
+          rdepend: |
+            dev-libs/folks:=[eds]
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            gnome-extra/evolution-data-server:=[gnome-online-accounts?,vala]
+            dev-libs/libportal:=[gtk,vala]
+            media-libs/gstreamer
+            media-gfx/qrencode:=
+            gnome-online-accounts? ( net-libs/gnome-online-accounts:=[vala] )
+            dev-libs/gobject-introspection:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-util/blueprint-compiler
+            app-text/docbook-xml-dtd:4.2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxml2
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dcamera=true
+                -Dmanpage=true
+                -Ddocs=false
+                $(meson_use gnome-online-accounts goa)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-clocks:
+        vars:
+          desc: Clocks application for GNOME
+          homepage: https://apps.gnome.org/Clocks/
+          license: GPL-2+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib
+            x11-libs/gtk:4
+            x11-libs/libadwaita[vala]
+            dev-libs/libgweather:=[vala]
+            gnome-base/gnome-desktop
+            sci-geosciences/geocode-glib
+            app-misc/geoclue
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          docs:
+            - AUTHORS.md
+            - CONTRIBUTING.md
+            - README.md
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dprofile=default
+                -Ddocs=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-characters:
+        vars:
+          desc: Unicode character map viewer and library
+          homepage: https://apps.gnome.org/Characters/
+          license: GPL-2+ BSD
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/gjs
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            x11-libs/gtk:4[introspection]
+            x11-libs/libadwaita:=
+            x11-libs/gdk-pixbuf:2
+            x11-libs/pango[introspection]
+            gnome-base/gnome-desktop
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-calendar:
+        vars:
+          desc: GNOME calendars interface
+          homepage: https://apps.gnome.org/Calendar/
+          inherit:
+            - gnome3
+            - meson
+          license: GPL-3+
+          rdepend: |
+            dev-libs/libical:=
+            gnome-base/gsettings-desktop-schemas
+            gnome-extra/evolution-data-server:=[gtk]
+            net-libs/libsoup:3
+            x11-libs/libadwaita
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            dev-libs/libgweather:=
+            app-misc/geoclue
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-libs/libxml2
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-calculator:
+        vars:
+          desc: A calculator application for GNOME
+          homepage: https://apps.gnome.org/Calculator/
+          iuse: +introspection
+          license: GPL-3+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2
+            net-libs/libsoup:3[vala]
+            dev-libs/libgee
+            dev-libs/mpc:=
+            dev-libs/mpfr:=
+            x11-libs/gtk:4
+            x11-libs/libadwaita[vala]
+            x11-libs/gtksourceview:5[vala]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-util/blueprint-compiler
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddisable-ui=false
+                -Dui-tests=false
+                -Dgcalc=true
+                -Dgci=true
+                -Dapp=true
+                -Ddoc=false
+                $(meson_use !introspection disable-introspection)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-maps:
+        category: sci-geosciences
+        vars:
+          desc: A map application for GNOME
+          homepage: https://apps.gnome.org/Maps/
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/gjs
+            dev-libs/gobject-introspection:=
+            x11-libs/gtk:4[introspection]
+            app-misc/geoclue[introspection]
+            x11-libs/libadwaita[introspection]
+            dev-libs/libgweather:=[introspection]
+            sci-geosciences/geocode-glib[introspection]
+            dev-libs/libportal:=[introspection]
+            media-libs/libshumate:=[introspection]
+            dev-libs/libxml2
+            net-libs/rest[introspection]
+            gnome-base/librsvg
+            dev-libs/json-glib
+            app-crypt/libsecret[introspection]
+            media-libs/graphene[introspection]
+            net-libs/libsoup:3[introspection]
+            x11-libs/pango[introspection]
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            sys-devel/gettext
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - baobab:
+        category: sys-apps
+        vars:
+          desc: Disk usage browser for GNOME
+          homepage: https://apps.gnome.org/Baobab/
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnote:
+        category: app-misc
+        vars:
+          desc: Desktop note-taking application
+          license: GPL-3+ FDL-1.1
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/glib:2[dbus]
+            dev-cpp/glibmm:2.68
+            dev-cpp/gtkmm:4.0
+            x11-libs/libadwaita
+            app-crypt/libsecret
+            dev-libs/libxml2:=
+            dev-libs/libxslt
+            sys-apps/util-linux
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              # disable tests
+              sed -i -e "/unit_test_pp/ s/ = .*/ = disabler()/" meson.build || die
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - simple-scan:
         category: media-gfx
         vars:
@@ -1186,7 +1698,7 @@ gnome_release_pkgs:
               gnome3_pkg_postinst
             }
             pkg_postrm() {
-              gnome3_pkg_posrm
+              gnome3_pkg_postrm
             }
 
     - gnome-session:
@@ -1814,6 +2326,586 @@ gnome_apps:
       opts:
 
   packages:
+
+    - zenity:
+        vars:
+          release: '4.2'
+          desc: Tool to display dialogs from the commandline and shell scripts
+          homepage: https://gitlab.gnome.org/GNOME/zenity
+          iuse: man webkit
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            x11-libs/libadwaita
+            webkit? ( net-libs/webkit-gtk:6 )
+            man? ( sys-apps/help2man )
+            x11-libs/gdk-pixbuf:2
+            x11-libs/pango
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use webkit webkitgtk)
+                $(meson_use man manpage)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - folks:
+        category: dev-libs
+        vars:
+          release: '0.15'
+          desc: Library for aggregating people from multiple sources
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          iuse: bluetooth eds utils
+          required_use: bluetooth? ( eds )
+          cdepend: |
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/libgee[introspection]
+            dev-libs/libxml2
+            eds? ( gnome-extra/evolution-data-server:=[vala] )
+            utils? ( sys-libs/readline:= )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            bluetooth? ( net-wireless/bluez[obex] )
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use bluetooth bluez_backend)
+                $(meson_use eds eds_backend)
+                $(meson_use eds ofono_backend)
+                $(meson_use utils inspect_tool)
+                -Dtelepathy_backend=false # obsolete dependency
+                -Dzeitgeist=false
+                -Dimport_tool=true
+                -Dtests=false
+                -Dinstalled_tests=false
+                -Ddocs=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-power-manager:
+        vars:
+          release: '43'
+          desc: GNOME power statistics
+          license: GPL-2+
+          inherit:
+            - gnome3
+            - meson
+          cdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            x11-libs/cairo
+            sys-power/upower:=
+          rdepend: |
+            ${CDEPEND}
+            x11-themes/adwaita-icon-theme
+          depend: |
+            ${CDEPEND}
+            x11-base/xorg-proto
+          bdepend: |
+            app-text/docbook-sgml-dtd:4.1
+            app-text/docbook-sgml-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Denable-tests=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-nettool:
+        category: net-analyzer
+        vars:
+          release: '42'
+          desc: Graphical front-ends to various networking command-line
+          license: GPL-2
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+          cdepend: |
+            x11-libs/gtk+:3
+            dev-libs/glib:2
+            gnome-base/libgtop:=
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            || (
+              net-misc/iputils
+              net-analyzer/tcptraceroute
+              net-analyzer/traceroute
+            )
+            net-analyzer/nmap
+            net-dns/bind-tools
+            net-misc/netkit-fingerd
+            net-misc/whois
+          bdepend: |
+            ${PYTHON_DEPS}
+            virtual/pkgconfig
+            app-text/yelp-tools
+            sys-devel/gettext
+          body: |
+            src_prepare() {
+              default
+              sed -i -e "s|('desktop',|(|g" \
+                -e "s|('appdata',|(|g" data/meson.build
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libshumate:
+        category: media-libs
+        vars:
+          release: '1.5'
+          desc: Shumate is a GTK toolkit providing widgets for embedded maps
+          required_use: gtk-doc? ( introspection )
+          iuse: gtk-doc +introspection sysprof vala
+          inherit:
+            - meson
+            - vala
+          extra_envs:
+            - 'VALA_USE_DEPEND=vapigen'
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/cairo
+            dev-db/sqlite
+            x11-libs/gtk:4
+            net-libs/libsoup:3
+            introspection? ( dev-libs/gobject-introspection:= )
+            dev-libs/json-glib[introspection?]
+            dev-libs/protobuf-c
+          depend: |
+            ${RDEPEND}
+            sysprof? ( dev-util/sysprof )
+          bdepend: |
+            dev-util/gperf
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddemos=false
+                -Dvector_renderer=true
+                $(meson_use introspection gir)
+                $(meson_use vala vapi)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_feature sysprof)
+              )
+              meson_src_configure
+            }
+
+    - gnome-disk-utility:
+        category: sys-apps
+        vars:
+          release: '46'
+          desc: Disk Utility for GNOME using udisks
+          homepage: https://apps.gnome.org/en/DiskUtility/
+          license: GPL-2+
+          iuse: fat elogind gnome systemd
+          required_use: '?? ( elogind systemd )'
+          inherit:
+            - gnome3
+            - meson
+          cdepend: |
+            media-libs/libdvdread:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            media-libs/libcanberra[gtk3]
+            dev-libs/libhandy
+            app-arch/xz-utils
+            app-crypt/libsecret
+            dev-libs/libpwquality
+            sys-fs/udisks
+            elogind? ( sys-auth/elogind )
+            systemd? ( sys-apps/systemd:= )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            x11-themes/adwaita-icon-theme
+            fat? ( sys-fs/dosfstools )
+            gnome? ( gnome-base/gnome-settings-daemon )
+          bdepend: |
+            dev-libs/libxml2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dlogind=$(usex systemd libsystemd $(usex elogind libelogind none))
+                $(meson_use gnome gsd_plugin)
+                -Dman=true
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libgit2-glib:
+        category: dev-libs
+        vars:
+          release: '1.2'
+          desc: Git library for GLib
+          homepage: https://wiki.gnome.org/Projects/Libgit2-glib
+          license: LGPL-2+
+          iuse: gtk-doc python +ssh +vala
+          python_compat: python3+
+          required_use: python? ( ${PYTHON_REQUIRED_USE} )
+          inherit:
+            - gnome3
+            - meson
+            - python-r1
+            - vala
+          rdepend: |
+            dev-libs/gobject-introspection:=
+            dev-libs/glib:2
+            dev-libs/libgit2:=[ssh?]
+            python? (
+              ${PYTHON_DEPS}
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gi-docgen )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              default
+              sed -i -e '/meson_python_compile.py/d' meson.build || die
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dintrospection=true
+                -Dpython=false # we install python scripts manually
+                $(meson_use ssh)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use python ; then
+                python_moduleinto gi.overrides
+                python_foreach_impl python_domodule libgit2-glib/Ggit.py
+              fi
+            }
+
+    - libdazzle:
+        category: dev-libs
+        vars:
+          release: '3.44'
+          desc: Experimental new features for GTK+ and GLib
+          license: GPL-3+
+          iuse: gtk-doc +introspection +vala
+          required_use: vala? ( introspection )
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            vala? ( $(vala_depend) )
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Denable_tracing=false # extra trace debugging that would make things slower
+                -Denable_profiling=false # -pg passing
+                -Denable_rdtscp=false
+                -Denable_tests=false
+                -Denable_tools=true # /usr/bin/dazzle-list-counters
+                $(meson_use introspection with_introspection)
+                $(meson_use vala with_vapi)
+                $(meson_use gtk-doc enable_gtk_doc)
+              )
+              meson_src_configure
+            }
+
+    - gitg:
+        category: dev-vcs
+        vars:
+          release: '44'
+          desc: git repository viewer for GNOME
+          license: GPL-2+
+          iuse: +glade +python
+          python_compat: python3+
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            app-crypt/gpgme:=
+            app-crypt/libsecret[vala]
+            app-text/gspell:=[vala]
+            dev-libs/glib:2[dbus]
+            dev-libs/gobject-introspection:=
+            dev-libs/json-glib
+            dev-libs/libdazzle[vala]
+            dev-libs/libgee[introspection]
+            dev-libs/libgit2-glib[ssh,vala]
+            dev-libs/libgit2:=[threads]
+            dev-libs/libpeas[gtk]
+            dev-libs/libxml2:=
+            gnome-base/gsettings-desktop-schemas
+            dev-libs/libhandy
+            x11-libs/gtk+:3
+            x11-libs/gtksourceview:4
+            x11-themes/adwaita-icon-theme
+            glade? ( dev-util/glade )
+            python? (
+              ${PYTHON_DEPS}
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          inherit:
+            - gnome3
+            - meson
+            - python-r1
+            - vala
+          body: |
+            src_prepare() {
+              default
+              echo "#!/bin/sh" > meson_post_install.py || die
+              vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use glade glade_catalog)
+                -Dpython=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use python ; then
+                python_moduleinto gi.overrides
+                python_foreach_impl python_domodule libgitg-ext/GitgExt.py
+              fi
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - bijiben:
+        category: app-misc
+        vars:
+          release: '40'
+          desc: Note editor designed to remain simple to use
+          license: GPL-3+
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+          rdepend: |
+            app-misc/tinysparql:=
+            dev-libs/glib:2
+            net-libs/gnome-online-accounts:=
+            x11-libs/gtk+:3
+            dev-libs/json-glib
+            gnome-extra/evolution-data-server:=
+            dev-libs/libhandy:=
+            dev-libs/libxml2
+            net-misc/curl
+            sys-apps/util-linux
+            net-libs/webkit-gtk:4
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/appstream-glib
+            dev-util/gdbus-codegen
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dupdate_mimedb=false
+                -Dprivate_store=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - seahorse:
+        category: app-crypt
+        vars:
+          release: '47'
+          desc: Manage your passwords and encryption keys
+          license: GPL-2+ FDL-1.1+
+          iuse: X ldap zeroconf
+          rdepend: |
+            dev-libs/glib:2
+            app-crypt/gcr:0=[vala]
+            app-crypt/gpgme:=
+            x11-libs/gtk+:3[X?]
+            app-crypt/gnupg
+            dev-libs/libhandy[vala]
+            app-crypt/libsecret[vala]
+            dev-libs/libpwquality
+            net-misc/openssh
+            ldap? ( net-nds/openldap:= )
+            net-libs/libsoup:3
+            zeroconf? ( net-dns/avahi[dbus] )
+            dev-libs/libxml2
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            app-text/docbook-xml-dtd:4.2
+            app-text/docbook-xsl-stylesheets
+            dev-libs/appstream-glib
+            dev-libs/libxslt
+            dev-util/gdbus-codegen
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dhelp=true
+                -Dpgp-support=true
+                -Dcheck-compatible-gpg=false 
+                -Dpkcs11-support=true
+                -Dkeyservers-support=true
+                -Dhkp-support=true
+                $(meson_use ldap ldap-support)
+                $(meson_use zeroconf key-sharing)
+                -Dmanpage=true
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-dictionary:
+        category: app-dicts
+        vars:
+          release: '40'
+          license: GPL-2+ LGPL-2.1+ FDL-1.1+
+          desc: Dictionary utility for GNOME
+          homepage: https://wiki.gnome.org/Apps/Dictionary
+          inherit:
+            - gnome3
+            - meson
+          iuse: debug +introspection ipv6
+          cdepend: |
+            dev-libs/glib:2[dbus]
+            x11-libs/cairo:=
+            x11-libs/gtk+:3
+            x11-libs/pango
+            introspection? ( dev-libs/gobject-introspection:= )
+          rdepend: |
+            ${CDEPEND}
+            gnome-base/gsettings-desktop-schemas
+          depend: '${CDEPEND}'
+          bdepend: |
+            dev-util/gtk-doc-am
+            dev-util/intltool
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Duse_ipv6=$(usex ipv6 true false)
+              )
+              sed -i -e "s|('appdata',|(|g" data/appdata/meson.build
+              sed -i -e "s|('desktop',|(|g" \
+                -e "s|('sources',|(|g" data/meson.build
+              meson_src_configure
+            }
 
     - shotwell:
         category: media-gfx
@@ -3279,6 +4371,11 @@ gnome_apps:
             src_prepare() {
               use vala && vala_src_prepare
               cmake_src_prepare
+              # Make CMakeLists versioned vala enabled
+              sed -e "s;\(find_program(VALAC\) valac);\1 ${VALAC});" \
+                -e "s;\(find_program(VAPIGEN\) vapigen);\1 ${VAPIGEN});" \
+                -i "${S}"/CMakeLists.txt || die
+
             }
             src_configure() {
               local mycmakeargs=(

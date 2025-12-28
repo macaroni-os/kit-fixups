@@ -1479,6 +1479,23 @@ devlibs_github:
 
   packages:
 
+    - catch:
+        github:
+          user: catchorg
+          repo: Catch2
+        vars:
+          inherit:
+            - cmake
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DCATCH_DEVELOPMENT_BUILD=ON
+                -DCATCH_ENABLE_WERROR=OFF
+                -DCATCH_BUILD_TESTING=OFF
+              )
+              cmake_src_configure
+            }
+
     - fribidi:
         vars:
           bdepend: |

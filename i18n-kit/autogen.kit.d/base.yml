@@ -174,3 +174,59 @@ net_misc_github:
                 gnome3_pkg_postrm
             }
 
+unicode:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-i18n
+    dir:
+      url: 'https://www.unicode.org/Public/{{ .Values.dir_suffix | default "" }}'
+      matcher: '^[0-9.]+'
+    vars:
+      license: unicode
+      depend: |
+        app-arch/unzip
+      s: '${WORKDIR}'
+
+  packages:
+
+    - unicode-cldr:
+        selector:
+          # TODO: migrate to github with different tarballs.
+          - '<49'
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.zip'
+            url: https://unicode.org/Public/{{ .Values.dir_suffix }}{{ .Values.version }}/cldr-common-{{ .Values.version }}.zip
+        vars:
+          dir_suffix: 'cldr/'
+          desc: Unicode Common Locale Data Repository
+          homepage: https://cldr.unicode.org/
+          body: |
+            src_install() {
+                insinto /usr/share/${PN/-//}
+                doins -r common
+            }
+
+    - unicode-data:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-UCD.zip'
+            url: https://unicode.org/Public/{{ .Values.version }}/ucd/UCD.zip
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-Unihan.zip'
+            url: https://unicode.org/Public/{{ .Values.version }}/ucd/Unihan.zip
+        vars:
+          desc: Unicode data from unicode.org
+          homepage: https://unicode.org/ucd/
+          body: |
+            src_unpack() {
+                # Unihan.zip needs to be installed as a zip for reverse deps
+                unpack ${P}-UCD.zip
+            }
+            src_install() {
+                insinto /usr/share/${PN}
+                doins -r "${S}"/*
+                newins "${DISTDIR}"/${P}-Unihan.zip Unihan.zip
+            }
+
+

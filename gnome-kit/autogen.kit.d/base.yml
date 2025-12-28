@@ -2327,6 +2327,57 @@ gnome_apps:
 
   packages:
 
+    - nm-applet:
+        vars:
+          release: '1.36'
+          desc: NetworkManager connection editor and applet
+          homepage: https://wiki.gnome.org/Projects/NetworkManager
+          iuse: appindicator +modemmanager teamd
+          inherit:
+            - gnome3
+            - meson
+          pkgname: network-manager-applet
+          rdepend: |
+            dev-libs/glib:2
+            app-crypt/libsecret
+            net-libs/libnma
+            x11-libs/gtk+:3
+            net-misc/networkmanager[modemmanager?,teamd?]
+            appindicator? (
+              dev-libs/libayatana-appindicator
+              dev-libs/libdbusmenu
+            )
+            modemmanager? ( net-misc/modemmanager )
+            teamd? ( dev-libs/jansson:= )
+            virtual/freedesktop-icon-theme
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.pkgname }}-* "${S}"
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dappindicator=$(usex appindicator ayatana no)
+                $(meson_use modemmanager wwan)
+                $(meson_use teamd team)
+                -Dmore_asserts=0
+                -Dselinux=false
+                -Dld_gc=false
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
     - zenity:
         vars:
           release: '4.2'
@@ -8057,6 +8108,10 @@ gitlab_gnome:
                 $(meson_use vala vapi)
               )
               meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              rm "${D}/usr/share/glib-2.0/schemas/org.gnome.nm-applet.gschema.xml" || die
             }
 
 libosinfo:

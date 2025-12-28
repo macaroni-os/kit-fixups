@@ -1,0 +1,12 @@
+--- a/src/meson.build	2020-02-04 09:52:23.363047935 -0600
++++ b/src/meson.build	2020-02-04 09:54:05.091543648 -0600
+@@ -15,7 +15,8 @@
+             '--enable-experimental-non-null'
+         ],
+         dependencies : [
+-            gio_dependency
++            gio_dependency,
++            posix_dependency
+         ]
+     )
+ )

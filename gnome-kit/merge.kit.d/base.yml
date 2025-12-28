@@ -67,14 +67,11 @@ target:
     - pkg: dev-libs/gom
     - pkg: dev-libs/libcroco
     - pkg: dev-libs/libgee
-    - pkg: dev-libs/libgnome-games-support
     - pkg: dev-libs/libgusb
     - pkg: dev-libs/libical
-    - pkg: dev-libs/libmanette
     - pkg: dev-libs/libpeas
     - pkg: dev-libs/newt
     - pkg: dev-util/gi-docgen
-    - pkg: dev-util/gtk-update-icon-cache
 
     - pkg: gui-libs/gtk-layer-shell
     # tepl seems deprecated with libgedit-tepl
@@ -141,6 +138,7 @@ target:
     - pkg: gnome-extra/gnome-shell-extensions-topicons
     - pkg: gnome-extra/gnome-shell-extensions-topicons-plus
     - pkg: gnome-extra/gnome-shell-frippery
+
     # gnome-todo is been renamed in endeavour
     #- pkg: gnome-extra/gnome-todo
     - pkg: gnome-extra/gnome-user-docs
@@ -150,32 +148,15 @@ target:
     - pkg: gnome-extra/nautilus-sendto
     - pkg: gnome-extra/polkit-gnome
 
-    - pkg: games-arcade/gnome-nibbles
-    - pkg: games-arcade/gnome-robots
 
     - pkg: games-board/aisleriot
-    - pkg: games-board/crafty
-    - pkg: games-board/four-in-a-row
-    - pkg: games-board/gnome-chess
-    - pkg: games-board/gnome-mahjongg
-    - pkg: games-board/gnome-mines
     - pkg: games-board/gnuchess
-    - pkg: games-board/iagno
+    # obsoleted and dead package available only through web.archive.org
+    - pkg: games-board/crafty
+
     - pkg: games-board/sjeng
     - pkg: games-board/stockfish
     - pkg: games-board/tali
-
-    - pkg: games-puzzle/atomix
-    - pkg: games-puzzle/five-or-more
-    - pkg: games-puzzle/gnome-klotski
-    - pkg: games-puzzle/gnome-sudoku
-    - pkg: games-puzzle/gnome-taquin
-    - pkg: games-puzzle/gnome-tetravex
-    - pkg: games-puzzle/gnome2048
-    - pkg: games-puzzle/hitori
-    - pkg: games-puzzle/lightsoff
-    - pkg: games-puzzle/quadrapassel
-    - pkg: games-puzzle/swell-foop
 
     - pkg: media-libs/babl
     - pkg: media-libs/clutter
@@ -201,4 +182,3 @@ target:
     - pkg: x11-themes/gtk-engines
     - pkg: x11-themes/gtk-engines-adwaita
     - pkg: x11-themes/gtk-engines-murrine
-

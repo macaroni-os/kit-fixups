@@ -71,8 +71,15 @@ target:
     - pkg: dev-libs/libgedit-tepl
     - pkg: dev-libs/libgit2-glib
     - pkg: dev-libs/libgweather
+    - pkg: dev-libs/libgnome-games-support:1
+      conditions:
+        - '<dev-libs/libgnome-games-support-2.0'
+    - pkg: dev-libs/libgnome-games-support:2
+      conditions:
+        - '>=dev-libs/libgnome-games-support-2.0'
     - pkg: dev-libs/libgudev
     - pkg: dev-libs/libhandy
+    - pkg: dev-libs/libmanette
     - pkg: dev-libs/librevenge
     - pkg: dev-libs/totem-pl-parser
     - pkg: dev-libs/vala-common
@@ -82,6 +89,29 @@ target:
     - pkg: dev-util/sysprof
     - pkg: dev-util/glade
     - pkg: dev-util/blueprint-compiler
+    - pkg: dev-util/gtk-update-icon-cache
+
+    - pkg: games-arcade/gnome-nibbles
+    - pkg: games-arcade/gnome-robots
+
+    - pkg: games-board/four-in-a-row
+    - pkg: games-board/gnome-chess
+    - pkg: games-board/gnome-mahjongg
+    - pkg: games-board/gnome-mines
+    - pkg: games-board/iagno
+    - pkg: games-board/tali
+
+    - pkg: games-puzzle/atomix
+    - pkg: games-puzzle/five-or-more
+    - pkg: games-puzzle/gnome-klotski
+    - pkg: games-puzzle/gnome-sudoku
+    - pkg: games-puzzle/gnome-taquin
+    - pkg: games-puzzle/gnome-tetravex
+    - pkg: games-puzzle/gnome2048
+    - pkg: games-puzzle/hitori
+    - pkg: games-puzzle/lightsoff
+    - pkg: games-puzzle/quadrapassel
+    - pkg: games-puzzle/swell-foop
 
     - pkg: gnome-base/dconf
     - pkg: gnome-base/dconf-editor

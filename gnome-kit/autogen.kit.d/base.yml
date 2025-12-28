@@ -497,6 +497,187 @@ gnome_release_pkgs:
 
   packages:
 
+    - gnome-mines:
+        category: games-board
+        vars:
+          desc: Clear hidden mines from a minefield
+          license: GPL-3+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita[vala]
+            gnome-base/librsvg[vala]
+            dev-libs/libgnome-games-support:2=
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-util/itstool
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-mahjongg:
+        category: games-board
+        vars:
+          desc: Disassemble a pile of tiles by removing matching pairs
+          license: GPL-2+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita[vala]
+            gnome-base/librsvg[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-util/itstool
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
+    - gnome-chess:
+        category: games-board
+        vars:
+          desc: Play the classic two-player boardgame of chess
+          license: GPL-3+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            x11-libs/pango
+            gnome-base/librsvg[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-util/itstool
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - quadrapassel:
+        category: games-puzzle
+        vars:
+          desc: Fit falling blocks together
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          license: GPL-2+ CC-BY-SA-3.0
+          rdepend: |
+            dev-libs/libgee
+            media-libs/gsound[vala]
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            x11-libs/pango
+            dev-libs/libgnome-games-support:2=
+            dev-libs/libmanette[vala]
+            gnome-base/librsvg[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-sudoku:
+        category: games-puzzle
+        vars:
+          desc: Test your logic skills in this number grid puzzle
+          license: GPL-3+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libgee:=[introspection]
+            x11-libs/gtk:4[introspection]
+            x11-libs/libadwaita[introspection,vala]
+            dev-libs/json-glib
+            dev-libs/qqwing:=
+            x11-libs/gdk-pixbuf:2[introspection]
+            x11-libs/pango[introspection]
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            $(vala_depend)
+            dev-libs/appstream-glib
+            dev-util/blueprint-compiler
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
     - gnome-font-viewer:
         category: media-gfx
         vars:
@@ -2358,6 +2539,571 @@ gnome_apps:
       opts:
 
   packages:
+
+    - tali:
+        category: games-board
+        vars:
+          release: '40'
+          desc: Beat the odds in a poker-style dice game
+          license: GPL-2+ FDL-1.1+
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            dev-libs/libgnome-games-support:1=
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+
+    - iagno:
+        category: games-board
+        vars:
+          release: '3.38'
+          desc: Dominate the board in a classic version of Reversi
+          license: GPL-3+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          rdepend: |
+            dev-libs/glib:2
+            media-libs/gsound[vala]
+            gnome-base/librsvg[vala]
+            x11-libs/gtk+:3
+            media-libs/libcanberra[gtk3]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            app-text/yelp-tools
+            dev-util/itstool
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          patches:
+            - iagno-3.35.90-posix.patch
+            - iagno_508c0f94e5f182e50ff61be6e04f72574dee97cb.patch
+            - iagno_e8a0aeec350ea80349582142c0e8e3cd3f1bce38.patch
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - four-in-a-row:
+        category: games-board
+        vars:
+          release: '3.38'
+          desc: Make lines of the same color to win
+          license: GPL-3+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            media-libs/gsound[vala]
+            gnome-base/librsvg[vala]
+            x11-libs/gtk+:3
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - swell-foop:
+        category: games-puzzle
+        vars:
+          release: '48'
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          desc: Clear the screen by removing groups of colored and shaped tiles
+          license: GPL-2+ FDL-1.1+
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            dev-libs/libgnome-games-support:2=
+            gnome-base/librsvg[vala]
+            dev-libs/libgee:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libmanette:
+        category: dev-libs
+        vars:
+          release: '0.2'
+          desc: Simple GObject game controller library
+          iuse: doc +introspection +udev +vala
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          required_use: vala? ( introspection ) doc? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            udev? ( dev-libs/libgudev[introspection?] )
+            dev-libs/libevdev
+            dev-libs/hidapi
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            doc? ( dev-util/gi-docgen )
+            vala? (
+              $(vala_depend)
+            )
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddemos=false
+                -Dbuild-tests=false
+                -Dinstall-tests=false
+                $(meson_use doc doc)
+                $(meson_use introspection)
+                $(meson_use vala vapi)
+                $(meson_feature udev gudev)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - lightsoff:
+        category: games-puzzle
+        vars:
+          release: '48'
+          desc: Turn off all the lights
+          license: GPL-2+ CC-BY-SA-3.0
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-any-r1
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/appstream
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+            gnome-base/librsvg[vala]
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - hitori:
+        category: games-puzzle
+        vars:
+          release: '44'
+          desc: Logic puzzle game for GNOME
+          license: GPL-3+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            x11-libs/cairo
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/yelp-tools
+            dev-libs/appstream-glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              sed  -i -e "s|('desktop-file',|(|g" -e "s|('appdata-file',|(|g" data/meson.build
+              gnome3_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome2048:
+        category: games-puzzle
+        vars:
+          release: '3.38'
+          desc: Move the tiles until you obtain the 2048 tile
+          license: GPL-3+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          pkgname: gnome-2048
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            media-libs/clutter
+            media-libs/clutter-gst
+            dev-libs/libgee
+            dev-libs/libgnome-games-support:1=
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          body: |
+            src_prepare() {
+              sed -i -e "/'desktop-file',/d" -e "/'appdata-file',/d" data/meson.build
+              gnome3_src_prepare
+              vala_src_prepare
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-tetravex:
+        category: games-puzzle
+        vars:
+          release: '3.38'
+          desc: Complete the puzzle by matching numbered tiles
+          license: GPL-2+ CC-BY-SA-3.0
+          iuse: cli +gui
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            gui? ( x11-libs/gtk+:3 )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            $(vala_depend)
+            gui? ( dev-util/itstool )
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use cli build_cli)
+                $(meson_use gui build_gui)
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-taquin:
+        category: games-puzzle
+        vars:
+          patches:
+            - taquin_66be44dc20d114e449fc33156e3939fd05dfbb16.patch
+            - taquin_99dea5e7863e112f33f16e59898c56a4f1a547b3.patch
+          release: '3.38'
+          desc: Move tiles so that they reach their places
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            media-libs/gsound[vala]
+            x11-libs/gtk+:3
+            x11-libs/gdk-pixbuf:2
+            gnome-base/librsvg[vala]
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-klotski:
+        category: games-puzzle
+        vars:
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          release: '3.38'
+          desc: Slide blocks to solve the puzzle
+          license: GPL-3+ FDL-1.1+
+          rdepend: |
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            dev-libs/libgnome-games-support:1=
+            gnome-base/librsvg
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-libs/appstream
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - five-or-more:
+        category: games-puzzle
+        vars:
+          release: '48'
+          desc: Remove colored balls from the board by forming lines
+          license: GPL-2+ CC-BY-SA-3.0
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            dev-libs/libgnome-games-support:1=
+            gnome-base/librsvg
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-libs/appstream
+            dev-libs/libxml2
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - atomix:
+        category: games-puzzle
+        vars:
+          release: '44'
+          inherit:
+            - gnome3
+            - meson
+          desc: Mind game - build molecules out of single atoms
+          rdepend: |
+            x11-libs/gtk+:3
+            x11-libs/gdk-pixbuf:2
+            dev-libs/glib:2
+            dev-libs/libgnome-games-support:1=
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - libgnome-games-support:
+        category: dev-libs
+        vars:
+          release: '1.8'
+          slot: 1
+          desc: Library for code common to GNOME games
+          license: LGPL-3+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_src_prepare
+            }
+
+    - libgnome-games-support:
+        category: dev-libs
+        vars:
+          release: '2.0'
+          slot: 2
+          desc: Library for code common to GNOME games
+          license: LGPL-3+
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_src_prepare
+            }
+
+    - gnome-nibbles:
+        category: games-arcade
+        vars:
+          release: '4.4'
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          desc: Nibbles clone for GNOME
+          license: GPL-3+ CC-BY-SA-3.0
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libgee:=
+            media-libs/gsound
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            x11-libs/pango
+            dev-libs/libgnome-games-support:2=
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+            $(vala_depend)
+            media-libs/gsound[vala]
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - gnome-photos:
         category: media-gfx
@@ -7414,6 +8160,36 @@ virtual_pkgs:
     category: virtual
   packages:
 
+    # Gentoo maintained package in gnome gitlab.
+    # Maybe we can install it directly from gtk?
+    - gtk-update-icon-cache:
+        category: dev-util
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+            url: 'https://gitlab.gnome.org/Community/gentoo/{{ .Values.pn }}/-/archive/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        vars:
+          versions:
+            - 3.24.42
+          desc: GTK update icon cache
+          inherit:
+            - meson
+          homepage: https://gitlab.gnome.org/Community/gentoo/gtk-update-icon-cache
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gdk-pixbuf:2
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/docbook-xml-dtd:4.3
+            app-text/docbook-xsl-stylesheets
+            dev-libs/libxslt
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_install() {
+              meson_src_install
+              dosym /usr/bin/gtk-update-icon-cache /usr/bin/gtk4-update-icon-cache
+            }
+
     # TODO: this package could be removed after the upgrade to GNOME 49
     - atk:
         category: dev-libs
@@ -8514,3 +9290,86 @@ libosinfo:
 
   packages:
     - libosinfo:
+
+
+gnome_robots:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: gnome-extra
+    dir:
+      url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$"
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".{{ .Values.tarball_suffix }}"
+        replace: ""
+    vars:
+      tarball_suffix: 'tar.xz'
+      license: LGPL-2.1+
+      homepage: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.pkgname | default .Values.pn }}'
+      gitlab_user: GNOME
+
+  extensions_defs:
+    rust:
+      opts:
+        crates_skipped: "gnome-robots"
+
+  packages:
+
+    - gnome-robots:
+        extensions:
+          - rust
+        category: games-arcade
+        vars:
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          release: '41'
+          inherit:
+            - gnome3
+            - meson
+            - cargo
+          desc: Avoid the robots and make them crash into each other
+          homepage: https://wiki.gnome.org/Apps/Robots
+          license: GPL-3+ CC-BY-SA-3.0
+          rdepend: |
+            dev-libs/libgee:=
+            dev-libs/glib:2
+            dev-libs/libgnome-games-support:1=
+            media-libs/gsound
+            x11-libs/gtk+:3
+            gnome-base/librsvg
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/appstream-glib
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              gnome3_src_prepare
+            }
+            src_configure() {
+              cargo_src_configure
+              meson_src_configure
+              ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+            }
+            src_install() {
+              cargo_src_install
+              meson_src_install
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }

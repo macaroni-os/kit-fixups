@@ -1837,6 +1837,50 @@ formulae_brew_pkgs:
 
   packages:
 
+    - gsm:
+        category: media-sound
+        vars:
+          jsonfile: libgsm
+          inherit:
+            - autotools
+          patches:
+            - gsm-1.0.23-makefile.patch
+          docs:
+            - ChangeLog
+            - MACHINES
+            - MANIFEST
+            - README
+          body: |
+            post_src_unpack() {
+              mv gsm-* "${S}"
+            }
+            src_compile() {
+              local myemakeargs=(
+                CC="$(tc-getCC)"
+                LD="$(tc-getCC)"
+                AR="$(tc-getAR)"
+                RANLIB="$(tc-getRANLIB)"
+              )
+              emake -j1 CCFLAGS="${CFLAGS} -c -DNeedFunctionPrototypes=1 -fPIC" "${myemakeargs[@]}"
+            }
+            src_install() {
+              default
+              dodir /usr/bin /usr/$(get_libdir) /usr/include/gsm /usr/share/man/man{1,3}
+              local myemakeargs=(
+                CC="$(tc-getCC)"
+                LD="$(tc-getCC)"
+                AR="$(tc-getAR)"
+                RANLIB="$(tc-getRANLIB)"
+                INSTALL_ROOT="${ED}"/usr
+                GSM_INSTALL_LIB="${ED}"/usr/$(get_libdir)
+                GSM_INSTALL_INC="${ED}"/usr/include/gsm
+                GSM_INSTALL_MAN="${ED}"/usr/share/man/man3
+                TOAST_INSTALL_MAN="${ED}"/usr/share/man/man1
+              )
+              emake -j1 "${myemakeargs[@]}" install
+              dosym ../gsm/gsm.h /usr/include/libgsm/gsm.h
+            }
+
     - svt-av1:
         vars:
           inherit:

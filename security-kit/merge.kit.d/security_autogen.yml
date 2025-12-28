@@ -22,6 +22,8 @@ target:
   atoms:
     - pkg: app-crypt/gcr:4
     - pkg: app-crypt/gcr:0
+      conditions:
+        - '<app-crypt/gcr-4.0'
 
     - pkg: dev-libs/openssl
       conditions:

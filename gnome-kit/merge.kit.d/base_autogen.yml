@@ -43,15 +43,29 @@ target:
     - pkg: app-misc/tinysparql
 
     - pkg: dev-cpp/atkmm:0
+      conditions:
+        - '<dev-cpp/atkmm-2.33:0'
     - pkg: dev-cpp/atkmm:2.36
+      conditions:
+        - '<dev-cpp/atkmm-2.37:2.36'
     - pkg: dev-cpp/cairomm:1
     - pkg: dev-cpp/glibmm:2
     - pkg: dev-cpp/glibmm:2.68
     - pkg: dev-cpp/gtkmm:2.4
+      conditions:
+        - '<dev-cpp/gtkmm-3.0:2.4'
     - pkg: dev-cpp/gtkmm:3.0
+      conditions:
+        - '<dev-cpp/gtkmm-4.0:3.0'
     - pkg: dev-cpp/gtkmm:4.0
+      conditions:
+        - '<dev-cpp/gtkmm-5.0:4.0'
     - pkg: dev-cpp/pangomm:1.4
+      conditions:
+        - '<dev-cpp/pangomm-2.0:1.4'
     - pkg: dev-cpp/pangomm:2.48
+      conditions:
+        - '<dev-cpp/pangomm-3.0:2.48'
     - pkg: dev-cpp/mm-common
 
     - pkg: dev-lang/vala:0.56

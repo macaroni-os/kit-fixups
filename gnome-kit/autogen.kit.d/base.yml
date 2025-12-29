@@ -2255,7 +2255,6 @@ gnome_release_pkgs:
             x11-base/xorg-proto
             dev-libs/libxml2:2
             dev-util/gdbus-codegen
-            dev-util/glib-utils
             dev-util/blueprint-compiler
             sys-devel/gettext
             virtual/pkgconfig
@@ -6656,6 +6655,8 @@ gnome_apps:
 
     - pangomm:
         category: dev-cpp
+        selector:
+          - '<2.0'
         vars:
           python_compat: python3+
           release: '2.46'
@@ -6691,6 +6692,8 @@ gnome_apps:
 
     - pangomm:
         category: dev-cpp
+        selector:
+          - '<3.0'
         vars:
           python_compat: python3+
           release: '2.56'
@@ -6726,6 +6729,8 @@ gnome_apps:
 
     - gtkmm:
         category: dev-cpp
+        selector:
+          - '<5.0'
         vars:
           python_compat: python3+
           release: '4.21'
@@ -6767,6 +6772,8 @@ gnome_apps:
 
     - gtkmm:
         category: dev-cpp
+        selector:
+          - '<4.0'
         vars:
           python_compat: python3+
           release: '3.24'
@@ -6862,6 +6869,8 @@ gnome_apps:
 
     - atkmm:
         category: dev-cpp
+        selector:
+          - '<2.29'
         vars:
           python_compat: python3+
           release: '2.28'
@@ -6895,6 +6904,8 @@ gnome_apps:
 
     - atkmm:
         category: dev-cpp
+        selector:
+          - '<2.37'
         vars:
           python_compat: python3+
           release: '2.36'
@@ -7313,7 +7324,6 @@ gnome_apps:
             dev-libs/gobject-introspection-common
             dev-libs/libxslt
             >=dev-util/gdbus-codegen-2.48
-            dev-util/glib-utils
             dev-util/gtk-doc-am
             wayland? ( dev-util/wayland-scanner )
             sys-devel/gettext

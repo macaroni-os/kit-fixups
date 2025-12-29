@@ -6774,6 +6774,7 @@ gnome_apps:
         category: dev-cpp
         selector:
           - '<4.0'
+        revision: 1
         vars:
           python_compat: python3+
           release: '3.24'
@@ -6816,6 +6817,9 @@ gnome_apps:
 
     - gtkmm:
         category: dev-cpp
+        revision: 2
+        selector:
+          - '<3.0'
         vars:
           python_compat: python3+
           release: '2.24'
@@ -6994,6 +6998,8 @@ gnome_apps:
 
     - glibmm:
         category: dev-cpp
+        selector:
+          - '<2.87'
         vars:
           release: 2.86
           slot: 2.68
@@ -7028,6 +7034,8 @@ gnome_apps:
 
     - glibmm:
         category: dev-cpp
+        selector:
+          - '<2.68'
         vars:
           release: 2.66
           slot: 2

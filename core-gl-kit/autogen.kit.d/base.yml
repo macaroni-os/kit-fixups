@@ -1353,7 +1353,6 @@ harfbuzz:
       bdepend: |
         ${PYTHON_DEPS}
         virtual/pkgconfig
-        introspection? ( dev-util/glib-utils )
       body: |
         pkg_setup() {
           python-any-r1_pkg_setup

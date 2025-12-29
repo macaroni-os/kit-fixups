@@ -8805,6 +8805,7 @@ gitlab_freedesktop_dirlisting:
 
   packages:
 
+
     - geoclue:
         vars:
           gitlab_user: geoclue
@@ -9148,6 +9149,7 @@ webkit:
           # We need this to avoid conflicts between slot 4 and 6.
           # This is a limitation of Portage that doesn't use slot
           # as anise do to separate the name.
+        selector4slot: true
         selector:
           # 2.51 is unstable branch
           - '<2.51'
@@ -9167,6 +9169,7 @@ webkit:
               cmake_src_install
               mv "${ED}"/usr/bin/WebKitWebDriver "${ED}"/usr/bin/WebKitWebDriver-4
             }
+        selector4slot: true
         selector:
           # 2.51 is unstable branch
           - '<2.51'
@@ -9201,6 +9204,48 @@ gitlab_gnome:
       s: '${WORKDIR}/{{ .Values.gitlab_repo | default .Values.pn }}-{{ .Values.version }}'
 
   packages:
+
+    - endeavour:
+        category: gnome-extra
+        dir:
+          matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/releases/[0-9.]+"
+        vars:
+          gitlab_user: World
+          gitlab_repo: Endeavour
+          desc: Personal task manager
+          inherit:
+            - gnome3
+            - meson
+          license: GPL-3+
+          iuse: +introspection
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4[introspection?]
+            x11-libs/libadwaita
+            net-libs/gnome-online-accounts:=
+            dev-libs/libpeas
+            gnome-extra/evolution-data-server:=[gtk]
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use introspection)
+                -Dtracing=false
+                -Dprofile=default
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - libnma:
         vars:

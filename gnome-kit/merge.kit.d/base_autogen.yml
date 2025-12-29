@@ -149,6 +149,7 @@ target:
     - pkg: gnome-base/gvfs
     - pkg: gnome-base/nautilus
 
+    - pkg: gnome-extra/endeavour
     - pkg: gnome-extra/evolution-data-server
     - pkg: gnome-extra/evolution-ews
     - pkg: gnome-extra/gnome-calculator
@@ -203,7 +204,11 @@ target:
     - pkg: net-libs/libcloudproviders
     - pkg: net-libs/msgraph
     - pkg: net-libs/webkit-gtk:6
+      conditions:
+        - '<net-libs/webkit-gtk-2.51:6'
     - pkg: net-libs/webkit-gtk:4
+      conditions:
+        - '<net-libs/webkit-gtk-2.51:4'
 
     - pkg: net-misc/rygel
 

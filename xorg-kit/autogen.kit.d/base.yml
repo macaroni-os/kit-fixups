@@ -2477,7 +2477,6 @@ gnome_sources:
               sed -e "s/@PV@/${PV}/" -i setup.py || die "sed setup.py failed"
             }
             do_xsltproc_command() {
-              # Taken from meson.build for manual manpage building - keep in sync (also copied to dev-util/glib-utils)
               xsltproc \
                 --nonet \
                 --stringparam man.output.quietly 1 \
@@ -2581,17 +2580,6 @@ gnome_sources:
               insinto /usr/share/gobject-introspection-1.0
               doins Makefile.introspection
             }
-
-    - glib-utils:
-        category: dev-libs
-        ignore_artefacts: true
-        vars:
-          desc: meta package for glib
-          tname: glib
-          release: 2.86
-          python_compat: ''
-          rdepend: |
-            ~dev-libs/glib-{{ .Values.version }}
 
     - glib:
         category: dev-libs
@@ -2805,7 +2793,6 @@ gnome_sources:
             sysprof? ( dev-util/sysprof-capture )
             X? ( x11-base/xorg-proto )
           bdepend: |
-            dev-util/glib-utils
             sys-apps/help2man
             virtual/pkgconfig
           body: |

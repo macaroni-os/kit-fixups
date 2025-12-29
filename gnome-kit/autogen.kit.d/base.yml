@@ -7050,6 +7050,8 @@ gnome_apps:
         tarball: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
         dir:
           matcher: "gtk%2B-.*.tar.xz$"
+        selector:
+          - '<3.0'
         transform:
           - kind: string
             match: "gtk%2B-"
@@ -7058,7 +7060,6 @@ gnome_apps:
             match: ".tar.xz"
             replace: ""
             category: x11-libs
-        revision: 3
         vars:
           release: '2.24'
           slot: 2
@@ -7237,6 +7238,8 @@ gnome_apps:
 
     - gtk+:
         category: x11-libs
+        selector:
+          - '<4.0'
         vars:
           pkgname: gtk
           release: '3.24'

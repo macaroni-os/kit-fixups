@@ -8442,6 +8442,8 @@ github_libs:
             x11-libs/libnotify[introspection]
             x11-libs/pango[introspection]
           depend: '${CDEPEND}'
+          bdepend: |
+            app-text/xmlto
           rdepend: |
             ${CDEPEND}
             $(python_gen_cond_dep '

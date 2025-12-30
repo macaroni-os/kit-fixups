@@ -1280,79 +1280,90 @@ graphviz_dirlisting:
               eautoreconf
             }
             src_configure() {
-                local myconf=(
-                  # Speeds up the libltdl configure
-                  --cache-file="${S}"/config.cache
-                  --enable-ltdl
-                  $(use_with cairo pangocairo)
-                  $(use_with devil)
-                  $(use_enable gdk-pixbuf)
-                  $(use_with gtk)
-                  $(use_with gts)
-                  $(use_with lasi)
-                  $(use_with pdf poppler)
-                  $(use_with postscript ghostscript)
-                  $(use_enable static-libs static)
-                  $(use_with X x)
-                  $(use_with X xaw)
-                  $(use_with X lefty)
-                  --with-digcola
-                  --with-fontconfig
-                  --with-freetype2
-                  --with-ipsepcola
-                  --with-libgd
-                  --with-sfdp
-                  --without-ming
-                  --without-rsvg
-                  # new/experimental features, to be tested, disable for now
-                  --with-cgraph
-                  --without-glitz
-                  --without-ipsepcola
-                  --without-smyrna
-                  --without-visio
-                  # Bindings:
-                  $(use_enable guile)
-                  $(use_enable java)
-                  $(use_enable perl)
-                  $(use_enable python python3)
-                  $(use_enable ruby)
-                  $(use_with svg rsvg)
-                  $(use_enable tcl)
-                  --disable-go
-                  --disable-io
-                  --disable-lua
-                  --disable-ocaml
-                  --disable-php
-                  --disable-python
-                  --disable-r
-                  --disable-sharp
-                  # libtool file collision, bug #276609
-                  --without-included-ltdl
-                  --disable-ltdl-install
-                )
+              # Force detect of the qmake binary
+              # without using qtchooser
+              # Note if both qt5 and qt6 are enabled
+              # qt6 wins
+              if use qt5 ; then
+                export PATH=$PATH:/usr/lib64/qt5/bin/
+              fi
+              if use qt6 ; then
+                export PATH=$PATH:/usr/lib64/qt6/bin/
+              fi
 
-                if use qt6 || use qt5 ; then
-                  myconf+=(
-                    --with-qt
-                  )
-                fi
-                econf "${myconf[@]}"
+              local myconf=(
+                # Speeds up the libltdl configure
+                --cache-file="${S}"/config.cache
+                --enable-ltdl
+                $(use_with cairo pangocairo)
+                $(use_with devil)
+                $(use_enable gdk-pixbuf)
+                $(use_with gtk)
+                $(use_with gts)
+                $(use_with lasi)
+                $(use_with pdf poppler)
+                $(use_with postscript ghostscript)
+                $(use_enable static-libs static)
+                $(use_with X x)
+                $(use_with X xaw)
+                $(use_with X lefty)
+                --with-digcola
+                --with-fontconfig
+                --with-freetype2
+                --with-ipsepcola
+                --with-libgd
+                --with-sfdp
+                --without-ming
+                --without-rsvg
+                # new/experimental features, to be tested, disable for now
+                --with-cgraph
+                --without-glitz
+                --without-ipsepcola
+                --without-smyrna
+                --without-visio
+                # Bindings:
+                $(use_enable guile)
+                $(use_enable java)
+                $(use_enable perl)
+                $(use_enable python python3)
+                $(use_enable ruby)
+                $(use_with svg rsvg)
+                $(use_enable tcl)
+                --disable-go
+                --disable-io
+                --disable-lua
+                --disable-ocaml
+                --disable-php
+                --disable-python
+                --disable-r
+                --disable-sharp
+                # libtool file collision, bug #276609
+                --without-included-ltdl
+                --disable-ltdl-install
+              )
+
+              if use qt6 || use qt5 ; then
+                myconf+=(
+                  --with-qt
+                )
+              fi
+              econf "${myconf[@]}"
             }
             src_install() {
-                default
-                find "${ED}" -name '*.la' -delete || die
-                use guile && guile_unstrip_ccache
-                use python && python_optimize \
-                    "${D}"$(python_get_sitedir) \
-                    "${ED}"/usr/$(get_libdir)/graphviz/python3
+              default
+              find "${ED}" -name '*.la' -delete || die
+              use guile && guile_unstrip_ccache
+              use python && python_optimize \
+                  "${D}"$(python_get_sitedir) \
+                  "${ED}"/usr/$(get_libdir)/graphviz/python3
             }
             pkg_postinst() {
-                # We need to register all plugins before they become usable
-                dot -c || die
+              # We need to register all plugins before they become usable
+              dot -c || die
             }
             pkg_postrm() {
-                # Remove cruft, bug #547344
-                rm -rf "${EROOT}"/usr/$(get_libdir)/graphviz/config{,6} || die
+              # Remove cruft, bug #547344
+              rm -rf "${EROOT}"/usr/$(get_libdir)/graphviz/config{,6} || die
             }
 
 tiff:

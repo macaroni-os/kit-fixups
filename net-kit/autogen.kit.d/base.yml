@@ -2627,4 +2627,159 @@ gitlab_freedesktop_dirlisting:
               rmdir "${ED}"/var{/lib{/NetworkManager,},} || die
             }
 
+libcupsfilters:
+  generator: builtin-github
+  template:
+    engine: helm
 
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-print
+    github:
+      user: OpenPrinting
+      repo: libcupsfilters
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://github.com/OpenPrinting/{{ .Values.pn }}/releases/download/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      license: Apache-2.0
+      slot: '0'
+      homepage: https://github.com/OpenPrinting/libcupsfilters
+      inherit:
+        - libtool
+      iuse: dbus exif jpeg +poppler +postscript png test tiff
+      restrict: '!test? ( test )'
+      rdepend: |
+        >=app-text/qpdf-8.3.0:=
+        media-libs/fontconfig
+        media-libs/lcms:2
+        >=net-print/cups-2
+        !<net-print/cups-filters-2.0.0
+
+        exif? ( media-libs/libexif )
+        dbus? ( sys-apps/dbus )
+        jpeg? ( media-libs/libjpeg-turbo:= )
+        postscript? ( app-text/ghostscript-gpl[cups] )
+        poppler? ( >=app-text/poppler-0.32:=[cxx] )
+        png? ( media-libs/libpng:= )
+        tiff? ( media-libs/tiff:= )
+      depend: '${RDEPEND}'
+      bdepend: |
+        >=sys-devel/gettext-0.18.3
+        virtual/pkgconfig
+        test? ( media-fonts/dejavu )
+
+  packages:
+    - libcupsfilters:
+        transform:
+          - kind: string
+            match: 'libcupsfilters '
+            replace: ''
+        dir:
+          exclude: 'rc|b'
+        vars:
+          desc: library for developing printing features, split out of cups-filters
+          body: |
+            src_prepare() {
+              default
+
+              # respect --as-needed
+              elibtoolize
+            }
+
+            src_configure() {
+              local myeconfargs=(
+                --enable-imagefilters
+                --localstatedir="${EPREFIX}"/var
+                --with-cups-rundir="${EPREFIX}"/run/cups
+                --disable-mutool
+                $(use_enable exif)
+                $(use_enable dbus)
+                $(use_enable poppler)
+                $(use_enable postscript ghostscript)
+                $(use_with jpeg)
+                $(use_with png)
+                $(use_with tiff)
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              default
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+libppd:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-print
+    github:
+      user: OpenPrinting
+      repo: libppd
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://github.com/OpenPrinting/{{ .Values.pn }}/releases/download/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      license: Apache-2.0
+      slot: '0'
+      homepage: https://github.com/OpenPrinting/libppd
+      inherit:
+        - libtool
+      iuse: +postscript +poppler
+      required_use: '|| ( postscript poppler )'
+      rdepend: |
+        >=net-print/cups-2
+        net-print/libcupsfilters
+        !<net-print/cups-filters-2.0.0
+        sys-libs/zlib
+        postscript? ( >=app-text/ghostscript-gpl-9.09[cups] )
+        poppler? ( >=app-text/poppler-0.32[utils] )
+      depend: '${RDEPEND}'
+      bdepend: |
+        >=sys-devel/gettext-0.18.3
+        virtual/pkgconfig
+
+  packages:
+    - libppd:
+        transform:
+          - kind: string
+            match: 'libppd '
+            replace: ''
+        dir:
+          exclude: 'rc|b'
+        vars:
+          desc: Legacy library for PPD files, split out of cups-filters
+          body: |
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              local myeconfargs=(
+                --localstatedir="${EPREFIX}"/var
+                --with-cups-rundir="${EPREFIX}"/run/cups
+                # This does build time checks for (preferred) tool interfaces.
+                $(use_enable postscript ghostscript)
+                $(use_enable poppler pdftops)
+                # These fallbacks are just probed for the path. Always enable them.
+                --with-mutool-path="${EPREFIX}"/usr/bin/mutool
+                --with-pdftocairo-path="${EPREFIX}"/usr/bin/pdftocairo
+                # unpackaged
+                --disable-acroread
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              default
+              find "${ED}" -name '*.la' -delete || die
+            }

@@ -1,0 +1,488 @@
+qca:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-crypt
+    dir:
+      url: 'https://download.kde.org/stable/qca/'
+      matcher: "[0-9.]+/$"
+      exclude: '[0-9]{5}'
+    
+
+  packages:
+    - qca:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: 'https://download.kde.org/stable/qca/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        vars:
+            desc: Qt Cryptographic Architecture (QCA)
+            homepage: https://userbase.kde.org/QCA
+            license: LGPL-2.1
+            slot: '2'
+            inherit:
+                - kde6
+                - cmake-utils
+                - qmake-utils
+            iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl test
+            restrict: '!test? ( test )'
+            rdepend: |
+                qt6? (
+                dev-qt/qt5compat:6
+                dev-qt/qtbase:6
+                )
+                !qt6? (
+                dev-qt/qtcore:5
+                dev-qt/qtconcurrent:5
+                )
+                botan? ( dev-libs/botan:3= )
+                gcrypt? ( dev-libs/libgcrypt:= )
+                gpg? ( app-crypt/gnupg )
+                nss? ( dev-libs/nss )
+                pkcs11? (
+                >=dev-libs/openssl-1.1
+                dev-libs/pkcs11-helper
+                )
+                sasl? ( dev-libs/cyrus-sasl:2 )
+                ssl? ( >=dev-libs/openssl-1.1:= )
+            depend: |
+                ${RDEPEND}
+                qt6? ( test? ( dev-qt/qtbase:6[network] ) )
+                !qt6? ( test? ( dev-qt/qttest:5 ) )
+            bdepend: |
+                virtual/pkgconfig
+                doc? (
+                app-text/doxygen[dot]
+                virtual/latex-base
+                )
+            patches:
+                - qca-disable-pgp-test.patch
+            body: |
+                qca_plugin_use() {
+                    echo -DWITH_${2:-$1}_PLUGIN=$(usex "$1")
+                }
+                src_configure() {
+                    # Use emake instead of Ninja to avoid depslog issues
+                    export CMAKE_MAKEFILE_GENERATOR="emake"
+
+                    local mycmakeargs=(
+                        -DBUILD_WITH_QT6=$(usex qt6)
+                        $(qca_plugin_use botan)
+                        $(qca_plugin_use gcrypt)
+                        $(qca_plugin_use gpg gnupg)
+                        $(qca_plugin_use logger)
+                        $(qca_plugin_use nss)
+                        $(qca_plugin_use pkcs11)
+                        $(qca_plugin_use sasl cyrus-sasl)
+                        $(qca_plugin_use softstore)
+                        $(qca_plugin_use ssl ossl)
+                        -DBUILD_TESTS=$(usex test)
+                )
+
+                    if use qt6; then
+                        mycmakeargs+=(
+                        -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/mkspecs/features"
+                        -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/plugins"
+                        )
+                    else
+                        mycmakeargs+=(
+                        -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/mkspecs/features"
+                        -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/plugins"
+                        )
+                    fi
+
+                    cmake-utils_src_configure
+                    }
+                    src_compile() {
+                        cmake-utils_src_compile
+                        use doc && cmake_src_make doc
+                    }
+                    src_test() {
+                        local -x QCA_PLUGIN_PATH="${BUILD_DIR}/lib/qca"
+                        cmake-utils_src_test
+                    }
+                    src_install() {
+                        cmake-utils_src_install
+
+                        if use doc; then
+                            pushd "${BUILD_DIR}" > /dev/null || die
+                            dodoc -r apidocs/html
+                            popd > /dev/null || die
+                        fi
+
+                        if use examples; then
+                            dodoc -r "${S}"/examples
+                        fi
+                    }
+
+plasma_wayland_protocols:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    dir:
+      url: 'https://download.kde.org/stable/plasma-wayland-protocols/'
+      matcher: "plasma-wayland-protocols-[0-9.]+\\.tar\\.xz$"
+    transform:
+      - kind: string
+        match: 'plasma-wayland-protocols-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/plasma-wayland-protocols/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      license: LGPL-2.1
+      slot: '0'
+      homepage: https://invent.kde.org/libraries/plasma-wayland-protocols
+      inherit:
+        - cmake
+      iuse: test
+      restrict: '!test? ( test )'
+      depend: |
+        test? ( dev-libs/wayland )
+      bdepend: |
+        dev-libs/libpcre2:*
+        dev-qt/qtbase:6
+        >=kde-frameworks/extra-cmake-modules-6.0:*
+        test? ( dev-util/wayland-scanner )
+
+  packages:
+    - plasma-wayland-protocols:
+        vars:
+          desc: Plasma Specific Protocols for Wayland
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=6
+                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
+                -DBUILD_TESTING=$(usex test)
+              )
+
+              cmake_src_configure
+            }
+
+qcoro:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      user: danvratil
+      query: tags
+
+  packages:
+    - qcoro:
+        vars:
+            license: MIT
+            slot: '0'
+            homepage: https://qcoro.dvratil.cz/ https://github.com/danvratil/qcoro
+            inherit:
+                - cmake
+            iuse: dbus examples +network qml websockets
+            rdepend: |
+                dev-qt/qtbase:6
+                qml? (
+                dev-qt/qtbase:6[gui]
+                dev-qt/qtdeclarative:6
+                )
+                websockets? ( dev-qt/qtwebsockets:6 )
+            depend: |
+                ${RDEPEND}
+                examples? ( dev-qt/qtbase:6 )
+            desc: C++ Coroutine Library for Qt5
+            body: |
+                post_src_unpack() {
+                    if [ ! -d "${S}" ]; then
+                    mv qcoro* "${S}" || die
+                    fi
+                }
+
+                src_configure() {
+                    local mycmakeargs=(
+                    -DUSE_QT_VERSION=6
+                    -DQCORO_BUILD_EXAMPLES=$(usex examples)
+                    -DQCORO_WITH_QTDBUS=$(usex dbus)
+                    -DQCORO_WITH_QTNETWORK=$(usex network)
+                    -DQCORO_WITH_QML=$(usex qml)
+                    -DQCORO_WITH_QTQUICK=$(usex qml)
+                    -DBUILD_TESTING=false
+                    -DQCORO_WITH_QTWEBSOCKETS=$(usex websockets)
+                    )
+                    cmake_src_configure
+                }
+
+                src_install() {
+                    if use examples; then
+                    docinto examples
+                    dodoc -r examples/*
+                    fi
+                    cmake_src_install
+                }
+
+phonon:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://download.kde.org/stable/phonon/'
+      matcher: "[0-9.]+/$"
+      exclude: '[0-9]{5}'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/phonon/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      license: '|| ( LGPL-2.1 LGPL-3 ) !pulseaudio? ( || ( GPL-2 GPL-3 ) )'
+      slot: '0'
+      homepage: https://community.kde.org/Phonon
+      inherit:
+        - cmake
+        - desktop
+        - flag-o-matic
+      iuse: debug designer pulseaudio +vlc
+      bdepend: |
+        dev-libs/libpcre2:*
+        dev-qt/qttools:6[linguist]
+        >=kde-frameworks/extra-cmake-modules-5.115.0:*
+        virtual/pkgconfig
+      depend: |
+        dev-qt/qt5compat:6
+        dev-qt/qtbase:6[gui]
+        designer? ( dev-qt/qttools:6[designer] )
+        pulseaudio? (
+          dev-libs/glib:2
+          media-sound/pulseaudio[glib]
+        )
+      rdepend: |
+        ${DEPEND}
+        !media-libs/phonon-gstreamer
+        || (
+          kde-frameworks/breeze-icons:6
+          kde-frameworks/oxygen-icons:*
+        )
+      pdepend: |
+        vlc? ( >=media-libs/phonon-vlc-0.12.0 )
+
+  packages:
+    - phonon:
+        vars:
+          desc: KDE multimedia abstraction library
+          body: |
+            src_configure() {
+              use debug || append-cppflags -DQT_NO_DEBUG
+
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=6
+                -DPHONON_BUILD_QT5=OFF
+                -DPHONON_BUILD_QT6=ON
+                -DPHONON_BUILD_SETTINGS=ON
+                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
+                -DPHONON_BUILD_DESIGNER_PLUGIN=$(usex designer)
+                -DCMAKE_DISABLE_FIND_PACKAGE_GLIB2=$(usex !pulseaudio)
+                -DCMAKE_DISABLE_FIND_PACKAGE_PulseAudio=$(usex !pulseaudio)
+              )
+
+              # Use make instead of ninja to avoid multiple outputs issue
+              export CMAKE_MAKEFILE_GENERATOR=emake
+              cmake_src_configure
+            }
+
+            src_install() {
+              cmake_src_install
+              make_desktop_entry "${PN}settings" \
+                "Phonon Audio and Video" preferences-desktop-sound
+            }
+
+phonon_vlc:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://download.kde.org/stable/phonon/phonon-backend-vlc/'
+      matcher: "[0-9.]+/$"
+      exclude: '[0-9]{5}'
+    assets:
+      - name: 'phonon-backend-vlc-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/phonon/phonon-backend-vlc/{{ .Values.version }}/phonon-backend-vlc-{{ .Values.version }}.tar.xz'
+    vars:
+      license: LGPL-2.1+ || ( LGPL-2.1 LGPL-3 )
+      slot: '0'
+      homepage: https://community.kde.org/Phonon
+      inherit:
+        - cmake
+        - flag-o-matic
+      iuse: debug
+      depend: |
+        dev-qt/qtbase:6[gui]
+        >=media-libs/phonon-4.12.0
+        media-video/vlc:=[dbus,ogg,vorbis(+)]
+      rdepend: '${DEPEND}'
+      bdepend: |
+        dev-libs/libpcre2:*
+        dev-qt/qttools:6[linguist]
+        >=kde-frameworks/extra-cmake-modules-5.115.0:*
+        virtual/pkgconfig
+
+  packages:
+    - phonon-vlc:
+        vars:
+          desc: VLC backend for the Phonon multimedia library
+          body: |
+            MY_PN="phonon-backend-vlc"
+            S="${WORKDIR}/${MY_PN}-${PV}"
+
+            src_configure() {
+              use debug || append-cppflags -DQT_NO_DEBUG
+
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=6
+                -DPHONON_BUILD_QT5=OFF
+                -DPHONON_BUILD_QT6=ON
+                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
+              )
+              cmake_src_configure
+            }
+
+pulseaudio_qt:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://download.kde.org/stable/pulseaudio-qt/'
+      matcher: "pulseaudio-qt-[0-9.]+\\.tar\\.xz$"
+    transform:
+      - kind: string
+        match: 'pulseaudio-qt-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    vars:
+      license: LGPL-2.1
+      slot: '6'
+      homepage: https://invent.kde.org/libraries/pulseaudio-qt
+      inherit:
+        - cmake
+      iuse: doc test
+      restrict: '!test? ( test )'
+      rdepend: |
+        >=dev-qt/qtbase-6.6.2:6[gui]
+        media-sound/pulseaudio[glib]
+      depend: |
+        ${RDEPEND}
+        test? ( >=dev-qt/qtdeclarative-6.6.2:6 )
+      bdepend: |
+        virtual/pkgconfig
+        doc? (
+          >=dev-qt/qttools-6.6.2:6[assistant]
+          >=kde-frameworks/kdoctools-6.3.0:6
+        )
+
+  packages:
+    - pulseaudio-qt:
+        vars:
+          desc: Qt bindings for libpulse
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_WITH_QT6=ON
+                -DQT_MAJOR_VERSION=6
+                -DBUILD_QCH=$(usex doc)
+                -DBUILD_TESTING=$(usex test)
+              )
+              cmake_src_configure
+            }
+
+polkit_qt:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-auth
+    dir:
+      url: 'https://download.kde.org/stable/polkit-qt-1/'
+      matcher: "polkit-qt-1-[0-9.]+\\.tar\\.xz$"
+    transform:
+      - kind: string
+        match: 'polkit-qt-1-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    assets:
+      - name: 'polkit-qt-1-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/polkit-qt-1/polkit-qt-1-{{ .Values.version }}.tar.xz'
+    vars:
+      license: LGPL-2
+      slot: '0'
+      homepage: https://api.kde.org/kdesupport-api/polkit-qt-1-apidocs/
+      inherit:
+        - cmake
+      iuse: qt5 +qt6
+      required_use: '|| ( qt5 qt6 )'
+      rdepend: |
+        dev-libs/glib:2
+        >=sys-auth/polkit-0.103
+        qt5? (
+          dev-qt/qtcore:5
+          dev-qt/qtdbus:5
+          dev-qt/qtgui:5
+          dev-qt/qtwidgets:5
+        )
+        qt6? ( dev-qt/qtbase:6[gui] )
+      depend: '${RDEPEND}'
+      bdepend: 'virtual/pkgconfig'
+
+  packages:
+    - polkit-qt:
+        vars:
+          desc: Qt wrapper around polkit-1 client libraries
+          body: |
+            KMNAME="polkit-qt-1"
+            S="${WORKDIR}/${KMNAME}-${PV}"
+            DOCS=( AUTHORS README README.porting TODO )
+
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_EXAMPLES=OFF
+                -DQT_MAJOR_VERSION=$(usex qt6 6 5)
+              )
+              cmake_src_configure
+            }

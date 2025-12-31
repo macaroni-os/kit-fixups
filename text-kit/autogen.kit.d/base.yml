@@ -25,6 +25,69 @@ dev_github:
               cmake_src_configure
             }
 
+    - qpdf:
+        github:
+          user: qpdf
+        transform:
+          - kind: string
+            match: 'release-qpdf-'
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            matcher: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            url: 'https://github.com/qpdf/qpdf/releases/download/v{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-doc.zip'
+            url: 'https://github.com/qpdf/qpdf/releases/download/v{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}-doc.zip'
+        vars:
+          license: '|| ( Apache-2.0 Artistic-2 )'
+          slot: '0'
+          desc: Command-line tool for structural, content-preserving transformation of PDF files
+          homepage: |
+            https://qpdf.sourceforge.io/
+            https://github.com/qpdf/qpdf/
+          inherit:
+            - cmake
+          iuse: doc examples gnutls zopfli
+          rdepend: |
+            media-libs/libjpeg-turbo:=
+            sys-libs/zlib
+            gnutls? ( net-libs/gnutls:= )
+            !gnutls? ( dev-libs/openssl:= )
+            zopfli? ( app-arch/zopfli:= )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            dev-lang/perl
+            doc? ( app-arch/unzip )
+          qa_config_impl_decl_skip: malloc_info
+          body: |
+            src_configure() {
+              local crypto_provider=$(usex gnutls GNUTLS OPENSSL)
+              local crypto_provider_lowercase=${crypto_provider,,}
+
+              # Keep an eye on https://qpdf.readthedocs.io/en/stable/packaging.html.
+              local mycmakeargs=(
+                -DINSTALL_EXAMPLES=$(usex examples)
+                -DZOPFLI=$(usex zopfli)
+
+                # Avoid automagic crypto deps
+                -DUSE_IMPLICIT_CRYPTO=OFF
+                -DALLOW_CRYPTO_NATIVE=ON
+
+                -DDEFAULT_CRYPTO=${crypto_provider_lowercase}
+                -DREQUIRE_CRYPTO_${crypto_provider}=ON
+              )
+
+              cmake_src_configure
+            }
+
+            src_install() {
+              if use doc ; then
+                mv "${WORKDIR}"/${P}-doc "${BUILD_DIR}"/manual/doc-dist || die
+              fi
+
+              cmake_src_install
+            }
 
 gnome_apps:
   generator: builtin-dirlisting

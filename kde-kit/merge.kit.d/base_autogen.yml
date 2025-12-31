@@ -5,8 +5,8 @@ sources:
   branch: "mark-unstable"
 
 target:
-  name: core-hw-kit
-  url: "https://github.com/macaroni-os/core-hw-kit"
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
   branch: mark-unstable
 
   fixups:
@@ -21,10 +21,10 @@ target:
     max_versions: 3
 
   atoms:
-
-    - pkg: sys-apps/fwupd
-    - pkg: sys-apps/fwupd-efi
-    - pkg: sys-apps/iucode_tool
-
-    - pkg: sys-power/power-profiles-daemon
-    - pkg: sys-power/upower
+    - pkg: app-crypt/qca
+    - pkg: dev-libs/plasma-wayland-protocols
+    - pkg: dev-libs/qcoro
+    - pkg: media-libs/phonon
+    - pkg: media-libs/phonon-vlc
+    - pkg: media-libs/pulseaudio-qt
+    - pkg: sys-auth/polkit-qt

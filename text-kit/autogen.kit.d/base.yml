@@ -58,6 +58,50 @@ gnome_apps:
 
   packages:
 
+    - yelp-tools:
+        vars:
+          release: '42'
+          license: '|| ( GPL-2+ freedist ) GPL-2+'
+          desc: Collection of tools for building and converting documentation
+          python_compat: python3+
+          homepage: https://wiki.gnome.org/Apps/Yelp/Tools
+          required_use: '${PYTHON_REQUIRED_USE}'
+          inherit:
+            - meson
+            - python-single-r1
+          rdepend: |
+            ${PYTHON_DEPS}
+            $(python_gen_cond_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
+            dev-libs/libxml2
+            dev-libs/libxslt
+            gnome-extra/yelp-xsl
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_install() {
+              meson_src_install
+              python_fix_shebang "${ED}"/usr/bin/yelp-{build,check,new}
+            }
+
+    - yelp-xsl:
+        category: gnome-extra
+        vars:
+          release: '49'
+          inherit:
+            - meson
+          desc: XSL stylesheets for yelp
+          license: GPL-2+ LGPL-2.1+ MIT
+          bdepend: |
+            dev-libs/libxslt
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+
     - libspelling:
         vars:
           release: '0.4'

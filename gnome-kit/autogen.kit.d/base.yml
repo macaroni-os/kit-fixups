@@ -497,6 +497,176 @@ gnome_release_pkgs:
 
   packages:
 
+    - yelp:
+        vars:
+          inherit:
+            - gnome3
+            - meson
+          license: GPL-+2+
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            x11-libs/libadwaita
+            dev-libs/libxml2
+            dev-libs/libxslt
+            dev-db/sqlite:3
+            net-libs/webkit-gtk:6
+            >=gnome-extra/yelp-xsl-42.3
+            app-arch/xz-utils:=
+            app-arch/bzip2:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dlzma=enabled
+                -Dbzip2=enabled
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-remote-desktop:
+        category: net-misc
+        vars:
+          inherit:
+            - gnome3
+            - meson
+            - systemd
+            - tmpfiles
+          license: GPL-2+
+          iuse: doc +rdp systemd +vnc
+          required_use: '|| ( rdp vnc )'
+          rdepend: |
+            x11-libs/cairo
+            x11-libs/libdrm
+            media-libs/libepoxy
+            dev-libs/glib:2
+            dev-libs/libei
+            x11-libs/libnotify
+            app-crypt/libsecret
+            media-video/pipewire:=
+            app-crypt/tpm2-tss:=
+            rdp? (
+              media-libs/nv-codec-headers
+              net-misc/freerdp:=[server]
+              sys-fs/fuse:3=
+              media-libs/libva
+              sys-auth/polkit
+              media-libs/shaderc
+              dev-uti/spirv-tools
+              x11-libs/libxkbcommon
+              media-libs/fdk-acc:=
+            )
+            vnc? (
+              net-libs/libvncserver
+            )
+            x11-wm/mutter[screencast]
+          depend: |
+            ${RDEPEND}
+            rdp? (
+              dev-util/vulkan-headers
+            )
+          bdepend: |
+            dev-util/gdbus-codegen
+            virtual/pkgconfig
+            doc? (
+              app-text/asciidoc
+            )
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use doc man)
+                $(meson_use rdp)
+                $(meson_use vnc)
+                $(meson_use systemd)
+                -Dsystemd_user_unit_dir="$(systemd_get_userunitdir)"
+                -Dtests=false  # Tests run xvfb-run directly
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              tmpfiles_process "${PN}-tmpfiles.conf"
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
+    - gnome-boxes:
+        vars:
+          license: LGPL-2+ CC-BY-2.0
+          desc: Simple GNOME application to access remote or virtual systems
+          homepage: https://apps.gnome.org/Boxes/
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          cdepend: |
+            app-emulation/libvirt-glib[vala]
+            app-arch/libarchive:=
+            dev-libs/glib:2
+            x11-libs/gtk+:3
+            dev-libs/libportal[gtk]
+            dev-libs/gobject-introspection:=
+            dev-libs/libgudev:=
+            dev-libs/libhandy
+            dev-libs/libxml2:=
+            sys-libs/libosinfo[vala]
+            net-libs/libsoup:3[vala]
+            net-misc/spice-gtk[gtk+(+),smartcard,usbredir]
+            net-libs/webkit-gtk:4
+            virtual/libusb:1
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            app-cdr/cdrtools
+            app-misc/localsearch[iso]
+            app-emulation/spice[smartcard]
+            app-emulation/libvirt[libvirtd,qemu]
+            app-emulation/qemu
+            sys-fs/mtools
+            sys-auth/polkit
+          bdepend: |
+            $(vala_depend)
+            app-crypt/libsecret[vala]
+            x11-libs/vte:2.91[vala]
+            dev-libs/appstream-glib
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              vala_src_prepare
+              gnome3_environment_reset
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddistributor_name=MacaroniOS
+                -Ddistributor_version={{ .Values.version }}
+                -Dinstalled_tests=false
+                -Dflatpak=false
+                -Dprofile=default
+                -Duefi=true
+              )
+              meson_src_configure
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - gnome-mines:
         category: games-board
         vars:

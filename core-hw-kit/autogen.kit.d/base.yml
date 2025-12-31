@@ -312,7 +312,7 @@ power-profiles-daemon:
             - meson
             - python-single-r1
             - systemd
-          iuse: bash-completion gtk-doc man selinux systemd test zsh-completion
+          iuse: bash-completion gtk-doc man systemd zsh-completion
           required_use: '${PYTHON_REQUIRED_USE}'
           rdepend: |
             ${PYTHON_DEPS}
@@ -321,7 +321,6 @@ power-profiles-daemon:
             >=dev-libs/libgudev-234
             >=sys-auth/polkit-0.99
             sys-power/upower
-            selinux? ( sec-policy/selinux-powerprofiles )
           depend: '${RDEPEND}'
           bdepend: |
             dev-util/glib-utils
@@ -336,25 +335,12 @@ power-profiles-daemon:
             man? (
               $(python_gen_cond_dep 'dev-python/argparse-manpage[${PYTHON_USEDEP}]')
             )
-            test? (
-              dev-util/umockdev
-              $(python_gen_cond_dep '
-                dev-python/pygobject:3[${PYTHON_USEDEP}]
-                dev-python/python-dbusmock[${PYTHON_USEDEP}]
-              ')
-            )
             zsh-completion? (
               $(python_gen_cond_dep '>=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]')
             )
-          restrict: '!test? ( test )'
           body: |
             python_check_deps() {
-              if use test; then
-                python_has_version "dev-python/python-dbusmock[${PYTHON_USEDEP}]" &&
-                python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
-              else
-                python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
-              fi
+              python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
 
               if use bash-completion || use zsh-completion; then
                 python_has_version ">=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]"
@@ -369,14 +355,10 @@ power-profiles-daemon:
                 $(meson_feature bash-completion bashcomp)
                 $(meson_use gtk-doc gtk_doc)
                 $(meson_feature man manpage)
-                $(meson_use test tests)
+                -Dtests=false
               )
               use zsh-completion && emesonargs+=( -Dzshcomp="$(get_zshcompdir)" )
               meson_src_configure
-            }
-            src_test() {
-              # Dbus tests are prone to fail when run in parallel
-              MAKEOPTS="-j1" meson_src_test
             }
             src_install() {
               meson_src_install

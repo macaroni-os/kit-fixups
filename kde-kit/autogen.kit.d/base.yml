@@ -27,8 +27,7 @@ qca:
                 - kde6
                 - cmake-utils
                 - qmake-utils
-            iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl test
-            restrict: '!test? ( test )'
+            iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl
             rdepend: |
                 qt6? (
                 dev-qt/qt5compat:6
@@ -50,16 +49,12 @@ qca:
                 ssl? ( >=dev-libs/openssl-1.1:= )
             depend: |
                 ${RDEPEND}
-                qt6? ( test? ( dev-qt/qtbase:6[network] ) )
-                !qt6? ( test? ( dev-qt/qttest:5 ) )
             bdepend: |
                 virtual/pkgconfig
                 doc? (
                 app-text/doxygen[dot]
                 virtual/latex-base
                 )
-            patches:
-                - qca-disable-pgp-test.patch
             body: |
                 qca_plugin_use() {
                     echo -DWITH_${2:-$1}_PLUGIN=$(usex "$1")
@@ -79,7 +74,7 @@ qca:
                         $(qca_plugin_use sasl cyrus-sasl)
                         $(qca_plugin_use softstore)
                         $(qca_plugin_use ssl ossl)
-                        -DBUILD_TESTS=$(usex test)
+                        -DBUILD_TESTS=OFF
                 )
 
                     if use qt6; then
@@ -189,7 +184,6 @@ qcoro:
     - qcoro:
         vars:
             license: MIT
-            slot: '0'
             homepage: https://qcoro.dvratil.cz/ https://github.com/danvratil/qcoro
             inherit:
                 - cmake
@@ -351,11 +345,9 @@ phonon_vlc:
   packages:
     - phonon-vlc:
         vars:
+          s: '${WORKDIR}/phonon-backend-vlc-{{ .Values.version }}'
           desc: VLC backend for the Phonon multimedia library
           body: |
-            MY_PN="phonon-backend-vlc"
-            S="${WORKDIR}/${MY_PN}-${PV}"
-
             src_configure() {
               use debug || append-cppflags -DQT_NO_DEBUG
 

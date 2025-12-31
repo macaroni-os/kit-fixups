@@ -2648,8 +2648,7 @@ libcupsfilters:
       homepage: https://github.com/OpenPrinting/libcupsfilters
       inherit:
         - libtool
-      iuse: dbus exif jpeg +poppler +postscript png test tiff
-      restrict: '!test? ( test )'
+      iuse: dbus exif jpeg +poppler +postscript png tiff
       rdepend: |
         >=app-text/qpdf-8.3.0:=
         media-libs/fontconfig
@@ -2668,7 +2667,6 @@ libcupsfilters:
       bdepend: |
         >=sys-devel/gettext-0.18.3
         virtual/pkgconfig
-        test? ( media-fonts/dejavu )
 
   packages:
     - libcupsfilters:

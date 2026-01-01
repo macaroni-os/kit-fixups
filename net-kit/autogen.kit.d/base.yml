@@ -2627,7 +2627,7 @@ gitlab_freedesktop_dirlisting:
               rmdir "${ED}"/var{/lib{/NetworkManager,},} || die
             }
 
-libcupsfilters:
+openprinting:
   generator: builtin-github
   template:
     engine: helm
@@ -2638,38 +2638,17 @@ libcupsfilters:
     category: net-print
     github:
       user: OpenPrinting
-      repo: libcupsfilters
     assets:
       - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
         url: 'https://github.com/OpenPrinting/{{ .Values.pn }}/releases/download/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
       license: Apache-2.0
       slot: '0'
-      homepage: https://github.com/OpenPrinting/libcupsfilters
-      inherit:
-        - libtool
-      iuse: dbus exif jpeg +poppler +postscript png tiff
-      rdepend: |
-        >=app-text/qpdf-8.3.0:=
-        media-libs/fontconfig
-        media-libs/lcms:2
-        >=net-print/cups-2
-        !<net-print/cups-filters-2.0.0
-
-        exif? ( media-libs/libexif )
-        dbus? ( sys-apps/dbus )
-        jpeg? ( media-libs/libjpeg-turbo:= )
-        postscript? ( app-text/ghostscript-gpl[cups] )
-        poppler? ( >=app-text/poppler-0.32:=[cxx] )
-        png? ( media-libs/libpng:= )
-        tiff? ( media-libs/tiff:= )
-      depend: '${RDEPEND}'
-      bdepend: |
-        >=sys-devel/gettext-0.18.3
-        virtual/pkgconfig
 
   packages:
     - libcupsfilters:
+        github:
+          repo: libcupsfilters
         transform:
           - kind: string
             match: 'libcupsfilters '
@@ -2677,7 +2656,28 @@ libcupsfilters:
         dir:
           exclude: 'rc|b'
         vars:
+          homepage: https://github.com/OpenPrinting/libcupsfilters
           desc: library for developing printing features, split out of cups-filters
+          inherit:
+            - libtool
+          iuse: dbus exif jpeg +poppler +postscript png tiff
+          rdepend: |
+            >=app-text/qpdf-8.3.0:=
+            media-libs/fontconfig
+            media-libs/lcms:2
+            >=net-print/cups-2
+            !<net-print/cups-filters-2.0.0
+            exif? ( media-libs/libexif )
+            dbus? ( sys-apps/dbus )
+            jpeg? ( media-libs/libjpeg-turbo:= )
+            postscript? ( app-text/ghostscript-gpl[cups] )
+            poppler? ( >=app-text/poppler-0.32:=[cxx] )
+            png? ( media-libs/libpng:= )
+            tiff? ( media-libs/tiff:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            >=sys-devel/gettext-0.18.3
+            virtual/pkgconfig
           body: |
             src_prepare() {
               default
@@ -2709,43 +2709,9 @@ libcupsfilters:
               find "${ED}" -name '*.la' -delete || die
             }
 
-libppd:
-  generator: builtin-github
-  template:
-    engine: helm
-
-  defaults:
-    files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
-    category: net-print
-    github:
-      user: OpenPrinting
-      repo: libppd
-    assets:
-      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
-        url: 'https://github.com/OpenPrinting/{{ .Values.pn }}/releases/download/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
-    vars:
-      license: Apache-2.0
-      slot: '0'
-      homepage: https://github.com/OpenPrinting/libppd
-      inherit:
-        - libtool
-      iuse: +postscript +poppler
-      required_use: '|| ( postscript poppler )'
-      rdepend: |
-        >=net-print/cups-2
-        net-print/libcupsfilters
-        !<net-print/cups-filters-2.0.0
-        sys-libs/zlib
-        postscript? ( >=app-text/ghostscript-gpl-9.09[cups] )
-        poppler? ( >=app-text/poppler-0.32[utils] )
-      depend: '${RDEPEND}'
-      bdepend: |
-        >=sys-devel/gettext-0.18.3
-        virtual/pkgconfig
-
-  packages:
     - libppd:
+        github:
+          repo: libppd
         transform:
           - kind: string
             match: 'libppd '
@@ -2753,7 +2719,23 @@ libppd:
         dir:
           exclude: 'rc|b'
         vars:
+          inherit:
+            - libtool
+          homepage: https://github.com/OpenPrinting/libppd
           desc: Legacy library for PPD files, split out of cups-filters
+          iuse: +postscript +poppler
+          required_use: '|| ( postscript poppler )'
+          rdepend: |
+            >=net-print/cups-2
+            net-print/libcupsfilters
+            !<net-print/cups-filters-2.0.0
+            sys-libs/zlib
+            postscript? ( >=app-text/ghostscript-gpl-9.09[cups] )
+            poppler? ( >=app-text/poppler-0.32[utils] )
+          depend: '${RDEPEND}'
+          bdepend: |
+            >=sys-devel/gettext-0.18.3
+            virtual/pkgconfig
           body: |
             src_prepare() {
               default
@@ -2780,4 +2762,108 @@ libppd:
             src_install() {
               default
               find "${ED}" -name '*.la' -delete || die
+            }
+
+    - cups-filters:
+        github:
+          repo: cups-filters
+          query: releases
+          num_pages: 7
+        transform:
+          - kind: string
+            match: 'cups-filters '
+            replace: ''
+        dir:
+          exclude: 'rc|b'
+        vars:
+          homepage: https://github.com/OpenPrinting/cups-filters
+          desc: OpenPrinting CUPS filters
+          inherit:
+            - flag-o-matic
+          iuse: +foomatic
+          rdepend: |
+            net-print/libcupsfilters
+            net-print/libppd
+            >=net-print/cups-1.7.3
+          depend: |
+            ${RDEPEND}
+            >=sys-devel/gettext-0.18.3
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                --enable-driverless
+                --enable-ghostscript
+                --enable-imagefilters
+                --enable-nls
+                --enable-poppler
+                --enable-universal-cups-filter
+                --disable-individual-cups-filters
+                --disable-mutool
+                --disable-pstops
+                --disable-rastertopwg
+                --disable-static
+                --disable-werror
+                --localstatedir="${EPREFIX}"/var
+                $(use_enable foomatic)
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+
+    - cups-browsed:
+        github:
+          repo: cups-browsed
+        transform:
+          - kind: string
+            match: 'cups-browsed '
+            replace: ''
+        dir:
+          exclude: 'rc|b'
+        vars:
+          homepage: https://github.com/OpenPrinting/cups-browsed
+          desc: Daemon to browse the network for remote CUPS queues and IPP printers
+          inherit:
+            - systemd
+          iuse: zeroconf
+          rdepend: |
+            dev-libs/glib:2
+            >=net-print/cups-2
+            >=net-print/cups-filters-2.0.0
+            zeroconf? ( net-dns/avahi[dbus] )
+          depend: |
+            ${RDEPEND}
+            dev-util/gdbus-codegen
+            >=sys-devel/gettext-0.18.3
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                --enable-frequent-netif-update
+                --enable-nls
+                --disable-auto-setup-driverless-only
+                --disable-auto-setup-local-only
+                --disable-saving-created-queues
+                --disable-static
+                --disable-werror
+                --localstatedir="${EPREFIX}"/var
+                --with-cups-rundir="${EPREFIX}"/run/cups
+                $(use_enable zeroconf avahi)
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+
+              cp "${FILESDIR}"/cups-browsed.init.d "${T}"/cups-browsed || die
+
+              if ! use zeroconf ; then
+                  sed -i -e 's:need cupsd avahi-daemon:need cupsd:g' "${T}"/cups-browsed || die
+                  sed -i -e 's:cups\.service avahi-daemon\.service:cups.service:g' "${S}"/daemon/cups-browsed.service || die
+              fi
+
+              doinitd "${T}"/cups-browsed
+              systemd_dounit "${S}"/daemon/cups-browsed.service
+
             }

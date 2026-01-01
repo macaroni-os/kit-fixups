@@ -1726,7 +1726,7 @@ gnome_release_pkgs:
             wayland? ( ^^ ( elogind systemd ) udev )
             xwayland? ( X )
           rdepend: |
-            media-libs/graphene[introspection?]
+            >=media-libs/graphene-1.10.2[introspection?]
             x11-libs/gdk-pixbuf
             x11-libs/pango[introspection?]
             x11-libs/cairo[X]

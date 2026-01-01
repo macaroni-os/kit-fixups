@@ -280,6 +280,8 @@ gnome_apps:
 
   packages:
     - gcr:
+        selector:
+          - '>4.0'
         vars:
           slot: '4'
           release: '4.4'
@@ -354,6 +356,8 @@ gnome_apps:
     # ATM gcr:3 is needed for seahorse until new seahorse with GTK4
     #     will be available.
     - gcr:
+        selector:
+          - '<4.0'
         vars:
           release: '3.41'
           desc: Libraries for cryptographic UIs and accessing PKCS#11 modules

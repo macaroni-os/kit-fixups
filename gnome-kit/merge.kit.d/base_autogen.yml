@@ -48,7 +48,12 @@ target:
     - pkg: dev-cpp/atkmm:2.36
       conditions:
         - '<dev-cpp/atkmm-2.37:2.36'
+    - pkg: dev-cpp/cairomm:0
+      conditions:
+        - '<dev-cpp/cairomm-1.15.0:0'
     - pkg: dev-cpp/cairomm:1
+      conditions:
+        - '>=dev-cpp/cairomm-1.15.0:1'
     - pkg: dev-cpp/glibmm:2
       conditions:
         - '<dev-cpp/glibmm-2.68:2'

@@ -8321,7 +8321,44 @@ cairo_stuff:
         replace: ""
 
   packages:
+
     - cairomm:
+        selector:
+          - '<1.15'
+        vars:
+          desc: C++ bindings for the Cairo vector graphics library
+          homepage: https://cairographics.org/cairomm/ https://gitlab.freedesktop.org/cairo/cairomm
+          license: LGPL-2+
+          iuse: gtk-doc X
+          rdepend: |
+            dev-libs/libsigc++:3
+            x11-libs/cairo
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              ${PYTHON_DEPS}
+              dev-cpp/mm-common
+              app-text/doxygen[dot]
+              dev-libs/libxslt
+            )
+          body: |
+            pkg_setup() {
+              use gtk-doc && python-any-r1_pkg_setup
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dbuild-documentation=$(usex gtk-doc true false)
+                -Dbuild-examples=false
+                -Dbuild-tests=false
+                -Dboost-shared=true
+              )
+              meson_src_configure
+            }
+
+    - cairomm:
+        selector:
+          - '>=1.15'
         vars:
           desc: C++ bindings for the Cairo vector graphics library
           homepage: https://cairographics.org/cairomm/ https://gitlab.freedesktop.org/cairo/cairomm

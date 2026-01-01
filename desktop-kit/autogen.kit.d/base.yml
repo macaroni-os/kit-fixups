@@ -681,23 +681,33 @@ general_github:
             sys-devel/gettext
             virtual/pkgconfig
           body: |
+            src_prepare() {
+              default
+              # Fix sandboxes issues and
+              sed -e '/test_dynamiclauncher.py/d' -e '/test_location.py/d' -i tests/meson.build || die
+            }
+
             src_configure() {
-                local emesonargs=(
-                    -Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
-                    -Dsystemd-user-unit-dir="$(systemd_get_userunitdir)"
-                    $(meson_feature flatpak flatpak-interfaces)
-                    $(meson_feature geolocation geoclue)
-                    $(meson_feature udev gudev)
-                    $(meson_feature seccomp sandboxed-image-validation)
-                    $(meson_feature seccomp sandboxed-sound-validation)
-                    -Dsandboxed-sound-validation=disabled
-                    $(meson_feature systemd)
-                    -Ddocumentation=disabled
-                    -Ddatarootdir="${EPREFIX}/usr/share"
-                    -Dman-pages=enabled
-                    -Dinstalled-tests=false
-                    -Dtests=disabled
-                )
-                meson_src_configure
+              # Avoid issues with sandbox with gst-inspect-1.0
+              addpredict /dev/dri
+              addpredict /proc/self/task
+
+              local emesonargs=(
+                  -Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
+                  -Dsystemd-user-unit-dir="$(systemd_get_userunitdir)"
+                  $(meson_feature flatpak flatpak-interfaces)
+                  $(meson_feature geolocation geoclue)
+                  $(meson_feature udev gudev)
+                  $(meson_feature seccomp sandboxed-image-validation)
+                  $(meson_feature seccomp sandboxed-sound-validation)
+                  -Dsandboxed-sound-validation=disabled
+                  $(meson_feature systemd)
+                  -Ddocumentation=disabled
+                  -Ddatarootdir="${EPREFIX}/usr/share"
+                  -Dman-pages=enabled
+                  -Dinstalled-tests=false
+                  -Dtests=disabled
+              )
+              meson_src_configure
             }
 

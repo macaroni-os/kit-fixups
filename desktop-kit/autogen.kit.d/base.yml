@@ -681,12 +681,6 @@ general_github:
             sys-devel/gettext
             virtual/pkgconfig
           body: |
-            src_prepare() {
-              default
-              # Fix sandboxes issues and
-              sed -e '/test_dynamiclauncher.py/d' -e '/test_location.py/d' -i tests/meson.build || die
-            }
-
             src_configure() {
               # Avoid issues with sandbox with gst-inspect-1.0
               addpredict /dev/dri

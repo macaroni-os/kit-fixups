@@ -247,6 +247,17 @@ setuptools_modules:
         vars:
           license: BSD
 
+    - pygdbmi:
+        src_uri: 'https://github.com/cs01/pygdbmi/archive/refs/tags/v{{ .Values.version }}.tar.gz -> {{ .Values.p }}.gh.tar.gz'
+        vars:
+          license: MIT
+          desc: Library to parse gdb mi output and interact with gdb subprocesses
+          homepage: |
+            https://cs01.github.io/pygdbmi/
+            https://github.com/cs01/pygdbmi/
+            https://pypi.org/project/pygdbmi/
+          rdepend: '>=sys-devel/gdb-9.6'
+
     - pyrfc3339:
         pypi_name: pyrfc3339
 

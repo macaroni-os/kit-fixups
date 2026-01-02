@@ -1299,6 +1299,59 @@ gitlab_freedesktop_dirlisting:
               meson_src_configure
             }
 
+    - switcheroo-control:
+        category: sys-power
+        vars:
+          desc: D-Bus service to check the availability of dual-GPU
+          python_compat: python3+
+          license: GPL-3
+          slot: '0'
+          homepage: https://gitlab.freedesktop.org/hadess/switcheroo-control/
+          gitlab_user: hadess
+          gitlab_repo: switcheroo-control
+          inherit:
+              - python-single-r1
+              - systemd
+          iuse: gtk-doc systemd
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+              ${PYTHON_DEPS}
+              $(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+              >=dev-libs/glib-2.56.0:2
+              >=dev-libs/libgudev-232:=
+          depend: '${RDEPEND}'
+          bdepend: |
+              $(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+              dev-util/gdbus-codegen
+              gtk-doc? ( dev-util/gtk-doc )
+          body: |
+            python_check_deps() {
+              python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+                $(meson_use gtk-doc gtk_doc)
+                -Dtests=false
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_fix_shebang "${ED}"/usr/bin/switcherooctl
+              newinitd "${FILESDIR}"/${PN}-init.d ${PN}
+            }
+            pkg_postinst() {
+              if [[ -z "${REPLACING_VERSIONS}" ]]; then
+                elog "You need to enable the service:"
+                if systemd_is_booted; then
+                  elog "# systemctl enable ${PN}"
+                else
+                  elog "# rc-update add ${PN} default"
+                fi
+              fi
+            }
+
     - wayland-utils:
         vars:
           desc: Display information about supported Wayland protocols and current compositor

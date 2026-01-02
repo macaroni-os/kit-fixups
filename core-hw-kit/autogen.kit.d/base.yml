@@ -282,3 +282,96 @@ upower:
           gitlab_repo: upower
           desc: D-Bus abstraction for enumerating power devices, querying history and statistics
           homepage: https://upower.freedesktop.org/
+
+power-profiles-daemon:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-power
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/releases/[0-9.]+"
+      # Skip release candidate/beta versions
+      exclude: '90[0-9]$'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+
+  packages:
+    - power-profiles-daemon:
+        vars:
+          gitlab_user: upower
+          gitlab_repo: power-profiles-daemon
+          python_compat: python3+
+          desc: Makes power profiles handling available over D-Bus
+          homepage: https://gitlab.freedesktop.org/upower/power-profiles-daemon/
+          license: GPL-3+
+          inherit:
+            - bash-completion-r1
+            - meson
+            - python-single-r1
+            - systemd
+          iuse: bash-completion gtk-doc man systemd zsh-completion
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            ${PYTHON_DEPS}
+            $(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+            dev-libs/glib:2
+            >=dev-libs/libgudev-234
+            >=sys-auth/polkit-0.99
+            sys-power/upower
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/glib-utils
+            bash-completion? (
+              >=app-shells/bash-completion-2.0
+              $(python_gen_cond_dep '>=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]')
+            )
+            gtk-doc? (
+              dev-util/gi-docgen
+              dev-util/gtk-doc
+            )
+            man? (
+              $(python_gen_cond_dep 'dev-python/argparse-manpage[${PYTHON_USEDEP}]')
+            )
+            zsh-completion? (
+              $(python_gen_cond_dep '>=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]')
+            )
+          body: |
+            python_check_deps() {
+              python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]"
+
+              if use bash-completion || use zsh-completion; then
+                python_has_version ">=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]"
+              fi
+
+              use man && python_has_version "dev-python/argparse-manpage[${PYTHON_USEDEP}]"
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dpylint=disabled
+                -Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
+                $(meson_feature bash-completion bashcomp)
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_feature man manpage)
+                -Dtests=false
+              )
+              use zsh-completion && emesonargs+=( -Dzshcomp="$(get_zshcompdir)" )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_fix_shebang "${ED}"/usr/bin/powerprofilesctl
+              newinitd "${FILESDIR}/power-profiles-daemon.initd" power-profiles-daemon
+            }
+            pkg_postinst() {
+              if [[ -z "${REPLACING_VERSIONS}" ]]; then
+                elog "You need to enable the service:"
+                if systemd_is_booted; then
+                  elog "# systemctl enable ${PN}"
+                else
+                  elog "# rc-update add ${PN} default"
+                fi
+              fi
+            }

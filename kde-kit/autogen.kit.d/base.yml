@@ -1,114 +1,209 @@
-qca:
+stable_kde_stuff:
   generator: builtin-dirlisting
 
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
-    category: app-crypt
     dir:
-      url: 'https://download.kde.org/stable/qca/'
+      url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/'
       matcher: "[0-9.]+/$"
       exclude: '[0-9]{5}'
+    assets:
+      - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/{{ .Values.version }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
 
   packages:
-    - qca:
-        assets:
-          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
-            url: 'https://download.kde.org/stable/qca/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+
+    - phonon-vlc:
+        category: media-libs
         vars:
-            desc: Qt Cryptographic Architecture (QCA)
-            homepage: https://userbase.kde.org/QCA
-            license: LGPL-2.1
-            slot: '2'
-            inherit:
-                - kde6
-                - cmake-utils
-                - qmake-utils
-            iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl
-            rdepend: |
-                qt6? (
-                dev-qt/qt5compat:6
-                dev-qt/qtbase:6
-                )
-                !qt6? (
-                dev-qt/qtcore:5
-                dev-qt/qtconcurrent:5
-                )
-                botan? ( dev-libs/botan:3= )
-                gcrypt? ( dev-libs/libgcrypt:= )
-                gpg? ( app-crypt/gnupg )
-                nss? ( dev-libs/nss )
-                pkcs11? (
-                >=dev-libs/openssl-1.1
-                dev-libs/pkcs11-helper
-                )
-                sasl? ( dev-libs/cyrus-sasl:2 )
-                ssl? ( >=dev-libs/openssl-1.1:= )
-            depend: |
-                ${RDEPEND}
-            bdepend: |
-                virtual/pkgconfig
-                doc? (
-                app-text/doxygen[dot]
-                virtual/latex-base
-                )
-            body: |
-                qca_plugin_use() {
-                    echo -DWITH_${2:-$1}_PLUGIN=$(usex "$1")
-                }
-                src_configure() {
-                    # Use emake instead of Ninja to avoid depslog issues
-                    export CMAKE_MAKEFILE_GENERATOR="emake"
+          s: '${WORKDIR}/phonon-backend-vlc-{{ .Values.version }}'
+          pkgname: 'phonon-backend-vlc'
+          path: 'phonon/phonon-backend-vlc/'
+          homepage: https://community.kde.org/Phonon
+          desc: VLC backend for the Phonon multimedia library
+          license: LGPL-2.1+ || ( LGPL-2.1 LGPL-3 )
+          inherit:
+            - cmake
+            - flag-o-matic
+          iuse: debug
+          depend: |
+            dev-qt/qtbase:6[gui]
+            >=media-libs/phonon-4.12.0
+            media-video/vlc:=[dbus,ogg,vorbis(+)]
+          rdepend: '${DEPEND}'
+          bdepend: |
+            dev-libs/libpcre2:*
+            dev-qt/qttools:6[linguist]
+            >=kde-frameworks/extra-cmake-modules-5.115.0:*
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              use debug || append-cppflags -DQT_NO_DEBUG
 
-                    local mycmakeargs=(
-                        -DBUILD_WITH_QT6=$(usex qt6)
-                        $(qca_plugin_use botan)
-                        $(qca_plugin_use gcrypt)
-                        $(qca_plugin_use gpg gnupg)
-                        $(qca_plugin_use logger)
-                        $(qca_plugin_use nss)
-                        $(qca_plugin_use pkcs11)
-                        $(qca_plugin_use sasl cyrus-sasl)
-                        $(qca_plugin_use softstore)
-                        $(qca_plugin_use ssl ossl)
-                        -DBUILD_TESTS=OFF
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=6
+                -DPHONON_BUILD_QT5=OFF
+                -DPHONON_BUILD_QT6=ON
+                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
+              )
+              cmake_src_configure
+            }
+
+    - phonon:
+        category: media-libs
+        vars:
+          license: '|| ( LGPL-2.1 LGPL-3 ) !pulseaudio? ( || ( GPL-2 GPL-3 ) )'
+          homepage: https://community.kde.org/Phonon
+          inherit:
+            - cmake
+            - desktop
+            - flag-o-matic
+          iuse: debug designer pulseaudio +vlc
+          bdepend: |
+            dev-libs/libpcre2:*
+            dev-qt/qttools:6[linguist]
+            >=kde-frameworks/extra-cmake-modules-5.115.0:*
+            virtual/pkgconfig
+          depend: |
+            dev-qt/qt5compat:6
+            dev-qt/qtbase:6[gui]
+            designer? ( dev-qt/qttools:6[designer] )
+            pulseaudio? (
+              dev-libs/glib:2
+              media-sound/pulseaudio[glib]
+            )
+          rdepend: |
+            ${DEPEND}
+            !media-libs/phonon-gstreamer
+            || (
+              kde-frameworks/breeze-icons:6
+              kde-frameworks/oxygen-icons:*
+            )
+          pdepend: |
+            vlc? ( >=media-libs/phonon-vlc-0.12.0 )
+          desc: KDE multimedia abstraction library
+          body: |
+            src_configure() {
+              use debug || append-cppflags -DQT_NO_DEBUG
+
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=6
+                -DPHONON_BUILD_QT5=OFF
+                -DPHONON_BUILD_QT6=ON
+                -DPHONON_BUILD_SETTINGS=ON
+                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
+                -DPHONON_BUILD_DESIGNER_PLUGIN=$(usex designer)
+                -DCMAKE_DISABLE_FIND_PACKAGE_GLIB2=$(usex !pulseaudio)
+                -DCMAKE_DISABLE_FIND_PACKAGE_PulseAudio=$(usex !pulseaudio)
+              )
+
+              # Use make instead of ninja to avoid multiple outputs issue
+              export CMAKE_MAKEFILE_GENERATOR=emake
+              cmake_src_configure
+            }
+
+            src_install() {
+              cmake_src_install
+              make_desktop_entry "${PN}settings" \
+                "Phonon Audio and Video" preferences-desktop-sound
+            }
+
+
+    - qca:
+        category: app-crypt
+        vars:
+          desc: Qt Cryptographic Architecture (QCA)
+          homepage: https://userbase.kde.org/QCA
+          license: LGPL-2.1
+          slot: '2'
+          inherit:
+            - kde6
+            - cmake-utils
+            - qmake-utils
+          iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl
+          rdepend: |
+            qt6? (
+              dev-qt/qt5compat:6
+              dev-qt/qtbase:6
+            )
+            !qt6? (
+              dev-qt/qtcore:5
+              dev-qt/qtconcurrent:5
+            )
+            botan? ( dev-libs/botan:3= )
+            gcrypt? ( dev-libs/libgcrypt:= )
+            gpg? ( app-crypt/gnupg )
+            nss? ( dev-libs/nss )
+            pkcs11? (
+            >=dev-libs/openssl-1.1
+            dev-libs/pkcs11-helper
+            )
+            sasl? ( dev-libs/cyrus-sasl:2 )
+            ssl? ( >=dev-libs/openssl-1.1:= )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            doc? (
+              app-text/doxygen[dot]
+              virtual/latex-base
+            )
+          body: |
+            qca_plugin_use() {
+              echo -DWITH_${2:-$1}_PLUGIN=$(usex "$1")
+            }
+            src_configure() {
+              # Use emake instead of Ninja to avoid depslog issues
+              export CMAKE_MAKEFILE_GENERATOR="emake"
+
+              local mycmakeargs=(
+                -DBUILD_WITH_QT6=$(usex qt6)
+                $(qca_plugin_use botan)
+                $(qca_plugin_use gcrypt)
+                $(qca_plugin_use gpg gnupg)
+                $(qca_plugin_use logger)
+                $(qca_plugin_use nss)
+                $(qca_plugin_use pkcs11)
+                $(qca_plugin_use sasl cyrus-sasl)
+                $(qca_plugin_use softstore)
+                $(qca_plugin_use ssl ossl)
+                -DBUILD_TESTS=OFF
+              )
+
+              if use qt6; then
+                mycmakeargs+=(
+                  -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/mkspecs/features"
+                  -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/plugins"
                 )
+              else
+                mycmakeargs+=(
+                  -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/mkspecs/features"
+                  -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/plugins"
+                )
+              fi
 
-                    if use qt6; then
-                        mycmakeargs+=(
-                        -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/mkspecs/features"
-                        -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt6/plugins"
-                        )
-                    else
-                        mycmakeargs+=(
-                        -DQCA_FEATURE_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/mkspecs/features"
-                        -DQCA_PLUGINS_INSTALL_DIR="${EPREFIX}/usr/lib64/qt5/plugins"
-                        )
-                    fi
+              cmake-utils_src_configure
+            }
+            src_compile() {
+              cmake-utils_src_compile
+              use doc && cmake_src_make doc
+            }
+            src_install() {
+              cmake-utils_src_install
 
-                    cmake-utils_src_configure
-                    }
-                    src_compile() {
-                        cmake-utils_src_compile
-                        use doc && cmake_src_make doc
-                    }
-                    src_test() {
-                        local -x QCA_PLUGIN_PATH="${BUILD_DIR}/lib/qca"
-                        cmake-utils_src_test
-                    }
-                    src_install() {
-                        cmake-utils_src_install
+              if use doc; then
+              pushd "${BUILD_DIR}" > /dev/null || die
+              dodoc -r apidocs/html
+              popd > /dev/null || die
+              fi
 
-                        if use doc; then
-                            pushd "${BUILD_DIR}" > /dev/null || die
-                            dodoc -r apidocs/html
-                            popd > /dev/null || die
-                        fi
-
-                        if use examples; then
-                            dodoc -r "${S}"/examples
-                        fi
-                    }
+              if use examples; then
+              dodoc -r "${S}"/examples
+              fi
+            }
 
 plasma_wayland_protocols:
   generator: builtin-dirlisting
@@ -214,133 +309,6 @@ qcoro:
                     fi
                     cmake_src_install
                 }
-
-phonon:
-  generator: builtin-dirlisting
-
-  defaults:
-    files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
-    category: media-libs
-    dir:
-      url: 'https://download.kde.org/stable/phonon/'
-      matcher: "[0-9.]+/$"
-      exclude: '[0-9]{5}'
-    assets:
-      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
-        url: 'https://download.kde.org/stable/phonon/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
-    vars:
-      license: '|| ( LGPL-2.1 LGPL-3 ) !pulseaudio? ( || ( GPL-2 GPL-3 ) )'
-      homepage: https://community.kde.org/Phonon
-      inherit:
-        - cmake
-        - desktop
-        - flag-o-matic
-      iuse: debug designer pulseaudio +vlc
-      bdepend: |
-        dev-libs/libpcre2:*
-        dev-qt/qttools:6[linguist]
-        >=kde-frameworks/extra-cmake-modules-5.115.0:*
-        virtual/pkgconfig
-      depend: |
-        dev-qt/qt5compat:6
-        dev-qt/qtbase:6[gui]
-        designer? ( dev-qt/qttools:6[designer] )
-        pulseaudio? (
-          dev-libs/glib:2
-          media-sound/pulseaudio[glib]
-        )
-      rdepend: |
-        ${DEPEND}
-        !media-libs/phonon-gstreamer
-        || (
-          kde-frameworks/breeze-icons:6
-          kde-frameworks/oxygen-icons:*
-        )
-      pdepend: |
-        vlc? ( >=media-libs/phonon-vlc-0.12.0 )
-
-  packages:
-    - phonon:
-        vars:
-          desc: KDE multimedia abstraction library
-          body: |
-            src_configure() {
-              use debug || append-cppflags -DQT_NO_DEBUG
-
-              local mycmakeargs=(
-                -DQT_MAJOR_VERSION=6
-                -DPHONON_BUILD_QT5=OFF
-                -DPHONON_BUILD_QT6=ON
-                -DPHONON_BUILD_SETTINGS=ON
-                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
-                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
-                -DPHONON_BUILD_DESIGNER_PLUGIN=$(usex designer)
-                -DCMAKE_DISABLE_FIND_PACKAGE_GLIB2=$(usex !pulseaudio)
-                -DCMAKE_DISABLE_FIND_PACKAGE_PulseAudio=$(usex !pulseaudio)
-              )
-
-              # Use make instead of ninja to avoid multiple outputs issue
-              export CMAKE_MAKEFILE_GENERATOR=emake
-              cmake_src_configure
-            }
-
-            src_install() {
-              cmake_src_install
-              make_desktop_entry "${PN}settings" \
-                "Phonon Audio and Video" preferences-desktop-sound
-            }
-
-phonon_vlc:
-  generator: builtin-dirlisting
-
-  defaults:
-    files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
-    category: media-libs
-    dir:
-      url: 'https://download.kde.org/stable/phonon/phonon-backend-vlc/'
-      matcher: "[0-9.]+/$"
-      exclude: '[0-9]{5}'
-    assets:
-      - name: 'phonon-backend-vlc-{{ .Values.version }}.tar.xz'
-        url: 'https://download.kde.org/stable/phonon/phonon-backend-vlc/{{ .Values.version }}/phonon-backend-vlc-{{ .Values.version }}.tar.xz'
-    vars:
-      license: LGPL-2.1+ || ( LGPL-2.1 LGPL-3 )
-      homepage: https://community.kde.org/Phonon
-      inherit:
-        - cmake
-        - flag-o-matic
-      iuse: debug
-      depend: |
-        dev-qt/qtbase:6[gui]
-        >=media-libs/phonon-4.12.0
-        media-video/vlc:=[dbus,ogg,vorbis(+)]
-      rdepend: '${DEPEND}'
-      bdepend: |
-        dev-libs/libpcre2:*
-        dev-qt/qttools:6[linguist]
-        >=kde-frameworks/extra-cmake-modules-5.115.0:*
-        virtual/pkgconfig
-
-  packages:
-    - phonon-vlc:
-        vars:
-          s: '${WORKDIR}/phonon-backend-vlc-{{ .Values.version }}'
-          desc: VLC backend for the Phonon multimedia library
-          body: |
-            src_configure() {
-              use debug || append-cppflags -DQT_NO_DEBUG
-
-              local mycmakeargs=(
-                -DQT_MAJOR_VERSION=6
-                -DPHONON_BUILD_QT5=OFF
-                -DPHONON_BUILD_QT6=ON
-                -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
-                -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
-              )
-              cmake_src_configure
-            }
 
 pulseaudio_qt:
   generator: builtin-dirlisting

@@ -1,7 +1,5 @@
 qca:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -11,7 +9,6 @@ qca:
       url: 'https://download.kde.org/stable/qca/'
       matcher: "[0-9.]+/$"
       exclude: '[0-9]{5}'
-    
 
   packages:
     - qca:
@@ -115,8 +112,6 @@ qca:
 
 plasma_wayland_protocols:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -137,19 +132,13 @@ plasma_wayland_protocols:
         url: 'https://download.kde.org/stable/plasma-wayland-protocols/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
       license: LGPL-2.1
-      slot: '0'
       homepage: https://invent.kde.org/libraries/plasma-wayland-protocols
       inherit:
         - cmake
-      iuse: test
-      restrict: '!test? ( test )'
-      depend: |
-        test? ( dev-libs/wayland )
       bdepend: |
         dev-libs/libpcre2:*
         dev-qt/qtbase:6
         >=kde-frameworks/extra-cmake-modules-6.0:*
-        test? ( dev-util/wayland-scanner )
 
   packages:
     - plasma-wayland-protocols:
@@ -161,7 +150,7 @@ plasma_wayland_protocols:
                 -DQT_MAJOR_VERSION=6
                 -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
                 -DKDE_INSTALL_DOCBUNDLEDIR="${EPREFIX}/usr/share/help"
-                -DBUILD_TESTING=$(usex test)
+                -DBUILD_TESTING=OFF
               )
 
               cmake_src_configure
@@ -169,8 +158,6 @@ plasma_wayland_protocols:
 
 qcoro:
   generator: builtin-github
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -191,8 +178,8 @@ qcoro:
             rdepend: |
                 dev-qt/qtbase:6
                 qml? (
-                dev-qt/qtbase:6[gui]
-                dev-qt/qtdeclarative:6
+                  dev-qt/qtbase:6[gui]
+                  dev-qt/qtdeclarative:6
                 )
                 websockets? ( dev-qt/qtwebsockets:6 )
             depend: |
@@ -230,8 +217,6 @@ qcoro:
 
 phonon:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -246,7 +231,6 @@ phonon:
         url: 'https://download.kde.org/stable/phonon/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
       license: '|| ( LGPL-2.1 LGPL-3 ) !pulseaudio? ( || ( GPL-2 GPL-3 ) )'
-      slot: '0'
       homepage: https://community.kde.org/Phonon
       inherit:
         - cmake
@@ -309,8 +293,6 @@ phonon:
 
 phonon_vlc:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -325,7 +307,6 @@ phonon_vlc:
         url: 'https://download.kde.org/stable/phonon/phonon-backend-vlc/{{ .Values.version }}/phonon-backend-vlc-{{ .Values.version }}.tar.xz'
     vars:
       license: LGPL-2.1+ || ( LGPL-2.1 LGPL-3 )
-      slot: '0'
       homepage: https://community.kde.org/Phonon
       inherit:
         - cmake
@@ -363,8 +344,6 @@ phonon_vlc:
 
 pulseaudio_qt:
   generator: builtin-dirlisting
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -389,14 +368,11 @@ pulseaudio_qt:
       homepage: https://invent.kde.org/libraries/pulseaudio-qt
       inherit:
         - cmake
-      iuse: doc test
-      restrict: '!test? ( test )'
+      iuse: doc
       rdepend: |
         >=dev-qt/qtbase-6.6.2:6[gui]
         media-sound/pulseaudio[glib]
-      depend: |
-        ${RDEPEND}
-        test? ( >=dev-qt/qtdeclarative-6.6.2:6 )
+      depend: '${RDEPEND}'
       bdepend: |
         virtual/pkgconfig
         doc? (
@@ -414,7 +390,7 @@ pulseaudio_qt:
                 -DBUILD_WITH_QT6=ON
                 -DQT_MAJOR_VERSION=6
                 -DBUILD_QCH=$(usex doc)
-                -DBUILD_TESTING=$(usex test)
+                -DBUILD_TESTING=OFF
               )
               cmake_src_configure
             }

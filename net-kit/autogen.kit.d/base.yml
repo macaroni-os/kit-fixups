@@ -2643,7 +2643,7 @@ openprinting:
         url: 'https://github.com/OpenPrinting/{{ .Values.pn }}/releases/download/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
       license: Apache-2.0
-      slot: '0'
+      homepage: 'https://github.com/OpenPrinting/{{ .Values.pn }}'
     transform:
       - kind: string
         match: '{{ .Values.pkgname | default .Values.pn }} '
@@ -2652,7 +2652,6 @@ openprinting:
   packages:
     - libcupsfilters:
         vars:
-          homepage: https://github.com/OpenPrinting/libcupsfilters
           desc: library for developing printing features, split out of cups-filters
           inherit:
             - libtool
@@ -2709,7 +2708,6 @@ openprinting:
         vars:
           inherit:
             - libtool
-          homepage: https://github.com/OpenPrinting/libppd
           desc: Legacy library for PPD files, split out of cups-filters
           iuse: +postscript +poppler
           required_use: '|| ( postscript poppler )'
@@ -2756,7 +2754,6 @@ openprinting:
         github:
           num_pages: 7
         vars:
-          homepage: https://github.com/OpenPrinting/cups-filters
           desc: OpenPrinting CUPS filters
           inherit:
             - flag-o-matic
@@ -2793,7 +2790,6 @@ openprinting:
 
     - cups-browsed:
         vars:
-          homepage: https://github.com/OpenPrinting/cups-browsed
           desc: Daemon to browse the network for remote CUPS queues and IPP printers
           inherit:
             - systemd

@@ -2629,13 +2629,13 @@ gitlab_freedesktop_dirlisting:
 
 openprinting:
   generator: builtin-github
-  template:
-    engine: helm
 
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     category: net-print
+    exclude:
+      - 'rc|b'
     github:
       user: OpenPrinting
     assets:
@@ -2644,17 +2644,13 @@ openprinting:
     vars:
       license: Apache-2.0
       slot: '0'
+    transform:
+      - kind: string
+        match: '{{ .Values.pkgname | default .Values.pn }} '
+        replace: ''
 
   packages:
     - libcupsfilters:
-        github:
-          repo: libcupsfilters
-        transform:
-          - kind: string
-            match: 'libcupsfilters '
-            replace: ''
-        dir:
-          exclude: 'rc|b'
         vars:
           homepage: https://github.com/OpenPrinting/libcupsfilters
           desc: library for developing printing features, split out of cups-filters
@@ -2710,14 +2706,6 @@ openprinting:
             }
 
     - libppd:
-        github:
-          repo: libppd
-        transform:
-          - kind: string
-            match: 'libppd '
-            replace: ''
-        dir:
-          exclude: 'rc|b'
         vars:
           inherit:
             - libtool
@@ -2766,15 +2754,7 @@ openprinting:
 
     - cups-filters:
         github:
-          repo: cups-filters
-          query: releases
           num_pages: 7
-        transform:
-          - kind: string
-            match: 'cups-filters '
-            replace: ''
-        dir:
-          exclude: 'rc|b'
         vars:
           homepage: https://github.com/OpenPrinting/cups-filters
           desc: OpenPrinting CUPS filters
@@ -2812,20 +2792,12 @@ openprinting:
             }
 
     - cups-browsed:
-        github:
-          repo: cups-browsed
-        transform:
-          - kind: string
-            match: 'cups-browsed '
-            replace: ''
-        dir:
-          exclude: 'rc|b'
         vars:
           homepage: https://github.com/OpenPrinting/cups-browsed
           desc: Daemon to browse the network for remote CUPS queues and IPP printers
           inherit:
             - systemd
-          iuse: zeroconf
+          iuse: zeroconf systemd
           rdepend: |
             dev-libs/glib:2
             >=net-print/cups-2
@@ -2855,7 +2827,6 @@ openprinting:
             }
             src_install() {
               default
-
               cp "${FILESDIR}"/cups-browsed.init.d "${T}"/cups-browsed || die
 
               if ! use zeroconf ; then
@@ -2863,7 +2834,9 @@ openprinting:
                   sed -i -e 's:cups\.service avahi-daemon\.service:cups.service:g' "${S}"/daemon/cups-browsed.service || die
               fi
 
-              doinitd "${T}"/cups-browsed
-              systemd_dounit "${S}"/daemon/cups-browsed.service
-
+              if use systemd ; then
+                systemd_dounit "${S}"/daemon/cups-browsed.service
+              else
+                doinitd "${T}"/cups-browsed
+              fi
             }

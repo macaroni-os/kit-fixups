@@ -237,7 +237,7 @@ dev-qt:
             qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
           depend: ${RDEPEND}
           pdepend: |
-            geoclue? ( appmisc/geoclue:2.0 )
+            geoclue? ( app-misc/geoclue:2.0 )
           s: '${WORKDIR}/qtlocation-everywhere-src-{{ .Values.version}}'
           body: |
             QT5_TARGET_SUBDIRS=(
@@ -876,12 +876,11 @@ qt5_base:
               )
               for flag in ${flags[@]}; do
                 cat >> "${D}"/${QT5_HEADERDIR}/QtCore/qconfig.h <<- _EOF_ || die
-
-                  #if defined(QT_NO_${flag}) && defined(QT_${flag})
-                  # undef QT_NO_${flag}
-                  #elif !defined(QT_NO_${flag}) && !defined(QT_${flag})
-                  # define QT_NO_${flag}
-                  #endif
+                #if defined(QT_NO_${flag}) && defined(QT_${flag})
+                # undef QT_NO_${flag}
+                #elif !defined(QT_NO_${flag}) && !defined(QT_${flag})
+                # define QT_NO_${flag}
+                #endif
                 _EOF_
               done
             }

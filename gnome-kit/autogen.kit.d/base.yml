@@ -2295,6 +2295,7 @@ gnome_release_pkgs:
             media-libs/fontconfig
             elogind? ( sys-auth/elogind )
             systemd? ( sys-apps/systemd )
+            sys-apps/usbguard
           body: |
             pkg_setup() {
               python-any-r1_pkg_setup
@@ -6145,7 +6146,7 @@ gnome_apps:
           iuse: |
             afp archive bluray cdda cdr elogind fuse google gnome-keyring
             gnome-online-accounts gphoto2 onedrive +http ios nfs policykit +sftp
-            systemd +udev +udisks zeroconf samba +mtp
+            systemd +udev +udisks zeroconf samba +mtp wsdd
           required_use: |
             cdda? ( udev )
             elogind? ( !systemd udisks )
@@ -6162,6 +6163,7 @@ gnome_apps:
             archive? ( app-arch/libarchive:= )
             bluray? ( media-libs/libbluray )
             fuse? ( sys-fs/fuse:3= )
+            wsdd? ( net-misc/wsdd )
             gnome-keyring? ( app-crypt/libsecret )
             gnome-online-accounts? ( net-libs/gnome-online-accounts:= )
             google? (
@@ -6245,6 +6247,7 @@ gnome_apps:
                 $(meson_use fuse)
                 $(meson_use udev gudev)
                 $(meson_use gnome-keyring keyring)
+                $(meson_use wsdd wsdd)
                 -Dgcr=true
                 -Dgcrypt=${enable_gcrypt}
                 -Ddeprecated_apis=false
@@ -8545,6 +8548,121 @@ github_libs:
     github:
       query: tags
   packages:
+
+    - pegtl:
+        github:
+          user: taocpp
+          repo: PEGTL
+        transform:
+          - kind: string
+            match: 'pegtl-'
+            replace: ''
+        vars:
+          inherit:
+            - cmake
+          body: |
+            src_prepare() {
+              # Disable Werror
+              sed -i -e 's|-Werror||g' Makefile || die
+              sed -i -e 's|-Werror||g' src/example/pegtl/CMakeLists.txt || die
+              sed -i -e 's|-Werror||g' src/test/pegtl/CMakeLists.txt || die
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DPEGTL_INSTALL_CMAKE_DIR="$(get_libdir)/cmake/{{ .Values.pn }}"
+                -DPEGTL_INSTALL_DOC_DIR="share/doc/{{ .Values.pn }}-{{ .Values.version }}"
+              )
+              cmake_src_configure
+            }
+
+    - usbguard:
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+        github:
+          user: USBGuard
+          query: releases
+        category: sys-apps
+        vars:
+          inherit:
+            - autotools
+            - bash-completion-r1
+            - tmpfiles
+          iuse: dbus ldap policykit static-libs systemd
+          # umockdev
+          cdepend: |
+            dev-libs/pegtl
+            dev-libs/libsodium:=
+            dev-libs/protobuf:=
+            sys-cluster/libqb:=
+            sys-libs/libcap-ng
+            sys-libs/libseccomp
+            sys-process/audit
+            dbus? (
+              dev-libs/glib:2
+              sys-apps/dbus
+              sys-auth/polkit[introspection]
+            )
+            ldap? ( net-nds/openldap:= )
+            systemd? ( sys-apps/systemd )
+          rdepend: |
+            ${CDEPEND}
+            virtual/udev
+          depend: |
+            ${CDEPEND}
+            app-text/asciidoc
+            dbus? (
+              dev-libs/libxml2
+              dev-libs/libxslt
+              dev-util/gdbus-codegen
+            )
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              local myargs=(
+                --with-bash-completion-dir=$(get_bashcompdir)
+                --localstatedir=/var
+                --disable-umockdev
+                --disable-catch
+                $(use_with dbus)
+                $(use_with dbus polkit)
+                $(use_with ldap)
+                $(use_enable static-libs static)
+                $(use_enable systemd)
+              )
+              econf "${myargs[@]}"
+            }
+            src_install() {
+              default
+              keepdir /etc/usbguard/IPCAccessControl.d  # bug 808801
+              keepdir /etc/usbguard/rules.d  # bug 933878
+              chmod 0600 "${ED}"/etc/usbguard/IPCAccessControl.d/.keep* || die  # bug 808801
+              chmod 0600 "${ED}"/etc/usbguard/rules.d/.keep* || die  # bug 933878
+              if ! use systemd ; then
+                newinitd "${FILESDIR}"/usbguard.openrc usbguard
+                use dbus && newinitd "${FILESDIR}"/usbguard-dbus.openrc usbguard-dbus
+              fi
+              find "${D}" -name '*.la' -delete || die  # bug 850655
+              rmdir -p "${D}"/var/log/usbguard  # see pkg_postinst; bug 960270
+            }
+            pkg_postinst() {
+              tmpfiles_process usbguard.conf
+              ewarn
+              ewarn 'BEFORE STARTING USBGUARD please be sure to create/generate'
+              ewarn '                         a rules file at /etc/usbguard/rules.conf'
+              ewarn '                         so that you do not'
+              ewarn '                                            GET LOCKED OUT'
+              ewarn "                         of this system (\"$(hostname)\")."
+              ewarn
+              ewarn 'This command may be of help:'
+              ewarn '  sudo sh -c "usbguard generate-policy > /etc/usbguard/rules.conf"'
+              ewarn
+            }
 
     - libiptcdata:
         template: ../../templates/simple.tmpl

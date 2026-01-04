@@ -25,72 +25,123 @@ target:
     max_versions: 3
 
   atoms:
+    - pkg: app-misc/wayland-utils
 
+    - pkg: dev-libs/ocl-icd
+
+    - pkg: dev-util/glslang
+    - pkg: dev-util/opencl-headers
+    - pkg: dev-util/opencl-icd-loader
+    - pkg: dev-util/spirv-tools
+    - pkg: dev-util/volk
+    - pkg: dev-util/vulkan-headers
+    - pkg: dev-util/vulkan-tools
+    - pkg: dev-util/vulkan-utility-libraries
+
+    # libdecor is needed to build mesa-progs tools
+    # for wayland.
+    - pkg: gui-libs/libdecor
+    - pkg: gui-libs/eglexternalplatform
+    - pkg: gui-libs/egl-gbm
+    - pkg: gui-libs/egl-wayland
+
+    - pkg: x11-drivers/xf86-input-evdev
+    - pkg: x11-drivers/xf86-input-libinput
+    - pkg: x11-drivers/xf86-input-mouse
+    - pkg: x11-drivers/xf86-input-synaptics
+    - pkg: x11-drivers/xf86-input-vmmouse
+    - pkg: x11-drivers/xf86-input-wacom
+
+    - pkg: x11-drivers/xf86-video-amdgpu
+    - pkg: x11-drivers/xf86-video-ati
+    - pkg: x11-drivers/xf86-video-dummy
+    - pkg: x11-drivers/xf86-video-fbdev
+    - pkg: x11-drivers/xf86-video-nouveau
+    - pkg: x11-drivers/xf86-video-vbox
+    - pkg: x11-drivers/xf86-video-vesa
+    - pkg: x11-drivers/xf86-video-vmware
+
+    - pkg: media-fonts/adwaita-fonts
     - pkg: media-fonts/sedgwick-ave-display
+
+    - pkg: media-libs/freeglut
+    - pkg: media-libs/fontconfig
+    - pkg: media-libs/glu
+    - pkg: media-libs/harfbuzz
+    - pkg: media-libs/libglvnd
+    - pkg: media-libs/mesa
+    - pkg: media-libs/vulkan-layers
+    - pkg: media-libs/vulkan-loader
 
     # 535 release
     - pkg: x11-drivers/nvidia-drivers:535
       conditions:
-        - '>=x11-drivers/nvidia-drivers:535'
+        - '>=x11-drivers/nvidia-drivers-535:535'
     # 550 release
     - pkg: x11-drivers/nvidia-drivers:550
       conditions:
-        - '>=x11-drivers/nvidia-drivers:550'
+        - '>=x11-drivers/nvidia-drivers-550:550'
     # 555 release
     - pkg: x11-drivers/nvidia-drivers:555
       conditions:
-        - '>=x11-drivers/nvidia-drivers:555'
+        - '>=x11-drivers/nvidia-drivers-555:555'
     # 560 release
     - pkg: x11-drivers/nvidia-drivers:560
       conditions:
-        - '>=x11-drivers/nvidia-drivers:560'
+        - '>=x11-drivers/nvidia-drivers-560:560'
     # 565 release
     - pkg: x11-drivers/nvidia-drivers:565
       conditions:
-        - '>=x11-drivers/nvidia-drivers:565'
+        - '>=x11-drivers/nvidia-drivers-565:565'
     # 570 release
     - pkg: x11-drivers/nvidia-drivers:570
       conditions:
-        - '>=x11-drivers/nvidia-drivers:570'
+        - '>=x11-drivers/nvidia-drivers-570:570'
     # 575 release
     - pkg: x11-drivers/nvidia-drivers:575
       conditions:
-        - '>=x11-drivers/nvidia-drivers:575'
-    # 575 release
+        - '>=x11-drivers/nvidia-drivers-575:575'
+    # 580 release
     - pkg: x11-drivers/nvidia-drivers:580
       conditions:
-        - '>=x11-drivers/nvidia-drivers:580'
+        - '>=x11-drivers/nvidia-drivers-580:580'
 
     # 535 release
     - pkg: x11-drivers/nvidia-kernel-modules:535
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:535'
+        - '>=x11-drivers/nvidia-kernel-modules-535:535'
+
     # 550 release
     - pkg: x11-drivers/nvidia-kernel-modules:550
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:550'
+        - '>=x11-drivers/nvidia-kernel-modules-550:550'
+
     # 555 release
     - pkg: x11-drivers/nvidia-kernel-modules:555
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:555'
+        - '>=x11-drivers/nvidia-kernel-modules-555:555'
+
     # 560 release
     - pkg: x11-drivers/nvidia-kernel-modules:560
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:560'
+        - '>=x11-drivers/nvidia-kernel-modules-560:560'
+
     # 565 release
     - pkg: x11-drivers/nvidia-kernel-modules:565
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:565'
+        - '>=x11-drivers/nvidia-kernel-modules-565:565'
+
     # 570 release
     - pkg: x11-drivers/nvidia-kernel-modules:570
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:570'
+        - '>=x11-drivers/nvidia-kernel-modules-570:570'
+
     # 575 release
     - pkg: x11-drivers/nvidia-kernel-modules:575
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:575'
+        - '>=x11-drivers/nvidia-kernel-modules-575:575'
+
     # 580 release
     - pkg: x11-drivers/nvidia-kernel-modules:580
       conditions:
-        - '>=x11-drivers/nvidia-kernel-modules:580'
-
+        - '>=x11-drivers/nvidia-kernel-modules-580:580'

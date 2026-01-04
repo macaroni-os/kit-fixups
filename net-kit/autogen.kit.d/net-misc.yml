@@ -21,10 +21,16 @@ netmisc_github:
           inherit:
             - python-any-r1
             - systemd
+            - user
           rdepend: |
             ${PYTHON_DEPS}
             samba? ( net-fs/samba )
           body: |
+            pkg_setup() {
+              enewgroup wsdd
+              enewuser wsdd -1 -1 -1 wsdd
+              python-any-r1_pkg_setup
+            }
             src_install() {
               python_newscript src/wsdd.py wsdd
 

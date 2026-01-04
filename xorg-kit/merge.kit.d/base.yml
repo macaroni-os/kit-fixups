@@ -27,37 +27,26 @@ target:
   atoms:
 
     - pkg: dev-libs/libei
+    - pkg: dev-libs/libinput
+    - pkg: dev-libs/libwacom
+
     - pkg: dev-libs/glib:2
     - pkg: dev-libs/gobject-introspection
     - pkg: dev-libs/gobject-introspection-common
 
-    - pkg: dev-libs/libinput
-    - pkg: dev-libs/libwacom
     - pkg: dev-libs/wayland
     - pkg: dev-libs/wayland-protocols
 
     - pkg: dev-util/desktop-file-utils
     - pkg: dev-util/gdbus-codegen
-    - pkg: dev-util/glib-utils
     - pkg: dev-util/wayland-scanner
 
-    - pkg: x11-apps/mkfontdir
-    - pkg: x11-apps/mkfontscale
-    - pkg: x11-apps/bdftopcf
-    - pkg: x11-apps/xpr
-    - pkg: x11-apps/xprop
-    - pkg: x11-apps/xset
     - pkg: x11-apps/appres
     - pkg: x11-apps/bitmap
     - pkg: x11-apps/bdftopcf
     - pkg: x11-apps/iceauth
     - pkg: x11-apps/luit
-    - pkg: x11-apps/mkfontscale
-    - pkg: x11-apps/mesa-progs
     - pkg: x11-apps/rgb
-    - pkg: x11-apps/sessreg
-    - pkg: x11-apps/setxkbmap
-    - pkg: x11-apps/smproxy
     - pkg: x11-apps/x11perf
     - pkg: x11-apps/xauth
     - pkg: x11-apps/xbacklight
@@ -80,20 +69,21 @@ target:
     - pkg: x11-apps/xlsclients
     - pkg: x11-apps/xmessage
     - pkg: x11-apps/xmodmap
-    - pkg: x11-apps/xpr
-    - pkg: x11-apps/xprop
     - pkg: x11-apps/xrandr
     - pkg: x11-apps/xrdb
     - pkg: x11-apps/xrefresh
     - pkg: x11-apps/xset
+    - pkg: x11-apps/xpr
+    - pkg: x11-apps/xprop
     - pkg: x11-apps/xsetroot
-    - pkg: x11-apps/x11perf
     - pkg: x11-apps/xwd
     - pkg: x11-apps/xvinfo
     - pkg: x11-apps/xwininfo
     - pkg: x11-apps/xwud
     - pkg: x11-apps/xvidtune
     - pkg: x11-apps/mesa-progs
+    - pkg: x11-apps/mkfontdir
+    - pkg: x11-apps/mkfontscale
     - pkg: x11-apps/sessreg
     - pkg: x11-apps/setxkbmap
     - pkg: x11-apps/smproxy
@@ -128,10 +118,6 @@ target:
     - pkg: x11-libs/libpciaccess
     - pkg: x11-libs/libxkbcommon
     - pkg: x11-libs/libxshmfence
-    - pkg: x11-libs/pango
-    - pkg: x11-libs/pixman
-    - pkg: x11-libs/xtrans
-
     - pkg: x11-libs/libXScrnSaver
     - pkg: x11-libs/libXaw
     - pkg: x11-libs/libXcursor
@@ -158,7 +144,9 @@ target:
     - pkg: x11-libs/libxkbfile
     - pkg: x11-libs/libxklavier
     - pkg: x11-libs/mx
-    - pkg: x11-libs/startup-notification
+    - pkg: x11-libs/pango
+    - pkg: x11-libs/pixman
+    - pkg: x11-libs/xtrans
     - pkg: x11-libs/xapps
     - pkg: x11-libs/xcb-util
     - pkg: x11-libs/xcb-util-cursor
@@ -167,6 +155,7 @@ target:
     - pkg: x11-libs/xcb-util-renderutil
     - pkg: x11-libs/xcb-util-wm
     - pkg: x11-libs/xcb-util-xrm
+    - pkg: x11-libs/startup-notification
 
     - pkg: x11-misc/compose-tables
     - pkg: x11-misc/imake
@@ -180,12 +169,11 @@ target:
     - pkg: x11-misc/xkeyboard-config
     - pkg: x11-misc/xorg-cf-files
 
-    - pkg: media-libs/libdisplay-info
-
     - pkg: x11-themes/sound-theme-freedesktop
     - pkg: x11-themes/xcursor-themes
 
     - pkg: media-libs/freetype:2
+    - pkg: media-libs/libdisplay-info
     - pkg: media-libs/libjpeg-turbo
     - pkg: media-libs/libpng
     - pkg: media-libs/t1lib

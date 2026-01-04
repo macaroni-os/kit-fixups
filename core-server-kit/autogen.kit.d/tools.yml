@@ -654,7 +654,7 @@ tevent:
               doins tevent_internal.h
             }
 
-syslibs_github:
+github_pkgs:
   generator: builtin-github
   defaults:
     category: sys-libs
@@ -662,6 +662,57 @@ syslibs_github:
     template: ../../templates/simple-github.tmpl
 
   packages:
+
+    - libqb:
+        github:
+          user: ClusterLabs
+        category: sys-cluster
+        vars:
+          inherit:
+            - autotools
+          iuse: debug doc examples systemd
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-arch/xz-utils
+            doc? (
+              app-text/doxygen[dot]
+            )
+          docs:
+            - README.markdown
+          body: |
+            src_prepare() {
+              default
+              # Skip installation of text documents without value
+              sed -e '/dist_doc_DATA/d' -i Makefile.am || die
+              # Do not append version suffix "-yank"
+              sed 's|1-yank|1|' -i configure.ac || die
+              eautoreconf
+            }
+            src_configure() {
+              econf \
+                --disable-static \
+                --with-socket-dir=/run \
+                $(use_enable systemd systemd-journal) \
+                $(use_enable debug)
+            }
+            src_compile() {
+              default
+              use doc && emake doxygen
+            }
+            src_install() {
+              emake install DESTDIR="${D}"
+              if use examples ; then
+                docinto examples
+                dodoc examples/*.c
+              fi
+              use doc && HTML_DOCS=("docs/html/.")
+              einstalldocs
+              find "${D}" -name '*.la' -delete || die
+            }
+
     - liburing:
         github:
           user: axboe
@@ -742,7 +793,6 @@ dbus:
       inherit:
         - meson
         - python-any-r1
-        -
         - systemd
         - tmpfiles
       iuse: debug doc elogind static-libs systemd valgrind user-session X

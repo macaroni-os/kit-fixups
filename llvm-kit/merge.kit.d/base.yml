@@ -46,12 +46,16 @@ target:
         - '>=sys-devel/clang-common-20.0.0'
         - '<sys-devel/clang-common-21.0.0'
 
-    - pkg: dev-util/lldb:16
+    - pkg: sys-devel/llvm-common
+
+    - pkg: sys-libs/libcxxabi
+    - pkg: sys-libs/libcxx
+    - pkg: sys-libs/libomp
+
+
+    # LLVM 16 packages
     - pkg: dev-util/spirv-llvm-translator:16
     - pkg: dev-util/spriv-headers:16
-
-    - pkg: sys-libs/compiler-rt:16
-    - pkg: sys-libs/compiler-rt-sanitizers:16
 
     - pkg: sys-devel/clang:16
     - pkg: sys-devel/clang-runtime:16
@@ -59,30 +63,21 @@ target:
     - pkg: sys-devel/lld:16
     - pkg: sys-devel/llvm:16
     - pkg: sys-devel/llvmgold:16
-    - pkg: sys-devel/llvm-common
 
-    - pkg: sys-libs/libcxxabi
-    - pkg: sys-libs/libcxx
-    - pkg: sys-libs/libomp
+    - pkg: sys-libs/compiler-rt:16
+    - pkg: sys-libs/compiler-rt-sanitizers:16
 
     # LLVM 20
-    - pkg: sys-devel/lld:20
-    - pkg: sys-devel/llvm:20
-    - pkg: sys-devel/llvmgold:20
-
-    - pkg: sys-devel/clang:20
-    - pkg: sys-devel/clang-runtime:20
-
     - pkg: dev-util/lldb:20
     - pkg: dev-util/spirv-llvm-translator:20
     - pkg: dev-util/spriv-headers:20
 
-    - pkg: sys-libs/compiler-rt:20
-    - pkg: sys-libs/compiler-rt-sanitizers:20
-
     - pkg: sys-devel/clang:20
     - pkg: sys-devel/clang-runtime:20
 
     - pkg: sys-devel/lld:20
     - pkg: sys-devel/llvm:20
     - pkg: sys-devel/llvmgold:20
+
+    - pkg: sys-libs/compiler-rt:20
+    - pkg: sys-libs/compiler-rt-sanitizers:20

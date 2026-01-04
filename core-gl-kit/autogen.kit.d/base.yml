@@ -376,7 +376,7 @@ glu:
       body: |
         src_configure() {
           local emesonargs=(
-            -Dgl_provider=$(usex glvnd libglvnd gl)
+            -Dgl_provider=$(usex libglvnd libglvnd gl)
           )
           meson_src_configure
         }

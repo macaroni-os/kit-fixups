@@ -1937,9 +1937,11 @@ gnome_release_pkgs:
     - gnome-shell:
         category: gnome-base
         vars:
+          release: '48'
           desc: Provides core UI functions for the GNOME desktop
           license: GPL2-2+ LGPL-2+
           python_compat: python3+
+          gnome_shell_abi: 16
           inherit:
             - flag-o-matic
             - gnome3
@@ -2015,7 +2017,12 @@ gnome_release_pkgs:
           pdepend: |
             gnome-base/gdm[introspection(+)]
             gnome-base/gnome-control-center[networkmanager(+)?]
+          gi_typelib_paths:
+            - /usr/lib64/mutter-16
+            - /usr/lib64/gnome-shell/girepository-1.0/
+            - /usr/lib64/gnome-shell/
           bdepend: |
+            app-admin/macaronictl
             dev-util/meson
             dev-libs/libxslt
             dev-util/gdbus-codegen
@@ -2049,10 +2056,29 @@ gnome_release_pkgs:
               )
               meson_src_configure
             }
+            src_install() {
+              local gipaths="/usr/lib64/girepository-1.0"
+              local envfile="90gnome-shell"
+              meson_src_install
+              # Fix search of typelib files (probably could be installed in the global path
+              # as alternative). Keep this way for now.
+              echo 'LD_LIBRARY_PATH="/usr/lib64/mutter-{{ .Values.gnome_shell_abi }}:/usr/lib64/gnome-shell/"' > ${envfile}
+              {{- range $p := .Values.gi_typelib_paths }}
+              gipaths="${gipaths}:{{ $p }}"
+              {{- end }}
+              echo "GI_TYPELIB_PATH=${gipaths}" >> ${envfile}
+              #echo "GNOME_SETTINGS_DAEMON_DISABLE_PLUGINS=usb-protection" >> ${envfile}
+              insinto /etc/env.d/
+              doins ${envfile}
+            }
             pkg_postinst() {
+              macaronictl etc-update
               gnome3_pkg_postinst
             }
             pkg_postrm() {
+              local envfile="90gnome-shell"
+              rm /etc/env.d/${envfile} 2>&1 >/dev/null
+              macaronictl etc-update
               gnome3_pkg_postrm
             }
 

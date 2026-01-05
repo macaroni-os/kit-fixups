@@ -1576,6 +1576,22 @@ gnome_release_pkgs:
             - systemd
             - udev
             - user
+          required_components:
+            - org.gnome.Shell
+            - org.gnome.SettingsDaemon.A11ySettings
+            - org.gnome.SettingsDaemon.Color
+            - org.gnome.SettingsDaemon.Datetime
+            - org.gnome.SettingsDaemon.Housekeeping
+            - org.gnome.SettingsDaemon.Keyboard
+            - org.gnome.SettingsDaemon.MediaKeys
+            - org.gnome.SettingsDaemon.Power
+            - org.gnome.SettingsDaemon.PrintNotifications
+            - org.gnome.SettingsDaemon.Rfkill
+            - org.gnome.SettingsDaemon.ScreensaverProxy
+            - org.gnome.SettingsDaemon.Sharing
+            - org.gnome.SettingsDaemon.Smartcard
+            - org.gnome.SettingsDaemon.Sound
+            - org.gnome.SettingsDaemon.Wacom
           cdepend: |
             virtual/udev
             dev-libs/libgudev:=
@@ -1681,6 +1697,18 @@ gnome_release_pkgs:
               # install XDG_DATA_DIRS gdm changes
               echo 'XDG_DATA_DIRS="/usr/share/gdm"' > 99xdg-gdm
               doenvd 99xdg-gdm
+              # Rewrite RequireComponents on gnome-login.session. I prefer
+              # keep control of the mandatory components used in bootstrap.
+              local components=(
+                {{- range $c := .Values.required_components }}
+                "{{ $c }}"
+                {{- end }}
+              )
+              local reqc="${components[@]}"
+              reqc="RequiredComponents=${reqc// /;};"
+              sed -e 's|^Kiosk=true|#Kiosk=true|g' \
+                -i "${D}"/usr/share/gnome-session/sessions/gnome-login.session
+              echo "${reqc}" >> "${D}"/usr/share/gnome-session/sessions/gnome-login.session
             }
             pkg_postinst() {
               gnome3_pkg_postinst
@@ -1888,6 +1916,7 @@ gnome_release_pkgs:
 
     - gnome-shell-extensions:
         vars:
+          release: '48'
           desc: JavaScript extensions for GNOME Shell
           license: GPL-2+
           iuse: X
@@ -2311,6 +2340,7 @@ gnome_release_pkgs:
     - gnome-settings-daemon:
         category: gnome-base
         vars:
+          release: '48'
           python_compat: python3+
           inherit:
             - gnome3
@@ -2403,6 +2433,7 @@ gnome_release_pkgs:
     - gnome-control-center:
         category: gnome-base
         vars:
+          release: '48'
           inherit:
             - gnome3
             - meson

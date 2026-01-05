@@ -443,12 +443,20 @@ glycin_gitlab:
             }
             src_configure() {
               local formats=(
-                $(usev heif glycin-heif)
-                $(usev jpeg2k glycin-jpeg2000)
-                $(usev jpegxl glycin-jxl)
-                $(usev svg glycin-svg)
                 glycin-image-rs
               )
+              if use heif ; then
+                formats+=( glycin-heif )
+              fi
+              if use jpeg2k ; then
+                formats+=( glycin-jpeg2000 )
+              fi
+              if use jpegxl ; then
+                formats+=( glycin-jxl )
+              fi
+              if use svg ; then
+                formats+=( glycin-svg )
+              fi
               local formats_s=${formats[*]}
               local emesonargs=(
                 -Dprofile=$(usex debug dev release)

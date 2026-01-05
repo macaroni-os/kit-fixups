@@ -1706,6 +1706,7 @@ gnome_release_pkgs:
     - mutter:
         category: x11-wm
         vars:
+          release: '48'
           desc: GNOME compositing window manager based on Clutter
           homepage: https://mutter.gnome.org
           python_compat: python3+
@@ -1868,6 +1869,13 @@ gnome_release_pkgs:
                 )
               fi
               meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              # This file seems not generated. Maybe for systemd migration.
+              # Add a workaround for now.
+              insinto /usr/share/applications/
+              doins "${FILESDIR}"/mutter.desktop
             }
             pkg_postinst() {
               use udev && udev_reload

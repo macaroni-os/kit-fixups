@@ -2087,6 +2087,7 @@ gnome_release_pkgs:
     - gnome-session:
         category: gnome-base
         vars:
+          release: 48
           inherit:
             - desktop
             - gnome3
@@ -2131,8 +2132,26 @@ gnome_release_pkgs:
               app-text/xmlto
               app-text/docbook-xml-dtd:4.1.2
             )
+          required_components:
+            - org.gnome.Shell
+            - org.gnome.SettingsDaemon.A11ySettings
+            - org.gnome.SettingsDaemon.Color
+            - org.gnome.SettingsDaemon.Datetime
+            - org.gnome.SettingsDaemon.Housekeeping
+            - org.gnome.SettingsDaemon.Keyboard
+            - org.gnome.SettingsDaemon.MediaKeys
+            - org.gnome.SettingsDaemon.Power
+            - org.gnome.SettingsDaemon.PrintNotifications
+            - org.gnome.SettingsDaemon.Rfkill
+            - org.gnome.SettingsDaemon.ScreensaverProxy
+            - org.gnome.SettingsDaemon.Sharing
+            - org.gnome.SettingsDaemon.Smartcard
+            - org.gnome.SettingsDaemon.Sound
+            - org.gnome.SettingsDaemon.Wacom
+            - org.gnome.SettingsDaemon.XSettings
           patches:
-            - gnome-session-49-elogind.patch
+            #- gnome-session-49-elogind.patch
+            - gnome-session-46.0-meson-Support-elogind.patch
           body: |
             src_prepare() {
               default
@@ -2163,6 +2182,18 @@ gnome_release_pkgs:
               # default cursor symlink globally and affecting other DEs (bug #543488)
               # https://bugzilla.gnome.org/show_bug.cgi?id=711703
               newexe "${FILESDIR}/90-xcursor-theme-gnome" 90-xcursor-theme-gnome
+
+              # Rewrite RequireComponents on gnome-session. I prefer
+              # keep control of the mandatory components used in bootstrap.
+              local components=(
+                {{- range $c := .Values.required_components }}
+                "{{ $c }}"
+                {{- end }}
+              )
+              local reqc="${components[@]}"
+              reqc="RequiredComponents=${reqc// /;};"
+              sed -e "s|^RequiredComponents=.*|${reqc}|g" \
+                -i "${D}"/usr/share/gnome-session/sessions/gnome.session
             }
             pkg_postinst() {
               gnome3_pkg_postinst

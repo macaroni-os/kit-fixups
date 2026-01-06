@@ -118,7 +118,8 @@ target:
     # - pkg: gnome-base/gnome-shell-common
     - pkg: gnome-base/libgnome-keyring
 
-    - pkg: gnome-extra/chrome-gnome-shell
+    # chrome-gnome-shell replaced by gnome-browser-connector
+    #- pkg: gnome-extra/chrome-gnome-shell
     - pkg: gnome-extra/gconf-editor
     # gnome-documents replaced by papers
     - pkg: gnome-extra/gnome-documents
@@ -154,12 +155,10 @@ target:
     - pkg: games-board/sjeng
     - pkg: games-board/stockfish
 
-    - pkg: media-libs/babl
     - pkg: media-libs/clutter
     - pkg: media-libs/clutter-gst
     - pkg: media-libs/clutter-gtk
     - pkg: media-libs/cogl
-    - pkg: media-libs/gegl
     - pkg: media-libs/grilo
     - pkg: media-libs/gsound
 

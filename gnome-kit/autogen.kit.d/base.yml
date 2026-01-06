@@ -26,7 +26,7 @@ media_libs:
             match: ".tar.xz"
             replace: ""
         vars:
-          release: 0.14
+          release: '0.14'
           python_compat: python3+
           desc: GObject-based wrapper around the Exiv2 library
           homepage: https://wiki.gnome.org/Projects/gexiv2
@@ -2815,6 +2815,46 @@ gnome_apps:
       opts:
 
   packages:
+
+    - gnome-browser-connector:
+        vars:
+          release: '42'
+          python_compat: python3+
+          inherit:
+            - meson
+            - python-single-r1
+            - xdg
+          desc: OS-native connector counterpart for GNOME Shell browser extension
+          license: GPL-3+
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            ${PYTHON_DEPS}
+            $(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
+            gnome-base/gnome-shell
+            !gnome-extra/chrome-gnome-shell
+          depend: '${RDEPEND}'
+          patches:
+            - gnome-browser-connector-42.1-python-path.patch
+          body: |
+            src_install() {
+              meson_src_install
+              # fix shebang (python_fix_shebang doesn't work correctly for this).
+              sed -i -e '1s:#!.*:#!/usr/bin/python:g' "${D}"/usr/bin/${PN}
+              sed -i -e '1s:#!.*:#!/usr/bin/python:g' "${D}"/usr/bin/${PN}-host
+              python_optimize
+              # Macaroni OS uses split-user rootfs
+              insinto /usr/lib/mozilla/native-messaging-hosts
+              for id in chrome_gnome_shell browser_connector; do
+                doins "${ED}/usr/$(get_libdir)/mozilla/native-messaging-hosts/org.gnome.${id}.json"
+              done
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+
+              elog "Please note that this package provides OS-native connector only."
+              elog "You can install browser extension using link provided at"
+              elog "https://extensions.gnome.org website."
+            }
 
     - tali:
         category: games-board
@@ -9891,4 +9931,206 @@ gnome_robots:
             }
             pkg_postrm() {
               gnome3_pkg_postrm
+            }
+
+
+gimp_sources:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: https://download.gimp.org/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$"
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".{{ .Values.tarball_suffix }}"
+        replace: ""
+    vars:
+      tarball_suffix: 'tar.xz'
+      license: LGPL-2.1+
+      homepage: 'https://gitlab.gnome.org/{{ .Values.gitlab_user }}/{{ .Values.pkgname | default .Values.pn }}'
+      gitlab_user: GNOME
+
+  extensions_defs:
+    rust:
+      opts:
+
+  packages:
+
+    - babl:
+        vars:
+          release: '0.1'
+          extra_envs:
+            - 'VALA_USE_DEPEND=vapigen'
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          desc: A dynamic, any to any, pixel format conversion library
+          homepage: https://gegl.org/babl/
+          license: LGPL-3
+          iuse: |
+            introspection lcms vala cpu_flags_x86_avx2 cpu_flags_x86_f16c
+            cpu_flags_x86_mmx cpu_flags_x86_sse cpu_flags_x86_sse2
+            cpu_flags_x86_sse4_1
+          bdepend: |
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          rdepend: |
+            introspection? ( dev-libs/gobject-introspection:= )
+            lcms? ( media-libs/lcms )
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              gnome3_environment_reset
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              # Automagic rsvg support is just for website generation we do not call,
+              #     so we don't need to fix it
+              # w3m is used for dist target thus no issue for us that it is automagically
+              #     detected
+              local emesonargs=(
+                -Dwith-docs=false
+                $(meson_use introspection enable-gir)
+                $(meson_feature lcms with-lcms)
+                $(meson_use vala enable-vapi)
+                $(meson_use cpu_flags_x86_avx2 enable-avx2)
+                $(meson_use cpu_flags_x86_f16c enable-f16c)
+                $(meson_use cpu_flags_x86_mmx enable-mmx)
+                $(meson_use cpu_flags_x86_sse enable-sse)
+                $(meson_use cpu_flags_x86_sse2 enable-sse2)
+                $(meson_use cpu_flags_x86_sse4_1 enable-sse4_1)
+              )
+              meson_src_configure
+            }
+
+    - gegl:
+        vars:
+          release: '0.4'
+          python_compat: python3+
+          extra_envs:
+            - 'VALA_USE_DEPEND=vapigen'
+          inherit:
+            - flag-o-matic
+            - meson
+            - python-any-r1
+            - toolchain-funcs
+            - vala
+          desc: A graph based image processing framework
+          homepage: https://gegl.org/
+          license: '|| ( GPL-3+ LGPL-3 )'
+          slot: '0.4'
+          # TODO: sdl3?
+          iuse: |
+            cairo debug ffmpeg introspection jpeg2k lcms
+            openexr openmp pdf raw sdl sdl2 svg tiff umfpack vala
+            v4l webp
+          required_use: |
+            svg? ( cairo )
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib
+            >=media-libs/babl-0.1.118[introspection?,lcms?,vala?]
+            media-libs/libjpeg-turbo:=
+            media-libs/libnsgif:=
+            media-libs/libpng:=
+            sys-libs/zlib
+            x11-libs/gdk-pixbuf
+            x11-libs/pango
+            cairo? ( x11-libs/cairo )
+            ffmpeg? ( media-video/ffmpeg:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+            jpeg2k? ( media-libs/jasper:= )
+            lcms? ( media-libs/lcms )
+            openexr? ( media-libs/openexr:= )
+            pdf? ( app-text/poppler[cairo] )
+            raw? ( media-libs/libraw:= )
+            sdl? ( media-libs/libsdl )
+            sdl2? ( media-libs/libsdl2 )
+            svg? ( gnome-base/librsvg )
+            tiff? ( media-libs/tiff:= )
+            umfpack? ( media-libs/umfpack )
+            v4l? ( media-libs/libv4l )
+            webp? ( media-libs/libwebp:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            dev-lang/perl
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            pkg_setup() {
+              python-any-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              # patch executables suffix
+              sed -i -e "s/'gegl'/'gegl-0.4'/" bin/meson.build || die
+              sed -i -e "s/'gegl-imgcmp'/'gegl-imgcmp-0.4'/" tools/meson.build || die
+              sed -i -e "s/gegl-imgcmp/gegl-imgcmp-0.4/" tests/simple/test-exp-combine.py || die
+              # skip UNEXPECTED PASSED 'matting-levin' test
+              sed -i -e "s/composition_tests += 'matting-levin'//" \
+                -e "s/composition_tests_fail += 'matting-levin'//" tests/compositions/meson.build || die
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              filter-lto
+              local emesonargs=(
+                -Ddocs=false  # website
+                -Dgi-docgen=disabled
+                -Dworkshop=false
+                $(meson_use introspection)
+                $(meson_feature vala vapigen)
+                # Optional dependencies (as per upstream)
+                -Dgdk-pixbuf=enabled
+                -Dgexiv2=disabled
+                # - Noop option. Its fully optional at runtime.
+                -Dgraphviz=disabled
+                $(meson_feature jpeg2k jasper)
+                $(meson_feature lcms)
+                # - Needs -Dworkshop=true
+                -Dlensfun=disabled
+                $(meson_feature ffmpeg libav)
+                $(meson_feature raw libraw)
+                $(meson_feature svg librsvg)
+                # - Not in portage main tree
+                -Dlibspiro=disabled
+                $(meson_feature tiff libtiff)
+                # - v4l support does not work with our media-libs/libv4l-0.8.9,
+                #   upstream bug at https://bugzilla.gnome.org/show_bug.cgi?id=654675
+                $(meson_feature v4l libv4l)
+                $(meson_feature v4l libv4l2)
+                -Dlua=disabled
+                -Dmrg=disabled
+                # - Unpackaged, needs -Dworkshop=true
+                #   Implementation of the feature in gimp stalled
+                #   https://gitlab.gnome.org/GNOME/gimp/-/issues/2912
+                -Dmaxflow=disabled
+                $(meson_feature openexr)
+                $(meson_feature openmp)
+                $(meson_feature cairo)
+                -Dpango=enabled
+                $(meson_feature cairo pangocairo)
+                $(meson_feature pdf poppler)
+                -Dpygobject=disabled
+                $(meson_feature sdl sdl1)
+                $(meson_feature sdl2 sdl2)
+                $(meson_feature umfpack)
+                $(meson_feature webp)
+              )
+              meson_src_configure
             }

@@ -1124,7 +1124,7 @@ gnome_stuff:
           patches:
             - gnome-music-meson36.patch
           python_compat: python3+
-          release: "3.36"
+          release: "49"
           desc: Music management for Gnome
           homepage: https://wiki.gnome.org/Apps/Music
           license: GPL-2+
@@ -1501,10 +1501,185 @@ gstreamer_stuff:
 
   packages:
 
+    - gst-plugins-vaapi:
+        category: media-plugins
+        vars:
+          desc: Hardware accelerated video decoding through VA-API plugin for GStreamer
+          homepage: https://gitlab.freedesktop.org/gstreamer/gstreamer-vaapi
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          pkgpath: gstreamer-vaapi/
+          pkgname: gstreamer-vaapi
+          license: LGPL-2.1+
+          iuse: +drm +egl gles2 +opengl wayland +X
+          required_use: |
+            || ( drm gles2 opengl wayland X )
+            gles2? ( egl )
+            opengl? ( || ( egl X ) )
+          rdepend: |
+            dev-libs/glib:2
+            >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}[egl?,gles2?,opengl?,wayland?,X?]
+            media-libs/mesa[gles2?,egl(+)?,X?]
+            x11-libs/libva:=[drm?,wayland?,X?]
+            drm? (
+              virtual/libudev:=
+              x11-libs/libdrm
+            )
+            wayland? ( dev-libs/wayland )
+            X? (
+              x11-libs/libX11
+              x11-libs/libXrandr
+              x11-libs/libXrender
+            )
+          depend: |
+            ${RDEPEND}
+            dev-util/gtk-doc-am
+          inherit:
+            - meson
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dpackage-name="GStreamer vaapi plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+                -Dwith_encoders=yes
+                -Dwith_drm=$(usex drm yes no)
+                -Dwith_x11=$(usex X yes no)
+                -Dwith_wayland=$(usex wayland yes no)
+              )
+              if use opengl || use gles2; then
+                  emesonargs+=( -Dwith_egl=$(usex egl yes no) )
+              else
+                  emesonargs+=( -Dwith_egl=no )
+              fi
+              if use opengl && use X; then
+                  emesonargs+=( -Dwith_glx=yes )
+              else
+                  emesonargs+=( -Dwith_glx=no )
+              fi
+              # Workaround EGL/eglplatform.h being built with X11 present
+              use X || export CFLAGS="${CFLAGS} -DEGL_NO_X11"
+              meson_src_configure
+            }
+
+    - gst-plugins-libav:
+        category: media-plugins
+        vars:
+          desc: FFmpeg based gstreamer plugin
+          homepage: https://gstreamer.freedesktop.org/modules/gst-libav.html
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          pkgpath: gst-libav/
+          pkgname: gst-libav
+          rdepend: |
+            dev-libs/glib:2
+            >=media-libs/gstreamer-{{ .Values.version }}:1.0
+            media-libs/gst-plugins-base:1.0
+            media-libs/ffmpeg:=
+          depend: '${RDEPEND}'
+          inherit:
+            - meson
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Dpackage-name="GStreamer libav plug-ins (MacaroniOS Linux)"
+                -Dpackage-origin="https://macaronios.org"
+              )
+              meson_src_configure
+            }
+
+    - gst-plugins-meta:
+        category: media-plugins
+        # meta package
+        ignore_artefacts: true
+        vars:
+          desc: Meta ebuild to pull in gst plugins for apps
+          pkgname: gstreamer
+          pkgpath: gstreamer/
+          # tocheck:
+          # aac
+          iuse: |
+            aac a52 alsa cdda dts dv dvb dvd ffmpeg flac http lame
+            libass libvisual mp3 modplug mpeg ogg opus oss pulseaudio
+            taglib theora v4l vaapi vcd vorbis vpx wavpack X x264
+          rdepend: |
+            >=media-libs/gstreamer-{{ .Values.version }}:{{ .Values.slot }}
+            >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}
+            >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}
+            a52? (
+              >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[a52dec]
+            )
+            aac? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[aac]
+            )
+            cdda? ( || (
+                >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[cdio]
+                >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[cdda]
+              )
+            )
+            dts? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[dts]
+            )
+            dvb? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[dvb]
+            )
+            dvd? (
+              >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[a52dec,dvdread,mpeg2dec,dvd]
+            )
+            ffmpeg? (
+              >=media-plugins/gst-plugins-libva-{{ .Values.version }}:{{ .Values.slot }}
+            )
+            flac? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[flac]
+            )
+            http? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[soup]
+            )
+            lame? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[lame]
+            )
+            libass? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[libass]
+            )
+            mp3? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[mp3]
+            )
+            opus? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[opus]
+            )
+            mpeg? (
+              >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[mpeg2dec]
+            )
+            pulseaudio? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[pulseaudio]
+            )
+            modplug? (
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[modplug]
+            )
+            taglib? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[taglib]
+            )
+            v4l? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[v4l]
+            )
+            vaapi? (
+              >=media-plugins/gst-plugins-vaapi-{{ .Values.version }}:{{ .Values.slot }}
+            )
+            vcd? (
+              >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[mpeg2dec]
+              >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[mplex]
+            )
+            vpx? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[vpx]
+            )
+            wavpack? (
+              >=media-libs/gst-plugins-good-{{ .Values.version }}:{{ .Values.slot }}[wavpack]
+            )
+            x264? (
+              >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[x264]
+            )
+
     - gst-plugins-ugly:
         vars:
           inherit:
-            - meson
+          - meson
           desc: Ugly plugins for GStreamer
           iuse: +x264 cdio dvdread a52dec mpeg2dec sidplay +orc +gpl
           rdepend: |
@@ -1548,20 +1723,79 @@ gstreamer_stuff:
           inherit:
             - meson
           desc: Good plugins for GStreamer
-          iuse: +orc
+          iuse: +orc flac +soup lame +mp3 +pulseaudio taglib v4l udev vpx wavpack
           rdepend: |
             >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}
             app-arch/bzip2
             sys-libs/zlib
             orc? ( dev-lang/orc )
+            flac? (
+              media-libs/flac:=
+            )
+            soup? (
+              net-libs/libsoup:3
+            )
+            lame? (
+              media-sound/lame
+            )
+            mp3? (
+              media-sound/mpg123
+            )
+            pulseaudio? (
+              media-sound/pulseaudio
+            )
+            taglib? (
+              media-libs/taglib:=
+            )
+            v4l? (
+              media-libs/libv4l
+              udev? ( dev-libs/libgudev:= )
+            )
+            vpx? (
+              media-libs/libvpx:=
+            )
+            wavpack? (
+              media-sound/wavpack
+            )
           depend: '${RDEPEND}'
+          gst_plugins:
+            - bz2
+            - flac
+            - cairo
+            - jpeg
+            - lame
+            - mpg123
+            - oss
+            - pulse
+            - png
+            - soup
+            - taglib
+            - v4l
+            - vpx
+            - wavpack
           body: |
             src_configure() {
               local emesonargs=(
-                -Dbz2=enabled
+                {{- range $plugin := .Values.gst_plugins }}
+                -D{{ $plugin }}=enabled
+                {{- end }}
+                $(meson_feature flac)
+                $(meson_feature soup)
+                $(meson_feature lame)
+                $(meson_feature mp3 mpg123)
+                $(meson_feature pulseaudio pulse)
+                $(meson_feature taglib)
+                $(meson_feature v4l)
+                $(meson_feature vpx)
+                $(meson_feature wavpack)
                 -Dpackage-name="GStreamer good plug-ins (MacaroniOS Linux)"
                 -Dpackage-origin="https://macaronios.org"
               )
+              if use v4l ; then
+                emesonargs+=(
+                  -Dv4l-gudev=$(usex udev enabled disabled)
+                )
+              fi
               meson_src_configure
             }
 
@@ -1570,7 +1804,9 @@ gstreamer_stuff:
           inherit:
             - meson
           desc: Less plugins for GStreamer
-          iuse: X bzip2 +egl gles2 +introspection +opengl +orc udev vaapi vnc wayland
+          iuse: |
+            X bzip2 +egl gles2 +introspection +opengl +orc udev vaapi
+            vnc wayland aac dts dvb dvd mpeg2enc libass modplug mplex
           rdepend: |
             >=media-libs/gstreamer-{{ .Values.version }}:{{ .Values.slot }}[introspection?]
             introspection? ( dev-libs/gobject-introspection )
@@ -1586,15 +1822,51 @@ gstreamer_stuff:
               media-libs/libva
               udev? ( dev-libs/libgudev )
             )
+            aac? (
+              media-libs/faad2
+            )
+            dts? (
+              media-libs/libdca
+              orc? ( dev-lang/orc )
+            )
+            dvd? (
+              media-libs/libdvdnav
+              media-libs/libdvdread
+            )
+            mpeg2enc? (
+              media-video/mjpegtools
+            )
+            libass? (
+              media-libs/libass:=
+            )
+            opus? (
+              media-libs/opus:=
+            )
+            modplug? (
+              media-libs/libmodplug
+            )
+            mplex? (
+              media-video/mjpegtools
+            )
           depend: |
             ${RDEPEND}
             dev-util/gtk-doc-am
           # TODO: there are a lot of others plugins to verify: flite, mpeg2
           gst_plugins:
+            - assrender
+            - dts
+            - dvb
+            - faad
             - bz2
             - hls
             - ipcpipeline
+            - libass
             - librfb
+            - modplug
+            - mpeg2enc
+            - mplex
+            - opus
+            - resindvd
             - shm
             - va
             - wayland
@@ -1616,18 +1888,22 @@ gstreamer_stuff:
                 $(meson_feature vnc librfb)
                 -Dx11=$(usex X $(usex vnc enabled disabled) disabled)
                 $(meson_feature wayland)
+                $(meson_feature aac faad)
+                $(meson_feature dvd resindvd)
+                $(meson_feature mpeg2enc)
+                $(meson_feature libass assrender)
+                $(meson_feature opus)
+                $(meson_feature mplex)
                 -Dpackage-name="GStreamer bad plug-ins (MacaroniOS Linux)"
                 -Dpackage-origin="https://macaronios.org"
               )
-              if use opengl || use gles2; then
+              if use opengl || use gles2 || use aac || use dts || use dvd || use mpeg2enc; then
                 myconf+=( -Dgl=enabled )
               else
                 myconf+=( -Dgl=disabled )
               fi
               meson_src_configure
             }
-
-
 
     - gst-plugins-base:
         vars:
@@ -1638,7 +1914,7 @@ gstreamer_stuff:
           license: GPL-2+ LGPL-2+
           iuse: |
             alsa +egl gbm gles2 +introspection +ogg +opus +opengl
-            +orc +pango theora +vorbis wayland +X
+            +orc +pango theora +vorbis wayland +X cdda
           required_use: |
             theora? ( ogg )
             vorbis? ( ogg )
@@ -1698,6 +1974,9 @@ gstreamer_stuff:
               media-libs/libpng:0
               virtual/jpeg
             )
+            cdda? (
+              media-sound/cdparanoia
+            )
           depend: |
             ${RDEPEND}
             dev-util/gtk-doc-am
@@ -1735,7 +2014,7 @@ gstreamer_stuff:
                 $(meson_feature X xshm)
                 $(meson_feature X xvideo)
               )
-              if use opengl || use gles2; then
+              if use opengl || use gles2 || use cdda ; then
                 # because meson doesn't like extraneous commas
                 local gl_api=( $(use opengl && echo opengl) $(use gles2 && echo gles2) )
                 local gl_platform=( $(use X && use opengl && echo glx) $(use egl && echo egl) )

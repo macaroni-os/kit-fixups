@@ -111,7 +111,6 @@ brave_github:
             app-arch/bzip2
           depend: |
             ${CDEPEND}
-            gnome-base/gconf:2
           rdepend: ${CDEPEND}
           s: ${WORKDIR}
           body: |
@@ -157,8 +156,6 @@ brave_github:
               xdg_desktop_database_update
               xdg_mimeinfo_database_update
             }
-
-
 
 opera:
   generator: builtin-dirlisting
@@ -1521,13 +1518,6 @@ firefox:
               # Update mimedb for the new .desktop file
               xdg_desktop_database_update
               xdg_icon_cache_update
-              if ! has_version 'gnome-base/gconf' || ! has_version 'gnome-base/orbit' \
-                || ! has_version 'net-misc/curl'; then
-                einfo
-                einfo "For using the crashreporter, you need gnome-base/gconf,"
-                einfo "gnome-base/orbit and net-misc/curl emerged."
-                einfo
-              fi
               elog
               elog "Note regarding Trusted Recursive Resolver aka DNS-over-HTTPS (DoH):"
               elog "Due to privacy concerns (encrypting DNS might be a good thing, sending all"

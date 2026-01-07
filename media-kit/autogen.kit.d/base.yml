@@ -1809,7 +1809,7 @@ gstreamer_stuff:
             - meson
           desc: Less plugins for GStreamer
           iuse: |
-            X bzip2 +egl gles2 +introspection +opengl +orc udev vaapi
+            X bzip2 +egl gles2 +introspection +opengl +orc opus udev vaapi
             vnc wayland aac dts dvb dvd mpeg2enc libass modplug mplex
           rdepend: |
             >=media-libs/gstreamer-{{ .Values.version }}:{{ .Values.slot }}[introspection?]

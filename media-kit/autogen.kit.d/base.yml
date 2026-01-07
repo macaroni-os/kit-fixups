@@ -1102,6 +1102,9 @@ gnome_stuff:
   generator: builtin-dirlisting
   template:
     engine: helm
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -1470,8 +1473,9 @@ tiff:
 
 gstreamer_stuff:
   generator: builtin-dirlisting
-  template:
-    engine: helm
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
@@ -2150,6 +2154,9 @@ formulae_brew_pkgs:
   # NOTE: we use adelielinux fork because the sourceforge
   #       version seems unmaintained.
   generator: builtin-json
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl

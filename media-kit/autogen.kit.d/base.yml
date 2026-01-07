@@ -3389,3 +3389,59 @@ ffmpeg:
 
     - ffmpeg:
 
+libcdr:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://dev-www.libreoffice.org/src/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-.*.tar.xz$'
+
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      desc: Library parsing the Corel cdr documents
+      homepage: https://wiki.documentfoundation.org/DLP/Libraries/libcdr
+      license: MPL-2.0
+      iuse: doc
+      rdepend: |
+        dev-libs/icu:=
+        dev-libs/librevenge
+        media-libs/lcms
+        sys-libs/zlib
+      depend: |
+        ${RDEPEND}
+        dev-libs/boost
+      bdepend: |
+        sys-devel/libtool
+        virtual/pkgconfig
+        doc? ( app-text/doxygen )
+      inherit:
+        - autotools
+      body: |
+        src_prepare() {
+            default
+            elibtoolize
+        }
+        src_configure() {
+            local myeconfargs=(
+                $(use_with doc docs)
+                --disable-tests
+            )
+            econf "${myeconfargs[@]}"
+        }
+        src_install() {
+            default
+            find "${D}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - libcdr:

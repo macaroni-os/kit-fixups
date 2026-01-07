@@ -12,9 +12,6 @@ video_gh:
         github:
           user: mpv-player
           query: releases
-        selector:
-          # 0.40 requires ffmpeg 6.1 not available in the tree
-          - '<0.36'
         vars:
           desc: Command line media player
           homepage: "https://mpv.io/ https://github.com/mpv-player/mpv"
@@ -29,7 +26,7 @@ video_gh:
             - lua-single
             - pax-utils
             - python-single-r1
-            - xdg-utils
+            - xdg
           license: LGPL-2.1+ GPL-2+ BSD ISC
           iuse: |
             +alsa aqua archive bluray cdda +cli coreaudio cplugins cuda debug doc +drm
@@ -183,7 +180,6 @@ video_gh:
                 #-Dlua=$(usex lua "${ELUA}" disabled)
                 -Dlua=$(usex lua "lua" disabled)
                 $(meson_feature rubberband)
-                -Dsdl2=$(use gamepad || use sdl && echo enabled || echo disabled) #857156
                 $(meson_feature uchardet)
                 -Dvapoursynth=disabled # only available in overlays
                 $(meson_feature zimg)
@@ -569,7 +565,7 @@ sound_gh:
 
 
 libs_gh:
-  generator: builtin-noop
+  generator: builtin-github
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -579,20 +575,15 @@ libs_gh:
   packages:
 
     - libplacebo:
-        #github:
-        #  user: haasn
-        #  query: releases
-        selector:
-          - "=5.264.1"
-        # We need a review of mark-devkit in order to support github with children assets
+        github:
+          user: haasn
+          query: releases
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
             url: https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.pn }}/tarball/v{{ .Values.version }}
           - name: "{{ .Values.pn }}-{{ .Values.version }}-glad-{{ .Values.glad_hash }}.tar.gz"
             url: https://github.com/Dav1dde/glad/archive/{{ .Values.glad_hash }}.tar.gz
         vars:
-          versions:
-            - "5.264.1"
           github_user: haasn
           glad_hash: 525eddb7e04bc4008b691fb38a6d31bf3cad684c
           desc: Reusable library for GPU-accelerated image processing primitives

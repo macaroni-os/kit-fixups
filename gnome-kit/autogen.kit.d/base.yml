@@ -7235,7 +7235,6 @@ gnome_apps:
               meson_src_configure
             }
 
-
     - atkmm:
         category: dev-cpp
         selector:
@@ -7251,7 +7250,7 @@ gnome_apps:
           homepage: https://gtkmm.gnome.org/en/index.html
           iuse: gtk-doc
           rdepend: |
-            dev-cpp/glibmm:2[gtk-doc?]
+            dev-cpp/glibmm:2.68[gtk-doc?]
             >=dev-libs/atk-2.58.0
             dev-libs/libsigc++
           depend: '${RDEPEND}'

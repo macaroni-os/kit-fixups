@@ -975,8 +975,6 @@ gnome_release_pkgs:
 
     - gnome-tweaks:
         vars:
-          # Temporary downgrade this because we needs py3.10
-          release: '45'
           desc: Customize advanced GNOME options
           license: GPL-3+ CC0-1.0
           python_compat: python3+
@@ -987,6 +985,8 @@ gnome_release_pkgs:
             - gnome3
             - meson
             - python-single-r1
+          patches:
+            - gnome-tweaks-py39.patch
           rdepend: |
             ${CDEPEND}
             $(python_gen_cond_dep '
@@ -1009,6 +1009,10 @@ gnome_release_pkgs:
             sys-devel/gettext
             virtual/pkgconfig
           body: |
+            src_prepare() {
+              default
+              sed -i -e 's|3.10|3.9|' meson.build
+            }
             src_install() {
               meson_src_install
               python_optimize

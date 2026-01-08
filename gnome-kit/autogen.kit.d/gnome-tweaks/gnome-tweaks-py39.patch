@@ -1,0 +1,70 @@
+diff --git a/gnome-tweaks b/gnome-tweaks
+index b912c0d..d10c663 100755
+--- a/gnome-tweaks
++++ b/gnome-tweaks
+@@ -19,6 +19,7 @@ gi.require_version('GUdev', '1.0')
+ import gtweak
+ from gtweak.defs import VERSION, APP_ID, GSETTINGS_SCHEMA_DIR, TWEAK_DIR, DATA_DIR, \
+                                 PKG_DATA_DIR, LOCALE_DIR
++from typing import Optional
+ 
+ def set_internationalization(domain, locale_dir):
+     """
+@@ -55,7 +56,7 @@ def setup_defs_for_prefix(prefix: str):
+     gtweak.PKG_DATA_DIR = os.path.join(me, "data")
+ 
+ 
+-def setup_defs(prefix: str | None = None):
++def setup_defs(prefix: Optional[str] = None):
+     """
+     Setup the directory definitions
+     """
+diff --git a/gtweak/widgets.py b/gtweak/widgets.py
+index ccdbd1a..8680826 100644
+--- a/gtweak/widgets.py
++++ b/gtweak/widgets.py
+@@ -3,7 +3,7 @@
+ # License-Filename: LICENSES/GPL-3.0
+ 
+ import logging
+-from typing import List
++from typing import List, Optional
+ 
+ from gi.repository import Adw, GLib, Gtk, Gio, GObject, Pango
+ 
+@@ -310,7 +310,7 @@ class TweakPreferencesGroup(Adw.PreferencesGroup, TweakGroup):
+ 
+ class TweakCheckButton(Adw.Bin):
+ 
+-    def __init__(self, title: str, keyvalue: str, subtitle: str | None = None):
++    def __init__(self, title: str, keyvalue: str, subtitle: Optional[str] = None):
+         super().__init__()
+ 
+         self.keyvalue = keyvalue
+@@ -596,7 +596,7 @@ class FileChooserButton(Gtk.Button, GObject.Object):
+         if self._file:
+             self._btn_content.set_label(self._file.get_basename())
+ 
+-    def get_absolute_path(self) -> str | None:
++    def get_absolute_path(self) -> Optional[str]:
+         return self._file.get_path() if self._file else None
+ 
+     @GObject.Property(str)
+@@ -604,7 +604,7 @@ class FileChooserButton(Gtk.Button, GObject.Object):
+         return self._file.get_uri()
+ 
+     @file_uri.setter
+-    def _set_file_uri(self, uri: str | None):
++    def _set_file_uri(self, uri: Optional[str]):
+         self._file = Gio.File.new_for_uri(uri) if uri else None
+ 
+         if self._file and self.get_realized():
+@@ -758,7 +758,7 @@ class TweaksCheckGroupActionRow(Adw.PreferencesRow, Tweak):
+ 
+         self.settings.connect(f"changed::{self.key_name}", self._on_settings_changed)
+ 
+-    def add_row(self, title: str, key_name: str, subtitle: str | None = None) -> TweakCheckButton:
++    def add_row(self, title: str, key_name: str, subtitle: Optional[str] = None) -> TweakCheckButton:
+         row = TweakCheckButton(title=title, subtitle=subtitle, keyvalue=key_name)
+ 
+         if self.group is None:

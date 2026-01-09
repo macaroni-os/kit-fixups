@@ -2148,6 +2148,85 @@ gstreamer_stuff:
             }
 
 
+gstreamer_rs:
+  generator: builtin-dirlisting
+  markdevkit_min_version: 0.28.4
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-plugins
+    dir:
+      url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/0.[0-9.]+"
+      exclude: 'alpha|gstreamer-'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.original_version }}.tar.bz2'
+
+    transform:
+      - kind: string
+        match: '/gstreamer/gst-plugins-rs/-/tags/'
+        replace: ''
+    vars:
+      gitlab_user: gstreamer
+      gitlab_repo: gst-plugins-rs
+  extensions_defs:
+    rust:
+      opts:
+        # flavors seems a create without tag and/or not needed
+        # for our use case.
+        #crates_skipped: "flavors"
+        creates_git_depth: 200
+
+  packages:
+
+    - gst-plugins-rs:
+        extensions:
+          - rust
+        inherit:
+          - cargo
+        vars:
+          extra_envs:
+            - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
+          desc: GStreamer plugins written in Rust
+          inherit:
+            - cargo
+            - meson
+          homepage: https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs
+          slot: '1.0'
+          rdepend: |
+            dev-libs/glib
+            x11-libs/gtk:4
+            media-libs/gstreamer:1.0
+            media-libs/gst-plugins-base:1.0
+            media-libs/freetype
+            dav1d? (
+              media-libs/dav1d
+            )
+          depend: '${RDEPEND}'
+          iuse: +dav1d
+          body: |
+            src_prepare() {
+              default
+              rm -rf tutorial
+              sed -i -e '/"tutorial"/d' Cargo.toml
+            }
+            src_configure() {
+              MAKEOPTS="-j3"
+              cargo_src_configure
+              local emesonargs=(
+                -Dflavors=disabled
+                -Dtests=disabled
+                -Dexamples=disabled
+                -Ddoc=disabled
+                -Dskia=disabled
+                #-Danalytics=disabled
+              )
+              meson_src_configure
+              ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+            }
+
 formulae_brew_pkgs:
   # NOTE: we use adelielinux fork because the sourceforge
   #       version seems unmaintained.

@@ -2467,6 +2467,39 @@ media_libs_gh:
       query: releases
   packages:
 
+    - musicbrainz:
+        template: ../../templates/simple.tmpl
+        revision: 2
+        github:
+          user: metabrainz
+          repo: libmusicbrainz
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.original_version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+            matcher: '{{ .Values.github_repo }}-.*.tar.gz'
+        vars:
+          inherit:
+            - cmake
+          iuse: examples
+          s: '${WORKDIR}/{{ .Values.github_repo }}-{{ .Values.original_version }}'
+          rdepend: |
+            dev-libs/libxml2:=
+            net-libs/neon
+          depend: '${RDEPEND}'
+          slot: '5/1'
+          patches:
+            - musicbrainz-5.1.0-no-wildcards.patch
+            - musicbrainz-5.1.0-libxml2-2.12.patch
+            - musicbrainz-5.1.0-libxml2-2.12-compat.patch
+          body: |
+            src_install() {
+              cmake_src_install
+              if use examples; then
+                docinto examples
+                dodoc examples/*.{c,cc,txt}
+                docompress -x /usr/share/doc/{{ .Values.pn }}-{{ .Values.original_version }}/examples
+              fi
+            }
+
     - libwmf:
         github:
           user: caolanm

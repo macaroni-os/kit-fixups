@@ -2820,6 +2820,67 @@ gnome_apps:
 
   packages:
 
+    - brasero:
+        category: app-cdr
+        vars:
+          release: '3.12'
+          inherit:
+            - gnome3
+          desc: CD/DVD burning application for the GNOME desktop
+          license: GPL-2+ CC-BY-SA-3.0
+          slot: '0/3.1'
+          iuse: +css +introspection +libburn mp3 nautilus playlist tracker
+          depend: |
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            media-libs/gstreamer:1.0
+            media-libs/gst-plugins-base:1.0
+            dev-libs/libxml2:=
+            x11-libs/libnotify:=
+            media-libs/libcanberra
+            x11-libs/libICE
+            x11-libs/libSM
+            introspection? ( dev-libs/gobject-introspection:= )
+            libburn? (
+              dev-libs/libburn:=
+              dev-libs/libisofs:=
+            )
+            nautilus? ( gnome-base/nautilus )
+            playlist? ( dev-libs/totem-pl-parser:= )
+            tracker? ( app-misc/tinysparql:= )
+          rdepend: |
+            ${RDEPEND}
+            media-libs/gst-plugins-good:1.0
+            media-plugins/gst-plugins-meta:1.0[mp3?]
+            x11-themes/hicolor-icon-theme
+            !libburn? (
+              app-cdr/cdrdao
+              app-cdr/cdrtools
+              app-cdr/dvd+rw-tools
+            )
+          bdepend: |
+            dev-util/intltool
+            dev-util/itstool
+            dev-util/gtk-doc-am
+            sys-devel/gettext
+            virtual/pkgconfig
+          pdepend: |
+            gnome-base/gvfs
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                --disable-caches \
+                $(use_enable !libburn cdrtools) \
+                $(use_enable !libburn cdrkit) \
+                $(use_enable !libburn cdrdao) \
+                $(use_enable !libburn growisofs) \
+                $(use_enable introspection) \
+                $(use_enable libburn libburnia) \
+                $(use_enable nautilus) \
+                $(use_enable playlist) \
+                $(use_enable tracker search)
+            }
+
     - gnome-browser-connector:
         vars:
           release: '42'

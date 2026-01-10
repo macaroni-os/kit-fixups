@@ -2467,6 +2467,76 @@ media_libs_gh:
       query: releases
   packages:
 
+    - libwmf:
+        github:
+          user: caolanm
+          query: tags
+        vars:
+          inherit:
+            - autotools
+            - gnome3
+          iuse: debug doc expat X
+          patches:
+            - libwmf-0.2.8.4-build.patch
+            - libwmf-0.2.8.4-libpng-1.5.patch
+            - libwmf-0.2.8.4-pngfix.patch
+          rdepend: |
+            app-text/ghostscript-gpl
+            media-fonts/urw-fonts
+            media-libs/freetype:=
+            media-libs/libpng:=
+            media-libs/libjpeg-turbo
+            sys-libs/zlib
+            x11-libs/gdk-pixbuf:2
+            expat? ( dev-libs/expat )
+            !expat? ( dev-libs/libxml2:= )
+            X? (
+              x11-libs/libX11
+              x11-libs/libXt
+              x11-libs/libXpm
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          extra_envs:
+            - 'GHOSTSCRIPT_VERSION="9.53.3"'
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              local myeconfargs=(
+                --disable-gd
+                --disable-static
+                $(use_enable debug)
+                $(use_with expat)
+                $(use_with !expat libxml2)
+                $(use_with X x)
+                --with-docdir=/usr/share/doc/{{ .Values.pn }}-{{ .Values.version }}/
+                --with-fontdir=/usr/share/fonts/urw-fonts
+                --with-freetype
+                --with-gsfontdir=/usr/share/fonts/urw-fonts
+                --with-gsfontmap=/usr/share/ghostscript/${GHOSTSCRIPT_VERSION}/Resource/Init/Fontmap
+                --with-jpeg
+                --with-layers
+                --with-png
+                --with-sys-gd
+                --with-zlib
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              MAKEOPTS=-j1
+              default
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - pipewire:
         # TODO: check if add init.d script
         category: media-video

@@ -618,7 +618,7 @@ sys_apps_github:
             match: 'ICU '
             replace: ''
         assets:
-          - name: '{{ .Values.pn }}4c-sources.tgz'
+          - name: '{{ .Values.pn }}4c-{{ .Values.version }}-sources.tgz'
             matcher: '{{ .Values.pn }}4c-.*-sources.tgz$'
         vars:
           license: BSD

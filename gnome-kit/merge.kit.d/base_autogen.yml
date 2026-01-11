@@ -108,8 +108,13 @@ target:
     - pkg: dev-libs/libhandy
     - pkg: dev-libs/libical
     - pkg: dev-libs/libmanette
-    - pkg: dev-libs/libpeas
+    - pkg: dev-libs/libpeas:0
+      conditions:
+        - '<dev-libs/libpeas-1.37'
+
     - pkg: dev-libs/libpeas:2
+      conditions:
+        - '>=dev-libs/libpeas-2.2.0'
     - pkg: dev-libs/librevenge
     - pkg: dev-libs/pegtl
     - pkg: dev-libs/totem-pl-parser

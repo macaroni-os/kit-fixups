@@ -586,6 +586,57 @@ dev_github:
 
   packages:
 
+    - libbpf:
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }} '
+            replace: ''
+          - kind: string
+            match: 'v'
+            replace: ''
+        vars:
+          inherit:
+            - flag-o-matic
+            - toolchain-funcs
+          s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.version }}/src'
+          iuse: +static-libs
+          slot: '0/0.3'
+          rdepend: |
+            virtual/libelf
+          depend: |
+            ${RDEPEND}
+            sys-kernel/linux-headers
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            post_src_unpack() {
+              mv {{ .Values.pn }}-{{ .Values.pn }}-* {{ .Values.pn }}-{{ .Values.version }}
+            }
+            src_compile() {
+                append-cflags -fPIC
+                emake \
+                    BUILD_SHARED=y \
+                    LIBSUBDIR="$(get_libdir)" \
+                    $(usex static-libs 'BUILD_STATIC=y' '' '' '') \
+                    CC="$(tc-getCC)" \
+                    AR="$(tc-getAR)" \
+                    V=1
+            }
+            src_install() {
+                emake \
+                    BUILD_SHARED=y \
+                    LIBSUBDIR="$(get_libdir)" \
+                    DESTDIR="${D}" \
+                    $(usex static-libs 'BUILD_STATIC=y' '' '' '') \
+                    install install_uapi_headers
+
+                insinto /usr/$(get_libdir)/pkgconfig
+                doins ${PN}.pc
+
+                # Avoid conflicts with sys-kernel/linux-headers
+                rm "${ED}"/usr/include/linux/{btf,bpf,bpf_common}.h -v
+            }
+
     - meson:
         template: ../../templates/simple-github.tmpl
         github:

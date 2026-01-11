@@ -8900,6 +8900,54 @@ virtual_pkgs:
     category: virtual
   packages:
 
+    - gnome-shell-extension-transparent-topbar:
+        category: gnome-extra
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.zip'
+            url: 'https://extensions.gnome.org/extension-data/transparent-top-barftpix.com.v{{ .Values.version }}.shell-extension.zip'
+        vars:
+          extra_envs:
+            - 'EXTENSION_NAME=transparent-top-bar@ftpix.com'
+          license: GPL-2
+          homepage: https://github.com/lamarios/gnome-shell-extension-transparent-top-bar
+          rdepend: |
+            dev-libs/glib:2
+            app-eselect/eselect-gnome-shell-extensions
+            gnome-base/gnome-shell
+          inherit:
+            - gnome3-utils
+          depend: '${RDEPEND}'
+          versions:
+            - '26'
+          s: '${WORKDIR}/transparent-top-bar-{{ .Values.version }}'
+          body: |
+            src_unpack() {
+              local myp="transparent-top-bar-{{ .Values.version }}"
+              cd ${WORKDIR}
+              mkdir ${myp}
+              cd ${myp}
+              unpack ${A}
+            }
+            src_install() {
+              local extdir=/usr/share/gnome-shell/extensions/
+              dodir ${extdir}/${EXTENSION_NAME}
+              for i in * ; do
+                cp -r ${S}/${i} ${D}/${extdir}/${EXTENSION_NAME}/
+              done
+            }
+            pkg_preinst() {
+              gnome3_schemas_savelist
+            }
+            pkg_postinst() {
+              gnome3_schemas_update
+              ebegin "Updating list of installed extensions"
+              eselect gnome-shell-extensions update
+              eend $?
+            }
+            pkg_postrm() {
+              gnome3_schemas_update
+            }
+
     # Gentoo maintained package in gnome gitlab.
     # Maybe we can install it directly from gtk?
     - gtk-update-icon-cache:
@@ -9040,6 +9088,122 @@ github_libs:
     github:
       query: tags
   packages:
+
+    - gnome-shell-extension-dash-to-dock:
+        category: gnome-extra
+        github:
+          user: micheleg
+          repo: dash-to-dock
+          match: '^extensions'
+          num_pages: 4
+        transform:
+          - kind: regex
+            match: 'extensions\.gnome\.org-v'
+            replace: ''
+        vars:
+          rdepend: |
+            dev-libs/glib:2
+            app-eselect/eselect-gnome-shell-extensions
+            gnome-base/gnome-shell
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-util/intltool
+            sys-devel/gettext
+          inherit:
+            - gnome3-utils
+          body: |
+            src_prepare() {
+              default
+              # Set correct version
+              export VERSION="${PV}"
+              # Don't install README and COPYING in unwanted locations
+              sed -i -e 's/COPYING//g' -e 's/README.md//g' Makefile || die
+            }
+            pkg_preinst() {
+              gnome3_schemas_savelist
+            }
+            pkg_postinst() {
+              gnome3_schemas_update
+              ebegin "Updating list of installed extensions"
+              eselect gnome-shell-extensions update
+              eend $?
+            }
+            pkg_postrm() {
+              gnome3_schemas_update
+            }
+
+    - gnome-orchis-theme:
+        category: x11-themes
+        github:
+          user: vinceliuice
+          repo: Orchis-theme
+          query: releases
+        transform:
+          - kind: string
+            match: '-'
+            replace: ''
+        vars:
+          inherit:
+            - gnome3-utils
+            - xdg
+          iuse: compact solid black purple pink red orange yellow primary macos
+          rdepend: |
+            dev-libs/libxml2:2
+            x11-libs/gtk+:3
+            x11-themes/gtk-engines-murrine
+          depend: |
+            ${RDEPEND}
+            dev-libs/glib:2
+            dev-lang/sassc
+            x11-libs/gdk-pixbuf:2
+          body: |
+            src_configure() {
+              default
+            }
+            src_install() {
+              local args=()
+              if use compact ; then
+                args+=(
+                  --tweaks compact
+                )
+              else
+                if use solid ; then
+                  args+=(
+                    --tweaks solid
+                  )
+                else
+                  if use black ; then
+                  args+=(
+                    --tweaks black
+                  )
+                  else
+                    if use primary ; then
+                      args+=(
+                        --tweaks primary
+                      )
+                    fi
+                  fi
+                fi
+              fi
+              einfo "Using args: ${args[@]}"
+              ${S}/install.sh -d ${D}/usr/share/themes ${args[@]}
+              for i in purple pink red orange yellow ; do
+                if use $i ; then
+                  ${S}/install.sh -d ${D}/usr/share/themes ${args[@]} --theme $i
+                fi
+              done
+              if use macos ; then
+                ${S}/install.sh -d ${D}/usr/share/themes --tweaks macos -n Orchis-Macos
+              fi
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+              gnome3_gconf_install
+              gnome3_gdk_pixbuf_update
+            }
+            pkg_postrm() {
+              xdg_pkg_postrm
+            }
 
     - libical:
         github:
@@ -9833,7 +9997,6 @@ gitlab_freedesktop_dirlisting:
         url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
 
   packages:
-
 
     - geoclue:
         vars:
@@ -10690,11 +10853,6 @@ gitlab_com_dirlisting:
     category: net-libs
     dir:
       url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
-      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/VERSION_[0-9.]+"
-      #matcher: "VERSION_[0-9.]+"
-      #https://gitlab.com/accounts-sso/libaccounts-glib/-/tags/VERSION_1.27
-      # Skip release candidate/beta versions
-      #exclude: '^[0-9]'
     assets:
       - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
         url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.original_version }}.tar.bz2'
@@ -10704,7 +10862,57 @@ gitlab_com_dirlisting:
 
   packages:
 
+    - gnome-shell-extension-desktop-icons:
+        assets:
+          - name: '{{ .Values.pn }}-gtk4-{{ .Values.version }}.tar.bz2'
+            url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.gitlab_repo }}-{{ .Values.original_version }}.tar.bz2'
+        category: gnome-extra
+        dir:
+          url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+          matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo | default .Values.pn }}/-/tags/Gtk4-[0-9.-]+.*"
+        transform:
+          - kind: string
+            match: 'Gtk4-'
+            replace: ''
+          - kind: string
+            match: '-'
+            replace: '.'
+        vars:
+          s: '${WORKDIR}/{{ .Values.gitlab_repo }}-{{ .Values.original_version }}'
+          gitlab_user: smedius
+          gitlab_repo: desktop-icons-ng
+          inherit:
+            - gnome3-utils
+            - meson
+            - xdg-utils
+          desc: A GNOME Shell extension for providing desktop icons (GTK4 Fork)
+          license: GPL-3
+          rdepend: |
+            dev-libs/glib:2
+            x11-libs/gtk:4
+            app-eselect/eselect-gnome-shell-extensions
+            gnome-base/gnome-shell
+            gnome-base/nautilus
+          depend: '${RDEPEND}'
+          body: |
+            pkg_preinst() {
+              gnome3_schemas_savelist
+            }
+            pkg_postinst() {
+              gnome3_schemas_update
+              ebegin "Updating list of installed extensions"
+              eselect gnome-shell-extensions update
+              eend $?
+              xdg_icon_cache_update
+            }
+            pkg_postrm() {
+              gnome3_schemas_update
+              xdg_icon_cache_update
+            }
+
     - libaccounts-glib:
+        dir:
+          matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/VERSION_[0-9.]+"
         transform:
           - kind: string
             match: 'VERSION_'

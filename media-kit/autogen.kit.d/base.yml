@@ -1098,6 +1098,7 @@ gnome_stuff:
     rate_duration: "5s"
 
   defaults:
+    category: media-sound
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     dir:
@@ -1112,8 +1113,56 @@ gnome_stuff:
         replace: ""
 
   packages:
+
+    - sound-juicer:
+        vars:
+          release: '3.40'
+          inherit:
+            - gnome3
+            - meson
+          desc: CD ripper for GNOME
+          homepage: https://wiki.gnome.org/Apps/SoundJuicer
+          license: GPL-2+
+          iuse: flac vorbis
+          rdepend: |
+            dev-libs/glib:2[dbus]
+            x11-libs/gtk+:3
+            gnome-base/gsettings-desktop-schemas
+            app-cdr/brasero
+            media-plugins/gst-plugins-meta:1.0[cdda,flac?]
+            gnome-base/gvfs[cdda,udev]
+            media-libs/libcanberra
+            media-libs/musicbrainz:=
+            media-libs/libdiscid
+            sys-apps/dbus
+
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-text/iso-codes
+            app-text/docbook-xml-dtd:4.3
+            dev-libs/appstream-glib
+            dev-util/itstool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              # Avoid sandbox failures
+              sed -i -e '/gst_inspect/d' meson.build || die
+              default
+            }
+            src_install() {
+              meson_src_install
+              # Don't put files in deprecated directory
+              rm -rf "${ED}"/usr/share/doc/${PN} || die
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
+
     - gnome-music:
-        category: media-sound
         vars:
           patches:
             - gnome-music-meson36.patch

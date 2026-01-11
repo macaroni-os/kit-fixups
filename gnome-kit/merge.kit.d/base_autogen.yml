@@ -99,10 +99,10 @@ target:
     - pkg: dev-libs/libgweather
     - pkg: dev-libs/libgnome-games-support:1
       conditions:
-        - '<dev-libs/libgnome-games-support-2.0'
+        - '<dev-libs/libgnome-games-support-2.0:1'
     - pkg: dev-libs/libgnome-games-support:2
       conditions:
-        - '>=dev-libs/libgnome-games-support-2.0'
+        - '>=dev-libs/libgnome-games-support-2.0:2'
     - pkg: dev-libs/libgudev
     - pkg: dev-libs/libgusb
     - pkg: dev-libs/libhandy
@@ -110,11 +110,11 @@ target:
     - pkg: dev-libs/libmanette
     - pkg: dev-libs/libpeas:0
       conditions:
-        - '<dev-libs/libpeas-1.37'
+        - '<dev-libs/libpeas-1.37:0'
 
     - pkg: dev-libs/libpeas:2
       conditions:
-        - '>=dev-libs/libpeas-2.2.0'
+        - '>=dev-libs/libpeas-2.2.0:2'
     - pkg: dev-libs/librevenge
     - pkg: dev-libs/pegtl
     - pkg: dev-libs/totem-pl-parser

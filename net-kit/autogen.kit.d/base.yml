@@ -2360,6 +2360,7 @@ gitlab_freedesktop_dirlisting:
             - udev
             - user
             - vala
+            - systemd
           pkgname: NetworkManager
           iuse: |
             audit bluetooth +concheck connection-sharing debug dhclient dhcpcd
@@ -2524,13 +2525,13 @@ gitlab_freedesktop_dirlisting:
 
                 -Dsession_tracking_consolekit=false
                 $(meson_use lto b_lto)
+                -Dsystemdsystemunitdir=$(systemd_get_systemunitdir)
               )
 
               if use elogind; then
                 emesonargs+=(
                   -Dsession_tracking=elogind
                   -Dsuspend_resume=elogind
-                  -Dsystemdsystemunitdir=false
                   -Dsystemd_journal=false
                 )
               else
@@ -2538,18 +2539,15 @@ gitlab_freedesktop_dirlisting:
                   emesonargs+=(
                     -Dsuspend_resume=systemd
                     -Dsession_tracking=systemd
-                    -Dsystemdsystemunitdir=$(systemd_get_systemunitdir)
                     -Dsystemd_journal=true
                   )
                 else
                   emesonargs+=(
                     -Dsession_tracking=no
-                    -Dsystemdsystemunitdir=false
                     -Dsystemd_journal=false
                   )
                 fi
               fi
-
 
               if use syslog; then
                 emesonargs+=( -Dconfig_logging_backend_default=syslog )
@@ -2625,6 +2623,11 @@ gitlab_freedesktop_dirlisting:
 
               # Empty
               rmdir "${ED}"/var{/lib{/NetworkManager,},} || die
+
+              if ! use systemd ; then
+                einfo "Removing systemd files ...
+                rm -vrf "${ED}"/lib/systemd || die
+              fi
             }
 
 openprinting:

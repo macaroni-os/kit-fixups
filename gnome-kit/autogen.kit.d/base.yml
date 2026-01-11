@@ -8796,6 +8796,54 @@ github_libs:
       query: tags
   packages:
 
+    - libgusb:
+        github:
+          user: hughsie
+          query: releases
+        template: ../../templates/simple.tmpl
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.xz'
+            matcher: '{{ .Values.pn }}-.*.tar.xz'
+        vars:
+          iuse: +introspection +vala
+          required_use: |
+            vala? ( introspection )
+          extra_envs:
+            - 'VALA_USE_DEPEND=vapigen'
+          inherit:
+            - meson
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            virtual/libusb:1[udev]
+            dev-libs/json-glib[introspection?]
+            introspection? ( dev-libs/gobject-introspection:= )
+            sys-apps/hwdata
+          depend: '${RDEPEND}'
+          bdepend: |
+            vala? ( $(vala_depend) )
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Ddefault_library=shared
+                -Dtests=false
+                -Dumockdev=disabled
+                -Ddocs=false
+                $(meson_use vala vapi)
+                $(meson_use introspection)
+                -Dusb_ids="${EPREFIX}"/usr/share/hwdata/usb.ids
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+
     - libpsl:
         template: ../../templates/simple.tmpl
         assets:

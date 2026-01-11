@@ -8945,6 +8945,82 @@ github_libs:
       query: tags
   packages:
 
+    - libical:
+        github:
+          query: releases
+        template: ../../templates/simple.tmpl
+        transform:
+          - kind: string
+            match: 'Libical '
+            replace: ''
+          - kind: string
+            match: 'v'
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+            matcher: '{{ .Values.pn }}-.*.tar.gz'
+        vars:
+          slot: '0/3'
+          iuse: berkdb doc examples +introspection static-libs +vala
+          required_use: |
+            vala? ( introspection )
+          extra_envs:
+            - 'VALA_USE_DEPEND=vapigen'
+          inherit:
+            - cmake-utils
+            - vala
+          rdepend: |
+            dev-libs/icu:=
+            berkdb? ( sys-libs/db:= )
+            introspection? (
+              dev-libs/libxml2
+              dev-libs/glib:2
+              dev-libs/gobject-introspection:=
+            )
+            sys-libs/timezone-data
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-lang/perl
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              cmake-utils_src_prepare
+              use examples || cmake_comment_add_subdirectory examples
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake-utils_use_find_package berkdb BDB)
+                -DICAL_BUILD_DOCS=$(usex doc)
+                -DICAL_GLIB=$(usex introspection)
+                -DGOBJECT_INTROSPECTION=$(usex introspection)
+                -DSHARED_ONLY=$(usex !static-libs)
+                -DLIBICAL_BUILD_TESTING=OFF
+                -DICAL_GLIB_VAPI=$(usex vala)
+              )
+              if use vala; then
+                mycmakeargs+=(
+                  -DVALAC="${VALAC}"
+                  -DVAPIGEN="${VAPIGEN}"
+                )
+              fi
+              cmake-utils_src_configure
+            }
+            src_compile() {
+              cmake-utils_src_compile
+              use doc && cmake-utils_src_compile docs
+            }
+            src_install() {
+              use doc && HTML_DOCS=( "${BUILD_DIR}"/apidocs/html/. )
+              cmake-utils_src_install
+              if use examples; then
+                rm examples/CMakeLists.txt || die
+                dodoc -r examples
+              fi
+            }
+
     - libgusb:
         github:
           user: hughsie

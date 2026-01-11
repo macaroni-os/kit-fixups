@@ -2820,6 +2820,157 @@ gnome_apps:
 
   packages:
 
+    - libgee:
+        category: dev-libs
+        vars:
+          release: '0.20'
+          slot: '0.8/2'
+          desc: GObject-based interfaces and classes for commonly used data structures
+          iuse: +introspection
+          inherit:
+            - gnome3
+            - vala
+          rdepend: |
+            dev-libs/glib:2
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            $(vala_depend)
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              vala_src_prepare
+              gnome3_src_prepare
+            }
+            src_configure() {
+              gnome3_src_configure \
+                $(use_enable introspection)
+            }
+
+    - libpeas:
+        category: dev-libs
+        vars:
+          slot: 2
+          release: '2.2'
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+            - flag-o-matic
+            - vala
+          desc: A GObject plugins library
+          iuse: glade +gtk lua +python vala
+          # it seems that mozjs library is not detected correctly
+          # keep USE gjs hidden for now
+          #
+          #  gjs? (
+          #    dev-libs/gjs
+          #    dev-lang/spidermonkey
+          #  )
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            gtk? ( x11-libs/gtk+:3[introspection] )
+            lua? (
+              dev-lua/lgi
+              =dev-lang/lua-5.1*:0
+            )
+            python? (
+              ${PYTHON_DEPS}
+              $(python_gen_cond_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              sed -i "s@subdir('introspection')@generate_gir ? subdir('introspection') :@" tests/libpeas/meson.build
+              gnome3_src_prepare
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              # Fix mozjs stuff
+              #append-cflags -DXP_LINUX -D__linux__
+              #append-cxxflags -DXP_LINUX -D__linux__
+
+              local emesonargs=(
+                -Dintrospection=true
+                -Dgtk_doc=false
+                -Dgjs=false
+                $(meson_use lua lua51)
+                #$(meson_use gjs)
+                $(meson_use python python3)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+
+    - libpeas:
+        category: dev-libs
+        vars:
+          release: '1.36'
+          python_compat: python3+
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+            - vala
+          desc: A GObject plugins library
+          iuse: glade +gtk lua +python vala
+          required_use: |
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            gtk? ( x11-libs/gtk+:3[introspection] )
+            lua? (
+              dev-lua/lgi
+              =dev-lang/lua-5.1*:0
+            )
+            python? (
+              ${PYTHON_DEPS}
+              $(python_gen_cond_dep '
+                dev-python/pygobject:3[${PYTHON_USEDEP}]
+              ')
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              use python && python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              sed -i "s@subdir('introspection')@generate_gir ? subdir('introspection') :@" tests/libpeas/meson.build
+              gnome3_src_prepare
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dpython2=false
+                -Dintrospection=true
+                -Ddemos=false
+                -Dgtk_doc=false
+                $(meson_use lua lua51)
+                $(meson_use python python3)
+                $(meson_use vala vapi)
+                $(meson_use gtk widgetry)
+                $(meson_use glade glade_catalog)
+              )
+              meson_src_configure
+            }
+
     - libgsf:
         vars:
           release: '1.14'
@@ -2855,8 +3006,6 @@ gnome_apps:
                 $(use_enable introspection) \
                 $(use_with gtk gdk-pixbuf)
             }
-
-            
 
     - brasero:
         category: app-cdr

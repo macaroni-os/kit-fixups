@@ -8757,6 +8757,80 @@ github_libs:
       query: tags
   packages:
 
+    - libpsl:
+        template: ../../templates/simple.tmpl
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+            matcher: '{{ .Values.pn }}-.*.tar.gz'
+        transform:
+          - kind: string
+            match: 'Release '
+            replace: ''
+          - kind: string
+            match: 'V'
+            replace: ''
+          - kind: string
+            match: 'v'
+            replace: ''
+          - kind: string
+            match: 'libpsl-'
+            replace: ''
+        github:
+          user: rockdaboot
+          query: releases
+          num_pages: 4
+        category: net-libs
+        vars:
+          iuse: icu +idn static-libs
+          inherit:
+            - meson
+            - python-single-r1
+          python_compat: python3+
+          rdepend: |
+            icu? ( !idn? ( dev-libs/icu:= ) )
+            idn? (
+              dev-libs/libunistring:=
+              net-dns/libidn2:=
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            ${PYTHON_DEPS}
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            pkg_pretend() {
+              if use icu && use idn ; then
+                ewarn "\"icu\" and \"idn\" USE flags are enabled. Using \"idn\"."
+              fi
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dtests=false
+              )
+              # Prefer idn even if icu is in USE as well
+              if use idn ; then
+                emesonargs+=(
+                  -Druntime=libidn2
+                  -Dbuiltin=true
+                )
+              elif use icu ; then
+                emesonargs+=(
+                  -Druntime=libicu
+                  -Dbuiltin=true
+                )
+              else
+                emesonargs+=(
+                  -Druntime=no
+                )
+              fi
+              if use static-libs ; then
+                emesonargs+=(
+                  -Ddefault_library=both
+                )
+              fi
+              meson_src_configure
+            }
+
     - pegtl:
         github:
           user: taocpp

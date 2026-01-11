@@ -2820,6 +2820,102 @@ gnome_apps:
 
   packages:
 
+    - gsound:
+        category: media-libs
+        vars:
+          release: '1.0'
+          inherit:
+            - meson
+            - vala
+          desc: Thin GObject wrapper around the libcanberra sound event library
+          iuse: gtk-doc +introspection +vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            media-libs/libcanberra
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              use vala && vala_src_prepare
+              default
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                $(meson_use vala enable_vala)
+              )
+              meson_src_configure
+            }
+
+    - grilo:
+        category: media-libs
+        vars:
+          release: '0.3'
+          slot: '0.3/0'
+          desc: A framework for easy media discovery and browsing
+          inherit:
+            - meson
+            - python-any-r1
+            - vala
+            - gnome3
+          python_compat: python3+
+          iuse: gtk gtk-doc +introspection +network +playlist vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-libs/glib:2
+            net-libs/libsoup:3
+            network? ( dev-libs/libxml2:2 )
+            playlist? ( dev-libs/totem-pl-parser:= )
+            introspection? ( dev-libs/gobject-introspection:= )
+            gtk? (
+              net-libs/liboauth
+              x11-libs/gtk+:3
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? (
+              dev-util/gtk-doc
+              app-text/docbook-xml-dtd:4.3
+            )
+            ${PYTHON_DEPS}
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+              sed -i -e "s:'GETTEXT_PACKAGE', meson.project_name():'GETTEXT_PACKAGE', 'grilo-${SLOT%/*}':" meson.build || die
+              sed -i -e "s:meson.project_name():'grilo-${SLOT%/*}':" po/meson.build || die
+              sed -i -e "s:'grilo':'grilo-${SLOT%/*}':" doc/grilo/meson.build || die
+              # Drop explicit unversioned vapigen check
+              sed -i -e "/find_program.*vapigen/d" meson.build || die
+              # Don't build examples; they get embedded in gtk-doc, thus we don't install the sources with USE=examples either
+              sed -i -e "/subdir('examples')/d" meson.build || die
+              gnome3_src_prepare
+              use vala && vala_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_use network enable-grl-net)
+                $(meson_use playlist enable-grl-pls)
+                $(meson_use gtk-doc enable-gtk-doc)
+                $(meson_use introspection enable-introspection)
+                $(meson_use gtk enable-test-ui)
+                $(meson_use vala enable-vala)
+              )
+              meson_src_configure
+            }
+
     - libgee:
         category: dev-libs
         vars:

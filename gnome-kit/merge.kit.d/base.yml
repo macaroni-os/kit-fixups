@@ -84,14 +84,16 @@ target:
 
     - pkg: net-libs/gtk-vnc
     - pkg: net-libs/libaccounts-glib
-    - pkg: net-libs/libgfbgraph
-    - pkg: net-libs/libzapojit
+    # package libgfbgraph archived on upstream
+    #- pkg: net-libs/libgfbgraph
+    # package libzapojit archived on upstream
+    #- pkg: net-libs/libzapojit
     - pkg: net-libs/telepathy-glib
 
     - pkg: net-misc/connman-gtk
     - pkg: net-misc/connman-ui
-    # updated but to autogen
-    - pkg: net-misc/gnome-online-miners
+    # package gnome-online-miners archived on upstream
+    #- pkg: net-misc/gnome-online-miners
     - pkg: net-misc/vinagre
     - pkg: net-misc/vino
 
@@ -118,7 +120,7 @@ target:
     #- pkg: gnome-extra/chrome-gnome-shell
     - pkg: gnome-extra/gconf-editor
     # gnome-documents replaced by papers
-    - pkg: gnome-extra/gnome-documents
+    #- pkg: gnome-extra/gnome-documents
     - pkg: gnome-extra/gnome-getting-started-docs
     - pkg: gnome-extra/gnome-integration-spotify
 
@@ -139,8 +141,9 @@ target:
     #- pkg: gnome-extra/gnome-todo
     - pkg: gnome-extra/gnome-user-docs
     - pkg: gnome-extra/gnome-user-share
-    - pkg: gnome-extra/libgsf
-    - pkg: gnome-extra/nautilus-sendto
+    # nautilus-sendto is been archived. Candidate for removal?
+    #- pkg: gnome-extra/nautilus-sendto
+    # no updates. package to autogen
     - pkg: gnome-extra/polkit-gnome
 
     - pkg: games-board/aisleriot

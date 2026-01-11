@@ -2820,6 +2820,44 @@ gnome_apps:
 
   packages:
 
+    - libgsf:
+        vars:
+          release: '1.14'
+          extra_envs:
+            - 'GNOME3_EAUTORECONF=yes'
+          inherit:
+            - gnome3
+          desc: The GNOME Structured File Library
+          homepage: https://developer.gnome.org/gsf/
+          license: GPL-2 LGPL-2.1
+          iuse: bzip2 gtk +introspection
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2
+            sys-libs/zlib
+            bzip2? ( app-arch/bzip2 )
+            gtk? (
+              x11-libs/gdk-pixbuf:2
+              media-gfx/imagemagick
+            )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            dev-util/gtk-doc-am
+            dev-util/intltool
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                --disable-static \
+                $(use_with bzip2 bz2) \
+                $(use_enable introspection) \
+                $(use_with gtk gdk-pixbuf)
+            }
+
+            
+
     - brasero:
         category: app-cdr
         vars:
@@ -4675,6 +4713,7 @@ gnome_apps:
               for video in /dev/video* ; do
                 addpredict "${video}"
               done
+              addpredict /proc/self/task
               local emesonargs=(
                 $(meson_use introspection)
                 -Dtests=false

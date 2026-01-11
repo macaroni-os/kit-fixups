@@ -10310,3 +10310,80 @@ gimp_sources:
               )
               meson_src_configure
             }
+
+
+gitlab_com_dirlisting:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-libs
+    dir:
+      url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/VERSION_[0-9.]+"
+      #matcher: "VERSION_[0-9.]+"
+      #https://gitlab.com/accounts-sso/libaccounts-glib/-/tags/VERSION_1.27
+      # Skip release candidate/beta versions
+      #exclude: '^[0-9]'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.original_version }}.tar.bz2'
+    vars:
+      gitlab_user: accounts-sso
+      homepage: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}'
+
+  packages:
+
+    - libaccounts-glib:
+        transform:
+          - kind: string
+            match: 'VERSION_'
+            replace: ''
+        vars:
+          gitlab_repo: libaccounts-glib
+          python_compat: python3+
+          desc: Accounts SSO (Single Sign-On) management library for GLib applications
+          inherit:
+            - meson
+            - python-single-r1
+            - vala
+          s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.original_version }}'
+          license: LGPL-2.1
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            ${PYTHON_DEPS}
+            dev-db/sqlite:3
+            dev-libs/glib:2
+            dev-libs/gobject-introspection:=
+            dev-libs/libxml2:=
+            dev-python/pygobject:3[${PYTHON_USEDEP}]
+          depend: '${RDEPEND}'
+          bdepend: |
+            $(vala_depend)
+            dev-util/gdbus-codegen
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              python-single-r1_pkg_setup
+            }
+            src_prepare() {
+              default
+              vala_src_prepare --ignore-use
+              sed -e "/^subdir('docs')$/d" -i meson.build || die
+              sed -e "/^subdir('tests')$/d" -i meson.build || die
+              # /tmp isn't accessible from sandbox
+              sed -i -e "s|/tmp/\(.*\)|${T}/\1|" tests/check_ag.c || die
+              sed -i -e "s|/tmp|${T}|" tests/meson.build || die
+            }
+
+            src_configure() {
+              local emesonargs=(
+                -Dinstall-py-overrides=true
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_optimize
+            }

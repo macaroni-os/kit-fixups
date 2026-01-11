@@ -2864,10 +2864,10 @@ gnome_apps:
           slot: '0.3/0'
           desc: A framework for easy media discovery and browsing
           inherit:
+            - gnome3
             - meson
             - python-any-r1
             - vala
-            - gnome3
           python_compat: python3+
           iuse: gtk gtk-doc +introspection +network +playlist vala
           required_use: |

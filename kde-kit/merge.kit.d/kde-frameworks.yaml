@@ -1,0 +1,96 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 2
+
+  atoms:
+
+    - pkg: kde-frameworks/attica
+    - pkg: kde-frameworks/baloo
+    - pkg: kde-frameworks/bluez-qt
+    - pkg: kde-frameworks/breeze-icons
+    - pkg: kde-frameworks/extra-cmake-modules
+    - pkg: kde-frameworks/frameworkintegration
+    - pkg: kde-frameworks/kapidox
+    - pkg: kde-frameworks/karchive
+    - pkg: kde-frameworks/kauth
+    - pkg: kde-frameworks/kbookmarks
+    - pkg: kde-frameworks/kcalendarcore
+    - pkg: kde-frameworks/kcmutils
+    - pkg: kde-frameworks/kcodecs
+    - pkg: kde-frameworks/kcolorscheme
+    - pkg: kde-frameworks/kcompletion
+    - pkg: kde-frameworks/kconfig
+    - pkg: kde-frameworks/kconfigwidgets
+    - pkg: kde-frameworks/kcontacts
+    - pkg: kde-frameworks/kcoreaddons
+    - pkg: kde-frameworks/kcrash
+    - pkg: kde-frameworks/kdav
+    - pkg: kde-frameworks/kdbusaddons
+    - pkg: kde-frameworks/kdeclarative
+    - pkg: kde-frameworks/kded
+    - pkg: kde-frameworks/kdesu
+    - pkg: kde-frameworks/kdnssd
+    - pkg: kde-frameworks/kdoctools
+    - pkg: kde-frameworks/kfilemetadata
+    - pkg: kde-frameworks/kglobalaccel
+    - pkg: kde-frameworks/kguiaddons
+    - pkg: kde-frameworks/kholidays
+    - pkg: kde-frameworks/ki18n
+    - pkg: kde-frameworks/kiconthemes
+    - pkg: kde-frameworks/kidletime
+    - pkg: kde-frameworks/kimageformats
+    - pkg: kde-frameworks/kio
+    - pkg: kde-frameworks/kirigami
+    - pkg: kde-frameworks/kitemmodels
+    - pkg: kde-frameworks/kitemviews
+    - pkg: kde-frameworks/kjobwidgets
+    - pkg: kde-frameworks/knewstuff
+    - pkg: kde-frameworks/knotifications
+    - pkg: kde-frameworks/knotifyconfig
+    - pkg: kde-frameworks/kpackage
+    - pkg: kde-frameworks/kparts
+    - pkg: kde-frameworks/kpeople
+    - pkg: kde-frameworks/kplotting
+    - pkg: kde-frameworks/kpty
+    - pkg: kde-frameworks/kquickcharts
+    - pkg: kde-frameworks/krunner
+    - pkg: kde-frameworks/kservice
+    - pkg: kde-frameworks/kstatusnotifieritem
+    - pkg: kde-frameworks/ksvg
+    - pkg: kde-frameworks/ktexteditor
+    - pkg: kde-frameworks/ktexttemplate
+    - pkg: kde-frameworks/ktextwidgets
+    - pkg: kde-frameworks/kunitconversion
+    - pkg: kde-frameworks/kuserfeedback
+    - pkg: kde-frameworks/kwallet
+    - pkg: kde-frameworks/kwidgetsaddons
+    - pkg: kde-frameworks/kwindowsystem
+    - pkg: kde-frameworks/kxmlgui
+    - pkg: kde-frameworks/modemmanager-qt
+    - pkg: kde-frameworks/networkmanager-qt
+    - pkg: kde-frameworks/prison
+    - pkg: kde-frameworks/purpose
+    - pkg: kde-frameworks/qqc2-desktop-style
+    - pkg: kde-frameworks/solid
+    - pkg: kde-frameworks/sonnet
+    - pkg: kde-frameworks/syndication
+    - pkg: kde-frameworks/syntax-highlighting
+    - pkg: kde-frameworks/threadweaver

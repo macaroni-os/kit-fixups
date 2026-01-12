@@ -1,0 +1,233 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 2
+
+  atoms:
+
+    - pkg: kde-apps/akonadi
+    - pkg: kde-apps/akonadi-calendar
+    - pkg: kde-apps/akonadi-calendar-tools-common
+    - pkg: kde-apps/akonadi-contacts
+    - pkg: kde-apps/akonadi-import-wizard
+    - pkg: kde-apps/akonadi-mime
+    - pkg: kde-apps/akonadi-search
+    - pkg: kde-apps/akonadiconsole
+    - pkg: kde-apps/akregator
+    - pkg: kde-apps/analitza
+    - pkg: kde-apps/ark
+    - pkg: kde-apps/artikulate
+    - pkg: kde-apps/audiocd-kio
+    - pkg: kde-apps/baloo-widgets
+    - pkg: kde-apps/blinken
+    - pkg: kde-apps/bomber
+    - pkg: kde-apps/bovo
+    - pkg: kde-apps/calendarjanitor
+    - pkg: kde-apps/calendarsupport
+    - pkg: kde-apps/cantor
+    - pkg: kde-apps/dolphin
+    - pkg: kde-apps/dolphin-plugins-common
+    - pkg: kde-apps/dolphin-plugins-dropbox
+    - pkg: kde-apps/dolphin-plugins-git
+    - pkg: kde-apps/dolphin-plugins-mercurial
+    - pkg: kde-apps/dolphin-plugins-subversion
+    - pkg: kde-apps/dragon
+    - pkg: kde-apps/eventviews
+    - pkg: kde-apps/ffmpegthumbs
+    - pkg: kde-apps/filelight
+    - pkg: kde-apps/granatier
+    - pkg: kde-apps/grantlee-editor
+    - pkg: kde-apps/grantleetheme
+    - pkg: kde-apps/gwenview
+    - pkg: kde-apps/incidenceeditor
+    - pkg: kde-apps/juk
+    - pkg: kde-apps/k3b
+    - pkg: kde-apps/kaccounts-integration
+    - pkg: kde-apps/kaccounts-providers
+    - pkg: kde-apps/kaddressbook
+    - pkg: kde-apps/kajongg
+    - pkg: kde-apps/kalarm
+    - pkg: kde-apps/kalgebra
+    - pkg: kde-apps/kalzium
+    - pkg: kde-apps/kamera
+    - pkg: kde-apps/kamoso
+    - pkg: kde-apps/kanagram
+    - pkg: kde-apps/kapman
+    - pkg: kde-apps/kapptemplate
+    - pkg: kde-apps/kate
+    - pkg: kde-apps/kate-addons
+    - pkg: kde-apps/kate-common
+    - pkg: kde-apps/kate-lib
+    - pkg: kde-apps/katomic
+    - pkg: kde-apps/kbackup
+    - pkg: kde-apps/kblackbox
+    - pkg: kde-apps/kblocks
+    - pkg: kde-apps/kbounce
+    - pkg: kde-apps/kbreakout
+    - pkg: kde-apps/kbruch
+    - pkg: kde-apps/kcachegrind
+    - pkg: kde-apps/kcalc
+    - pkg: kde-apps/kcalutils
+    - pkg: kde-apps/kcharselect
+    - pkg: kde-apps/kcolorchooser
+    - pkg: kde-apps/kcron
+    - pkg: kde-apps/kde-apps-meta
+    - pkg: kde-apps/kde-dev-scripts
+    - pkg: kde-apps/kde-dev-utils
+    - pkg: kde-apps/kdeaccessibility-meta
+    - pkg: kde-apps/kdeadmin-meta
+    - pkg: kde-apps/kdebugsettings
+    - pkg: kde-apps/kdecore-meta
+    - pkg: kde-apps/kdeedu-data
+    - pkg: kde-apps/kdeedu-meta
+    - pkg: kde-apps/kdegames-meta
+    - pkg: kde-apps/kdegraphics-meta
+    - pkg: kde-apps/kdegraphics-mobipocket
+    - pkg: kde-apps/kdemultimedia-meta
+    - pkg: kde-apps/kdenetwork-filesharing
+    - pkg: kde-apps/kdenetwork-meta
+    - pkg: kde-apps/kdenlive
+    - pkg: kde-apps/kdepim-addons
+    - pkg: kde-apps/kdepim-meta
+    - pkg: kde-apps/kdepim-runtime
+    - pkg: kde-apps/kdesdk-meta
+    - pkg: kde-apps/kdesdk-thumbnailers
+    - pkg: kde-apps/kdeutils-meta
+    - pkg: kde-apps/kdf
+    - pkg: kde-apps/kdialog
+    - pkg: kde-apps/kdiamond
+    - pkg: kde-apps/keditbookmarks
+    - pkg: kde-apps/kfind
+    - pkg: kde-apps/kfourinline
+    - pkg: kde-apps/kgeography
+    - pkg: kde-apps/kget
+    - pkg: kde-apps/kgoldrunner
+    - pkg: kde-apps/kgpg
+    - pkg: kde-apps/khangman
+    - pkg: kde-apps/khelpcenter
+    - pkg: kde-apps/kidentitymanagement
+    - pkg: kde-apps/kig
+    - pkg: kde-apps/kigo
+    - pkg: kde-apps/killbots
+    - pkg: kde-apps/kimagemapeditor
+    - pkg: kde-apps/kimap
+    - pkg: kde-apps/kio-extras
+    - pkg: kde-apps/kiriki
+    - pkg: kde-apps/kiten
+    - pkg: kde-apps/kitinerary
+    - pkg: kde-apps/kjumpingcube
+    - pkg: kde-apps/kldap
+    - pkg: kde-apps/kleopatra
+    - pkg: kde-apps/klettres
+    - pkg: kde-apps/klickety
+    - pkg: kde-apps/klines
+    - pkg: kde-apps/kmag
+    - pkg: kde-apps/kmahjongg
+    - pkg: kde-apps/kmail
+    - pkg: kde-apps/kmail-account-wizard
+    - pkg: kde-apps/kmailtransport
+    - pkg: kde-apps/kmbox
+    - pkg: kde-apps/kmime
+    - pkg: kde-apps/kmines
+    - pkg: kde-apps/kmix
+    - pkg: kde-apps/kmousetool
+    - pkg: kde-apps/kmouth
+    - pkg: kde-apps/kmplot
+    - pkg: kde-apps/knavalbattle
+    - pkg: kde-apps/knetwalk
+    - pkg: kde-apps/knights
+    - pkg: kde-apps/kolf
+    - pkg: kde-apps/kollision
+    - pkg: kde-apps/kolourpaint
+    - pkg: kde-apps/kompare
+    - pkg: kde-apps/konqueror
+    - pkg: kde-apps/konquest
+    - pkg: kde-apps/konsole
+    - pkg: kde-apps/konsolekalendar
+    - pkg: kde-apps/kontact
+    - pkg: kde-apps/kontactinterface
+    - pkg: kde-apps/korganizer
+    - pkg: kde-apps/kpat
+    - pkg: kde-apps/kpimtextedit
+    - pkg: kde-apps/kpkpass
+    - pkg: kde-apps/kqtquickcharts
+    - pkg: kde-apps/krdc
+    - pkg: kde-apps/kreversi
+    - pkg: kde-apps/krfb
+    - pkg: kde-apps/kruler
+    - pkg: kde-apps/kshisen
+    - pkg: kde-apps/ksirk
+    - pkg: kde-apps/ksmtp
+    - pkg: kde-apps/ksnakeduel
+    - pkg: kde-apps/kspaceduel
+    - pkg: kde-apps/ksquares
+    - pkg: kde-apps/ksudoku
+    - pkg: kde-apps/ksystemlog
+    - pkg: kde-apps/kteatime
+    - pkg: kde-apps/ktimer
+    - pkg: kde-apps/ktouch
+    - pkg: kde-apps/ktuberling
+    - pkg: kde-apps/kturtle
+    - pkg: kde-apps/kubrick
+    - pkg: kde-apps/kwalletmanager
+    - pkg: kde-apps/kwave
+    - pkg: kde-apps/kwordquiz
+    - pkg: kde-apps/kwrite
+    - pkg: kde-apps/libgravatar
+    - pkg: kde-apps/libkcddb
+    - pkg: kde-apps/libkcddb-common
+    - pkg: kde-apps/libkcompactdisc
+    - pkg: kde-apps/libkdcraw
+    - pkg: kde-apps/libkdegames
+    - pkg: kde-apps/libkdepim
+    - pkg: kde-apps/libkeduvocdocument
+    - pkg: kde-apps/libkexiv2
+    - pkg: kde-apps/libkgapi
+    - pkg: kde-apps/libkleo
+    - pkg: kde-apps/libkmahjongg
+    - pkg: kde-apps/libkomparediff2
+    - pkg: kde-apps/libksane
+    - pkg: kde-apps/libksane-common
+    - pkg: kde-apps/libksieve
+    - pkg: kde-apps/libktnef
+    - pkg: kde-apps/lokalize
+    - pkg: kde-apps/lskat
+    - pkg: kde-apps/mailcommon
+    - pkg: kde-apps/mailimporter
+    - pkg: kde-apps/marble
+    - pkg: kde-apps/mbox-importer
+    - pkg: kde-apps/messagelib
+    - pkg: kde-apps/mimetreeparser
+    - pkg: kde-apps/minuet
+    - pkg: kde-apps/okular
+    - pkg: kde-apps/palapeli
+    - pkg: kde-apps/parley
+    - pkg: kde-apps/picmi
+    - pkg: kde-apps/pim-data-exporter
+    - pkg: kde-apps/pim-sieve-editor
+    - pkg: kde-apps/pimcommon
+    - pkg: kde-apps/poxml
+    - pkg: kde-apps/signon-kwallet-extension
+    - pkg: kde-apps/step
+    - pkg: kde-apps/svgpart
+    - pkg: kde-apps/sweeper
+    - pkg: kde-apps/thumbnailers
+    - pkg: kde-apps/yakuake
+

@@ -1,0 +1,89 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-testing"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 2
+
+  atoms:
+
+    - pkg: kde-plasma/aurorae
+    - pkg: kde-plasma/bluedevil
+    - pkg: kde-plasma/breeze
+    - pkg: kde-plasma/breeze-grub
+    - pkg: kde-plasma/breeze-gtk
+    - pkg: kde-plasma/breeze-plymouth
+    - pkg: kde-plasma/discover
+    - pkg: kde-plasma/drkonqi
+    - pkg: kde-plasma/flatpak-kcm
+    - pkg: kde-plasma/kactivitymanagerd
+    - pkg: kde-plasma/kde-cli-tools
+    - pkg: kde-plasma/kde-cli-tools-common
+    - pkg: kde-plasma/kde-gtk-config
+    - pkg: kde-plasma/kdecoration
+    - pkg: kde-plasma/kdeplasma-addons
+    - pkg: kde-plasma/kgamma
+    - pkg: kde-plasma/kglobalacceld
+    - pkg: kde-plasma/kinfocenter-6.
+    - pkg: kde-plasma/kmenuedit
+    - pkg: kde-plasma/kpipewire
+    - pkg: kde-plasma/krdp
+    - pkg: kde-plasma/kscreen
+    - pkg: kde-plasma/kscreenlocker
+    - pkg: kde-plasma/ksshaskpass
+    - pkg: kde-plasma/ksystemstats
+    - pkg: kde-plasma/kwallet-pam
+    - pkg: kde-plasma/kwayland
+    - pkg: kde-plasma/kwayland-integration
+    - pkg: kde-plasma/kwin
+    - pkg: kde-plasma/kwrited
+    - pkg: kde-plasma/layer-shell-qt
+    - pkg: kde-plasma/libkscreen
+    - pkg: kde-plasma/libksysguard
+    - pkg: kde-plasma/libplasma
+    - pkg: kde-plasma/milou
+    - pkg: kde-plasma/ocean-sound-theme
+    - pkg: kde-plasma/oxygen
+    - pkg: kde-plasma/oxygen-sounds
+    - pkg: kde-plasma/plasma-activities
+    - pkg: kde-plasma/plasma-activities-stats
+    - pkg: kde-plasma/plasma-browser-integration
+    - pkg: kde-plasma/plasma-desktop
+    - pkg: kde-plasma/plasma-disks
+    - pkg: kde-plasma/plasma-firewall
+    - pkg: kde-plasma/plasma-integration
+    - pkg: kde-plasma/plasma-nm
+    - pkg: kde-plasma/plasma-pa
+    - pkg: kde-plasma/plasma-sdk
+    - pkg: kde-plasma/plasma-systemmonitor
+    - pkg: kde-plasma/plasma-thunderbolt
+    - pkg: kde-plasma/plasma-vault
+    - pkg: kde-plasma/plasma-welcome
+    - pkg: kde-plasma/plasma-workspace
+    - pkg: kde-plasma/plasma-workspace-wallpapers
+    - pkg: kde-plasma/plasma5support
+    - pkg: kde-plasma/plymouth-kcm
+    - pkg: kde-plasma/polkit-kde-agent
+    - pkg: kde-plasma/powerdevil
+    - pkg: kde-plasma/print-manager
+    - pkg: kde-plasma/qqc2-breeze-style
+    - pkg: kde-plasma/sddm-kcm
+    - pkg: kde-plasma/spectacle
+    - pkg: kde-plasma/systemsettings
+    - pkg: kde-plasma/wacomtablet
+    - pkg: kde-plasma/xdg-desktop-portal-kde

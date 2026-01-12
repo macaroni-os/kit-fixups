@@ -6,11 +6,16 @@ kde-plasma:
     template: ../../templates/simple.tmpl
     category: kde-plasma
     vars:
-        release: 6.5.4
-        slot: 6
-        homepage: https://invent.kde.org/plasma/
+      release: 6.5.4
+      slot: 6
+      homepage: https://invent.kde.org/plasma/
+      inherit: kde6
+      body: |
+        src_prepare() {
+            kde6_src_prepare
+        }
     selector:
-        - '<6.6'
+      - '<6.6'
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
          url: https://download.kde.org/stable/plasma/{{ .Values.release }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
@@ -21,7 +26,6 @@ kde-plasma:
   packages:
     - aurorae:
         vars:
-          inherit: kde6
           desc: "Themeable window decoration for KWin"
           depend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -66,10 +70,6 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - breeze:
         vars:
           qt5min: 5.15.12
@@ -138,7 +138,6 @@ kde-plasma:
             }
     - breeze-grub:
         vars:
-          inherit: kde6
           desc: "Breeze theme for GRUB"
           body: |
             src_prepare() { default; }
@@ -165,7 +164,6 @@ kde-plasma:
             }
     - breeze-plymouth:
         vars:
-          inherit: kde6
           desc: "Breeze theme for Plymouth"
           depend: |
             sys-boot/plymouth
@@ -178,7 +176,7 @@ kde-plasma:
 
             src_configure() {
                 local mycmakeargs=(
-                    -DDISTRO_NAME="Gentoo Linux"
+                    -DDISTRO_NAME="Macaroni Linux"
                     -DDISTRO_VERSION=
                 )
                 kde6_src_configure
@@ -349,10 +347,6 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kactivitymanagerd:
         vars:
           inherit: kde6 xdg
@@ -372,10 +366,6 @@ kde-plasma:
             dev-libs/boost
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kde-cli-tools:
         vars:
           inherit: kde6 xdg
@@ -438,13 +428,8 @@ kde-plasma:
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
             virtual/pkgconfig
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kdecoration:
         vars:
-          inherit: kde6
           desc: "Plugin based library to create window decorations"
           depend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -511,10 +496,6 @@ kde-plasma:
             ${DEPEND}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kglobalacceld:
         vars:
           inherit: kde6 xdg
@@ -533,13 +514,8 @@ kde-plasma:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - libplasma:
         vars:
-          inherit: kde6
           iuse: "gles2-only"
           desc: "Plasma library and runtime components based upon KF6 and Qt6"
           depend: |
@@ -665,10 +641,6 @@ kde-plasma:
             kde-plasma/plasma-activities:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - powerdevil:
         vars:
           inherit: kde6 fcaps xdg
@@ -859,10 +831,6 @@ kde-plasma:
             kde-frameworks/sonnet:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - knighttime:
         vars:
           inherit: kde6 xdg
@@ -877,10 +845,6 @@ kde-plasma:
             kde-frameworks/ki18n:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kpipewire:
         vars:
           inherit: kde6 xdg
@@ -900,13 +864,8 @@ kde-plasma:
           rdepend: |
             ${DEPEND}
             kde-frameworks/kirigami:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - krdp:
         vars:
-          inherit: kde6
           desc: "Library and examples for creating an RDP server"
           depend: |
             dev-qt/qtbase:{{ .Values.slot }}
@@ -944,10 +903,6 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kscreenlocker:
         vars:
           inherit: kde6 fcaps xdg
@@ -1057,7 +1012,6 @@ kde-plasma:
             }
     - kwallet-pam:
         vars:
-          inherit: kde6
           desc: "KWallet PAM module for unlock KDE Wallet on login"
           depend: |
             dev-libs/libgcrypt:=
@@ -1085,7 +1039,6 @@ kde-plasma:
             }
     - kwayland:
         vars:
-          inherit: kde6
           desc: "Qt-style client and server library wrapper for Wayland libraries"
           depend: |
             >=dev-libs/wayland-1.15.0
@@ -1115,10 +1068,6 @@ kde-plasma:
             media-libs/libepoxy
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - kwin:
         vars:
           inherit: kde6 fcaps xdg
@@ -1334,13 +1283,8 @@ kde-plasma:
             kde-frameworks/kpty:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - layer-shell-qt:
         vars:
-          inherit: kde6
           desc: "Qt component to allow applications to make use of Wayland wl-layer-shell protocol"
           depend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
@@ -1352,7 +1296,6 @@ kde-plasma:
             dev-util/wayland-scanner
     - libkscreen:
         vars:
-          inherit: kde6
           desc: "Plasma screen management library"
           depend: |
             dev-libs/wayland
@@ -1368,7 +1311,6 @@ kde-plasma:
             dev-util/wayland-scanner
     - libksysguard:
         vars:
-          inherit: kde6
           iuse: "webengine X"
           desc: "Task management and system monitoring library"
           depend: |
@@ -1428,13 +1370,8 @@ kde-plasma:
             kde-plasma/libplasma:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - ocean-sound-theme:
         vars:
-          inherit: kde6
           desc: "Ocean Sound Theme for Plasma"
           body: |
             src_prepare() { default; }
@@ -1507,7 +1444,6 @@ kde-plasma:
             }
     - oxygen-sounds:
         vars:
-          inherit: kde6
           desc: "Oxygen sound theme for the Plasma desktop"
           body: |
             src_prepare() { default; }
@@ -1520,7 +1456,6 @@ kde-plasma:
             }
     - plasma-activities:
         vars:
-          inherit: kde6
           desc: "Core components for KDE Activities System"
           rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
@@ -1532,7 +1467,6 @@ kde-plasma:
             dev-libs/boost
     - plasma-activities-stats:
         vars:
-          inherit: kde6
           desc: "Library for accessing the usage data collected by the activities system"
           rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[sql]
@@ -1723,10 +1657,6 @@ kde-plasma:
           rdepend: |
             ${DEPEND}
             sys-apps/smartmontools
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-firewall:
         vars:
           python_compat: python3+
@@ -2004,7 +1934,6 @@ kde-plasma:
             }
     - plasma5support:
         vars:
-          inherit: kde6
           desc: "Support components for porting from KF5/Qt5 to KF6/Qt6"
           depend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -2048,10 +1977,6 @@ kde-plasma:
             x11-themes/sound-theme-freedesktop
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-sdk:
         vars:
           inherit: kde6 xdg
@@ -2081,10 +2006,6 @@ kde-plasma:
             ${DEPEND}
             dev-qt/qt5compat:{{ .Values.slot }}[qml]
             kde-frameworks/kirigami:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-systemmonitor:
         vars:
           inherit: kde6 xdg
@@ -2115,10 +2036,6 @@ kde-plasma:
             kde-frameworks/kitemmodels:{{ .Values.slot }}
             kde-frameworks/kquickcharts:{{ .Values.slot }}
             kde-plasma/ksystemstats:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-thunderbolt:
         vars:
           inherit: kde6 xdg
@@ -2142,10 +2059,6 @@ kde-plasma:
             sys-apps/bolt
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-vault:
         vars:
           inherit: kde6 xdg
@@ -2243,10 +2156,6 @@ kde-plasma:
             kde-plasma/libplasma:{{ .Values.slot }}
           rdepend: |
             ${DEPEND}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - plasma-workspace-wallpapers:
         vars:
           inherit: cmake
@@ -2280,10 +2189,6 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - polkit-kde-agent:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
@@ -2310,10 +2215,6 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
           s: "${WORKDIR}/${PN}-1-${PV}"
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - print-manager:
         vars:
           inherit: kde6 xdg
@@ -2376,7 +2277,6 @@ kde-plasma:
             }
     - qqc2-breeze-style:
         vars:
-          inherit: kde6
           desc: "Breeze inspired QQC2 Style"
           license: "|| ( GPL-2+ LGPL-3+ ) CC0-1.0"
           depend: |
@@ -2415,10 +2315,6 @@ kde-plasma:
             x11-misc/sddm
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
     - wacomtablet:
         vars:
           inherit: kde6 xdg
@@ -2483,11 +2379,6 @@ kde-plasma:
             dev-qt/qtbase:{{ .Values.slot }}[wayland]
             virtual/pkgconfig
             || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
-          body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
 snapshot_pkgs:
   generator: builtin-noop
   template:

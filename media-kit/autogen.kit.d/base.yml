@@ -566,6 +566,7 @@ sound_gh:
 
 libs_gh:
   generator: builtin-github
+  markdevkit_min_version: 0.28.5
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -573,6 +574,104 @@ libs_gh:
     category: media-libs
 
   packages:
+
+    - fontforge:
+        category: media-gfix
+        github:
+          query: tags
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.xz'
+            url: 'https://github.com/{{ .Values.pn }}/{{ .Values.pn }}/releases/download/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.original_version }}.tar.xz'
+        vars:
+          python_compat: python3+
+          inherit:
+            - python-single-r1
+            - xdg
+            - cmake
+          desc: Free (libre) font editor for Windows, Mac OS X and GNU+Linux
+          homepage: https://fontforge.org/
+          iuse: doc truetype-debugger gif gtk jpeg png +python readline tiff svg woff2 X
+          required_use: 'python? ( ${PYTHON_REQUIRED_USE} )'
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libltdl
+            dev-libs/libxml2:=
+            media-libs/freetype:2=
+            gif? ( media-libs/giflib:= )
+            jpeg? ( virtual/jpeg )
+            png? ( media-libs/libpng:0= )
+            tiff? ( media-libs/tiff:= )
+            truetype-debugger? ( media-libs/freetype:2[fontforge] )
+            gtk? ( x11-libs/gtk+:3 )
+            !gtk? (
+              X? (
+                x11-libs/cairo:=
+                x11-libs/pango:=[X]
+                x11-libs/libX11:=
+                x11-libs/libXi:=
+              )
+            )
+            python? ( ${PYTHON_DEPS} )
+            readline? ( sys-libs/readline:= )
+            woff2? ( media-libs/woff2:= )
+          depend: |
+            ${RDEPEND}
+            !gtk? ( X? ( x11-base/xorg-proto ) )
+          bdepend: |
+            sys-devel/gettext
+            doc? ( dev-python/sphinx )
+            python? ( ${PYTHON_DEPS} )
+          body: |
+            src_prepare() {
+              # warning -> error
+              sed -i "s:-q -n -W -b \(html -d doctrees.* sphinx-docs$\):-q -n -b \1:" doc/CMakeLists.txt
+              default
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DENABLE_DOCS=$(usex doc ON OFF)
+                -DENABLE_LIBGIF=$(usex gif ON OFF)
+                -DENABLE_LIBJPEG=$(usex jpeg ON OFF)
+                -DENABLE_LIBPNG=$(usex png ON OFF)
+                -DENABLE_LIBREADLINE=$(usex readline ON OFF)
+                -DENABLE_LIBSPIRO=OFF # No package in Gentoo
+                -DENABLE_LIBTIFF=$(usex tiff ON OFF)
+                -DENABLE_MAINTAINER_TOOLS=OFF
+                -DENABLE_PYTHON_EXTENSION=$(usex python ON OFF)
+                -DENABLE_PYTHON_SCRIPTING=$(usex python ON OFF)
+                -DENABLE_TILE_PATH=ON
+                -DENABLE_WOFF2=$(usex woff2 ON OFF)
+              )
+              if use gtk || use X; then
+                mycmakeargs+=(
+                  -DENABLE_GUI=ON
+                  # Prefer GTK over X11 if both USE flage are enabled
+                  -DENABLE_X11=$(usex gtk OFF ON)
+                )
+              else
+                mycmakeargs+=( -DENABLE_GUI=OFF )
+              fi
+              if use python; then
+                python_setup
+                mycmakeargs+=( -DPython3_EXECUTABLE="${PYTHON}" )
+              fi
+              if use truetype-debugger ; then
+                local ft2="${ESYSROOT}/usr/include/freetype2"
+                local ft2i="${ft2}/internal4fontforge"
+                mycmakeargs+=(
+                  -DENABLE_FREETYPE_DEBUGGER="${ft2}"
+                  -DFreeTypeSource_INCLUDE_DIRS="${ft2};${ft2i}/include;${ft2i}/include/freetype;${ft2i}/src/truetype"
+                )
+              fi
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              docompress -x /usr/share/doc/${PF}/html
+              einstalldocs
+              find "${ED}" -name '*.la' -type f -delete || die
+            }
 
     - libplacebo:
         github:

@@ -795,7 +795,7 @@ kde-plasma:
                 insinto /etc/xdg
                 doins "${FILESDIR}"/kcm-about-distrorc
                 insinto /usr/share/${PN}
-                doins "${DISTDIR}"/glogo-small.png
+                doins "${FILESDIR}"/mlogo-small.png
             }
 
             pkg_postinst() {

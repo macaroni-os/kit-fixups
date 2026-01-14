@@ -6,7 +6,6 @@ kde-plasma:
     template: ../../templates/simple.tmpl
     category: kde-plasma
     vars:
-      release: 6.5.4
       slot: 6
       homepage: https://invent.kde.org/plasma/
       inherit: kde6
@@ -15,10 +14,10 @@ kde-plasma:
             kde6_src_prepare
         }
     selector:
-      - '<6.6'
+      - '<7'
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
-         url: https://download.kde.org/stable/plasma/{{ .Values.release }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
+         url: https://download.kde.org/stable/plasma/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
     dir:
         url: "https://download.kde.org/stable/plasma/"
         matcher: "^6.*"
@@ -27,7 +26,12 @@ kde-plasma:
     - aurorae:
         vars:
           desc: "Themeable window decoration for KWin"
+          rdepend: |
+            !<kde-plasma/kwin-6.3.2
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/ksvg:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qttools:{{ .Values.slot }}
@@ -39,16 +43,14 @@ kde-plasma:
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/kpackage:{{ .Values.slot }}
             kde-plasma/kdecoration:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            !<kde-plasma/kwin-6.3.2
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/ksvg:{{ .Values.slot }}
     - bluedevil:
         vars:
           inherit: kde6 xdg
           desc: "Bluetooth stack for KDE Plasma"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/bluez-qt:{{ .Values.slot }}
@@ -65,9 +67,6 @@ kde-plasma:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X]
             kde-plasma/libplasma:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - breeze:
@@ -165,10 +164,10 @@ kde-plasma:
     - breeze-plymouth:
         vars:
           desc: "Breeze theme for Plymouth"
-          depend: |
-            sys-boot/plymouth
           rdepend: |
-            ${DEPEND}
+            sys-boot/plymouth
+          depend: |
+            ${RDEPEND}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -186,7 +185,10 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "+firmware flatpak snap telemetry webengine"
           desc: "KDE Plasma resources management GUI"
+          rdepend: |
+            snap? ( app-containers/snapd )
           depend: |
+            ${RDEPEND}
             >=dev-libs/appstream-1.0.4:=[qt6]
             dev-libs/kirigami-addons:6
             dev-libs/qcoro
@@ -217,9 +219,6 @@ kde-plasma:
             snap? ( sys-libs/snapd-glib:=[qt6(-)] )
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
             webengine? ( dev-qt/qtwebview:{{ .Values.slot }} )
-          rdepend: |
-            ${DEPEND}
-            snap? ( app-containers/snapd )
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -265,7 +264,20 @@ kde-plasma:
           python_compat: python3+
           inherit: kde6 python-single-r1 xdg
           desc: "Plasma crash handler, gives the user feedback if a program crashed"
+          rdepend: |
+            dev-libs/elfutils[utils]
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            $(python_gen_cond_dep '
+                dev-python/psutil[${PYTHON_USEDEP}]
+                dev-python/pygdbmi[${PYTHON_USEDEP}]
+            ')
+            || (
+                >=dev-debug/gdb-12
+                llvm-core/lldb
+            )
           depend: |
+            ${RDEPEND}
             ${PYTHON_DEPS}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -285,19 +297,6 @@ kde-plasma:
             kde-frameworks/syntax-highlighting:{{ .Values.slot }}
             sys-apps/systemd:=
             >=sys-auth/polkit-qt-0.175.0[qt6(+)]
-          rdepend: |
-            ${DEPEND}
-            dev-libs/elfutils[utils]
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kitemmodels:{{ .Values.slot }}
-            $(python_gen_cond_dep '
-                dev-python/psutil[${PYTHON_USEDEP}]
-                dev-python/pygdbmi[${PYTHON_USEDEP}]
-            ')
-            || (
-                >=dev-debug/gdb-12
-                llvm-core/lldb
-            )
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -330,7 +329,10 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Flatpak Permissions Management KCM"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-libs/glib:2
             dev-qt/qtbase:{{ .Values.slot }}
             dev-qt/qtdeclarative:{{ .Values.slot }}[widgets]
@@ -342,16 +344,13 @@ kde-plasma:
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kitemmodels:{{ .Values.slot }}
             >=sys-apps/flatpak-0.11.8
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - kactivitymanagerd:
         vars:
           inherit: kde6 xdg
           desc: "System service to manage user's activities, track the usage patterns etc."
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui,sql,sqlite]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -364,14 +363,17 @@ kde-plasma:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X]
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             dev-libs/boost
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - kde-cli-tools:
         vars:
           inherit: kde6 xdg
           iuse: "kdesu X"
           desc: "Tools based on KDE Frameworks 6 to better interact with the system"
+          rdepend: |
+            kdesu? ( >=${CATEGORY}/kdesu-gui-${PV} )
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtsvg:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -380,9 +382,6 @@ kde-plasma:
             kde-frameworks/kparts:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             X? ( dev-qt/qtbase:{{ .Values.slot }}[gui,X] )
-          rdepend: |
-            ${DEPEND}
-            kdesu? ( >=${CATEGORY}/kdesu-gui-${PV} )
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -403,7 +402,10 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "GTK+ theme configuration for KDE Plasma desktop"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-libs/glib:2
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -422,26 +424,27 @@ kde-plasma:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             x11-libs/gtk+:2
             x11-libs/gtk+:3
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
             virtual/pkgconfig
     - kdecoration:
         vars:
           desc: "Plugin based library to create window decorations"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - kdeplasma-addons:
         vars:
           inherit: kde6 xdg
           iuse: "share webengine"
           desc: "Extra Plasma applets and engines"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kquickcharts:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qt5compat:{{ .Values.slot }}[qml]
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -463,10 +466,6 @@ kde-plasma:
             kde-plasma/plasma5support:{{ .Values.slot }}
             share? ( kde-frameworks/purpose:{{ .Values.slot }} )
             webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kquickcharts:{{ .Values.slot }}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -483,7 +482,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Monitor calibration tool for KDE"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -492,15 +491,15 @@ kde-plasma:
             kde-frameworks/ki18n:{{ .Values.slot }}
             x11-libs/libX11
             x11-libs/libXxf86vm
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - kglobalacceld:
         vars:
           inherit: kde6 xdg
           desc: "Daemon providing Global Keyboard Shortcut (Accelerator) functionality"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -512,13 +511,16 @@ kde-plasma:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - libplasma:
         vars:
           iuse: "gles2-only"
           desc: "Plasma library and runtime components based upon KF6 and Qt6"
+          rdepend: |
+            !${CATEGORY}/${PN}:5[-kf6compat(-)]
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui,X]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtsvg:{{ .Values.slot }}
@@ -543,9 +545,6 @@ kde-plasma:
             x11-libs/libX11
             x11-libs/libxcb
             !gles2-only? ( media-libs/libglvnd[X] )
-          rdepend: |
-            ${DEPEND}
-            !${CATEGORY}/${PN}:5[-kf6compat(-)]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -562,7 +561,12 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "share"
           desc: "Screenshot capture utility"
+          rdepend: |
+            dev-qt/qtimageformats:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.slot }}
+            kde-frameworks/kimageformats:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-libs/wayland
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland,X]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -593,11 +597,6 @@ kde-plasma:
             x11-libs/xcb-util-cursor
             x11-libs/xcb-util-image
             share? ( kde-frameworks/purpose:{{ .Values.slot }} )
-          rdepend: |
-            ${DEPEND}
-            dev-qt/qtimageformats:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
-            kde-frameworks/kimageformats:{{ .Values.slot }}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -613,7 +612,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Control Center to configure KDE Plasma desktop"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -639,14 +638,23 @@ kde-plasma:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-plasma/plasma-activities:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - powerdevil:
         vars:
           inherit: kde6 fcaps xdg
           iuse: "brightness-control"
           desc: "Power management for KDE Plasma Shell"
+          rdepend: |
+            !<kde-plasma/plasma-workspace-6.1.90:*
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            || (
+                sys-power/power-profiles-daemon
+                sys-power/tlp
+            )
+            >=sys-power/upower-0.9.23
           depend: |
+            ${RDEPEND}
             dev-libs/qcoro[dbus]
             dev-libs/wayland
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
@@ -676,15 +684,6 @@ kde-plasma:
             virtual/libudev:=
             x11-libs/libxcb
             brightness-control? ( app-misc/ddcutil:= )
-          rdepend: |
-            ${DEPEND}
-            !<kde-plasma/plasma-workspace-6.1.90:*
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            || (
-                sys-power/power-profiles-daemon
-                sys-power/tlp
-            )
-            >=sys-power/upower-0.9.23
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -701,7 +700,12 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "openconnect teamd"
           desc: "KDE Plasma applet for NetworkManager"
+          rdepend: |
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kquickcharts:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             >=app-crypt/qca-2.3.7:2[qt6(+)]
             dev-libs/qcoro[dbus]
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -732,11 +736,6 @@ kde-plasma:
                 net-vpn/networkmanager-openconnect
                 net-vpn/openconnect:=
             )
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kdeclarative:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kquickcharts:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
             virtual/pkgconfig
@@ -756,7 +755,12 @@ kde-plasma:
           inherit: kde6 optfeature xdg
           iuse: "gles2-only usb"
           desc: "Utility providing information about the computer hardware"
+          rdepend: |
+            dev-qt/qttools:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-plasma/systemsettings:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui,vulkan]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -770,11 +774,6 @@ kde-plasma:
             virtual/libudev:=
             gles2-only? ( media-libs/mesa )
             usb? ( virtual/libusb:1 )
-          rdepend: |
-            ${DEPEND}
-            dev-qt/qttools:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-plasma/systemsettings:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
             virtual/pkgconfig
@@ -820,7 +819,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "KDE menu editor"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
@@ -829,13 +828,13 @@ kde-plasma:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - knighttime:
         vars:
           inherit: kde6 xdg
           desc: "Helpers for scheduling the dark-light cycle"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtpositioning:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -843,13 +842,16 @@ kde-plasma:
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
             kde-frameworks/kholidays:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - kpipewire:
         vars:
           inherit: kde6 xdg
           desc: "Components relating to Flatpak pipewire use in Plasma"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -861,13 +863,10 @@ kde-plasma:
             media-video/pipewire[extra]
             x11-libs/libdrm
             x11-libs/libva
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
     - krdp:
         vars:
           desc: "Library and examples for creating an RDP server"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}
             dev-qt/qtwayland:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -875,13 +874,16 @@ kde-plasma:
             dev-libs/wayland
             media-libs/libglvnd[X]
             net-misc/freerdp:3=
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - kscreen:
         vars:
           inherit: kde6 xdg
           desc: "KDE Plasma screen management"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtsvg:{{ .Values.slot }}
@@ -898,9 +900,6 @@ kde-plasma:
             kde-plasma/libkscreen:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
             x11-libs/libxcb
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - kscreenlocker:
@@ -908,7 +907,11 @@ kde-plasma:
           inherit: kde6 fcaps xdg
           iuse: "consolekit elogind systemd"
           desc: "Library and components for secure lock screen architecture"
+          rdepend: |
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-libs/wayland
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -938,10 +941,6 @@ kde-plasma:
             consolekit? ( sys-auth/consolekit )
             elogind? ( sys-auth/elogind[pam] )
             systemd? ( sys-apps/systemd:=[pam] )
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kdeclarative:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -968,21 +967,21 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Implementation of ssh-askpass with KDE Wallet integration"
+          rdepend: |
+            net-misc/openssh
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwallet:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            net-misc/openssh
     - ksystemstats:
         vars:
           inherit: kde6 xdg
           iuse: "networkmanager"
           desc: "Plugin based system monitoring daemon"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -997,8 +996,8 @@ kde-plasma:
             sys-libs/libcap
             virtual/libudev:=
             networkmanager? ( kde-frameworks/networkmanager-qt:{{ .Values.slot }} )
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1013,13 +1012,13 @@ kde-plasma:
     - kwallet-pam:
         vars:
           desc: "KWallet PAM module for unlock KDE Wallet on login"
+          rdepend: |
+            net-misc/socat
           depend: |
+            ${RDEPEND}
             dev-libs/libgcrypt:=
             sys-libs/pam
             kde-frameworks/kwallet:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            net-misc/socat
           bdepend: |
             virtual/pkgconfig
           body: |
@@ -1040,13 +1039,13 @@ kde-plasma:
     - kwayland:
         vars:
           desc: "Qt-style client and server library wrapper for Wayland libraries"
-          depend: |
+          rdepend: |
             >=dev-libs/wayland-1.15.0
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
             dev-qt/qtwayland:{{ .Values.slot }}
             media-libs/libepoxy
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             >=dev-libs/wayland-protocols-1.34
@@ -1055,7 +1054,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Provides integration plugins for various KDE frameworks for Wayland"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
             dev-qt/qtwayland:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}[wayland]
@@ -1066,14 +1065,24 @@ kde-plasma:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland]
             kde-plasma/kwayland:{{ .Values.slot }}
             media-libs/libepoxy
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - kwin:
         vars:
           inherit: kde6 fcaps xdg
           iuse: "accessibility gles2-only lock screencast +shortcuts systemd X"
           desc: "Flexible, composited Window Manager for windowing systems on Linux"
+          rdepend: |
+            !kde-plasma/kdeplasma-addons:5
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            kde-plasma/aurorae:{{ .Values.slot }}
+            kde-plasma/breeze:{{ .Values.slot }}
+            kde-plasma/libplasma:{{ .Values.slot }}
+            sys-apps/hwdata
+            X? ( >=x11-base/xwayland-23.1.0[libei] )
           depend: |
+            ${RDEPEND}
             dev-libs/libei
             >=dev-libs/libinput-1.27:=
             >=dev-libs/wayland-1.24.0
@@ -1132,16 +1141,6 @@ kde-plasma:
                 x11-libs/libXres
                 x11-libs/xcb-util-keysyms
             )
-          rdepend: |
-            ${DEPEND}
-            !kde-plasma/kdeplasma-addons:5
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kitemmodels:{{ .Values.slot }}
-            kde-plasma/aurorae:{{ .Values.slot }}
-            kde-plasma/breeze:{{ .Values.slot }}
-            kde-plasma/libplasma:{{ .Values.slot }}
-            sys-apps/hwdata
-            X? ( >=x11-base/xwayland-23.1.0[libei] )
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             >=dev-libs/wayland-protocols-1.45
@@ -1181,7 +1180,17 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "accessibility gles2-only lock +shortcuts systemd"
           desc: "Flexible, composited Window Manager for windowing systems on Linux"
+          rdepend: |
+            !kde-plasma/kdeplasma-addons:5
+            !<kde-plasma/kwin-6.3.80
+            kde-frameworks/kirigami:6
+            kde-frameworks/kitemmodels:6
+            kde-plasma/aurorae:6
+            kde-plasma/libplasma:6
+            sys-apps/hwdata
+            >=x11-base/xwayland-23.1.0
           depend: |
+            ${RDEPEND}
             >=dev-libs/plasma-wayland-protocols-1.16.0
             >=dev-libs/wayland-1.23.0
             >=dev-libs/wayland-protocols-1.38
@@ -1238,16 +1247,6 @@ kde-plasma:
             accessibility? ( media-libs/libqaccessibilityclient:6 )
             lock? ( kde-plasma/kscreenlocker:6 )
             shortcuts? ( kde-plasma/kglobalacceld:6 )
-          rdepend: |
-            ${DEPEND}
-            !kde-plasma/kdeplasma-addons:5
-            !<kde-plasma/kwin-6.3.80
-            kde-frameworks/kirigami:6
-            kde-frameworks/kitemmodels:6
-            kde-plasma/aurorae:6
-            kde-plasma/libplasma:6
-            sys-apps/hwdata
-            >=x11-base/xwayland-23.1.0
           bdepend: |
             dev-qt/qtbase:6[wayland]
             dev-util/wayland-scanner
@@ -1274,36 +1273,36 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "KDE Plasma daemon listening for wall and write messages"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kpty:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - layer-shell-qt:
         vars:
           desc: "Qt component to allow applications to make use of Wayland wl-layer-shell protocol"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
             dev-qt/qtwayland:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           bdepend: |
             >=dev-libs/wayland-protocols-1.16
             dev-util/wayland-scanner
     - libkscreen:
         vars:
           desc: "Plasma screen management library"
-          depend: |
+          rdepend: |
             dev-libs/wayland
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
             kde-frameworks/kconfig:{{ .Values.slot }}
             x11-libs/libxcb:=
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             dev-qt/qttools:{{ .Values.slot }}[linguist]
@@ -1313,7 +1312,7 @@ kde-plasma:
         vars:
           iuse: "webengine X"
           desc: "Task management and system monitoring library"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -1341,8 +1340,8 @@ kde-plasma:
                 x11-libs/libX11
                 x11-libs/libXres
             )
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1360,7 +1359,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Dedicated search application built on top of Baloo"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1368,8 +1367,8 @@ kde-plasma:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/krunner:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - ocean-sound-theme:
         vars:
           desc: "Ocean Sound Theme for Plasma"
@@ -1389,7 +1388,11 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "qt5 X"
           desc: "Oxygen visual style for the Plasma desktop"
+          rdepend: |
+            !<kde-plasma/libplasma-6.1.90:*[-kf6compat(-)]
+            dev-qt/qtsvg:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/frameworkintegration:{{ .Values.slot }}
@@ -1425,10 +1428,6 @@ kde-plasma:
                 dev-qt/qtbase:{{ .Values.slot }}[gui]
                 x11-libs/libxcb
             )
-          rdepend: |
-            ${DEPEND}
-            !<kde-plasma/libplasma-6.1.90:*[-kf6compat(-)]
-            dev-qt/qtsvg:{{ .Values.slot }}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1478,7 +1477,7 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Integrate Chrome/Firefox better into Plasma through browser extensions"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1495,8 +1494,8 @@ kde-plasma:
             kde-frameworks/purpose:{{ .Values.slot }}
             kde-plasma/plasma-activities:{{ .Values.slot }}
             kde-plasma/plasma-workspace:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1513,7 +1512,20 @@ kde-plasma:
           inherit: kde6 optfeature xdg
           iuse: "ibus input_devices_wacom scim screencast sdl +semantic-desktop webengine"
           desc: "KDE Plasma desktop"
+          rdepend: |
+            !<kde-plasma/plasma-workspace-6.0.80
+            dev-libs/kirigami-addons:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+            kde-plasma/oxygen:{{ .Values.slot }}
+            media-fonts/noto-emoji
+            sys-apps/util-linux
+            x11-apps/setxkbmap
+            x11-misc/xdg-user-dirs
+            screencast? ( kde-plasma/kpipewire:{{ .Values.slot }} )
+            webengine? ( >=net-libs/signon-oauth2-0.25_p20210102[qt6(+)] )
           depend: |
+            ${RDEPEND}
             dev-qt/qt5compat:{{ .Values.slot }}[qml]
             dev-qt/qtbase:{{ .Values.slot }}[gui,sql,wayland]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -1582,19 +1594,6 @@ kde-plasma:
                 kde-apps/kaccounts-integration:{{ .Values.slot }}
                 >=net-libs/accounts-qt-1.17[qt6(+)]
             )
-          rdepend: |
-            ${DEPEND}
-            !<kde-plasma/plasma-workspace-6.0.80
-            dev-libs/kirigami-addons:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
-            kde-plasma/oxygen:{{ .Values.slot }}
-            media-fonts/noto-emoji
-            sys-apps/util-linux
-            x11-apps/setxkbmap
-            x11-misc/xdg-user-dirs
-            screencast? ( kde-plasma/kpipewire:{{ .Values.slot }} )
-            webengine? ( >=net-libs/signon-oauth2-0.25_p20210102[qt6(+)] )
           bdepend: |
             dev-util/intltool
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -1644,7 +1643,10 @@ kde-plasma:
         vars:
           inherit: kde6 xdg
           desc: "Monitors S.M.A.R.T. capable devices for imminent failure"
+          rdepend: |
+            sys-apps/smartmontools
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}[policykit]
@@ -1654,16 +1656,17 @@ kde-plasma:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/solid:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            sys-apps/smartmontools
     - plasma-firewall:
         vars:
           python_compat: python3+
           inherit: kde6 python-single-r1 xdg
           iuse: "firewalld ufw"
           desc: "Plasma frontend for Firewalld or UFW"
+          rdepend: |
+            firewalld? ( net-firewall/firewalld )
+            ufw? ( net-firewall/ufw )
           depend: |
+            ${RDEPEND}
             ${PYTHON_DEPS}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -1672,10 +1675,6 @@ kde-plasma:
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            firewalld? ( net-firewall/firewalld )
-            ufw? ( net-firewall/ufw )
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -1697,7 +1696,10 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "qt5"
           desc: "Qt Platform Theme integration plugins for the Plasma workspaces"
+          rdepend: |
+            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui,wayland,X]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtwayland:{{ .Values.slot }}
@@ -1741,9 +1743,6 @@ kde-plasma:
                 >=kde-frameworks/kxmlgui-{{ .Values.kf5min }}:5
                 >=kde-plasma/breeze-${PV}:5[-kf6compat(-)]
             )
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1761,7 +1760,28 @@ kde-plasma:
           inherit: kde6 xdg
           iuse: "appstream +calendar +fontconfig +ksysguard networkmanager +policykit screencast +semantic-desktop systemd telemetry test +wallpaper-metadata +X"
           desc: "KDE Plasma workspace"
+          rdepend: |
+            !kde-plasma/libkworkspace:5
+            !<kde-plasma/plasma-desktop-6.3.80
+            !<kde-plasma/xdg-desktop-portal-kde-6.1.90
+            !kde-plasma/xembed-sni-proxy:*
+            app-text/iso-codes
+            dev-libs/kirigami-addons:{{ .Values.slot }}
+            dev-qt/qttools:*
+            kde-apps/kio-extras:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kquickcharts:{{ .Values.slot }}
+            kde-plasma/kactivitymanagerd:{{ .Values.slot }}
+            kde-plasma/milou:{{ .Values.slot }}
+            kde-plasma/plasma-integration:{{ .Values.slot }}
+            sys-apps/dbus
+            x11-apps/xmessage
+            x11-apps/xprop
+            x11-apps/xrdb
+            policykit? ( sys-apps/accountsservice )
+            screencast? ( >=media-video/pipewire-0.3:* )
           depend: |
+            ${RDEPEND}
             dev-libs/icu:=
             >=dev-libs/wayland-1.15
             dev-qt/qt5compat:{{ .Values.slot }}[qml]
@@ -1853,27 +1873,6 @@ kde-plasma:
                     x11-libs/xcb-util-image
                 )
             )
-          rdepend: |
-            ${DEPEND}
-            !kde-plasma/libkworkspace:5
-            !<kde-plasma/plasma-desktop-6.3.80
-            !<kde-plasma/xdg-desktop-portal-kde-6.1.90
-            !kde-plasma/xembed-sni-proxy:*
-            app-text/iso-codes
-            dev-libs/kirigami-addons:{{ .Values.slot }}
-            dev-qt/qttools:*
-            kde-apps/kio-extras:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kquickcharts:{{ .Values.slot }}
-            kde-plasma/kactivitymanagerd:{{ .Values.slot }}
-            kde-plasma/milou:{{ .Values.slot }}
-            kde-plasma/plasma-integration:{{ .Values.slot }}
-            sys-apps/dbus
-            x11-apps/xmessage
-            x11-apps/xprop
-            x11-apps/xrdb
-            policykit? ( sys-apps/accountsservice )
-            screencast? ( >=media-video/pipewire-0.3:* )
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             dev-libs/qcoro
@@ -1935,7 +1934,11 @@ kde-plasma:
     - plasma5support:
         vars:
           desc: "Support components for porting from KF5/Qt5 to KF6/Qt6"
+          rdepend: |
+            !kde-plasma/plasma-workspace:5
+            !<kde-plasma/plasma-workspace-6.4.90:6
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1944,17 +1947,18 @@ kde-plasma:
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            !kde-plasma/plasma-workspace:5
-            !<kde-plasma/plasma-workspace-6.4.90:6
     - plasma-pa:
         vars:
           inherit: kde6 xdg
           desc: "Plasma applet for audio volume management using PulseAudio"
           license: "GPL-2"
           restrict: "test" # missing selenium-webdriver-at-spi
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            x11-themes/sound-theme-freedesktop
           depend: |
+            ${RDEPEND}
             dev-libs/glib:2
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -1970,11 +1974,6 @@ kde-plasma:
             media-libs/libcanberra
             >=media-libs/pulseaudio-qt-1.6.0:6
             media-sound/pulseaudio
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kitemmodels:{{ .Values.slot }}
-            x11-themes/sound-theme-freedesktop
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - plasma-sdk:
@@ -1982,7 +1981,11 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Useful applications for Plasma development"
           license: "GPL-2"
+          rdepend: |
+            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
@@ -2002,17 +2005,19 @@ kde-plasma:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
             kde-plasma/plasma5support:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            kde-frameworks/kirigami:{{ .Values.slot }}
     - plasma-systemmonitor:
         vars:
           inherit: kde6 xdg
           desc: "Monitor system sensors, process information and other system resources"
           homepage: "https://apps.kde.org/plasma-systemmonitor/"
           license: "|| ( GPL-3 GPL-2 )"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            kde-frameworks/kquickcharts:{{ .Values.slot }}
+            kde-plasma/ksystemstats:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             >=dev-libs/kirigami-addons-1.1.0:{{ .Values.slot }}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -2030,12 +2035,6 @@ kde-plasma:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-plasma/libksysguard:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kitemmodels:{{ .Values.slot }}
-            kde-frameworks/kquickcharts:{{ .Values.slot }}
-            kde-plasma/ksystemstats:{{ .Values.slot }}
     - plasma-thunderbolt:
         vars:
           inherit: kde6 xdg
@@ -2044,7 +2043,11 @@ kde-plasma:
           license: "|| ( GPL-2 GPL-3+ )"
           keywords: "~amd64 ~loong ~riscv ~x86" # specific keywords from ebuild
           restrict: "test" # tests require DBus
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            sys-apps/bolt
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -2053,10 +2056,6 @@ kde-plasma:
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            sys-apps/bolt
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - plasma-vault:
@@ -2066,7 +2065,14 @@ kde-plasma:
           homepage_extra: " https://cukic.co/2017/02/03/vaults-encryption-in-plasma/"
           license: "LGPL-3"
           iuse: "networkmanager"
+          rdepend: |
+            || (
+                >=app-crypt/gocryptfs-1.8
+                >=sys-fs/cryfs-0.9.9
+                >=sys-fs/encfs-1.9.2
+            )
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -2083,13 +2089,6 @@ kde-plasma:
             kde-plasma/libplasma:{{ .Values.slot }}
             kde-plasma/plasma-activities:{{ .Values.slot }}
             networkmanager? ( kde-frameworks/networkmanager-qt:{{ .Values.slot }} )
-          rdepend: |
-            ${DEPEND}
-            || (
-                >=app-crypt/gocryptfs-1.8
-                >=sys-fs/cryfs-0.9.9
-                >=sys-fs/encfs-1.9.2
-            )
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -2135,7 +2134,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Friendly onboarding wizard for Plasma"
           license: "GPL-2+"
-          depend: |
+          rdepend: |
             >=dev-libs/kirigami-addons-1.2.0
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -2154,8 +2153,8 @@ kde-plasma:
             kde-frameworks/ksvg:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - plasma-workspace-wallpapers:
         vars:
           inherit: cmake
@@ -2171,7 +2170,11 @@ kde-plasma:
           homepage: "https://invent.kde.org/plasma/plymouth-kcm"
           license: "GPL-2+"
           keywords: "~amd64 ~arm64 ~loong ~ppc64 ~x86" # specific keywords from ebuild
+          rdepend: |
+            kde-frameworks/kcmutils:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
@@ -2183,23 +2186,24 @@ kde-plasma:
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             sys-boot/plymouth
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kcmutils:{{ .Values.slot }}
-            kde-frameworks/kirigami:{{ .Values.slot }}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - polkit-kde-agent:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
-            url: https://download.kde.org/stable/plasma/{{ .Values.release }}/{{ .Values.pn }}-1-{{ .Values.version}}.tar.xz
+            url: https://download.kde.org/stable/plasma/{{ .Values.version }}/{{ .Values.pn }}-1-{{ .Values.version}}.tar.xz
         vars:
           inherit: kde6 xdg
           desc: "PolKit agent module for KDE Plasma"
           homepage: "https://kde.org/"
           license: "GPL-2"
           kde_org_name: "${PN}-1"
+          rdepend: |
+            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-plasma/libplasma:{{ .Values.slot }}
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2209,11 +2213,6 @@ kde-plasma:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X]
             >=sys-auth/polkit-qt-0.175[qt6(+)]
-          rdepend: |
-            ${DEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-plasma/libplasma:{{ .Values.slot }}
           s: "${WORKDIR}/${PN}-1-${PV}"
     - print-manager:
         vars:
@@ -2221,7 +2220,12 @@ kde-plasma:
           desc: "Manage CUPS print jobs and printers in Plasma"
           license: "GPL-2"
           iuse: "+gtk"
+          rdepend: |
+            !<kde-plasma/print-manager-23.08.5-r100:5
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
+            gtk? ( app-admin/system-config-printer )
           depend: |
+            ${RDEPEND}
             dev-qt/qt5compat:{{ .Values.slot }}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
@@ -2239,11 +2243,6 @@ kde-plasma:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
             >=net-print/cups-2.4
-          rdepend: |
-            ${DEPEND}
-            !<kde-plasma/print-manager-23.08.5-r100:5
-            kde-frameworks/kdeclarative:{{ .Values.slot }}
-            gtk? ( app-admin/system-config-printer )
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -2279,7 +2278,7 @@ kde-plasma:
         vars:
           desc: "Breeze inspired QQC2 Style"
           license: "|| ( GPL-2+ LGPL-3+ ) CC0-1.0"
-          depend: |
+          rdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -2287,15 +2286,20 @@ kde-plasma:
             kde-frameworks/kguiaddons:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
+          depend: |
+            ${RDEPEND}
     - sddm-kcm:
         vars:
           inherit: kde6 xdg
           desc: "KDE Plasma control module for SDDM"
           homepage: "https://invent.kde.org/plasma/sddm-kcm"
           license: "GPL-2+"
+          rdepend: |
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            x11-misc/sddm
           depend: |
+            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
             dev-qt/qtdeclarative:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
@@ -2308,11 +2312,6 @@ kde-plasma:
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          rdepend: |
-            ${DEPEND}
-            kde-frameworks/kirigami:{{ .Values.slot }}
-            kde-frameworks/kitemmodels:{{ .Values.slot }}
-            x11-misc/sddm
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
     - wacomtablet:
@@ -2366,15 +2365,15 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Backend implementation for xdg-desktop-portal that is using Qt/KDE Frameworks"
           license: "LGPL-2+"
-          depend: |
-            >=dev-libs/plasma-wayland-protocols-1.18.0
-            >=dev-libs/wayland-protocols-1.25
-            dev-qt/qtbase:{{ .Values.slot }}
           rdepend: |
-            ${DEPEND}
             kde-misc/kio-fuse:{{ .Values.slot }}
             sys-apps/xdg-desktop-portal
             || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+          depend: |
+            ${RDEPEND}
+            >=dev-libs/plasma-wayland-protocols-1.18.0
+            >=dev-libs/wayland-protocols-1.25
+            dev-qt/qtbase:{{ .Values.slot }}
           bdepend: |
             dev-qt/qtbase:{{ .Values.slot }}[wayland]
             virtual/pkgconfig
@@ -2401,7 +2400,21 @@ snapshot_pkgs:
             - kde6 python-single-r1 xdg
           slot: 6
           s: "${WORKDIR}/${PN}-8fd0ba78c76fbabae22ec81f4d9c4f8204d0df94"
+          rdepend: |
+            !kde-plasma/drkonqi
+            dev-libs/elfutils[utils]
+            >=kde-frameworks/kirigami-${KFMIN}:6
+            >=kde-frameworks/kitemmodels-${KFMIN}:6
+            $(python_gen_cond_dep '
+                dev-python/psutil[${PYTHON_USEDEP}]
+                dev-python/pygdbmi[${PYTHON_USEDEP}]
+            ')
+            || (
+                sys-devel/gdb
+                llvm-core/lldb
+            )
           depend: |
+            ${RDEPEND}
             ${PYTHON_DEPS}
             >=dev-qt/qtbase-${QTMIN}:6[gui]
             >=dev-qt/qtdeclarative-${QTMIN}:6
@@ -2420,20 +2433,6 @@ snapshot_pkgs:
             >=kde-frameworks/kwindowsystem-${KFMIN}:6
             >=kde-frameworks/syntax-highlighting-${KFMIN}:6
             >=sys-auth/polkit-qt-0.175.0[qt6(+)]
-          rdepend: |
-            ${DEPEND}
-            !kde-plasma/drkonqi
-            dev-libs/elfutils[utils]
-            >=kde-frameworks/kirigami-${KFMIN}:6
-            >=kde-frameworks/kitemmodels-${KFMIN}:6
-            $(python_gen_cond_dep '
-                dev-python/psutil[${PYTHON_USEDEP}]
-                dev-python/pygdbmi[${PYTHON_USEDEP}]
-            ')
-            || (
-                sys-devel/gdb
-                llvm-core/lldb
-            )
           body: |
             src_prepare() {
                 kde6_src_prepare

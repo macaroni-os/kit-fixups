@@ -1435,9 +1435,6 @@ kde-apps:
                 # provided by kde-apps/kate-lib
                 append-libs -lkateprivate
                 kde6_src_configure
-            }          body: |
-            src_prepare() {
-                kde6_src_prepare
             }
 
     - katomic:
@@ -2194,9 +2191,6 @@ kde-apps:
           body: |
             src_prepare() {
                 kde6_src_prepare
-            }          body: |
-            src_prepare() {
-                kde6_src_prepare
             }
 
     - kfourinline:
@@ -2632,9 +2626,6 @@ kde-apps:
           bdepend: |
             man? ( dev-util/gperf )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }          body: |
             src_prepare() {
                 kde6_src_prepare
             }
@@ -3333,9 +3324,6 @@ kde-apps:
           depend: |
             ${RDEPEND}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }          body: |
             src_prepare() {
                 kde6_src_prepare
             }

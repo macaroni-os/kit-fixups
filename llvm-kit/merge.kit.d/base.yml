@@ -51,7 +51,7 @@ target:
 
     - pkg: dev-libs/libclc
 
-    - pkg: dev-util/spriv-headers
+    - pkg: dev-util/spirv-headers
 
     - pkg: sys-libs/libcxxabi
     - pkg: sys-libs/libcxx
@@ -60,8 +60,6 @@ target:
 
     # LLVM 16 packages
     - pkg: dev-util/spirv-llvm-translator:16
-      conditions:
-        - '<dev-util/spriv-headers-17.0:16'
 
     - pkg: sys-devel/clang:16
     - pkg: sys-devel/clang-runtime:16

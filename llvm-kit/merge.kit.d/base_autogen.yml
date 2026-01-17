@@ -23,12 +23,20 @@ target:
   atoms:
     - pkg: dev-python/clang-python
 
-    - pkg: sys-devel/clang-common
     - pkg: dev-libs/libclc
 
+    - pkg: dev-util/spirv-headers
+
+    - pkg: sys-devel/clang-common
+    - pkg: sys-devel/llvm-common
+
+    - pkg: sys-libs/libcxxabi
+    - pkg: sys-libs/libcxx
+    - pkg: sys-libs/libomp
+
+    # SLOT 16
     - pkg: dev-util/lldb:16
     - pkg: dev-util/spirv-llvm-translator:16
-    - pkg: dev-util/spriv-headers:16
 
     - pkg: sys-libs/compiler-rt:16
     - pkg: sys-libs/compiler-rt-sanitizers:16
@@ -39,11 +47,7 @@ target:
     - pkg: sys-devel/lld:16
     - pkg: sys-devel/llvm:16
     - pkg: sys-devel/llvmgold:16
-    - pkg: sys-devel/llvm-common
 
-    - pkg: sys-libs/libcxxabi
-    - pkg: sys-libs/libcxx
-    - pkg: sys-libs/libomp
 
     # LLVM 20
     - pkg: sys-devel/lld:20
@@ -55,7 +59,6 @@ target:
 
     - pkg: dev-util/lldb:20
     - pkg: dev-util/spirv-llvm-translator:20
-    - pkg: dev-util/spriv-headers:20
 
     - pkg: sys-libs/compiler-rt:20
     - pkg: sys-libs/compiler-rt-sanitizers:20

@@ -57,6 +57,8 @@ target:
     # LLVM 16 packages
     - pkg: dev-util/spirv-llvm-translator:16
     - pkg: dev-util/spriv-headers:16
+      conditions:
+        - '<dev-util/spriv-headers-17.0:16'
 
     - pkg: sys-devel/clang:16
     - pkg: sys-devel/clang-runtime:16
@@ -72,6 +74,8 @@ target:
     - pkg: dev-util/lldb:20
     - pkg: dev-util/spirv-llvm-translator:20
     - pkg: dev-util/spriv-headers:20
+      conditions:
+        - '>=dev-util/spriv-headers-20.0:20'
 
     - pkg: sys-devel/clang:20
     - pkg: sys-devel/clang-runtime:20

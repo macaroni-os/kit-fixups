@@ -630,7 +630,7 @@ gnome_release_pkgs:
             dev-libs/libxml2:=
             sys-libs/libosinfo[vala]
             net-libs/libsoup:3[vala]
-            net-misc/spice-gtk[gtk+(+),smartcard,usbredir]
+            net-misc/spice-gtk[gtk+(+),smartcard,usbredir,vala]
             net-libs/webkit-gtk:4
             virtual/libusb:1
           depend: '${CDEPEND}'
@@ -2819,6 +2819,58 @@ gnome_apps:
       opts:
 
   packages:
+
+    - d-feet:
+        category: dev-util
+        vars:
+          release: '0.3'
+          python_compat: python3+
+          desc: Feet is a powerful D-Bus debugger
+          license: GPL-2+
+          iuse: +X
+          required_use: '${PYTHON_REQUIRED_USE}'
+          cdepend: |
+            ${PYTHON_DEPS}
+            dev-libs/glib:2
+            x11-libs/gtk+:3[introspection]
+            dev-libs/gobject-introspection:=
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            $(python_gen_cond_dep '
+              dev-python/pygobject:3[${PYTHON_USEDEP}]
+            ')
+            sys-apps/dbus
+            X? ( x11-libs/libwnck:3[introspection] )
+          bdepend: |
+            virtual/pkgconfig
+            dev-util/itstool
+          inherit:
+            - gnome3
+            - meson
+            - python-single-r1
+          body: |
+            src_prepare() {
+              sed -i -e "/desktop,/d" -e "/appdata,/d" data/meson.build
+              gnome3_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dtests=false
+                -Dpython="${EPYTHON}"
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              python_optimize
+            }
+            pkg_postinst() {
+              gnome3_pkg_postinst
+            }
+            pkg_postrm() {
+              gnome3_pkg_postrm
+            }
 
     - gsound:
         category: media-libs

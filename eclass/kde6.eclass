@@ -45,7 +45,7 @@ if [[ -v KDE_GCC_MINIMAL ]]; then
 	EXPORT_FUNCTIONS pkg_pretend
 fi
 
-EXPORT_FUNCTIONS pkg_setup pkg_nofetch src_unpack src_prepare src_configure src_compile src_test src_install pkg_preinst pkg_postinst pkg_postrm
+EXPORT_FUNCTIONS pkg_setup pkg_nofetch src_unpack src_prepare src_configure src_compile src_install pkg_preinst pkg_postinst pkg_postrm
 
 # @ECLASS-VARIABLE: ECM_KDEINSTALLDIRS
 # @DESCRIPTION:
@@ -261,124 +261,6 @@ _kde_is_unreleased() {
 
 	return 1
 }
-
-# Determine fetch location for released tarballs
-_calculate_src_uri() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	local _kmname
-
-	if [[ -n ${KMNAME} ]]; then
-		_kmname=${KMNAME}
-	else
-		_kmname=${PN}
-	fi
-
-	case ${PN} in
-		kdelibs4support | \
-		kdesignerplugin | \
-		kdewebkit | \
-		khtml | \
-		kjs | \
-		kjsembed | \
-		kmediaplayer | \
-		kross | \
-		kxmlrpcclient)
-			_kmname="portingAids/${_kmname}"
-			;;
-	esac
-
-	case ${CATEGORY} in
-		kde-apps)
-			case ${PV} in
-				??.?.[6-9]? | ??.??.[6-9]? )
-					SRC_URI="mirror://kde/unstable/release-service/${PV}/src/${_kmname}-${PV}.tar.xz"
-					;;
-				*)
-					SRC_URI="mirror://kde/stable/release-service/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
-			esac
-			;;
-		kde-frameworks)
-			SRC_URI="mirror://kde/stable/frameworks/${PV%.*}/${_kmname}-${PV}.tar.xz" ;;
-		kde-plasma)
-			local plasmapv=$(ver_cut 1-3)
-
-			case ${PV} in
-				5.?.[6-9]? | 5.??.[6-9]? )
-					# Plasma 5 beta releases
-					SRC_URI="mirror://kde/unstable/plasma/${plasmapv}/${_kmname}-${PV}.tar.xz"
-					;;
-				*)
-					# Plasma 5 stable releases
-					SRC_URI="mirror://kde/stable/plasma/${plasmapv}/${_kmname}-${PV}.tar.xz" ;;
-			esac
-			;;
-	esac
-
-	if [[ ${PN} = kdevelop* ]]; then
-		case ${PV} in
-			*.*.[6-9]? )
-				SRC_URI="mirror://kde/unstable/kdevelop/${PV}/src/${_kmname}-${PV}.tar.xz"
-				RESTRICT+=" mirror"
-				;;
-			*)
-				SRC_URI="mirror://kde/stable/kdevelop/${PV}/src/${_kmname}-${PV}.tar.xz" ;;
-		esac
-	fi
-
-	if _kde_is_unreleased ; then
-		RESTRICT+=" fetch"
-	fi
-}
-
-# Determine fetch location for live sources
-_calculate_live_repo() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	SRC_URI=""
-
-	# @ECLASS-VARIABLE: EGIT_MIRROR
-	# @DESCRIPTION:
-	# This variable allows easy overriding of default kde mirror service
-	# (anongit) with anything else you might want to use.
-	EGIT_MIRROR=${EGIT_MIRROR:=https://anongit.kde.org}
-
-	local _kmname
-
-	# @ECLASS-VARIABLE: EGIT_REPONAME
-	# @DESCRIPTION:
-	# This variable allows overriding of default repository
-	# name. Specify only if this differ from PN and KMNAME.
-	if [[ -n ${EGIT_REPONAME} ]]; then
-		# the repository and kmname different
-		_kmname=${EGIT_REPONAME}
-	elif [[ -n ${KMNAME} ]]; then
-		_kmname=${KMNAME}
-	else
-		_kmname=${PN}
-	fi
-
-	if [[ ${PV} == ??.??.49.9999 && ${CATEGORY} = kde-apps ]]; then
-		EGIT_BRANCH="Applications/$(ver_cut 1-2)"
-	fi
-
-	if [[ ${PV} != 9999 && ${CATEGORY} = kde-plasma ]]; then
-		EGIT_BRANCH="Plasma/$(ver_cut 1-2)"
-	fi
-
-	if [[ ${PV} != 9999 && ${PN} = kdevelop* ]]; then
-		EGIT_BRANCH="$(ver_cut 1-2)"
-	fi
-
-	EGIT_REPO_URI="${EGIT_MIRROR}/${_kmname}"
-}
-
-case ${KDE_BUILD_TYPE} in
-	live) _calculate_live_repo ;;
-	*) _calculate_src_uri ;;
-esac
-
-debug-print "${LINENO} ${ECLASS} ${FUNCNAME}: SRC_URI is ${SRC_URI}"
 
 # @FUNCTION: kde6_pkg_pretend
 # @DESCRIPTION:
@@ -610,38 +492,6 @@ kde6_src_compile() {
 	debug-print-function ${FUNCNAME} "$@"
 
 	cmake-utils_src_compile "$@"
-}
-
-# @FUNCTION: kde6_src_test
-# @DESCRIPTION:
-# Wrapper for cmake-utils_src_test with extra logic for magic handling of dbus
-# and virtualx.
-kde6_src_test() {
-	debug-print-function ${FUNCNAME} "$@"
-
-	_test_runner() {
-		if [[ -n "${VIRTUALDBUS_TEST}" ]]; then
-			export $(dbus-launch)
-		fi
-
-		cmake-utils_src_test
-	}
-
-	# When run as normal user during ebuild development with the ebuild command, the
-	# kde tests tend to access the session DBUS. This however is not possible in a real
-	# emerge or on the tinderbox.
-	# > make sure it does not happen, so bad tests can be recognized and disabled
-	unset DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
-
-	if [[ ${VIRTUALX_REQUIRED} = always || ${VIRTUALX_REQUIRED} = test ]]; then
-		virtx _test_runner
-	else
-		_test_runner
-	fi
-
-	if [[ -n "${DBUS_SESSION_BUS_PID}" ]] ; then
-		kill ${DBUS_SESSION_BUS_PID}
-	fi
 }
 
 # @FUNCTION: kde6_src_install

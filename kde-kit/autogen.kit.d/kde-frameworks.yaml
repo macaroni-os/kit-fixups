@@ -425,13 +425,13 @@ kde-frameworks:
           iuse: "dbus"
           rdepend: |
             dev-qt/qttranslations:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
             dev-qt/qtbase:{{ .Values.slot }}
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qttools:{{ .Values.slot }}[linguist]
-            sys-kernel/linux-headers
             virtual/libudev:=
+          depend: |
+            ${RDEPEND}
+            sys-kernel/linux-headers
           body: |
             src_prepare() {
                 kde6_src_prepare

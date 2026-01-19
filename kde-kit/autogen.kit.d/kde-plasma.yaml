@@ -183,12 +183,9 @@ kde-plasma:
     - discover:
         vars:
           inherit: kde6 xdg
-          iuse: "+firmware flatpak snap telemetry webengine"
+          iuse: "+firmware flatpak telemetry webengine"
           desc: "KDE Plasma resources management GUI"
           rdepend: |
-            snap? ( app-containers/snapd )
-          depend: |
-            ${RDEPEND}
             >=dev-libs/appstream-1.0.4:=[qt6]
             dev-libs/kirigami-addons:6
             dev-libs/qcoro
@@ -216,9 +213,10 @@ kde-plasma:
             kde-frameworks/purpose:{{ .Values.slot }}
             firmware? ( >=sys-apps/fwupd-1.9.4 )
             flatpak? ( sys-apps/flatpak )
-            snap? ( sys-libs/snapd-glib:=[qt6(-)] )
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
             webengine? ( dev-qt/qtwebview:{{ .Values.slot }} )
+          depend: |
+            ${RDEPEND}
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -244,7 +242,7 @@ kde-plasma:
                     -DBUILD_FlatpakBackend=$(usex flatpak)
                     -DBUILD_FwupdBackend=$(usex firmware)
                     -DBUILD_RpmOstreeBackend=OFF
-                    -DBUILD_SnapBackend=$(usex snap)
+                    -DBUILD_SnapBackend=OFF
                     -DBUILD_SteamOSBackend=OFF
                     $(cmake_use_find_package telemetry KF6UserFeedback)
                     $(cmake_use_find_package webengine Qt6WebView)
@@ -1235,6 +1233,7 @@ kde-plasma:
             media-libs/mesa[X]
             virtual/libudev:=
             x11-base/xorg-proto
+            x11-base/xorg-server
             x11-libs/libX11
             x11-libs/libXi
             >=x11-libs/libdrm-2.4.116

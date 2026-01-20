@@ -1,0 +1,170 @@
+# Distributed under the terms of the GNU General Public License v2
+
+# Marek Szuba <marecki@gentoo.org> (2023-11-12)
+# FUSE cannot be built with multiple audio drivers, and desktop/gnome
+# profiles set both USE=pulseaudio (directly) and USE=alsa (inherited
+# from desktop). Default to the latter for now because PulseAudio support
+# in FUSE is currently considered experimental.
+app-emulation/fuse -pulseaudio
+
+# Required by sys-apps/fwupd, a dependency of kde-plasma/discover
+dev-libs/libjcat gpg pkcs7
+
+# Required by www-client/falkon[python] and dev-python/pyside2[location],
+# in addition fix REQUIRED_USE conflict caused if "webengine" is enabled.
+# qtwebchannel package is fairly small, and python bindings are
+# required by some popular desktop packages such as calibre,
+# qutebrowser, and freecad (or indirectly through PyQt*WebEngine).
+dev-python/pyqt6 webchannel
+dev-python/pyside webchannel
+
+# Required by sys-apps/flatpak, a dependency of kde-plasma/discover
+dev-util/ostree curl
+
+# Required by app-editors/okteta:5
+dev-qt/qtscript:5 scripttools
+
+# Required by kde-apps/akonadi:6
+dev-qt/qtbase:6 mysql
+
+# Enable by default, requires kde-frameworks/kwayland
+kde-apps/yakuake absolute-position
+
+# Required by media-gfx/graphviz which is required by kde-apps/kcachegrind
+media-libs/gd fontconfig
+
+# Required by kde-apps/kdenlive
+media-libs/mlt ffmpeg frei0r rubberband
+media-libs/opencv features2d
+
+# Required by media-gfx/digikam
+media-libs/opencv contrib contribdnn
+
+# Required by kde-plasma/plasma-firewall
+# Required by net-firewall/firewalld[nftables] (default enabled)
+net-firewall/nftables json python xtables
+
+# Required by dev-qt/qtwebengine
+sys-libs/zlib minizip
+
+# Keep existing defaults after dropping IUSE=phonon from make.defaults
+kde-apps/kio-extras phonon
+kde-apps/marble phonon
+
+# Required by kde-plasma/plasma-meta
+kde-plasma/kwin lock
+kde-plasma/kwin-x11 lock
+
+# plasma profile never enabled pulseaudio. We're skipping to pipewire.
+media-video/pipewire sound-server
+
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qt5compat-6.8.3 qml
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qtbase-6.8.3 wayland
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=kde-frameworks/kconfig-6.18 qml
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=kde-frameworks/kguiaddons-6.18 wayland
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=kde-frameworks/kidletime-6.18 wayland
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=kde-frameworks/kwindowsystem-6.18 wayland
+
+# required by kde-frameworks/kio-6.18::kde-kit
+# required by kde-frameworks/kcmutils-6.18::kde-kit
+# required by kde-frameworks/knewstuff-6.18::kde-kit
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qtbase-6.8.3 libproxy
+
+# required by dev-qt/qttools-6.8.3::qt-kit[assistant]
+# required by kde-frameworks/kauth-6.18::kde-kit
+# required by kde-frameworks/kio-6.18::kde-kit
+# required by kde-frameworks/kcmutils-6.18::kde-kit
+# required by kde-frameworks/knewstuff-6.18::kde-kit
+# required by kde-plasma/kwin-x11-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qtbase-6.8.3 sqlite
+
+# required by kde-frameworks/kfilemetadata-6.18::kde-kit[pdf]
+# required by kde-plasma/plasma-browser-integration-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit[browser-integration]
+# required by kde-plasma/plasma-meta:6 (argument)
+>=app-text/poppler-25.09.1 qt6
+
+# required by kde-plasma/plasma-workspace-6.4.5::kde-kit
+# required by kde-plasma/powerdevil-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qtbase-6.8.3 libinput
+
+# required by kde-plasma/plasma-workspace-6.4.5::kde-kit
+# required by kde-plasma/powerdevil-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=kde-frameworks/prison-6.18 qml
+
+# required by dev-qt/qtmultimedia-6.8.3::qt-kit[gstreamer]
+# required by dev-libs/kirigami-addons-1.9.0::kde-kit
+# required by kde-plasma/plasma-systemmonitor-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=media-libs/gst-plugins-base-1.18.4-r1 wayland
+# required by dev-libs/kirigami-addons-1.9.0::kde-kit
+# required by kde-plasma/plasma-systemmonitor-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=dev-qt/qtmultimedia-6.8.3 qml
+
+# required by media-libs/gst-plugins-base-1.18.4-r1::media-kit[-gles2,opengl]
+# required by media-libs/gst-plugins-bad-1.18.4-r1::media-kit
+# required by dev-qt/qtmultimedia-6.8.3::qt-kit[gstreamer]
+# required by dev-libs/kirigami-addons-1.9.0::kde-kit
+# required by kde-plasma/plasma-systemmonitor-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=media-libs/mesa-22.3.6 wayland
+
+# required by kde-plasma/kwin-6.4.5::kde-kit[X]
+# required by kde-plasma/plasma-desktop-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=x11-base/xwayland-23.2.7 libei
+
+# required by kde-plasma/kpipewire-6.4.5::kde-kit
+# required by kde-plasma/plasma-desktop-6.4.5::kde-kit[screencast]
+# required by kde-plasma/plasma-meta-6.4.5::kde-kit
+# required by kde-plasma/plasma-meta:6 (argument)
+>=media-video/pipewire-1.4.2 extra
+
+>=net-libs/libproxy-0.4.18 -kde
+
+# required by kde-apps/khelpcenter-25.08.1::kde-kit
+# required by kde-apps/kdecore-meta-25.08.1::kde-kit[handbook]
+# required by kdecore-meta:6 (argument)
+>=kde-frameworks/kio-6.18.0 handbook
+# required by dev-qt/qtwebengine-6.8.3::qt-kit
+# required by kde-apps/khelpcenter-25.08.1::kde-kit
+# required by kde-apps/kdecore-meta-25.08.1::kde-kit[handbook]
+# required by kdecore-meta:6 (argument)
+>=dev-qt/qtwebchannel-6.8.3 qml
+
+kde-frameworks/sonnet qml
+kde-frameworks/kwallet runtime
+app-office/libreoffice-bin -kde
+app-text/poppler nss

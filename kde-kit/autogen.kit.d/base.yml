@@ -205,6 +205,79 @@ stable_kde_stuff:
               fi
             }
 
+    - kdiagram:
+        category: dev-libs
+        vars:
+          homepage: https://invent.kde.org/graphics/kdiagram
+          desc: Powerful libraries (KChart, KGantt) for creating business diagrams
+          license: GPL-2
+          slot: 6
+          inherit:
+            - kde6
+          iuse: examples test
+          required_use: test? ( examples )
+          depend: |
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            dev-qt/qttools:6
+          rdepend: '${DEPEND}'
+
+    - ktextaddons:
+        category: dev-libs
+        dir:
+          url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/'
+          matcher: "ktextaddons-[0-9.]+\\.tar\\.xz$"
+          exclude: '[0-9]{5}'
+        transform:
+          - kind: string
+            match: 'ktextaddons-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: 'https://download.kde.org/stable/ktextaddons/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        vars:
+          homepage: https://invent.kde.org/libraries/ktextaddons
+          desc: Various text handling addons
+          license: GPL-2
+          slot: 6
+          inherit:
+            - kde6
+          iuse: speech
+          restrict: test
+          depend: |
+            >=dev-libs/qtkeychain-0.15[qt6]
+            dev-qt/qtbase:6[gui,sql]
+            dev-qt/qtmultimedia:6
+            kde-frameworks/karchive:6
+            kde-frameworks/kcolorscheme:6
+            kde-frameworks/kconfig:6
+            kde-frameworks/kcoreaddons:6
+            kde-frameworks/ki18n:6
+            kde-frameworks/kiconthemes:6
+            kde-frameworks/kio:6
+            kde-frameworks/kitemviews:6
+            kde-frameworks/kservice:6
+            kde-frameworks/ktextwidgets:6
+            kde-frameworks/kwidgetsaddons:6
+            kde-frameworks/sonnet:6
+            kde-frameworks/syntax-highlighting:6
+            speech? ( dev-qt/qtspeech:6 )
+          rdepend: |
+            ${DEPEND}
+            !${CATEGORY}/${PN}:5
+          body: |
+            src_configure() {
+                local mycmakeargs=(
+                    $(cmake_use_find_package speech Qt6TextToSpeech)
+                    -DSPEAK_TO_TEXT_VOSK_PLUGIN=OFF
+                    -DOPTION_ADD_AUTOGENERATETEXT=OFF
+                )
+                kde6_src_configure
+            }
+
 plasma_wayland_protocols:
   generator: builtin-dirlisting
 

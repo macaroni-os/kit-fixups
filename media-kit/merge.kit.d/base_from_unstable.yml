@@ -26,6 +26,8 @@ target:
 
   atoms:
 
+    - pkg: media-video/mpv
+
     # Blender release 4.5
     - pkg: media-gfx/blender-bin
       conditions:
@@ -42,16 +44,57 @@ target:
       conditions:
         - '<media-gfx/blender-bin-4.4.0'
         - '>=media-gfx/blender-bin-4.3.0'
+    - pkg: media-gfx/fontforge
 
+    - pkg: media-gfx/graphviz
+    - pkg: media-gfx/inkscape
+
+    - pkg: media-libs/a52dec
+    - pkg: media-libs/dav1d
+    - pkg: media-libs/exempi
+    - pkg: media-libs/graphene
+    - pkg: media-libs/gstreamer
+    - pkg: media-libs/gst-plugins-bad
+    - pkg: media-libs/gst-plugins-base
+    - pkg: media-libs/gst-plugins-good
+    - pkg: media-libs/gst-plugins-ugly
+    - pkg: media-libs/gstreamer-editing-services
+    - pkg: media-libs/lcms
+    - pkg: media-libs/libcdr
+    - pkg: media-libs/libjxl
+    - pkg: media-libs/libwmf
     - pkg: media-libs/libmediaart
+    - pkg: media-libs/libmpeg2
     - pkg: media-libs/libplacebo
+    - pkg: media-libs/libraw
+    - pkg: media-libs/libvisio
+    - pkg: media-libs/musicbrainz
+
     - pkg: media-libs/sdl2-image
     - pkg: media-libs/sdl2-ttf
+      # force condition to skip 3.x versions
+      conditions:
+        - '<media-libs/sdl2-ttf-3.0'
+
+
     - pkg: media-libs/sdl3-image
     - pkg: media-libs/sdl3-ttf
+    - pkg: media-libs/shaderc
+    - pkg: media-libs/svt-av1
+    - pkg: media-libs/tiff
+
+    - pkg: media-plugins/gst-plugins-libav
+    - pkg: media-plugins/gst-plugins-meta
+    - pkg: media-plugins/gst-plugins-rs
+    - pkg: media-plugins/gst-plugins-vaapi
 
     - pkg: media-sound/gnome-music
+    - pkg: media-sound/gnome-sound-recorder
+    - pkg: media-sound/gsm
     - pkg: media-sound/mpd
+    - pkg: media-sound/sound-juicer
 
-    - pkg: media-video/mpv
-
+    - pkg: media-video/ffmpeg
+    - pkg: media-video/ffmpegthumbnailer
+    - pkg: media-video/pipewire
+    - pkg: media-video/wireplumber

@@ -2800,7 +2800,7 @@ gnome_apps:
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$"
-      exclude: 'rc|beta|alpha'
+      exclude: 'rc|beta|alpha|90'
     transform:
       - kind: string
         match: "{{ .Values.pkgname | default .Values.pn }}-"

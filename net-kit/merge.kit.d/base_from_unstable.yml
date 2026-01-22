@@ -17,6 +17,13 @@ target:
     max_versions: 3
 
   atoms:
+
+    - pkg: dev-libs/libportal
+
+    - pkg: mail-client/alpine
+    - pkg: mail-client/thunderbird-bin
+    - pkg: mail-client/thunderbird-esr-bin
+
     # stable release 9.20
     - pkg: net-dns/bind
       conditions:
@@ -33,15 +40,47 @@ target:
       conditions:
         - '>=net-dns/bind-tools-9.21.0'
         - '<net-dns/bind-tools-9.22.0'
+
+    - pkg: net-dns/coredns
     - pkg: net-dns/unbound
 
+    - pkg: net-firewall/arptables
+    - pkg: net-firewall/ebtables
+    - pkg: net-firewall/nftables
+    - pkg: net-firewall/ipset
+
+    - pkg: net-fs/minio
+    - pkg: net-fs/minio-client
+    - pkg: net-fs/samba
+
+    - pkg: net-libs/enet:1.3
+    - pkg: net-libs/libmnl
+    - pkg: net-libs/libnftnl
     - pkg: net-libs/libqmi
+    - pkg: net-libs/ngtcp2
+    - pkg: net-libs/rest
+
+    - pkg: net-mail/ytnef
 
     - pkg: net-misc/freerdp
+    - pkg: net-misc/wsdd
+    - pkg: net-misc/networkmanager
+    - pkg: net-misc/rclone
+    - pkg: net-misc/spice-gtk
 
+    - pkg: net-print/cups-filters
+    - pkg: net-print/libcupsfilters
+    - pkg: net-print/libppd
+
+    - pkg: net-vpn/openvpn
     - pkg: net-vpn/strongswan
+    - pkg: net-vpn/wireguard-tools
     - pkg: net-vpn/tor
 
     - pkg: net-wireless/wpa_supplicant
+
+    - pkg: www-apps/forgejo
+    - pkg: www-apps/gitea
+    - pkg: www-apps/gogs
 
     - pkg: sys-apps/flatpak

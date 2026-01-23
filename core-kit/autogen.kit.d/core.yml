@@ -689,7 +689,6 @@ sys_apps_github:
           - '^19'
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
-            matcher: "shadow-.*.tar.gz"
 
     - libffi:
         transform:

@@ -243,6 +243,15 @@ setuptools_modules:
 
     - picamera2:
 
+    - pycotap:
+        vars:
+          body: |
+            src_prepare() {
+              distutils-r1_src_prepare
+              sed -i -e "/data_files =/d" setup.py || die
+            }
+
+
     - pycryptodomex:
         vars:
           license: BSD

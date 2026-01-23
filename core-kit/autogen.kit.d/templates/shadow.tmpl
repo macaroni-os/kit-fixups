@@ -11,7 +11,7 @@ SRC_URI="{{ .Values.src_uri }}"
 LICENSE="{{ .Values.license }}"
 SLOT="0"
 KEYWORDS="{{ .Values.keywords | default "*" }}"
-IUSE="acl audit +cracklib nls pam selinux skey xattr"
+IUSE="acl audit +cracklib nls pam selinux skey systemd xattr"
 # Taken from the man/Makefile.am file.
 LANGS=( cs da de es fi fr hu id it ja ko pl pt_BR ru sv tr zh_CN zh_TW )
 
@@ -25,7 +25,8 @@ DEPEND="acl? ( sys-apps/acl:0= )
 		>=sys-libs/libselinux-1.28:0=
 		sys-libs/libsemanage:0=
 	)
-	xattr? ( sys-apps/attr:0= )"
+	xattr? ( sys-apps/attr:0= )
+	systemd? ( sys-apps/systemd:= )"
 BDEPEND="
 	app-arch/xz-utils
 	nls? ( sys-devel/gettext )"
@@ -63,6 +64,7 @@ src_configure() {
 		$(use_with skey)
 		$(use_with selinux)
 		$(use_enable nls)
+		$(use_enable systemd logind)
 		$(use_with elibc_glibc nscd)
 		$(use_with xattr attr)
 	)

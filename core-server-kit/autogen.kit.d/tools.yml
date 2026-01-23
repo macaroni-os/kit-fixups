@@ -733,6 +733,9 @@ emulation_modules:
           body: |
             src_prepare() {
               default
+              # Permits compilation when pip installed and
+              # pycotap is not available
+              sed -e '/^pycotap =/d' pythondeps.toml -i
               # Use correct toolchain to fix cross-compiling
               tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
               export WINDRES=${CHOST}-windres

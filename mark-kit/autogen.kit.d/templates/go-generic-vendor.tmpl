@@ -27,7 +27,7 @@ RDEPEND="{{ regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 "
 {{- end }}
 {{- if .Values.enable_compression | default false }}
-BDEPEND="app-arch/upx-bin"
+BDEPEND="compress? ( app-arch/upx-bin )"
 IUSE="+compress"
 {{- end }}
 

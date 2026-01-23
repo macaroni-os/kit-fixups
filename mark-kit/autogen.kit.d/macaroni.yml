@@ -207,11 +207,13 @@ mottainaici:
     - ssh-compose:
         category: dev-util
         vars:
+          enable_compression: true
           homepage: https://github.com/MottainaiCI/ssh-compose
           desc: SSH Compose Orchestrator
 
     - lxd-compose:
         category: app-emulation
         vars:
+          enable_compression: true
           homepage: https://github.com/MottainaiCI/lxd-compose
           desc: Deploy a complex environment to an LXD Cluster or LXD standalone installation

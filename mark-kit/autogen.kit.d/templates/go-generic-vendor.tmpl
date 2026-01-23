@@ -26,6 +26,10 @@ DEPEND="dev-lang/go"
 RDEPEND="{{ regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
 "
 {{- end }}
+{{- if .Values.enable_compression | default false }}
+BDEPEND="app-arch/upx-bin"
+IUSE="+compress"
+{{- end }}
 
 post_src_unpack() {
 	mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
@@ -41,6 +45,11 @@ src_compile() {
 	CGO_ENABLED=0 go build \
 		-ldflags "${custom_ldflags[*]}" \
 		-o ${PN} -v -x -mod=vendor . || die
+{{- if .Values.enable_compression }}
+	if use compress ; then
+		upx --brute -1 ${PN} || die
+	fi
+{{- end }}
 }
 
 src_install() {

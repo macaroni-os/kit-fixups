@@ -988,8 +988,6 @@ sys_apps_github:
           # Ignore weird tags.
           - '^20'
           - '^19'
-        assets:
-          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
 
     - libffi:
         transform:

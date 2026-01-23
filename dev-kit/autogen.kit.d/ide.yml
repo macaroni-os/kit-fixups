@@ -83,7 +83,7 @@ vscode:
   generator: builtin-json
   defaults:
     template: ../../templates/simple.tmpl
-    category: dev-libs
+    category: app-editors
     json:
       url: 'https://formulae.brew.sh/api/{{ .Values.jsonfile | default .Values.pn }}.json'
       version_filter: '$.version'

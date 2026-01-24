@@ -2034,3 +2034,31 @@ xerces_c:
                 doenvd "$(prefixify_ro "${FILESDIR}/50xerces-c")"
               fi
             }
+
+ding_libs:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      user: SSSD
+      repo: ding-libs
+      query: releases
+      #ignore_tags: true
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+    vars:
+      desc: \"DING is not GNU\" helper libraries for SSSD and FreeIPA
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        src_configure() {
+          ECONF_SOURCE="${S}" econf
+        }
+  packages:
+    - ding-libs:

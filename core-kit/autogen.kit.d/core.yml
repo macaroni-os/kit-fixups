@@ -1153,3 +1153,79 @@ libxml2:
     - libxml2:
 
 
+libcap:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-libs
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
+      matcher: "{{ .Values.pn }}-2.*.tar.gz$"
+
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+        url: https://git.kernel.org/pub/scm/libs/libcap/libcap.git/snapshot/{{ .Values.pn }}-{{ .Values.version }}.tar.gz
+
+    vars:
+      desc: "POSIX 1003.1e capabilities"
+      homepage: "https://sites.google.com/site/fullycapable/"
+      license: "|| ( GPL-2 BSD ) pam? ( || ( LGPL-2+ BSD ) )"
+      slot: '0'
+      inherit:
+        - pam
+        - toolchain-funcs
+      iuse: pam +static-libs tools
+      rdepend: |
+        pam? ( sys-libs/pam )
+      depend: |
+        ${RDEPEND}
+        sys-kernel/linux-headers
+      bdepend:
+        sys-apps/diffutils
+        tools? ( dev-lang/go )
+      body: |
+        run_emake() {
+          local args=(
+          	exec_prefix="${EPREFIX}"
+          	lib_prefix="${EPREFIX}/usr"
+          	lib="$(get_libdir)"
+          	prefix="${EPREFIX}/usr"
+          	PAM_CAP="$(usex pam yes no)"
+          	DYNAMIC=yes
+          	GOLANG="$(usex tools yes no)"
+          )
+          emake "${args[@]}" "$@"
+        }
+        src_compile() {
+          local BUILD_CC
+          tc-export_build_env BUILD_CC
+          run_emake
+        }
+        src_install() {
+          run_emake DESTDIR="${D}" install
+          gen_usr_ldscript -a cap
+          if ! use static-libs; then
+            rm "${ED}"/usr/$(get_libdir)/lib{cap,psx}.a || die
+          fi
+          # install pam plugins ourselves
+          if [[ -d "${ED%/}"/usr/$(get_libdir)/security ]] ; then
+            rm -rf "${ED}"/usr/$(get_libdir)/security || die
+          fi
+          if use pam; then
+            dopammod pam_cap/pam_cap.so
+            dopamsecurity '' pam_cap/capability.conf
+          fi
+        }
+
+  packages:
+    - libcap:

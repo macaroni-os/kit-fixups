@@ -1,3 +1,78 @@
+
+thin_provisioning_tools:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple-github.tmpl
+    files_dir: '{{ .Values.pn }}'
+    category: sys-fs
+    github:
+      query: releases
+
+  extensions_defs:
+    rust:
+      opts:
+        crates_skipped: thinp
+
+  packages:
+
+    - thin-provisioning-tools:
+        template: ../../templates/simple.tmpl
+        category: sys-block
+        extensions:
+          - rust
+        github:
+          query: tags
+          user: jthornber
+        vars:
+          iuse: debug io-uring
+          inherit:
+            - cargo
+          docs:
+            - CHANGES
+            - COPYING
+            - README.md
+            - doc/TODO.md
+            - doc/thinp-version-2/notes.md
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="usr/sbin/pdata_tools"'
+          depend: |
+            sys-fs/lvm2
+          bdepend: |
+            virtual/pkgconfig
+            virtual/rust
+            app-text/asciidoc
+            sys-devel/clang
+            sys-fs/lvm2
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/jthornber-thin-provisioning-tools-* ${S} || die
+              # Patch rio library to ignore unused qualifications.
+              # Needed for io-uring use flag.
+              sed -i -e '/unused_qualifications/d' \
+                ${WORKDIR}/mark-rust-bundle-${PN}/*rio-*/src/lib.rs
+              # Fix compilation with rust <1.87 (see https://github.com/sipemu/anofox-statistics-rs/issues/4)
+              sed -i -e 's|io_block_size.is_multiple_of(BLOCK_SIZE)|io_block_size % BLOCK_SIZE == 0|g' \
+                ${S}/src/io_engine/sync.rs || die
+            }
+            src_configure() {
+              local llvm_slot=$(clang --version | grep version | awk '{ print $4 }' | cut -d'.' -f 1)
+              export BINDGEN_EXTRA_CLANG_ARGS="${BINDGEN_EXTRA_CLANG_ARGS} -I/usr/lib/clang/${llvm_slot}/include"
+              local myfeatures=( $(usex io-uring io_uring '') )
+              cargo_src_configure
+            }
+            src_install() {
+              cargo_target_dir="${CARGO_TARGET_DIR:-target}/$(usex debug debug release)"
+              emake \
+                DESTDIR="${D}" \
+                DATADIR="${ED}/usr/share" \
+                PDATA_TOOLS="${cargo_target_dir}/pdata_tools" \
+                install
+              einstalldocs
+            }
+
+
 general_github:
   generator: builtin-github
   defaults:

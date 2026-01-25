@@ -32,212 +32,122 @@ target:
 
   atoms:
 
-    - pkg: app-accessibility/at-spi2-atk:2
-    - pkg: app-accessibility/at-spi2-core:2
+    - pkg: app-cdr/brasero
 
     - pkg: app-editors/gedit
 
-    - pkg: dev-python/pycairo
-    - pkg: dev-python/pygobject:2
-    - pkg: dev-python/pygobject:3
-
-    - pkg: dev-libs/atk
-    - pkg: dev-libs/appstream-glib
+    - pkg: app-accessibility/at-spi2-atk:2
+    - pkg: app-accessibility/at-spi2-core:2
 
     - pkg: app-admin/system-config-printer
 
     - pkg: app-arch/file-roller
     - pkg: app-arch/gnome-autoar
 
-    - pkg: app-accessibility/brltty
-    - pkg: app-accessibility/caribou
-    - pkg: app-accessibility/orca
-
-    - pkg: app-cdr/brasero
-
     - pkg: app-crypt/seahorse
 
     - pkg: app-dicts/gnome-dictionary
 
     - pkg: app-misc/bijiben
+    - pkg: app-misc/localsearch
     - pkg: app-misc/geoclue
     - pkg: app-misc/gnote
-    - pkg: app-misc/tracker
-    - pkg: app-misc/tracker-miners
+    - pkg: app-misc/tinysparql
 
-    - pkg: dev-cpp/atkmm
+    - pkg: dev-cpp/atkmm:0
+      conditions:
+        - '<dev-cpp/atkmm-2.33:0'
+    - pkg: dev-cpp/atkmm:2.36
+      conditions:
+        - '<dev-cpp/atkmm-2.37:2.36'
     - pkg: dev-cpp/cairomm:0
+      conditions:
+        - '<dev-cpp/cairomm-1.15.0:0'
     - pkg: dev-cpp/cairomm:1
-    - pkg: dev-cpp/glibmm
+      conditions:
+        - '>=dev-cpp/cairomm-1.15.0:1'
+    - pkg: dev-cpp/glibmm:2
+      conditions:
+        - '<dev-cpp/glibmm-2.68:2'
+    - pkg: dev-cpp/glibmm:2.68
+      conditions:
+        - '<dev-cpp/glibmm-2.87:2.68'
     - pkg: dev-cpp/gtkmm:2.4
+      conditions:
+        - '<dev-cpp/gtkmm-3.0:2.4'
     - pkg: dev-cpp/gtkmm:3.0
+      conditions:
+        - '<dev-cpp/gtkmm-4.0:3.0'
     - pkg: dev-cpp/gtkmm:4.0
+      conditions:
+        - '<dev-cpp/gtkmm-5.0:4.0'
+    - pkg: dev-cpp/pangomm:1.4
+      conditions:
+        - '<dev-cpp/pangomm-2.0:1.4'
+    - pkg: dev-cpp/pangomm:2.48
+      conditions:
+        - '<dev-cpp/pangomm-3.0:2.48'
     - pkg: dev-cpp/mm-common
-    - pkg: dev-cpp/pangomm
 
-    - pkg: dev-lang/vala:0.54
+    - pkg: dev-lang/vala:0.56
 
+    - pkg: dev-libs/appstream-glib
+    - pkg: dev-libs/atk
     - pkg: dev-libs/folks
     - pkg: dev-libs/gdl
     - pkg: dev-libs/gjs
-    - pkg: dev-libs/gmime:3.0
-    - pkg: dev-libs/gom
     - pkg: dev-libs/json-glib
-    - pkg: dev-libs/libcroco
     - pkg: dev-libs/libdazzle
+    - pkg: dev-libs/libdex
     - pkg: dev-libs/libgdata
+    - pkg: dev-libs/libgedit-amtk
+    - pkg: dev-libs/libgedit-gtksourceview
+    - pkg: dev-libs/libgedit-gfls
+    - pkg: dev-libs/libgedit-tepl
     - pkg: dev-libs/libgee
     - pkg: dev-libs/libgit2-glib
-    - pkg: dev-libs/libgnome-games-support
+    - pkg: dev-libs/libgweather
+    - pkg: dev-libs/libgnome-games-support:1
+      conditions:
+        - '<dev-libs/libgnome-games-support-2.0:1'
+    - pkg: dev-libs/libgnome-games-support:2
+      conditions:
+        - '>=dev-libs/libgnome-games-support-2.0:2'
     - pkg: dev-libs/libgudev
     - pkg: dev-libs/libgusb
-    - pkg: dev-libs/libgweather
     - pkg: dev-libs/libhandy
     - pkg: dev-libs/libical
     - pkg: dev-libs/libmanette
-    - pkg: dev-libs/libpeas
+    - pkg: dev-libs/libpeas:0
+      conditions:
+        - '<dev-libs/libpeas-1.37:0'
+
+    - pkg: dev-libs/libpeas:2
+      conditions:
+        - '>=dev-libs/libpeas-2.2.0:2'
     - pkg: dev-libs/librevenge
-    - pkg: dev-libs/newt
+    - pkg: dev-libs/pegtl
     - pkg: dev-libs/totem-pl-parser
     - pkg: dev-libs/vala-common
-    - pkg: dev-util/gi-docgen
+
+    - pkg: dev-vcs/gitg
+
+    - pkg: dev-util/blueprint-compiler
+    - pkg: dev-util/d-feet
     - pkg: dev-util/glade
     - pkg: dev-util/gtk-update-icon-cache
     - pkg: dev-util/sysprof
 
-    - pkg: dev-vcs/gitg
-
-    - pkg: gui-libs/gtk-layer-shell
-    - pkg: gui-libs/tepl
-
-    - pkg: media-gfx/shotwell
-    - pkg: media-gfx/simple-scan
-    - pkg: media-video/cheese
-    - pkg: media-video/gnome-video-effects
-    - pkg: media-video/totem
-
-    - pkg: net-analyzer/gnome-nettool
-
-    - pkg: net-im/telepathy-logger
-    - pkg: net-im/telepathy-mission-control
-
-    - pkg: net-libs/glib-networking
-    - pkg: net-libs/gnome-online-accounts
-    - pkg: net-libs/gssdp:0
-    - pkg: net-libs/gssdp:1.2
-    - pkg: net-libs/gtk-vnc
-    - pkg: net-libs/gupnp:0
-    - pkg: net-libs/gupnp:1.2
-    - pkg: net-libs/libaccounts-glib
-    - pkg: net-libs/libgfbgraph
-    - pkg: net-libs/libnma
-    - pkg: net-libs/libpsl
-    - pkg: net-libs/libsoup
-    - pkg: net-libs/libzapojit
-    - pkg: net-libs/webkit-gtk
-    - pkg: net-libs/rest
-    - pkg: net-libs/telepathy-glib
-
-    - pkg: net-misc/connman-gtk
-    - pkg: net-misc/connman-ui
-    - pkg: net-misc/gnome-online-miners
-    - pkg: net-misc/rygel
-    - pkg: net-misc/vinagre
-    - pkg: net-misc/vino
-
-    - pkg: net-wireless/blueberry
-    - pkg: net-wireless/gnome-bluetooth
-
-    - pkg: sci-geosciences/geocode-glib
-    - pkg: sci-geosciences/gnome-maps
-
-    - pkg: sys-apps/accountsservice
-    - pkg: sys-apps/baobab
-    - pkg: sys-apps/gnome-disk-utility
-
-    - pkg: gnome-base/adrien-gdm-keyboard
-    - pkg: gnome-base/dconf
-    - pkg: gnome-base/dconf-editor
-    - pkg: gnome-base/gconf
-    - pkg: gnome-base/gdm
-    - pkg: gnome-base/gnome
-    - pkg: gnome-base/gnome-common
-    - pkg: gnome-base/gnome-control-center
-    - pkg: gnome-base/gnome-core-apps
-    - pkg: gnome-base/gnome-core-libs
-    - pkg: gnome-base/gnome-desktop
-    - pkg: gnome-base/gnome-keyring
-    - pkg: gnome-base/gnome-menus
-    - pkg: gnome-base/gnome-mime-data
-    - pkg: gnome-base/gnome-session
-    - pkg: gnome-base/gnome-settings-daemon
-    - pkg: gnome-base/gnome-shell
-    - pkg: gnome-base/gnome-shell-common
-    - pkg: gnome-base/gsettings-desktop-schemas
-    - pkg: gnome-base/gvfs
-    - pkg: gnome-base/libglade
-    - pkg: gnome-base/libgnomecanvas
-    - pkg: gnome-base/libgnomekbd
-    - pkg: gnome-base/libgnome-keyring
-    - pkg: gnome-base/libgtop
-    - pkg: gnome-base/librsvg
-    - pkg: gnome-base/nautilus
-
-    - pkg: gnome-extra/chrome-gnome-shell
-    - pkg: gnome-extra/evolution-data-server
-    - pkg: gnome-extra/evolution-ews
-    - pkg: gnome-extra/gconf-editor
-    - pkg: gnome-extra/gnome-calculator
-    - pkg: gnome-extra/gnome-calendar
-    - pkg: gnome-extra/gnome-characters
-    - pkg: gnome-extra/gnome-clocks
-    - pkg: gnome-extra/gnome-color-manager
-    - pkg: gnome-extra/gnome-contacts
-    - pkg: gnome-extra/gnome-documents
-    - pkg: gnome-extra/gnome-getting-started-docs
-    - pkg: gnome-extra/gnome-integration-spotify
-    - pkg: gnome-extra/gnome-power-manager
-    - pkg: gnome-extra/gnome-weather
-    - pkg: gnome-extra/gnome-recipes
-    - pkg: gnome-extra/gnome-search-tool
-    - pkg: gnome-extra/gnome-shell-extension-applications-overview-tooltip
-    - pkg: gnome-extra/gnome-shell-extension-compiz-windows-effect
-    - pkg: gnome-extra/gnome-shell-extension-dash-to-dock
-    - pkg: gnome-extra/gnome-shell-extension-desktop-icons
-    - pkg: gnome-extra/gnome-shell-extension-dynamic-panel-transparency
-    - pkg: gnome-extra/gnome-shell-extensions
-    - pkg: gnome-extra/gnome-shell-extensions-topicons
-    - pkg: gnome-extra/gnome-shell-extensions-topicons-plus
-    - pkg: gnome-extra/gnome-shell-frippery
-    - pkg: gnome-extra/gnome-software
-    - pkg: gnome-extra/gnome-system-monitor
-    - pkg: gnome-extra/gnome-todo
-    - pkg: gnome-extra/gnome-tweaks
-    - pkg: gnome-extra/gnome-user-docs
-    - pkg: gnome-extra/gnome-user-share
-    - pkg: gnome-extra/gucharmap
-    - pkg: gnome-extra/yelp
-    - pkg: gnome-extra/libgsf
-    - pkg: gnome-extra/mousetweaks
-    - pkg: gnome-extra/nautilus-sendto
-    - pkg: gnome-extra/nm-applet
-    - pkg: gnome-extra/polkit-gnome
-    - pkg: gnome-extra/sushi
-    - pkg: gnome-extra/zenity
-
     - pkg: games-arcade/gnome-nibbles
     - pkg: games-arcade/gnome-robots
-    - pkg: games-board/aisleriot
-    - pkg: games-board/crafty
+
     - pkg: games-board/four-in-a-row
     - pkg: games-board/gnome-chess
     - pkg: games-board/gnome-mahjongg
     - pkg: games-board/gnome-mines
-    - pkg: games-board/gnuchess
     - pkg: games-board/iagno
-    - pkg: games-board/sjeng
-    - pkg: games-board/stockfish
     - pkg: games-board/tali
+
     - pkg: games-puzzle/atomix
     - pkg: games-puzzle/five-or-more
     - pkg: games-puzzle/gnome-klotski
@@ -250,6 +160,53 @@ target:
     - pkg: games-puzzle/quadrapassel
     - pkg: games-puzzle/swell-foop
 
+    - pkg: gnome-base/dconf
+    - pkg: gnome-base/dconf-editor
+    - pkg: gnome-base/libgnomekbd
+    - pkg: gnome-base/libgtop
+    - pkg: gnome-base/librsvg
+    - pkg: gnome-base/gdm
+    - pkg: gnome-base/gnome-control-center
+    - pkg: gnome-base/gnome-desktop
+    - pkg: gnome-base/gnome-menus
+    - pkg: gnome-base/gnome-mime-data
+    - pkg: gnome-base/gnome-keyring
+    - pkg: gnome-base/gnome-session
+    - pkg: gnome-base/gnome-settings-daemon
+    - pkg: gnome-base/gnome-shell
+    - pkg: gnome-base/gsettings-desktop-schemas
+    - pkg: gnome-base/gvfs
+    - pkg: gnome-base/nautilus
+
+    - pkg: gnome-extra/endeavour
+    - pkg: gnome-extra/evolution-data-server
+    - pkg: gnome-extra/evolution-ews
+    - pkg: gnome-extra/gnome-boxes
+    - pkg: gnome-extra/gnome-browser-connector
+    - pkg: gnome-extra/gnome-calculator
+    - pkg: gnome-extra/gnome-calendar
+    - pkg: gnome-extra/gnome-characters
+    - pkg: gnome-extra/gnome-clocks
+    - pkg: gnome-extra/gnome-contacts
+    - pkg: gnome-extra/gnome-color-manager
+    - pkg: gnome-extra/gnome-power-manager
+    - pkg: gnome-extra/gnome-shell-extensions
+    - pkg: gnome-extra/gnome-shell-extension-dash-to-dock
+    - pkg: gnome-extra/gnome-shell-extension-desktop-icons
+    - pkg: gnome-extra/gnome-shell-extension-transparent-topbar
+    - pkg: gnome-extra/gnome-system-monitor
+    - pkg: gnome-extra/gnome-software
+    - pkg: gnome-extra/gnome-tweaks
+    - pkg: gnome-extra/gnome-weather
+    - pkg: gnome-extra/gucharmap:2.90
+    - pkg: gnome-extra/yelp
+    - pkg: gnome-extra/mousetweaks
+    - pkg: gnome-extra/nm-applet
+    - pkg: gnome-extra/libgsf
+    - pkg: gnome-extra/sushi
+    - pkg: gnome-extra/tecla
+    - pkg: gnome-extra/zenity
+
     - pkg: mail-client/evolution
     - pkg: mail-client/geary
 
@@ -257,51 +214,92 @@ target:
     - pkg: media-gfx/eog-plugins
     - pkg: media-gfx/gnome-font-viewer
     - pkg: media-gfx/gnome-photos
-    - pkg: media-gfx/gnome-screenshot
+    - pkg: media-gfx/simple-scan
+    - pkg: media-gfx/shotwell
 
     - pkg: media-libs/babl
-    - pkg: media-libs/clutter
-    - pkg: media-libs/clutter-gst
-    - pkg: media-libs/clutter-gtk
-    - pkg: media-libs/cogl
-    - pkg: media-libs/gegl
+    - pkg: media-libs/gegl:0.4
     - pkg: media-libs/gexiv2
+    - pkg: media-libs/glycin-loaders
     - pkg: media-libs/grilo
     - pkg: media-libs/gsound
+    - pkg: media-libs/libglycin
+    - pkg: media-libs/libiptcdata
+    - pkg: media-libs/libshumate
 
+    - pkg: media-video/cheese
+    - pkg: media-video/gnome-video-effects
+    - pkg: media-video/totem
+    - pkg: media-video/showtime
 
+    - pkg: net-analyzer/gnome-nettool
+
+    - pkg: net-libs/glib-networking
+    - pkg: net-libs/gnome-online-accounts
+    - pkg: net-libs/gssdp:1.6
+    - pkg: net-libs/gupnp:1.6
+    - pkg: net-libs/libaccounts-glib
+    - pkg: net-libs/libnma
+    - pkg: net-libs/libpsl
+    - pkg: net-libs/libsoup:2.4
+    - pkg: net-libs/libsoup:3
+    - pkg: net-libs/libcloudproviders
+    - pkg: net-libs/msgraph
+    - pkg: net-libs/webkit-gtk:6
+      conditions:
+        - '<net-libs/webkit-gtk-2.51:6'
+    - pkg: net-libs/webkit-gtk:4
+      conditions:
+        - '<net-libs/webkit-gtk-2.51:4'
+
+    - pkg: net-misc/rygel
+    - pkg: net-misc/gnome-remote-desktop
+
+    - pkg: net-wireless/gnome-bluetooth
+
+    - pkg: x11-libs/colord-gtk
     - pkg: x11-libs/gdk-pixbuf
-    - pkg: x11-libs/goffice
-    - pkg: x11-libs/gtk+:2
+    - pkg: x11-libs/gtk:4
     - pkg: x11-libs/gtk+:3
+      conditions:
+        - '<x11-libs/gtk+-4.0:3'
+        - '>=x11-libs/gtk+-3.0:3'
+    - pkg: x11-libs/gtk+:2
+      conditions:
+        - '<x11-libs/gtk+-3.0:2'
+        - '>=x11-libs/gtk+-2.0:2'
     - pkg: x11-libs/gtksourceview:3.0
     - pkg: x11-libs/gtksourceview:4
-    - pkg: x11-libs/amtk
-    - pkg: x11-libs/colord-gtk
+    - pkg: x11-libs/gtksourceview:5
+    - pkg: x11-libs/libadwaita
+    - pkg: x11-libs/libpanel
     - pkg: x11-libs/vte
-
-    - pkg: sys-apps/xdg-desktop-portal-gtk
-
-    - pkg: sys-libs/libosinfo
 
     - pkg: x11-misc/colord
     - pkg: x11-misc/xdg-user-dirs
     - pkg: x11-misc/xdg-user-dirs-gtk
 
+    - pkg: x11-wm/mutter
+
     - pkg: x11-terms/gnome-terminal
-    - pkg: x11-terms/tilix-bin
 
     - pkg: x11-themes/adwaita-icon-theme
-    - pkg: x11-themes/funtoo-gnome-shell-theme
+    - pkg: x11-themes/adwaita-icon-theme-legacy
     - pkg: x11-themes/gnome-backgrounds
-    - pkg: x11-themes/gnome-icon-theme-extras
-    - pkg: x11-themes/gnome-orchis-theme
-    - pkg: x11-themes/gnome-themes-standard
-    - pkg: x11-themes/gtk-engines
-    - pkg: x11-themes/gtk-engines-adwaita
-    - pkg: x11-themes/gtk-engines-murrine
 
-    - pkg: x11-wm/mutter
+    - pkg: sci-geosciences/geocode-glib
+    - pkg: sci-geosciences/gnome-maps
+
+    - pkg: sys-apps/accountsservice
+    - pkg: sys-apps/baobab
+    - pkg: sys-apps/gnome-disk-utility
+    - pkg: sys-apps/xdg-desktop-portal-gtk
+    - pkg: sys-apps/xdg-desktop-portal-gnome
+    - pkg: sys-apps/usbguard
+
+    - pkg: sys-libs/libosinfo
 
     - pkg: virtual/libgudev
     - pkg: virtual/notification-daemon
+
+    - pkg: x11-themes/gnome-orchis-theme

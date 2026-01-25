@@ -1,0 +1,11 @@
+# generic arm64 is little endian by default
+CHOST="aarch64-unknown-linux-gnu"
+
+# also set CHOST_arm64 which is defined in multilib.eclass and by used by many ebuilds
+CHOST_arm64="${CHOST}"
+
+CFLAGS="-march=armv9.2-a -mtune=cortex-a720 -O2 -pipe -ftree-vectorize -fomit-frame-pointer"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+LDFLAGS="-Wl,-O1 -Wl,--as-needed"

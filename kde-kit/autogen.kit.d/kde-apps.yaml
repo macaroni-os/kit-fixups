@@ -1150,7 +1150,8 @@ kde-apps:
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
     - kajongg:
         vars:
-          inherit: kde6 xdg
+          python_compat: python3+
+          inherit: kde6 python-single-r1 xdg
           desc: "Classical Mah Jongg for four players"
           homepage: https://apps.kde.org/kajongg/
           rdepend: |
@@ -2422,7 +2423,8 @@ kde-apps:
             ${RDEPEND}
     - kig:
         vars:
-          inherit: kde6 xdg
+          python_compat: python3+
+          inherit: kde6 python-single-r1 xdg
           desc: "KDE Interactive Geometry tool"
           homepage: https://apps.kde.org/kig/
           iuse: "scripting"

@@ -358,6 +358,7 @@ eaclocal() {
 			cat <<- EOF > "${T}"/aclocal/dirlist || die
 				${BROOT}/usr/share/aclocal
 				${ESYSROOT}/usr/share/aclocal
+				${ESYSROOT}/usr/share/gettext/m4
 			EOF
 		fi
 

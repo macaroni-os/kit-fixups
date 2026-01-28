@@ -61,6 +61,8 @@ pkg_setup() {
 
 src_prepare() {
 	default
+	# Swig 4 doesn't like $function (it seems)
+	sed -i -e 's|$function|$action|g' libunbound/python/libunbound.i || die
 	eautoreconf
 }
 

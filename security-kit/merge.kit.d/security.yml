@@ -38,7 +38,12 @@ target:
     - pkg: app-antivirus/lkrg
 
     - pkg: app-crypt/argon2
-    - pkg: app-crypt/gcr
+    - pkg: app-crypt/gcr:4
+      conditions:
+        - '>=app-crypt/gcr-4.0:4'
+    - pkg: app-crypt/gcr:0
+      conditions:
+        - '<app-crypt/gcr-4.0'
     - pkg: app-crypt/gpgme:1
     - pkg: app-crypt/gnupg
     - pkg: app-crypt/libb2
@@ -93,8 +98,6 @@ target:
     - pkg: sys-auth/pambase
     # 0.120 is masked atm.
     - pkg: sys-auth/polkit
-      conditions:
-        - '<sys-auth/polkit-0.120'
     - pkg: sys-auth/rtkit
     - pkg: sys-auth/google-authenticator
 

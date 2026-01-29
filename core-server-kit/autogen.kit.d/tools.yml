@@ -1694,6 +1694,7 @@ tevent:
             }
 
     - ldb:
+        revision: 1
         vars:
           desc: LDAP-like embedded database
           homepage: https://ldb.samba.org
@@ -1705,7 +1706,6 @@ tevent:
             - python-single-r1
             - autotools
           iuse: +ldap +lmdb python
-          revision: 1
           rdepend: |
             dev-libs/libbsd
             dev-libs/popt

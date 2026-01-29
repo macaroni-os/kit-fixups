@@ -2321,3 +2321,170 @@ libvirt:
               fi
               use libvirtd || return 0
             }
+
+gitlab_runner:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: '1'
+    rate_diuration: '5s'
+  defaults:
+    category: dev-util
+    extensions:
+      - golang
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    dir:
+      url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: 'v[0-9.]'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.gitlab_repo }}-{{ .Values.original_version }}.tar.bz2'
+    transform:
+      - kind: string
+        match: 'v'
+        replace: ''
+    vars:
+      desc: GitLab Runner for executing CI jobs locally
+      extra_envs:
+        - 'DOC_CONTENTS="Register the runner as root using\\n\\t# gitlab-runner register\\nThis will save the config in /etc/gitlab-runner/config.toml"'
+        - 'EGO_BUNDLE_POSTFIX="mark-go-bundle"'
+      gitlab_user: gitlab-org
+      gitlab_repo: gitlab-runner
+      homepage: https://gitlab.com/gitlab-org/gitlab-runner
+      inherit:
+        - go-module
+        - readme.gentoo-r1
+        - systemd
+        - tmpfiles
+        - user
+      iuse: systemd
+      keywords: '*'
+      license: MIT
+      slot: 0
+      bdepend: dev-lang/go
+      rdepend:
+      depend: |
+        ${RDEPEND}
+        systemd? ( sys-apps/systemd )
+      restrict: strip network-sandbox
+      s: '${WORKDIR}/gitlab-runner-v{{ .Values.version }}'
+      body: |
+        pkg_setup() {
+          enewgroup gitlab 548
+          enewuser gitlab-runner 548 -1 -1 gitlab
+        }
+
+        src_install() {
+          einstalldocs
+          exeinto /usr/sbin
+          doexe gitlab-runner
+          if use systemd; then
+            systemd_dounit "${FILESDIR}"/gitlab-runner.service
+            newtmpfiles "${FILESDIR}"/gitlab-runner.tmpfile gitlab-runner.conf
+          else
+            newconfd "${FILESDIR}"/gitlab-runner.confd gitlab-runner
+            newinitd "${FILESDIR}"/gitlab-runner.initd gitlab-runner
+          fi
+          readme.gentoo_create_doc
+          insopts -o gitlab-runner -g gitlab -m0600
+          diropts -o gitlab-runner -g gitlab -m0750
+          insinto /etc/gitlab-runner
+          keepdir /etc/gitlab-runner /var/lib/gitlab-runner
+        }
+
+        pkg_postinst() {
+          if use systemd; then
+            tmpfiles_process gitlab-runner.conf
+          fi
+          readme.gentoo_print_elog
+        }
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    - gitlab-runner:
+
+
+gitlab_runner_bin:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: '1'
+    rate_diuration: '5s'
+  defaults:
+    category: dev-util
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    dir:
+      url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: 'v[0-9.]'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}'
+        url: 'https://s3.dualstack.us-east-1.amazonaws.com/gitlab-runner-downloads/v{{ .Values.version }}/binaries/gitlab-runner-linux-amd64'
+    transform:
+      - kind: string
+        match: 'v'
+        replace: ''
+    vars:
+      desc: 'GitLab Runner for executing CI jobs locally (pre-compiled)'
+      extra_envs:
+        - 'DOC_CONTENTS="Register the runner as root using\\n\\t# gitlab-runner register\\nThis will save the config in /etc/gitlab-runner/config.toml"'
+      gitlab_user: gitlab-org
+      gitlab_repo: gitlab-runner
+      homepage: https://gitlab.com/gitlab-org/gitlab-runner
+      inherit:
+        - readme.gentoo-r1
+        - systemd
+        - tmpfiles
+        - user
+      iuse: systemd
+      keywords: '*'
+      license: MIT
+      slot: 0
+      rdepend:
+      depend: |
+        ${RDEPEND}
+        systemd? ( sys-apps/systemd )
+      restrict: strip
+      body: |
+        src_unpack() {
+          mkdir "${S}"
+        }
+
+        src_prepare() {
+          default
+          cp ${DISTDIR}/${A} ${S}/gitlab-runner || die
+        }
+
+        pkg_setup() {
+          enewgroup gitlab 548
+          enewuser gitlab-runner 548 -1 -1 gitlab
+        }
+
+        src_install() {
+          einstalldocs
+          exeinto /usr/sbin
+          doexe gitlab-runner
+          if use systemd; then
+            systemd_dounit "${FILESDIR}"/gitlab-runner.service
+            newtmpfiles "${FILESDIR}"/gitlab-runner.tmpfile gitlab-runner.conf
+          else
+            newconfd "${FILESDIR}"/gitlab-runner.confd gitlab-runner
+            newinitd "${FILESDIR}"/gitlab-runner.initd gitlab-runner
+          fi
+          readme.gentoo_create_doc
+          insopts -o gitlab-runner -g gitlab -m0600
+          diropts -o gitlab-runner -g gitlab -m0750
+          insinto /etc/gitlab-runner
+          keepdir /etc/gitlab-runner /var/lib/gitlab-runner
+        }
+
+        pkg_postinst() {
+          if use systemd; then
+            tmpfiles_process gitlab-runner.conf
+          fi
+          readme.gentoo_print_elog
+        }
+
+  packages:
+    - gitlab-runner-bin:

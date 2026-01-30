@@ -2333,7 +2333,7 @@ gitlab_runner:
     extensions:
       - golang
     template: ../../templates/simple.tmpl
-    files_dir: "{{ .Values.pn }}"
+    files_dir: "{{ .Values.pn }}-bin"
     dir:
       url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
       matcher: 'v[0-9.]'
@@ -2359,26 +2359,33 @@ gitlab_runner:
         - tmpfiles
         - user
       iuse: systemd
-      keywords: '*'
       license: MIT
-      slot: 0
-      bdepend: dev-lang/go
-      rdepend:
-      depend: |
-        ${RDEPEND}
+      rdepend: |
         systemd? ( sys-apps/systemd )
-      restrict: strip network-sandbox
-      s: '${WORKDIR}/gitlab-runner-v{{ .Values.version }}'
+        !dev-util/gitlab-runner-bin
+      restrict: strip
+      s: '${WORKDIR}/gitlab-runner-v{{ .Values.pv | default .Values.version }}'
+      docs:
+        - docs
+        - CHANGELOG.md
+        - README.md
       body: |
         pkg_setup() {
           enewgroup gitlab 548
           enewuser gitlab-runner 548 -1 -1 gitlab
         }
-
+        src_compile() {
+          emake \
+            BUILT="$(date -u '+%Y-%m-%dT%H:%M:%S%:z')" \
+            REVISION="{{ .Values.sha }}" \
+            VERSION={{ .Values.pv | default .Values.version }} \
+            runner-and-helper-bin-host
+        }
         src_install() {
+          newbin out/binaries/gitlab-runner-linux-* gitlab-runner
+          newbin out/binaries/gitlab-runner-helper/gitlab-runner-helper.linux-* gitlab-runner-helper
           einstalldocs
           exeinto /usr/sbin
-          doexe gitlab-runner
           if use systemd; then
             systemd_dounit "${FILESDIR}"/gitlab-runner.service
             newtmpfiles "${FILESDIR}"/gitlab-runner.tmpfile gitlab-runner.conf
@@ -2390,7 +2397,8 @@ gitlab_runner:
           insopts -o gitlab-runner -g gitlab -m0600
           diropts -o gitlab-runner -g gitlab -m0750
           insinto /etc/gitlab-runner
-          keepdir /etc/gitlab-runner /var/lib/gitlab-runner
+          keepdir /etc/gitlab-runner /var/lib/{{ .Values.pn }}
+          fowners gitlab-runner:gitlab /etc/{{ .Values.pn }}
         }
 
         pkg_postinst() {
@@ -2442,10 +2450,9 @@ gitlab_runner_bin:
       keywords: '*'
       license: MIT
       slot: 0
-      rdepend:
-      depend: |
-        ${RDEPEND}
+      rdepend: |
         systemd? ( sys-apps/systemd )
+        !dev-util/gitlab-runner
       restrict: strip
       body: |
         src_unpack() {

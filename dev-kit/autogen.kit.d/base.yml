@@ -2062,3 +2062,77 @@ ding_libs:
         }
   packages:
     - ding-libs:
+
+
+
+talloc:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: sys-libs
+    dir:
+      url: 'https://download.samba.org/pub/{{ .Values.pkgname | default .Values.pn }}{{ .Values.suffix | default "" }}'
+      matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.tar.gz$"
+      exclude: "rc"
+    transform:
+      - kind: string
+        match: "{{ .Values.pkgname | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      license: GPL-3
+      python_compat: python3+
+  packages:
+
+    - talloc:
+        vars:
+          python_compat: python3+
+          extra_envs:
+            - 'PYTHON_REQ_USE="threads(+)"'
+          inherit:
+            - python-single-r1
+            - autotools
+          desc: Samba talloc library
+          homepage: https://talloc.samba.org/
+          license: GPL-3 LGPL-3+ LGPL-2
+          iuse: compat +python
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            dev-libs/libbsd
+            python? ( ${PYTHON_DEPS} )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+            dev-libs/libxslt
+            ${PYTHON_DEPS}
+          body: |
+            pkg_setup() {
+              export DISTCC_DISABLE=1
+              export CCACHE_DISABLE=1
+              python-single-r1_pkg_setup
+            }
+            src_configure() {
+              local extra_opts=(
+                --libdir="${EPREFIX}/usr/$(get_libdir)"
+                --disable-dependency-tracking
+                --disable-warnings-as-errors
+                $(usev compat --enable-talloc-compat1)
+                $(usex python '' --disable-python)
+              )
+
+              append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
+
+              econf "${extra_opts[@]}"
+            }
+            src_install() {
+              emake DESTDIR="${ED}" install
+              use python && python_optimize
+            }
+

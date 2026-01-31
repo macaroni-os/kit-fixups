@@ -2347,14 +2347,12 @@ gitlab_runner:
     vars:
       desc: GitLab Runner for executing CI jobs locally
       extra_envs:
-        - 'DOC_CONTENTS="Register the runner as root using\\n\\t# gitlab-runner register\\nThis will save the config in /etc/gitlab-runner/config.toml"'
         - 'EGO_BUNDLE_POSTFIX="mark-go-bundle"'
       gitlab_user: gitlab-org
       gitlab_repo: gitlab-runner
       homepage: https://gitlab.com/gitlab-org/gitlab-runner
       inherit:
         - go-module
-        - readme.gentoo-r1
         - systemd
         - tmpfiles
         - user
@@ -2393,7 +2391,6 @@ gitlab_runner:
             newconfd "${FILESDIR}"/gitlab-runner.confd gitlab-runner
             newinitd "${FILESDIR}"/gitlab-runner.initd gitlab-runner
           fi
-          readme.gentoo_create_doc
           insopts -o gitlab-runner -g gitlab -m0600
           diropts -o gitlab-runner -g gitlab -m0750
           insinto /etc/gitlab-runner
@@ -2405,7 +2402,13 @@ gitlab_runner:
           if use systemd; then
             tmpfiles_process gitlab-runner.conf
           fi
-          readme.gentoo_print_elog
+          einfo "Create a runner at Gitlab via Build -> Runners in the menu."
+          einfo "Copy the token that appears on the final page."
+          einfo
+          einfo "Register the runner as root using"
+          einfo "\t$ gitlab-runner register --token <paste runner token>\n"
+          einfo
+          einfo "The config will be saved in /etc/gitlab-runner/config.toml"
         }
   extensions_defs:
     golang:
@@ -2436,13 +2439,10 @@ gitlab_runner_bin:
         replace: ''
     vars:
       desc: 'GitLab Runner for executing CI jobs locally (pre-compiled)'
-      extra_envs:
-        - 'DOC_CONTENTS="Register the runner as root using\\n\\t# gitlab-runner register\\nThis will save the config in /etc/gitlab-runner/config.toml"'
       gitlab_user: gitlab-org
       gitlab_repo: gitlab-runner
       homepage: https://gitlab.com/gitlab-org/gitlab-runner
       inherit:
-        - readme.gentoo-r1
         - systemd
         - tmpfiles
         - user
@@ -2480,7 +2480,6 @@ gitlab_runner_bin:
             newconfd "${FILESDIR}"/gitlab-runner.confd gitlab-runner
             newinitd "${FILESDIR}"/gitlab-runner.initd gitlab-runner
           fi
-          readme.gentoo_create_doc
           insopts -o gitlab-runner -g gitlab -m0600
           diropts -o gitlab-runner -g gitlab -m0750
           insinto /etc/gitlab-runner
@@ -2491,7 +2490,13 @@ gitlab_runner_bin:
           if use systemd; then
             tmpfiles_process gitlab-runner.conf
           fi
-          readme.gentoo_print_elog
+          einfo "Create a runner at Gitlab via Build -> Runners in the menu."
+          einfo "Copy the token that appears on the final page."
+          einfo
+          einfo "Register the runner as root using"
+          einfo "\t$ gitlab-runner register --token <paste runner token>\n"
+          einfo
+          einfo "The config will be saved in /etc/gitlab-runner/config.toml"
         }
 
   packages:

@@ -2136,3 +2136,58 @@ talloc:
               use python && python_optimize
             }
 
+
+cmocka:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-util
+    dir:
+      url: 'https://cmocka.org/files/2.0'
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      desc: 'An elegant unit testing framework for C with support for mock objects'
+      extra_envs:
+        - "DOCS=( AUTHORS CHANGELOG.md README.md )"
+      homepage: https://cmocka.org/
+      inherit:
+        - cmake
+      iuse: doc examples static-libs test
+      license: Apache-2.0
+      bdepend: |
+        doc? ( app-doc/doxygen[dot] )
+      body: |
+        src_configure() {
+          local mycmakeargs=(
+            -DWITH_EXAMPLES=$(usex examples)
+            -DWITH_STATIC_LIB=$(usex static-libs)
+            -DWITH_TESTING=$(usex test)
+            $(cmake-utils_use_find_package doc Doxygen \
+              || echo -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=ON)
+          )
+          cmake_src_configure
+        }
+        src_compile() {
+          cmake-utils_src_compile
+          use doc && cmake_src_compile docs
+        }
+        src_install() {
+          if use doc; then
+            local HTML_DOCS=( "${BUILD_DIR}"/doc/html/. )
+          fi
+          cmake_src_install
+        }
+  packages:
+    - cmocka:

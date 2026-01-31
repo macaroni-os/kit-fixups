@@ -2365,7 +2365,7 @@ kde-plasma:
           desc: "Backend implementation for xdg-desktop-portal that is using Qt/KDE Frameworks"
           license: "LGPL-2+"
           rdepend: |
-            kde-misc/kio-fuse:{{ .Values.slot }}
+            kde-misc/kio-fuse
             sys-apps/xdg-desktop-portal
             || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
           depend: |

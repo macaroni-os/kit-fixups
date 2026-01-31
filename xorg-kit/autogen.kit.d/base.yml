@@ -3193,3 +3193,66 @@ mesa_progs:
 
   packages:
     - mesa-progs:
+
+
+# xcb seems a package no more maintained.
+# Using builtin-noop for now but we need
+# to check if it's really a dependency used yet.
+xcb:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: x11-misc
+  packages:
+    - xcb:
+        revision: 2
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.original_version }}.tar.gz'
+            url: 'http://oldhome.schmorp.de/marc/data/{{ .Values.pn }}-{{ .Values.original_version }}.tar.gz'
+        vars:
+          versions:
+            - "2.4"
+          desc: Marc Lehmann's improved X Cut Buffers
+          homepage: http://oldhome.schmorp.de/marc/xcb.html
+          license: BSD
+          iuse: motif
+          inherit:
+            - toolchain-funcs
+          rdepend: |
+            x11-libs/libX11
+            x11-libs/libXaw
+            x11-libs/libXext
+            x11-libs/libXt
+          ddepend: |
+            ${RDEPEND}
+            x11-base/xorg-proto
+            motif? ( x11-libs/motif:0 )
+          body: |
+            src_compile() {
+              local gui libs
+              if use motif; then
+                gui="-DMOTIF"
+                libs="-lXm -lXt -lX11"
+              else
+                gui="-DATHENA"
+                libs="-lXaw -lXt -lXext -lX11"
+              fi
+              emake \
+                -f Makefile.std xcb Xcb.ad \
+                CC="$(tc-getCC)" \
+                CPP="$(tc-getCPP)" \
+                CFLAGS="${CFLAGS} ${gui}" \
+                GUI="${gui}" \
+                LIBS="${libs}" \
+                LDFLAGS="${LDFLAGS}"
+            }
+            src_install() {
+              dobin xcb
+              newman xcb.man xcb.1
+              insinto /usr/share/X11/app-defaults
+              newins Xcb.ad Xcb
+            }
+

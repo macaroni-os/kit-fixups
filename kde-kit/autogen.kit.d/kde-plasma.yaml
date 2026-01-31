@@ -2162,6 +2162,7 @@ kde-plasma:
           bdepend: |
             dev-qt/qtbase:{{ .Values.slot }}
             kde-frameworks/extra-cmake-modules:0
+          body:
     - plymouth-kcm:
         vars:
           inherit: kde6 xdg

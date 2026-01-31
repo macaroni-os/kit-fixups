@@ -271,8 +271,8 @@ kde-plasma:
                 dev-python/pygdbmi[${PYTHON_USEDEP}]
             ')
             || (
-                >=dev-debug/gdb-12
-                llvm-core/lldb
+                sys-devel/gdb
+                dev-util/lldb
             )
           depend: |
             ${RDEPEND}
@@ -2410,7 +2410,7 @@ snapshot_pkgs:
             ')
             || (
                 sys-devel/gdb
-                llvm-core/lldb
+                dev-util/lldb
             )
           depend: |
             ${RDEPEND}

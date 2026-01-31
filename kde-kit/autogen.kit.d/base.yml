@@ -14,6 +14,46 @@ stable_kde_stuff:
 
   packages:
 
+    - kirigami-addons:
+        assets:
+          - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+
+        dir:
+          matcher: '{{ .Values.pn }}-1[0-9.]+..tar.xz'
+          exclude: ''
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        category: dev-libs
+        vars:
+          desc: Visual end user components for Kirigami-based applications
+          homepage: https://invent.kde.org/libraries/kirigami-addons
+          license: '|| ( GPL-2 GPL-3 LGPL-3 ) LGPL-2.1+'
+          slot: '6'
+          inherit:
+            - cmake
+          cdepend: |
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtdeclarative:6
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kglobalaccel:{{ .Values.slot }}
+            kde-frameworks/kguiaddons:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+          rdepend: |
+            ${CDEPEND}
+            dev-qt/qtmultimedia:6[qml]
+            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+            kde-plasma/libplasma:{{ .Values.slot }}
+          depend: |
+            ${CDEPEND}
+
     - phonon-vlc:
         category: media-libs
         vars:

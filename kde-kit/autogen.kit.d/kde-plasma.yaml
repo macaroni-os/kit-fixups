@@ -2377,6 +2377,7 @@ kde-plasma:
             dev-qt/qtbase:{{ .Values.slot }}[wayland]
             virtual/pkgconfig
             || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+
 snapshot_pkgs:
   generator: builtin-noop
   template:
@@ -2396,7 +2397,9 @@ snapshot_pkgs:
           python_compat: python3+
           desc: Plasma crash handler, gives the user feedback if a program crashed
           inherit:
-            - kde6 python-single-r1 xdg
+            - kde6
+            - python-single-r1
+            - xdg
           slot: 6
           s: "${WORKDIR}/${PN}-8fd0ba78c76fbabae22ec81f4d9c4f8204d0df94"
           rdepend: |

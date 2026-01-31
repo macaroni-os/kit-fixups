@@ -374,3 +374,102 @@ power-profiles-daemon:
                 fi
               fi
             }
+
+
+github_packages:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple-github.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-misc
+    github:
+      query: tags
+
+  packages:
+
+    - ddcutil:
+        github:
+          user: rockowitz
+
+        vars:
+          inherit:
+            - autotools
+            - udev
+            - user
+          iuse: drm usb-monitor user-permissions video_cards_nvidia X
+          required_use: 'drm? ( X )'
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/jansson
+            sys-apps/i2c-tools
+            virtual/udev
+            drm? ( x11-libs/libdrm )
+            usb-monitor? (
+              dev-libs/hidapi
+              virtual/libusb:1
+              sys-apps/usbutils
+            )
+            X? (
+              x11-libs/libXrandr
+              x11-libs/libX11
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+                if use user-permissions; then
+                    enewgroup i2c
+                fi
+            }
+            src_prepare() {
+                default
+                eautoreconf
+            }
+            src_configure() {
+                local myeconfargs=(
+                    $(use_enable drm)
+                    --enable-udev
+                    $(use_enable usb-monitor usb)
+                    --enable-lib
+                    $(use_enable X x11)
+                )
+                econf "${myeconfargs[@]}"
+            }
+            src_install() {
+                default
+                if use user-permissions; then
+                    udev_dorules data/etc/udev/rules.d/60-ddcutil-i2c.rules
+                    if use usb-monitor; then
+                        udev_dorules data/etc/udev/rules.d/60-ddcutil-usb.rules
+                    fi
+                fi
+            }
+            pkg_postinst() {
+                if use user-permissions; then
+                    einfo "To allow non-root users access to the /dev/i2c-* devices, add those"
+                    einfo "users to the i2c group: usermod -aG i2c user"
+                    einfo "Restart the computer or reload the i2c-dev module to activate"
+                    einfo "the new udev rule."
+                    einfo "For more information read: http://www.ddcutil.com/i2c_permissions/"
+                    if use usb-monitor; then
+                        einfo "To allow non-root users access to USB monitors, add those users"
+                        einfo "to the video group: usermod -aG video user"
+                        einfo "Restart the computer, reload the hiddev and hidraw modules, or replug"
+                        einfo "the monitor to activate the new udev rule."
+                        einfo "For more information read: http://www.ddcutil.com/usb/"
+                    fi
+                    udev_reload
+                fi
+                if use video_cards_nvidia; then
+                    ewarn "Please read the following webpage on proper usage with the nVidia "
+                    ewarn "binary drivers, or it may not work: http://www.ddcutil.com/nvidia/"
+                fi
+            }
+            pkg_postrm() {
+                if use user-permissions; then
+                    udev_reload
+                fi
+            }
+
+

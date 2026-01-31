@@ -131,7 +131,10 @@ qt6:
             zstd? ( app-arch/libarchive[zstd] )
           pdepend: |
             gui? (
-              wayland? ( ~dev-qt/qtwayland-${PV}:6 )
+              wayland? (
+                ~dev-qt/qtwayland-${PV}:6
+                !<dev-qt/qtwayland-6.10:6
+              )
             )
           body: |
             src_configure() {

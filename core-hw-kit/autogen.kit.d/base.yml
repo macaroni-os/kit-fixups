@@ -323,7 +323,6 @@ power-profiles-daemon:
             sys-power/upower
           depend: '${RDEPEND}'
           bdepend: |
-            dev-util/glib-utils
             bash-completion? (
               >=app-shells/bash-completion-2.0
               $(python_gen_cond_dep '>=dev-python/shtab-1.7.0[${PYTHON_USEDEP}]')

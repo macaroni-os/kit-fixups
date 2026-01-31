@@ -770,12 +770,12 @@ libxml2_python:
         - meson
       desc: Python binding of XML C parser and toolkit
       homepage: https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home
-      iuse: +icu +lzma readline static-libs
+      iuse: doc +icu +lzma readline static-libs
       rdepend: |
         =dev-libs/libxml2-{{ .Values.version }}:=[lzma?,icu?,readline?,static-libs?]
       depend: |
         ${RDEPEND}
-        app-doc/doxygen[dot]
+        doc? ( app-doc/doxygen[dot] )
       release: '2.15'
       body: |
         src_prepare() {

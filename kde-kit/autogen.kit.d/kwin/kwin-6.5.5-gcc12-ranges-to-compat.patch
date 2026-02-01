@@ -1,0 +1,142 @@
+From: 
+Date: Tue, 14 Jan 2026 00:00:00 +0000
+Subject: [PATCH] Fix compatibility with GCC12
+
+--- a/src/compositor.cpp
++++ b/src/compositor.cpp
+@@ -323,9 +323,17 @@ void Compositor::stop()
+         static_cast<EglBackend *>(m_backend.get())->openglContext()->makeCurrent();
+     }
+
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+     const auto loops = m_primaryViews | std::views::transform([](const auto &pair) {
+         return pair.first;
+     }) | std::ranges::to<QList>();
++#else
++    
++    auto range = m_primaryViews | std::views::transform([](const auto &pair) {
++        return pair.first;
++    });
++    const QList<RenderLoop *> loops(range.begin(), range.end());
++#endif
+     for (RenderLoop *loop : loops) {
+         removeOutput(findOutput(loop));
+     }
+@@ -737,10 +745,19 @@ void Compositor::composite(RenderLoop *renderLoop)
+         }
+     }
+
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+     QList<OutputLayer *> specialLayers = unusedOutputLayers | std::views::filter([cursorLayer](OutputLayer *layer) {
+         return layer->type() != OutputLayerType::Primary
+             && (!cursorLayer || layer->minZpos() < cursorLayer->zpos());
+     }) | std::ranges::to<QList>();
++#else
++    
++    auto filteredRange = unusedOutputLayers | std::views::filter([cursorLayer](OutputLayer *layer) {
++        return layer->type() != OutputLayerType::Primary
++            && (!cursorLayer || layer->minZpos() < cursorLayer->zpos());
++    });
++    QList<OutputLayer *> specialLayers(filteredRange.begin(), filteredRange.end());
++#endif
+     std::ranges::sort(specialLayers, [](OutputLayer *left, OutputLayer *right) {
+         return left->maxZpos() > right->maxZpos();
+     });
+--- a/src/keyboard_input.cpp
++++ b/src/keyboard_input.cpp
+@@ -318,7 +318,13 @@ void KeyboardInputRedirection::processKey(uint32_t key, KeyboardKeyState state,
+         .timestamp = time,
+         .serial = waylandServer()->display()->nextSerial(),
+     };
++#if defined(__cpp_lib_ranges_contains) && __cpp_lib_ranges_contains >= 202207L
+     if (state == KeyboardKeyState::Pressed && !std::ranges::contains(s_modifierKeys, event.key)) {
++#else
++    
++    if (state == KeyboardKeyState::Pressed
++        && std::find(s_modifierKeys.begin(), s_modifierKeys.end(), event.key) == s_modifierKeys.end()) {
++#endif
+         input()->setLastInteractionSerial(event.serial);
+         if (auto f = pickFocus()) {
+             f->setLastUsageSerial(event.serial);
+--- a/src/xkb.cpp
++++ b/src/xkb.cpp
+@@ -30,7 +30,11 @@
+ #include <sys/mman.h>
+ #include <unistd.h>
+
++
++
++#if defined(__cpp_lib_format) && __cpp_lib_format >= 202110L
+ #include <format>
++#endif
+ #include <string>
+
+ // TODO: drop these ifdefs when xkbcommon >= 1.8.0 is required
+--- a/src/backends/x11/x11_windowed_output.cpp
++++ b/src/backends/x11/x11_windowed_output.cpp
+@@ -501,7 +501,14 @@ void X11WindowedOutput::resize(const QSize &pixelSize)
+
+ QList<OutputLayer *> X11WindowedOutput::outputLayers() const
+ {
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+     return m_layers | std::views::transform(&std::unique_ptr<OutputLayer>::get) | std::ranges::to<QList>();
++#else
++    
++    auto range = m_layers | std::views::transform(&std::unique_ptr<OutputLayer>::get);
++    QList<OutputLayer *> result(range.begin(), range.end());
++    return result;
++#endif
+ }
+
+ } // namespace KWin
+--- a/src/backends/wayland/wayland_output.cpp
++++ b/src/backends/wayland/wayland_output.cpp
+@@ -550,7 +550,14 @@ void WaylandOutput::updateDpmsMode(DpmsMode dpmsMode)
+
+ QList<OutputLayer *> WaylandOutput::outputLayers() const
+ {
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+     return m_layers | std::views::transform(&std::unique_ptr<OutputLayer>::get) | std::ranges::to<QList>();
++#else
++    
++    auto range = m_layers | std::views::transform(&std::unique_ptr<OutputLayer>::get);
++    QList<OutputLayer *> result(range.begin(), range.end());
++    return result;
++#endif
+ }
+ }
+ }
+--- a/src/backends/drm/drm_gpu.cpp
++++ b/src/backends/drm/drm_gpu.cpp
+@@ -899,9 +899,17 @@ void DrmGpu::assignOutputLayers()
+     }
+     if (m_atomicModeSetting) {
+         auto enabledPipelines = std::as_const(m_pipelines) | std::views::filter(&DrmPipeline::enabled);
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+         QList<DrmPlane *> freePlanes = m_planes | std::views::transform([](const auto &plane) {
+             return plane.get();
+         }) | std::ranges::to<QList>();
++#else
++        
++        auto planeRange = m_planes | std::views::transform([](const auto &plane) {
++            return plane.get();
++        });
++        QList<DrmPlane *> freePlanes(planeRange.begin(), planeRange.end());
++#endif
+         const size_t enabledPipelinesCount = std::distance(enabledPipelines.begin(), enabledPipelines.end());
+         for (DrmPipeline *pipeline : enabledPipelines) {
+             QList<DrmPipelineLayer *> layers = {m_planeLayerMap[pipeline->crtc()->primaryPlane()].get()};
+@@ -1042,7 +1050,13 @@ QList<OutputLayer *> DrmGpu::outputLayersFor(Output *output) const
+     }
+     // TODO once dynamic ownership of layers is defined somehow,
+     // additionally return planes that aren't currently in use
++#if defined(__cpp_lib_ranges_to_container) && __cpp_lib_ranges_to_container >= 202202L
+     return static_cast<DrmOutput *>(output)->pipeline()->layers() | std::ranges::to<QList<OutputLayer *>>();
++#else
++    
++    auto layerRange = static_cast<DrmOutput *>(output)->pipeline()->layers();
++    return QList<OutputLayer *>(layerRange.begin(), layerRange.end());
++#endif
+ }
+
+ DrmLease::DrmLease(DrmGpu *gpu, FileDescriptor &&fd, uint32_t lesseeId, const QList<DrmOutput *> &outputs)

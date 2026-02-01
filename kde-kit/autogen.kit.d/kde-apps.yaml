@@ -2563,19 +2563,18 @@ kde-apps:
             kde-frameworks/kio:{{ .Values.slot }}
     - kio-extras:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - cmake
+            - xdg
           desc: "KIO plugins present a filesystem-like view of arbitrary data"
           homepage: https://invent.kde.org/network/kio-extras
           iuse: "activities ios +man mtp nfs +libproxy openexr phonon samba +sftp taglib X"
-          restrict: test
           rdepend: |
             !kde-apps/kio-extras:5[-kf6compat(-)]
             !kde-apps/kio-extras-kf5:5
             !<kde-frameworks/kio-5.116.0-r2:5
             !kde-frameworks/kio-trash-desktop-file:5
             kde-frameworks/kded:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
             dev-libs/qcoro
             dev-qt/qt5compat:{{ .Values.slot }}
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -2598,38 +2597,59 @@ kde-apps:
             kde-frameworks/solid:{{ .Values.slot }}
             kde-frameworks/syntax-highlighting:{{ .Values.slot }}
             activities? (
-            dev-qt/qtbase:{{ .Values.slot }}[sql]
-            kde-plasma/plasma-activities:{{ .Values.slot }}
-            kde-plasma/plasma-activities-stats:{{ .Values.slot }}
+              dev-qt/qtbase:{{ .Values.slot }}[sql]
+              kde-plasma/plasma-activities:{{ .Values.slot }}
+              kde-plasma/plasma-activities-stats:{{ .Values.slot }}
             )
             ios? (
-            app-pda/libimobiledevice:=
-            app-pda/libplist:=
+              app-pda/libimobiledevice:=
+              app-pda/libplist:=
             )
             libproxy? (
-            kde-frameworks/knotifications:{{ .Values.slot }}
-            net-libs/libproxy
+              kde-frameworks/knotifications:{{ .Values.slot }}
+              net-libs/libproxy
             )
             mtp? ( >=media-libs/libmtp-1.1.16:= )
             nfs? ( net-libs/libtirpc:= )
             openexr? ( media-libs/openexr:= )
             phonon? ( >=media-libs/phonon-4.12.0[qt6(+)] )
             samba? (
-            net-fs/samba[client]
-            >=net-libs/kdsoap-2.2.0:=[qt6(+)]
-            >=net-libs/kdsoap-ws-discovery-client-0.3.0
+              net-fs/samba[client]
+              >=net-libs/kdsoap-2.2.0:=[qt6(+)]
+              >=net-libs/kdsoap-ws-discovery-client-0.3.0
             )
             sftp? ( net-libs/libssh:=[sftp] )
             taglib? ( >=media-libs/taglib-1.11.1:= )
             X? (
-            x11-libs/libX11
-            x11-libs/libXcursor
+              x11-libs/libX11
+              x11-libs/libXcursor
             )
+          depend: '${RDEPEND}'
           bdepend: |
             man? ( dev-util/gperf )
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_ACTIVITIES=$(usex activities)
+                $(cmake_use_find_package ios IMobileDevice)
+                $(cmake_use_find_package ios PList)
+                -DWITH_LIBPROXY=$(usex libproxy)
+                $(cmake_use_find_package man Gperf)
+                $(cmake_use_find_package mtp Libmtp)
+                $(cmake_use_find_package nfs TIRPC)
+                $(cmake_use_find_package openexr OpenEXR)
+                $(cmake_use_find_package samba Samba)
+                $(cmake_use_find_package sftp libssh)
+                $(cmake_use_find_package taglib Taglib)
+                -DWITHOUT_X11=$(usex !X)
+              )
+              cmake_src_configure
+            }
+            pkg_postinst() {
+              use samba && xdg_pkg_postinst
+            }
+            pkg_postrm() {
+              use samba && xdg_pkg_postrm
             }
 
     - kiriki:

@@ -186,7 +186,7 @@ kde-plasma:
           iuse: "+firmware flatpak telemetry webengine"
           desc: "KDE Plasma resources management GUI"
           rdepend: |
-            >=dev-libs/appstream-1.0.4:=[qt6]
+            >=dev-libs/appstream-1.0.4:=[qt]
             dev-libs/kirigami-addons:6
             dev-libs/qcoro
             dev-qt/qtbase:{{ .Values.slot }}[gui]
@@ -1067,6 +1067,8 @@ kde-plasma:
             ${RDEPEND}
     - kwin:
         vars:
+          patches:
+            - kwin-6.5.5-gcc12-ranges-to-compat.patch
           inherit: kde6 fcaps xdg
           iuse: "accessibility gles2-only lock screencast +shortcuts systemd X"
           desc: "Flexible, composited Window Manager for windowing systems on Linux"
@@ -1146,6 +1148,8 @@ kde-plasma:
             dev-qt/qtbase:{{ .Values.slot }}[wayland]
             dev-util/wayland-scanner
             kde-frameworks/kcmutils:{{ .Values.slot }}
+          extra_envs:
+            - 'FILECAPS=( cap_sys_nice usr/bin/kwin_wayland )'
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1158,7 +1162,6 @@ kde-plasma:
                     sed -e "s/^pkg_check_modules.*libsystemd/#&/" -i CMakeLists.txt || die
                 fi
             }
-
             src_configure() {
                 local mycmakeargs=(
                     $(cmake_use_find_package accessibility QAccessibilityClient6)
@@ -1168,11 +1171,11 @@ kde-plasma:
                 )
                 kde6_src_configure
             }
-            FILECAPS=( cap_sys_nice usr/bin/kwin_wayland )
             pkg_postinst() {
                 xdg_pkg_postinst
                 fcaps_pkg_postinst
             }
+
     - kwin-x11:
         vars:
           inherit: kde6 xdg
@@ -1333,6 +1336,7 @@ kde-plasma:
             sys-libs/libcap
             sys-libs/zlib
             virtual/libudev:=
+            sys-apps/lm-sensors:=
             webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
             X? (
                 dev-qt/qtbase:{{ .Values.slot }}[X]
@@ -1845,7 +1849,7 @@ kde-plasma:
             sys-apps/dbus
             sys-libs/zlib
             virtual/libudev:=
-            appstream? ( >=dev-libs/appstream-1[qt6] )
+            appstream? ( >=dev-libs/appstream-1[qt] )
             calendar? ( kde-frameworks/kholidays:{{ .Values.slot }} )
             ksysguard? ( kde-plasma/libksysguard:{{ .Values.slot }} )
             policykit? ( sys-libs/libxcrypt:= )
@@ -1938,12 +1942,13 @@ kde-plasma:
             !<kde-plasma/plasma-workspace-6.4.90:6
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtdeclarative:6
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
     - plasma-pa:

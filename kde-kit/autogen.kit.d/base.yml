@@ -14,13 +14,49 @@ stable_kde_stuff:
 
   packages:
 
+    - kio-fuse:
+        category: kde-misc
+        assets:
+          - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+        dir:
+          matcher: '{{ .Values.pn }}-[0-9.]+.tar.xz'
+          exclude: ''
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          inherit:
+            - cmake
+          slot: '5'
+          desc: FUSE interface for KIO
+          homepage: https://github.com/KDE/kio-fuse
+          license: GPL-3+
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kcoreaddons:6
+            kde-frameworks/ki18n:6
+            kde-frameworks/kio:6
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_WITH_QT6=ON
+              )
+              cmake_src_configure
+            }
+
     - kirigami-addons:
         assets:
           - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
             url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
 
         dir:
-          matcher: '{{ .Values.pn }}-1[0-9.]+..tar.xz'
+          matcher: '{{ .Values.pn }}-1[0-9.]+.tar.xz'
           exclude: ''
         transform:
           - kind: string

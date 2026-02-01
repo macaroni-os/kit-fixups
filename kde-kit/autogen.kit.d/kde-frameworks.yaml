@@ -113,11 +113,8 @@ kde-frameworks:
           slot: 0
           rdepend: |
             app-arch/libarchive[bzip2]
-          depend: |
-            test? (
-                dev-qt/qtbase:{{ .Values.slot }}[gui]
-                dev-qt/qtdeclarative:{{ .Values.slot }}
-            )
+            !kde-frameworks/extra-cmake-modules:5
+          depend: '${RDEPEND}'
           bdepend: |
             doc? (
                 ${PYTHON_DEPS}
@@ -1450,7 +1447,7 @@ kde-frameworks:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X?]
-            gpg? ( dev-libs/qgpgme:= )
+            gpg? ( app-crypt/gpgme:= )
             runtime? ( app-crypt/libsecret )
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
@@ -1812,7 +1809,7 @@ kde-frameworks:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/prison:{{ .Values.slot }}[qml]
-            bluetooth? ( dev-qt/qtconnectivity:{{ .Values.slot }}[bluetooth] )
+            bluetooth? ( dev-qt/qtconnectivity:{{ .Values.slot }} )
             kaccounts? (
                 kde-apps/kaccounts-integration:{{ .Values.slot }}
                 net-libs/accounts-qt:=[qt6(+)]

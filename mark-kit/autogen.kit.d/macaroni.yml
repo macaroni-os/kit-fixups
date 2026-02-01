@@ -19,12 +19,14 @@ macaroni:
           depend: |
             >=dev-lang/go-1.24.0
           ldflags_ns: cmd
+          enable_compression: true
           homepage: https://github.com/macaroni-os/mark-devkit
           desc: M.A.R.K. Development Kit Knife
 
     - anise-repo-devkit:
         vars:
           ldflags_ns: pkg/devkit
+          enable_compression: true
           depend: |
             >=dev-lang/go-1.24.0
           homepage: https://github.com/macaroni-os/anise-repo-devkit
@@ -34,6 +36,7 @@ macaroni:
         category: app-admin
         vars:
           ldflags_ns: cmd
+          enable_compression: true
           homepage: https://github.com/macaroni-os/whip
           desc: Macaroni OS Whip tool
           src_install_extra: |
@@ -43,6 +46,7 @@ macaroni:
     - anise-portage-converter:
         category: app-admin
         vars:
+          enable_compression: true
           ldflags_ns: pkg/converter
           homepage: https://github.com/macaroni-os/anise-portage-converter
           desc: Macaroni OS Anise Portage Converter
@@ -53,6 +57,7 @@ macaroni:
           ldflags_ns: cmd
           homepage: https://github.com/macaroni-os/macaronictl
           desc: Macaroni OS Knife
+          enable_compression: true
           src_install_extra: |
             insinto /usr/share/macaroni/browsers/
             newins "${S}"/contrib/browsers-catalog/macaroni.yml catalog
@@ -65,6 +70,7 @@ macaroni:
         category: app-admin
         vars:
           ldflags_ns: cmd
+          enable_compression: true
           homepage: https://github.com/macaroni-os/gpu-configurator
           desc: Macaroni OS GPU Configurator
           rdepend: |
@@ -103,6 +109,7 @@ macaroni:
         github:
           user: geaaru
         vars:
+          enable_compression: true
           bdepend: |
             >=dev-lang/go-1.24.0
           ldflags_ns: cmd

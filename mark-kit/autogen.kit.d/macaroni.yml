@@ -56,6 +56,10 @@ macaroni:
           src_install_extra: |
             insinto /usr/share/macaroni/browsers/
             newins "${S}"/contrib/browsers-catalog/macaroni.yml catalog
+            insinto /etc/macaroni/kernels-profiles/
+            doins "${S}"/contrib/kernel-profiles/debian.yml
+            doins "${S}"/contrib/kernel-profiles/macaroni.yml
+            doins "${S}"/contrib/kernel-profiles/macaroni-zen.yml
 
     - gpu-configurator:
         category: app-admin

@@ -103,11 +103,11 @@ stable_kde_stuff:
             - cmake
             - flag-o-matic
           iuse: debug
-          depend: |
+          rdepend: |
             dev-qt/qtbase:6[gui]
             >=media-libs/phonon-4.12.0
             media-video/vlc:=[dbus,ogg,vorbis(+)]
-          rdepend: '${DEPEND}'
+          depend: '${RDEPEND}'
           bdepend: |
             dev-libs/libpcre2:*
             dev-qt/qttools:6[linguist]
@@ -142,7 +142,7 @@ stable_kde_stuff:
             dev-qt/qttools:6[linguist]
             >=kde-frameworks/extra-cmake-modules-5.115.0:*
             virtual/pkgconfig
-          depend: |
+          rdepend: |
             dev-qt/qt5compat:6
             dev-qt/qtbase:6[gui]
             designer? ( dev-qt/qttools:6[designer] )
@@ -150,13 +150,12 @@ stable_kde_stuff:
               dev-libs/glib:2
               media-sound/pulseaudio[glib]
             )
-          rdepend: |
-            ${DEPEND}
             !media-libs/phonon-gstreamer
             || (
               kde-frameworks/breeze-icons:6
               kde-frameworks/oxygen-icons:*
             )
+          depend: '${RDEPEND}'
           pdepend: |
             vlc? ( >=media-libs/phonon-vlc-0.12.0 )
           desc: KDE multimedia abstraction library
@@ -292,17 +291,17 @@ stable_kde_stuff:
             - kde6
           iuse: examples test
           required_use: test? ( examples )
-          depend: |
+          rdepend: |
             dev-qt/qtbase:6[gui]
             dev-qt/qtsvg:6
             dev-qt/qttools:6
-          rdepend: '${DEPEND}'
+          depend: '${RDEPEND}'
 
     - ktextaddons:
         category: dev-libs
         dir:
           url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/'
-          matcher: "ktextaddons-[0-9.]+\\.tar\\.xz$"
+          matcher: "ktextaddons-1.[0-9.]+.tar.xz$"
           exclude: '[0-9]{5}'
         transform:
           - kind: string
@@ -323,7 +322,7 @@ stable_kde_stuff:
             - kde6
           iuse: speech
           restrict: test
-          depend: |
+          rdepend: |
             >=dev-libs/qtkeychain-0.15[qt6]
             dev-qt/qtbase:6[gui,sql]
             dev-qt/qtmultimedia:6
@@ -341,9 +340,8 @@ stable_kde_stuff:
             kde-frameworks/sonnet:6
             kde-frameworks/syntax-highlighting:6
             speech? ( dev-qt/qtspeech:6 )
-          rdepend: |
-            ${DEPEND}
-            !${CATEGORY}/${PN}:5
+            !{{ .Values.category }}/{{ .Values.pn }}:5
+          depend: '${DEPEND}'
           body: |
             src_configure() {
                 local mycmakeargs=(

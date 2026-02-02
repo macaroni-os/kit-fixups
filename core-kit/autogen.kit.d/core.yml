@@ -1093,7 +1093,7 @@ libxml2:
         - meson
       desc: XML C parser and toolkit
       homepage: https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home
-      iuse: doc icu python readline static-libs lzma
+      iuse: doc icu python readline static-libs +lzma
       required_use: python? ( ${PYTHON_REQUIRED_USE} )
       rdepend: |
         virtual/libiconv

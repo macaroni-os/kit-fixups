@@ -1107,7 +1107,7 @@ libxml2:
       bdepend: |
         virtual/pkgconfig
       pdepend: |
-        python? ( dev-python/libxml2-python )
+        python? ( >=dev-python/libxml2-python-{{ .Values.version }} )
       release: '2.15'
       body: |
         src_prepare() {

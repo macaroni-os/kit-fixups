@@ -1675,14 +1675,14 @@ gnome_dirlisting:
           homepage: https://gitlab.gnome.org/GNOME/libxslt
           release: 1.1
           rdepend: |
-            dev-libs/libxml2:2
+            >=dev-libs/libxml2-2.15.1:2
             crypt?  ( dev-libs/libgcrypt:0= )
             python? ( ${PYTHON_DEPS} )
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
           pdepend: |
-            python? ( dev-python/libxslt-python )
+            python? ( >=dev-python/libxslt-python-{{ .Values.pv | default .Values.version }} )
           body: |
             src_prepare() {
               default

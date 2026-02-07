@@ -7,6 +7,7 @@ kde-apps:
     category: kde-apps
     vars:
         slot: 6
+        qt_slot: 6
         homepage: https://invent.kde.org/
         inherit: kde6
         body: |
@@ -33,8 +34,8 @@ kde-apps:
             ${RDEPEND}
             app-arch/xz-utils
             dev-libs/libxslt
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -48,7 +49,7 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             webengine? (
                 kde-apps/kaccounts-integration:{{ .Values.slot }}
-                >=net-libs/accounts-qt-1.17[qt6(+)]
+                >=net-libs/accounts-qt-1.17
             )
             xml? ( dev-libs/libxml2:= )
           body: |
@@ -73,7 +74,7 @@ kde-apps:
           rdepend: |
             >=dev-cpp/gpgmepp-1.23.2:=
             >=dev-libs/qgpgme-1.23.2:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -106,7 +107,7 @@ kde-apps:
           rdepend: |
             >=dev-cpp/gpgmepp-1.23.2:=
             >=dev-libs/qgpgme-1.23.2:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
@@ -128,7 +129,7 @@ kde-apps:
           desc: "Assistant to import PIM data from other applications into Akonadi for use in KDE PIM applications"
           homepage: "https://userbase.kde.org/KMail/Import_Options"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmailtransport:{{ .Values.slot }}=
@@ -152,7 +153,7 @@ kde-apps:
         vars:
           desc: "Library for akonadi mime types"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -171,7 +172,7 @@ kde-apps:
             kde-frameworks/krunner:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
             kde-apps/kcalutils:{{ .Values.slot }}=
@@ -189,7 +190,7 @@ kde-apps:
             kde-frameworks/kitemmodels:{{ .Values.slot }}
             kde-frameworks/krunner:{{ .Values.slot }}
             kde-frameworks/ktextwidgets:{{ .Values.slot }}
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -210,7 +211,7 @@ kde-apps:
           homepage: "https://techbase.kde.org/KDE_PIM/Akonadi/Development_Tools"
           rdepend: |
             dev-libs/xapian:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -243,8 +244,8 @@ kde-apps:
           homepage: "https://apps.kde.org/akregator/"
           rdepend: |
             >=dev-libs/ktextaddons-1.6.0:6[speech?]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/grantleetheme:{{ .Values.slot }}=
             kde-apps/kontactinterface:{{ .Values.slot }}=
             kde-apps/libkdepim:{{ .Values.slot }}=
@@ -293,14 +294,14 @@ kde-apps:
           iuse: "eigen"
           desc: "KDE library for mathematical features"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[-gles2-only,gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[-gles2-only,gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             eigen? ( dev-cpp/eigen:3 )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 sed -i \
@@ -323,7 +324,7 @@ kde-apps:
           homepage: "https://apps.kde.org/ark/"
           rdepend: |
             >=app-arch/libarchive-3.5.3:=[bzip2,lzma]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -345,7 +346,7 @@ kde-apps:
           depend: |
             ${RDEPEND}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             test? ( >=dev-libs/libzip-1.6.0:= )
           bdepend: |
             sys-devel/gettext
@@ -393,9 +394,9 @@ kde-apps:
             kde-apps/kdeedu-data:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -407,7 +408,7 @@ kde-apps:
           iuse: "flac vorbis"
           desc: "KIO worker for accessing audio CDs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkcddb:{{ .Values.slot }}=
             kde-apps/libkcompactdisc:{{ .Values.slot }}=
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -442,7 +443,7 @@ kde-apps:
         vars:
           desc: "Widgets for Baloo"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/baloo:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -458,8 +459,8 @@ kde-apps:
           desc: "Memory enhancement game based on Simon Says"
           homepage: "https://apps.kde.org/blinken/"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -476,7 +477,7 @@ kde-apps:
           desc: "Single player arcade game, similar to Bomberman"
           homepage: "https://apps.kde.org/bomber/"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}=
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -492,8 +493,8 @@ kde-apps:
           desc: "Five-in-a-row Board Game"
           homepage: "https://apps.kde.org/bovo/"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}=
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -508,7 +509,7 @@ kde-apps:
           desc: "Calendar support library"
           restrict: test
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -537,9 +538,9 @@ kde-apps:
             postscript? ( app-text/libspectre )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,printsupport]
-            dev-qt/qtsvg:{{ .Values.slot }}
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,printsupport]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -606,8 +607,8 @@ kde-apps:
             kde-apps/kio-extras:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,X]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -683,7 +684,7 @@ kde-apps:
           desc: "Simple video player"
           homepage: "https://apps.kde.org/dragonplayer/"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -707,7 +708,7 @@ kde-apps:
           rdepend: |
             dev-libs/kdiagram:{{ .Values.slot }}
             dev-libs/libical
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/calendarsupport:{{ .Values.slot }}=
@@ -738,7 +739,7 @@ kde-apps:
             !kde-apps/ffmpegthumbs-common
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
             media-video/ffmpeg:0=
@@ -755,8 +756,8 @@ kde-apps:
             kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}[qml]
@@ -772,8 +773,8 @@ kde-apps:
           desc: "KDE Bomberman game"
           homepage: https://apps.kde.org/granatier/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -790,8 +791,8 @@ kde-apps:
           desc: "Utilities and tools to manage themes in KDE PIM applications"
           rdepend: |
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/grantleetheme:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
@@ -817,7 +818,7 @@ kde-apps:
           desc: "Library for Grantlee plugins"
           restrict: test
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -830,7 +831,7 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -849,14 +850,14 @@ kde-apps:
           iuse: "activities fits +mpris raw semantic-desktop share X"
           restrict: test
           rdepend: |
-            dev-qt/qtimageformats:{{ .Values.slot }}
+            dev-qt/qtimageformats:{{ .Values.qt_slot }}
             kde-frameworks/kimageformats:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
             dev-libs/wayland
-            dev-qt/qtbase:{{ .Values.slot }}=[wayland]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -884,7 +885,7 @@ kde-apps:
             media-libs/tiff:=
             activities? ( kde-plasma/plasma-activities:{{ .Values.slot }} )
             fits? ( sci-libs/cfitsio )
-            mpris? ( dev-qt/qtbase:{{ .Values.slot }} )
+            mpris? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
             raw? ( kde-apps/libkdcraw:{{ .Values.slot }} )
             semantic-desktop? (
             kde-frameworks/baloo:{{ .Values.slot }}
@@ -892,18 +893,18 @@ kde-apps:
             )
             share? ( kde-frameworks/purpose:{{ .Values.slot }} )
             X? (
-            dev-qt/qtbase:{{ .Values.slot }}=[X]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[X]
             x11-libs/libX11
             )
           bdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             dev-util/wayland-scanner
     - incidenceeditor:
         vars:
           desc: "Incidence editor for KOrganizer"
           rdepend: |
             dev-libs/kdiagram:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -936,7 +937,7 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/kdiagram:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -972,9 +973,9 @@ kde-apps:
           desc: "Jukebox and music manager by KDE"
           homepage: https://apps.kde.org/juk/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -996,9 +997,9 @@ kde-apps:
             >=media-libs/taglib-1.6:=
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1034,7 +1035,7 @@ kde-apps:
             vcd? ( media-video/vcdimager )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkcddb:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -1068,7 +1069,7 @@ kde-apps:
             media-libs/libogg
             media-libs/libvorbis
             )
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
     - kaccounts-integration:
         vars:
           desc: "Administer web accounts for the sites and services across the Plasma desktop"
@@ -1078,8 +1079,8 @@ kde-apps:
             kde-apps/signon-kwallet-extension:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -1100,9 +1101,9 @@ kde-apps:
             >=net-libs/signon-ui-0.15_p20231016
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtwebengine:{{ .Values.slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}[qml]
             kde-apps/kaccounts-integration:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1118,7 +1119,7 @@ kde-apps:
             =kde-apps/kdepim-runtime*:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-search:{{ .Values.slot }}=
@@ -1160,8 +1161,8 @@ kde-apps:
             ${RDEPEND}
             ${PYTHON_DEPS}
             dev-db/sqlite:3
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             || ( dev-python/qtpy[pyqt6] dev-python/qtpy[pyside6] )
@@ -1179,7 +1180,7 @@ kde-apps:
             pim? ( =kde-apps/kdepim-runtime*:{{ .Values.slot }} )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/kcalutils:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
@@ -1230,11 +1231,11 @@ kde-apps:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/analitza:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1255,11 +1256,11 @@ kde-apps:
             sci-chemistry/chemical-mime-data
           depend: |
             ${RDEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtscxml:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtscxml:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1279,7 +1280,7 @@ kde-apps:
           desc: "Plasma integration for gphoto2 cameras"
           homepage: https://apps.kde.org/kamera/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1307,8 +1308,8 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/glib:2
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1327,12 +1328,12 @@ kde-apps:
           homepage: https://apps.kde.org/kanagram/
           iuse: "speech"
           rdepend: |
-            dev-qt/qtmultimedia:{{ .Values.slot }}[qml]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
             kde-apps/kdeedu-data:*
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1343,15 +1344,15 @@ kde-apps:
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
     - kapman:
         vars:
           inherit: kde6 xdg
           desc: "Pac-Man clone by KDE"
           homepage: https://apps.kde.org/kapman/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1370,8 +1371,8 @@ kde-apps:
           homepage: https://apps.kde.org/kapptemplate/
           rdepend: |
             >=dev-libs/kirigami-addons-1.4.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
@@ -1390,8 +1391,8 @@ kde-apps:
             kde-frameworks/kdoctools:6
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -1414,7 +1415,7 @@ kde-apps:
             kde-frameworks/syntax-highlighting:{{ .Values.slot }}
             virtual/libintl
             sql? (
-                dev-qt/qtbase:{{ .Values.slot }}[sql]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[sql]
             )
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
           body: |
@@ -1444,7 +1445,7 @@ kde-apps:
           desc: "KDE Atomic Entertainment Game"
           homepage: https://apps.kde.org/katomic/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1464,8 +1465,8 @@ kde-apps:
           homepage: https://apps.kde.org/kbackup/
           rdepend: |
             app-arch/libarchive:=
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1488,8 +1489,8 @@ kde-apps:
           desc: "Game of hide and seek played on a grid of boxes"
           homepage: https://apps.kde.org/kblackbox/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1509,8 +1510,8 @@ kde-apps:
           desc: "Single-player Tetris-like KDE game"
           homepage: https://apps.kde.org/kblocks/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1529,8 +1530,8 @@ kde-apps:
           desc: "KDE Bounce Ball Game"
           homepage: https://apps.kde.org/kbounce/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -1552,8 +1553,8 @@ kde-apps:
           desc: "Breakout-like game by KDE"
           homepage: https://apps.kde.org/kbreakout/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1571,7 +1572,7 @@ kde-apps:
           desc: "Educational application to learn calculating with fractions"
           homepage: https://apps.kde.org/kbruch/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1590,7 +1591,7 @@ kde-apps:
             media-gfx/graphviz
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1602,7 +1603,7 @@ kde-apps:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - kcalc:
         vars:
           desc: "KDE calculator"
@@ -1611,7 +1612,7 @@ kde-apps:
             dev-libs/gmp:=
             dev-libs/mpc:=
             dev-libs/mpfr:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1632,7 +1633,7 @@ kde-apps:
           homepage: https://api.kde.org/kdepim/kcalutils/html/index.html
           restrict: test
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-frameworks/kcalendarcore:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -1648,7 +1649,7 @@ kde-apps:
           desc: "KDE character selection utility"
           homepage: https://apps.kde.org/kcharselect/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1666,7 +1667,7 @@ kde-apps:
           desc: "KDE color selector/editor"
           homepage: https://apps.kde.org/kcolorchooser/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
@@ -1681,8 +1682,8 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/kirigami-addons:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1706,8 +1707,8 @@ kde-apps:
           inherit: kde6 xdg
           desc: "KDE Development Utilities"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qttools:{{ .Values.slot }}[designer]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qttools:{{ .Values.qt_slot }}[designer]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1725,7 +1726,7 @@ kde-apps:
           homepage: https://apps.kde.org/kdebugsettings/
           restrict: test
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1742,16 +1743,16 @@ kde-apps:
         vars:
           desc: "Shared icons, artwork and data files for educational applications"
           depend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             >=kde-frameworks/extra-cmake-modules-6.0:0
           bdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             >=kde-frameworks/extra-cmake-modules-6.0:0
     - kdegraphics-mobipocket:
         vars:
           desc: "Library to support mobipocket ebooks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
           depend: |
             ${RDEPEND}
     - kdenetwork-filesharing:
@@ -1764,9 +1765,9 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/qcoro
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            kde-frameworks/kauth:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            kde-frameworks/kauth:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1785,11 +1786,11 @@ kde-apps:
             media-video/mediainfo
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}[widgets]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtnetworkauth:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gles2-only=,gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}[widgets]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtnetworkauth:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -1830,8 +1831,8 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -1886,8 +1887,8 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -1951,9 +1952,9 @@ kde-apps:
             dev-libs/cyrus-sasl:2
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtnetworkauth:{{ .Values.slot }}
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtnetworkauth:{{ .Values.qt_slot }}
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -1988,16 +1989,16 @@ kde-apps:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             activities? ( kde-plasma/plasma-activities:{{ .Values.slot }} )
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
             >=app-crypt/qca-2.3.7:2[qt6(+)]
             dev-libs/cyrus-sasl:2
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtnetworkauth:{{ .Values.slot }}
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtnetworkauth:{{ .Values.qt_slot }}
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -2032,7 +2033,7 @@ kde-apps:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             activities? ( kde-plasma/plasma-activities:{{ .Values.slot }} )
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
     - kdesdk-thumbnailers:
         vars:
           desc: "Thumbnail generator for PO files"
@@ -2041,7 +2042,7 @@ kde-apps:
             !kde-apps/kdesdk-thumbnailers-common
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
@@ -2053,7 +2054,7 @@ kde-apps:
           desc: "KDE free disk space utility"
           homepage: https://apps.kde.org/kdf/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2070,7 +2071,7 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2093,7 +2094,7 @@ kde-apps:
           homepage: https://develop.kde.org/docs/administration/kdialog/
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -2114,7 +2115,7 @@ kde-apps:
           desc: "Single player three-in-a-row game"
           homepage: https://apps.kde.org/kdiamond/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2133,7 +2134,7 @@ kde-apps:
           desc: "Bookmarks editor based on KDE Frameworks"
           iuse: "+man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -2157,8 +2158,8 @@ kde-apps:
           desc: "File finder utility based on KDE Frameworks"
           homepage: https://apps.kde.org/kfind/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qt5compat:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2174,8 +2175,8 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qt5compat:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2200,8 +2201,8 @@ kde-apps:
           desc: "KDE four-in-a-row game"
           homepage: https://apps.kde.org/kfourinline/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2221,7 +2222,7 @@ kde-apps:
           desc: "Geography learning tool"
           homepage: https://apps.kde.org/kgeography/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2240,7 +2241,7 @@ kde-apps:
           homepage: https://apps.kde.org/kget/
           iuse: "bittorrent gpg mms sqlite"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2268,7 +2269,7 @@ kde-apps:
             sqlite? ( dev-db/sqlite:3 )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2300,10 +2301,10 @@ kde-apps:
           desc: "Game of action and puzzle solving by KDE"
           homepage: https://apps.kde.org/kgoldrunner/
           rdepend: |
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2327,7 +2328,7 @@ kde-apps:
             app-crypt/gnupg
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-frameworks/karchive:{{ .Values.slot }}
@@ -2355,15 +2356,15 @@ kde-apps:
           homepage: https://apps.kde.org/khangman/
           rdepend: |
             dev-libs/kirigami-addons:{{ .Values.slot }}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            dev-qt/qtmultimedia:{{ .Values.slot }}[qml]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
             kde-apps/kdeedu-data:*
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}[widgets]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}[widgets]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2381,8 +2382,8 @@ kde-apps:
           rdepend: |
             dev-libs/libxml2:=
             dev-libs/xapian:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -2409,8 +2410,8 @@ kde-apps:
           rdepend: |
             >=dev-libs/kirigami-addons-1.0:{{ .Values.slot }}
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/kpimtextedit:{{ .Values.slot }}=
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2430,8 +2431,8 @@ kde-apps:
           iuse: "scripting"
           rdepend: |
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2452,8 +2453,8 @@ kde-apps:
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2480,8 +2481,8 @@ kde-apps:
             games-board/gnugo
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2504,7 +2505,7 @@ kde-apps:
           desc: "Kill the bots or they kill you!"
           homepage: https://apps.kde.org/killbots/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2526,8 +2527,8 @@ kde-apps:
           desc: "Generator of HTML image maps"
           homepage: https://apps.kde.org/kimagemapeditor/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2546,7 +2547,7 @@ kde-apps:
           homepage: https://api.kde.org/kdepim/kimap/html/index.html
           rdepend: |
             dev-libs/cyrus-sasl
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/kmime:{{ .Values.slot }}=
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2555,7 +2556,7 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/cyrus-sasl
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/kmime:{{ .Values.slot }}=
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2576,9 +2577,9 @@ kde-apps:
             !kde-frameworks/kio-trash-desktop-file:5
             kde-frameworks/kded:{{ .Values.slot }}
             dev-libs/qcoro
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkexiv2:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -2597,7 +2598,7 @@ kde-apps:
             kde-frameworks/solid:{{ .Values.slot }}
             kde-frameworks/syntax-highlighting:{{ .Values.slot }}
             activities? (
-              dev-qt/qtbase:{{ .Values.slot }}[sql]
+              dev-qt/qtbase:{{ .Values.qt_slot }}[sql]
               kde-plasma/plasma-activities:{{ .Values.slot }}
               kde-plasma/plasma-activities-stats:{{ .Values.slot }}
             )
@@ -2658,7 +2659,7 @@ kde-apps:
           desc: "An addictive and fun dice game"
           homepage: https://apps.kde.org/kiriki/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2680,7 +2681,7 @@ kde-apps:
             media-fonts/kanjistrokeorders
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2704,8 +2705,8 @@ kde-apps:
             dev-libs/libphonenumber
             dev-libs/libxml2:2=
             dev-libs/openssl:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/kmime:{{ .Values.slot }}=
             kde-apps/kpkpass:{{ .Values.slot }}=
             kde-frameworks/karchive:{{ .Values.slot }}
@@ -2724,8 +2725,8 @@ kde-apps:
           desc: "Tactical one or two player game"
           homepage: https://apps.kde.org/kjumpingcube/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2748,7 +2749,7 @@ kde-apps:
           rdepend: |
             dev-libs/cyrus-sasl
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
@@ -2771,7 +2772,7 @@ kde-apps:
             dev-libs/qgpgme:=
             dev-libs/libassuan:=
             dev-libs/libgpg-error
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/kmime:{{ .Values.slot }}=
             kde-apps/libkleo:{{ .Values.slot }}=
             kde-apps/mimetreeparser:{{ .Values.slot }}=
@@ -2802,9 +2803,9 @@ kde-apps:
           desc: "Alphabet learning application"
           homepage: https://apps.kde.org/klettres/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2821,7 +2822,7 @@ kde-apps:
           desc: "An adaptation of the Clickomania game"
           homepage: https://apps.kde.org/klickety/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2844,7 +2845,7 @@ kde-apps:
           desc: "A little KDE game about balls and how to get rid of them"
           homepage: https://apps.kde.org/klines/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2866,7 +2867,7 @@ kde-apps:
           homepage: https://apps.kde.org/kmag/
           iuse: "keyboardfocus"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2884,8 +2885,8 @@ kde-apps:
           desc: "A tile matching game for one or two players"
           homepage: https://apps.kde.org/kmahjongg/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-apps/libkmahjongg:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2916,8 +2917,8 @@ kde-apps:
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
             >=dev-libs/libgpg-error-1.36
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -2976,7 +2977,7 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmailtransport:{{ .Values.slot }}=
@@ -3009,7 +3010,7 @@ kde-apps:
           restrict: test
           rdepend: |
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/ksmtp:{{ .Values.slot }}=
             kde-apps/libkgapi:{{ .Values.slot }}=
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -3022,8 +3023,8 @@ kde-apps:
           depend: |
             ${RDEPEND}
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            kde-apps/ksmtp:{{ .Values.slot }}=
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            kde-apps/ksmtp:{{ .Values.qt_slot }}=
             kde-apps/libkgapi:{{ .Values.slot }}=
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3052,7 +3053,7 @@ kde-apps:
           desc: "Classic mine sweeper game"
           homepage: https://apps.kde.org/kmines/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3075,7 +3076,7 @@ kde-apps:
           homepage: https://apps.kde.org/kmix/
           iuse: "alsa pulseaudio"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3102,8 +3103,8 @@ kde-apps:
           desc: "KDE program that clicks the mouse for you"
           homepage: https://apps.kde.org/kmousetool/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -3117,8 +3118,8 @@ kde-apps:
             x11-libs/libXtst
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -3136,8 +3137,8 @@ kde-apps:
           desc: "Text-to-speech synthesizer front end"
           homepage: https://apps.kde.org/kmouth/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtspeech:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtspeech:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3155,8 +3156,8 @@ kde-apps:
           desc: "Mathematical function plotter"
           homepage: https://apps.kde.org/kmplot/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3180,7 +3181,7 @@ kde-apps:
           desc: "Battleship clone by KDE"
           homepage: https://apps.kde.org/knavalbattle/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3202,8 +3203,8 @@ kde-apps:
           desc: "KDE version of the popular NetWalk game for system administrators"
           homepage: https://apps.kde.org/knetwalk/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3234,8 +3235,8 @@ kde-apps:
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3252,7 +3253,7 @@ kde-apps:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
           bdepend: |
             app-alternatives/gzip
     - kolf:
@@ -3261,7 +3262,7 @@ kde-apps:
           desc: "Minigolf game by KDE"
           homepage: https://apps.kde.org/kolf/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3286,7 +3287,7 @@ kde-apps:
           desc: "Simple ball dodging game"
           homepage: https://apps.kde.org/kollision/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3306,7 +3307,7 @@ kde-apps:
           homepage: https://apps.kde.org/kolourpaint/
           iuse: "scanner"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3327,7 +3328,7 @@ kde-apps:
           desc: "Graphical File Differences Tool"
           homepage: https://apps.kde.org/kompare/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkomparediff2:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -3362,8 +3363,8 @@ kde-apps:
             kde-apps/kfind:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}=[gui,X]
-            dev-qt/qtwebengine
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gui,X]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -3391,16 +3392,16 @@ kde-apps:
             kde-frameworks/sonnet:{{ .Values.slot }}
             sys-libs/zlib
             activities? ( kde-plasma/plasma-activities:{{ .Values.slot }} )
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
     - konquest:
         vars:
           inherit: kde6 xdg
           desc: "Galactic Strategy KDE Game"
           homepage: https://apps.kde.org/konquest/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtscxml:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtscxml:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3420,8 +3421,8 @@ kde-apps:
           iuse: "X"
           rdepend: |
             dev-libs/icu:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3467,8 +3468,8 @@ kde-apps:
             kde-apps/kmail-account-wizard:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:6[gui]
-            dev-qt/qtwebengine
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/grantleetheme:{{ .Values.slot }}=
             kde-apps/kontactinterface:{{ .Values.slot }}=
             kde-apps/libkdepim:{{ .Values.slot }}=
@@ -3494,7 +3495,7 @@ kde-apps:
           desc: "Library for embedding KParts in a Kontact component"
           homepage: https://api.kde.org/kdepim/kontactinterface/html/index.html
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}=[gui,X]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gui,X]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/kparts:{{ .Values.slot }}
@@ -3514,8 +3515,8 @@ kde-apps:
             =kde-apps/kdepim-runtime*:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qttools:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qttools:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-calendar:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -3556,8 +3557,8 @@ kde-apps:
           homepage: https://apps.kde.org/kpat/
           rdepend: |
             dev-games/freecell-solver
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3582,7 +3583,7 @@ kde-apps:
           restrict: test
           rdepend: |
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3596,7 +3597,7 @@ kde-apps:
           depend: |
             ${RDEPEND}
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3612,7 +3613,7 @@ kde-apps:
           desc: "Library to deal with Apple Wallet pass files"
           homepage: https://apps.kde.org/kontact/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             >=x11-misc/shared-mime-info-1.8
           depend: |
@@ -3621,8 +3622,8 @@ kde-apps:
         vars:
           desc: "Qt Quick plugin for beautiful and interactive charts"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
     - krdc:
@@ -3632,7 +3633,7 @@ kde-apps:
           homepage: https://apps.kde.org/krdc/
           iuse: "activities +rdp +ssh +vnc"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -3668,9 +3669,9 @@ kde-apps:
           desc: "Board game by KDE"
           homepage: https://apps.kde.org/kreversi/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3698,7 +3699,7 @@ kde-apps:
             wayland? ( sys-apps/xdg-desktop-portal[screencast(+)] )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}=[wayland?,X]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland?,X]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3725,7 +3726,7 @@ kde-apps:
             >=media-video/pipewire-0.3
             )
           bdepend: |
-            wayland? ( dev-qt/qtbase:{{ .Values.slot }}[wayland] )
+            wayland? ( dev-qt/qtbase:{{ .Values.qt_slot }}[wayland] )
     - kruler:
         vars:
           inherit: kde6 xdg
@@ -3733,7 +3734,7 @@ kde-apps:
           homepage: https://apps.kde.org/kruler/
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3745,7 +3746,7 @@ kde-apps:
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X?]
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             X? (
-            dev-qt/qtbase:{{ .Values.slot }}=[X]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[X]
             x11-libs/libxcb
             )
           depend: |
@@ -3756,7 +3757,7 @@ kde-apps:
           desc: "Solitaire-like game played using the standard set of Mahjong tiles"
           homepage: https://apps.kde.org/kshisen/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-apps/libkmahjongg:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3776,10 +3777,10 @@ kde-apps:
           desc: "Port of the board game Risk"
           homepage: https://apps.kde.org/ksirk/
           rdepend: |
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3801,7 +3802,7 @@ kde-apps:
           restrict: test
           rdepend: |
             dev-libs/cyrus-sasl
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
@@ -3813,8 +3814,8 @@ kde-apps:
           desc: "KDE Tron game"
           homepage: https://apps.kde.org/ksnakeduel/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3836,8 +3837,8 @@ kde-apps:
           desc: "Space Game by KDE"
           homepage: https://apps.kde.org/kspaceduel/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -3854,7 +3855,7 @@ kde-apps:
           desc: "KDE clone of the game squares"
           homepage: https://apps.kde.org/ksquares/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3873,8 +3874,8 @@ kde-apps:
           desc: "Logic-based symbol placement puzzle by KDE"
           homepage: https://apps.kde.org/ksudoku/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3900,7 +3901,7 @@ kde-apps:
           homepage: https://apps.kde.org/ksystemlog/
           iuse: "audit kdesu systemd"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3915,7 +3916,7 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             audit? ( sys-process/audit )
             systemd? (
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             sys-apps/systemd:=
             )
           depend: |
@@ -3926,7 +3927,7 @@ kde-apps:
           desc: "KDE timer for making a fine cup of tea"
           homepage: https://apps.kde.org/kteatime/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3947,7 +3948,7 @@ kde-apps:
           desc: "Little tool to execute programs after some time"
           homepage: https://apps.kde.org/ktimer/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -3967,13 +3968,13 @@ kde-apps:
           homepage: https://apps.kde.org/ktouch/
           iuse: "X"
           rdepend: |
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             kde-apps/kqtquickcharts:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
             dev-libs/libxml2:2=
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -3986,7 +3987,7 @@ kde-apps:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             X? (
-            dev-qt/qtbase:{{ .Values.slot }}=[X]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[X]
             x11-libs/libICE
             x11-libs/libSM
             x11-libs/libX11
@@ -3999,9 +4000,9 @@ kde-apps:
           desc: "Potato game for kids by KDE"
           homepage: https://apps.kde.org/ktuberling/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -4021,8 +4022,8 @@ kde-apps:
           desc: "Educational programming environment using the Logo programming language"
           homepage: https://apps.kde.org/kturtle/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4041,8 +4042,8 @@ kde-apps:
           desc: "Game based on the Rubik's Cube"
           homepage: https://apps.kde.org/kubrick/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -4064,7 +4065,7 @@ kde-apps:
           desc: "Tool to manage the passwords on your system using KDE Wallet"
           homepage: https://apps.kde.org/kwalletmanager5/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -4092,7 +4093,7 @@ kde-apps:
           homepage: https://apps.kde.org/kwave/
           iuse: "alsa flac mp3 opus oss pulseaudio +qtmedia vorbis"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -4119,7 +4120,7 @@ kde-apps:
             media-sound/twolame
             )
             )
-            qtmedia? ( dev-qt/qtmultimedia:{{ .Values.slot }} )
+            qtmedia? ( dev-qt/qtmultimedia:{{ .Values.qt_slot }} )
             opus? (
             media-libs/libogg
             media-libs/opus
@@ -4131,7 +4132,7 @@ kde-apps:
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -4158,7 +4159,7 @@ kde-apps:
             media-sound/twolame
             )
             )
-            qtmedia? ( dev-qt/qtmultimedia:{{ .Values.slot }} )
+            qtmedia? ( dev-qt/qtmultimedia:{{ .Values.qt_slot }} )
             opus? (
             media-libs/libogg
             media-libs/opus
@@ -4177,10 +4178,10 @@ kde-apps:
           homepage: https://apps.kde.org/kwordquiz/
           rdepend: |
             >=dev-libs/kirigami-addons-0.9.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtmultimedia:{{ .Values.slot }}[qml]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -4194,7 +4195,7 @@ kde-apps:
         vars:
           desc: "Library for gravatar integration"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4208,7 +4209,7 @@ kde-apps:
           iuse: "musicbrainz"
           restrict: test
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4236,7 +4237,7 @@ kde-apps:
         vars:
           desc: "Digital camera raw image library wrapper"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             >=media-libs/libraw-0.16:=
           depend: |
             ${RDEPEND}
@@ -4244,9 +4245,9 @@ kde-apps:
         vars:
           desc: "Base library common to many KDE games"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -4275,7 +4276,7 @@ kde-apps:
         vars:
           desc: "Common PIM libraries"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
@@ -4285,7 +4286,7 @@ kde-apps:
         vars:
           desc: "Library for reading/writing KVTML"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -4297,7 +4298,7 @@ kde-apps:
           desc: "Wrapper around exiv2 library"
           iuse: "+xmp"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             >=media-gfx/exiv2-0.25:=[xmp=]
           depend: |
             ${RDEPEND}
@@ -4310,12 +4311,12 @@ kde-apps:
           depend: |
             ${RDEPEND}
             dev-libs/cyrus-sasl:2
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcalendarcore:{{ .Values.slot }}
             kde-frameworks/kcontacts:{{ .Values.slot }}
             kde-frameworks/kwallet:{{ .Values.slot }}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - libkleo:
         vars:
           desc: "Library for encryption handling"
@@ -4323,7 +4324,7 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/libgpg-error-1.36
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -4339,7 +4340,7 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/libgpg-error-1.36
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -4354,8 +4355,8 @@ kde-apps:
         vars:
           desc: "Mahjongg library based on Qt/KDE Frameworks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -4368,7 +4369,7 @@ kde-apps:
         vars:
           desc: "Library to compare files and strings"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4386,7 +4387,7 @@ kde-apps:
             >=kde-apps/libksane-common
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/ktextwidgets:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
@@ -4400,8 +4401,8 @@ kde-apps:
           rdepend: |
             dev-libs/cyrus-sasl:2
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
-            dev-qt/qtbase:6[gui]
-            dev-qt/qtwebengine
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
             kde-apps/libkdepim:{{ .Values.slot }}=
@@ -4423,8 +4424,8 @@ kde-apps:
             ${RDEPEND}
             dev-libs/cyrus-sasl:2
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
             kde-apps/libkdepim:{{ .Values.slot }}=
@@ -4449,7 +4450,7 @@ kde-apps:
         vars:
           desc: "Library for handling TNEF data"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-apps/kcalutils:{{ .Values.slot }}=
             kde-frameworks/kcalendarcore:{{ .Values.slot }}
             kde-frameworks/kcontacts:{{ .Values.slot }}
@@ -4463,7 +4464,7 @@ kde-apps:
           homepage: https://apps.kde.org/lokalize/ https://l10n.kde.org/tools/
           rdepend: |
             >=app-text/hunspell-1.2.8:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -4489,8 +4490,8 @@ kde-apps:
           desc: "Skat game by KDE"
           homepage: https://apps.kde.org/lskat/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4513,8 +4514,8 @@ kde-apps:
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -4549,7 +4550,7 @@ kde-apps:
         vars:
           desc: "Library to import mail from various sources"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
@@ -4571,19 +4572,19 @@ kde-apps:
           rdepend: |
             kde? (
             dev-libs/kirigami-addons:{{ .Values.slot }}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             kde-frameworks/kirigami:{{ .Values.slot }}
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             sys-libs/zlib
-            aprs? ( dev-qt/qtserialport:{{ .Values.slot }} )
-            designer? ( dev-qt/qttools:{{ .Values.slot }}[designer] )
-            geolocation? ( dev-qt/qtpositioning:{{ .Values.slot }} )
+            aprs? ( dev-qt/qtserialport:{{ .Values.qt_slot }} )
+            designer? ( dev-qt/qttools:{{ .Values.qt_slot }}[designer] )
+            geolocation? ( dev-qt/qtpositioning:{{ .Values.qt_slot }} )
             gps? ( sci-geosciences/gpsd:= )
             kde? (
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -4594,7 +4595,7 @@ kde-apps:
             kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/kparts:{{ .Values.slot }}
             kde-frameworks/krunner:{{ .Values.slot }}
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }}[qml] )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }}[qml] )
             )
             pbf? (
             dev-cpp/abseil-cpp:=
@@ -4603,18 +4604,18 @@ kde-apps:
             phonon? ( >=media-libs/phonon-4.12.0[qt6(+)] )
             shapefile? ( sci-libs/shapelib:= )
             webengine? (
-              dev-qt/qtwebchannel:{{ .Values.slot }}
-              dev-qt/qtwebengine:{{ .Values.slot }}
+              dev-qt/qtwebchannel:{{ .Values.qt_slot }}
+              dev-qt/qtwebengine:{{ .Values.qt_slot }}
             )
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             aprs? ( dev-lang/perl )
     - mbox-importer:
         vars:
           inherit: kde6 xdg
           desc: "Import mbox email archives from various sources into Akonadi"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/mailcommon:{{ .Values.slot }}=
@@ -4639,8 +4640,8 @@ kde-apps:
             dev-libs/qgpgme:=
             >=dev-libs/openssl-3.0.0:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtwebengine:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -4689,8 +4690,8 @@ kde-apps:
           rdepend: |
             dev-cpp/gpgmepp:=
             dev-libs/qgpgme:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-apps/kmbox:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=
             kde-apps/libkleo:{{ .Values.slot }}=
@@ -4706,9 +4707,9 @@ kde-apps:
           desc: "Music Education software by KDE"
           homepage: https://minuet.kde.org/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -4728,9 +4729,9 @@ kde-apps:
             qml? ( kde-frameworks/kirigami:{{ .Values.slot }} )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}=[gui,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gui,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkexiv2:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
@@ -4763,7 +4764,7 @@ kde-apps:
             phonon? ( >=media-libs/phonon-4.12.0[qt6(+)] )
             postscript? ( app-text/libspectre )
             share? ( kde-frameworks/purpose:{{ .Values.slot }} )
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
             tiff? ( media-libs/tiff:= )
           body: |
             src_prepare() {
@@ -4794,8 +4795,8 @@ kde-apps:
           desc: "Jigsaw puzzle game by KDE"
           homepage: https://apps.kde.org/palapeli/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -4812,8 +4813,8 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkdegames:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -4841,9 +4842,9 @@ kde-apps:
             app-i18n/translate-shell
             dev-libs/libxml2:2=
             dev-libs/libxslt
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -4859,17 +4860,17 @@ kde-apps:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
     - picmi:
         vars:
           inherit: kde6 xdg
           desc: "Nonogram logic game by KDE"
           homepage: https://apps.kde.org/picmi/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
-            kde-apps/libkdegames:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            kde-apps/libkdegames:{{ .Values.qt_slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -4889,7 +4890,7 @@ kde-apps:
           restrict: test
           rdepend: |
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmailtransport:{{ .Values.slot }}=
@@ -4922,7 +4923,7 @@ kde-apps:
           iuse: "telemetry"
           rdepend: |
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -4952,7 +4953,7 @@ kde-apps:
           iuse: "activities"
           rdepend: |
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-search:{{ .Values.slot }}=
@@ -4978,7 +4979,7 @@ kde-apps:
           depend: |
             ${RDEPEND}
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-search:{{ .Values.slot }}=
@@ -5005,7 +5006,7 @@ kde-apps:
         vars:
           desc: "KDE utility to translate DocBook XML files using gettext po files"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             sys-devel/gettext
           depend: |
             ${RDEPEND}
@@ -5026,8 +5027,8 @@ kde-apps:
           iuse: "+gsl +qalculate"
           rdepend: |
             >=dev-cpp/eigen-3.2:3
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -5048,13 +5049,13 @@ kde-apps:
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - svgpart:
         vars:
           desc: "Kpart for viewing SVGs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -5068,7 +5069,7 @@ kde-apps:
           desc: "Privacy settings widget to clean unwanted traces on the system"
           homepage: https://apps.kde.org/sweeper/
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -5088,8 +5089,8 @@ kde-apps:
           homepage: https://apps.kde.org/yakuake/
           iuse: "absolute-position"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}=[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/konsole:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -5115,8 +5116,8 @@ kde-apps:
             absolute-position? ( kde-plasma/kwayland:{{ .Values.slot }} )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}=[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-apps/konsole:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}

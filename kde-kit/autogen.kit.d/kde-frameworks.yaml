@@ -6,10 +6,18 @@ kde-frameworks:
     template: ../../templates/simple.tmpl
     category: kde-frameworks
     vars:
-        slot: 6
-        qt_slot: 6
-        homepage: https://invent.kde.org/frameworks/
-        inherit: kde6
+      # From kde6.eclass
+      license: GPL-2
+
+      slot: 6
+      qt_slot: 6
+      homepage: https://invent.kde.org/frameworks/
+      downloadurl_prefix: https://download.kde.org/stable/frameworks
+      inherit:
+        - cmake
+      rdepend: |
+        virtual/kde-seed
+      depend: '${RDEPEND}'
     selector:
         - '<7'
     transform:
@@ -18,104 +26,82 @@ kde-frameworks:
           replace: '$1.0'
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
-         url: https://download.kde.org/stable/frameworks/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
+         url: '{{ .Values.downloadurl_prefix }}/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz'
     dir:
-        url: "https://download.kde.org/stable/frameworks/"
+        url: "{{ .Values.downloadurl_prefix }}/"
         matcher: "^6.*"
 
   packages:
     - attica:
         vars:
           desc: "Framework providing access to Open Collaboration Services"
-          rdepend: |
-             dev-qt/qtbase:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # requires network access, bug #661230
-                providertest
-            )
+
     - baloo:
         vars:
           desc: "Framework for searching and managing metadata"
           rdepend: |
-            !{{ .Values.category }}/{{ .Values.pn }}:5[-kf6compat(-)]
-          depend: |
-            ${RDEPEND}
-                >=dev-db/lmdb-0.9.17
-                dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-                dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-                kde-frameworks/kconfig:{{ .Values.slot }}
-                kde-frameworks/kcoreaddons:{{ .Values.slot }}
-                kde-frameworks/kcrash:{{ .Values.slot }}
-                kde-frameworks/kdbusaddons:{{ .Values.slot }}
-                kde-frameworks/kfilemetadata:{{ .Values.slot }}
-                kde-frameworks/ki18n:{{ .Values.slot }}
-                kde-frameworks/kidletime:{{ .Values.slot }}
-                kde-frameworks/kio:{{ .Values.slot }}
-                kde-frameworks/solid:{{ .Values.slot }}
+            virtual/kde-seed[declarative]
+            >=dev-db/lmdb-0.9.17
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/kdbusaddons:{{ .Values.slot }}
+            kde-frameworks/kfilemetadata:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kidletime:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/solid:{{ .Values.slot }}
+
     - bluez-qt:
         vars:
           desc: "Qt wrapper for Bluez 5 DBus API"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
-          body: |
-            src_test() {
-                # parallel tests fail, bug 609248
-                kde6_src_test -j1
-            }
+            virtual/kde-seed[declarative]
+
     - breeze-icons:
         vars:
           python_compat: python3+
-          inherit: cmake kde6 python-any-r1 xdg
+          inherit:
+            - cmake
+            - python-any-r1
+            - xdg
           desc: "Breeze SVG icon theme"
           rdepend: |
-            !kde-frameworks/{{ .Values.pn }}:5
-            !kde-frameworks/{{ .Values.pn }}-rcc:5
-            !kde-frameworks/{{ .Values.pn }}-rcc:{{ .Values.slot }}
+            virtual/kde-seed[gui]
           bdepend: |
             ${PYTHON_DEPS}
             $(python_gen_any_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/extra-cmake-modules:*
-            test? ( app-misc/fdupes )
           body: |
-            python_check_deps() {
-                python_has_version "dev-python/lxml[${PYTHON_USEDEP}]"
-            }
-
             src_prepare() {
-                cmake_src_prepare
+              cmake_src_prepare
             }
             src_configure() {
-                local mycmakeargs=(
-                    -DPython_EXECUTABLE="${PYTHON}"
-                    -DBINARY_ICONS_RESOURCE=ON # TODO: remove when kexi was ported away
-                    -DSKIP_INSTALL_ICONS=OFF
-                )
-                cmake_src_configure
+              local mycmakeargs=(
+                -DPython_EXECUTABLE="${PYTHON}"
+                -DBINARY_ICONS_RESOURCE=ON # TODO: remove when kexi was ported away
+                -DSKIP_INSTALL_ICONS=OFF
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              find "${ED}"/usr/share/icons/ -type d -empty -delete || die
+              find "${ED}"/usr/share/icons/ -xtype l -delete || die
             }
 
-            src_install() {
-                cmake_src_install
-                # bug 770988
-                find "${ED}"/usr/share/icons/ -type d -empty -delete || die
-                find "${ED}"/usr/share/icons/ -xtype l -delete || die
-            }
     - extra-cmake-modules:
         vars:
           python_compat: python3+
-          inherit: cmake kde6 python-any-r1
+          inherit:
+            - cmake
+            - python-any-r1
           desc: "Extra modules and scripts for CMake"
           slot: 0
+          iuse: doc
           rdepend: |
             app-arch/libarchive[bzip2]
             !kde-frameworks/extra-cmake-modules:5
-          depend: '${RDEPEND}'
           bdepend: |
             doc? (
                 ${PYTHON_DEPS}
@@ -123,9 +109,6 @@ kde-frameworks:
                 dev-qt/qttools:{{ .Values.qt_slot }}[assistant]
             )
           body: |
-            python_check_deps() {
-                python_has_version "dev-python/sphinx[${PYTHON_USEDEP}]"
-            }
             pkg_setup() {
                 use doc && python-any-r1_pkg_setup
             }
@@ -138,19 +121,16 @@ kde-frameworks:
                     -DBUILD_QTHELP_DOCS=$(usex doc)
                     -DBUILD_HTML_DOCS=$(usex doc)
                     -DBUILD_MAN_DOCS=$(usex doc)
-                    -DBUILD_TESTING=$(usex test)
+                    -DBUILD_TESTING=OFF
                 )
-                if use test; then
-                    mycmakeargs+=( -DQT_MAJOR_VERSION=6 ) # bug 938316
-                fi
-
                 cmake_src_configure
             }
+
     - frameworkintegration:
         vars:
           desc: "Framework for integrating Qt applications with KDE Plasma workspaces"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -158,132 +138,114 @@ kde-frameworks:
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
             kde-frameworks/kpackage:{{ .Values.slot }}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DCMAKE_DISABLE_FIND_PACKAGE_AppStreamQt=ON
-                    -DCMAKE_DISABLE_FIND_PACKAGE_packagekitqt6=ON
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                  -DCMAKE_DISABLE_FIND_PACKAGE_AppStreamQt=ON
+                  -DCMAKE_DISABLE_FIND_PACKAGE_packagekitqt6=ON
+              )
+              cmake_src_configure
             }
+
     - kapidox:
         vars:
           python_compat: python3+
-          inherit: kde6 distutils-r1
+          extra_envs:
+            - 'DISTUTILS_SINGLE_IMPL=1'
+            - 'DISTUTILS_USE_PEP517=setuptools'
+          inherit:
+            - distutils-r1
           desc: "Framework for building KDE API documentation in a standard format and style"
           rdepend: |
-            app-text/doxygen
+            virtual/kde-seed
+            app-doc/doxygen
             $(python_gen_cond_dep '
-                dev-python/jinja2[${PYTHON_USEDEP}]
+                dev-python/jinja[${PYTHON_USEDEP}]
                 dev-python/pyyaml[${PYTHON_USEDEP}]
             ')
             media-gfx/graphviz[python,${PYTHON_SINGLE_USEDEP}]
+
     - karchive:
         vars:
           desc: "Framework for reading, creation, and manipulation of various archive formats"
           iuse: "crypt +zstd"
           rdepend: |
+            virtual/kde-seed
             app-arch/bzip2
             app-arch/xz-utils
             sys-libs/zlib
             crypt? ( dev-libs/openssl:= )
             zstd? ( app-arch/zstd:= )
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             zstd? ( virtual/pkgconfig )
           body: |
             src_prepare() {
-                kde6_src_prepare
-
-                # TODO: try to get a build switch upstreamed
-                if ! use zstd; then
-                    sed -e "s/^pkg_check_modules.*LibZstd/#&/" -i CMakeLists.txt || die
-                fi
+              cmake_src_prepare
+              # TODO: try to get a build switch upstreamed
+              if ! use zstd; then
+                sed -e "s/^pkg_check_modules.*LibZstd/#&/" -i CMakeLists.txt || die
+              fi
             }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_OPENSSL=$(usex crypt)
-                    -DWITH_LIBZSTD=$(usex zstd)
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_OPENSSL=$(usex crypt)
+                -DWITH_LIBZSTD=$(usex zstd)
+              )
+              cmake_src_configure
             }
+
     - kauth:
         vars:
           desc: "Framework to let applications perform actions as a privileged user"
           iuse: "+policykit"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcoreaddons:{{ .Values.qt_slot }}
             policykit? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}
                 kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland]
                 >=sys-auth/polkit-qt-0.175.0[qt6(+)]
             )
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           pdepend: |
             policykit? ( kde-plasma/polkit-kde-agent:* )
           body: |
-            CMAKE_SKIP_TESTS=(
-                # fails, bug 654842
-                KAuthHelperTest
-                # needs DBus, bug 938505
-                KAuthFdTest
-            )
-
             src_prepare() {
-                kde6_src_prepare
+              cmake_src_prepare
             }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package policykit PolkitQt6-1)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package policykit PolkitQt6-1)
+              )
+              cmake_src_configure
             }
+
     - kbookmarks:
         vars:
           desc: "Framework for managing bookmarks stored in XBEL format"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+
     - kcalendarcore:
         vars:
           desc: "Library for interfacing with calendars"
           rdepend: |
+            virtual/kde-seed[gui,declarative]
             >=dev-libs/libical-3.0.5:=
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
+
     - kcmutils:
         vars:
           desc: "Framework to work with KDE System Settings modules"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -293,73 +255,58 @@ kde-frameworks:
             kde-frameworks/kitemviews:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - kcodecs:
         vars:
           desc: "Framework for manipulating strings using various encodings"
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 938317
-                rfc2047test
-                kemailaddresstest
-            )
+
     - kcolorscheme:
         vars:
           desc: "Framework for downloading and sharing additional application data"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - kcompletion:
         vars:
           desc: "Framework for common completion tasks such as filename or URL completion"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+
     - kconfig:
         vars:
           desc: "Framework for reading and writing configuration"
-          iuse: "dbus qml"
-          required_use: "test? ( qml )"
+          iuse: dbus qml
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
+            dbus? ( sys-apps/dbus )
             qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                -DUSE_DBUS=$(usex dbus)
+                -DKCONFIG_USE_QML=$(usex qml)
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DUSE_DBUS=$(usex dbus)
-                    -DKCONFIG_USE_QML=$(usex qml)
-                )
-                kde6_src_configure
-            }
     - kconfigwidgets:
         vars:
           desc: "Framework providing an assortment of configuration-related widgets"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -367,44 +314,27 @@ kde-frameworks:
             kde-frameworks/kguiaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-            test? ( kde-frameworks/kconfig:{{ .Values.slot }}[dbus] )
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # bugs: 864250
-                kstandardactiontest
-                # bug 926497
-                klanguagenametest
-            )
+
     - kcontacts:
         vars:
           desc: "Address book API based on KDE Frameworks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # bug #566648 (access to /dev/dri/card0 denied)
-                kcontacts-picturetest
-                # bugs #712798, 838502, 953969 (again some Qt translations loading related err...)
-                kcontacts-{address{,format},phonenumber}test
-            )
+
     - kcoreaddons:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - cmake
+            - xdg
           desc: "Framework for solving common problems such as caching, randomisation, and more"
           iuse: "dbus"
           rdepend: |
+            virtual/kde-seed[declarative]
             dev-qt/qttranslations:{{ .Values.qt_slot }}
-            dev-qt/qtbase:{{ .Values.qt_slot }}
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             virtual/libudev:=
           depend: |
@@ -412,108 +342,70 @@ kde-frameworks:
             sys-kernel/linux-headers
           body: |
             src_prepare() {
-                kde6_src_prepare
+              cmake_src_prepare
             }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DKCOREADDONS_USE_QML=ON
-                    -DENABLE_INOTIFY=ON
-                    -DUSE_DBUS=$(usex dbus)
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                  -DKCOREADDONS_USE_QML=ON
+                  -DENABLE_INOTIFY=ON
+                  -DUSE_DBUS=$(usex dbus)
+                  -DBUILD_PYTHON_BINDINGS=OFF
+                  -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
 
-            src_test() {
-                local CMAKE_SKIP_TESTS=(
-                    # bug 632398
-                    kautosavefiletest
-                    # bug 647414
-                    kdirwatch_qfswatch_unittest
-                    kdirwatch_stat_unittest
-                    # bugs 665682
-                    kformattest
-                    # bug 770781
-                    kaboutdatatest
-                    klistopenfilesjobtest_unix
-                )
-                # bug 619656
-                kde6_src_test -j1
-            }
     - kcrash:
         vars:
           desc: "Framework for intercepting and handling application crashes"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             X? ( x11-libs/libX11 )
           depend: |
             ${RDEPEND}
             X? ( x11-base/xorg-proto )
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                -DWITH_X11=$(usex X)
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DWITH_X11=$(usex X)
-                )
-                kde6_src_configure
-            }
     - kdav:
         vars:
           desc: "DAV protocol implemention with KJobs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 616808: requires D-Bus
-                kdav-davitemfetchjob
-                # bug 653602: mimetypes unsupported
-                kdav-davitemslistjob
-                # bug 765061
-                kdav-davcollectionsmultifetchjobtest
-            )
+
     - kdbusaddons:
         vars:
           desc: "Framework for registering services and applications per freedesktop standards"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
-            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}=[gui,X] )
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui,X?]
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_X11=$(usex X)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_X11=$(usex X)
+              )
+              cmake_src_configure
             }
+
     - kdeclarative:
         vars:
           desc: "Framework providing integration of QML and KDE work spaces"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kglobalaccel:{{ .Values.slot }}
@@ -521,40 +413,34 @@ kde-frameworks:
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - kded:
         vars:
           desc: "Central daemon of KDE workspaces"
           iuse: "+man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}[dbus]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package man KF6DocTools)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package man KF6DocTools)
+              )
+              cmake_src_configure
             }
+
     - kdesu:
         vars:
           desc: "Framework to handle super user actions"
           iuse: "X"
           rdepend: |
+            virtual/kde-seed
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -564,44 +450,33 @@ kde-frameworks:
             ${RDEPEND}
             X? ( x11-base/xorg-proto )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package X X11)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package X X11)
+              )
+              cmake_src_configure
             }
+
     - kdnssd:
         vars:
           desc: "Framework for network service discovery using Zeroconf"
           iuse: "zeroconf"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             zeroconf? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}
                 net-dns/avahi[mdnsresponder-compat]
             )
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package zeroconf Avahi)
-                )
-                use zeroconf || mycmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_DNSSD=ON )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package zeroconf Avahi)
+              )
+              use zeroconf || mycmakeargs+=( -DCMAKE_DISABLE_FIND_PACKAGE_DNSSD=ON )
+              cmake_src_configure
             }
+
     - kdoctools:
         vars:
           desc: "Tools to generate documentation in various formats from DocBook files"
@@ -613,285 +488,197 @@ kde-frameworks:
             dev-libs/libxml2:2=
             dev-libs/libxslt
             kde-frameworks/karchive:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-lang/perl
             dev-perl/URI
             nls? ( kde-frameworks/ki18n:{{ .Values.slot }} )
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 665622
-                kdoctools_install
-            )
-
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package nls KF6I18n)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                  $(cmake_use_find_package nls KF6I18n)
+              )
+              cmake_src_configure
             }
+
     - kglobalaccel:
         vars:
           desc: "Framework to handle global shortcuts"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}=[X] )
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui,X?]
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                -DWITH_X11=$(usex X)
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DWITH_X11=$(usex X)
-                )
-                kde6_src_configure
-            }
     - kguiaddons:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - cmake
+            - xdg
           desc: "Framework providing assorted high-level user interface components"
           iuse: "dbus wayland X"
           rdepend: |
-            !<kde-frameworks/kguiaddons-5.116.0-r2:5[-kf6compat(-)]
-            wayland? (
-              || (
-                >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
-                <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
-              )
+            virtual/kde-seed[gui,declarative,wayland?,X?]
+            X? (
+              x11-libs/libX11
+              x11-libs/libxcb
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             wayland? (
                 dev-libs/wayland
-                dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland]
                 >=dev-libs/plasma-wayland-protocols-1.15.0
                 >=dev-libs/wayland-protocols-1.39
             )
             X? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}[X]
-                x11-libs/libX11
-                x11-base/xorg-proto
-                x11-libs/libxcb
+              x11-base/xorg-proto
             )
           bdepend: |
             wayland? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
-                dev-util/wayland-scanner
-                || (
-                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
-                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }} )
+              dev-util/wayland-scanner
             )
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                  -DBUILD_GEO_SCHEME_HANDLER=ON
+                  -DUSE_DBUS=$(usex dbus)
+                  -DWITH_WAYLAND=$(usex wayland)
+                  -DWITH_X11=$(usex X)
+                  -DBUILD_PYTHON_BINDINGS=OFF
+                  -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_GEO_SCHEME_HANDLER=ON
-                    -DUSE_DBUS=$(usex dbus)
-                    -DWITH_WAYLAND=$(usex wayland)
-                    -DWITH_X11=$(usex X)
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
-            }
     - kholidays:
         vars:
           desc: "Library to determine holidays and other special events for a geographical region"
           rdepend: |
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[declarative]
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
-          body: |
-            src_test() {
-                # bug 624214
-                mkdir -p "${HOME}/.local/share/kf6/libkholidays" || die
-                cp -r "${S}/holidays/plan2" "${HOME}/.local/share/kf6/libkholidays/" || die
-                kde6_src_test
-            }
+
     - ki18n:
         vars:
           python_compat: python3+
-          inherit: kde6 python-single-r1
+          inherit:
+            - cmake
+            - python-single-r1
           desc: "Framework based on Gettext for internationalizing user interface text"
           required_use: "${PYTHON_REQUIRED_USE}"
           rdepend: |
+            virtual/kde-seed[declarative]
             app-text/iso-codes
-          depend: |
-            ${RDEPEND}
+          bdepend: |
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.qt_slot }}
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             sys-devel/gettext
             virtual/libintl
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 876496
-                kcatalogtest
-                # requires LANG fr_CH. bugs 823816
-                kcountrytest
-                kcountrysubdivisiontest
-                # flaky, bug 948895
-                ki18n-klocalizedstringtest
-            )
-
             src_prepare() {
-                kde6_src_prepare
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DPython3_EXECUTABLE="${PYTHON}"
+                -DBUILD_WITH_QML=TRUE
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DPython3_EXECUTABLE="${PYTHON}"
-                    -DBUILD_WITH_QML=TRUE
-                )
-                kde6_src_configure
-            }
     - kiconthemes:
         vars:
           desc: "Framework for icon theming and configuration"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative,svg]
             kde-frameworks/breeze-icons:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - kidletime:
         vars:
           desc: "Framework for detection and notification of device idle time"
-          iuse: "wayland X xscreensaver"
+          iuse: wayland X xscreensaver
           required_use: "xscreensaver? ( X )"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            wayland? (
-                dev-libs/wayland
-                dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland]
-                || (
-                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
-                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
-                )
-            )
+            virtual/kde-seed[gui,wayland?,X?]
             X? (
                 x11-libs/libX11
                 x11-libs/libxcb
                 x11-libs/libXext
             )
             xscreensaver? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}
                 x11-libs/libXScrnSaver
             )
           depend: |
             ${RDEPEND}
             wayland? (
-                >=dev-libs/plasma-wayland-protocols-1.11.1
-                >=dev-libs/wayland-protocols-1.27:0
-            )
-          bdepend: |
-            wayland? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
-                || (
-                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
-                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
-                )
+              >=dev-libs/plasma-wayland-protocols-1.11.1
+              >=dev-libs/wayland-protocols-1.27:0
             )
           body: |
             src_prepare() {
-                kde6_src_prepare
-                if ! use xscreensaver; then
-                    sed -i -e "s/\${X11_Xscreensaver_FOUND}/0/" CMakeLists.txt || die
-                fi
+              cmake_src_prepare
+              if ! use xscreensaver; then
+                sed -i -e "s/\${X11_Xscreensaver_FOUND}/0/" CMakeLists.txt || die
+              fi
             }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_WAYLAND=$(usex wayland)
-                    -DWITH_X11=$(usex X)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_WAYLAND=$(usex wayland)
+                -DWITH_X11=$(usex X)
+              )
+              cmake_src_configure
             }
+
     - kfilemetadata:
         vars:
           python_compat: python3+
-          inherit: kde6 optfeature python-any-r1
           desc: "Library for extracting file metadata"
           iuse: "epub exif ffmpeg mobi pdf taglib"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             epub? ( app-text/ebook-tools )
             exif? ( media-gfx/exiv2:= )
-            ffmpeg? ( media-video/ffmpeg:0= )
+            ffmpeg? ( media-video/ffmpeg:= )
             mobi? ( kde-apps/kdegraphics-mobipocket:{{ .Values.slot }} )
             pdf? ( app-text/poppler[qt6(-)] )
             taglib? ( media-libs/taglib:= )
           depend: |
             ${RDEPEND}
-            kernel_linux? ( sys-apps/attr )
-          bdepend: |
-            test? ( ${PYTHON_DEPS} )
+            sys-apps/attr
           body: |
-            CMAKE_SKIP_TESTS=(
-                # FIXME: bug 644650, fails on tmpfs (but not for everyone)
-                usermetadatawritertest
-            )
-
-            pkg_setup() {
-                use test && python-any-r1_pkg_setup
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package epub EPub)
-                    $(cmake_use_find_package exif LibExiv2)
-                    $(cmake_use_find_package ffmpeg FFmpeg)
-                    $(cmake_use_find_package mobi QMobipocket6)
-                    -DENABLE_MOBIPOCKET_TEXT_EXTRACTION=OFF
-                    $(cmake_use_find_package pdf Poppler)
-                    $(cmake_use_find_package taglib Taglib)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DENABLE_MOBIPOCKET_TEXT_EXTRACTION=OFF
+                $(cmake_use_find_package epub EPub)
+                $(cmake_use_find_package exif LibExiv2)
+                $(cmake_use_find_package ffmpeg FFmpeg)
+                $(cmake_use_find_package mobi QMobipocket6)
+                $(cmake_use_find_package pdf Poppler)
+                $(cmake_use_find_package taglib Taglib)
+              )
+              cmake_src_configure
             }
 
-            pkg_postinst() {
-                if [[ -z "${REPLACING_VERSIONS}" ]]; then
-                    optfeature "Microsoft Word/Powerpoint file indexing" app-text/catdoc
-                    optfeature "Microsoft Excel file indexing" dev-libs/libxls
-                fi
-            }
     - kimageformats:
         vars:
           desc: "Framework providing additional format plugins for Qt's image I/O system"
           iuse: "avif eps heif jpeg2k jpegxl openexr raw"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             avif? ( >=media-libs/libavif-0.8.2:= )
             eps? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
@@ -900,12 +687,6 @@ kde-frameworks:
             jpegxl? ( >=media-libs/libjxl-0.9.4:= )
             openexr? ( >=media-libs/openexr-3:= )
             raw? ( media-libs/libraw:= )
-          depend: |
-            ${RDEPEND}
-            test? (
-                dev-qt/qtimageformats:{{ .Values.qt_slot }}
-                heif? ( media-libs/libheif[x265] )
-            )
           body: |
             src_configure() {
                 local mycmakeargs=(
@@ -918,20 +699,19 @@ kde-frameworks:
                     $(cmake_use_find_package openexr OpenEXR)
                     $(cmake_use_find_package raw LibRaw)
                 )
-                kde6_src_configure
+                cmake_src_configure
             }
+
     - kio:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - cmake
+            - xdg
           desc: "Framework providing transparent file and data management"
           iuse: "acl handbook +kwallet wayland X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[libproxy]
+            virtual/kde-seed[declarative,gui,libproxy,wayland?,X?]
             sys-power/switcheroo-control
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X?]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.qt_slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -963,113 +743,88 @@ kde-frameworks:
                 kde-frameworks/kdoctools:{{ .Values.slot }}
             )
             kwallet? ( kde-frameworks/kwallet:{{ .Values.slot }} )
-            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
           pdepend: |
             kde-frameworks/kded:{{ .Values.slot }}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package acl ACL)
-                    $(cmake_use_find_package kwallet KF6Wallet)
-                    -DWITH_WAYLAND=$(usex wayland)
-                    -DWITH_X11=$(usex X)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package acl ACL)
+                $(cmake_use_find_package kwallet KF6Wallet)
+                -DWITH_WAYLAND=$(usex wayland)
+                -DWITH_X11=$(usex X)
+              )
+              cmake_src_configure
             }
+
     - kirigami:
         vars:
-          inherit: kde6 toolchain-funcs
+          inherit:
+            - cmake
+            - toolchain-funcs
           desc: "Lightweight user interface framework for mobile and convergent applications"
           iuse: "examples openmp"
           rdepend: |
+            virtual/kde-seed[gui,declarative,svg]
             examples? (
-                !{{ .Values.category }}/{{ .Values.pn }}:5[examples(-)]
                 dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             )
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-            dev-qt/qtsvg:{{ .Values.qt_slot }}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             pkg_pretend() {
                 [[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
             }
-
-            pkg_setup() {
-                [[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_EXAMPLES=$(usex examples)
-                    $(cmake_use_find_package openmp OpenMP)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_EXAMPLES=$(usex examples)
+                $(cmake_use_find_package openmp OpenMP)
+              )
+              cmake_src_configure
             }
+
     - kitemmodels:
         vars:
           desc: "Framework providing data models to help with tasks such as sorting and filtering"
           rdepend: |
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
-          body: |
-            src_test() {
-                LC_NUMERIC="C" kde6_src_test # bug 708820
-            }
+            virtual/kde-seed[declarative]
+
     - kitemviews:
         vars:
           desc: "Framework providing additional widgets for item models"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui]
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+
     - kjobwidgets:
         vars:
           desc: "Framework providing assorted widgets for showing the progress of jobs"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui,X?]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}[X] )
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_X11=$(usex X)
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_X11=$(usex X)
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - knewstuff:
         vars:
           desc: "Framework for downloading and sharing additional application data"
           iuse: "opds"
           rdepend: |
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/attica:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1080,85 +835,71 @@ kde-frameworks:
             opds? ( kde-frameworks/syndication:{{ .Values.slot }} )
           body: |
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package opds KF6Syndication)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package opds KF6Syndication)
+              )
+              cmake_src_configure
             }
+
     - knotifications:
         vars:
           desc: "Framework for notifying the user of an event"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kconfig:{{ .Values.slot }}
             media-libs/libcanberra
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - knotifyconfig:
         vars:
           desc: "Framework for configuring desktop notifications"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,multimedia]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           body: |
             src_configure() {
-                local mycmakeargs=(
-                    -DCMAKE_DISABLE_FIND_PACKAGE_Canberra=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DCMAKE_DISABLE_FIND_PACKAGE_Canberra=ON
+              )
+              cmake_src_configure
             }
+
     - kpackage:
         vars:
           desc: "Framework to install and load packages of non binary content"
           iuse: "man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bugs 650214, 939041
-                plasmoidpackagetest
-                # requires network access
-                testpackage-appstream
-            )
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package man KF6DocTools)
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package man KF6DocTools)
+              )
+              cmake_src_configure
             }
+
     - kparts:
         vars:
           desc: "Framework providing elaborate user-interface components"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1168,183 +909,128 @@ kde-frameworks:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - kpeople:
         vars:
           desc: "KDE contact person abstraction library"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative,sql]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcontacts:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kitemviews:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-          body: |
-            src_test() {
-                local CMAKE_SKIP_TESTS=(
-                    # bugs 668192, 816588: segfaults w/o virtx
-                    personsmodeltest
-                )
 
-                kde6_src_test -j1
-            }
     - kplotting:
         vars:
           desc: "Framework providing easy data-plotting functions"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui]
+
     - kpty:
         vars:
           desc: "Framework for pseudo terminal devices and running child processes"
           rdepend: |
+            virtual/kde-seed
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             sys-libs/libutempter
-          depend: |
-            ${RDEPEND}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DUTEMPTER_EXECUTABLE="${EPREFIX}/usr/sbin/utempter"
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DUTEMPTER_EXECUTABLE="${EPREFIX}/usr/sbin/utempter"
+              )
+              cmake_src_configure
             }
+
     - kquickcharts:
         vars:
           desc: "QtQuick plugin providing high-performance charts"
           iuse: "examples"
           rdepend: |
-            examples? ( !{{ .Values.category }}/{{ .Values.pn }}:5[examples(-)] )
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             dev-qt/qtshadertools:{{ .Values.qt_slot }}
             examples? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}
                 kde-frameworks/kdeclarative:{{ .Values.slot }}
                 kde-frameworks/kirigami:{{ .Values.slot }}
             )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_EXAMPLES=$(usex examples)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_EXAMPLES=$(usex examples)
+              )
+              cmake_src_configure
             }
+
     - krunner:
         vars:
           desc: "Framework for providing different actions given a string query"
+          iuse: wayland
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui,wayland?]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kitemmodels:{{ .Values.slot }}
-            kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland]
-          depend: |
-            ${RDEPEND}
-          body: |
-            CMAKE_SKIP_TESTS=(
-                # requires virtual dbus, otherwise hangs; bugs #630672
-                dbusrunnertest
-                # bug 789351
-                runnermanagersinglerunnermodetest
-                # bug 838502
-                runnermanagertest
-                # bug 926502, needs dbus
-                threadingtest
-            )
+            kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland?]
+
     - kservice:
         vars:
           desc: "Advanced plugin and service introspection"
           iuse: "+man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package man KF6DocTools)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package man KF6DocTools)
+              )
+              cmake_src_configure
             }
+
     - kstatusnotifieritem:
         vars:
           desc: "Implementation of Status Notifier Items"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui,X?]
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X?]
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DWITHOUT_X11=$(usex !X)
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITHOUT_X11=$(usex !X)
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - ksvg:
         vars:
           desc: "Components for handling SVGs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative,svg]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
+
     - ktexteditor:
         vars:
           desc: "Framework providing a full text editor component"
           iuse: "+editorconfig"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             dev-qt/qtspeech:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -1365,38 +1051,26 @@ kde-frameworks:
             kde-frameworks/sonnet:{{ .Values.slot }}
             kde-frameworks/syntax-highlighting:{{ .Values.slot }}
             editorconfig? ( app-text/editorconfig-core-c )
-          depend: |
-            ${RDEPEND}
-          bdepend: |
-            test? ( kde-frameworks/kservice:{{ .Values.slot }} )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package editorconfig EditorConfig)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package editorconfig EditorConfig)
+              )
+              cmake_src_configure
             }
+
     - ktexttemplate:
         vars:
           desc: "Library to allow separating the structure of documents from data they contain"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
-          bdepend: |
-            test? ( dev-qt/qttools:{{ .Values.qt_slot }}[linguist] )
+            virtual/kde-seed[gui,declarative]
+
     - ktextwidgets:
         vars:
           desc: "Framework providing an assortment of widgets for displaying and editing text"
           iuse: "speech"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1404,28 +1078,22 @@ kde-frameworks:
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
             speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
-          depend: |
-            ${RDEPEND}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_TEXT_TO_SPEECH=$(usex speech)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_TEXT_TO_SPEECH=$(usex speech)
+              )
+              cmake_src_configure
             }
+
     - kwallet:
         vars:
           desc: "Interface to KWallet Framework providing desktop-wide storage for passwords"
           iuse: "gpg +man runtime X"
           depend: |
+            virtual/kde-seed[gui]
             >=app-crypt/qca-2.3.9:2[qt6(+)]
             dev-libs/libgcrypt:0=
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1441,187 +1109,127 @@ kde-frameworks:
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
           body: |
-            src_prepare() {
-                kde6_src_prepare
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_KSECRETD=$(usex runtime)
+                -DBUILD_KWALLETD=$(usex runtime)
+                -DBUILD_KWALLET_QUERY=$(usex runtime)
+              )
+              cmake_src_configure
             }
 
-            src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_KSECRETD=$(usex runtime)
-                    -DBUILD_KWALLETD=$(usex runtime)
-                    -DBUILD_KWALLET_QUERY=$(usex runtime)
-                )
-                kde6_src_configure
-            }
     - threadweaver:
         vars:
           desc: "Framework for managing threads using job and queue-based interfaces"
           body: |
             src_prepare() {
                 cmake_comment_add_subdirectory benchmarks
-                kde6_src_prepare
+                cmake_src_prepare
             }
+
     - syntax-highlighting:
         vars:
           desc: "Framework for syntax highlighting"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui,declarative]
             dev-libs/xerces-c
           bdepend: |
             dev-lang/perl
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+
     - syndication:
         vars:
           desc: "Library for parsing RSS and Atom feeds"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             kde-frameworks/kcodecs:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
+
     - solid:
         vars:
-          inherit: kde6 optfeature
           desc: "Provider for platform independent hardware discovery, abstraction and management"
-          iuse: "ios"
+          iuse: ios
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             sys-apps/util-linux
             sys-fs/udisks:2
             virtual/libudev:=
             ios? (
-                app-pda/libimobiledevice:=
-                app-pda/libplist:=
+              app-pda/libimobiledevice:=
+              app-pda/libplist:=
             )
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             sys-devel/bison
             sys-devel/flex
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package ios IMobileDevice)
-                    $(cmake_use_find_package ios PList)
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package ios IMobileDevice)
+                $(cmake_use_find_package ios PList)
+              )
+              cmake_src_configure
             }
-            pkg_postinst() {
-                if [[ -z "${REPLACING_VERSIONS}" ]]; then
-                    optfeature "media player devices support" app-misc/media-player-info
-                fi
-            }
+
     - sonnet:
         vars:
           desc: "Framework for providing spell-checking through abstraction of popular backends"
           iuse: "aspell +hunspell qml"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             aspell? ( app-text/aspell )
             hunspell? ( app-text/hunspell:= )
             qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
-          depend: |
-            ${RDEPEND}
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 779994
-                sonnet-test_autodetect
-                # bug 680032
-                sonnet-test_settings
-                sonnet-test_highlighter
-            )
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package aspell ASPELL)
-                    $(cmake_use_find_package hunspell HUNSPELL)
-                    -DSONNET_USE_QML=$(usex qml)
-                )
-                if ! use aspell && ! use hunspell; then
-                    mycmakeargs+=( -DSONNET_NO_BACKENDS=ON )
-                fi
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package aspell ASPELL)
+                $(cmake_use_find_package hunspell HUNSPELL)
+                -DSONNET_USE_QML=$(usex qml)
+              )
+              if ! use aspell && ! use hunspell; then
+                mycmakeargs+=( -DSONNET_NO_BACKENDS=ON )
+              fi
+              cmake_src_configure
             }
+
     - kunitconversion:
         vars:
           desc: "Framework for converting units"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             kde-frameworks/ki18n:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           body: |
-            src_test() {
-                local CMAKE_SKIP_TESTS=(
-                    # bug 623938 - needs internet connection
-                    convertertest
-                    # bug 808216 - needs internet connection
-                    categorytest
-                    # bug 808216 - unknown, reported upstream
-                    currencytableinittest
-                )
-
-                LC_NUMERIC="C" kde6_src_test # bug 694804
-            }
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - kwidgetsaddons:
         vars:
           desc: "An assortment of high-level widgets for common tasks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-          depend: |
-            ${RDEPEND}
+            virtual/kde-seed[gui]
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 650216
-                kdatecomboboxtest
-                # bug 697866
-                ksqueezedtextlabelautotest
-                # bug 926508
-                ktooltipwidgettest
-                # bug 808216
-                ktwofingertaptest
-                ktwofingerswipetest
-            )
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - kxmlgui:
         vars:
           desc: "Framework for managing menu and toolbar actions in an abstract way"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1631,87 +1239,56 @@ kde-frameworks:
             kde-frameworks/kiconthemes:{{ .Values.slot }}
             kde-frameworks/kitemviews:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
           body: |
-            CMAKE_SKIP_TESTS=(
-                # bug 668198: files are missing; whatever.
-                ktoolbar_unittest
-                # bug 650290
-                kxmlgui_unittest
-                # bug 808216
-                ktooltiphelper_unittest
-            )
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DBUILD_PYTHON_BINDINGS=OFF
-                    -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DBUILD_PYTHON_BINDINGS=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_{Python3,PySide6,Shiboken6}=ON
+              )
+              cmake_src_configure
             }
+
     - kuserfeedback:
         vars:
           desc: "Framework to collect user feedback for applications via telemetry and surveys"
           iuse: "doc tools"
           rdepend: |
-            !{{ .Values.category }}/{{ .Values.pn }}:5[-kf6compat(-)]
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            virtual/kde-seed[gui,declarative,svg]
             dev-qt/qtcharts:{{ .Values.qt_slot }}
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-            dev-qt/qtsvg:{{ .Values.qt_slot }}
           bdepend: |
-            app-alternatives/lex
-            app-alternatives/yacc
+            virtual/yacc
+            sys-devel/flex
             doc? ( dev-qt/qttools:{{ .Values.qt_slot }}[assistant,qdoc,linguist] )
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    # disable server application
-                    -DENABLE_PHP=NO
-                    -DENABLE_PHP_UNIT=NO
-                    -DENABLE_SURVEY_TARGET_EXPRESSIONS=YES
-                    -DENABLE_DOCS=$(usex doc)
-                    -DENABLE_CONSOLE=$(usex tools)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                # disable server application
+                -DENABLE_PHP=NO
+                -DENABLE_PHP_UNIT=NO
+                -DENABLE_SURVEY_TARGET_EXPRESSIONS=YES
+                -DENABLE_DOCS=$(usex doc)
+                -DENABLE_CONSOLE=$(usex tools)
+              )
+              cmake_src_configure
             }
-            CMAKE_SKIP_TESTS=(
-                # bugs: 921359, requires virtualx
-                openglinfosourcetest
-            )
+
     - kwindowsystem:
         vars:
           desc: "Framework providing access to properties and features of the window manager"
           iuse: "wayland X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
-            wayland? ( dev-qt/qtbase:{{ .Values.qt_slot }}[wayland] )
+            virtual/kde-seed[gui,declarative,wayland?,X?]
             X? (
-                dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X]
-                x11-base/xorg-proto
-                x11-libs/libX11
-                x11-libs/libXfixes
-                x11-libs/libxcb
-                x11-libs/xcb-util-keysyms
-            )
-            wayland? (
-              || (
-                >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
-                <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
-              )
+              x11-libs/libX11
+              x11-libs/libXfixes
+              x11-libs/libxcb
+              x11-libs/xcb-util-keysyms
             )
           depend: |
             ${RDEPEND}
+            X? (
+              x11-base/xorg-proto
+            )
             wayland? (
                 dev-libs/plasma-wayland-protocols
                 >=dev-libs/wayland-protocols-1.21
@@ -1719,68 +1296,55 @@ kde-frameworks:
           bdepend: |
             dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DKWINDOWSYSTEM_WAYLAND=$(usex wayland)
-                    -DKWINDOWSYSTEM_X11=$(usex X)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                -DKWINDOWSYSTEM_WAYLAND=$(usex wayland)
+                -DKWINDOWSYSTEM_X11=$(usex X)
+              )
+              cmake_src_configure
             }
+
     - modemmanager-qt:
         vars:
           desc: "Qt wrapper for ModemManager DBus API"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
+            virtual/kde-seed
             >=net-misc/modemmanager-0.7.991
-          depend: |
-            ${RDEPEND}
+
     - networkmanager-qt:
         vars:
           desc: "Qt wrapper for NetworkManager API"
           iuse: "teamd"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}
-            >=net-misc/networkmanager-1.4.0-r1[teamd?]
-          depend: |
-            ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
+            virtual/kde-seed
+            net-misc/networkmanager[teamd?]
+
     - prison:
         vars:
           desc: "QRCode and data matrix barcode library"
           iuse: "qml"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,multimedia]
             media-gfx/qrencode:=
             media-libs/libdmtx
             qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
-          depend: |
-            ${RDEPEND}
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
             src_configure() {
-                local mycmakeargs=(
-                    -DWITH_QUICK=$(usex qml)
-                )
-                kde6_src_configure
+              local mycmakeargs=(
+                -DWITH_QUICK=$(usex qml)
+              )
+              cmake_src_configure
             }
+
     - purpose:
         vars:
-          inherit: kde6 xdg-utils
+          inherit:
+            - cmake
+            - xdg-utils
           desc: "Library for providing abstractions to get the developer's purposes fulfilled"
           iuse: "bluetooth kaccounts"
-          rdepend: |
-            kde-frameworks/kdeclarative:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+          cdepend: |
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1789,35 +1353,33 @@ kde-frameworks:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/prison:{{ .Values.slot }}[qml]
+          rdepend: |
+            ${CDEPEND}
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
             bluetooth? ( dev-qt/qtconnectivity:{{ .Values.qt_slot }} )
             kaccounts? (
                 kde-apps/kaccounts-integration:{{ .Values.qt_slot }}
-                net-libs/accounts-qt:=[qt6(+)]
+                net-libs/accounts-qt:=
             )
+          depend: '${CDEPEND}'
           body: |
-            src_prepare() {
-                kde6_src_prepare
-            }
-
             src_configure() {
-                local mycmakeargs=(
-                    $(cmake_use_find_package bluetooth Qt6Bluetooth)
-                    $(cmake_use_find_package kaccounts KAccounts6)
-                )
-
-                kde6_src_configure
+              local mycmakeargs=(
+                $(cmake_use_find_package bluetooth Qt6Bluetooth)
+                $(cmake_use_find_package kaccounts KAccounts6)
+              )
+              cmake_src_configure
             }
+
     - qqc2-desktop-style:
         vars:
           desc: "Style for QtQuickControls2 that uses QWidget's QStyle for painting"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            virtual/kde-seed[gui,declarative]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-          depend: |
-            ${RDEPEND}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
+

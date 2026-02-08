@@ -32,9 +32,9 @@ kde-plasma:
             kde-frameworks/ksvg:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qttools:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qttools:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -51,8 +51,8 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/bluez-qt:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -77,9 +77,9 @@ kde-plasma:
           iuse: qt5
           desc: "Breeze visual style for the Plasma desktop"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/frameworkintegration:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -116,7 +116,7 @@ kde-plasma:
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/knewstuff:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             x11-base/xorg-proto
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -189,8 +189,8 @@ kde-plasma:
             >=dev-libs/appstream-1.0.4:=[qt]
             dev-libs/kirigami-addons:6
             dev-libs/qcoro
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/attica:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -214,7 +214,7 @@ kde-plasma:
             firmware? ( >=sys-apps/fwupd-1.9.4 )
             flatpak? ( sys-apps/flatpak )
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
-            webengine? ( dev-qt/qtwebview:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebview:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
           bdepend: |
@@ -277,8 +277,8 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -332,9 +332,9 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             dev-libs/glib:2
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}[widgets]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}[widgets]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -349,7 +349,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "System service to manage user's activities, track the usage patterns etc."
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql,sqlite]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql,sqlite]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -372,14 +372,14 @@ kde-plasma:
             kdesu? ( >=${CATEGORY}/kdesu-gui-${PV} )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/kparts:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
-            X? ( dev-qt/qtbase:{{ .Values.slot }}[gui,X] )
+            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X] )
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
@@ -405,9 +405,9 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             dev-libs/glib:2
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -429,7 +429,7 @@ kde-plasma:
         vars:
           desc: "Plugin based library to create window decorations"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
@@ -443,9 +443,9 @@ kde-plasma:
             kde-frameworks/kquickcharts:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -463,7 +463,7 @@ kde-plasma:
             kde-plasma/plasma-workspace:{{ .Values.slot }}
             kde-plasma/plasma5support:{{ .Values.slot }}
             share? ( kde-frameworks/purpose:{{ .Values.slot }} )
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -481,7 +481,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Monitor calibration tool for KDE"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -498,7 +498,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Daemon providing Global Keyboard Shortcut (Accelerator) functionality"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -519,9 +519,9 @@ kde-plasma:
             !${CATEGORY}/${PN}:5[-kf6compat(-)]
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gles2-only=,gui,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             >=dev-libs/wayland-1.15.0
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -560,15 +560,15 @@ kde-plasma:
           iuse: "share"
           desc: "Screenshot capture utility"
           rdepend: |
-            dev-qt/qtimageformats:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtimageformats:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kimageformats:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
             dev-libs/wayland
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtmultimedia:{{ .Values.slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -611,8 +611,8 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Control Center to configure KDE Plasma desktop"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -645,7 +645,7 @@ kde-plasma:
           desc: "Power management for KDE Plasma Shell"
           rdepend: |
             !<kde-plasma/plasma-workspace-6.1.90:*
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             || (
                 sys-power/power-profiles-daemon
                 sys-power/tlp
@@ -655,7 +655,7 @@ kde-plasma:
             ${RDEPEND}
             dev-libs/qcoro[dbus]
             dev-libs/wayland
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
             kde-frameworks/kauth:{{ .Values.slot }}[policykit]
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -706,8 +706,8 @@ kde-plasma:
             ${RDEPEND}
             >=app-crypt/qca-2.3.7:2[qt6(+)]
             dev-libs/qcoro[dbus]
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -730,7 +730,7 @@ kde-plasma:
             net-misc/mobile-broadband-provider-info
             net-misc/networkmanager[teamd=]
             openconnect? (
-                dev-qt/qtwebengine:{{ .Values.slot }}
+                dev-qt/qtwebengine:{{ .Values.qt_slot }}
                 net-vpn/networkmanager-openconnect
                 net-vpn/openconnect:=
             )
@@ -754,13 +754,13 @@ kde-plasma:
           iuse: "gles2-only usb"
           desc: "Utility providing information about the computer hardware"
           rdepend: |
-            dev-qt/qttools:{{ .Values.slot }}
+            dev-qt/qttools:{{ .Values.qt_slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-plasma/systemsettings:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui,vulkan]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gles2-only=,gui,vulkan]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -818,7 +818,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "KDE menu editor"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
@@ -833,7 +833,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Helpers for scheduling the dark-light cycle"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             dev-qt/qtpositioning:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -850,8 +850,8 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             media-libs/libepoxy
@@ -865,8 +865,8 @@ kde-plasma:
         vars:
           desc: "Library and examples for creating an RDP server"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtwayland:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-plasma/kpipewire:{{ .Values.slot }}
             dev-libs/wayland
@@ -882,9 +882,9 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -911,8 +911,8 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             dev-libs/wayland
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -969,7 +969,7 @@ kde-plasma:
             net-misc/openssh
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwallet:{{ .Values.slot }}
@@ -980,8 +980,8 @@ kde-plasma:
           iuse: "networkmanager"
           desc: "Plugin based system monitoring daemon"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -1039,8 +1039,8 @@ kde-plasma:
           desc: "Qt-style client and server library wrapper for Wayland libraries"
           rdepend: |
             >=dev-libs/wayland-1.15.0
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
-            dev-qt/qtwayland:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
             media-libs/libepoxy
           depend: |
             ${RDEPEND}
@@ -1053,8 +1053,8 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Provides integration plugins for various KDE frameworks for Wayland"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
-            dev-qt/qtwayland:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}[wayland]
             kde-frameworks/kidletime:{{ .Values.slot }}[wayland]
             kde-frameworks/knotifications:{{ .Values.slot }}
@@ -1086,12 +1086,12 @@ kde-plasma:
             dev-libs/libei
             >=dev-libs/libinput-1.27:=
             >=dev-libs/wayland-1.24.0
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            dev-qt/qtbase:{{ .Values.slot }}[gles2-only=,gui,libinput,wayland,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsensors:{{ .Values.slot }}
-            dev-qt/qtshadertools:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gles2-only=,gui,libinput,wayland,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsensors:{{ .Values.qt_slot }}
+            dev-qt/qtshadertools:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -1144,8 +1144,8 @@ kde-plasma:
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             >=dev-libs/wayland-protocols-1.45
-            dev-qt/qttools:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[wayland]
+            dev-qt/qttools:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             dev-util/wayland-scanner
             kde-frameworks/kcmutils:{{ .Values.slot }}
           extra_envs:
@@ -1195,37 +1195,37 @@ kde-plasma:
             >=dev-libs/plasma-wayland-protocols-1.16.0
             >=dev-libs/wayland-1.23.0
             >=dev-libs/wayland-protocols-1.38
-            dev-qt/qt5compat:6[qml]
-            dev-qt/qtbase:6=[gles2-only=,gui,wayland,X]
-            dev-qt/qtdeclarative:6
-            dev-qt/qtsensors:6
-            dev-qt/qtshadertools:6
-            dev-qt/qtsvg:6
-            dev-qt/qttools:6
-            kde-frameworks/kauth:6
-            kde-frameworks/kcmutils:6
-            kde-frameworks/kcolorscheme:6
-            kde-frameworks/kconfig:6[qml]
-            kde-frameworks/kconfigwidgets:6
-            kde-frameworks/kcoreaddons:6
-            kde-frameworks/kcrash:6
-            kde-frameworks/kdbusaddons:6
-            kde-frameworks/kdeclarative:6
-            kde-frameworks/kglobalaccel:6
-            kde-frameworks/kguiaddons:6[wayland]
-            kde-frameworks/ki18n:6
-            kde-frameworks/kidletime:6=[wayland]
-            kde-frameworks/knewstuff:6
-            kde-frameworks/knotifications:6
-            kde-frameworks/kpackage:6
-            kde-frameworks/kservice:6
-            kde-frameworks/ksvg:6
-            kde-frameworks/kwidgetsaddons:6
-            kde-frameworks/kwindowsystem:6=[wayland,X]
-            kde-frameworks/kxmlgui:6
-            kde-plasma/breeze:6
-            kde-plasma/kdecoration:6
-            kde-plasma/plasma-activities:6
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[gles2-only=,gui,wayland,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsensors:{{ .Values.qt_slot }}
+            dev-qt/qtshadertools:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            dev-qt/qttools:{{ .Values.qt_slot }}
+            kde-frameworks/kauth:{{ .Values.slot }}
+            kde-frameworks/kcmutils:{{ .Values.slot }}
+            kde-frameworks/kcolorscheme:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}[qml]
+            kde-frameworks/kconfigwidgets:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/kdbusaddons:{{ .Values.slot }}
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
+            kde-frameworks/kglobalaccel:{{ .Values.slot }}
+            kde-frameworks/kguiaddons:{{ .Values.slot }}[wayland]
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kidletime:{{ .Values.slot }}=[wayland]
+            kde-frameworks/knewstuff:{{ .Values.slot }}
+            kde-frameworks/knotifications:{{ .Values.slot }}
+            kde-frameworks/kpackage:{{ .Values.slot }}
+            kde-frameworks/kservice:{{ .Values.slot }}
+            kde-frameworks/ksvg:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            kde-frameworks/kwindowsystem:{{ .Values.slot }}=[wayland,X]
+            kde-frameworks/kxmlgui:{{ .Values.slot }}
+            kde-plasma/breeze:{{ .Values.slot }}
+            kde-plasma/kdecoration:{{ .Values.slot }}
+            kde-plasma/plasma-activities:{{ .Values.slot }}
             media-libs/fontconfig
             media-libs/freetype
             media-libs/lcms:2
@@ -1246,13 +1246,13 @@ kde-plasma:
             x11-libs/xcb-util-image
             x11-libs/xcb-util-keysyms
             x11-libs/xcb-util-wm
-            accessibility? ( media-libs/libqaccessibilityclient:6 )
-            lock? ( kde-plasma/kscreenlocker:6 )
-            shortcuts? ( kde-plasma/kglobalacceld:6 )
+            accessibility? ( media-libs/libqaccessibilityclient:{{ .Values.slot }})
+            lock? ( kde-plasma/kscreenlocker:{{ .Values.slot }})
+            shortcuts? ( kde-plasma/kglobalacceld:{{ .Values.slot }} )
           bdepend: |
-            dev-qt/qtbase:6[wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             dev-util/wayland-scanner
-            kde-frameworks/kcmutils:6
+            kde-frameworks/kcmutils:{{ .Values.slot }}
           body: |
             src_prepare() {
                     kde6_src_prepare
@@ -1276,7 +1276,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "KDE Plasma daemon listening for wall and write messages"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1288,8 +1288,8 @@ kde-plasma:
         vars:
           desc: "Qt component to allow applications to make use of Wayland wl-layer-shell protocol"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
-            dev-qt/qtwayland:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
           bdepend: |
@@ -1300,23 +1300,23 @@ kde-plasma:
           desc: "Plasma screen management library"
           rdepend: |
             dev-libs/wayland
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland]
             kde-frameworks/kconfig:{{ .Values.slot }}
             x11-libs/libxcb:=
           depend: |
             ${RDEPEND}
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
-            dev-qt/qtbase:{{ .Values.slot }}[wayland]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             dev-util/wayland-scanner
     - libksysguard:
         vars:
           iuse: "webengine X"
           desc: "Task management and system monitoring library"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1337,9 +1337,9 @@ kde-plasma:
             sys-libs/zlib
             virtual/libudev:=
             sys-apps/lm-sensors:=
-            webengine? ( dev-qt/qtwebengine:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
             X? (
-                dev-qt/qtbase:{{ .Values.slot }}[X]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[X]
                 x11-libs/libX11
                 x11-libs/libXres
             )
@@ -1363,8 +1363,8 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Dedicated search application built on top of Baloo"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
@@ -1393,11 +1393,11 @@ kde-plasma:
           desc: "Oxygen visual style for the Plasma desktop"
           rdepend: |
             !<kde-plasma/libplasma-6.1.90:*[-kf6compat(-)]
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/frameworkintegration:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
@@ -1428,7 +1428,7 @@ kde-plasma:
                 X? ( >=dev-qt/qtx11extras-{{ .Values.qt5min }}:5 )
             )
             X? (
-                dev-qt/qtbase:{{ .Values.slot }}[gui]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
                 x11-libs/libxcb
             )
           body: |
@@ -1460,8 +1460,8 @@ kde-plasma:
         vars:
           desc: "Core components for KDE Activities System"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
           depend: |
@@ -1471,7 +1471,7 @@ kde-plasma:
         vars:
           desc: "Library for accessing the usage data collected by the activities system"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[sql]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[sql]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-plasma/plasma-activities:{{ .Values.slot }}
           depend: |
@@ -1481,7 +1481,7 @@ kde-plasma:
           inherit: kde6 xdg
           desc: "Integrate Chrome/Firefox better into Plasma through browser extensions"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -1529,10 +1529,10 @@ kde-plasma:
             webengine? ( >=net-libs/signon-oauth2-0.25_p20210102[qt6(+)] )
           depend: |
             ${RDEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql,wayland]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql,wayland]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/attica:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
@@ -1650,9 +1650,9 @@ kde-plasma:
             sys-apps/smartmontools
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            kde-frameworks/kauth:{{ .Values.slot }}[policykit]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            kde-frameworks/kauth:{{ .Values.qt_slot }}[policykit]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1671,8 +1671,8 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1703,9 +1703,9 @@ kde-plasma:
             kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,wayland,X]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtwayland:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,wayland,X]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -1770,7 +1770,7 @@ kde-plasma:
             !kde-plasma/xembed-sni-proxy:*
             app-text/iso-codes
             dev-libs/kirigami-addons:{{ .Values.slot }}
-            dev-qt/qttools:*
+            dev-qt/qttools:{{ .Values.qt_slot }}
             kde-apps/kio-extras:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-frameworks/kquickcharts:{{ .Values.slot }}
@@ -1787,13 +1787,13 @@ kde-plasma:
             ${RDEPEND}
             dev-libs/icu:=
             >=dev-libs/wayland-1.15
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
-            dev-qt/qtbase:{{ .Values.slot }}[gui,libinput,sql,sqlite,wayland]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtlocation:{{ .Values.slot }}
-            dev-qt/qtpositioning:{{ .Values.slot }}
-            dev-qt/qtshadertools:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,libinput,sql,sqlite,wayland]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtlocation:{{ .Values.qt_slot }}
+            dev-qt/qtpositioning:{{ .Values.qt_slot }}
+            dev-qt/qtshadertools:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
@@ -1859,7 +1859,7 @@ kde-plasma:
             telemetry? ( kde-frameworks/kuserfeedback:{{ .Values.slot }} )
             wallpaper-metadata? ( kde-apps/libkexiv2:6 )
             X? (
-                dev-qt/qtbase:{{ .Values.slot }}[X]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[X]
                 kde-plasma/kscreenlocker:{{ .Values.slot }}
                 x11-libs/libICE
                 x11-libs/libSM
@@ -1879,7 +1879,7 @@ kde-plasma:
           bdepend: |
             >=dev-libs/plasma-wayland-protocols-1.18.0
             dev-libs/qcoro
-            dev-qt/qtbase:{{ .Values.slot }}[wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             >=dev-util/wayland-scanner-1.19.0
             kde-frameworks/kcmutils:{{ .Values.slot }}
             virtual/pkgconfig
@@ -1942,8 +1942,8 @@ kde-plasma:
             !<kde-plasma/plasma-workspace-6.4.90:6
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:6[gui]
-            dev-qt/qtdeclarative:6
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
@@ -1964,8 +1964,8 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             dev-libs/glib:2
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -1986,12 +1986,12 @@ kde-plasma:
           desc: "Useful applications for Plasma development"
           license: "GPL-2"
           rdepend: |
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2023,8 +2023,8 @@ kde-plasma:
           depend: |
             ${RDEPEND}
             >=dev-libs/kirigami-addons-1.1.0:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -2052,8 +2052,8 @@ kde-plasma:
             sys-apps/bolt
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -2077,8 +2077,8 @@ kde-plasma:
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2140,9 +2140,9 @@ kde-plasma:
           license: "GPL-2+"
           rdepend: |
             >=dev-libs/kirigami-addons-1.2.0
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -2165,8 +2165,8 @@ kde-plasma:
           desc: "Wallpapers for the Plasma workspace"
           license: "GPL-2"
           bdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
-            kde-frameworks/extra-cmake-modules:0
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            kde-frameworks/extra-cmake-modules
           body:
     - plymouth-kcm:
         vars:
@@ -2180,8 +2180,8 @@ kde-plasma:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -2204,13 +2204,13 @@ kde-plasma:
           license: "GPL-2"
           kde_org_name: "${PN}-1"
           rdepend: |
-            dev-qt/qt5compat:{{ .Values.slot }}[qml]
+            dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
             kde-frameworks/kdbusaddons:{{ .Values.slot }}
@@ -2231,9 +2231,9 @@ kde-plasma:
             gtk? ( app-admin/system-config-printer )
           depend: |
             ${RDEPEND}
-            dev-qt/qt5compat:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2284,8 +2284,8 @@ kde-plasma:
           desc: "Breeze inspired QQC2 Style"
           license: "|| ( GPL-2+ LGPL-3+ ) CC0-1.0"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
@@ -2305,8 +2305,8 @@ kde-plasma:
             x11-misc/sddm
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
@@ -2327,8 +2327,8 @@ kde-plasma:
           license: "GPL-2"
           rdepend: |
             >=dev-libs/libwacom-0.30:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcmutils:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -2373,16 +2373,18 @@ kde-plasma:
           rdepend: |
             kde-misc/kio-fuse
             sys-apps/xdg-desktop-portal
-            || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+            || (
+              >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+              <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
+            )
           depend: |
             ${RDEPEND}
             >=dev-libs/plasma-wayland-protocols-1.18.0
             >=dev-libs/wayland-protocols-1.25
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
           bdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[wayland]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
             virtual/pkgconfig
-            || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
 
 snapshot_pkgs:
   generator: builtin-noop
@@ -2424,11 +2426,11 @@ snapshot_pkgs:
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
-            >=dev-qt/qtbase-${QTMIN}:6[gui]
-            >=dev-qt/qtdeclarative-${QTMIN}:6
-            >=kde-frameworks/kconfig-${KFMIN}:6
-            >=kde-frameworks/kcoreaddons-${KFMIN}:6
-            >=kde-frameworks/kcrash-${KFMIN}:6
+            >=dev-qt/qtbase-${QTMIN}:{{ .Values.qt_slot }}[gui]
+            >=dev-qt/qtdeclarative-${QTMIN}:{{ .Values.qt_slot }}
+            >=kde-frameworks/kconfig-${KFMIN}:{{ .Values.slot }}
+            >=kde-frameworks/kcoreaddons-${KFMIN}:{{ .Values.slot }}
+            >=kde-frameworks/kcrash-${KFMIN}:{{ .Values.slot }}
             >=kde-frameworks/ki18n-${KFMIN}:6
             >=kde-frameworks/kidletime-${KFMIN}:6
             >=kde-frameworks/kio-${KFMIN}:6

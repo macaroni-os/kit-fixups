@@ -2,6 +2,9 @@ stable_kde_stuff:
   generator: builtin-dirlisting
 
   defaults:
+    vars:
+      qt_slot: '6'
+
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     dir:
@@ -37,7 +40,7 @@ stable_kde_stuff:
           homepage: https://github.com/KDE/kio-fuse
           license: GPL-3+
           rdepend: |
-            dev-qt/qtbase:6[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:6
             kde-frameworks/ki18n:6
             kde-frameworks/kio:6
@@ -67,15 +70,15 @@ stable_kde_stuff:
             replace: ''
         category: dev-libs
         vars:
+          slot: '6'
           desc: Visual end user components for Kirigami-based applications
           homepage: https://invent.kde.org/libraries/kirigami-addons
           license: '|| ( GPL-2 GPL-3 LGPL-3 ) LGPL-2.1+'
-          slot: '6'
           inherit:
             - cmake
           cdepend: |
-            dev-qt/qtbase:6[gui]
-            dev-qt/qtdeclarative:6
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kglobalaccel:{{ .Values.slot }}
@@ -104,7 +107,7 @@ stable_kde_stuff:
             - flag-o-matic
           iuse: debug
           rdepend: |
-            dev-qt/qtbase:6[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             >=media-libs/phonon-4.12.0
             media-video/vlc:=[dbus,ogg,vorbis(+)]
           depend: '${RDEPEND}'
@@ -139,13 +142,13 @@ stable_kde_stuff:
           iuse: debug designer pulseaudio +vlc
           bdepend: |
             dev-libs/libpcre2:*
-            dev-qt/qttools:6[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             >=kde-frameworks/extra-cmake-modules-5.115.0:*
             virtual/pkgconfig
           rdepend: |
-            dev-qt/qt5compat:6
-            dev-qt/qtbase:6[gui]
-            designer? ( dev-qt/qttools:6[designer] )
+            dev-qt/qt5compat:{{ .Values.qt_slot }}
+            dev-qt/qtbase:[{ .Values.qt_slot }}[gui]
+            designer? ( dev-qt/qttools:{{ .Values.qt_slot }}[designer] )
             pulseaudio? (
               dev-libs/glib:2
               media-sound/pulseaudio[glib]
@@ -201,8 +204,8 @@ stable_kde_stuff:
           iuse: botan debug doc examples gcrypt gpg logger nss pkcs11 +qt6 sasl softstore +ssl
           rdepend: |
             qt6? (
-              dev-qt/qt5compat:6
-              dev-qt/qtbase:6
+              dev-qt/qt5compat:{{ .Values.qt_slot }}
+              dev-qt/qtbase:{{ .Values.qt_slot }}
             )
             !qt6? (
               dev-qt/qtcore:5
@@ -292,9 +295,9 @@ stable_kde_stuff:
           iuse: examples test
           required_use: test? ( examples )
           rdepend: |
-            dev-qt/qtbase:6[gui]
-            dev-qt/qtsvg:6
-            dev-qt/qttools:6
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            dev-qt/qttools:{{ .Values.qt_slot }}
           depend: '${RDEPEND}'
 
     - ktextaddons:
@@ -324,22 +327,22 @@ stable_kde_stuff:
           restrict: test
           rdepend: |
             >=dev-libs/qtkeychain-0.15[qt6]
-            dev-qt/qtbase:6[gui,sql]
-            dev-qt/qtmultimedia:6
-            kde-frameworks/karchive:6
-            kde-frameworks/kcolorscheme:6
-            kde-frameworks/kconfig:6
-            kde-frameworks/kcoreaddons:6
-            kde-frameworks/ki18n:6
-            kde-frameworks/kiconthemes:6
-            kde-frameworks/kio:6
-            kde-frameworks/kitemviews:6
-            kde-frameworks/kservice:6
-            kde-frameworks/ktextwidgets:6
-            kde-frameworks/kwidgetsaddons:6
-            kde-frameworks/sonnet:6
-            kde-frameworks/syntax-highlighting:6
-            speech? ( dev-qt/qtspeech:6 )
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+            kde-frameworks/karchive:{{ .Values.slot }}
+            kde-frameworks/kcolorscheme:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kiconthemes:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/kitemviews:{{ .Values.slot }}
+            kde-frameworks/kservice:{{ .Values.slot }}
+            kde-frameworks/ktextwidgets:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            kde-frameworks/sonnet:{{ .Values.slot }}
+            kde-frameworks/syntax-highlighting:{{ .Values.slot }}
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
             !{{ .Values.category }}/{{ .Values.pn }}:5
           depend: '${DEPEND}'
           body: |
@@ -373,13 +376,14 @@ plasma_wayland_protocols:
       - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
         url: 'https://download.kde.org/stable/plasma-wayland-protocols/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
+      qt_slot: 6
       license: LGPL-2.1
       homepage: https://invent.kde.org/libraries/plasma-wayland-protocols
       inherit:
         - cmake
       bdepend: |
         dev-libs/libpcre2:*
-        dev-qt/qtbase:6
+        dev-qt/qtbase:{{ .Values.qt_slot }}
         >=kde-frameworks/extra-cmake-modules-6.0:*
 
   packages:
@@ -418,15 +422,15 @@ qcoro:
                 - cmake
             iuse: dbus examples +network qml websockets
             rdepend: |
-                dev-qt/qtbase:6
+                dev-qt/qtbase:{{ .Values.qt_slot }}
                 qml? (
-                  dev-qt/qtbase:6[gui]
-                  dev-qt/qtdeclarative:6
+                  dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+                  dev-qt/qtdeclarative:{{ .Values.qt_slot }}
                 )
-                websockets? ( dev-qt/qtwebsockets:6 )
+                websockets? ( dev-qt/qtwebsockets:{{ .Values.qt_slot }} )
             depend: |
                 ${RDEPEND}
-                examples? ( dev-qt/qtbase:6 )
+                examples? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
             desc: C++ Coroutine Library for Qt5
             body: |
                 post_src_unpack() {
@@ -479,19 +483,20 @@ pulseaudio_qt:
         url: 'https://download.kde.org/stable/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
     vars:
       license: LGPL-2.1
+      qt_slot: '6'
       slot: '6'
       homepage: https://invent.kde.org/libraries/pulseaudio-qt
       inherit:
         - cmake
       iuse: doc
       rdepend: |
-        >=dev-qt/qtbase-6.6.2:6[gui]
+        >=dev-qt/qtbase-6.6.2:{{ .Values.qt_slot }}[gui]
         media-sound/pulseaudio[glib]
       depend: '${RDEPEND}'
       bdepend: |
         virtual/pkgconfig
         doc? (
-          >=dev-qt/qttools-6.6.2:6[assistant]
+          >=dev-qt/qttools-6.6.2:{{ .Values.qt_slot }}[assistant]
           >=kde-frameworks/kdoctools-6.3.0:6
         )
 
@@ -534,7 +539,7 @@ polkit_qt:
         url: 'https://download.kde.org/stable/polkit-qt-1/polkit-qt-1-{{ .Values.version }}.tar.xz'
     vars:
       license: LGPL-2
-      slot: '0'
+      qt_slot: '6'
       homepage: https://api.kde.org/kdesupport-api/polkit-qt-1-apidocs/
       inherit:
         - cmake
@@ -549,7 +554,7 @@ polkit_qt:
           dev-qt/qtgui:5
           dev-qt/qtwidgets:5
         )
-        qt6? ( dev-qt/qtbase:6[gui] )
+        qt6? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
       depend: '${RDEPEND}'
       bdepend: 'virtual/pkgconfig'
 

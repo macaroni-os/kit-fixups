@@ -7,6 +7,7 @@ kde-frameworks:
     category: kde-frameworks
     vars:
         slot: 6
+        qt_slot: 6
         homepage: https://invent.kde.org/frameworks/
         inherit: kde6
     selector:
@@ -27,7 +28,7 @@ kde-frameworks:
         vars:
           desc: "Framework providing access to Open Collaboration Services"
           rdepend: |
-             dev-qt/qtbase:{{ .Values.slot }}
+             dev-qt/qtbase:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
           body: |
@@ -43,8 +44,8 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
                 >=dev-db/lmdb-0.9.17
-                dev-qt/qtbase:{{ .Values.slot }}[gui]
-                dev-qt/qtdeclarative:{{ .Values.slot }}
+                dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+                dev-qt/qtdeclarative:{{ .Values.qt_slot }}
                 kde-frameworks/kconfig:{{ .Values.slot }}
                 kde-frameworks/kcoreaddons:{{ .Values.slot }}
                 kde-frameworks/kcrash:{{ .Values.slot }}
@@ -58,8 +59,8 @@ kde-frameworks:
         vars:
           desc: "Qt wrapper for Bluez 5 DBus API"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
           body: |
@@ -79,7 +80,7 @@ kde-frameworks:
           bdepend: |
             ${PYTHON_DEPS}
             $(python_gen_any_dep 'dev-python/lxml[${PYTHON_USEDEP}]')
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/extra-cmake-modules:*
             test? ( app-misc/fdupes )
           body: |
@@ -119,25 +120,18 @@ kde-frameworks:
             doc? (
                 ${PYTHON_DEPS}
                 $(python_gen_any_dep 'dev-python/sphinx[${PYTHON_USEDEP}]')
-                dev-qt/qttools:{{ .Values.slot }}[assistant]
-            )
-            test? (
-                dev-qt/qtbase:{{ .Values.slot }}
-                dev-qt/qttools:{{ .Values.slot }}[linguist]
+                dev-qt/qttools:{{ .Values.qt_slot }}[assistant]
             )
           body: |
             python_check_deps() {
                 python_has_version "dev-python/sphinx[${PYTHON_USEDEP}]"
             }
-
             pkg_setup() {
                 use doc && python-any-r1_pkg_setup
             }
-
             src_prepare() {
                 cmake_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DDOC_INSTALL_DIR=/usr/share/doc/"${PF}"
@@ -152,24 +146,11 @@ kde-frameworks:
 
                 cmake_src_configure
             }
-
-            src_test() {
-                local CMAKE_SKIP_TESTS=(
-                    # passes, but then breaks src_install
-                    ECMToolchainAndroidTest
-                    # broken, bug #627806
-                    ECMPoQmToolsTest
-                    # can not possibly succeed in releases, bug #764953
-                    KDEFetchTranslations
-                )
-                # possible race condition with multiple jobs, bug #701854
-                cmake_src_test -j1
-            }
     - frameworkintegration:
         vars:
           desc: "Framework for integrating Qt applications with KDE Plasma workspaces"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -218,7 +199,7 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             zstd? ( virtual/pkgconfig )
           body: |
             src_prepare() {
@@ -242,18 +223,18 @@ kde-frameworks:
           desc: "Framework to let applications perform actions as a privileged user"
           iuse: "+policykit"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            kde-frameworks/kcoreaddons:{{ .Values.qt_slot }}
             policykit? (
-                dev-qt/qtbase:{{ .Values.slot }}
+                dev-qt/qtbase:{{ .Values.qt_slot }}
                 kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland]
                 >=sys-auth/polkit-qt-0.175.0[qt6(+)]
             )
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           pdepend: |
             policykit? ( kde-plasma/polkit-kde-agent:* )
           body: |
@@ -279,7 +260,7 @@ kde-frameworks:
         vars:
           desc: "Framework for managing bookmarks stored in XBEL format"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}
@@ -287,22 +268,22 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - kcalendarcore:
         vars:
           desc: "Library for interfacing with calendars"
           rdepend: |
             >=dev-libs/libical-3.0.5:=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
     - kcmutils:
         vars:
           desc: "Framework to work with KDE System Settings modules"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -318,7 +299,7 @@ kde-frameworks:
         vars:
           desc: "Framework for manipulating strings using various encodings"
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             CMAKE_SKIP_TESTS=(
                 # bug 938317
@@ -329,8 +310,8 @@ kde-frameworks:
         vars:
           desc: "Framework for downloading and sharing additional application data"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kguiaddons:{{ .Values.slot }}
@@ -340,7 +321,7 @@ kde-frameworks:
         vars:
           desc: "Framework for common completion tasks such as filename or URL completion"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -348,20 +329,20 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - kconfig:
         vars:
           desc: "Framework for reading and writing configuration"
           iuse: "dbus qml"
           required_use: "test? ( qml )"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -378,7 +359,7 @@ kde-frameworks:
         vars:
           desc: "Framework providing an assortment of configuration-related widgets"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -400,8 +381,8 @@ kde-frameworks:
         vars:
           desc: "Address book API based on KDE Frameworks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -421,10 +402,10 @@ kde-frameworks:
           desc: "Framework for solving common problems such as caching, randomisation, and more"
           iuse: "dbus"
           rdepend: |
-            dev-qt/qttranslations:{{ .Values.slot }}
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttranslations:{{ .Values.qt_slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
             virtual/libudev:=
           depend: |
             ${RDEPEND}
@@ -466,15 +447,15 @@ kde-frameworks:
           desc: "Framework for intercepting and handling application crashes"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             X? ( x11-libs/libX11 )
           depend: |
             ${RDEPEND}
             X? ( x11-base/xorg-proto )
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -490,7 +471,7 @@ kde-frameworks:
         vars:
           desc: "DAV protocol implemention with KJobs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
@@ -510,17 +491,16 @@ kde-frameworks:
           desc: "Framework for registering services and applications per freedesktop standards"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
-            X? ( dev-qt/qtbase:{{ .Values.slot }}=[gui,X] )
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}=[gui,X] )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DWITH_X11=$(usex X)
@@ -532,8 +512,8 @@ kde-frameworks:
         vars:
           desc: "Framework providing integration of QML and KDE work spaces"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kglobalaccel:{{ .Values.slot }}
@@ -548,7 +528,7 @@ kde-frameworks:
           desc: "Central daemon of KDE workspaces"
           iuse: "+man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}[dbus]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/kcrash:{{ .Values.slot }}
@@ -600,15 +580,15 @@ kde-frameworks:
           desc: "Framework for network service discovery using Zeroconf"
           iuse: "zeroconf"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             zeroconf? (
-                dev-qt/qtbase:{{ .Values.slot }}
+                dev-qt/qtbase:{{ .Values.qt_slot }}
                 net-dns/avahi[mdnsresponder-compat]
             )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -661,12 +641,12 @@ kde-frameworks:
           desc: "Framework to handle global shortcuts"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            X? ( dev-qt/qtbase:{{ .Values.slot }}=[X] )
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}=[X] )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -685,28 +665,35 @@ kde-frameworks:
           iuse: "dbus wayland X"
           rdepend: |
             !<kde-frameworks/kguiaddons-5.116.0-r2:5[-kf6compat(-)]
-            wayland? ( || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} ) )
+            wayland? (
+              || (
+                >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+                <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
+              )
+            )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             wayland? (
                 dev-libs/wayland
-                dev-qt/qtbase:{{ .Values.slot }}=[wayland]
+                dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland]
                 >=dev-libs/plasma-wayland-protocols-1.15.0
                 >=dev-libs/wayland-protocols-1.39
             )
             X? (
-                dev-qt/qtbase:{{ .Values.slot }}[X]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[X]
                 x11-libs/libX11
                 x11-base/xorg-proto
                 x11-libs/libxcb
             )
           bdepend: |
             wayland? (
-                dev-qt/qtbase:{{ .Values.slot }}[wayland]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
                 dev-util/wayland-scanner
-                || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+                || (
+                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }} )
             )
           body: |
             src_prepare() {
@@ -728,11 +715,11 @@ kde-frameworks:
         vars:
           desc: "Library to determine holidays and other special events for a geographical region"
           rdepend: |
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_test() {
                 # bug 624214
@@ -751,11 +738,10 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
             ${PYTHON_DEPS}
-            dev-qt/qtbase:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             sys-devel/gettext
             virtual/libintl
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
           body: |
             CMAKE_SKIP_TESTS=(
                 # bug 876496
@@ -782,9 +768,9 @@ kde-frameworks:
         vars:
           desc: "Framework for icon theming and configuration"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/breeze-icons:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -799,11 +785,14 @@ kde-frameworks:
           iuse: "wayland X xscreensaver"
           required_use: "xscreensaver? ( X )"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             wayland? (
                 dev-libs/wayland
-                dev-qt/qtbase:{{ .Values.slot }}=[wayland]
-                || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+                dev-qt/qtbase:{{ .Values.qt_slot }}=[wayland]
+                || (
+                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
+                )
             )
             X? (
                 x11-libs/libX11
@@ -811,7 +800,7 @@ kde-frameworks:
                 x11-libs/libXext
             )
             xscreensaver? (
-                dev-qt/qtbase:{{ .Values.slot }}
+                dev-qt/qtbase:{{ .Values.qt_slot }}
                 x11-libs/libXScrnSaver
             )
           depend: |
@@ -822,8 +811,11 @@ kde-frameworks:
             )
           bdepend: |
             wayland? (
-                dev-qt/qtbase:{{ .Values.slot }}[wayland]
-                || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} )
+                dev-qt/qtbase:{{ .Values.qt_slot }}[wayland]
+                || (
+                  >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+                  <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
+                )
             )
           body: |
             src_prepare() {
@@ -848,7 +840,7 @@ kde-frameworks:
           desc: "Library for extracting file metadata"
           iuse: "epub exif ffmpeg mobi pdf taglib"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -899,10 +891,10 @@ kde-frameworks:
           desc: "Framework providing additional format plugins for Qt's image I/O system"
           iuse: "avif eps heif jpeg2k jpegxl openexr raw"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/karchive:{{ .Values.slot }}
             avif? ( >=media-libs/libavif-0.8.2:= )
-            eps? ( dev-qt/qtbase:{{ .Values.slot }} )
+            eps? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
             heif? ( >=media-libs/libheif-1.19.7:= )
             jpeg2k? ( media-libs/openjpeg:= )
             jpegxl? ( >=media-libs/libjxl-0.9.4:= )
@@ -911,7 +903,7 @@ kde-frameworks:
           depend: |
             ${RDEPEND}
             test? (
-                dev-qt/qtimageformats:{{ .Values.slot }}
+                dev-qt/qtimageformats:{{ .Values.qt_slot }}
                 heif? ( media-libs/libheif[x265] )
             )
           body: |
@@ -934,13 +926,13 @@ kde-frameworks:
           desc: "Framework providing transparent file and data management"
           iuse: "acl handbook +kwallet wayland X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[libproxy]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[libproxy]
             sys-power/switcheroo-control
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui,X?]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            kde-frameworks/kauth:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X?]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            kde-frameworks/kauth:{{ .Values.qt_slot }}
             kde-frameworks/kbookmarks:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
@@ -971,7 +963,7 @@ kde-frameworks:
                 kde-frameworks/kdoctools:{{ .Values.slot }}
             )
             kwallet? ( kde-frameworks/kwallet:{{ .Values.slot }} )
-            X? ( dev-qt/qtbase:{{ .Values.slot }}[gui] )
+            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
           pdepend: |
             kde-frameworks/kded:{{ .Values.slot }}
           body: |
@@ -997,15 +989,15 @@ kde-frameworks:
           rdepend: |
             examples? (
                 !{{ .Values.category }}/{{ .Values.pn }}:5[examples(-)]
-                dev-qt/qt5compat:{{ .Values.slot }}[qml]
+                dev-qt/qt5compat:{{ .Values.qt_slot }}[qml]
             )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             pkg_pretend() {
                 [[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
@@ -1027,10 +1019,10 @@ kde-frameworks:
         vars:
           desc: "Framework providing data models to help with tasks such as sorting and filtering"
           rdepend: |
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           body: |
             src_test() {
                 LC_NUMERIC="C" kde6_src_test # bug 708820
@@ -1039,25 +1031,25 @@ kde-frameworks:
         vars:
           desc: "Framework providing additional widgets for item models"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - kjobwidgets:
         vars:
           desc: "Framework providing assorted widgets for showing the progress of jobs"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-            X? ( dev-qt/qtbase:{{ .Values.slot }}[X] )
+            X? ( dev-qt/qtbase:{{ .Values.qt_slot }}[X] )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_configure() {
                 local mycmakeargs=(
@@ -1076,8 +1068,8 @@ kde-frameworks:
             kde-frameworks/kirigami:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/attica:{{ .Values.slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1098,14 +1090,14 @@ kde-frameworks:
         vars:
           desc: "Framework for notifying the user of an event"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             media-libs/libcanberra
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_configure() {
                 local mycmakeargs=(
@@ -1118,8 +1110,8 @@ kde-frameworks:
         vars:
           desc: "Framework for configuring desktop notifications"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1138,7 +1130,7 @@ kde-frameworks:
           desc: "Framework to install and load packages of non binary content"
           iuse: "man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1153,23 +1145,20 @@ kde-frameworks:
                 # requires network access
                 testpackage-appstream
             )
-
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     $(cmake_use_find_package man KF6DocTools)
                 )
-
                 kde6_src_configure
             }
     - kparts:
         vars:
           desc: "Framework providing elaborate user-interface components"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1185,8 +1174,8 @@ kde-frameworks:
         vars:
           desc: "KDE contact person abstraction library"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui,sql]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui,sql]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcontacts:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1208,7 +1197,7 @@ kde-frameworks:
         vars:
           desc: "Framework providing easy data-plotting functions"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
           depend: |
             ${RDEPEND}
     - kpty:
@@ -1240,11 +1229,11 @@ kde-frameworks:
             examples? ( !{{ .Values.category }}/{{ .Values.pn }}:5[examples(-)] )
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtshadertools:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtshadertools:{{ .Values.qt_slot }}
             examples? (
-                dev-qt/qtbase:{{ .Values.slot }}
+                dev-qt/qtbase:{{ .Values.qt_slot }}
                 kde-frameworks/kdeclarative:{{ .Values.slot }}
                 kde-frameworks/kirigami:{{ .Values.slot }}
             )
@@ -1264,7 +1253,7 @@ kde-frameworks:
         vars:
           desc: "Framework for providing different actions given a string query"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1288,13 +1277,13 @@ kde-frameworks:
           desc: "Advanced plugin and service introspection"
           iuse: "+man"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             man? ( kde-frameworks/kdoctools:{{ .Values.slot }} )
           body: |
@@ -1314,12 +1303,12 @@ kde-frameworks:
           desc: "Implementation of Status Notifier Items"
           iuse: "X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kwindowsystem:{{ .Values.slot }}[X?]
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1338,9 +1327,9 @@ kde-frameworks:
         vars:
           desc: "Components for handling SVGs"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
@@ -1354,9 +1343,9 @@ kde-frameworks:
           desc: "Framework providing a full text editor component"
           iuse: "+editorconfig"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtspeech:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtspeech:{{ .Values.qt_slot }}
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kauth:{{ .Values.slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -1396,25 +1385,25 @@ kde-frameworks:
         vars:
           desc: "Library to allow separating the structure of documents from data they contain"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
           bdepend: |
-            test? ( dev-qt/qttools:{{ .Values.slot }}[linguist] )
+            test? ( dev-qt/qttools:{{ .Values.qt_slot }}[linguist] )
     - ktextwidgets:
         vars:
           desc: "Framework providing an assortment of widgets for displaying and editing text"
           iuse: "speech"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcompletion:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-            speech? ( dev-qt/qtspeech:{{ .Values.slot }} )
+            speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
           body: |
@@ -1436,7 +1425,7 @@ kde-frameworks:
           depend: |
             >=app-crypt/qca-2.3.9:2[qt6(+)]
             dev-libs/libgcrypt:0=
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1476,31 +1465,31 @@ kde-frameworks:
         vars:
           desc: "Framework for syntax highlighting"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
           depend: |
             ${RDEPEND}
             dev-libs/xerces-c
           bdepend: |
             dev-lang/perl
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
     - syndication:
         vars:
           desc: "Library for parsing RSS and Atom feeds"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/kcodecs:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
     - solid:
         vars:
           inherit: kde6 optfeature
           desc: "Provider for platform independent hardware discovery, abstraction and management"
           iuse: "ios"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             sys-apps/util-linux
             sys-fs/udisks:2
             virtual/libudev:=
@@ -1510,16 +1499,15 @@ kde-frameworks:
             )
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
           bdepend: |
             sys-devel/bison
             sys-devel/flex
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     $(cmake_use_find_package ios IMobileDevice)
@@ -1527,7 +1515,6 @@ kde-frameworks:
                 )
                 kde6_src_configure
             }
-
             pkg_postinst() {
                 if [[ -z "${REPLACING_VERSIONS}" ]]; then
                     optfeature "media player devices support" app-misc/media-player-info
@@ -1538,14 +1525,14 @@ kde-frameworks:
           desc: "Framework for providing spell-checking through abstraction of popular backends"
           iuse: "aspell +hunspell qml"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             aspell? ( app-text/aspell )
             hunspell? ( app-text/hunspell:= )
-            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             CMAKE_SKIP_TESTS=(
                 # bug 779994
@@ -1554,11 +1541,9 @@ kde-frameworks:
                 sonnet-test_settings
                 sonnet-test_highlighter
             )
-
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     $(cmake_use_find_package aspell ASPELL)
@@ -1568,14 +1553,13 @@ kde-frameworks:
                 if ! use aspell && ! use hunspell; then
                     mycmakeargs+=( -DSONNET_NO_BACKENDS=ON )
                 fi
-
                 kde6_src_configure
             }
     - kunitconversion:
         vars:
           desc: "Framework for converting units"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
@@ -1595,7 +1579,6 @@ kde-frameworks:
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DBUILD_PYTHON_BINDINGS=OFF
@@ -1607,11 +1590,11 @@ kde-frameworks:
         vars:
           desc: "An assortment of high-level widgets for common tasks"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
           depend: |
             ${RDEPEND}
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             CMAKE_SKIP_TESTS=(
                 # bug 650216
@@ -1627,7 +1610,6 @@ kde-frameworks:
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DBUILD_PYTHON_BINDINGS=OFF
@@ -1639,7 +1621,7 @@ kde-frameworks:
         vars:
           desc: "Framework for managing menu and toolbar actions in an abstract way"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -1663,7 +1645,6 @@ kde-frameworks:
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DBUILD_PYTHON_BINDINGS=OFF
@@ -1679,19 +1660,18 @@ kde-frameworks:
             !{{ .Values.category }}/{{ .Values.pn }}:5[-kf6compat(-)]
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtcharts:{{ .Values.slot }}
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            dev-qt/qtsvg:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtcharts:{{ .Values.qt_slot }}
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
           bdepend: |
             app-alternatives/lex
             app-alternatives/yacc
-            doc? ( dev-qt/qttools:{{ .Values.slot }}[assistant,qdoc,linguist] )
+            doc? ( dev-qt/qttools:{{ .Values.qt_slot }}[assistant,qdoc,linguist] )
           body: |
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     # disable server application
@@ -1704,7 +1684,6 @@ kde-frameworks:
 
                 kde6_src_configure
             }
-
             CMAKE_SKIP_TESTS=(
                 # bugs: 921359, requires virtualx
                 openglinfosourcetest
@@ -1714,32 +1693,35 @@ kde-frameworks:
           desc: "Framework providing access to properties and features of the window manager"
           iuse: "wayland X"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
-            wayland? ( dev-qt/qtbase:{{ .Values.slot }}[wayland] )
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+            wayland? ( dev-qt/qtbase:{{ .Values.qt_slot }}[wayland] )
             X? (
-                dev-qt/qtbase:{{ .Values.slot }}[gui,X]
+                dev-qt/qtbase:{{ .Values.qt_slot }}[gui,X]
                 x11-base/xorg-proto
                 x11-libs/libX11
                 x11-libs/libXfixes
                 x11-libs/libxcb
                 x11-libs/xcb-util-keysyms
             )
-            wayland? ( || ( >=dev-qt/qtbase-6.10:{{ .Values.slot }}[wayland] <dev-qt/qtwayland-6.10:{{ .Values.slot }} ) )
+            wayland? (
+              || (
+                >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland]
+                <dev-qt/qtwayland-6.10:{{ .Values.qt_slot }}
+              )
+            )
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
             wayland? (
                 dev-libs/plasma-wayland-protocols
                 >=dev-libs/wayland-protocols-1.21
             )
           bdepend: |
-            dev-qt/qttools:{{ .Values.slot }}[linguist]
+            dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
           body: |
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DKWINDOWSYSTEM_WAYLAND=$(usex wayland)
@@ -1752,7 +1734,7 @@ kde-frameworks:
         vars:
           desc: "Qt wrapper for ModemManager DBus API"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             >=net-misc/modemmanager-0.7.991
           depend: |
             ${RDEPEND}
@@ -1761,33 +1743,31 @@ kde-frameworks:
           desc: "Qt wrapper for NetworkManager API"
           iuse: "teamd"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}
             >=net-misc/networkmanager-1.4.0-r1[teamd?]
           depend: |
             ${RDEPEND}
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
+            test? ( dev-qt/qtbase:{{ .Values.qt_slot }} )
     - prison:
         vars:
           desc: "QRCode and data matrix barcode library"
           iuse: "qml"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtmultimedia:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}
             media-gfx/qrencode:=
             media-libs/libdmtx
-            qml? ( dev-qt/qtdeclarative:{{ .Values.slot }} )
+            qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
           depend: |
             ${RDEPEND}
           body: |
             src_prepare() {
                 kde6_src_prepare
             }
-
             src_configure() {
                 local mycmakeargs=(
                     -DWITH_QUICK=$(usex qml)
                 )
-
                 kde6_src_configure
             }
     - purpose:
@@ -1799,8 +1779,8 @@ kde-frameworks:
             kde-frameworks/kdeclarative:{{ .Values.slot }}
           depend: |
             ${RDEPEND}
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
@@ -1809,12 +1789,11 @@ kde-frameworks:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/prison:{{ .Values.slot }}[qml]
-            bluetooth? ( dev-qt/qtconnectivity:{{ .Values.slot }} )
+            bluetooth? ( dev-qt/qtconnectivity:{{ .Values.qt_slot }} )
             kaccounts? (
-                kde-apps/kaccounts-integration:{{ .Values.slot }}
+                kde-apps/kaccounts-integration:{{ .Values.qt_slot }}
                 net-libs/accounts-qt:=[qt6(+)]
             )
-            test? ( dev-qt/qtbase:{{ .Values.slot }} )
           body: |
             src_prepare() {
                 kde6_src_prepare
@@ -1832,8 +1811,8 @@ kde-frameworks:
         vars:
           desc: "Style for QtQuickControls2 that uses QWidget's QStyle for painting"
           rdepend: |
-            dev-qt/qtbase:{{ .Values.slot }}[gui]
-            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.qt_slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kiconthemes:{{ .Values.slot }}

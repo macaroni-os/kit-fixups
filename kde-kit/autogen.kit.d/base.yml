@@ -589,7 +589,7 @@ kde-seed:
       desc: 'Meta package for KDE installation'
       iuse: |
         wayland X declarative gui svg sql libproxy multimedia
-        gles2-only vulkan libinput
+        gles2-only vulkan libinput print-support
       qt_slot: '6'
       versions:
         - '6.22'
@@ -603,6 +603,8 @@ kde-seed:
         !kde-frameworks/kirigami:5
         !kde-frameworks/kquickcharts:5
         !kde-frameworks/kuserfeedback:5
+        !kde-frameworks/kio-trash-desktop-file:5
+        !kde-frameworks/kio:5
 
         !kde-plasma/libplasma:5
         !kde-plasma/libkworkspace:5
@@ -613,7 +615,14 @@ kde-seed:
         !kde-plasma/xdg-desktop-portal-kde:5
         !kde-plasma/print-manager:5
 
-        >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland?,X?,gui?,libproxy?,libinput?,sql?,gles2-only?,vulkan?]
+        !kde-apps/ffmpegthumbs:5
+        !kde-apps/ffmpegthumbs-common
+        !kde-apps/kdesdk-thumbnailers:5
+        !kde-apps/kio-extras-kf5:5
+        !kde-apps/kio-extras:5
+        !kde-apps/libkgapi:5
+
+        >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland?,X?,gui?,libproxy?,libinput?,sql?,gles2-only?,vulkan?,printsupport?]
         declarative? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
         svg? ( dev-qt/qtsvg:{{ .Values.qt_slot }} )
         multimedia? ( dev-qt/qtmultimedia:{{ .Values.qt_slot }} )

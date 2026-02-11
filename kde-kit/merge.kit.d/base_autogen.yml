@@ -1,0 +1,43 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+- name: "kde-kit"
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: "mark-unstable"
+
+target:
+  name: kde-kit
+  url: "https://github.com/macaroni-os/kde-kit"
+  branch: mark-iii
+
+  fixups:
+    include:
+      - file: ../../LICENSE
+        to: LICENSE
+
+      - file: ../../.github/FUNDING.yml
+        to: .github/FUNDING.yml
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+    - pkg: app-crypt/qca
+
+    - pkg: dev-libs/kdiagram:6
+    - pkg: dev-libs/ktextaddons:6
+    - pkg: dev-libs/kirigami-addons:6
+    - pkg: dev-libs/plasma-wayland-protocols
+    - pkg: dev-libs/qcoro
+
+    - pkg: media-libs/phonon
+    - pkg: media-libs/phonon-vlc
+    - pkg: media-libs/pulseaudio-qt
+
+    - pkg: sys-auth/polkit-qt
+
+    - pkg: kde-misc/kio-fuse
+
+    - pkg: virtual/kde-seed

@@ -147,7 +147,7 @@ stable_kde_stuff:
             virtual/pkgconfig
           rdepend: |
             dev-qt/qt5compat:{{ .Values.qt_slot }}
-            dev-qt/qtbase:[{ .Values.qt_slot }}[gui]
+            dev-qt/qtbase:[{{ .Values.qt_slot }}[gui]
             designer? ( dev-qt/qttools:{{ .Values.qt_slot }}[designer] )
             pulseaudio? (
               dev-libs/glib:2

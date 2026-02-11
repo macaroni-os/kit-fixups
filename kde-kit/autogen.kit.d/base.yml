@@ -589,7 +589,7 @@ kde-seed:
       desc: 'Meta package for KDE installation'
       iuse: |
         wayland X declarative gui svg sql libproxy multimedia
-        gles2-only vulkan libinput print-support
+        gles2-only vulkan libinput cups
       qt_slot: '6'
       versions:
         - '6.22'
@@ -622,7 +622,7 @@ kde-seed:
         !kde-apps/kio-extras:5
         !kde-apps/libkgapi:5
 
-        >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland?,X?,gui?,libproxy?,libinput?,sql?,gles2-only?,vulkan?,printsupport?]
+        >=dev-qt/qtbase-6.10:{{ .Values.qt_slot }}[wayland?,X?,gui?,libproxy?,libinput?,sql?,gles2-only?,vulkan?,cups?]
         declarative? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }} )
         svg? ( dev-qt/qtsvg:{{ .Values.qt_slot }} )
         multimedia? ( dev-qt/qtmultimedia:{{ .Values.qt_slot }} )

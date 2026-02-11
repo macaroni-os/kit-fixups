@@ -451,7 +451,7 @@ kde-plasma:
           iuse: gles2-only wayland
           desc: "Plasma library and runtime components based upon KF6 and Qt6"
           rdepend: |
-            virtual/kde-seed[gui,X,svg,declarative,gles-only?,wayland?]
+            virtual/kde-seed[gui,X,svg,declarative,gles-only2?,wayland?]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}[qml]

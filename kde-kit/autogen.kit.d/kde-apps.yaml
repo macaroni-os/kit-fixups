@@ -459,7 +459,7 @@ kde-apps:
           desc: "Frontend to mathematical software"
           homepage: "https://apps.kde.org/cantor/"
           rdepend: |
-            virtual/kde-seed[gui,printsupport,svg]
+            virtual/kde-seed[gui,cups,svg]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}
             julia? ( dev-lang/julia )
             postscript? ( app-text/libspectre )

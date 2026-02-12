@@ -199,12 +199,12 @@ kde-frameworks:
     - kauth:
         vars:
           desc: "Framework to let applications perform actions as a privileged user"
-          iuse: "+policykit"
+          iuse: "+policykit wayland"
           rdepend: |
             virtual/kde-seed[gui]
             kde-frameworks/kcoreaddons:{{ .Values.qt_slot }}
             policykit? (
-                kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland]
+                kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland?]
                 >=sys-auth/polkit-qt-0.175.0[qt6(+)]
             )
           bdepend: |

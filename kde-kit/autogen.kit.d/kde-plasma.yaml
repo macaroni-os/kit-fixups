@@ -99,17 +99,17 @@ kde-plasma:
                 >=dev-qt/qtgui-{{ .Values.qt5min }}:5
                 >=dev-qt/qtwidgets-{{ .Values.qt5min }}:5
                 >=dev-qt/qtx11extras-{{ .Values.qt5min }}:5
-                >=kde-frameworks/frameworkintegration-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kcmutils-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kconfig-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kconfigwidgets-{{ .Values.kf5min }}:5
+                >=kde-frameworks/frameworkintegration-{{ .Values.kf5min }}:0
+                >=kde-frameworks/kcmutils-{{ .Values.kf5min }}:0
+                >=kde-frameworks/kconfig-{{ .Values.kf5min }}:0
+                >=kde-frameworks/kconfigwidgets-{{ .Values.kf5min }}:0
                 >=kde-frameworks/kcoreaddons-{{ .Values.kf5min }}:5
                 >=kde-frameworks/kguiaddons-{{ .Values.kf5min }}:5
-                >=kde-frameworks/ki18n-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kiconthemes-{{ .Values.kf5min }}:5
+                >=kde-frameworks/ki18n-{{ .Values.kf5min }}:0
+                >=kde-frameworks/kiconthemes-{{ .Values.kf5min }}:0
                 >=kde-frameworks/kirigami-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kwidgetsaddons-{{ .Values.kf5min }}:5
-                >=kde-frameworks/kwindowsystem-{{ .Values.kf5min }}:5
+                >=kde-frameworks/kwidgetsaddons-{{ .Values.kf5min }}:0
+                >=kde-frameworks/kwindowsystem-{{ .Values.kf5min }}:0
             )
           depend: |
             ${RDEPEND}
@@ -451,7 +451,7 @@ kde-plasma:
           iuse: gles2-only wayland
           desc: "Plasma library and runtime components based upon KF6 and Qt6"
           rdepend: |
-            virtual/kde-seed[gui,X,svg,declarative,gles-only2?,wayland?]
+            virtual/kde-seed[gui,X,svg,declarative,gles2-only?,wayland?]
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}[qml]
@@ -795,7 +795,7 @@ kde-plasma:
             kde-frameworks/kcrash:{{ .Values.slot }}
             kde-frameworks/kglobalaccel:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
-            kde-frameworks/kidletime:{{ .Values.slot }}[wayland]
+            kde-frameworks/kidletime:{{ .Values.slot }}[wayland?]
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kpackage:{{ .Values.slot }}
             kde-frameworks/ksvg:{{ .Values.slot }}
@@ -1084,7 +1084,7 @@ kde-plasma:
             x11-libs/libX11
             x11-libs/libXi
             x11-libs/libdrm
-            x11-libs/libxcb-1.10:=
+            x11-libs/libxcb:=
             x11-libs/libxkbcommon
             x11-libs/xcb-util-cursor
             x11-libs/xcb-util-image
@@ -1132,8 +1132,10 @@ kde-plasma:
           rdepend: |
             virtual/kde-seed[gui,wayland?]
           bdepend: |
-            >=dev-libs/wayland-protocols-1.16
-            dev-util/wayland-scanner
+            wayland? (
+              >=dev-libs/wayland-protocols-1.16
+              dev-util/wayland-scanner
+            )
 
     - libkscreen:
         vars:
@@ -1340,7 +1342,7 @@ kde-plasma:
             - xdg
           iuse: |
             ibus input_devices_wacom scim screencast sdl +semantic-desktop
-            webengine wayland
+            webengine wayland x11
           desc: "KDE Plasma desktop"
           rdepend: |
             virtual/kde-seed[declarative,gui,sql,wayland?]
@@ -1383,7 +1385,6 @@ kde-plasma:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-frameworks/solid:{{ .Values.slot }}
             kde-frameworks/sonnet:{{ .Values.slot }}
-            kde-plasma/kwin:{{ .Values.slot }}
             kde-plasma/libksysguard:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
             kde-plasma/plasma-activities:{{ .Values.slot }}
@@ -1409,8 +1410,14 @@ kde-plasma:
                 x11-libs/xcb-util-keysyms
             )
             input_devices_wacom? (
-                dev-libs/wayland
                 dev-libs/libwacom:=
+            )
+            wayland? (
+                kde-plasma/kwin:{{ .Values.slot }}
+                dev-libs/wayland
+            )
+            x11? (
+                kde-plasma/kwin-x11:{{ .Values.slot }}
             )
             scim? ( app-i18n/scim )
             sdl? ( media-libs/libsdl2[joystick] )
@@ -1425,7 +1432,7 @@ kde-plasma:
             virtual/pkgconfig
             x11-base/xorg-server
             x11-drivers/xf86-input-libinput
-            input_devices_wacom? ( dev-util/wayland-scanner )
+            wayland? ( dev-util/wayland-scanner )
           body: |
             src_prepare() {
               cmake_src_prepare
@@ -1537,7 +1544,6 @@ kde-plasma:
                 >=dev-qt/qtdbus-{{ .Values.qt5min }}:5
                 >=dev-qt/qtgui-{{ .Values.qt5min }}:5[X]
                 >=dev-qt/qtquickcontrols2-{{ .Values.qt5min }}:5
-                >=dev-qt/qtwayland-{{ .Values.qt5min }}:5
                 >=dev-qt/qtwidgets-{{ .Values.qt5min }}:5
                 >=dev-qt/qtx11extras-{{ .Values.qt5min }}:5
                 >=kde-frameworks/kcolorscheme-{{ .Values.kf5min }}:5
@@ -1553,6 +1559,9 @@ kde-plasma:
                 >=kde-frameworks/kwindowsystem-{{ .Values.kf5min }}:5[X]
                 >=kde-frameworks/kxmlgui-{{ .Values.kf5min }}:5
                 >=kde-plasma/breeze-${PV}:5[-kf6compat(-)]
+                wayland? (
+                  >=dev-qt/qtwayland-{{ .Values.qt5min }}:5
+                )
             )
           body: |
             src_prepare() {
@@ -1574,7 +1583,7 @@ kde-plasma:
           iuse: |
             appstream +calendar +fontconfig +ksysguard networkmanager +policykit
             screencast +semantic-desktop systemd telemetry test +wallpaper-metadata +X
-            wayland
+            wayland x11
           desc: "KDE Plasma workspace"
           rdepend: |
             virtual/kde-seed[declarative,svg,gui,libinput,sql,wayland?,X?]
@@ -1632,7 +1641,6 @@ kde-plasma:
             kde-frameworks/solid:{{ .Values.slot }}
             kde-plasma/breeze:{{ .Values.slot }}
             kde-plasma/kde-cli-tools:{{ .Values.slot }}
-            kde-plasma/kwin:{{ .Values.slot }}
             kde-plasma/layer-shell-qt:{{ .Values.slot }}
             kde-plasma/libkscreen:{{ .Values.slot }}
             kde-plasma/libplasma:{{ .Values.slot }}
@@ -1641,6 +1649,10 @@ kde-plasma:
             kde-plasma/plasma5support:{{ .Values.slot }}
             wayland? (
               kde-plasma/kwayland:{{ .Values.slot }}
+              kde-plasma/kwin:{{ .Values.slot }}
+            )
+            x11? (
+              kde-plasma/kwin-x11:{{ .Values.slot }}
             )
             sys-apps/dbus
             x11-apps/xmessage

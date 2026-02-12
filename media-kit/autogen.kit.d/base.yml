@@ -563,6 +563,22 @@ sound_gh:
               xdg_icon_cache_update
             }
 
+    - pavucontrol-qt:
+        github:
+          user: lxqt
+        vars:
+          inherit:
+            - cmake
+          license: GPL-2 GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtbase:6[gui]
+            media-libs/libpulse[glib]
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
 
 libs_gh:
   generator: builtin-github

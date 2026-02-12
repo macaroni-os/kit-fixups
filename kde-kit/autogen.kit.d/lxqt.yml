@@ -4,21 +4,674 @@ lxqt_github:
     category: lxqt-base
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple-github.tmpl
+    vars:
+      homepage: https://lxqt-project.org
     github:
       query: releases
       user: lxqt
 
   packages:
-    - libsysstat:
-        selector:
-          - '<1.0.0'
+    - lxqt-build-tools:
+        category: dev-util
         vars:
           inherit:
             - cmake
-          desc: Qt GUI for System Statistics
-          homepage: https://lxqt.github.io/
-          license: GPL-2+ LGPL-2.1+
-          bdepend: dev-util/lxqt-build-tools
+          license: BSD
           rdepend: |
-            dev-qt/qtcore:5
+            dev-libs/glib:2
+            dev-qt/qtbase:6
           depend: ${RDEPEND}
+
+    - libdbusmenu-lxqt:
+        category: dev-libs
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2
+          rdepend: |
+            dev-qt/qtbase:6
+          depend: ${RDEPEND}
+
+    - libqtxdg:
+        category: dev-libs
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1+
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            x11-misc/xdg-utils
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            virtual/pkgconfig
+
+    - lxqt-menu-data:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - liblxqt:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1+ BSD
+          iuse: +backlight
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6[X]
+            x11-libs/libX11
+            x11-libs/libXScrnSaver
+            backlight? ( >=sys-auth/polkit-qt-0.200.0[qt6] )
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            src_configure() {
+                    local mycmakeargs=(
+                            -DBUILD_BACKLIGHT_LINUX_BACKEND=$(usex backlight)
+                    )
+                    cmake_src_configure
+            }
+
+    - libsysstat:
+        vars:
+          inherit:
+            - cmake
+          license: GPL-2+ LGPL-2.1+
+          rdepend: |
+            dev-qt/qtbase:6
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - qtxdg-tools:
+        category: app-misc
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - libfm-qt:
+        category: x11-libs
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: BSD GPL-2+ LGPL-2.1+
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtbase:6[gui,X]
+            lxde-base/menu-cache
+            lxqt-base/lxqt-menu-data
+            media-libs/libexif
+            x11-libs/libxcb
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+
+    - lxqt-globalkeys:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            lxqt-base/liblxqt
+            x11-libs/libX11
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - lxqt-qtplugin:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1+
+          rdepend: |
+            dev-libs/libdbusmenu-lxqt
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            x11-libs/libfm-qt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - lxqt-session:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          iuse: +udev
+          rdepend: |
+            app-misc/qtxdg-tools
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6[X]
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/liblxqt
+            sys-process/procps
+            x11-libs/libX11
+            x11-misc/xdg-user-dirs
+            udev? ( virtual/libudev )
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            src_configure() {
+                local mycmakeargs=(
+                    -DWITH_LIBUDEV=$(usex udev)
+                )
+                cmake_src_configure
+            }
+            src_install() {
+                cmake_src_install
+                doman lxqt-config-session/man/*.1 lxqt-session/man/*.1
+                newenvd - 91lxqt-config-dir <<- _EOF_
+                    XDG_CONFIG_DIRS='${EPREFIX}/usr/share'
+                _EOF_
+            }
+
+    - qtermwidget:
+        category: x11-libs
+        vars:
+          inherit:
+            - cmake
+          license: BSD GPL-2 LGPL-2+
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - lxqt-panel:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          iuse: +alsa colorpicker cpuload +desktopswitch +directorymenu dom +kbindicator +mainmenu +mount networkmonitor pulseaudio +quicklaunch lm_sensors +showdesktop +spacer +statusnotifier sysstat +taskbar tray +volume +worldclock
+          required_use: |
+            || ( desktopswitch mainmenu showdesktop taskbar )
+            volume? ( || ( alsa pulseaudio ) )
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-libs/wayland
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            dev-qt/qtwayland:6
+            kde-frameworks/kwindowsystem:6[X]
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/liblxqt
+            lxqt-base/lxqt-globalkeys
+            lxqt-base/lxqt-menu-data
+            x11-libs/libX11
+            cpuload? ( sys-libs/libstatgrab )
+            kbindicator? ( x11-libs/libxkbcommon )
+            lm_sensors? ( sys-apps/lm_sensors )
+            mount? ( kde-frameworks/solid:6 )
+            networkmonitor? ( sys-libs/libstatgrab )
+            statusnotifier? (
+                dev-libs/libdbusmenu-lxqt
+                dev-qt/qtbase:6
+            )
+            sysstat? ( lxqt-base/libsysstat )
+            tray? (
+                x11-libs/libxcb:=
+                x11-libs/libXcomposite
+                x11-libs/libXdamage
+                x11-libs/libXrender
+                x11-libs/libXtst
+                x11-libs/xcb-util
+                x11-libs/xcb-util-image
+            )
+            volume? (
+                alsa? ( media-libs/alsa-lib )
+                pulseaudio? (
+                    media-sound/pulseaudio
+                    media-sound/pavucontrol-qt
+                )
+            )
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                local mycmakeargs=(
+                    -DCOLORPICKER_PLUGIN=$(usex colorpicker)
+                    -DCPULOAD_PLUGIN=$(usex cpuload)
+                    -DDESKTOPSWITCH_PLUGIN=$(usex desktopswitch)
+                    -DDIRECTORYMENU_PLUGIN=$(usex directorymenu)
+                    -DDOM_PLUGIN=$(usex dom)
+                    -DKBINDICATOR_PLUGIN=$(usex kbindicator)
+                    -DMAINMENU_PLUGIN=$(usex mainmenu)
+                    -DMOUNT_PLUGIN=$(usex mount)
+                    -DNETWORKMONITOR_PLUGIN=$(usex networkmonitor)
+                    -DQUICKLAUNCH_PLUGIN=$(usex quicklaunch)
+                    -DSENSORS_PLUGIN=$(usex lm-sensors)
+                    -DSHOWDESKTOP_PLUGIN=$(usex showdesktop)
+                    -DSPACER_PLUGIN=$(usex spacer)
+                    -DSTATUSNOTIFIER_PLUGIN=$(usex statusnotifier)
+                    -DSYSSTAT_PLUGIN=$(usex sysstat)
+                    -DTASKBAR_PLUGIN=$(usex taskbar)
+                    -DTRAY_PLUGIN=$(usex tray)
+                    -DVOLUME_PLUGIN=$(usex volume)
+                    -DWORLDCLOCK_PLUGIN=$(usex worldclock)
+                )
+                if use volume; then
+                    mycmakeargs+=(
+                        -DVOLUME_USE_ALSA=$(usex alsa)
+                        -DVOLUME_USE_PULSEAUDIO=$(usex pulseaudio)
+                    )
+                fi
+                cmake_src_configure
+            }
+            src_install() {
+                cmake_src_install
+                doman panel/man/*.1
+            }
+
+    - pcmanfm-qt:
+        category: x11-misc
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+ LGPL-2.1+
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtbase:6[gui]
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/lxqt-menu-data
+            sys-apps/util-linux
+            virtual/freedesktop-icon-theme
+            x11-libs/libfm-qt
+            x11-libs/libxcb
+            x11-misc/xdg-utils
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            pkg_postinst() {
+                xdg_desktop_database_update
+                xdg_icon_cache_update
+            }
+
+    - qterminal:
+        category: x11-terms
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+
+          rdepend: |
+            dev-qt/qtbase:6[gui,X]
+            kde-plasma/layer-shell-qt:6
+            media-libs/libcanberra
+            x11-libs/libX11
+            x11-libs/qtermwidget
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-powermanagement:
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            kde-frameworks/kwindowsystem:6
+            kde-frameworks/kidletime:6
+            kde-frameworks/solid:6
+            lxqt-base/liblxqt
+            lxqt-base/lxqt-globalkeys
+            sys-power/upower
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+
+    - lxqt-runner:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-cpp/muParser
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/liblxqt
+            lxqt-base/lxqt-globalkeys
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+          body: |
+            src_install() {
+                cmake_src_install
+                doman man/*.1
+            }
+
+    - lxqt-themes:
+        category: x11-themes
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: LGPL-2.1+
+          rdepend:
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-admin:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1+
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6
+            lxqt-base/liblxqt
+            >=sys-auth/polkit-qt-0.175.0[qt6]
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-notificationd:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/liblxqt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - lxqt-about:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1+
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6
+            lxqt-base/liblxqt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-config:
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+ GPL-3 LGPL-2 LGPL-2+ LGPL-2.1+ WTFPL-2
+          iuse: +monitor +touchpad
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            lxqt-base/liblxqt
+            lxqt-base/lxqt-menu-data
+            sys-libs/zlib
+            x11-apps/setxkbmap
+            x11-libs/libxcb
+            x11-libs/libX11
+            x11-libs/libXcursor
+            x11-libs/libXfixes
+            monitor? ( kde-plasma/libkscreen:6 )
+            touchpad? (
+                virtual/libudev
+                x11-drivers/xf86-input-libinput
+                x11-libs/libXi
+            )
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            src_configure() {
+                local mycmakeargs=(
+                    -DWITH_MONITOR=$(usex monitor)
+                    -DWITH_TOUCHPAD=$(usex touchpad)
+                )
+                cmake_src_configure
+            }
+            src_install() {
+                cmake_src_install
+                doman man/*.1 liblxqt-config-cursor/man/*.1 lxqt-config-appearance/man/*.1
+            }
+
+    - lxqt-policykit:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            lxqt-base/liblxqt
+            >=sys-auth/polkit-qt-0.200.0[qt6]
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+          body: |
+            src_install() {
+                cmake_src_install
+                doman man/*.1
+            }
+
+    - lxqt-sudo:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            app-admin/sudo
+            dev-qt/qtbase:6[gui]
+            lxqt-base/liblxqt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-openssh-askpass:
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1 LGPL-2.1+
+          rdepend: |
+            dev-qt/qtbase:6
+            lxqt-base/liblxqt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            src_install() {
+                cmake_src_install
+                doman man/*.1
+            }
+
+    - lxqt-wayland-session:
+        vars:
+          inherit:
+            - cmake
+          license: BSD CC-BY-SA-4.0 GPL-2 GPL-3 LGPL-2.1 MIT
+          rdepend: |
+            app-misc/qtxdg-tools
+            kde-plasma/layer-shell-qt:6
+            lxqt-base/lxqt-session
+            x11-misc/xdg-user-dirs
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+          body: |
+            pkg_postinst() {
+                einfo "By default, the labwc compositor will be used."
+                einfo "To use something else, define, for example, the following in '.config/lxqt/session.conf':"
+                einfo "    compositor=kwin_wayland"
+                einfo ""
+                einfo "For more configuration details, and a list of supported compositors, see:"
+                einfo "    /usr/share/doc/${P}/README*"
+            }
+
+    - xdg-desktop-portal-lxqt:
+        category: gui-libs
+        vars:
+          inherit:
+            - cmake
+          license: LGPL-2.1
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            kde-frameworks/kwindowsystem:6
+            sys-apps/xdg-desktop-portal
+            x11-libs/libfm-qt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+
+    - lxqt-archiver:
+        category: app-arch
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/json-glib
+            dev-qt/qtbase:6[gui]
+            x11-libs/libfm-qt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+          body: |
+            pkg_postinst() {
+                xdg_desktop_database_update
+                xdg_icon_cache_update
+                elog "Please note that this is only a graphical front-end, and additional"
+                elog "packages are needed to have support for specific file formats."
+                elog "For example, to be able to work with the 7-Zip format, the"
+                elog "'app-arch/p7zip' package may be used."
+                elog "For the full list of supported formats, see the 'README.md' file:"
+                elog "https://github.com/lxqt/lxqt-archiver/blob/master/README.md"
+            }
+
+    - screengrab:
+        category: x11-misc
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+ LGPL-2.1+
+          rdepend: |
+            dev-libs/libqtxdg
+            dev-libs/wayland
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtwayland:6
+            kde-frameworks/kwindowsystem:6[X]
+            kde-plasma/layer-shell-qt:6
+            x11-libs/libX11
+            x11-libs/libxcb
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - lximage-qt:
+        category: media-gfx
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            media-libs/libexif
+            x11-libs/libfm-qt
+            x11-libs/libX11
+            x11-libs/libXfixes
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig
+
+    - qps:
+        category: x11-misc
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+ LGPL-2.1+ QPL-1.0
+          rdepend: |
+            dev-qt/qtbase:6[gui]
+            lxqt-base/liblxqt
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+
+    - obconf-qt:
+        category: x11-misc
+        vars:
+          inherit:
+            - cmake
+            - xdg
+          license: GPL-2 GPL-2+
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2
+            dev-qt/qtbase:6[gui]
+            x11-libs/libX11
+            x11-wm/openbox:3
+          depend: |
+            ${RDEPEND}
+            dev-util/lxqt-build-tools
+            dev-qt/qttools:6[linguist]
+            virtual/pkgconfig

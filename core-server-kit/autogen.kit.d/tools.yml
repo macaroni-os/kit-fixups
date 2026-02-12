@@ -2381,10 +2381,10 @@ gitlab_runner:
             runner-and-helper-bin-host
         }
         src_install() {
+          exeinto /usr/sbin
           newbin out/binaries/gitlab-runner-linux-* gitlab-runner
           newbin out/binaries/gitlab-runner-helper/gitlab-runner-helper.linux-* gitlab-runner-helper
           einstalldocs
-          exeinto /usr/sbin
           if use systemd; then
             systemd_dounit "${FILESDIR}"/gitlab-runner.service
             newtmpfiles "${FILESDIR}"/gitlab-runner.tmpfile gitlab-runner.conf

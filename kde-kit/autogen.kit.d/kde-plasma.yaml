@@ -1525,7 +1525,7 @@ kde-plasma:
             kde-frameworks/knotifications:{{ .Values.slot }}
             kde-frameworks/kstatusnotifieritem:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-            kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland,X]
+            kde-frameworks/kwindowsystem:{{ .Values.slot }}[wayland?,X]
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             kde-plasma/breeze:{{ .Values.slot }}
             media-libs/fontconfig

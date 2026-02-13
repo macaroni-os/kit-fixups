@@ -640,3 +640,60 @@ kde-seed:
 
   packages:
     - kde-seed:
+
+kdsoap:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: net-libs
+    assets:
+      - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.gz'
+        url: 'https://github.com/KDAB/KDSoap/releases/download/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.gz'
+    github:
+      user: KDAB
+      repo: KDSoap
+      query: tags
+    transform:
+      - kind: string
+        match: '_'
+        replace: '.'
+      - kind: string
+        match: '-'
+        replace: '.'
+      - kind: string
+        match: 'kdsoap.'
+        replace: ''
+      - kind: string
+        match: '.rc1'
+        replace: ''
+      - kind: string
+        match: '.rc2'
+        replace: ''
+    vars:
+      qt_slot: '6'
+
+  packages:
+    - kdsoap:
+        vars:
+            license: GPL-3 AGPL-3
+            homepage: https://www.kdab.com/development-resources/qt-tools/kd-soap/
+            inherit:
+                - cmake
+            rdepend: |
+                dev-qt/qtbase:{{ .Values.qt_slot }}
+                dev-libs/boost
+            depend: |
+                ${RDEPEND}
+            desc: A Qt-based client-side and server-side SOAP component
+            body: |
+                src_configure() {
+                    local mycmakeargs=(
+                        -DKDSoap_DOCS=OFF
+                        -DKDSoap_EXAMPLES=OFF
+                        -DKDSoap_QT6=ON
+                        -DKDSoap_STATIC=OFF
+                    )
+                    cmake_src_configure
+                }

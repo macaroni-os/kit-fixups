@@ -139,6 +139,20 @@ flit_modules:
               EOF
             }
 
+    - wheel:
+        pypi_name: wheel
+        pydeps:
+          py:all:build:
+            - packaging
+          py:all:
+            - packaging
+        vars:
+          inherit:
+            - distutils-r1
+          desc: Command line tool for manipulating wheel files, as defined in PEP 427
+          homepage: https://github.com/pypa/wheel/ https://pypi.org/project/wheel/
+          license: MIT
+
 setuptools_modules:
   generator: builtin-pypi
   template:

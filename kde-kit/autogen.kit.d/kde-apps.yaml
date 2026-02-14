@@ -895,7 +895,7 @@ kde-apps:
           rdepend: |
             virtual/kde-seed[gui,declarative]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}[qml]
-            >=net-libs/signon-oauth2-0.25[qt6(+)]
+            >=net-libs/signon-oauth2-0.25
             >=net-libs/signon-ui-0.15_p20231016
             kde-apps/kaccounts-integration:{{ .Values.slot }}
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
@@ -4128,7 +4128,7 @@ kde-apps:
           homepage: https://accounts-sso.gitlab.io/
           rdepend: |
             kde-frameworks/kwallet:{{ .Values.slot }}
-            >=net-libs/signond-8.61[qt6(+)]
+            >=net-libs/signond-8.61
 
     - step:
         vars:

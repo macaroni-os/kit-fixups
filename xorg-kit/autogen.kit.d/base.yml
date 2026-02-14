@@ -870,6 +870,7 @@ compose_tables:
       homepage: 'https://gitlab.freedesktop.org/xorg/lib/{{ .Values.pn }}'
       desc: 'X.Org {{ .Values.pn | replace "lib" "" }} library'
       rdepend: |
+        x11-libs/libxcb
         {{ .Values.rdepend_extra | default "" }}
       depend: |
         ${RDEPEND}

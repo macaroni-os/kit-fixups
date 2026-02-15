@@ -186,11 +186,9 @@ lxqt_github:
                 cmake_src_configure
             }
             src_install() {
-                cmake_src_install
-                doman lxqt-config-session/man/*.1 lxqt-session/man/*.1
-                newenvd - 91lxqt-config-dir <<- _EOF_
-                    XDG_CONFIG_DIRS='${EPREFIX}/usr/share'
-                _EOF_
+              cmake_src_install
+              doman lxqt-config-session/man/*.1 lxqt-session/man/*.1
+              newenvd "${FILESDIR}"/91lxqt-config-dir
             }
 
     - qtermwidget:

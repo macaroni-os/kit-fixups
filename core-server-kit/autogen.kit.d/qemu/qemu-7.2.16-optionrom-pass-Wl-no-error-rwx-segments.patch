@@ -19,19 +19,12 @@ Pass -Wl,--no-error-rwx-segments to suppress that.
  1 file changed, 1 insertion(+)
 
 diff --git a/pc-bios/optionrom/Makefile b/pc-bios/optionrom/Makefile
-index 30d07026c7..4d3ce75af3 100644
 --- a/pc-bios/optionrom/Makefile
 +++ b/pc-bios/optionrom/Makefile
-@@ -37,6 +37,7 @@ config-cc.mak: Makefile
- -include config-cc.mak
- 
+@@ -39,2 +39,3 @@
  override LDFLAGS = -nostdlib -Wl,--build-id=none,-T,$(SRC_DIR)/flat.lds
 +override LDFLAGS += -Wl,--no-error-rwx-segments
  
- pvh.img: pvh.o pvh_main.o
- 
-
-base-commit: 40efe733e10cc00e4fb4f9f5790a28e744e63c62
 -- 
 2.48.1
 

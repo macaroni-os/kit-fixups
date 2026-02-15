@@ -188,7 +188,7 @@ lxqt_github:
             src_install() {
               cmake_src_install
               doman lxqt-config-session/man/*.1 lxqt-session/man/*.1
-              newenvd "${FILESDIR}"/91lxqt-config-dir
+              doenvd "${FILESDIR}"/91lxqt-config-dir
             }
 
     - qtermwidget:
@@ -269,7 +269,7 @@ lxqt_github:
                     -DMOUNT_PLUGIN=$(usex mount)
                     -DNETWORKMONITOR_PLUGIN=$(usex networkmonitor)
                     -DQUICKLAUNCH_PLUGIN=$(usex quicklaunch)
-                    -DSENSORS_PLUGIN=$(usex lm-sensors)
+                    -DSENSORS_PLUGIN=$(usex lm_sensors)
                     -DSHOWDESKTOP_PLUGIN=$(usex showdesktop)
                     -DSPACER_PLUGIN=$(usex spacer)
                     -DSTATUSNOTIFIER_PLUGIN=$(usex statusnotifier)
@@ -387,7 +387,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: LGPL-2.1+
           rdepend:
           depend: |
@@ -441,7 +440,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: GPL-2 GPL-2+ GPL-3 LGPL-2 LGPL-2+ LGPL-2.1+ WTFPL-2
           iuse: +monitor +touchpad
           rdepend: |
@@ -603,7 +601,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: GPL-2 GPL-2+ LGPL-2.1+
           rdepend: |
             dev-libs/libqtxdg
@@ -645,7 +642,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: GPL-2 GPL-2+ LGPL-2.1+ QPL-1.0
           rdepend: |
             dev-qt/qtbase:6[gui]

@@ -7402,7 +7402,7 @@ gnome_apps:
             virtual/pkgconfig
             gtk-doc? (
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
             ${PYTHON_DEPS}
@@ -7439,7 +7439,7 @@ gnome_apps:
             virtual/pkgconfig
             gtk-doc? (
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
             ${PYTHON_DEPS}
@@ -7480,7 +7480,7 @@ gnome_apps:
           bdepend: |
             virtual/pkgconfig
             gtk-doc? (
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-lang/perl
               dev-libs/libxslt
             )
@@ -7524,7 +7524,7 @@ gnome_apps:
           bdepend: |
             virtual/pkgconfig
             gtk-doc? (
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-lang/perl
               dev-libs/libxslt
             )
@@ -7568,7 +7568,7 @@ gnome_apps:
           bdepend: |
             virtual/pkgconfig
             gtk-doc? (
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               media-gfx/graphviz
               dev-libs/libxslt
               dev-lang/perl
@@ -7618,7 +7618,7 @@ gnome_apps:
             virtual/pkgconfig
             gtk-doc? (
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
             ${PYTHON_DEPS}
@@ -7653,7 +7653,7 @@ gnome_apps:
             virtual/pkgconfig
             gtk-doc? (
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
             ${PYTHON_DEPS}
@@ -7737,7 +7737,7 @@ gnome_apps:
             ${PYTHON_DEPS}
             virtual/pkgconfig
             gtk-doc? (
-              app-text/doxygen
+              app-doc/doxygen
               dev-lang/perl
               dev-libs/libxslt
             )
@@ -7773,7 +7773,7 @@ gnome_apps:
             ${PYTHON_DEPS}
             virtual/pkgconfig
             gtk-doc? (
-              app-text/doxygen
+              app-doc/doxygen
               dev-lang/perl
               dev-libs/libxslt
             )
@@ -8884,7 +8884,7 @@ cairo_stuff:
             gtk-doc? (
               ${PYTHON_DEPS}
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
           body: |
@@ -8919,7 +8919,7 @@ cairo_stuff:
             gtk-doc? (
               ${PYTHON_DEPS}
               dev-cpp/mm-common
-              app-text/doxygen[dot]
+              app-doc/doxygen[dot]
               dev-libs/libxslt
             )
           body: |
@@ -9108,7 +9108,7 @@ formulae_brew_pkgs:
             ${RDEPEND}
             dev-libs/boost
           bdepend: |
-            doc? ( app-text/doxygen[dot] )
+            doc? ( app-doc/doxygen[dot] )
           body: |
             src_configure() {
               ECONF_SOURCE=${S} \

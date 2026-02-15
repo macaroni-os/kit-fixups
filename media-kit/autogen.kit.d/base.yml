@@ -2529,7 +2529,7 @@ formulae_brew_pkgs:
             sys-devel/libtool
           bdepend: |
             virtual/pkgconfig
-            doc? ( app-text/doxygen )
+            doc? ( app-doc/doxygen )
           body: |
             src_configure() {
               local myeconfargs=(
@@ -3802,7 +3802,7 @@ libcdr:
       bdepend: |
         sys-devel/libtool
         virtual/pkgconfig
-        doc? ( app-text/doxygen )
+        doc? ( app-doc/doxygen )
       inherit:
         - autotools
       body: |

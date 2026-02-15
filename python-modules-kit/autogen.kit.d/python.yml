@@ -787,7 +787,9 @@ libxml2_python:
       iuse: +icu +lzma readline static-libs
       rdepend: |
         =dev-libs/libxml2-{{ .Values.version }}:=[lzma?,icu?,readline?,static-libs?]
-      depend: '${RDEPEND}'
+      depend: |
+        ${RDEPEND}
+        app-doc/doxygen
       release: '2.15'
       body: |
         src_prepare() {

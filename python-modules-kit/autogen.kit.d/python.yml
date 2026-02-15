@@ -27,6 +27,12 @@ hatchling_modules:
     - urllib3:
         vars:
           iuse: brotli http2 zstd
+          body: |
+            src_prepare() {
+              default
+              sed -i -e '/Free Threading/d' pyproject.toml || die
+            }
+
         pydeps:
           py:all:build:
             - hatch-vcs

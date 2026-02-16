@@ -45,6 +45,11 @@ target:
         - '>=dev-lang/go-1.25.0'
         - '<dev-lang/go-1.26.0'
 
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.26.0'
+        - '<dev-lang/go-1.27.0'
+
     # Nodejs
     - pkg: net-libs/nodejs
       conditions:

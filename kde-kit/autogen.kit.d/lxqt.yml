@@ -113,7 +113,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: BSD GPL-2+ LGPL-2.1+
           rdepend: |
             dev-libs/glib:2
@@ -314,6 +313,9 @@ lxqt_github:
             dev-util/lxqt-build-tools
             dev-qt/qttools:6[linguist]
           body: |
+            src_prepare() {
+              cmake_src_prepare
+            }
             pkg_postinst() {
                 xdg_desktop_database_update
                 xdg_icon_cache_update
@@ -340,7 +342,6 @@ lxqt_github:
         vars:
           inherit:
             - cmake
-            - xdg
           license: LGPL-2.1 LGPL-2.1+
           rdepend: |
             dev-libs/libqtxdg
@@ -585,6 +586,9 @@ lxqt_github:
             dev-util/lxqt-build-tools
             dev-qt/qttools:6[linguist]
           body: |
+            src_prepare() {
+              cmake_src_prepare
+            }
             pkg_postinst() {
                 xdg_desktop_database_update
                 xdg_icon_cache_update

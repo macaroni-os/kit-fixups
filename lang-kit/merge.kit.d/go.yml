@@ -21,6 +21,7 @@ target:
   atoms:
     # Golang
     - pkg: dev-lang/go
+      max_versions: 1
       conditions:
         - '>=dev-lang/go-1.22.0'
         - '<dev-lang/go-1.23.0'
@@ -34,3 +35,8 @@ target:
       conditions:
         - '>=dev-lang/go-1.24.0'
         - '<dev-lang/go-1.25.0'
+
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.26.0'
+        - '<dev-lang/go-1.27.0'

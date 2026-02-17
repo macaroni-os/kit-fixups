@@ -720,11 +720,11 @@ net_misc_github:
             dev-lang/go
           body: |
             src_compile() {
-              FORCE_HOST_GO=yes
+              export GITCOMMIT={{ .Values.sha }}
+              unset LDFLAGS
               echo "$(go env GOVERSION | sed 's/go//g')" > .go-version
               emake
             }
-
             src_install() {
               dobin ${PN}
               insinto /etc/"${PN}"

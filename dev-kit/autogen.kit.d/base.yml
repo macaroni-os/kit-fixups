@@ -586,6 +586,42 @@ dev_github:
 
   packages:
 
+    - pnpm-bin:
+        github:
+          user: pnpm
+          repo: pnpm
+        category: dev-util
+        transform:
+          - kind: string
+            match: 'pnpm '
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64-linux'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-linuxstatic-x64'
+            use: amd64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64-linux'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-linuxstatic-arm64'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          desc: Fast, disk space efficient package manager (upstream binary)
+          extra_envs:
+            - 'QA_PREBUILT="/usr/bin/pnpm"'
+          body: |
+            src_unpack() {
+              mkdir -p "${S}"
+            }
+            src_configure() { :; }
+            src_compile() { :; }
+            src_install() {
+              if use amd64 ; then
+                newbin "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-amd64-linux pnpm
+              fi
+              if use arm64 ; then
+                newbin "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-arm64-linux pnpm
+              fi
+            }
+
     - libbpf:
         category: dev-libs
         transform:

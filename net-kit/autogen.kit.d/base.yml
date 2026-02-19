@@ -1528,7 +1528,10 @@ git_servers:
           rdepend: |
             ${CDEPEND}
             dev-vcs/git
-          depend: ${CDEPEND}
+          depend: |
+            ${CDEPEND}
+            dev-util/pnpm-bin
+
           # Atm we haven't node_modules from bundle.
           restrict: 'network-sandbox'
           bdepend: dev-lang/go

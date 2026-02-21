@@ -1,0 +1,32 @@
+From 1d80454ab676c2efade2501b89e1637dfdd767be Mon Sep 17 00:00:00 2001
+From: Mike Gilbert <floppym@gentoo.org>
+Date: Mon, 11 Oct 2021 13:50:03 -0400
+Subject: [PATCH 11/35] bpo-45433: Do not link libpython against libcrypt
+
+Save/restore LIBS when calling AC_SEARCH_LIBS(..., crypt). This avoid
+linking libpython with libcrypt.
+---
+ configure.ac | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index ac3be3850a9..b6e21447834 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4057,6 +4057,8 @@ AC_CHECK_FUNCS(setpgrp,
+ 
+ # We search for both crypt and crypt_r as one or the other may be defined
+ # This gets us our -lcrypt in LIBS when required on the target platform.
++# Save/restore LIBS to avoid linking libpython with libcrypt.
++LIBS_SAVE=$LIBS
+ AC_SEARCH_LIBS(crypt, crypt)
+ AC_SEARCH_LIBS(crypt_r, crypt)
+ 
+@@ -4071,6 +4073,7 @@ char *r = crypt_r("", "", &d);
+     [AC_DEFINE(HAVE_CRYPT_R, 1, [Define if you have the crypt_r() function.])],
+     [])
+ )
++LIBS=$LIBS_SAVE
+ 
+ AC_CHECK_FUNCS(clock_gettime, [], [
+     AC_CHECK_LIB(rt, clock_gettime, [

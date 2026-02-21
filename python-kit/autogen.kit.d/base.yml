@@ -157,7 +157,7 @@ python:
           if use pgo ; then
             local -x COLUMNS=80
             local -x PYTHONDONTWRITEBYTECODE=
-            addpredict /usr/lib/python3.9/site-packages
+            addpredict /usr/lib/python{{ .Values.slot }}/site-packages
           fi
           # we set them via NODIST to not propagate them and duplicate them to modules
           unset LDFLAGS CFLAGS CXXFLAGS CPPFLAGS
@@ -246,10 +246,12 @@ python:
               "${scriptdir}/idle" || die
           fi
           # eselect-python requires compress man files
-          doman /share/man/man1/*.1
+          doman /share/man/man1/python{{ .Values.slot }}.1
+          # remove uncompressed man files
+          rm -r "${ED}"/share/man
         }
         pkg_preinst() {
-          if has_version "<${CATEGORY}/${PN}-{{ .Values.slot }}" && ! has_version ">=${CATEGORY}/${PN}-{{ .Values.slot }}_alpha"; then
+          if has_version "<${CATEGORY}/${PN}-{{ .Values.slot }}" ; then
             python_updater_warning="1"
           fi
         }
@@ -286,4 +288,13 @@ python:
             - 3.9/0008-Install-shared-libs-in-LIBDEST.patch
             - 3.9/0014-bpo-45433-Do-not-link-libpython-against-libcrypt.patch
           slot: '3.9'
+
+    - python:
+        vars:
+          patches:
+            # Patches from Gentoo/Funtoo
+            - 3.10/0004-Improve-distutils-C-support.patch
+            - 3.10/0007-Install-shared-libs-in-LIBDEST.patch
+            - 3.10/0011-bpo-45433-Do-not-link-libpython-against-libcrypt.patch
+          slot: '3.10'
 

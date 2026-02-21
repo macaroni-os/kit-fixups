@@ -298,3 +298,90 @@ python:
             - 3.10/0011-bpo-45433-Do-not-link-libpython-against-libcrypt.patch
           slot: '3.10'
 
+
+
+python_exec:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-lang
+
+    github:
+      user: projg2
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.original_version }}.tar.bz2'
+        matcher: '{{ .Values.pn }}-.*.tar.bz2'
+
+    vars:
+      supported_python_releases:
+        - '3.9'
+        - '3.10'
+      python_compat: python3+
+      slot: '2'
+      inherit:
+        - python-any-r1
+      iuse: |
+        {{- range $python := .Values.supported_python_releases }}
+        python_targets_python{{ $python | replace "." "_" }}
+        {{- end }}
+      body: |
+        src_configure() {
+          local pyimpls=() i EPYTHON
+          for i in "${PYTHON_COMPAT[@]}"; do
+            python_export "${i}" EPYTHON
+            pyimpls+=( "${EPYTHON}" )
+          done
+          local myconf=(
+            --with-fallback-path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            --with-python-impls="${pyimpls[*]}"
+          )
+          econf "${myconf[@]}"
+        }
+        src_install() {
+          default
+          # Prepare and own the template
+          insinto /etc/python-exec
+          newins - python-exec.conf \
+            < <(sed -n -e '/^#/p' config/python-exec.conf.example)
+          local f
+          for f in python{,2,3}; do
+            dosym python-exec2c /usr/bin/"${f}"
+          done
+          for f in python{,2,3}-config 2to3 idle pydoc pyvenv; do
+            dosym ../lib/python-exec/python-exec2 /usr/bin/"${f}"
+          done
+
+        }
+        pkg_preinst() {
+          if [[ -e ${EROOT}etc/python-exec/python-exec.conf ]]; then
+            # preserve current configuration
+            cp "${EROOT}"etc/python-exec/python-exec.conf \
+              "${ED}"etc/python-exec/python-exec.conf || die
+          else
+            # preserve previous Python version preference
+            local py old_pythons=()
+            for py in 3; do
+              local target=
+              if [[ -L ${EROOT}/usr/bin/python${py} ]]; then
+                # check the older symlink format
+                target=$(readlink "${EROOT}/usr/bin/python${py}")
+                [[ ${target} == python?.? ]] || target=
+              fi
+              if [[ ${target} && ${old_pythons[0]} != ${target} ]]; then
+                old_pythons+=( "${target}" )
+              fi
+            done
+            if [[ ${old_pythons[@]} ]]; then
+              echo "${old_pythons[*]}" \
+                >> "${ED}"etc/python-exec/python-exec.conf || die
+            fi
+          fi
+        }
+
+
+  packages:
+
+    - python-exec:
+

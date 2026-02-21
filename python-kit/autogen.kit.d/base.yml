@@ -245,6 +245,8 @@ python:
             ln -s "../../../bin/idle{{ .Values.slot }}" \
               "${scriptdir}/idle" || die
           fi
+          # eselect-python requires compress man files
+          doman /share/man/man1/*.1
         }
         pkg_preinst() {
           if has_version "<${CATEGORY}/${PN}-{{ .Values.slot }}" && ! has_version ">=${CATEGORY}/${PN}-{{ .Values.slot }}_alpha"; then

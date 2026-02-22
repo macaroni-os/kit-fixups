@@ -318,7 +318,9 @@ python_exec:
       supported_python_releases:
         - '3.9'
         - '3.10'
-      python_compat: python3+
+      # NOTE: We can't use python3+ here because
+      #       a wrong python-exec binary is generated.
+      python_compat: 'python{3_9,3_10}'
       slot: '2'
       inherit:
         - python-any-r1
@@ -355,28 +357,24 @@ python_exec:
 
         }
         pkg_preinst() {
-          if [[ -e ${EROOT}etc/python-exec/python-exec.conf ]]; then
+          if [[ -e ${EROOT}/etc/python-exec/python-exec.conf ]]; then
             # preserve current configuration
-            cp "${EROOT}"etc/python-exec/python-exec.conf \
-              "${ED}"etc/python-exec/python-exec.conf || die
+            cp "${EROOT}"/etc/python-exec/python-exec.conf \
+              "${ED}"/etc/python-exec/python-exec.conf || die
           else
-            # preserve previous Python version preference
-            local py old_pythons=()
-            for py in 3; do
-              local target=
-              if [[ -L ${EROOT}/usr/bin/python${py} ]]; then
-                # check the older symlink format
-                target=$(readlink "${EROOT}/usr/bin/python${py}")
-                [[ ${target} == python?.? ]] || target=
-              fi
-              if [[ ${target} && ${old_pythons[0]} != ${target} ]]; then
-                old_pythons+=( "${target}" )
+            local supported_versions=(
+              {{- range $python := .Values.supported_python_releases }}
+              python{{ $python | replace "." "_" }}
+              {{- end }}
+            )
+            local pyimpls=() i
+
+            for i in ${supported_versions[@]} ; do
+              if use "python_targets_${i}" ; then
+                echo "${i}" >> "${ED}"/etc/python-exec/python-exec.conf || die
               fi
             done
-            if [[ ${old_pythons[@]} ]]; then
-              echo "${old_pythons[*]}" \
-                >> "${ED}"etc/python-exec/python-exec.conf || die
-            fi
+
           fi
         }
 

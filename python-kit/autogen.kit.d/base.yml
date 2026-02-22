@@ -364,7 +364,7 @@ python_exec:
           else
             local supported_versions=(
               {{- range $python := .Values.supported_python_releases }}
-              python{{ $python | replace "." "_" }}
+              python{{ $python }}
               {{- end }}
             )
             local pyimpls=() i

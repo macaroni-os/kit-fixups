@@ -20,6 +20,7 @@ kde-frameworks:
       depend: '${RDEPEND}'
     selector:
         - '<7'
+        - '<6.23'
     transform:
         - kind: regex
           match: '^([0-9]+\.[0-9]+)$'
@@ -520,7 +521,6 @@ kde-frameworks:
         vars:
           inherit:
             - cmake
-            - xdg
           desc: "Framework providing assorted high-level user interface components"
           iuse: "dbus wayland X"
           rdepend: |
@@ -706,7 +706,6 @@ kde-frameworks:
         vars:
           inherit:
             - cmake
-            - xdg
           desc: "Framework providing transparent file and data management"
           iuse: "acl handbook +kwallet wayland X"
           rdepend: |

@@ -17,9 +17,31 @@ qt6:
     dir:
         url: "https://download.qt.io/archive/qt/{{ .Values.release }}/"
         matcher: "^6.*"
+    selector:
+      - '<6.10.2'
 
   packages:
 
+    - qtvirtualkeyboard:
+        vars:
+          desc: Customizable input framework and virtual keyboard for Qt
+          iuse: +sound +spell
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.slot }}[gui]
+            dev-qt/qtdeclarative:{{ .Values.slot }}
+            dev-qt/qtsvg:{{ .Values.slot }}
+            sound? ( dev-qt/qtmultimedia:{{ .Values.slot }}[qml] )
+            spell? ( app-text/hunspell:= )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package sound Qt6Multimedia)
+                $(qt_feature spell hunspell)
+                -DINPUT_vkb_handwriting=no # neither cerence nor myscript are packaged
+              )
+              qt6-build_src_configure
+            }
 
     - qt3d:
         vars:

@@ -13,7 +13,8 @@ kde-plasma:
         - cmake
       depend: '${RDEPEND}'
     selector:
-      - '<7'
+      # Keep 6.5 release considering that 6.6 requires GCC updated as reported by @r0b
+      - '<6.6'
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
          url: https://download.kde.org/stable/plasma/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
@@ -1396,7 +1397,7 @@ kde-plasma:
             x11-apps/setxkbmap
             x11-misc/xdg-user-dirs
             screencast? ( kde-plasma/kpipewire:{{ .Values.slot }} )
-            webengine? ( >=net-libs/signon-oauth2-0.25_p20210102[qt6(+)] )
+            webengine? ( >=net-libs/signon-oauth2-0.25_p20210102 )
             media-libs/libcanberra
             x11-libs/libX11
             x11-libs/libxcb

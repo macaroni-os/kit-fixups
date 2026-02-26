@@ -107,6 +107,7 @@ sys_apps:
       query: releases
 
   packages:
+
     - bubblewrap:
         github:
           user: containers
@@ -157,6 +158,13 @@ sys_auth_pkgs:
   packages:
 
     - elogind:
+        transform:
+          - kind: string
+            match: "V"
+            replace: ""
+        github:
+          per_page: 100
+          num_pages: 3
         vars:
           python_compat: python3+
           inherit:

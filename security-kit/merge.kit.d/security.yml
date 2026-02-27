@@ -55,6 +55,10 @@ target:
     - pkg: dev-libs/openssl
       conditions:
         - '<dev-libs/openssl-3.0'
+    - pkg: dev-libs/openssl
+      conditions:
+        - '>dev-libs/openssl-3.0'
+        - '<dev-libs/openssl-3.1'
 
     - pkg: net-libs/gnutls
     - pkg: net-misc/openssh

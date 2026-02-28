@@ -623,6 +623,12 @@ mesa:
   packages:
     - mesa:
 
+    # Keep mesa 25 for now
+    - mesa:
+        selector:
+          - '<26.0'
+
+
 
 ocl_icd:
   generator: builtin-github

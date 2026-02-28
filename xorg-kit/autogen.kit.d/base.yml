@@ -881,6 +881,7 @@ compose_tables:
         x11-misc/util-macros
         media-fonts/font-util
         x11-base/xorg-proto
+        x11-libs/xtrans
         {{ .Values.depend_extra | default "" }}
       bdepend: |
         virtual/pkgconfig

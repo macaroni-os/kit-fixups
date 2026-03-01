@@ -2800,7 +2800,7 @@ gnome_apps:
     dir:
       url: https://download.gnome.org/sources/{{ .Values.pkgname | default .Values.pn }}/{{ .Values.release }}/
       matcher: "{{ .Values.pkgname | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$"
-      exclude: 'rc|beta|alpha|90'
+      exclude: 'rc|beta|alpha|9[0-9]'
     transform:
       - kind: string
         match: "{{ .Values.pkgname | default .Values.pn }}-"
@@ -8835,6 +8835,10 @@ gnome_apps:
             }
             src_install() {
               meson_src_install
+              # See mark-issues/issues#579
+              # Add link to fix upstream bug
+              dosym /usr/lib64/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader_svg.so \
+               /usr/lib64/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so
             }
             pkg_postinst() {
               # causes segfault if set, see bug 375615

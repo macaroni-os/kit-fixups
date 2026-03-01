@@ -758,6 +758,9 @@ x11_libs_meson_dirlisting:
 
     - libXres:
     - libXvMC:
+        vars:
+          depend_extra: |
+            x11-libs/libXv
 
     - libxcvt:
         vars:

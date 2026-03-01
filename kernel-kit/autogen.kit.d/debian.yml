@@ -48,6 +48,7 @@ debian_sources:
 
   packages:
     - debian-sources:
+        revision: 999
         vars:
           level: unstable
           branch: sid
@@ -60,6 +61,7 @@ debian_sources:
             - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
           config_extract: 6.6
     - debian-sources:
+        revision: 400
         vars:
           level: testing
           branch: forky
@@ -68,9 +70,8 @@ debian_sources:
           patches:
             - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
           config_extract: 6.6
-        selector:
-          - '<6.17'
     - debian-sources:
+        revision: 200
         vars:
           level: stable
           branch: trixie
@@ -79,9 +80,8 @@ debian_sources:
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.6
-        selector:
-          - '<6.13'
     - debian-sources:
+        revision: 100
         vars:
           level: oldstable
           branch: bookworm
@@ -90,9 +90,6 @@ debian_sources:
           patches:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.1
-        selector:
-          - '<6.2'
-
 
 # TODO: move to separate file, as it's not specifically debian-sources--related
 dracut_config:

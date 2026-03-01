@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import asyncio
-import gzip
+import lzma
 import re
 import requests
 import yaml
-
 
 # squish this with the release name in the middle and it'll be a url string
 # NOTE: this source disappears from time to time; instead, use a repo mirror
@@ -17,23 +16,15 @@ import yaml
 
 # alternative source, with many mirrors available for failover
 debian_packages_url = [
-    'https://deb.debian.org/debian/dists/',
+    'https://deb.debian.org/debian-security/dists/',
     '',
-    '/main/binary-all/Packages.gz'
+    '/main/binary-all/Packages.xz'
 ]
 
 # TODO: implement mirror failover, instead of using only one
 
 debian_sources_url = 'https://deb.debian.org/debian/pool/main/l/linux'
 kernel_dot_org_url = 'https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x'
-
-# used to encode branches like _p{deb_patchlevel}{code}
-branch_codes = {
-    'bookworm' : '0',
-    'trixie' : '1',
-    'forky' : '2',
-    'sid' : '999'
-}
 
 # filled by read_vars()
 vars_d = {}
@@ -44,9 +35,13 @@ async def get_version(*, rel:str):
     # kernel source package version.
 
     url = debian_packages_url
-    url[1] = rel
+    if rel in ['sid','forky'] :
+        url[0] = re.sub('-security', '', url[0])
+        url[1] = rel
+    else:
+        url[1] = rel + '-security'
     r = requests.get(''.join(url))
-    text = gzip.decompress(r.content)
+    text = lzma.decompress(r.content)
 
     # prior package source
     #v1 = re.findall(
@@ -56,7 +51,7 @@ async def get_version(*, rel:str):
 
     # deb mirrors
     v1 = re.findall(
-        'pool/main/l/linux/linux-source_((\d\.\d+\.\d+)[-](\d+))_all\.deb',
+        'pool/(?:updates/)?main/l/linux/linux-source_((\d\.\d+\.\d+)[-](\d+))_all\.deb',
         str(text)
     )
 
@@ -173,7 +168,6 @@ async def get_releases(config:list):
         )
     )
 
-    print(s)
     return s
 
 
@@ -185,7 +179,6 @@ async def do_process(*, input_file:str, versions_file:str):
     zfs_compat = await get_openzfs_compat(
         openzfs_meta_url = config['openzfs_meta_url']
     )
-    print(zfs_compat)
 
     s = await get_releases(config)
 
@@ -221,10 +214,10 @@ async def do_process(*, input_file:str, versions_file:str):
                     'level' : config['level'],
                     'name' : config['branch'],
                 },
-                'slot' : f"{config['branch']}/{ver}",#"{branch_codes[config['branch']]}",
+                'slot' : f"{config['branch']}/{ver}",
             }
         )
-        versions_d['vars']['versions'].append(f"{ver}{branch_codes[config['branch']]}")
+        versions_d['vars']['versions'].append(f"{ver}")
         versions_d['artefacts'] = [
             {
                 'url' : f'{debian_sources_url}/linux_{triplet}-{debpatch}.debian.tar.xz',
@@ -264,7 +257,7 @@ state_callbacks = {
 async def entry_point(*args):
     generator_file, state, input_file, versions_file = args
     if state in state_callbacks.keys():
-        print('doing state', state)
+        #print('doing state', state)
         await state_callbacks[state](
             input_file = input_file,
             versions_file = versions_file

@@ -360,10 +360,6 @@ glycin_gitlab:
         sys-libs/libseccomp
         heif? ( >=media-libs/libheif-1.17.0:= )
         jpegxl? ( media-libs/libjxl:= )
-        svg? (
-          gnome-base/librsvg:2
-          x11-libs/cairo
-        )
       depend: '${RDEPEND}'
 
   packages:
@@ -437,6 +433,15 @@ glycin_gitlab:
           gitlab_repo: glycin
           desc: Loaders for glycin clients (glycin crate or libglycin)
           iuse: heif jpeg2k jpegxl svg debug
+          rdepend: |
+            dev-libs/glib:2
+            sys-libs/libseccomp
+            heif? ( >=media-libs/libheif-1.17.0:= )
+            jpegxl? ( media-libs/libjxl:= )
+            svg? (
+              gnome-base/librsvg:2
+              x11-libs/cairo
+            )
           body: |
             src_unpack() {
               cargo_src_unpack

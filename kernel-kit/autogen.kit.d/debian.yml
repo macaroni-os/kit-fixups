@@ -8,6 +8,7 @@ debian_sources:
     files_dir: sys-kernel/debian-sources/files
     template: templates/debian-sources.tmpl
     category: sys-kernel
+    selector4slot: true
     vars:
       # NOTE: update this file when zfs-kmod changes
       openzfs_meta_url: https://raw.githubusercontent.com/openzfs/zfs/zfs-2.3-release/META
@@ -49,6 +50,8 @@ debian_sources:
   packages:
     - debian-sources:
         revision: 999
+        selector:
+          - '>6.13'
         vars:
           level: unstable
           branch: sid
@@ -61,6 +64,8 @@ debian_sources:
             - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
           config_extract: 6.6
     - debian-sources:
+        selector:
+          - '>6.13'
         revision: 400
         vars:
           level: testing
@@ -72,6 +77,8 @@ debian_sources:
           config_extract: 6.6
     - debian-sources:
         revision: 200
+        selector:
+          - '<6.13'
         vars:
           level: stable
           branch: trixie
@@ -82,6 +89,8 @@ debian_sources:
           config_extract: 6.6
     - debian-sources:
         revision: 100
+        selector:
+          - '<6.2'
         vars:
           level: oldstable
           branch: bookworm

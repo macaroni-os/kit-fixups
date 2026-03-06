@@ -400,3 +400,249 @@ typescript:
 
   packages:
     - typescript:
+
+rust:
+  # See https://static.rust-lang.org/dist/channel-rust-stable.toml for
+  # components.
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-lang
+    github:
+      repo: rust
+      user: rust-lang
+    transform:
+      - kind: string
+        match: 'Rust '
+        replace: ''
+
+  packages:
+
+    # Rust 1.93.x
+    - rust:
+        selector:
+          - '<1.95.0'
+          - '>=1.94.0'
+        category: virtual
+        ignore_artefacts: true
+        vars:
+          desc: Virtual for Rust language compiler
+          rdepend: |
+            || (
+              ~dev-lang/rust-bin-{{ .Values.version }}
+              ~dev-lang/rust-{{ .Values.version }}
+            )
+          depend: '${RDEPEND}'
+
+    - rust-bin:
+        selector:
+          - '<1.95.0'
+          - '>=1.94.0'
+
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-x86_64-unknown-linux-gnu.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-x86_64-unknown-linux-gnu.tar.xz'
+            use: amd64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm-unknown-linux-gnueabi.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-arm-unknown-linux-gnueabi.tar.xz'
+            use: arm
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm-unknown-linux-gnueabihf.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-arm-unknown-linux-gnueabihf.tar.xz'
+            use: arm
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-armv7-unknown-linux-gnueabihf.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-armv7-unknown-linux-gnueabihf.tar.xz'
+            use: arm
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-aarch64-unknown-linux-gnu.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-aarch64-unknown-linux-gnu.tar.xz'
+            use: arm64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-riscv64gc-unknown-linux-gnu.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-{{ .Values.version }}-riscv64gc-unknown-linux-gnu.tar.xz'
+            use: riscv64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-wasm32-unknown-unknown.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-std-{{ .Values.version }}-wasm32-unknown-unknown.tar.xz'
+            use: wasm
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-wasm32-wasip1.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-std-{{ .Values.version }}-wasm32-wasip1.tar.xz'
+            use: wasm-wasip1
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-wasm32-wasip1-threads.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-std-{{ .Values.version }}-wasm32-wasip1-threads.tar.xz'
+            use: wasm-wasip1-threads
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-wasm32-wasip2.tar.xz'
+            url: 'https://static.rust-lang.org/dist/rust-std-{{ .Values.version }}-wasm32-wasip2.tar.xz'
+            use: wasm-wasip2
+
+        vars:
+          license: '|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA'
+          slot: 'stable'
+          inherit:
+            - bash-completion-r1
+            - toolchain-funcs
+          iuse: |
+            clippy doc rustfmt rust-analyzer
+            amd64 arm arm64 riscv64
+            {{- range $c := .Values.components }}
+            {{ $c.use }}
+            {{- end }}
+          restrict: strip
+          rdepend: |
+            app-eselect/eselect-rust
+          components:
+            - use: rust-src
+              name: rust-src
+
+            - use: wasm
+              name: rust-std
+              chost: wasm32-unknown-unknown
+
+            - use: wasm-wasip1
+              name: rust-std
+              chost: wasm32-wasip1
+
+            - use: wasm-wasip1-threads
+              name: rust-std
+              chost: wasm32-wasip1-threads
+
+            - use: wasm-wasip2
+              name: rust-std
+              chost: wasm32-wasip2
+
+          depend: '${RDEPEND}'
+          extra_envs:
+            - 'QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"'
+            - |
+              QA_PREBUILT="
+              opt/${P}/bin/.*
+              opt/${P}/lib/.*.so
+              opt/${P}/libexec/.*
+              opt/${P}/lib/rustlib/.*/bin/.*
+              opt/${P}/lib/rustlib/.*/lib/.*
+              "
+          body: |
+            rust_abi() {
+              local CTARGET=${1:-${CHOST}}
+              case ${CTARGET%%*-} in
+                x86_64*) echo x86_64-unknown-linux-gnu;;
+                armv6j*s*) echo arm-unknown-linux-gnueabi;;
+                armv6j*h*) echo arm-unknown-linux-gnueabihf;;
+                armv7a*h*) echo armv7-unknown-linux-gnueabihf;;
+                aarch64*) echo aarch64-unknown-linux-gnu;;
+                riscv64*) echo riscv64gc-unknown-linux-gnu;;
+              esac
+            }
+            src_unpack() {
+              default
+              mv "${WORKDIR}/rust-{{ .Values.version }}-$(rust_abi)" "${S}" || die
+              {{- range $c := .Values.components }}
+              if use {{ $c.use }} ; then
+                {{- if eq $c.use "rust-src" }}
+                mv "${WORKDIR}/{{ $c.name }}-{{ $.Values.version }}/{{ $c.name }}" "${S}"/rust-src
+                {{- else }}
+                mv "${WORKDIR}/{{ $c.name }}-{{ $.Values.version }}-{{ $c.chost }}/{{ $c.name }}-{{ $c.chost }}" "${S}"/{{ $c.name }}-{{ $c.chost }}
+                {{- end }}
+              fi
+              {{- end }}
+            }
+            src_prepare() {
+              default
+              {{- range $c := .Values.components }}
+              if use {{ $c.use }} ; then
+                {{- if eq $c.use "rust-src" }}
+                echo "{{ $c.name }}" >> components
+                {{- else }}
+                echo "{{ $c.name }}-{{ $c.chost }}" >> components
+                {{- end }}
+              fi
+              {{- end }}
+            }
+            src_install() {
+              pushd "${S}" >/dev/null || die
+              local std="$(grep -m 1 'std' ./components)"
+              local components=( "rustc" "cargo" "${std}" )
+              use doc && components+=( "rust-docs" )
+              use clippy && components+=( "clippy-preview" )
+              use rustfmt && components+=( "rustfmt-preview" )
+              use rust-src && components="${components},rust-src"
+              {{- range $c := .Values.components }}
+              if use {{ $c.use }} ; then
+                {{- if eq $c.use "rust-src" }}
+                components+=( "rust-src" )
+                {{- else }}
+                components+=( "{{ $c.name }}-{{ $c.chost }}" )
+                {{- end }}
+              fi
+              {{- end }}
+
+              if use rust-analyzer; then
+                local analysis="$(grep 'analysis' ./components || die "analysis not found in components")"
+                components+=( "rust-analyzer-preview" "${analysis}" )
+              fi
+              ./install.sh \
+                --components="$(IFS=,; echo "${components[*]}")" \
+                --disable-verify \
+                --prefix="${ED}/opt/${P}" \
+                --mandir="${ED}/opt/${P}/man" \
+                --disable-ldconfig \
+                || die
+
+              local symlinks=(
+                cargo
+                rustc
+                rustdoc
+                rust-gdb
+                rust-gdbgui
+                rust-lldb
+              )
+
+              use clippy && symlinks+=( clippy-driver cargo-clippy )
+              use rustfmt && symlinks+=( rustfmt cargo-fmt )
+
+              einfo "installing eselect-rust symlinks and paths"
+              local i
+              for i in "${symlinks[@]}"; do
+                # we need realpath on /usr/bin/* symlink return version-appended binary path.
+                # so /usr/bin/rustc should point to /opt/rust-bin-<ver>/bin/rustc-<ver>
+                local ver_i="${i}-bin-${PV}"
+                ln -v "${ED}/opt/${P}/bin/${i}" "${ED}/opt/${P}/bin/${ver_i}" || die
+                dosym "../../opt/${P}/bin/${ver_i}" "/usr/bin/${ver_i}"
+              done
+              # symlinks to switch components to active rust in eselect
+              dosym "../../../opt/${P}/lib" "/usr/lib/rust/lib-bin-${PV}"
+              dosym "../../../opt/${P}/man" "/usr/lib/rust/man-bin-${PV}"
+              dosym "../../opt/${P}/lib/rustlib" "/usr/lib/rustlib-bin-${PV}"
+              dosym "../../../opt/${P}/share/doc/rust" "/usr/share/doc/${P}"
+
+              newenvd "${FILESDIR}"/50rust-bin.envd "50${P}"
+
+              cp "${FILESDIR}"/provider-rust-bin "${T}/provider-${P}"
+
+              if use clippy ; then
+                echo /usr/bin/clippy-driver >> "${T}/provider-${P}"
+                echo /usr/bin/cargo-clippy >> "${T}/provider-${P}"
+              fi
+              if use rustfmt; then
+                echo /usr/bin/rustfmt >> "${T}/provider-${P}"
+                echo /usr/bin/cargo-fmt >> "${T}/provider-${P}"
+              fi
+
+              insinto /etc/env.d/rust
+              doins "${T}/provider-${P}"
+              popd >/dev/null || die
+
+              rm -f "${ED}/opt/${P}/lib/rustlib/"*/bin/rust-llvm-dwp || die
+            }
+            pkg_postinst() {
+              eselect rust update || die
+              elog "Rust installs a helper script for calling GDB now,"
+              elog "for your convenience it is installed under /usr/bin/rust-gdb-bin-${PV}."
+              if has_version app-editors/emacs; then
+                elog "install app-emacs/rust-mode to get emacs support for rust."
+              fi
+              if has_version app-editors/gvim || has_version app-editors/vim; then
+                elog "install app-vim/rust-vim to get vim support for rust."
+              fi
+            }
+            pkg_postrm() {
+              eselect rust cleanup || die
+            }
+

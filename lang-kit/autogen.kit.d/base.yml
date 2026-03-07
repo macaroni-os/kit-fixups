@@ -646,3 +646,46 @@ rust:
               eselect rust cleanup || die
             }
 
+
+deno:
+  generator: builtin-github
+  extensions_defs:
+    rust:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-libs
+    github:
+      user: denoland
+    extensions:
+      - rust
+    vars:
+      restrict: 'network-sandbox'
+      bdepend: |
+        sys-devel/llvm
+        sys-devel/clang
+        sys-devel/lld
+        dev-util/gn
+        virtual/rust
+      inherit:
+        - cargo
+      body: |
+        post_src_unpack() {
+          rm -rf "${S}" || true
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+        src_compile() {
+          # Don't try to fetch prebuilt V8, build it instead
+          export V8_FROM_SOURCE=1
+          cargo_src_compile
+        }
+        src_install() {
+          # Install the binary directly, cargo install doesn't work on workspaces
+          dobin target/release/deno
+        }
+
+  packages:
+    - deno:
+

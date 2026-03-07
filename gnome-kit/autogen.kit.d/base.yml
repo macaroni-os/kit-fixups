@@ -353,14 +353,15 @@ glycin_gitlab:
         LGPL-3+ MIT Unicode-3.0
         || ( LGPL-2.1+ MPL-2.0 )
       slot: 2
-      # TODO: svg creates a dep cycle because
+      # TODO: svg and libjxl creates a dep cycle because
       #       because librsvg requires gtk-pixbuf that requires gyncin-loaders
       rdepend: |
         dev-libs/glib:2
         sys-libs/libseccomp
         heif? ( >=media-libs/libheif-1.17.0:= )
-        jpegxl? ( media-libs/libjxl:= )
       depend: '${RDEPEND}'
+      pdepend: |
+        jpegxl? ( media-libs/libjxl:= )
 
   packages:
 
@@ -375,7 +376,7 @@ glycin_gitlab:
             - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
           gitlab_repo: glycin
           desc: Glycin C-Bindings for the library
-          iuse: heif jpeg2k jpegxl svg debug +vala
+          iuse: heif jpeg2k jpegxl svg debug +vala gtk4
           patches:
             - bump-rustix-libc-crate.patch
             - glycin-glibc-2.33.patch
@@ -416,8 +417,8 @@ glycin_gitlab:
                 -Dloaders="${formats_s// /,}"
                 -Dtests=false
                 -Dlibglycin=true
-                -Dlibglycin-gtk4=false
                 -Dglycin-thumbnailer=false
+                $(meson_use gtk4 libglycin-gtk4)
               )
               meson_src_configure
               ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
@@ -437,6 +438,7 @@ glycin_gitlab:
             dev-libs/glib:2
             sys-libs/libseccomp
             heif? ( >=media-libs/libheif-1.17.0:= )
+          pdepend: |
             jpegxl? ( media-libs/libjxl:= )
             svg? (
               gnome-base/librsvg:2

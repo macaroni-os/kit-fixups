@@ -160,9 +160,11 @@ maturin:
           inherit:
             - cargo
             - distutils-r1
+            - memsaver
           extra_envs:
             - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
             - 'CARGO_OPTIONAL="yes"'
+            - 'MEMSAVER_FACTOR=2000000'
           # setuptools-rust doesn't inject rust as dependency.
           # we need add this directly on bdepend.
           bdepend: |
@@ -179,6 +181,10 @@ maturin:
               sed -i -e '/GraalPy/d' pyproject.toml || die
             }
             src_configure() {
+              # Let memsaver adjust MAKEOPTS based on available RAM/cores FIRST
+              memsaver_src_configure
+              # Regenerate cargo config so it picks up the reduced job count
+              cargo_gen_config
               export OPENSSL_NO_VENDOR=1
               export ZSTD_SYS_USE_PKG_CONFIG=1
               local myfeatures=(

@@ -802,8 +802,8 @@ libxml2_python:
           default
           sed -e "/^dir_doc/ s/meson.project_name()$/\'${PF}\'/" -i meson.build || die
           # Permit to compile libxml2 on stage3 without git installed.
-          local# Hack git command with echo in order to print an empty string.
-          sed -src_configuree 's|git|echo|g' -e 's|describe||g' -i meson.build || die
+          # Hack git command with echo in order to print an empty string.
+          sed -e 's|git|echo|g' -e 's|describe||g' -i meson.build || die
         }
         src_configure() {
           local emesonargs=(

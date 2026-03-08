@@ -672,10 +672,19 @@ deno:
         virtual/rust
       inherit:
         - cargo
+        - memsaver
+      extra_envs:
+        - 'MEMSAVER_FACTOR=2000000'
       body: |
         post_src_unpack() {
           rm -rf "${S}" || true
           mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+        src_configure() {
+          # Let memsaver adjust MAKEOPTS based on available RAM/cores FIRST
+          memsaver_src_configure
+          # Regenerate cargo config so it picks up the reduced job count
+          cargo_gen_config
         }
         src_compile() {
           # Don't try to fetch prebuilt V8, build it instead

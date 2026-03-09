@@ -164,7 +164,7 @@ maturin:
           extra_envs:
             - 'ECARGO_BUNDLE_POSTFIX="mark-rust-bundle"'
             - 'CARGO_OPTIONAL="yes"'
-            - 'MEMSAVER_FACTOR=2000000'
+            - 'MEMSAVER_FACTOR=10000000'
           # setuptools-rust doesn't inject rust as dependency.
           # we need add this directly on bdepend.
           bdepend: |

@@ -2229,3 +2229,64 @@ cmocka:
         }
   packages:
     - cmocka:
+
+gn:
+  generator: builtin-noop
+  defaults:
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+        url: 'https://gn.googlesource.com/gn/%2Barchive/{{ .Values.sha }}.tar.gz'
+    files_dir: "{{ .Values.pn }}"
+    category: dev-util
+    template: ../../templates/simple.tmpl
+    vars:
+      versions:
+        - '0.2341'
+      #sha: 129ce6b9af1a93143acd8f8dea6fb8c6cb65abc9
+      sha: d8c2f07d653520568da7cace755a87dad241b72d
+      homepage: https://gn.googlesource.com/
+      desc: GN is a meta-build system that generates build files for Ninja
+      python_compat: python3+
+      license: BSD
+      bdepend: |
+        ${PYTHON_DEPS}
+        dev-util/ninja
+      inherit:
+        - ninja-utils
+        - python-any-r1
+        - toolchain-funcs
+      body: |
+        src_unpack() {
+          mkdir "${S}"
+          cd "${S}"
+          unpack "${A}"
+        }
+        pkg_setup() {
+          :
+        }
+        src_configure() {
+          mkdir out/
+          cp "${FILESDIR}"/last_commit_position.h out/
+          sed -i \
+            -e 's|PV|{{ .Values.version }}|g' \
+            -e 's|SHA|macaroni-{{ substr 0 7 .Values.sha }}|g' \
+            out/last_commit_position.h
+          python_setup
+          tc-export AR CC CXX
+          unset CFLAGS
+          set -- ${EPYTHON} build/gen.py --no-last-commit-position --no-strip --no-static-libstdc++ --allow-warnings
+          echo "$@" >&2
+          "$@" || die
+        }
+        src_compile() {
+          eninja -C out gn
+        }
+        src_install() {
+          dobin out/gn
+          einstalldocs
+          insinto /usr/share/vim/vimfiles
+          doins -r misc/vim/{autoload,ftdetect,ftplugin,syntax}
+        }
+
+  packages:
+    - gn:

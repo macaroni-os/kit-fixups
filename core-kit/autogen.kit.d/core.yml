@@ -1323,3 +1323,98 @@ expat:
   packages:
     - expat:
 
+
+glibc:
+  generator: builtin-dirlisting
+  defaults:
+    category: sys-libs
+    files_dir: "{{ .Values.pn }}"
+    template: templates/glibc.tmpl
+    dir:
+      url: https://ftp.gnu.org/gnu/glibc/
+      matcher: '{{ .Values.pn }}-2.*.tar.xz'
+    selector:
+      - '2.41'
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://ftp.gnu.org/gnu/glibc/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-patches-{{ .Values.patch_version }}.tar.xz'
+        url: 'https://dev.gentoo.org/~{{ .Values.patch_dev }}/distfiles/{{ .Values.pn }}-{{ .Values.version }}-patches-{{ .Values.patch_version }}.tar.xz'
+      - name: '{{ .Values.pn }}-systemd-{{ .Values.glibc_systemd_version }}.tar.gz'
+        url: 'https://gitweb.gentoo.org/proj/toolchain/glibc-systemd.git/snapshot/{{ .Values.pn }}-systemd-{{ .Values.glibc_systemd_version }}.tar.gz'
+        use: systemd
+    vars:
+      desc: 'GNU libc C library'
+      gcc_bootstrap_version: '20201208'
+      glibc_systemd_version: '20210729'
+      homepage: 'https://www.gnu.org/software/libc/'
+      iuse: audit caps cet compile-locales custom-cflags doc gd hash-sysv-compat nscd perl profile selinux +ssp stack-realign +static-libs suid systemd systemtap test vanilla
+      #bdepend: ''
+      #depend: '${RDEPEND}'
+      inherit:
+        - flag-o-matic
+        - gnuconfig
+        - multiprocessing
+        - preserve-libs
+        - python-any-r1
+        - systemd
+        - tmpfiles
+        - toolchain-funcs
+      license: 'LGPL-2.1+ BSD HPND ISC inner-net rc PCRE'
+      min_kernel_version: '3.2.0'
+      min_pax_utils_version: '1.3.3'
+      min_systemd_version: '254.9'
+      patch_dev: 'dilfridge'
+      patch_version: '12'
+      python_compat: python3+
+      #rdepend: ''
+      required_use: ''
+      restrict: '!test? ( test )'
+      slot: '2.2'
+
+  packages:
+    - glibc:
+
+locale_gen:
+  generator: builtin-github
+  defaults:
+    category: sys-apps
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: gentoo
+      repo: locale-gen
+      query: tags
+    selector:
+      - '<3.0'
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.bz2"
+        replace: ""
+    vars:
+      desc: 'Generate locales based upon the config file /etc/locale.gen'
+      homepage: 'https://gitweb.gentoo.org/proj/locale-gen.git/ https://github.com/gentoo/locale-gen'
+      rdepend: |
+        app-shells/bash
+        !!<sys-libs/glibc-2.37-r3
+      body: |
+        src_install() {
+          dosbin locale-gen
+          doman *.[0-8]
+          insinto /etc
+          doins locale.gen
+          keepdir /usr/lib/locale
+        }
+
+  packages:
+    - locale-gen:

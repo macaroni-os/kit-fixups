@@ -510,3 +510,73 @@ gnome_apps:
             pkg_postrm() {
               gnome3_pkg_postrm
             }
+
+pax_utils:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-misc
+    dir:
+      url: https://dev.gentoo.org/~floppym/dist/
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    selector:
+      - '>1.3.3'
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      desc: ELF utils that can check files for security relevant properties
+      homepage: 'https://wiki.gentoo.org/wiki/Hardened/PaX_Utilities'
+      license: GPL-2
+      bdepend: |
+        caps? ( virtual/pkgconfig )
+        man? ( app-text/xmlto )
+      depend: '${RDEPEND}'
+      rdepend: |
+        caps? ( sys-libs/libcap )
+        python? (
+          ${PYTHON_DEPS}
+          $(python_gen_cond_dep 'dev-python/pyelftools[${PYTHON_USEDEP}]')
+        )
+      inherit:
+        - meson
+        - python-single-r1
+      iuse: caps man python seccomp
+      python_compat: python3+
+      required_use: |
+        python? ( ${PYTHON_REQUIRED_USE} )
+      body: |
+        pkg_setup() {
+          if use python; then
+            python-single-r1_pkg_setup
+          fi
+        }
+        src_configure() {
+          local emesonargs=(
+            "-Dlddtree_implementation=$(usex python python sh)"
+            $(meson_feature caps use_libcap)
+            $(meson_feature man build_manpages)
+            $(meson_use seccomp use_seccomp)
+            -Dtests=false
+            # fuzzing is currently broken
+            -Duse_fuzzing=false
+          )
+          meson_src_configure
+        }
+        src_install() {
+          meson_src_install
+
+          use python && python_fix_shebang "${ED}"/usr/bin/lddtree
+        }
+
+  packages:
+    - pax-utils:

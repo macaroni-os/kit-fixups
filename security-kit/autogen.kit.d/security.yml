@@ -61,6 +61,22 @@ sys_apps:
 
   packages:
 
+    - libxcrypt:
+        category: sys-libs
+        github:
+          user: besser82
+        vars:
+          body: |
+            src_configure() {
+              ./autogen.sh
+              # Do not install into /usr so that tcb and pam can use us.
+              econf --libdir=/$(get_libdir) --disable-static
+            }
+            src_install() {
+              default
+              prune_libtool_files
+            }
+
     - bubblewrap:
         github:
           user: containers

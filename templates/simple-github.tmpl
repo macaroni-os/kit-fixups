@@ -100,5 +100,8 @@ post_src_unpack() {
 {{ if .Values.body }}
 {{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
 {{ end }}
+{{- if .Values.body_raw }}
+{{ .Values.body_raw }}
+{{- end }}
 
 # vim: filetype=ebuild

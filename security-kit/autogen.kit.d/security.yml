@@ -66,6 +66,11 @@ sys_apps:
         github:
           user: besser82
         vars:
+          rdepend: |
+            >=sys-libs/glibc-2.41
+          depend: '${RDEPEND}'
+          inherit:
+            - ltprune
           body: |
             src_configure() {
               ./autogen.sh

@@ -82,10 +82,6 @@ S="{{ .Values.s }}"
 # Bumping notes: https://wiki.gentoo.org/wiki/Project:Toolchain/sys-libs/glibc
 # Please read & adapt the page as necessary if obsolete.
 
-TMPFILES_OPTIONAL=1
-
-# Gentoo patchset
-PATCH_VER={{ .Values.patch_version }}
 PATCH_DEV={{ .Values.patch_dev }}
 
 # gcc mulitilib bootstrap files version
@@ -636,7 +632,9 @@ foreach_abi() {
 
 glibc_banner() {
 	local b="MacaroniOS ${PVR}"
-	[[ -n ${PATCH_VER} ]] && ! use vanilla && b+=" (Gentoo patchset ${PATCH_VER})"
+	{{- if .Values.patch_version | default false }}
+	! use vanilla && b+=" (Gentoo patchset {{ .Values.patch_version }})"
+	{{- end }}
 	echo "${b}"
 }
 
@@ -828,8 +826,10 @@ src_unpack() {
 	sanity_prechecks
 	unpack ${P}.tar.xz
 
+	{{- if .Values.patch_version | default false }}
 	cd "${WORKDIR}" || die
-	unpack glibc-${PV}-patches-${PATCH_VER}.tar.xz
+	unpack glibc-${PV}-patches-{{ .Values.patch_version }}.tar.xz
+	{{- end }}
 
 	cd "${WORKDIR}" || die
 	use systemd && unpack glibc-systemd-${GLIBC_SYSTEMD_VER}.tar.gz
@@ -840,7 +840,7 @@ src_unpack() {
 src_prepare() {
 	local patchsetname
 	if ! use vanilla ; then
-		patchsetname="${PV}-${PATCH_VER}"
+		patchsetname="${PV}-{{ .Values.patch_version }}"
 		einfo "Applying Gentoo Glibc patchset ${patchsetname}"
 		eapply "${WORKDIR}"/patches
 		einfo "Done."

@@ -1378,6 +1378,8 @@ glibc:
       required_use: ''
       restrict: '!test? ( test )'
       slot: '2.2'
+      extra_envs:
+        - 'TMPFILES_OPTIONAL=1'
 
   packages:
     - glibc:

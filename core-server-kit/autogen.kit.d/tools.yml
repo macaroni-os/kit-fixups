@@ -1806,6 +1806,129 @@ github_pkgs:
 
   packages:
 
+    - runc:
+        category: app-emulation
+        github:
+          user: opencontainers
+        excludes:
+          - 'rc'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }} '
+            replace: ''
+          - kind: regex
+            match: ' --.*'
+            replace: ''
+          - kind: regex
+            match: 'v'
+            replace: ''
+        vars:
+          inherit:
+            - go-module
+          iuse: apparmor hardened +kmem +seccomp
+          rdepend: |
+            seccomp? ( sys-libs/libseccomp )
+            apparmor? ( sys-libs/libapparmor )
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-go/go-md2man
+            virtual/pkgconfig
+          body: |
+            src_compile() {
+              local options=(
+                $(usev apparmor)
+                $(usev seccomp)
+                $(usex kmem '' 'nokmem')
+              )
+              myemakeargs=(
+                BUILDTAGS="${options[*]}"
+                COMMIT="{{ .Values.sha }}"
+              )
+              export GOFLAGS="-v -x -mod=vendor"
+              emake "${myemakeargs[@]}" runc man
+            }
+            src_install() {
+              myemakeargs+=(
+                PREFIX="${ED}/usr"
+                BINDIR="${ED}/usr/bin"
+                MANDIR="${ED}/usr/share/man"
+              )
+              emake "${myemakeargs[@]}" install install-man install-bash
+              local DOCS=( README.md PRINCIPLES.md docs/. )
+              einstalldocs
+            }
+
+    - containerd:
+        category: app-emulation
+        github:
+          match: 'containerd [0-9]+.*'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }} '
+            replace: ''
+        vars:
+          inherit:
+            - go-module
+            - systemd
+          iuse: apparmor btrfs device-mapper +cri hardened +seccomp systemd
+          cdepend: |
+            btrfs? ( sys-fs/btrfs-progs )
+            seccomp? ( sys-libs/libseccomp )
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            app-emulation/runc
+          bdepend: |
+            virtual/pkgconfig
+            dev-go/go-md2man
+          restrict: strip
+          body: |
+            src_prepare() {
+              default
+              sed -i \
+                -e "s/-s -w//" \
+                Makefile || die
+              sed -i \
+                -e "s:/usr/local:/usr:" \
+                containerd.service || die
+            }
+            src_compile() {
+              local options=(
+                $(usev apparmor)
+                $(usex btrfs "" "no_btrfs")
+                $(usex cri "" "no_cri")
+                $(usex device-mapper "" "no_devmapper")
+                $(usev seccomp)
+              )
+              myemakeargs=(
+                BUILDTAGS="${options[*]}"
+                LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')"
+                REVISION="{{ .Values.sha }}"
+                VERSION=v{{ .Values.original_version }}
+              )
+              # race condition in man target https://bugs.gentoo.org/765100
+              # we need to explicitly specify GOFLAGS for "go run" to use vendor source
+              # See https://bugs.funtoo.org/browse/FL-9417
+              export GOFLAGS="-v -x -mod=vendor"
+              emake "${myemakeargs[@]}" man -j1 #nowarn
+              emake "${myemakeargs[@]}" all
+            }
+            src_install() {
+              dobin bin/*
+              doman man/*
+              if use systemd ; then
+                systemd_dounit containerd.service
+              else
+                newinitd "${FILESDIR}"/${PN}.initd "${PN}"
+              fi
+              keepdir /var/lib/containerd
+              # we already installed manpages, remove markdown source
+              # before installing docs directory
+              rm -r docs/man || die
+              local DOCS=( ADOPTERS.md README.md RELEASES.md ROADMAP.md SCOPE.md docs/. )
+              einstalldocs
+            }
+
     - libqb:
         github:
           user: ClusterLabs

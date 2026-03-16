@@ -1804,13 +1804,360 @@ github_pkgs:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple-github.tmpl
 
+  extensions_defs:
+    golang:
+      opts:
+
   packages:
+
+    - docker-registry:
+        category: app-emulation
+        github:
+          user: distribution
+          repo: distribution
+        vars:
+          extra_envs:
+            - SVCNAME=registry
+          inherit:
+            - systemd
+            - user
+          iuse: systemd
+          desc: Docker Registry
+          body: |
+            pkg_setup() {
+              enewgroup ${SVCNAME}
+              enewuser ${SVCNAME} -1 -1 /dev/null ${SVCNAME}
+            }
+            src_prepare() {
+              default
+              sed -i -e "s/git describe.*/echo ${PV})/"\
+                -e "s/git rev-parse.*/echo {{ .Values.sha }})/"\
+                -e "s/-s -w/-w/" Makefile || die
+            }
+            src_compile() {
+              export -n GOCACHE XDG_CACHE_HOME #681072
+              GOPATH="${S}" GO_BUILD_FLAGS="-v" emake binaries
+            }
+            src_install() {
+              exeinto /usr/libexec/{{ .Values.pn }}
+              doexe bin/*
+              insinto /etc/docker/registry
+              newins cmd/registry/config-example.yml config.yml.example
+              newconfd "${FILESDIR}/${SVCNAME}.confd" "${SVCNAME}"
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}/${SVCNAME}.service"
+              else
+                newinitd "${FILESDIR}/${SVCNAME}.initd" "${SVCNAME}"
+              fi
+              keepdir /var/{lib,log}/${SVCNAME}
+              fowners ${SVCNAME}:${SVCNAME} /var/{lib,log}/${SVCNAME}
+              insinto /etc/logrotate.d
+              newins "${FILESDIR}/${SVCNAME}.logrotated" "${SVCNAME}"
+            }
+
+    - firecracker-bin:
+        template: ../../templates/simple.tmpl
+        category: app-emulation
+        github:
+          user: firecracker-microvm
+          repo: firecracker
+        transform:
+          - kind: string
+            match: 'Firecracker '
+            replace: ''
+          - kind: string
+            match: 'v'
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}-x86_64.tgz'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-.*-x86_64.tgz$'
+            use: amd64
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}-aarch64.tgz'
+            matcher: '{{ .Values.pn | replace "-bin" "" }}-.*-aarch64.tgz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          restrict: strip
+          s: '${WORKDIR}'
+          inherit:
+            - user
+          extra_envs:
+            - |
+              QA_PREBUILT="/usr/bin/firecracker
+              /usr/bin/jailer"
+          body: |
+            pkg_setup() {
+              enewgroup kvm
+            }
+            src_compile() { :; }
+            src_install() {
+              if use amd64; then
+                my_arch=x86_64
+              elif use arm64; then
+                my_arch=aarch64
+              fi
+              newbin "${WORKDIR}/release-v{{ .Values.version }}-${my_arch}/firecracker-v${PV}-${my_arch}" firecracker
+              newbin "${WORKDIR}/release-v{{ .Values.version }}-${my_arch}/jailer-v${PV}-${my_arch}" jailer
+            }
+            pkg_postinst() {
+              elog
+              elog "In production, Firecracker is designed to be run securely,"
+              elog "inside an execution jail, carefully set up by the jailer binary."
+              elog "Jailer is already included in this package."
+              elog
+              elog "It is recommended to use Firecracker as a non-root user."
+              elog "You will need to add yourself to the 'kvm' group:"
+              elog "  usermod -aG kvm youruser"
+              elog
+              elog "Getting Started with Firecracker: https://github.com/firecracker-microvm/firecracker/blob/master/docs/getting-started.md"
+              elog "Production Host Setup Recommendations: https://github.com/firecracker-microvm/firecracker/blob/master/docs/prod-host-setup.md"
+              elog "README: https://github.com/firecracker-microvm/firecracker/blob/master/README.md"
+              elog "The Firecracker Jailer: https://github.com/firecracker-microvm/firecracker/blob/master/docs/jailer.md"
+            }
+
+    - docker-compose:
+        category: app-emulation
+        github:
+          user: docker
+          repo: compose
+        extensions:
+          - golang
+        vars:
+          inherit:
+            - bash-completion-r1
+            - go-module
+          rdepend: |
+            app-emulation/docker-cli
+          body: |
+            src_prepare() {
+              default
+              # do not strip
+              sed -i -e 's/-s -w//' Makefile || die
+            }
+            src_compile() {
+              emake VERSION=v${PV}
+            }
+            src_install() {
+              exeinto /usr/libexec/docker/cli-plugins
+              doexe bin/build/docker-compose
+              dodoc README.md
+            }
+
+    - docker-buildx:
+        category: app-emulation
+        github:
+          user: docker
+          repo: buildx
+        vars:
+          inherit:
+            - bash-completion-r1
+            - go-module
+          slot: 2
+          body: |
+            src_prepare() {
+              default
+              # do not strip
+              sed -i -e 's/-s -w//' Makefile || die
+            }
+            src_compile() {
+              local _buildx_r='github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}'
+              go build -o docker-buildx \
+                -v -x -mod=vendor \
+                -ldflags "-linkmode=external \
+                -X $_buildx_r/version.Version={{ .Values.version }} \
+                -X $_buildx_r/version.Revision={{ .Values.sha }} \
+                -X $_buildx_r/version.Package=$_buildx_r" \
+                ./cmd/buildx
+            }
+            src_install() {
+              exeinto /usr/libexec/docker/cli-plugins
+              doexe docker-buildx
+              dodoc README.md
+            }
+
+
+    - docker-cli:
+        category: app-emulation
+        github:
+          user: docker
+          repo: cli
+          query: tags
+        exclude:
+          - rc
+        vars:
+          desc: The command-line interface for Docker
+          iuse: hardened
+          inherit:
+            - bash-completion-r1
+          bdepend: |
+            dev-go/go-md2man
+          pdepend: |
+            app-emulation/docker-buildx
+          restrict: strip
+          body: |
+            src_prepare() {
+              default
+              sed -i 's@dockerd\?\.exe@@g' contrib/completion/bash/docker || die
+              ln -s vendor.mod go.mod
+              ln -s vendor.sum go.sum
+            }
+            src_compile() {
+              export DISABLE_WARN_OUTSIDE_CONTAINER=1
+              export GOPATH="${WORKDIR}/${P}"
+              export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
+              export CGO_LDFLAGS="-L${ESYSROOT}/usr/$(get_libdir)"
+              export GOFLAGS="-v -x -mod=vendor"
+              emake \
+              LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')" \
+              VERSION="{{ .Values.version }}-macaroni" \
+              GITCOMMIT="{{ substr 0 7 .Values.sha }}" \
+              dynbinary manpages
+            }
+            src_install() {
+              dobin build/docker
+              doman man/man*/*
+              dobashcomp contrib/completion/bash/*
+              bashcomp_alias docker dockerd
+              insinto /usr/share/fish/vendor_completions.d/
+              doins contrib/completion/fish/docker.fish
+              insinto /usr/share/zsh/site-functions
+              doins contrib/completion/zsh/_*
+            }
+
+    - docker:
+        category: app-emulation
+        github:
+          user: moby
+          repo: moby
+          query: releases
+          #ignore_tags: true
+          match: '^29.*'
+
+          num_pages: 6
+          per_page: 100
+        exclude:
+          - rc
+        vars:
+          inherit:
+            - go-module
+            - systemd
+            - udev
+            - user
+          iuse: |
+            apparmor btrfs +container-init
+            +overlay2 seccomp systemd
+          cdepend: |
+            dev-db/sqlite:3
+            apparmor? ( sys-libs/libapparmor )
+            btrfs? ( sys-fs/btrfs-progs )
+            seccomp? ( sys-libs/libseccomp )
+            net-firewall/nftables:=
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            sys-process/procps
+            dev-vcs/git
+            app-arch/xz-utils
+            app-emulation/containerd[apparmor?,btrfs?,seccomp?]
+            app-emulation/runc[apparmor?,seccomp?]
+            container-init? ( sys-process/tini[static] )
+          bdepend: |
+            dev-go/go-md2man
+            virtual/pkgconfig
+          body: |
+            pkg_setup() {
+              enewgroup docker 48
+            }
+            src_compile() {
+              export DOCKER_GITCOMMIT="{{ substr 0 7 .Values.sha }}"
+              export GOPATH="${WORKDIR}/${P}"
+              export VERSION="{{ .Values.version }}-macaroni"
+              export EXCLUDE_AUTO_BUILDTAG_JOURNALD=$(usex systemd '' 'y')
+
+              # setup CFLAGS and LDFLAGS for separate build target
+              # see https://github.com/tianon/docker-overlay/pull/10
+              export CGO_CFLAGS="-I${ESYSROOT}/usr/include"
+              export CGO_LDFLAGS="-L${ESYSROOT}/usr/$(get_libdir)"
+
+              # let's set up some optional features :)
+              export DOCKER_BUILDTAGS=''
+              for gd in btrfs overlay2; do
+                if ! use $gd; then
+                  DOCKER_BUILDTAGS+=" exclude_graphdriver_${gd//-/}"
+                fi
+              done
+
+              for tag in apparmor seccomp; do
+                if use $tag; then
+                  DOCKER_BUILDTAGS+=" $tag"
+                fi
+              done
+
+              export GOFLAGS="-v -x -mod=vendor"
+              # build binaries
+              ./hack/make.sh dynbinary || die 'dynbinary failed'
+              # build man page
+              cd man || die
+              emake || die
+            }
+            src_install() {
+              dosym containerd /usr/bin/docker-containerd
+              dosym containerd-shim-runc-v2 /usr/bin/docker-containerd-shim
+              dosym runc /usr/bin/docker-runc
+              use container-init && dosym tini /usr/bin/docker-init
+              dobin bundles/dynbinary-daemon/dockerd
+              dobin bundles/dynbinary-daemon/docker-proxy
+              for f in dockerd-rootless-setuptool.sh dockerd-rootless.sh; do
+                dosym ../share/docker/contrib/${f} /usr/bin/${f}
+              done
+              newconfd "${FILESDIR}"/docker.confd docker
+              if use systemd ; then
+                systemd_dounit contrib/init/systemd/docker.{service,socket}
+              else
+                newinitd "${FILESDIR}"/docker.initd docker
+              fi
+
+              dodoc AUTHORS CONTRIBUTING.md NOTICE README.md
+              dodoc -r docs/*
+              doman man/man8/dockerd.8
+
+              # note: intentionally not using "doins" so that we preserve +x bits
+              dodir /usr/share/${PN}/contrib
+              cp -R contrib/* "${ED}/usr/share/${PN}/contrib"
+            }
+            pkg_postinst() {
+              udev_reload
+              elog
+              elog "To use Docker, the Docker daemon must be running as root. To automatically"
+              elog "start the Docker daemon at boot:"
+              if systemd_is_booted || has_version sys-apps/systemd; then
+                elog "  systemctl enable docker.service"
+              else
+                elog "  rc-update add docker default"
+              fi
+              elog
+              elog "To use Docker as a non-root user, add yourself to the 'docker' group:"
+              elog '  usermod -aG docker <youruser>'
+              elog
+              if has_version sys-fs/zfs; then
+                elog " ZFS storage driver is available"
+                elog " Check https://docs.docker.com/storage/storagedriver/zfs-driver for more info"
+                elog
+              fi
+              elog
+              elog "For rootless mode support you need sys-apps/shadow, sys-apps/rootlesskit"
+              elog "and a network stack for like app-emulation/slirp4netns"
+            }
+            pkg_postrm() {
+              udev_reload
+            }
+
 
     - runc:
         category: app-emulation
         github:
           user: opencontainers
-        excludes:
+        exclude:
           - 'rc'
         transform:
           - kind: string
@@ -1853,6 +2200,7 @@ github_pkgs:
                 BINDIR="${ED}/usr/bin"
                 MANDIR="${ED}/usr/share/man"
               )
+              export GOFLAGS="-v -x -mod=vendor"
               emake "${myemakeargs[@]}" install install-man install-bash
               local DOCS=( README.md PRINCIPLES.md docs/. )
               einstalldocs
@@ -1904,11 +2252,8 @@ github_pkgs:
                 BUILDTAGS="${options[*]}"
                 LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')"
                 REVISION="{{ .Values.sha }}"
-                VERSION=v{{ .Values.version }}
+                VERSION="v{{ .Values.version }}"
               )
-              # race condition in man target https://bugs.gentoo.org/765100
-              # we need to explicitly specify GOFLAGS for "go run" to use vendor source
-              # See https://bugs.funtoo.org/browse/FL-9417
               export GOFLAGS="-v -x -mod=vendor"
               emake "${myemakeargs[@]}" man -j1 #nowarn
               emake "${myemakeargs[@]}" all

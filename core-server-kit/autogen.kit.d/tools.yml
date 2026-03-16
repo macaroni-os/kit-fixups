@@ -1904,7 +1904,7 @@ github_pkgs:
                 BUILDTAGS="${options[*]}"
                 LDFLAGS="$(usex hardened '-extldflags -fno-PIC' '')"
                 REVISION="{{ .Values.sha }}"
-                VERSION=v{{ .Values.original_version }}
+                VERSION=v{{ .Values.version }}
               )
               # race condition in man target https://bugs.gentoo.org/765100
               # we need to explicitly specify GOFLAGS for "go run" to use vendor source

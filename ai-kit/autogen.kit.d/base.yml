@@ -13,6 +13,87 @@ ollama:
 
   packages:
 
+    - docker-model:
+        github:
+          user: docker
+          repo: model-runner
+        extensions:
+          - golang
+        transform:
+          - kind: string
+            match: 'Docker Model Runner v'
+            replace: ''
+        vars:
+          inherit:
+            - go-module
+          bdepend: |
+            virtual/pkgconfig
+            compress? ( app-arch/upx-bin )
+          iuse: compress +runner
+          body: |
+            src_compile() {
+              # Compile model-cli
+              pushd cmd/cli >/dev/null
+              local cli_ldflags=(
+                "-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/cmd/cli/desktop.Version={{ .Values.version }}\""
+              )
+              local runner_ldflags=(
+                "-X \"main.Version={{ .Values.version }}\""
+              )
+              go build \
+                -ldflags "${cli_ldflags[*]}" \
+                -o ../../{{ .Values.pn }} -v -x || die
+              popd >/dev/null
+              if use compress ; then
+                upx --brute -1 {{ .Values.pn }} || die
+              fi
+
+              if use runner ; then
+                go build \
+                  -ldflags "${runner_ldflags[*]}" \
+                  -o model-runner
+              fi
+            }
+            src_install() {
+              exeinto /usr/libexec/docker/cli-plugins
+              doexe {{ .Values.pn }}
+              dodoc README.md
+              if use runner ; then
+                dobin model-runner
+              fi
+            }
+
+    - docker-agent:
+        github:
+          user: docker
+        extensions:
+          - golang
+        vars:
+          inherit:
+            - go-module
+          bdepend: |
+            virtual/pkgconfig
+            compress? ( app-arch/upx-bin )
+          iuse: +compress
+          body: |
+            src_compile() {
+              custom_ldflags=(
+                "-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/pkg/version.Version={{ .Values.version }}\""
+                "-X \"github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/pkg/version.Commit={{ .Values.sha }}\""
+              )
+              go build \
+                -ldflags "${custom_ldflags[*]}" \
+                -o {{ .Values.pn }} -v -x || die
+              if use compress ; then
+                upx --brute -1 {{ .Values.pn }} || die
+              fi
+            }
+            src_install() {
+              exeinto /usr/libexec/docker/cli-plugins
+              doexe {{ .Values.pn }}
+              dodoc README.md
+            }
+
     - llama-cpp:
         github:
           #per_page: 5

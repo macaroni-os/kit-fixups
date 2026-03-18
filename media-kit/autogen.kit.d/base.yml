@@ -2125,6 +2125,7 @@ gstreamer_stuff:
               gbm? ( egl )
             )
           rdepend: |
+            media-libs/gstreamer:{{ .Values.slot }}[introspection?]
             app-text/iso-codes
             dev-libs/glib:2
             sys-libs/zlib

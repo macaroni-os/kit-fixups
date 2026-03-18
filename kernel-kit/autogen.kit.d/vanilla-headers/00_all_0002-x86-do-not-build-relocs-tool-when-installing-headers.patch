@@ -1,0 +1,33 @@
+From 57875de37c5375ea95e1e949ec7c741d0038d3a1 Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Sat, 15 Nov 2014 03:37:38 -0500
+Subject: [PATCH] x86: do not build relocs tool when installing headers
+
+This isn't needed to install headers, so don't bother building it.
+Otherwise we run into a chicken/egg issue where we need the kernel
+headers in order to install the kernel headers.  It's also a waste
+of time.
+
+Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+---
+ arch/x86/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 60135cbd905c..9b15b2daa77f 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -215,8 +215,10 @@
+ endif
+ 
+ 
++ifneq ($(filter-out headers_install,$(MAKECMDGOALS)),)
+ archscripts: scripts_basic
+ 	$(Q)$(MAKE) $(build)=arch/x86/tools relocs
++endif
+ 
+ ###
+ # Syscall table generation
+-- 
+2.16.1
+

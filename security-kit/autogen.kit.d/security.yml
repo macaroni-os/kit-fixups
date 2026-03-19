@@ -66,6 +66,8 @@ sys_apps:
         github:
           user: besser82
         vars:
+          bdepend: |
+            !!<sys-apps/man-pages-6.17
           rdepend: |
             >=sys-libs/glibc-2.41
           depend: '${RDEPEND}'

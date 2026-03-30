@@ -1070,6 +1070,26 @@ x11_apps_econf_dirlisting:
         }
 
   packages:
+
+    - xsm:
+        vars:
+          desc: X Session Manager
+          xorg_path: app/
+          rdepend: |
+            x11-libs/libXaw
+            x11-libs/libX11
+            x11-libs/libXt
+            x11-libs/libICE
+            x11-libs/libSM
+          body_extra: |
+            pkg_setup() {
+              local XSMPATH="${EROOT}/usr/$(get_libdir)/X11/xsm"
+              if [[ -L ${XSMPATH} ]]; then
+                einfo "Removing symlink ${XSMPATH}"
+                rm -f ${XSMPATH} || die "failed to remove symlink ${XSMPATH}"
+              fi
+            }
+
     - appres:
         vars:
           desc: list X application resource database

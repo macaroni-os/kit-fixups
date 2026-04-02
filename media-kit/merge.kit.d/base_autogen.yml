@@ -65,13 +65,13 @@ target:
     - pkg: media-libs/libraw
     - pkg: media-libs/libvisio
     - pkg: media-libs/musicbrainz
+    - pkg: media-libs/openjpeg
 
     - pkg: media-libs/sdl2-image
     - pkg: media-libs/sdl2-ttf
       # force condition to skip 3.x versions
       conditions:
         - '<media-libs/sdl2-ttf-3.0'
-
 
     - pkg: media-libs/sdl3-image
     - pkg: media-libs/sdl3-ttf

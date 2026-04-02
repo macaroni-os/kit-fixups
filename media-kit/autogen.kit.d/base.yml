@@ -591,6 +591,51 @@ libs_gh:
 
   packages:
 
+    - openjpeg:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: uclouvain
+        transform:
+          - kind: string
+            match: 'OpenJPEG '
+            replace: ''
+        vars:
+          inherit:
+            - cmake
+            - flag-o-matic
+          slot: '2/7'
+          iuse: doc
+          rdepend: |
+            media-libs/lcms:2
+            media-libs/libpng:0=
+            media-libs/tiff:=
+            sys-libs/zlib:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            doc? ( app-doc/doxygen )
+          docs:
+            - AUTHORS.md
+            - CHANGELOG.md
+            - NEWS.md
+            - README.md
+            - THANKS.md
+          body: |
+            src_prepare() {
+              rm -r thirdparty/lib* thirdparty/include || die
+              cmake_src_prepare
+            }
+            src_configure() {
+              append-lfs-flags
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DBUILD_DOC=$(usex doc ON OFF)
+                -DBUILD_CODEC=ON
+                -DBUILD_STATIC_LIBS=OFF
+                -DBUILD_THIRDPARTY=OFF
+              )
+              cmake_src_configure
+            }
+
     - fontforge:
         category: media-gfx
         github:

@@ -40,21 +40,29 @@ target:
 
     - pkg: net-libs/deno
 
-    # Nodejs
+    # Nodejs 14
     - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-14.0.0'
         - '<net-libs/nodejs-15.0.0'
 
+    # Nodejs 20
     - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-20.0.0'
         - '<net-libs/nodejs-21.0.0'
 
+    # Nodejs 22
     - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-22.0.0'
         - '<net-libs/nodejs-23.0.0'
+
+    # Nodejs 24
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-24.0.0'
+        - '<net-libs/nodejs-25.0.0'
 
     # Pascal
     - pkg: dev-lang/fpc

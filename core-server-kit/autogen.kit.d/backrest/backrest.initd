@@ -7,6 +7,7 @@ command=/usr/bin/backrest
 command_args="${backrest_args}"
 buser=${backrest_user:-backrest}
 bgroup=${backrest_group:-backrest}
+pidfile=${backrest_pidfile:-/var/run/backrest.pid}
 
 if [ -n "${BACKREST_PORT}" ] ; then
 	start_stop_daemon_args="${start_stop_daemon_args} \
@@ -34,7 +35,7 @@ start() {
 	start-stop-daemon --start \
 		--user ${buser} \
 		--group ${bgroup} \
-		--pidfile ${PIDFILE} \
+		--pidfile ${pidfile} \
 		--exec ${command} \
 		--background \
 		${start_stop_daemon_args} \

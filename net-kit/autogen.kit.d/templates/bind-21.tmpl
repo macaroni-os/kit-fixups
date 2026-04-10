@@ -13,7 +13,7 @@ SRC_URI="{{.Values.src_uri}}"
 LICENSE="Apache-2.0 BSD BSD-2 GPL-2 HPND ISC MPL-2.0"
 SLOT="0"
 KEYWORDS="*"
-IUSE="dnstap dnsrps doh fixed-rrset geoip gssapi idn +jemalloc lmdb selinux urandom xml stats"
+IUSE="dnstap dnsrps doh fixed-rrset geoip gssapi idn +jemalloc selinux urandom xml stats"
 
 DEPEND="
 	=net-dns/bind-tools-${PV}*
@@ -27,7 +27,7 @@ DEPEND="
 	geoip? ( dev-libs/libmaxminddb )
 	gssapi? ( virtual/krb5 )
 	idn? ( net-dns/libidn2 )
-	lmdb? ( dev-db/lmdb )
+	dev-db/lmdb
 	dnstap? ( dev-libs/fstrm dev-libs/protobuf-c )
 	xml? ( dev-libs/libxml2 )
 	stats? (
@@ -59,7 +59,6 @@ src_configure() {
 		$(meson_feature geoip)
 		$(meson_feature gssapi)
 		$(meson_feature idn)
-		$(meson_feature lmdb)
 		$(meson_feature stats stats-json)
 		$(meson_feature stats stats-xml)
 	)
@@ -97,7 +96,6 @@ src_install() {
 		rm -f "${ED}"/usr/{,s}bin/dnssec-"${tool}" || die
 		rm -f "${ED}"/usr/share/man/man1/dnssec-"${tool}".1* || die
 	done
-	rm "${D}"/usr/share/doc/${P}/{NEWS,ChangeLog} || die
 
 	# bug 405251
 	find "${ED}" -type f -name '*.a' -delete || die

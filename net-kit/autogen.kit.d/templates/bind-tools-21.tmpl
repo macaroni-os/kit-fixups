@@ -19,6 +19,7 @@ COMMON_DEPEND="
 	dev-libs/openssl
 	dev-libs/userspace-rcu
 	sys-libs/libcap
+	dev-db/lmdb
 	xml? ( dev-libs/libxml2 )
 	idn? ( net-dns/libidn2:= )
 	gssapi? ( virtual/krb5 )
@@ -48,7 +49,6 @@ src_configure() {
 		-Dzlib=disabled
 		-Dstats-json=disabled
 		-Dstats-xml=disabled
-		-Dlmdb=disabled
 		$(meson_feature gssapi)
 		$(meson_feature idn)
 	)
@@ -60,7 +60,6 @@ src_install() {
 
 	rm -r "${D}"/usr/bin/{arpaname,named*,nsec3hash} || die
 	rm -r "${D}"/usr/sbin || die
-	rm "${D}"/usr/share/doc/${P}/{NEWS,ChangeLog} || die
 }
 
 # vim: filetype=ebuild

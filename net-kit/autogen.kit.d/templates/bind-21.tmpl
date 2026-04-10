@@ -96,7 +96,6 @@ src_install() {
 		rm -f "${ED}"/usr/{,s}bin/dnssec-"${tool}" || die
 		rm -f "${ED}"/usr/share/man/man1/dnssec-"${tool}".1* || die
 	done
-	rm "${D}"/usr/share/doc/${P}/{NEWS,ChangeLog} || die
 
 	# bug 405251
 	find "${ED}" -type f -name '*.a' -delete || die

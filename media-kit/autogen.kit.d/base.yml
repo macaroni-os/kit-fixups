@@ -4342,3 +4342,99 @@ vlc:
 
   packages:
     - vlc:
+
+
+vlc_pkgs:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://download.videolan.org/pub/videolan/{{ .Values.pn }}/'
+      matcher: '1.[0-9.]+'
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: 'https://download.videolan.org/pub/videolan/{{ .Values.pn }}/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+  packages:
+
+    - libudfread:
+        category: dev-libs
+        dir:
+          matcher: '1.[0-9.]+.tar.xz$'
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: 'https://download.videolan.org/pub/videolan/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+        vars:
+          inherit:
+            - meson
+          iuse: static-libs
+          desc: Library for reading UDF from raw devices and image files
+          homepage: https://code.videolan.org/videolan/libudfread/
+          license: LGPL-2.1+
+          body: |
+            src_configure() {
+              local emesonargs=(
+                $(meson_use static-libs embed_udfread)
+              )
+              meson_src_configure
+            }
+
+    - libbluray:
+        vars:
+          inherit:
+            - meson
+            - java-pkg-opt-2
+          desc: Blu-ray playback libraries
+          homepage: https://www.videolan.org/developers/libbluray.html
+          license: LGPL-2.1
+          iuse: aacs bdplus cli +fontconfig java +truetype utils +xml
+          rdepend: |
+            dev-libs/libudfread
+            aacs? ( media-libs/libaccs )
+            bdplus? ( media-libs/libbdplus )
+            fontconfig? ( media-libs/fontconfig )
+            java? ( virtual/jre )
+            truetype? ( media-libs/freetype:2 )
+            xml? ( dev-libs/libxml2 )
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            java? (
+              dev-java/ant-bin
+              virtual/jdk
+            )
+          body: |
+            src_configure() {
+              use java || unset JDK_HOME
+              local emesonargs=(
+                $(meson_use utils enable_examples)
+                $(meson_use cli enable_tools)
+                -Denable_devtools=false
+                $(meson_feature java bdj_jar)
+                $(meson_feature truetype freetype)
+                $(meson_feature xml libxml2)
+                $(meson_feature fontconfig)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              use utils &&
+                find .libs/ -type f -executable ! -name "${PN}.*" \
+                   $(use java || echo '! -name bdj_test') -exec dobin {} +
+              use java && java-pkg_regjar "${ED}"/usr/share/${PN}/lib/*.jar
+              einstalldocs
+              find "${ED}" -name '*.la' -delete || die
+            }
+

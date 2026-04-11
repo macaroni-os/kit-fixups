@@ -35,15 +35,11 @@ target:
   atoms:
     - pkg: sys-kernel/linux-headers
       conditions:
-        - '>=sys-kernel/linux-headers-6.9'
-        - '<sys-kernel/linux-headers-6.10'
-
-    - pkg: sys-kernel/linux-headers
-      conditions:
-        - '>=sys-kernel/linux-headers-5.10'
-        - '<sys-kernel/linux-headers-5.11'
+        - '>=sys-kernel/linux-headers-6.12'
+        - '<sys-kernel/linux-headers-6.13'
 
     - pkg: sys-kernel/dummy-sources
+    - pkg: sys-kernel/vanilla-headers
     - pkg: sys-kernel/vanilla-sources
 
     - pkg: sys-kernel/linux-firmware
@@ -56,5 +52,6 @@ target:
     - pkg: sys-apps/gptfdisk
 
     - pkg: virtual/os-headers
+    #- pkg: virtual/linux-headers
     - pkg: virtual/linux-sources
     - pkg: virtual/modutils

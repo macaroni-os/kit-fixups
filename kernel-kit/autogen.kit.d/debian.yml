@@ -100,6 +100,81 @@ debian_sources:
             - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
           config_extract: 6.1
 
+debian_headers:
+  generator: custom
+  generator_opts:
+    script: sys-kernel/debian-sources/generator.py
+    enable_set_version: 'false'
+  defaults:
+    category: sys-kernel
+    files_dir: vanilla-headers
+    template: ../../templates/simple.tmpl
+    vars:
+      bdepend: |
+        app-arch/xz-utils
+        dev-lang/perl
+        net-misc/rsync
+        !!sys-kernel/vanilla-headers
+      branch: trixie
+      desc: Linux kernel header files with Debian patches
+      patches:
+        - 00_all_0002-x86-do-not-build-relocs-tool-when-installing-headers.patch
+      homepage: https://kernel.org https://debian.org/kernel
+      inherit:
+        - eutils
+        - toolchain-funcs
+      level: stable
+      license: GPL-2
+      openzfs_meta_url: https://raw.githubusercontent.com/openzfs/zfs/zfs-2.3-release/META
+      slot: 0
+      s: '${WORKDIR}/linux-${PV%%_p*}'
+      track_openzfs: False
+      body: |
+        get_patch_list() {
+          [[ -z "${1}" ]] && die "No patch series file specified"
+          local patch_series="${1}"
+          while read line ; do
+            if [[ "${line:0:1}" != "#" ]] ; then
+              echo "${line}"
+            fi
+          done < "${patch_series}"
+        }
+        pkg_setup() {
+          # will interfere with Makefile if set
+          unset ARCH; unset LDFLAGS
+        }
+        src_prepare() {
+          default
+          # apply debian patchset
+          for debpatch in $( get_patch_list "${WORKDIR}/debian/patches/series" ); do
+            eapply -p1 "${WORKDIR}/debian/patches/${debpatch}" || die "could not apply patch!"
+          done
+          # drop unused errno.h include
+          sed -e '/^#include <errno.h>/d' -i ${WORKDIR}/scripts/unifdef.c
+        }
+        src_compile() {
+          :
+        }
+        src_install() {
+          # fix permissions in source tree
+          cd "${WORKDIR}"
+          chown -R 0:0 * >& /dev/null
+          chmod -R a+r-w+X,u+w *
+          cd "${OLDPWD}"
+          [[ -L /usr/include/linux ]] && { rm /usr/include/linux || die; }
+          [[ -L /usr/include/asm ]] && { rm /usr/include/asm || die; }
+          emake O="${D}" ARCH="$(tc-arch-kernel)" headers_install \
+            || die "could not install headers to image"
+          # prune non-headers from tree
+          rm "${D}"/{arch,include,scripts} -r
+          find "${D}" '(' -name '.install' -o -name '*.cmd' ')' -delete
+        }
+  packages:
+    - debian-headers:
+        selector:
+          - '>6.12'
+          - '<6.13'
+
 # TODO: move to separate file, as it's not specifically debian-sources--related
 dracut_config:
   generator: builtin-noop

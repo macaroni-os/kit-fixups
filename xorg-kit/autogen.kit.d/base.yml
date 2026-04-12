@@ -627,6 +627,7 @@ x11_libs_dirlisting:
     - libXxf86vm:
 
     - libxcb:
+        revision: 1
         vars:
           iuse: +xkb
           python_compat: python3+
@@ -662,7 +663,6 @@ x11_libs_dirlisting:
           rdepend: |
             x11-libs/libxcb
             x11-misc/compose-tables
-            !x11-libs/libxcb:0/1.12
           depend_extra: |
             x11-libs/xtrans
           econf_args_extra: |

@@ -1331,7 +1331,8 @@ glibc:
     files_dir: "{{ .Values.pn }}"
     template: templates/glibc.tmpl
     dir:
-      url: https://ftp.gnu.org/gnu/glibc/
+      #url: https://ftp.gnu.org/gnu/glibc/
+      url: https://gnuftp.mirror.garr.it/glibc/
       matcher: '{{ .Values.pn }}-2.*.tar.xz'
     selector:
       - '2.41'

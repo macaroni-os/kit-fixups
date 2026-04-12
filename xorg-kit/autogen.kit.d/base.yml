@@ -629,6 +629,8 @@ x11_libs_dirlisting:
     - libxcb:
         revision: 1
         vars:
+          # Keep old slot for now to avoid Portage issues
+          slot: '0/1.12'
           iuse: +xkb
           python_compat: python3+
           extra_envs:

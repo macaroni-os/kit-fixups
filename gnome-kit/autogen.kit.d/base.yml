@@ -379,8 +379,8 @@ glycin_gitlab:
           desc: Glycin C-Bindings for the library
           iuse: heif jpeg2k jpegxl svg debug +vala gtk4
           patches:
-            - bump-rustix-libc-crate.patch
-            - glycin-glibc-2.33.patch
+          #  - bump-rustix-libc-crate.patch
+          #  - glycin-glibc-2.33.patch
           inherit:
             - cargo
             - meson

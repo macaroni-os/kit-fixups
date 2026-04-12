@@ -2,7 +2,7 @@ media_libs:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
   template:
     engine: helm
 
@@ -79,7 +79,7 @@ net_misc_cat:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
   template:
     engine: helm
 
@@ -229,7 +229,7 @@ mail_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -321,7 +321,7 @@ glycin_gitlab:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   extensions_defs:
     rust:
@@ -484,7 +484,7 @@ gnome_release_pkgs:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   extensions_defs:
     rust:
@@ -2799,7 +2799,7 @@ gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -10431,7 +10431,7 @@ gitlab_gnome:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   extensions_defs:
     rust:
@@ -10622,7 +10622,7 @@ gnome_robots:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -10705,7 +10705,7 @@ gimp_sources:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "5s"
+    rate_duration: "7s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"

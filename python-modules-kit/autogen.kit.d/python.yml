@@ -8,12 +8,19 @@ hatchling_modules:
     template: "../../templates/pypi-generic.tmpl"
     vars:
       du_pep517: hatchling
+      python_compat: "python3+"
 
   packages:
     - expandvars:
         pydeps_ignore:
           - "extra == 'tests'"
-        python_compat: "python3+"
+        vars:
+          license: MIT
+
+    - python-discovery:
+        pydeps_ignore:
+          - 'extra == "testing"'
+          - 'extra == "docs"'
         vars:
           license: MIT
 

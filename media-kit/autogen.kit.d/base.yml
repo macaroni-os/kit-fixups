@@ -1842,7 +1842,7 @@ gstreamer_stuff:
             )
             cdda? ( || (
                 >=media-libs/gst-plugins-ugly-{{ .Values.version }}:{{ .Values.slot }}[cdio]
-                >=media-libs/gst-plugins-bad-{{ .Values.version }}:{{ .Values.slot }}[cdda]
+                >=media-libs/gst-plugins-base-{{ .Values.version }}:{{ .Values.slot }}[cdda]
               )
             )
             dts? (

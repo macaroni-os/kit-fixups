@@ -220,3 +220,155 @@ nvidia_kernel_modules:
           - '!=580.105.08'
           - '<581'
           - '>579'
+
+cuda_kit:
+  generator: builtin-dirlisting
+  markdevkit_min_version: 0.29.0
+  extensions_defs:
+    custom:
+      opts:
+        script: scripts/nvidia-cuda-toolkit.sh
+
+  defaults:
+    category: dev-util
+    files_dir: '{{ .Values.pn }}'
+    template: ../../templates/simple.tmpl
+    dir:
+      url: '{{ .Values.base_url }}'
+      matcher: 'version_[0-9.]+.json'
+      ignore_artefacts: true
+    transform:
+      - kind: string
+        match: version_
+        replace: ''
+      - kind: string
+        match: '.json'
+        replace: ''
+    extensions:
+      - custom
+    vars:
+      base_url: https://developer.download.nvidia.com/compute/cuda/repos/runfile/x86_64/
+      iuse: amd64 arm64 clang examples
+      restrict: strip
+      license: NVIDIA-CUDA
+      desc: NVIDIA CUDA Toolkit (compiler and friends)
+      s: '${WORKDIR}'
+      extra_envs:
+        - 'QA_PREBUILT="/opt/nvidia-cuda-toolkit/*"'
+      inherit:
+        - unpacker
+      bdepend: |
+        clang? (
+          sys-devel/clang
+        )
+        sys-process/numactl
+        examples? (
+          media-libs/freeglut
+          media-libs/glu
+        )
+      dirs:
+        - cuda_cccl
+        - cuda_crt
+        - cuda_cudart
+        - cuda_cuxxfilt
+        - cuda_nvcc
+        - cuda_nvml_dev
+        - cuda_nvrtc
+        - cuda_nvtx
+        - cuda_opencl
+        - cuda_profiler_api
+        - cuda_sandbox_dev
+        - libcublas
+        - libcufft
+        - libcufile
+        - libcuobjclient
+        - libcurand
+        - libcusolver
+        - libcusparse
+        - libnpp
+        - libnvfatbin
+        - libnvjitlink
+        - libnvjpeg
+        - libnvptxcompiler
+        - libnvvm
+
+      # It seems that is better keep all the libraries
+      # under a single directory (for lib,include) to better support NVIDIA
+      # Cuda Toolkit detection.
+      body: |
+        pkg_setup() {
+          if use amd64; then
+            narch=x86_64
+          else
+            if use arm64; then
+              narch=sbsa
+            else
+              die "unknown arch ${ARCH}"
+            fi
+          fi
+          export narch
+        }
+        src_configure() {
+          :
+        }
+        src_compile() {
+          :
+        }
+        src_install() {
+          local target_path=/opt/${PN}
+          local dirs=(
+          {{- range $dir := .Values.dirs }}
+            {{ $dir }}
+          {{- end }}
+          )
+
+          dodir "${target_path}/lib"
+          dodir "${target_path}/include"
+          dosym "${target_path}/lib" "${target_path}/lib64"
+
+          for d in ${dirs[@]}; do
+            insinto "${target_path}/"
+
+            if [ "${d}" = "libnvvm" ] ; then
+              cd ${WORKDIR}/builds/${d}/
+              doins -r nvvm/
+            else
+              cd ${WORKDIR}/builds/${d}/targets/${narch}-linux/
+              doins -r include/
+              if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/lib/ ] ; then
+                doins -r lib/
+              fi
+              if [ -d ${WORKDIR}/builds/${d}/bin/ ] ; then
+                cd ${WORKDIR}/builds/${d}/
+                doins -r bin/
+              fi
+            fi
+
+          done
+
+          # Fix exec permissions
+          chmod a+x "${D}/${target_path}/bin/*
+          chmod a+x "${D}/${target_path}/nvvm/bin/cicc
+
+          # Remove broken links
+          rm "${D}/${target_path}/lib/lib64
+          rm "${D}/${target_path}/include/include
+
+          newenvd "${FILESDIR}"/99cuda.envd 99cuda
+          dodir ${target_path}/pkgconfig
+          insinto ${target_path}/pkgconfig
+          cp "${FILESDIR}"/{{ .Values.pn }}.pc .
+          sed -i -e 's|VERSION|{{ .Values.version }}|g' {{ .Values.pn }}.pc
+          doins {{ .Values.pn }}.pc
+
+          dodir /etc/revdep-rebuild
+          insinto /etc/revdep-rebuild
+          newins "${FILESDIR}"/{{ .Values.pn }}.revdep 80{{ .Values.pn }}
+        }
+
+  packages:
+    - nvidia-cuda-toolkit:
+        # 13
+        selector:
+          - '<14.0'
+          - '>12.0'

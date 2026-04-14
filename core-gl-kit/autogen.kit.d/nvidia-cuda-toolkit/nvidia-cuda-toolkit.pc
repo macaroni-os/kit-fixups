@@ -1,0 +1,9 @@
+cudaroot=/opt/nvidia-cuda-toolkit
+libdir=${cudaroot}/cuda_cudart/lib/
+includedir=${cudaroot}/cuda_cudart/include
+
+Name: cuda
+Description: NVIDIA CUDA Toolkit
+Version: VERSION
+Libs: -L${libdir} -lcudart
+Cflags: -I${includedir}

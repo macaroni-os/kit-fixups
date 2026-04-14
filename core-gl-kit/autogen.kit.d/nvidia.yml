@@ -115,6 +115,17 @@ nvidia_drivers:
           - '<581'
           - '>579'
 
+    - nvidia-drivers:
+        # 590.*
+        vars:
+          slot: 590
+          max_kernel_version: 6.18
+        dir:
+          matcher: "590.*"
+        selector:
+          - '<591'
+          - '>590'
+
 nvidia_kernel_modules:
   generator: builtin-dirlisting
 
@@ -220,6 +231,17 @@ nvidia_kernel_modules:
           - '!=580.105.08'
           - '<581'
           - '>579'
+
+    - nvidia-kernel-modules:
+        # 590.*
+        vars:
+          slot: 590
+          max_kernel_version: 6.18
+        dir:
+          matcher: "590.*"
+        selector:
+          - '<591'
+          - '>590'
 
 cuda_kit:
   generator: builtin-dirlisting

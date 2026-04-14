@@ -585,6 +585,24 @@ dev_github:
 
   packages:
 
+    - scc:
+        github:
+          user: boyter
+        template: ../../templates/simple-github.tmpl
+        vars:
+          bdepend: dev-lang/go
+          docs:
+            - README.md
+            - CONTRIBUTING.md
+          body: |
+            src_compile() {
+              go build -x -v -mod=vendor -o {{ .Values.pn }} main.go
+            }
+            src_install() {
+              dobin {{ .Values.pn }}
+              einstalldocs
+            }
+
     - pnpm-bin:
         github:
           user: pnpm

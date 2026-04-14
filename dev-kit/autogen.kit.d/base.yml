@@ -590,6 +590,8 @@ dev_github:
           user: boyter
         template: ../../templates/simple-github.tmpl
         vars:
+          inherit:
+            - go-module
           bdepend: dev-lang/go
           docs:
             - README.md

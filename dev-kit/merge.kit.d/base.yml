@@ -8,6 +8,10 @@ sources:
   url: "https://github.com/macaroni-os/dev-kit"
   branch: "mark-unstable"
 
+- name: "core-gl-kit"
+  url: "https://github.com/macaroni-os/core-gl-kit"
+  branch: "mark-unstable"
+
 target:
   name: dev-kit
   url: "https://github.com/macaroni-os/dev-kit"
@@ -152,6 +156,8 @@ target:
     - pkg: dev-util/lttng-modules
     - pkg: dev-util/meson
     - pkg: dev-util/ninja
+    - pkg: dev-util/nvidia-cuda-toolkit
+    - pkg: dev-util/nvidia-nccl
     - pkg: dev-util/ragel
     - pkg: dev-util/re2c
     - pkg: dev-util/packer

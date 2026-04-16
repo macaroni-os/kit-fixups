@@ -1809,6 +1809,56 @@ github_pkgs:
 
   packages:
 
+    - lxcfs:
+        category: sys-fs
+        github:
+          user: lxc
+        transform:
+          - kind: string
+            match: 'LXCFS '
+            replace: ''
+          - kind: string
+            match: ' LTS'
+            replace: ''
+        vars:
+          license: AGPL-3 Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0
+          rdepend: |
+            sys-fs/fuse:3=
+          depend: '${RDEPEND}'
+          iuse: systemd
+          bdepend: |
+            sys-apps/help2man
+            dev-python/jinja
+          inherit:
+            - meson
+            - systemd
+          body: |
+            pkg_setup() {
+              export BUILD_DIR=${WORKDIR}/build
+            }
+            src_configure() {
+              local emesonargs=(
+                --localstatedir "${EPREFIX}/var"
+                -Dfuse-version=3
+                -Dmocks=false
+                -Dtests=false
+                -Dinit-script=
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/lxcfs.service
+              else
+                newinitd "${FILESDIR}"/lxcfs.initd lxcfs
+              fi
+              newconfd "${FILESDIR}"/lxcfs.confd lxcfs
+              find "${ED}" -name '*.la' -delete || die
+              # we are using own init scripts, so do not need included
+              rm -rf "${ED}"/etc/rc.d
+            }
+
     - lxc:
         category: app-emulation
         transform:

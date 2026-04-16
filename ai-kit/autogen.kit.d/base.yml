@@ -164,7 +164,7 @@ ollama:
 
     - ollama:
         # TODO:
-        # - improve integration with CUDA and ROCm
+        # - improve integration with ROCm
         extensions:
           - golang
         vars:
@@ -172,15 +172,38 @@ ollama:
             - go-module
             - cmake
             - user
-          iuse: systemd
+          iuse: systemd clang cuda vulkan
           bdepend: |
             >=dev-lang/go-1.24
-            media-libs/shaderc
+            clang? ( sys-devel/clang )
+          rdepend: |
+            vulkan? (
+              media-libs/vulkan-loader
+              media-libs/shaderc
+            )
+            cuda? (
+              dev-util/nvidia-cuda-toolkit
+            )
+          depend: '${RDEPEND}'
+          # It seems that trying to set this flags
+          # breaks cmake. An upstream bug?
+          #  -DGGML_CUDA=$(usex cuda ON OFF)
+          #  -DGGML_VULKAN=$(usex vulkan ON OFF)
           body: |
             pkg_setup() {
               ebegin "Ensuring ollama user/group exist"
               enewgroup ollama
               enewuser ollama -1 -1 /var/lib/ollama ollama
+            }
+            src_configure() {
+              local mycmakeargs=()
+              if use clang ; then
+                mycmakeargs+=(
+                  -DCMAKE_C_COMPILER=clang
+                  -DCMAKE_CXX_COMPILER=clang++
+                )
+              fi
+              cmake_src_configure
             }
             src_prepare() {
               default

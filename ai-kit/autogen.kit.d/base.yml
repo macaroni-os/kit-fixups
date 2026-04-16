@@ -175,6 +175,7 @@ ollama:
           iuse: systemd
           bdepend: |
             >=dev-lang/go-1.24
+            media-libs/shaderc
           body: |
             pkg_setup() {
               ebegin "Ensuring ollama user/group exist"

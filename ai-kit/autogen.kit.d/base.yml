@@ -108,19 +108,21 @@ ollama:
           inherit:
             - cmake
           nvidia_cuda_capability:
-            - 12.0
-            - 10.0
-            - 9.0
-            - 8.9
-            - 8.7
-            - 8.9
-            - 7.5
-            - 6.1
-            - 6.2
+            - 120
+            - 100
+            - 87
+            - 89
+            - 75
+            #- 61
+            # Maybe we can use all directly.
 
-          iuse: static blas cuda vulkan
+          # cuda-native: Used to force local GPU identification
+          iuse: static blas cuda vulkan cuda-native
           cdepend: |
-            cuda? ( x11-drivers/nvidia-drivers )
+            cuda? (
+              dev-util/nvidia-cuda-toolkit
+              dev-util/nvidia-nccl
+            )
             vulkan? (
               dev-util/vulkan-tools
               media-libs/vulkan-layers
@@ -144,6 +146,7 @@ ollama:
                 # It seems that -lcblas -lblas is not injected. It's inject only -llapack
                 export LDFLAGS="${LDFLAGS} -lcblas -lblas"
               fi
+              export BUILD_COMMIT={{ .Values.sha }}
 
               local mycmakeargs=(
                 -DBUILD_SHARED_LIBS=$(usex static OFF ON)
@@ -151,9 +154,17 @@ ollama:
                 -DGGML_BLAS=$(usex blas ON OFF)
                 -DGGML_VULKAN=$(usex vulkan ON OFF)
                 -DGGML_BLAS_VENDOR=Generic
-                -DCMAKE_CUDA_ARCHITECTURES='{{ .Values.nvidia_cuda_capability | join ":" }}'
                 -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1
               )
+              if use cuda-native ; then
+                mycmakeargs+=(
+                  -DCMAKE_CUDA_ARCHITECTURES=native
+                )
+              else
+                mycmakeargs+=(
+                  -DCMAKE_CUDA_ARCHITECTURES={{ .Values.nvidia_cuda_capability | join ";" }}
+                )
+              fi
               cmake_src_configure
             }
             src_install() {

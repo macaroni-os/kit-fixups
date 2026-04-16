@@ -162,7 +162,7 @@ ollama:
                 )
               else
                 mycmakeargs+=(
-                  -DCMAKE_CUDA_ARCHITECTURES={{ .Values.nvidia_cuda_capability | join ";" }}
+                  -DCMAKE_CUDA_ARCHITECTURES='{{ .Values.nvidia_cuda_capability | join ";" }}'
                 )
               fi
               cmake_src_configure

@@ -394,3 +394,37 @@ cuda_kit:
         selector:
           - '<14.0'
           - '>12.0'
+
+
+nncl:
+  generator: builtin-github
+  defaults:
+    category: dev-util
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+      user: NVIDIA
+      repo: nccl
+
+    transform:
+      - kind: string
+        match: 'NCCL v'
+        replace: ''
+      - kind: string
+        match: ' Release'
+        replace: ''
+      - kind: string
+        match: '-'
+        replace: '.'
+    vars:
+      inherit:
+        - cmake
+      bdepend: |
+        dev-util/nvidia-cuda-toolkit
+
+  packages:
+
+    - nvidia-nccl:
+
+

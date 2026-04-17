@@ -1809,6 +1809,39 @@ github_pkgs:
 
   packages:
 
+    - incus-ui:
+        category: www-apps
+        github:
+          user: zabbly
+          repo: incus-ui-canonical
+          query: tags
+        transform:
+          - kind: string
+            match: 'incus-'
+            replace: ''
+        vars:
+          desc: Incus UI web application
+          inherit:
+            - npmv1
+          extra_envs:
+            # This package is with a broken package.json
+            # It requires dependencies marked as devs for generate
+            # the production application. We avoid to set --omit=optional flag.
+            - 'NPM_DEFAULT_OPTS="-E --force"'
+          # This is needed until mark-devkit will integrate
+          # the nodejs bundle extensions.
+          restrict: network-sandbox
+          body: |
+            src_compile() {
+              npmv1_src_compile
+              npm run build
+            }
+            src_install() {
+              dodir /usr/share/incus-ui
+              insinto /usr/share/incus-ui
+              doins -r build/ui/*
+            }
+
     - lxcfs:
         category: sys-fs
         github:
@@ -3376,6 +3409,7 @@ incus:
           elog "- sys-fs/lvm2"
           elog "- sys-fs/zfs"
           elog "- sys-process/criu"
+          elog "- www-apps/incus-ui"
           elog
           elog "Be sure to add your local user to the incus group."
         }

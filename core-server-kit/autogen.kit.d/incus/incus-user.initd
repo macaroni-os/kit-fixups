@@ -1,0 +1,23 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+DAEMON=/usr/sbin/incus-user
+PIDFILE=/run/incus-user.pid
+
+depend() {
+	need net
+	need incus
+}
+
+start() {
+	ebegin "Starting incus-user service"
+
+	start-stop-daemon --start \
+		--pidfile ${PIDFILE} \
+		--exec ${DAEMON} \
+		--background \
+		--make-pidfile \
+		-- \
+		${INCUS_USER_OPTIONS}
+	eend ${?}
+}

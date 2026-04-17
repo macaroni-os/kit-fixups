@@ -11,6 +11,18 @@ hatchling_modules:
       python_compat: "python3+"
 
   packages:
+    - dns-lexicon:
+      pydeps:
+        py:all:
+          - beautifulsoup
+          - cryptography
+          - dnspython
+          - importlib-metadata
+          - pyotp
+          - pyyaml
+          - requests
+          - tldextract
+
     - expandvars:
         pydeps_ignore:
           - "extra == 'tests'"
@@ -181,6 +193,13 @@ setuptools_modules:
 
   packages:
 
+    - boto3:
+        pydeps:
+          py:all:
+            - botocore
+            - jmespath
+            - s3transfer
+
     - calver:
         vars:
           license: Apache-2.0
@@ -194,7 +213,7 @@ setuptools_modules:
         vars:
           rdepend: app-misc/ca-certificates
 
-
+    - configargparse:
 
     - dependency-injector:
         pypi_name: dependency_injector
@@ -247,6 +266,8 @@ setuptools_modules:
           py:all:runtime:
             - six
             - webencodings
+
+    - parsedatetime:
 
     - pycamera:
         vars:
@@ -329,6 +350,11 @@ poetry_modules:
     python_compat: "python3+"
 
   packages:
+    - josepy:
+        pydeps:
+          py:all:
+            - cryptography
+
     - qrcode:
 
 standalone_modules:

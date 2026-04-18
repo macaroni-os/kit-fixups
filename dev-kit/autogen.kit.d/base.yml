@@ -585,6 +585,26 @@ dev_github:
 
   packages:
 
+    - go-licenses:
+        github:
+          user: google
+        template: ../../templates/simple-github.tmpl
+        extensions:
+          - golang
+        vars:
+          inherit:
+            - go-module
+          docs:
+            - README.md
+          body: |
+            src_compile() {
+              go build -x -v -o {{ .Values.pn }} main.go
+            }
+            src_install() {
+              dobin {{ .Values.pn }}
+              einstalldocs
+            }
+
     - scc:
         github:
           user: boyter

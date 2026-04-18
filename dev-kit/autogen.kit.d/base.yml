@@ -585,6 +585,53 @@ dev_github:
 
   packages:
 
+    - dqlite:
+        template: ../../templates/simple-github.tmpl
+        category: dev-libs
+        github:
+          user: canonical
+        # LXD uses 1.18
+        selector:
+          - '<1.19'
+
+        vars:
+          desc: Embeddable, replicated and fault tolerant SQL engine
+          inherit:
+            - autotools
+          license: LGPL-3-with-linking-exception
+          iuse: +lz4
+          rdepend: |
+            dev-db/sqlite:3
+            dev-libs/libuv:=
+            lz4? ( app-arch/lz4:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              sed -i -e '/Werror \\/d' -e 's|-Werror||g' configure.ac
+              eautoreconf
+            }
+            src_configure() {
+                local myeconfargs=(
+                    --disable-backtrace
+                    --disable-debug
+                    --disable-sanitize
+                    --disable-static
+                    # Linking to a separately-built libraft is no longer supported.
+                    --enable-build-raft=yes
+                    # Will build a bundled libsqlite3.so.
+                    --enable-build-sqlite=no
+                    $(use_with lz4)
+                )
+                econf "${myeconfargs[@]}"
+            }
+            src_install() {
+                default
+                find "${ED}" -name '*.la' -delete || die
+            }
+
     - go-licenses:
         github:
           user: google

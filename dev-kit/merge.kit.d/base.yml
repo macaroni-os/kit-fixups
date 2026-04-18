@@ -156,7 +156,23 @@ target:
     - pkg: dev-util/lttng-modules
     - pkg: dev-util/meson
     - pkg: dev-util/ninja
+    # Cuda 13
     - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-13.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-14.0.0'
+
+    # Cuda 12
+    - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-12.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-13.0.0'
+
+    # Cuda 11
+    - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-11.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-12.0.0'
     - pkg: dev-util/nvidia-nccl
     - pkg: dev-util/ragel
     - pkg: dev-util/re2c

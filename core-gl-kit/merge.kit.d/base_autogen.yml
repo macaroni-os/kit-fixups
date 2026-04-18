@@ -30,7 +30,25 @@ target:
     - pkg: dev-libs/ocl-icd
 
     - pkg: dev-util/glslang
+
+    # Cuda 13
     - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-13.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-14.0.0'
+
+    # Cuda 12
+    - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-12.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-13.0.0'
+
+    # Cuda 11
+    - pkg: dev-util/nvidia-cuda-toolkit
+      conditions:
+        - '>=dev-util/nvidia-cuda-toolkit-11.0.0'
+        - '<dev-util/nvidia-cuda-toolkit-12.0.0'
+
     - pkg: dev-util/nvidia-nccl
     - pkg: dev-util/opencl-headers
     - pkg: dev-util/opencl-icd-loader
@@ -72,6 +90,11 @@ target:
     - pkg: media-libs/harfbuzz
     - pkg: media-libs/libglvnd
     - pkg: media-libs/mesa
+      conditions:
+        - '>=media-libs/mesa-26.0'
+    - pkg: media-libs/mesa
+      conditions:
+        - '<media-libs/mesa-26.0'
     - pkg: media-libs/vulkan-layers
     - pkg: media-libs/vulkan-loader
 
@@ -107,6 +130,10 @@ target:
     - pkg: x11-drivers/nvidia-drivers:580
       conditions:
         - '>=x11-drivers/nvidia-drivers-580:580'
+    # 590 release
+    - pkg: x11-drivers/nvidia-drivers:590
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-590:590'
 
     # 535 release
     - pkg: x11-drivers/nvidia-kernel-modules:535
@@ -147,5 +174,10 @@ target:
     - pkg: x11-drivers/nvidia-kernel-modules:580
       conditions:
         - '>=x11-drivers/nvidia-kernel-modules-580:580'
+
+    # 590 release
+    - pkg: x11-drivers/nvidia-kernel-modules:590
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-590:590'
 
     - pkg: sys-power/switcheroo-control

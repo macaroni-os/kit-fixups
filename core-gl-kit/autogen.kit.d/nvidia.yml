@@ -318,6 +318,7 @@ cuda_kit:
       # under a single directory (for lib,include) to better support NVIDIA
       # Cuda Toolkit detection.
       body: |
+        {{- $vmajor := join "." ( slice ( splitList "." $.Values.version ) 0 1 ) }}
         pkg_setup() {
           if use amd64; then
             narch=x86_64
@@ -351,14 +352,33 @@ cuda_kit:
           for d in ${dirs[@]}; do
             insinto "${target_path}/"
 
+            {{- if or ( eq $vmajor "12" ) ( eq $vmajor "11" ) }}
+            if [ "${d}" = "cuda_nvcc" ] ; then
+              cd ${WORKDIR}/builds/${d}/
+              doins -r nvvm/
+              if [ -d ${WORKDIR}/builds/${d}/bin/ ] ; then
+                cd ${WORKDIR}/builds/${d}/
+                doins -r bin/
+              fi
+              if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/ ] ; then
+                cd ${WORKDIR}/builds/${d}/targets/${narch}-linux/
+                doins -r include/
+                if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/lib/ ] ; then
+                  doins -r lib/
+                fi
+              fi
+            {{- else }}
             if [ "${d}" = "libnvvm" ] ; then
               cd ${WORKDIR}/builds/${d}/
               doins -r nvvm/
+            {{- end }}
             else
-              cd ${WORKDIR}/builds/${d}/targets/${narch}-linux/
-              doins -r include/
-              if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/lib/ ] ; then
-                doins -r lib/
+              if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/ ] ; then
+                cd ${WORKDIR}/builds/${d}/targets/${narch}-linux/
+                doins -r include/
+                if [ -d ${WORKDIR}/builds/${d}/targets/${narch}-linux/lib/ ] ; then
+                  doins -r lib/
+                fi
               fi
               if [ -d ${WORKDIR}/builds/${d}/bin/ ] ; then
                 cd ${WORKDIR}/builds/${d}/
@@ -369,12 +389,12 @@ cuda_kit:
           done
 
           # Fix exec permissions
-          chmod a+x "${D}/${target_path}/bin/*
-          chmod a+x "${D}/${target_path}/nvvm/bin/cicc
+          chmod a+x "${D}"/${target_path}/bin/*
+          chmod a+x "${D}"/${target_path}/nvvm/bin/cicc
 
           # Remove broken links
-          rm "${D}/${target_path}/lib/lib64
-          rm "${D}/${target_path}/include/include
+          rm "${D}"/${target_path}/lib/lib64
+          rm "${D}"/${target_path}/include/include
 
           newenvd "${FILESDIR}"/99cuda.envd 99cuda
           dodir ${target_path}/pkgconfig

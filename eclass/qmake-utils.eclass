@@ -8,7 +8,7 @@
 # Davide Pesavento <pesa@gentoo.org>
 # @BLURB: Common functions for qmake-based packages.
 # @DESCRIPTION:
-# Utility eclass providing wrapper functions for Qt4 and Qt5 qmake.
+# Utility eclass providing wrapper functions for Qt5 and Qt6 qmake.
 #
 # This eclass does not set any metadata variables nor export any phase
 # functions. It can be inherited safely.
@@ -19,15 +19,15 @@ _QMAKE_UTILS_ECLASS=1
 [[ ${EAPI:-0} == [012345] ]] && inherit eutils multilib
 inherit estack toolchain-funcs
 
-# @FUNCTION: qt4_get_bindir
+# @FUNCTION: qt6_get_bindir
 # @DESCRIPTION:
-# Echoes the directory where Qt4 binaries are installed.
+# Echoes the directory where Qt6 binaries are installed.
 # EPREFIX is already prepended to the returned path.
-qt4_get_bindir() {
+qt6_get_bindir() {
 	[[ ${EAPI:-0} == [0123456] ]] || die "${FUNCNAME[1]} is banned in EAPI 7 and later"
 	has "${EAPI:-0}" 0 1 2 && use !prefix && EPREFIX=
 
-	local qtbindir=${EPREFIX}$(qt4_get_libdir)/bin
+	local qtbindir=${EPREFIX}$(qt6_get_libdir)/bin
 	if [[ -d ${qtbindir} ]]; then
 		echo ${qtbindir}
 	else
@@ -35,36 +35,36 @@ qt4_get_bindir() {
 	fi
 }
 
-# @FUNCTION: qt4_get_headerdir
+# @FUNCTION: qt6_get_headerdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 headers are installed.
-qt4_get_headerdir() {
+qt6_get_headerdir() {
 	[[ ${EAPI:-0} == [0123456] ]] || die "${FUNCNAME[1]} is banned in EAPI 7 and later"
-	echo /usr/include/qt4
+	echo /usr/include/qt6
 }
 
-# @FUNCTION: qt4_get_libdir
+# @FUNCTION: qt6_get_libdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 libraries are installed.
-qt4_get_libdir() {
+qt6_get_libdir() {
 	[[ ${EAPI:-0} == [0123456] ]] || die "${FUNCNAME[1]} is banned in EAPI 7 and later"
-	echo /usr/$(get_libdir)/qt4
+	echo /usr/$(get_libdir)/qt6
 }
 
-# @FUNCTION: qt4_get_mkspecsdir
+# @FUNCTION: qt6_get_mkspecsdir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 mkspecs are installed.
-qt4_get_mkspecsdir() {
+qt6_get_mkspecsdir() {
 	[[ ${EAPI:-0} == [0123456] ]] || die "${FUNCNAME[1]} is banned in EAPI 7 and later"
-	echo /usr/share/qt4/mkspecs
+	echo /usr/share/qt6/mkspecs
 }
 
-# @FUNCTION: qt4_get_plugindir
+# @FUNCTION: qt6_get_plugindir
 # @DESCRIPTION:
 # Echoes the directory where Qt4 plugins are installed.
-qt4_get_plugindir() {
+qt6_get_plugindir() {
 	[[ ${EAPI:-0} == [0123456] ]] || die "${FUNCNAME[1]} is banned in EAPI 7 and later"
-	echo $(qt4_get_libdir)/plugins
+	echo $(qt6_get_libdir)/plugins
 }
 
 # @FUNCTION: qt5_get_bindir
@@ -246,7 +246,7 @@ eqmake4() {
 
 	[[ -n ${EQMAKE4_EXCLUDE} ]] && eshopts_pop
 
-	"$(qt4_get_bindir)"/qmake \
+	"$(qt6_get_bindir)"/qmake \
 		-makefile \
 		QMAKE_AR="$(tc-getAR) cqs" \
 		QMAKE_CC="$(tc-getCC)" \
@@ -265,7 +265,7 @@ eqmake4() {
 		QMAKE_LFLAGS="${LDFLAGS}" \
 		QMAKE_LFLAGS_RELEASE= \
 		QMAKE_LFLAGS_DEBUG= \
-		QMAKE_LIBDIR_QT="${EPREFIX}$(qt4_get_libdir)" \
+		QMAKE_LIBDIR_QT="${EPREFIX}$(qt6_get_libdir)" \
 		QMAKE_LIBDIR_X11="${EPREFIX}/usr/$(get_libdir)" \
 		QMAKE_LIBDIR_OPENGL="${EPREFIX}/usr/$(get_libdir)" \
 		"${qmake_args[@]}"

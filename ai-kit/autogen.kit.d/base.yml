@@ -142,6 +142,7 @@ ollama:
           rdepend: '${CDEPEND}'
           body: |
             src_configure() {
+              addpredict /proc/self/task
               if use blas ; then
                 # It seems that -lcblas -lblas is not injected. It's inject only -llapack
                 export LDFLAGS="${LDFLAGS} -lcblas -lblas"

@@ -162,6 +162,13 @@ target:
     - pkg: gnome-base/gnome-mime-data
     - pkg: gnome-base/gnome-keyring
     - pkg: gnome-base/gnome-session
+      conditions:
+        - '<gnome-base/gnome-session-49'
+    # Keep also release 49 for study it in mark-unstable
+    - pkg: gnome-base/gnome-session
+      conditions:
+        - '>=gnome-base/gnome-session-49'
+
     - pkg: gnome-base/gnome-settings-daemon
     - pkg: gnome-base/gnome-shell
     - pkg: gnome-base/gsettings-desktop-schemas

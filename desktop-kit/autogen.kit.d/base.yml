@@ -814,3 +814,84 @@ general_github:
               meson_src_configure
             }
 
+twm:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: x11-wm
+    dir:
+      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      exclude: ".99"
+      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      license: MIT
+      xorg_path: app/
+      inherit:
+        - autotools
+        - flag-o-matic
+      homepage: 'https://gitlab.freedesktop.org/xorg/lib/{{ .Values.pn }}'
+      desc: X.Org Tab Window Manager
+      rdepend: |
+        x11-libs/libX11
+        x11-libs/libXext
+        {{ .Values.rdepend_extra | default "" }}
+      depend: |
+        ${RDEPEND}
+        sys-devel/autoconf
+        sys-devel/automake
+        sys-devel/libtool
+        sys-devel/m4
+        x11-misc/util-macros
+        media-fonts/font-util
+        x11-base/xorg-proto
+        {{ .Values.depend_extra | default "" }}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        {{ .Values.body_extra | default "" }}
+        src_prepare() {
+          eautoreconf || die
+          default
+        }
+        src_configure() {
+          local no_static=""
+          # Check if package supports disabling of static libraries
+          if grep -q -s "able-static" ${ECONF_SOURCE:-.}/configure; then
+            no_static="--disable-static"
+          fi
+          local econfargs=(
+            --enable-shared
+            ${no_static}
+            {{ .Values.econf_args_extra | default "" }}
+          )
+          econf "${econfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${D}" -type f -name '*.la' -delete || die
+          {{ .Values.src_install_extra | default "" }}
+        }
+
+  packages:
+
+    - twm:
+        vars:
+          depend_extra: |
+            sys-devel/bison
+          rdepend_extra: |
+            x11-libs/libXt
+            x11-libs/libXmu
+            x11-libs/libICE
+            x11-libs/libSM
+

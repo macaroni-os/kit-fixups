@@ -653,6 +653,7 @@ x11_libs_dirlisting:
             }
           econf_args_extra: |
             $(use_enable xkb)
+            --disable-devel-docs
             --enable-xinput
 
     - libX11:

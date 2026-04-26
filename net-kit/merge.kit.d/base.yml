@@ -28,7 +28,6 @@ target:
     - pkg: app-admin/sshguard
     - pkg: app-admin/ulogd
 
-    - pkg: mail-client/alpine
 
     - pkg: mail-mta/postfix
     - pkg: mail-mta/ssmtp
@@ -66,17 +65,11 @@ target:
     - pkg: net-dns/libidn
     - pkg: net-dns/openresolv
 
-    - pkg: net-firewall/arptables
     - pkg: net-firewall/conntrack-tools
-    - pkg: net-firewall/ebtables
-    - pkg: net-firewall/ipset
     - pkg: net-firewall/iptables
-    - pkg: net-firewall/nftables
     - pkg: net-firewall/shorewall
 
     - pkg: net-fs/libnfs
-    - pkg: net-fs/minio
-    - pkg: net-fs/minio-client
     - pkg: net-fs/nfs-utils
 
     - pkg: net-ftp/atftp
@@ -96,7 +89,6 @@ target:
     - pkg: net-libs/libnetfilter_log
     - pkg: net-libs/libnetfilter_queue
     - pkg: net-libs/libnfnetlink
-    - pkg: net-libs/libnftnl
     - pkg: net-libs/libnsl
     - pkg: net-libs/libpcap
     - pkg: net-libs/libpcapnav
@@ -124,7 +116,6 @@ target:
     - pkg: net-misc/iperf:3
     - pkg: net-misc/ipcalc
     - pkg: net-misc/keychain
-    - pkg: net-misc/networkmanager
     - pkg: net-misc/lksctp-tools
     - pkg: net-misc/rsync
     - pkg: net-misc/vconfig
@@ -134,7 +125,6 @@ target:
     - pkg: net-misc/openvswitch
     - pkg: net-misc/ovn
     - pkg: net-misc/radvd
-    - pkg: net-misc/rclone
     - pkg: net-misc/socat
     - pkg: net-misc/sshpass
     - pkg: net-misc/stunnel
@@ -172,32 +162,7 @@ target:
     - pkg: sys-apps/ethtool
     - pkg: sys-apps/tcp-wrappers
 
-    - pkg: www-apps/gitea
-    - pkg: www-apps/gogs
-    - pkg: www-apps/forgejo
-
     - pkg: virtual/mailx
     - pkg: virtual/mta
     - pkg: virtual/resolvconf
-
-    # stable release 9.20
-    - pkg: net-dns/bind
-      conditions:
-        - '<net-dns/bind-9.21.0'
-    - pkg: net-dns/bind-tools
-      conditions:
-        - '<net-dns/bind-tools-9.21.0'
-    # development release 9.21
-    - pkg: net-dns/bind
-      conditions:
-        - '>=net-dns/bind-9.21.0'
-        - '<net-dns/bind-9.22.0'
-    - pkg: net-dns/bind-tools
-      conditions:
-        - '>=net-dns/bind-tools-9.21.0'
-        - '<net-dns/bind-tools-9.22.0'
-    - pkg: net-dns/unbound
-
-    - pkg: net-vpn/strongswan
-    - pkg: net-vpn/tor
 

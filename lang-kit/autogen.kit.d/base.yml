@@ -289,6 +289,9 @@ zig:
         category: virtual
         template: ../../templates/simple.tmpl
         ignore_artefacts: true
+        selector:
+          # v0.16.0 requires LLVM 21.x
+          - '<0.16.0'
         vars:
           desc: Virtual for Zig language compiler
           rdepend: |

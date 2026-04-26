@@ -181,6 +181,14 @@ setuptools_modules:
 
   packages:
 
+    - pyopenssl:
+        pypi_name: pyopenssl
+        pydeps_ignore:
+          - 'extra == "test"'
+          - 'extra == "docs"'
+        vars:
+          license: Apache-2.0
+
     - calver:
         vars:
           license: Apache-2.0

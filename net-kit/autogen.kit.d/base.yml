@@ -992,6 +992,11 @@ flatpak:
             src_prepare() {
               default
               vala_src_prepare
+              # Fix qt6 compilation
+              sed -i \
+              -e 's|^#include <private/qgenericunixservices_p.h>|#include <private/qdesktopunixservices_p.h>|g' \
+              -e 's|QGenericUnixServices|QDesktopUnixServices|g' \
+              libportal/portal-qt6.cpp
             }
             src_configure() {
               local emesonargs=(

@@ -84,6 +84,54 @@ general_github:
 
   packages:
 
+    - libqb:
+        template: ../../templates/simple.tmpl
+        category: sys-cluster
+        github:
+          user: ClusterLabs
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        vars:
+          license: LGPL-2.1
+          iuse: systemd examples
+          inherit:
+            - autotools
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/libxml2:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            app-arch/xz-utils
+          docs:
+            - ChangeLog
+            - README.markdown
+          body: |
+            src_prepare() {
+              default
+              # Skip installation of text documents without value
+              sed -e '/dist_doc_DATA/d' -i Makefile.am || die
+              # Do not append version suffix "-yank"
+              sed 's|1-yank|1|' -i configure.ac || die
+              eautoreconf
+            }
+            src_configure() {
+              econf \
+                --disable-static \
+                --disable-debug \
+                --with-socket-dir=/run \
+                $(use_enable systemd systemd-journal)
+            }
+            src_install() {
+              emake install DESTDIR="${D}"
+              if use examples ; then
+                docinto examples
+                dodoc examples/*.c
+              fi
+              einstalldocs
+              find "${D}" -name '*.la' -delete || die
+            }
+
     - fuse:
         template: ../../templates/simple.tmpl
         github:

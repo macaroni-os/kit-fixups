@@ -2374,7 +2374,7 @@ gnome_release_pkgs:
           license: GPL-2+ LGPL-2+
           iuse: |
             +colord +cups elogind +input_devices_wacom modemmanager +networkmanager
-            smartcard systemd wayland
+            smartcard systemd wayland usbguard
           required_use: |
             ^^ ( elogind systemd )
           rdepend: |
@@ -2413,7 +2413,7 @@ gnome_release_pkgs:
             media-libs/fontconfig
             elogind? ( sys-auth/elogind )
             systemd? ( sys-apps/systemd )
-            sys-apps/usbguard
+            usbguard? ( sys-apps/usbguard )
           body: |
             pkg_setup() {
               python-any-r1_pkg_setup
@@ -2425,7 +2425,6 @@ gnome_release_pkgs:
                 -Dgudev=true
                 -Dgcr3=false
                 -Drfkill=true
-                -Dx11=true
                 $(meson_use systemd)
                 $(meson_use elogind)
                 $(meson_use colord)

@@ -307,6 +307,9 @@ setuptools_modules:
         pypi_name: pyrfc3339
 
     - requests:
+        selector:
+          - '<2.33.1'
+        python_requires_ignore: true
         vars:
           iuse: socks5 +ssl
         pydeps:
@@ -321,6 +324,13 @@ setuptools_modules:
           use:ssl:both:
             - cryptography >= 1.3.4
             - pyopenssl >= 0.14
+        body: |
+          src_prepare() {
+            sed -i -e '/^requires-python.*/d' pyproject.toml
+            sed -i -e 's|10|9|g' setup.py
+            distutils-r1_src_prepare
+          }
+
 
     - spidev:
 

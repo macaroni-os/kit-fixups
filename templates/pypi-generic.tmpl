@@ -51,8 +51,8 @@ CDEPEND="
 
 {%- if depend is defined or py_depend is defined %}
 DEPEND="
-{%- if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
-{%- if py_depend is defined %}{{indented(py_depend|default(''),1)}}{%- endif %}
+{% if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
+{% if py_depend is defined %}{{indented(py_depend|default(''),1)}}{%- endif %}
 "
 {%- endif %}
 {%- if rdepend is defined or py_rdepend is defined %}

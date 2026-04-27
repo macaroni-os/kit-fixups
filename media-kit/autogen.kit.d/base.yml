@@ -1275,6 +1275,63 @@ gnome_stuff:
 
   packages:
 
+    - libchamplain:
+        category: media-libs
+        vars:
+          extra_envs:
+            - 'VALA_USE_DEPEND="vapigen"'
+          release: '0.12'
+          inherit:
+            - gnome3
+            - meson
+            - vala
+          desc: Clutter based world map renderer
+          homepage: https://wiki.gnome.org/Projects/libchamplain
+          slot: '0.12'
+          license: LGPL-2
+          iuse: doc +gtk +introspection +vala
+          required_use: |
+            vala? ( introspection )
+          rdepend: |
+            dev-db/sqlite:3
+            dev-libs/glib:2
+            media-libs/clutter:1.0[introspection?]
+            media-libs/cogl:=
+            net-libs/libsoup:3
+            x11-libs/cairo
+            x11-libs/gtk+:3
+            gtk? (
+              x11-libs/gtk+:3[introspection?]
+              media-libs/clutter-gtk:1.0
+            )
+            introspection? ( dev-libs/gobject-introspection:= )
+          depend: |
+            ${RDEPEND}
+            doc? ( dev-util/gtk-doc-am )
+            vala? ( $(vala_depend) )
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              eapply_user
+              use vala && vala_src_prepare
+              gnome3_src_prepare
+            }
+            src_configure() {
+              local emesonargs=(
+                -Dmemphis=false
+                -Ddemos=false
+                $(meson_use introspection)
+                $(meson_use doc gtk_doc)
+                $(meson_use gtk widgetry)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }
+            src_install() {
+              meson_src_install
+            }
+
     - gnome-sound-recorder:
         vars:
           release: '42'

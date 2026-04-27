@@ -455,11 +455,6 @@ x11_libs_dirlisting:
 
   packages:
 
-    - libxkbfile:
-        vars:
-          rdepend: |
-            x11-libs/libX11
-
     - libXScrnSaver:
 
     - libXaw:
@@ -740,6 +735,13 @@ x11_libs_meson_dirlisting:
         }
 
   packages:
+
+    - libxkbfile:
+        vars:
+          rdepend: |
+            x11-libs/libX11
+          inherit:
+            - meson
 
     - libpciaccess:
         vars:

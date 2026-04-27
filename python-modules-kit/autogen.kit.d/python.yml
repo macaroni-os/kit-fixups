@@ -181,6 +181,18 @@ setuptools_modules:
 
   packages:
 
+    - cffi:
+        pydeps:
+          py:all:tool:
+            - pycparser
+        vars:
+          license: MIT
+          depend: |
+            virtual/libffi:=
+          rdepend: '${DEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+
     - pyopenssl:
         pypi_name: pyopenssl
         pydeps_ignore:

@@ -153,11 +153,13 @@ net-im_github:
               exeinto /usr/lib/${PN}
               doexe "Telegram"
               newbin "${FILESDIR}"/${PN} "telegram-desktop"
+              dosym telegram-desktop /usr/bin/Telegram
               local icon_size
               for icon_size in 16 32 128 256 512; do
                 newicon -s "${icon_size}" \
                   "${SOURCE_DIR}/Telegram/Telegram/Images.xcassets/Icon.iconset/icon_${icon_size}x${icon_size}.png" \
                   telegram.png
+                dosym telegram.png /usr/share/icons/hicolor/${icon_size}x${icon_size}/apps/org.telegram.desktop.png
               done
               sed -i \
               -e '/SingleMainWindow=true/d' \

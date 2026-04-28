@@ -2485,6 +2485,9 @@ gstreamer_rs:
   packages:
 
     - gst-plugins-rs:
+        selector:
+          # 0.15.0 requires gstreamer 1.28
+          - '<0.15.0'
         extensions:
           - rust
         inherit:

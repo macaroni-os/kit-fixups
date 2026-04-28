@@ -64,6 +64,8 @@ netmisc_github:
           homepage: http://www.freerdp.com
           desc: FreeRDP is a free remote desktop protocol library and clients
           license: Apache-2.0
+          extra_envs:
+            - 'CMAKE_BUILD_TYPE=Release'
           inherit:
             - cmake
           iuse: |

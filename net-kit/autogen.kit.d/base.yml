@@ -1189,7 +1189,7 @@ minio:
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"
     github:
-      user: minio
+      user: pgsty
       query: releases
       match: RELEASE
     extensions:
@@ -1223,8 +1223,8 @@ minio:
         vars:
           inherit:
             - go-module
-          desc: Fast tool to manage MinIO clusters
-          homepage: https://min.io/ https://github.com/minio/mc
+          desc: Fast tool to manage MinIO clusters (Pgsty Fork)
+          homepage: https://github.com/pgsty/minio
           license: AGPL-3.0
           body: |
             src_unpack() {
@@ -1252,10 +1252,10 @@ minio:
             - EGO_OVERRIDE_GOMOD=0
             - MY_PV="$(ver_cut 1-3)T$(ver_cut 4-7)Z"
             - MY_PV=${MY_PV//./-}
-          desc: An Amazon S3 compatible object storage server
-          homepage: https://min.io/ https://github.com/minio/minio
+          desc: An Amazon S3 compatible object storage server (Pgsty Fork)
+          homepage: https://github.com/pgsty/minio
           iuse: systemd
-          license: Apache-2.0 BSD BSD-2 MIT MPL-2.0
+          license: AGPL-3.0
           inherit:
             - go-module
             - user
@@ -1267,7 +1267,7 @@ minio:
             }
             src_unpack() {
               go-module_src_unpack
-              mv ${WORKDIR}/minio-minio-* ${S} || die
+              mv ${WORKDIR}/{{ .Values.github_user}}-{{ .Values.github_repo}}-* ${S} || die
             }
             src_compile() {
               unset XDG_CACHE_HOME
@@ -1276,7 +1276,7 @@ minio:
                       "-X github.com/minio/minio/cmd.Version=${MINIO_RELEASE}"
                       "-X github.com/minio/minio/cmd.CopyrightYear=$(date -u '+%Y')"
                       "-X github.com/minio/minio/cmd.ReleaseTag=\"${PV}\""
-                      "-X github.com/minio/minio/cmd.CommitID={{ .Value.sha }}"
+                      "-X github.com/minio/minio/cmd.CommitID={{ .Values.sha }}"
                       "-X github.com/minio/minio/cmd.ShortCommitID={{ substr 0 7 .Values.sha }}"
               )
               CGO_ENABLED=0 \

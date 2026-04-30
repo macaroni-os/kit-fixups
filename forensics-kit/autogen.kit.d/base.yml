@@ -6,6 +6,19 @@ golang_forensics_github:
     template: ../../templates/simple-github.tmpl
     github:
       query: releases
+    vars:
+      body: |
+        src_compile() {
+          go build -mod=mod . || die "compile failed"
+        }
+        src_install() {
+          {{- if .Values.new_bin }}
+          newbin {{ .Values.binary }} {{ .Values.pn }}
+          {{- else }}
+          dobin {{ .Values.pn }}
+          {{- end }}
+          dodoc README.md
+        }
 
   extensions_defs:
     golang:
@@ -22,15 +35,18 @@ golang_forensics_github:
             - go-module
           bdepend: |
             >=dev-lang/go-1.24
-          body: |
-            src_compile() {
-              go build -mod=mod . || die "compile failed"
-            }
-            src_install() {
-              dobin {{ .Values.pn }}
-              dodoc README.md
-            }
 
-
+    - copyfail-go:
+        extensions:
+          - golang
+        github:
+          user: badsectorlabs
+        vars:
+          new_bin: true
+          binary: copyfail
+          bdepend: |
+            >=dev-lang/go-1.26.2
+          inherit:
+            - go-module
 
 

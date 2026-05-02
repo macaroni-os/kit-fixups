@@ -2826,6 +2826,50 @@ gnome_apps:
 
   packages:
 
+    - goffice:
+        category: x11-libs
+        vars:
+          release: '0.10'
+          iuse: +introspection
+          slot: '0.10'
+          license: GPL-2
+          desc: A library of document-centric objects and utilities
+          rdepend: |
+            app-text/libspectre:=
+            dev-libs/glib:2
+            dev-libs/libxml2:2
+            dev-libs/libxslt
+            gnome-base/librsvg
+            gnome-extra/libgsf:=[introspection?]
+            x11-libs/cairo:=
+            x11-libs/gdk-pixbuf:2
+            x11-libs/gtk+:3
+            x11-libs/pango:=
+            x11-libs/libXext
+            x11-libs/libXrender:=
+            introspection? (
+              dev-libs/gobject-introspection:=
+              gnome-extra/libgsf:=
+            )
+          depend: |
+            ${RDEPEND}
+            dev-lang/perl
+            dev-util/gtk-doc-am
+            dev-util/intltool
+            virtual/perl-Compress-Raw-Zlib
+            virtual/perl-Getopt-Long
+            virtual/perl-IO-Compress
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              gnome3_src_configure \
+                --without-lasem \
+                --with-gtk \
+                --with-config-backend=gsettings \
+                $(use_enable introspection)
+            }
+
     - d-feet:
         category: dev-util
         vars:

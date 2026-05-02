@@ -354,7 +354,7 @@ gnome3_gdk_pixbuf_update() {
 	local tmp_file=$(emktemp)
 	${updater} 1> "${tmp_file}" &&
 	chmod 0644 "${tmp_file}" &&
-	cp -f "${tmp_file}" "${EROOT}usr/$(get_libdir)/gdk-pixbuf-2.0/2.10.0/loaders.cache" &&
+	cp -f "${tmp_file}" "${EROOT}/usr/$(get_libdir)/gdk-pixbuf-2.0/2.10.0/loaders.cache" &&
 	rm "${tmp_file}" # don't replace this with mv, required for SELinux support
 	eend $?
 }

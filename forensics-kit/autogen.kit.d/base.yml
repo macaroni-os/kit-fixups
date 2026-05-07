@@ -6,10 +6,16 @@ golang_forensics_github:
     template: ../../templates/simple-github.tmpl
     github:
       query: releases
+    extensions:
+      - golang
     vars:
       body: |
         src_compile() {
+          {{- if .Values.go_build }}
+          {{- .Values.go_build }}
+          {{- else }}
           go build -mod=mod . || die "compile failed"
+          {{- end }}
         }
         src_install() {
           {{- if .Values.new_bin }}
@@ -26,8 +32,6 @@ golang_forensics_github:
 
   packages:
     - gobuster:
-        extensions:
-          - golang
         github:
           user: OJ
         vars:
@@ -37,8 +41,6 @@ golang_forensics_github:
             >=dev-lang/go-1.24
 
     - copyfail-go:
-        extensions:
-          - golang
         github:
           user: badsectorlabs
         vars:
@@ -49,4 +51,13 @@ golang_forensics_github:
           inherit:
             - go-module
 
-
+    - osv-scanner:
+        github:
+          user: google
+        vars:
+          bdepend: |
+            >=dev-lang/go-1.26.2
+          inherit:
+            - go-module
+          go_build: |
+            go build -mod=mod ./cmd/osv-scanner || die "compile failed"

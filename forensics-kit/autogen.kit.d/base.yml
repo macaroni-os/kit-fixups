@@ -7,12 +7,12 @@ golang_forensics_github:
     github:
       query: releases
     extensions:
-      - golang
+    #  - golang
     vars:
       body: |
         src_compile() {
           {{- if .Values.go_build }}
-          {{- .Values.go_build }}
+          {{ .Values.go_build }}
           {{- else }}
           go build -mod=mod . || die "compile failed"
           {{- end }}
@@ -61,3 +61,21 @@ golang_forensics_github:
             - go-module
           go_build: |
             go build -mod=mod ./cmd/osv-scanner || die "compile failed"
+
+    - gitleaks:
+        github:
+          user: gitleaks
+        vars:
+          bdepend: |
+            >=dev-lang/go-1.26.2
+          inherit:
+            - go-module
+          go_build: |
+            local custom_ldflags=(
+              "-X=github.com/zricethezav/gitleaks/v8/version.Version=${PV}"
+            )
+            go generate ./... || die "go generate failed"
+            go build -mod=mod \
+              --ldflags "${custom_ldflags[*]}" \
+              -v -x || die "compile failed"
+

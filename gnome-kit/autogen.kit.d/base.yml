@@ -2,7 +2,7 @@ media_libs:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   template:
     engine: helm
 
@@ -79,7 +79,7 @@ net_misc_cat:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   template:
     engine: helm
 
@@ -228,7 +228,7 @@ mail_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -324,7 +324,7 @@ glycin_gitlab:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   extensions_defs:
     rust:
@@ -487,7 +487,7 @@ gnome_release_pkgs:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   extensions_defs:
     rust:
@@ -2801,7 +2801,7 @@ gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -8905,7 +8905,7 @@ cairo_stuff:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   defaults:
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"
@@ -9002,7 +9002,7 @@ virtual_pkgs:
   generator: builtin-noop
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   template:
     engine: helm
 
@@ -9891,7 +9891,7 @@ colord:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   defaults:
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"
@@ -10096,7 +10096,7 @@ gitlab_freedesktop_dirlisting:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   template:
     engine: helm
 
@@ -10185,7 +10185,7 @@ accountsservice:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   defaults:
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"
@@ -10270,7 +10270,7 @@ webkit:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
   markdevkit_min_version: 0.28.3
   defaults:
     template: ../../templates/simple.tmpl
@@ -10495,7 +10495,7 @@ gitlab_gnome:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   extensions_defs:
     rust:
@@ -10686,7 +10686,7 @@ gnome_robots:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -10769,7 +10769,7 @@ gimp_sources:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -10971,7 +10971,7 @@ gitlab_com_dirlisting:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "8s"
+    rate_duration: "10s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"

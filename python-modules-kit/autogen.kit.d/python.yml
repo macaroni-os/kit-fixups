@@ -329,6 +329,12 @@ setuptools_modules:
         python_requires_ignore: true
         vars:
           iuse: socks5 +ssl
+          body: |
+            src_prepare() {
+              sed -i -e '/^requires-python.*/d' pyproject.toml
+              sed -i -e 's|10|9|g' setup.py
+              distutils-r1_src_prepare
+            }
         pydeps:
           py:all:both:
             - certifi >= 2017.4.17
@@ -341,12 +347,6 @@ setuptools_modules:
           use:ssl:both:
             - cryptography >= 1.3.4
             - pyopenssl >= 0.14
-        body: |
-          src_prepare() {
-            sed -i -e '/^requires-python.*/d' pyproject.toml
-            sed -i -e 's|10|9|g' setup.py
-            distutils-r1_src_prepare
-          }
 
 
     - spidev:

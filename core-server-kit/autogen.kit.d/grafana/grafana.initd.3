@@ -18,7 +18,7 @@ start() {
 		--pidfile /run/grafana.pid \
 		--chdir /usr/share/grafana \
 		--user ${GRAFANA_USER}:${GRAFANA_GROUP} \
-		--exec /usr/bin/grafana-server -- \
+		--exec /usr/bin/grafana -- server \
 		-config=/etc/grafana/grafana.ini \
 		cfg:default.paths.data=/var/lib/grafana \
 		cfg:default.paths.logs=/var/log/grafana

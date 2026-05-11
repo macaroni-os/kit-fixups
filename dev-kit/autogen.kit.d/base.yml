@@ -316,6 +316,17 @@ linear_packages:
           extra_envs:
             - 'NSS_CHK_SIGN_LIBS="freebl3 nssdbm3 softokn3"'
           body: |
+            nssarch() {
+              local t=${1:-${CHOST}}
+              case ${t} in
+                aarch64*) echo "aarch64" ;;
+                x86_64*)  echo "x86_64" ;;
+                i?86*)    echo "i686" ;;
+                *86*-pc-solaris2*) echo "i86pc" ;;
+                hppa*)    echo "parisc" ;;
+                *)        tc-arch ${t} ;;
+              esac
+            }
             src_prepare() {
               default
 
@@ -370,7 +381,7 @@ linear_packages:
               fi
 
               local d
-              local ostest="x86_64"
+              local ostest="$(nssarch)"
               if use arm ; then
                 ostest=$(tc-arch ${CHOST})
                 export USE_N32=1

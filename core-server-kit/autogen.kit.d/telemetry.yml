@@ -252,7 +252,7 @@ grafana:
               dobin bin/grafana
 
               newconfd "${FILESDIR}"/grafana.confd grafana
-              newinitd "${FILESDIR}"/grafana.initd.3 grafana
+              newinitd "${FILESDIR}"/grafana.initd.4 grafana
 
               keepdir /var/{lib,log}/grafana
               keepdir /var/lib/grafana/{dashboards,plugins}

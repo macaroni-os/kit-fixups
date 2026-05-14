@@ -446,6 +446,10 @@ kde-plasma:
             kde-frameworks/kservice:{{ .Values.slot }}
             kde-frameworks/kwindowsystem:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
+          body: |
+            src_prepare() {
+              kde6_src_prepare
+            }
 
     - libplasma:
         vars:

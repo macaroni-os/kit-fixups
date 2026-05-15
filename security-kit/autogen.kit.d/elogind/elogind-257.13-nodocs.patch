@@ -1,0 +1,18 @@
+--- a/meson.build	2026-05-15 03:17:27.619574177 -0300
++++ b/meson.build	2026-05-15 03:18:38.977228952 -0300
+@@ -3325,14 +3325,12 @@
+ #if 0 /// irrelevant for elogind
+ #              'docs/DISTRO_PORTING.md',
+ #endif // 0
+-             'docs/ENVIRONMENT.md',
+ #if 0 /// irrelevant for elogind
+ #              'docs/HACKING.md',
+ #              'docs/TRANSIENT-SETTINGS.md',
+ #              'docs/TRANSLATORS.md',
+ #endif // 0
+-             'docs/UIDS-GIDS.md',
+-             install_dir : docdir)
++             install_dir : docdir)
+ 
+ #if 0 /// irrelevant for elogind
+ # install_subdir('LICENSES',

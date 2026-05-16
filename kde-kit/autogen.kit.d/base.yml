@@ -677,23 +677,116 @@ kdsoap:
   packages:
     - kdsoap:
         vars:
-            license: GPL-3 AGPL-3
-            homepage: https://www.kdab.com/development-resources/qt-tools/kd-soap/
-            inherit:
-                - cmake
-            rdepend: |
-                dev-qt/qtbase:{{ .Values.qt_slot }}
-                dev-libs/boost
-            depend: |
-                ${RDEPEND}
-            desc: A Qt-based client-side and server-side SOAP component
-            body: |
-                src_configure() {
-                    local mycmakeargs=(
-                        -DKDSoap_DOCS=OFF
-                        -DKDSoap_EXAMPLES=OFF
-                        -DKDSoap_QT6=ON
-                        -DKDSoap_STATIC=OFF
-                    )
-                    cmake_src_configure
-                }
+          license: GPL-3 AGPL-3
+          homepage: https://www.kdab.com/development-resources/qt-tools/kd-soap/
+          inherit:
+            - cmake
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            dev-libs/boost
+          depend: |
+            ${RDEPEND}
+          desc: A Qt-based client-side and server-side SOAP component
+          body: |
+            src_configure() {
+                local mycmakeargs=(
+                    -DKDSoap_DOCS=OFF
+                    -DKDSoap_EXAMPLES=OFF
+                    -DKDSoap_QT6=ON
+                    -DKDSoap_STATIC=OFF
+                )
+                cmake_src_configure
+            }
+
+calamares:
+  generator: builtin-forgejo
+  markdevkit_min_version: 0.30.0
+  generator_opts:
+    host: https://codeberg.org
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-admin
+    forgejo:
+      user: Calamares
+    transform:
+      - kind: string
+        match: 'Calamares '
+        replace: ''
+    vars:
+      s: '${WORKDIR}/{{ .Values.pn }}'
+      python_compat: python3+
+      license: GPL-3
+      qt_slot: '6'
+      slot: '6'
+      iuse: +networkmanager +upower
+      inherit:
+        - cmake
+        - python-single-r1
+        - xdg
+      required_use: '${PYTHON_REQUIRED_USE}'
+      bdepend: |
+        dev-qt/qttools:{{ .Values.qt_slot }}[linguist]
+      cdepend: |
+        dev-cpp/yaml-cpp
+        dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+        dev-qt/qtnetworkauth:{{ .Values.qt_slot }}
+        dev-qt/qtdeclarative:{{ .Values.qt_slot }}
+        dev-qt/qtsvg:{{ .Values.qt_slot }}
+        kde-frameworks/kconfig:6
+        kde-frameworks/kcoreaddons:6
+        kde-frameworks/kcrash:6
+        kde-frameworks/kpackage:6
+        kde-frameworks/kparts:6
+        sys-apps/dmidecode
+        sys-libs/kpmcore:6=
+      depend: '${CDEPEND}'
+      rdepend: |
+        ${CDEPEND}
+        app-admin/sudo
+        dev-libs/libatasmart
+        net-misc/rsync
+        sys-boot/grub:2
+        sys-boot/os-prober
+        sys-fs/squashfs-tools
+        sys-libs/timezone-data
+        virtual/udev
+        networkmanager? ( net-misc/networkmanager )
+        upower? ( sys-power/upower )
+      body: |
+        src_prepare() {
+          cmake_src_prepare
+          export PYTHON_INCLUDE_DIRS="$(python_get_includedir)" \
+              PYTHON_INCLUDE_PATH="$(python_get_library_path)"\
+              PYTHON_CFLAGS="$(python_get_CFLAGS)"\
+              PYTHON_LIBS="$(python_get_LIBS)"
+
+          sed -i -e 's:pkexec /usr/bin/calamares:calamares-pkexec:' \
+            calamares.desktop || die
+          sed -i -e 's:Icon=calamares:Icon=drive-harddisk:' \
+            calamares.desktop || die
+        }
+        src_configure() {
+          # get the selected Python version from EPYTHON variable
+          local python_version="${EPYTHON#python}"
+          local boost_python_component="${python_version/./}"
+          local mycmakeargs=(
+            -DINSTALL_CONFIG=ON
+            -DWEBVIEW_FORCE_WEBKIT=OFF
+            -DCMAKE_DISABLE_FIND_PACKAGE_LIBPARTED=ON
+            -DWITH_PYTHONQT=OFF
+            -DWITH_QT6=ON
+            # explicitly set Python version and paths
+            -DPYTHONLIBS_VERSION="${python_version}"
+            -DBOOSTPYTHON_COMPONENT="python${boost_python_component}"
+          )
+          cmake_src_configure
+        }
+        src_install() {
+          cmake_src_install
+          dobin "${FILESDIR}"/calamares-pkexec
+        }
+
+  packages:
+    - calamares:

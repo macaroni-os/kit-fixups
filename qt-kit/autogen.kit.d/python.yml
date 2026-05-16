@@ -359,6 +359,14 @@ dev_python:
 
     - PyQt6-sip:
         pypi_name: pyqt6_sip
+        selector:
+          - '<13.11'
+
+    - PyQt6-sip:
+        pypi_name: pyqt6_sip
+        selector:
+          - '>13.10'
+
     - PyQt6WebEngine:
         pypi_name: pyqt6_webengine
         pydeps_ignore:

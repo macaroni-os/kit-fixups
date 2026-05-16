@@ -23,6 +23,14 @@ target:
 
   atoms:
     - pkg: dev-python/PyQt6
+      conditions:
+        - '<dev-python/PyQt6-13.11'
+
+    # 13.11 requires py3.10
+    - pkg: dev-python/PyQt6
+      conditions:
+        - '>dev-python/PyQt6-13.10'
+
     - pkg: dev-python/PyQt6-sip
     - pkg: dev-python/PyQt6WebEngine
 

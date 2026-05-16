@@ -21,6 +21,29 @@ kde-apps:
         matcher: "^25.*"
 
   packages:
+
+    - kpmcore:
+        category: sys-libs
+        selector:
+          # Temporary to move ahead in mark-iii
+          - '<25.12.3'
+        vars:
+          inherit:
+            - kde6
+          desc: Library for managing partitions
+          homepage: https://apps.kde.org/partitionmanager/
+          license: GPL-3
+          rdepend: |
+            virtual/kde-seed[gui]
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            sys-apps/util-linux
+            sys-auth/polkit-qt
+          bdepend: |
+            virtual/pkgconfig
+
     - akonadi:
         vars:
           inherit: kde6 xdg

@@ -29,6 +29,8 @@ target:
 
     - pkg: dev-python/PyQt6
     - pkg: dev-python/PyQt6-sip
+      conditions:
+        - '<dev-python/PyQt6-sip-13.11'
     - pkg: dev-python/PyQt6WebEngine
 
     - pkg: dev-qt/qt3d:6

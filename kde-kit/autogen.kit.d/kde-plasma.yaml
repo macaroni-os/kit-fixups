@@ -324,11 +324,10 @@ kde-plasma:
 
     - kde-cli-tools:
         vars:
-          iuse: kdesu X
+          iuse: X
           desc: "Tools based on KDE Frameworks 6 to better interact with the system"
           rdepend: |
             virtual/kde-seed[gui,svg,X?]
-            kdesu? ( >=${CATEGORY}/kdesu-gui-${PV} )
             kde-frameworks/kcoreaddons:{{ .Values.slot }}
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/kio:{{ .Values.slot }}
@@ -343,7 +342,6 @@ kde-plasma:
             }
             src_configure() {
               local mycmakeargs=(
-                -DCMAKE_DISABLE_FIND_PACKAGE_KF6Su=ON
                 -DWITH_X11=$(usex X)
               )
               cmake_src_configure

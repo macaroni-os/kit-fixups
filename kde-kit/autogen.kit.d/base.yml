@@ -790,3 +790,55 @@ calamares:
 
   packages:
     - calamares:
+
+libqaccessibilityclient:
+  generator: builtin-dirlisting
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://download.kde.org/Attic/libqaccessibilityclient/'
+      matcher: "libqaccessibilityclient-[0-9.]+\\.tar\\.xz$"
+    transform:
+      - kind: string
+        match: 'libqaccessibilityclient'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    assets:
+      - name: 'libqaccessibilityclient-{{ .Values.version }}.tar.xz'
+        url: 'https://download.kde.org/Attic/libqaccessibilityclient/libqaccessibilityclient-{{ .Values.version }}.tar.xz'
+    vars:
+      license: LGPL-2.1
+      qt_slot: '6'
+      homepage: https://invent.kde.org/libraries/libqaccessibilityclient
+      inherit:
+        - cmake
+      iuse: qt5 +qt6
+      required_use: '|| ( qt5 qt6 )'
+      rdepend: |
+        qt5? (
+          dev-qt/qtdbus:5
+          dev-qt/qtgui:5
+          dev-qt/qtwidgets:5
+        )
+        qt6? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
+      depend: '${RDEPEND}'
+      bdepend: 'virtual/pkgconfig'
+
+  packages:
+    - libqaccessibilityclient:
+        vars:
+          desc: Accessibilty tools helper library, used e.g. by screen readers
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DQT_MAJOR_VERSION=$(usex qt6 6 5)
+              )
+              cmake_src_configure
+            }

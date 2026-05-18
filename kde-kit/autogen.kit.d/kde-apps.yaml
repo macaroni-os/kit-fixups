@@ -2397,7 +2397,7 @@ kde-apps:
             kde-frameworks/kio:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-            keyboardfocus? ( >=media-libs/libqaccessibilityclient-0.6:{{ .Values.slot }} )
+            keyboardfocus? ( media-libs/libqaccessibilityclient[qt6] )
 
     - kmahjongg:
         vars:

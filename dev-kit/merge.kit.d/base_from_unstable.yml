@@ -31,6 +31,23 @@ target:
     - pkg: app-misc/yq3-bin
     - pkg: app-misc/yq4-bin
 
+    # Release 8.0.x
+    - pkg: dev-db/mysql-connector-c
+      conditions:
+        - '<dev-db/mysql-connector-c-8.1'
+        - '>dev-db/mysql-connector-c-8.0'
+
+    # Release 8.4.x
+    - pkg: dev-db/mysql-connector-c
+      conditions:
+        - '<dev-db/mysql-connector-c-8.5'
+        - '>dev-db/mysql-connector-c-8.4'
+
+    # Release 9.7.x
+    - pkg: dev-db/mysql-connector-c
+      conditions:
+        - '<dev-db/mysql-connector-c-9.8'
+        - '>=dev-db/mysql-connector-c-9.7.0'
 
     - pkg: dev-cpp/catch
     - pkg: dev-cpp/highway

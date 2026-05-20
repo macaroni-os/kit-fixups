@@ -25,3 +25,8 @@ target:
 
   atoms:
     - pkg: sys-apps/bubblewrap
+
+    # atm openssl3 is not yet available
+    - pkg: dev-libs/xmlsec
+      conditions:
+        - '<dev-libs/xmlsec-1.3.0'

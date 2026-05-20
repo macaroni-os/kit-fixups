@@ -2450,6 +2450,7 @@ man_pages:
 mysql_connector_c:
   generator: builtin-github
   defaults:
+    files_dir: '{{ .Values.pn }}'
     template: ../../templates/simple-github.tmpl
     category: dev-db
     github:

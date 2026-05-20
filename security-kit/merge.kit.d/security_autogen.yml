@@ -29,6 +29,14 @@ target:
 
     - pkg: app-misc/pax-utils
 
+    - pkg: dev-libs/xmlsec
+      conditions:
+        - '<dev-libs/xmlsec-1.3.0'
+
+    - pkg: dev-libs/xmlsec
+      conditions:
+        - '>=dev-libs/xmlsec-1.3.0'
+
     - pkg: dev-libs/openssl
       conditions:
         - '<dev-libs/openssl-3.1'

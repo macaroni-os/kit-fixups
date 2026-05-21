@@ -592,8 +592,10 @@ xmlsec:
   generator_opts:
     # Limit rate at 1reqs/sec
     rate_limiter: "1"
+  markdevkit_min_version: 0.31.0
 
   defaults:
+    override_user_agent: "wget"
     category: dev-libs
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"

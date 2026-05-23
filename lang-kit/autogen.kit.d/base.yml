@@ -73,7 +73,7 @@ golang:
             aarch64) export GOARCH="arm64" ;;
             armel)   export GOARCH="arm" GOARM=5 ;;
             armhf)   export GOARCH="arm" GOARM=6 ;;
-            armv7)   export GOARCH="arm" GOARM=7 ;;
+            armv7*)   export GOARCH="arm" GOARM=7 ;;
             s390x)   export GOARCH="s390x" ;;
             x86)     export GOARCH="386" ;;
             x86_64)  export GOARCH="amd64" ;;

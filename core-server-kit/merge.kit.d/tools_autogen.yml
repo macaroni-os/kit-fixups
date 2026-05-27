@@ -45,6 +45,24 @@ target:
     - pkg: app-shells/mcfly
     - pkg: app-shells/starship
 
+    # Release 10.6
+    - pkg: dev-db/mariadb
+      conditions:
+        - '<dev-db/mariadb-10.7'
+        - '>=dev-db/mariadb-10.6'
+
+    # Release 11.4
+    - pkg: dev-db/mariadb
+      conditions:
+        - '<dev-db/mariadb-11.5'
+        - '>=dev-db/mariadb-11.4'
+
+    # Release 12.2
+    - pkg: dev-db/mariadb
+      conditions:
+        - '<dev-db/mariadb-12.3'
+        - '>=dev-db/mariadb-12.2'
+
     - pkg: dev-util/gitlab-runner
     - pkg: dev-util/gitlab-runner-bin
 

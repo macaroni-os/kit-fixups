@@ -4161,7 +4161,7 @@ mariadb:
           fi
         }
         pkg_config() {
-          whip h mariadb.config || die "Error on configure ${P}"
+          whip h mariadb.config --enable-stdin || die "Error on configure ${P}"
         }
 
   packages:

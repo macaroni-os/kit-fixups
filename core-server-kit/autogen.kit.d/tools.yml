@@ -4194,3 +4194,86 @@ mariadb:
     #        virtual/yacc
     #        >=dev-libs/boost-1.88.0
 
+mariadb_connector:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-db
+    dir:
+      url: https://archive.mariadb.org/
+      matcher: '{{ .Values.original_pn }}-[0-9.]+'
+    transform:
+      - kind: string
+        match: '{{ .Values.original_pn }}-'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+        url: 'https://archive.mariadb.org/{{ .Values.original_pn }}-{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.version }}-src.tar.gz'
+    vars:
+      # Avoid issues with dev-perl/DBD-mysql
+      slot: '0/3'
+      s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.version }}-src'
+      patches:
+        - mariadb-connector-c-3.1.3-fix-pkconfig-file.patch
+      original_pn: 'connector-c'
+      inherit:
+        - cmake
+        - toolchain-funcs
+      homepage: https://mariadb.org/
+      desc: C client library for MariaDB/MySQL
+      license: LGPL-2.1+
+      iuse: |
+        +curl gnutls kerberos +ssl static-libs
+      rdepend: |
+        sys-libs/zlib:=
+        virtual/libiconv:=
+        curl? ( net-misc/curl:= )
+        kerberos? (
+          || (
+            app-crypt/mit-krb5
+            app-crypt/heimdal
+          )
+        )
+        ssl? (
+          gnutls? ( net-libs/gnutls:= )
+          !gnutls? ( dev-libs/openssl:= )
+        )
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          cmake_src_prepare
+          sed -i -e 's|DESTINATION "bin"|DESTINATION ${INSTALL_BINDIR}|g' \
+            mariadb_config/CMakeLists.txt
+        }
+        src_configure() {
+          tc-ld-disable-gold
+          local mycmakeargs=(
+            -DWITH_EXTERNAL_ZLIB=ON
+            -DWITH_SSL:STRING=$(usex ssl $(usex gnutls GNUTLS OPENSSL) OFF)
+            -DWITH_CURL=$(usex curl ON OFF)
+            -DWITH_ICONV=ON
+            -DCLIENT_PLUGIN_AUTH_GSSAPI_CLIENT:STRING=$(usex kerberos DYNAMIC OFF)
+            -DMARIADB_UNIX_ADDR="/var/run/mysqld/mysqld.sock"
+            -DINSTALL_LIBDIR="$(get_libdir)"
+            -DINSTALL_PCDIR="$(get_libdir)/pkgconfig"
+            -DINSTALL_PLUGINDIR="$(get_libdir)/mariadb/plugin"
+            -DINSTALL_BINDIR=bin
+            -DWITH_UNIT_TESTS=OFF
+          )
+          cmake_src_configure
+        }
+        src_install() {
+          cmake_src_install
+          # Plugin available on mariadb
+          rm -v "${ED}"/usr/$(get_libdir)/mariadb/plugin/zstd.so
+          if ! use static-libs ; then
+            find "${ED}" -name "*.a" -delete || die
+          fi
+        }
+
+  packages:
+
+    - mariadb-connector-c:
+

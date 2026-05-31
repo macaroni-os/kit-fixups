@@ -49,13 +49,14 @@ target:
     - pkg: app-emulation/docker-compose
     - pkg: app-emulation/docker-proxy
     - pkg: app-emulation/docker-registry
+    - pkg: app-emulation/firecracker-bin
     - pkg: app-emulation/incus
-    - pkg: app-emulation/libvirt
+    - pkg: app-emulation/qemu
+    - pkg: app-emulation/runc
     - pkg: app-emulation/lxc
     - pkg: app-emulation/lxd
+    - pkg: app-emulation/libvirt
     - pkg: app-emulation/open-vm-tools
-    - pkg: app-emulation/runc
-    - pkg: app-emulation/qemu
     - pkg: app-emulation/spice
     - pkg: app-emulation/spice-protocol
 
@@ -63,6 +64,14 @@ target:
     - pkg: app-misc/screen
 
     - pkg: app-shells/bash-completion
+
+    # Release 10.6
+    - pkg: dev-db/mariadb
+      conditions:
+        - '<dev-db/mariadb-10.7'
+        - '>=dev-db/mariadb-10.6'
+
+    - pkg: dev-db/mariadb-connector-c
 
     - pkg: dev-util/gitlab-runner
     - pkg: dev-util/gitlab-runner-bin
@@ -92,6 +101,7 @@ target:
     - pkg: sys-block/parted
 
     - pkg: sys-libs/ldb
+    - pkg: sys-libs/liburing
     - pkg: sys-libs/tdb
     - pkg: sys-libs/tevent
 

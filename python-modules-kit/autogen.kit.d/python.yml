@@ -186,6 +186,18 @@ setuptools_modules:
 
   packages:
 
+    - sip:
+        vars:
+          license: SIP
+          homepage: https://pypi.org/project/sip/
+        pydeps:
+          py:all:runtime:
+            - packaging
+          py:all:tool:
+            - packaging
+          py:all:build:
+            - setuptools_scm
+
     - cffi:
         pydeps:
           py:all:tool:

@@ -263,12 +263,12 @@ dev_python:
           du_pep517: sip
           iuse: |
             bluetooth debug multimedia pdf positioning quick3d remoteobjects sensors serialport speech
-            sql statemachine webchannel websockets
+            sql statemachine webchannel websockets vulkan gles2-only wayland
           cdepend: |
             ${PYTHON_DEPS}
             dev-python/dbus-python[${PYTHON_USEDEP}]
             dev-python/sip[${PYTHON_USEDEP}]
-            dev-qt/qtbase:6[-gles2-only,gui]
+            dev-qt/qtbase:6[gles2-only?,gui,vulkan?,wayland?]
             dev-qt/qtdeclarative:6
             dev-qt/qtsvg:6
             dev-qt/qttools:6[assistant]
@@ -295,7 +295,6 @@ dev_python:
           s: '${WORKDIR}/pyqt6-{{ .Values.version}}'
           body: |
             python_configure_all() {
-
                 pyqt_use_enable() {
                     use "$1" || return
 
@@ -311,11 +310,8 @@ dev_python:
                     --qmake-setting="$(qt6_get_qmake_args)"
                     --verbose
                     --confirm-license
-
                     $(usex debug '--debug --qml-debug' '')
                     --no-designer-plugin
-                    --disabled-feature=PyQt_OpenGL_ES2
-                    --disabled-feature=PyQt_Vulka
                     --disabled-feature=PyQt_Permissions
                     --enable=QtCore
                     --enable=QtDBus
@@ -333,6 +329,9 @@ dev_python:
                     --enable=QtTest
                     --enable=QtWidgets
                     --enable=QtXml
+                    $(usex vulkan '' '--disabled-feature=PyQt_Vulkan')
+                    $(usex wayland '' '--disabled-feature=PyQt_Wayland')
+                    $(usex gles2-only '' '--disabled-feature=PyQt_OpenGL_ES2')
                     $(pyqt_use_enable bluetooth QtBluetooth)
                     $(pyqt_use_enable bluetooth QtNfc)
                     $(pyqt_use_enable multimedia Multimedia)
@@ -351,7 +350,6 @@ dev_python:
                     $(pyqt_use_enable websockets QtWebSockets)
                 )
             }
-
             python_install_all() {
                 einstalldocs
             }

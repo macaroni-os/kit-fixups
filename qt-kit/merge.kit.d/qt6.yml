@@ -27,6 +27,19 @@ target:
 
   atoms:
 
+    - pkg: dev-python/PyQt6
+
+    - pkg: dev-python/PyQt6-sip
+      conditions:
+        - '>=dev-python/PyQt6-sip-13.11.0'
+    # 13.11 requires py3.10
+    - pkg: dev-python/PyQt6-sip
+      conditions:
+        - '<dev-python/PyQt6-sip-13.11'
+
+    - pkg: dev-python/PyQt6WebEngine
+
+
     - pkg: dev-qt/qt3d:6
     - pkg: dev-qt/qt5compat:6
     - pkg: dev-qt/qtbase:6
@@ -50,6 +63,7 @@ target:
     - pkg: dev-qt/qtsvg:6
     - pkg: dev-qt/qttools:6
     - pkg: dev-qt/qttranslations:6
+    - pkg: dev-qt/qtvirtualkeyboard:6
     - pkg: dev-qt/qtwayland:6
     - pkg: dev-qt/qtwebchannel:6
     - pkg: dev-qt/qtwebengine:6

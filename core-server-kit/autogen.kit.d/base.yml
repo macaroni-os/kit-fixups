@@ -948,11 +948,9 @@ mysql_community:
           insinto "${MY_SYSCONFDIR#${EPREFIX}}"
           [[ -f "${S}/scripts/mysqlaccess.conf" ]] && doins "${S}"/scripts/mysqlaccess.conf
           cp "${FILESDIR}/my.cnf-8.0" "${TMPDIR}/my.cnf" || die
-          eprefixify "${TMPDIR}/my.cnf"
           doins "${TMPDIR}/my.cnf"
           insinto "${MY_SYSCONFDIR#${EPREFIX}}/mysql.d"
           cp "${FILESDIR}/my.cnf-8.0.distro-client" "${TMPDIR}/50-distro-client.cnf" || die
-          eprefixify "${TMPDIR}/50-distro-client.cnf"
           doins "${TMPDIR}/50-distro-client.cnf"
           mycnf_src="my.cnf-8.0.distro-server"
           sed -e "s!@DATADIR@!${MY_DATADIR}!g" \
@@ -963,7 +961,6 @@ mysql_community:
               -e "/character-set/s|utf8mb4|latin1|g" \
               "${TMPDIR}/my.cnf.ok" || die
           fi
-          eprefixify "${TMPDIR}/my.cnf.ok"
           newins "${TMPDIR}/my.cnf.ok" 50-distro-server.cnf
           #Remove mytop if perl is not selected
           [[ -e "${ED}/usr/bin/mytop" ]] && ! use perl && rm -f "${ED}/usr/bin/mytop"

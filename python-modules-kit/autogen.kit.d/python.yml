@@ -892,7 +892,13 @@ libxml2_python:
         src_install() {
           meson_src_install
           # Remove files supplied by libxml2 library
-          rm -r "${ED}"/usr/{$(get_libdir),bin,include} || die
+          rm -f "${ED}"/usr/bin/xml2-config || die
+          rm -f "${ED}"/usr/bin/xmlcatalog || die
+          rm -f "${ED}"/usr/bin/xmllint || die
+          rm -rf "${ED}"/usr/include || die
+          rm -f "${ED}"/usr/$(get_libdir)/libxml2.so* || die
+          rm -rf "${ED}"/usr/$(get_libdir)/pkgconfig || die
+          rm -rf "${ED}"/usr/$(get_libdir)/cmake || die
         }
 
   packages:

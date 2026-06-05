@@ -19,6 +19,8 @@ target:
   atoms:
 
     - pkg: app-arch/lxqt-archiver
+      conditions:
+        - '<app-arch/lxqt-archiver-2.4.0'
 
     - pkg: app-misc/qtxdg-tools
 
@@ -42,6 +44,8 @@ target:
     - pkg: lxqt-base/lxqt-policykit
     - pkg: lxqt-base/lxqt-powermanagement
     - pkg: lxqt-base/lxqt-qtplugin
+      conditions:
+        - '<lxqt-base/lxqt-qtplugin-2.4.0'
     - pkg: lxqt-base/lxqt-runner
     - pkg: lxqt-base/lxqt-session
     - pkg: lxqt-base/lxqt-sudo

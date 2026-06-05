@@ -4499,3 +4499,223 @@ vlc_pkgs:
               find "${ED}" -name '*.la' -delete || die
             }
 
+
+flite:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-accessibility
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+        url: 'https://github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/archive/v{{ .Values.version }}.tar.gz'
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_ben_rm.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_ben_rm.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_guj_ad.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_guj_ad.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_guj_dp.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_guj_dp.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_guj_kt.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_guj_kt.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_hin_ab.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_hin_ab.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_kan_plv.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_kan_plv.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_mar_aup.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_mar_aup.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_mar_slp.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_mar_slp.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_pan_amp.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_pan_amp.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_tam_sdr.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_tam_sdr.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_tel_kpn.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_tel_kpn.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_tel_sk.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_tel_sk.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_indic_tel_ss.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_indic_tel_ss.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_aew.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_aew.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_ahw.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_ahw.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_aup.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_aup.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_awb.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_awb.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_axb.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_axb.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_bdl.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_bdl.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_clb.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_clb.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_eey.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_eey.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_fem.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_fem.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_gka.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_gka.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_jmk.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_jmk.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_ksp.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_ksp.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_ljm.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_ljm.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_lnh.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_lnh.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_rms.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_rms.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_rxr.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_rxr.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_slp.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_slp.flitevox'
+        use: voices
+
+      - name: '{{ .Values.voices_version }}-cmu_us_slt.flitevox'
+        url: 'http://www.festvox.org/{{ .Values.pn }}/packed/{{ .Values.pn }}-{{ .Values.voices_version }}/voices/cmu_us_slt.flitevox'
+        use: voices
+
+    vars:
+      voices_version: "2.3"
+      inherit:
+        - autotools
+        - toolchain-funcs
+      license: BSD freetts public-domain regexp-UofT BSD-2
+      iuse: alsa oss pulseaudio voices
+      patches:
+        - flite-1.4-audio-interface.patch
+        - flite-2.2-backport-pr30.patch
+        - flite-2.2-make-4.4.patch
+        - flite-2.2-backport-pr66.patch
+        - flite-2.2-remove-const-cast.patch
+        - flite-2.2-no-native-ar.patch
+      rdepend: |
+        pulseaudio? (
+          media-sound/pulseaudio
+        )
+        !pulseaudio? (
+          alsa? (
+            media-libs/alsa-lib
+          )
+        )
+      depend: '${RDEPEND}'
+      body: |
+        get_audio() {
+          if use pulseaudio; then
+            echo pulseaudio
+          elif use alsa; then
+            echo alsa
+          elif use oss; then
+            echo oss
+          else
+            echo none
+          fi
+        }
+        src_unpack() {
+          for file in ${A}; do
+            case "${file}" in
+              *.flitevox)
+                cp -av "${DISTDIR}/${file}" "${WORKDIR}/${file/*-/}" || die "Unable to copy ${file}"
+                ;;
+              *)
+                unpack "${file}"
+                ;;
+            esac
+          done
+        }
+        src_prepare() {
+          default
+          sed -i main/Makefile \
+            -e '/-rpath/s|$(LIBDIR)|$(INSTALLLIBDIR)|g' \
+            || die
+          mv configure.{in,ac} || die
+          eautoreconf
+        }
+        src_configure() {
+          local myconf=(
+            --enable-shared
+            --with-audio=$(get_audio)
+          )
+          econf "${myconf[@]}"
+        }
+        src_compile() {
+          emake -j1 CC="$(tc-getCC)" CFLAGS="${CFLAGS}"
+        }
+        src_install() {
+          default
+          dodoc ACKNOWLEDGEMENTS README.md
+          rm -rf "${D}"/usr/lib*/*.a
+          if use voices; then
+            insinto /usr/share/flite
+            doins "${WORKDIR}"/*.flitevox
+          fi
+        }
+
+    github:
+      user: festvox
+      query: tags
+
+  packages:
+
+    - flite:
+

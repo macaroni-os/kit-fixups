@@ -826,7 +826,7 @@ twm:
     template: ../../templates/simple.tmpl
     category: x11-wm
     dir:
-      url: 'https://www.x.org/releases/individual/{{ .Values.xorg_path }}'
+      url: 'https://xorg.freedesktop.org/archive/individual/{{ .Values.xorg_path }}'
       exclude: ".99"
       matcher: "{{ .Values.pn }}-.*.tar.xz$"
     transform:

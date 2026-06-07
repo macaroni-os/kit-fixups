@@ -225,7 +225,7 @@ opera:
             }
             src_prepare() {
               default
-              OPERA_HOME="usr/$(get_libdir)/${PN}"
+              OPERA_HOME="usr/$(get_libdir)/${PN}-stable"
               case ${ARCH} in
                 amd64)
                   mv usr/lib/x86_64-linux-gnu usr/$(get_libdir) || die

@@ -198,6 +198,7 @@ jetbrains_stuff:
         - desktop
         - eutils
         - xdg
+      s: '${WORKDIR}/{{ .Values.srcdir }}-{{ .Values.version }}'
       iuse: +system-java +sysctl
       rdepend: |
         system-java? ( virtual/jre )

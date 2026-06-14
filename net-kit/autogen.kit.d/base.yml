@@ -3502,7 +3502,6 @@ dovecot_dirlisting:
         - toolchain-funcs
         - user
       license: LPGL-2.1 MIT
-      # lua USE requires 5.2 not yet available.
       iuse: |
         kerberos ldap lua mysql pam postgres sqlite
         bzip2 lzma lz4 zlib zstd argon2 caps ipv6
@@ -3514,7 +3513,7 @@ dovecot_dirlisting:
         caps? ( sys-libs/libcap )
         kerberos? ( virtual/krb5 )
         ldap? ( net-nds/openldap )
-        lua? ( dev-lang/lua:= )
+        lua? ( dev-lua/lua:= )
         lucene? ( dev-cpp/clucene )
         lzma? ( app-arch/xz-utils )
         lz4? ( app-arch/lz4 )

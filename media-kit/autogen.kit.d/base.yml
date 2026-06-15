@@ -1064,7 +1064,8 @@ inkscape:
         dia? ( app-office/dia )
         postscript? ( app-text/ghostscript-gpl )
       depend: '${CDEPEND}'
-
+      patches:
+        - inkscape-pango-1.57.patch
       body: |
         pkg_pretend() {
           use openmp && tc-check-openmp
@@ -4718,4 +4719,5 @@ flite:
   packages:
 
     - flite:
+
 

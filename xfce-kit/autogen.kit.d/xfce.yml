@@ -1,0 +1,785 @@
+xfce_core:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    vars:
+      homepage: https://www.xfce.org
+    dir:
+      url: "https://archive.xfce.org/src/xfce/{{ .Values.pn }}/4.20/"
+      matcher: "{{ .Values.pn }}-.*\\.tar\\.bz2$"
+      order: asc
+    transform:
+      - kind: string
+        match: "{{ .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".tar.bz2"
+        replace: ""
+
+  packages:
+    - xfce4-dev-tools:
+        category: dev-util
+        vars:
+          desc: A set of scripts and m4/autoconf macros that ease build system maintenance
+          license: GPL-2+
+          rdepend: |
+            dev-util/meson
+          depend: |
+            dev-libs/glib
+          bdepend: |
+            dev-util/meson
+            dev-libs/libxslt
+            virtual/pkgconfig
+
+    - libxfce4util:
+        category: xfce-base
+        vars:
+          desc: A basic utility library for the Xfce desktop environment
+          license: LGPL-2+ GPL-2+
+          inherit:
+            - meson
+            - vala
+          iuse: +introspection vala
+          required_use: vala? ( introspection )
+          depend: |
+            dev-libs/glib
+            introspection? ( dev-libs/gobject-introspection )
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+                    default
+                    vala_src_prepare
+            }
+            src_configure() {
+                    local emesonargs=(
+                            $(meson_use introspection)
+                            $(meson_feature vala)
+                            -Dgtk-doc=false
+                    )
+                    meson_src_configure
+            }
+
+    - xfconf:
+        category: xfce-base
+        vars:
+          desc: A configuration management system for Xfce
+          license: GPL-2+
+          inherit:
+            - bash-completion-r1
+            - vala
+          iuse: debug +introspection vala
+          required_use: vala? ( introspection )
+          depend: |
+            dev-libs/glib
+            sys-apps/dbus
+            xfce-base/libxfce4util
+            introspection? ( dev-libs/gobject-introspection )
+          bdepend: |
+            dev-util/gdbus-codegen
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+                    default
+            }
+            src_configure() {
+                    local myconf=(
+                            $(use_enable introspection)
+                            $(use_enable vala)
+                            $(use_enable debug checks)
+                            --with-bash-completion-dir="$(get_bashcompdir)"
+                    )
+                    use vala && vala_src_prepare
+                    econf "${myconf[@]}"
+            }
+
+    - libxfce4ui:
+        category: xfce-base
+        vars:
+          desc: Unified widget and session management libs for Xfce
+          license: LGPL-2+ GPL-2+
+          inherit:
+            - xdg
+            - vala
+          iuse: glade +introspection startup-notification system-info vala wayland X
+          required_use: "|| ( wayland X )
+                         vala? ( introspection )"
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+[introspection?,wayland?,X?]
+            xfce-base/libxfce4util[introspection?,vala?]
+            xfce-base/xfconf
+            glade? ( dev-util/glade )
+            introspection? ( dev-libs/gobject-introspection )
+            system-info? (
+                    dev-libs/libgudev
+                    gnome-base/libgtop
+                    media-libs/libepoxy
+            )
+            X? (
+                    x11-libs/libICE
+                    x11-libs/libSM
+                    x11-libs/libX11
+                    startup-notification? ( x11-libs/startup-notification )
+            )
+            x11-base/xorg-proto
+          bdepend: |
+            dev-lang/perl
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+          body: |
+            src_prepare() {
+                    default
+            }
+            src_configure() {
+                    local myconf=(
+                            $(use_enable glade gladeui2)
+                            $(use_enable introspection)
+                            $(use_enable system-info glibtop)
+                            $(use_enable wayland)
+                            $(use_enable X x11)
+                            $(use_enable startup-notification)
+                    )
+                    use vala && vala_src_prepare
+                    econf "${myconf[@]}"
+            }
+
+    - garcon:
+        category: xfce-base
+        vars:
+          desc: "Xfce's freedesktop.org specification compatible menu implementation library"
+          inherit:
+            - xdg
+          license: LGPL-2+ FDL-1.1+
+          iuse: introspection
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+
+            xfce-base/libxfce4util[introspection?]
+            xfce-base/libxfce4ui[introspection?]
+            introspection? ( dev-libs/gobject-introspection )
+          bdepend: |
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+            introspection? ( dev-libs/gobject-introspection )
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable introspection)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - exo:
+        category: xfce-base
+        vars:
+          desc: "Extensions, widgets and framework library with session support for Xfce"
+          inherit:
+            - xdg
+          license: GPL-2+ LGPL-2.1+
+          iuse: wayland X
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+[wayland?,X?]
+            xfce-base/libxfce4ui[gtk3(+)]
+            xfce-base/libxfce4util
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    default
+            }
+
+    - libxfce4windowing:
+        category: xfce-base
+        vars:
+          desc: Unified widget and session management libs for Xfce
+          inherit:
+            - meson
+            - vala
+          license: LGPL-2.1+
+          slot: 0/4.19.6
+          iuse: +introspection wayland X vala
+          required_use: "|| ( wayland X )\nvala? ( introspection )"
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+[X?,introspection?,wayland?]
+            x11-libs/gdk-pixbuf[introspection?]
+            wayland? (
+                    dev-libs/wayland
+            )
+            X? (
+                    media-libs/libdisplay-info
+                    x11-libs/libX11
+                    x11-libs/libXrandr
+                    x11-libs/libwnck
+            )
+          bdepend: |
+            dev-util/xfce4-dev-tools
+            dev-lang/perl
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+            vala? ( $(vala_depend) )
+            wayland? (
+                    dev-util/wayland-scanner
+            )
+          body: |
+            src_prepare() {
+                    default
+                    use vala && vala_src_prepare
+            }
+            src_configure() {
+                    local emesonargs=(
+                            $(meson_use introspection)
+                            $(meson_feature vala)
+                            $(meson_feature wayland)
+                            $(meson_feature X x11)
+                            -Dtests=false
+                    )
+                    meson_src_configure
+            }
+
+    - thunar:
+        category: xfce-base
+        vars:
+          desc: File manager for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+ LGPL-2+
+          iuse: "X exif gtk-doc introspection libnotify pcre policykit +trash-panel-plugin udisks"
+          depend: |
+            dev-libs/glib
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+[X?]
+            x11-libs/pango
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util
+            xfce-base/xfconf
+            exif? ( media-libs/gexiv2 )
+            introspection? ( dev-libs/gobject-introspection )
+            libnotify? ( x11-libs/libnotify )
+            pcre? ( dev-libs/libpcre2 )
+            trash-panel-plugin? ( xfce-base/xfce4-panel )
+            udisks? ( dev-libs/libgudev )
+            X? (
+                    x11-libs/libICE
+                    x11-libs/libSM
+                    x11-libs/libX11
+            )
+            policykit? ( sys-auth/polkit )
+          rdepend: |
+            dev-libs/glib
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+[X?]
+            x11-libs/pango
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util
+            xfce-base/xfconf
+            exif? ( media-libs/gexiv2 )
+            introspection? ( dev-libs/gobject-introspection )
+            libnotify? ( x11-libs/libnotify )
+            pcre? ( dev-libs/libpcre2 )
+            trash-panel-plugin? ( xfce-base/xfce4-panel )
+            udisks? ( dev-libs/libgudev )
+            X? (
+                    x11-libs/libICE
+                    x11-libs/libSM
+                    x11-libs/libX11
+            )
+            dev-util/desktop-file-utils
+            x11-misc/shared-mime-info
+            trash-panel-plugin? (
+                    gnome-base/gvfs
+            )
+            udisks? (
+                    gnome-base/gvfs[udisks,udev]
+                    virtual/udev
+            )
+          bdepend: |
+            dev-util/xfce4-dev-tools
+            dev-libs/glib
+            dev-libs/libxml2
+            sys-devel/gettext
+            virtual/pkgconfig
+            gtk-doc? ( dev-util/gtk-doc )
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable exif)
+                            $(use_enable introspection)
+                            $(use_enable libnotify notifications)
+                            $(use_enable pcre pcre2)
+                            $(use_enable udisks gudev)
+                            $(use_enable trash-panel-plugin tpa-plugin)
+                            $(use_with X x)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - thunar-volman:
+        category: xfce-base
+        vars:
+          desc: Daemon that enforces volume-related policies
+          inherit:
+            - xdg
+          license: GPL-2+ CC-BY-SA-3.0
+          iuse: libnotify
+          rdepend: |
+            virtual/udev
+            xfce-base/thunar[udisks]
+          depend: |
+            dev-libs/glib
+            dev-libs/libgudev
+            x11-libs/gtk+
+            xfce-base/exo
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util
+            xfce-base/xfconf
+            libnotify? ( x11-libs/libnotify )
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable libnotify notifications)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - tumbler:
+        category: xfce-base
+        vars:
+          desc: A thumbnail service for Thunar
+          inherit:
+            - xdg
+          license: GPL-2+
+          iuse: curl epub ffmpeg gstreamer jpeg odf pdf raw
+          rdepend: |
+            gstreamer? ( media-plugins/gst-plugins-meta )
+          depend: |
+            dev-libs/glib
+            media-libs/freetype
+            media-libs/libpng
+            sys-apps/dbus
+            xfce-base/libxfce4util
+            x11-libs/gdk-pixbuf
+            curl? ( net-misc/curl )
+            epub? ( app-text/libgepub )
+            ffmpeg? ( media-video/ffmpegthumbnailer )
+            gstreamer? (
+                    media-libs/gstreamer
+                    media-libs/gst-plugins-base
+            )
+            jpeg? ( media-libs/libjpeg-turbo )
+            odf? ( gnome-extra/libgsf )
+            pdf? ( app-text/poppler[cairo] )
+            raw? ( media-libs/libopenraw[gtk] )
+          bdepend: |
+            dev-util/gdbus-codegen
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable curl cover-thumbnailer)
+                            $(use_enable epub gepub-thumbnailer)
+                            $(use_enable jpeg jpeg-thumbnailer)
+                            $(use_enable ffmpeg ffmpeg-thumbnailer)
+                            $(use_enable gstreamer gstreamer-thumbnailer)
+                            $(use_enable odf odf-thumbnailer)
+                            $(use_enable pdf poppler-thumbnailer)
+                            $(use_enable raw raw-thumbnailer)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - xfce4-panel:
+        category: xfce-base
+        vars:
+          desc: Panel for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+ LGPL-2.1+
+          iuse: dbusmenu introspection wayland X
+          required_use: '|| ( wayland X )'
+          depend: |
+            dev-libs/glib
+            x11-libs/cairo
+            x11-libs/gtk+[X?,introspection?,wayland?]
+            xfce-base/exo
+            xfce-base/garcon
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util[introspection?]
+            xfce-base/libxfce4windowing[X?]
+            xfce-base/xfconf
+            dbusmenu? ( dev-libs/libdbusmenu[gtk3] )
+            introspection? ( dev-libs/gobject-introspection )
+            wayland? (
+                    dev-libs/wayland
+                    gui-libs/gtk-layer-shell
+            )
+            X? (
+                    x11-libs/libX11
+                    x11-libs/libXext
+                    x11-libs/libwnck
+            )
+          bdepend: |
+            dev-util/gdbus-codegen
+            dev-util/intltool
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable introspection)
+                            $(use_enable wayland)
+                            $(use_enable X x11)
+                            $(use_enable dbusmenu dbusmenu-gtk3)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - xfce4-settings:
+        category: xfce-base
+        vars:
+          desc: Configuration system for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+
+          iuse: "X colord input_devices_libinput libnotify upower wayland +xklavier"
+          required_use: '|| ( X wayland )'
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+[X?,wayland?]
+            xfce-base/garcon
+            xfce-base/libxfce4ui[X?]
+            xfce-base/libxfce4util
+            xfce-base/xfconf
+            colord? ( x11-misc/colord )
+            upower? ( sys-power/upower )
+            X? (
+                    media-libs/fontconfig
+                    x11-libs/libX11
+                    x11-libs/libXcursor
+                    x11-libs/libXext
+                    x11-libs/libXi
+                    x11-libs/libXrandr
+                    input_devices_libinput? ( x11-drivers/xf86-input-libinput )
+                    libnotify? ( x11-libs/libnotify )
+                    xklavier? ( x11-libs/libxklavier )
+                    x11-base/xorg-proto
+            )
+            wayland? (
+                    dev-libs/wayland
+                    gui-libs/gtk-layer-shell
+            )
+          bdepend: |
+            dev-libs/libxml2
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable X x11)
+                            $(use_enable wayland)
+                            $(use_enable libnotify)
+                            $(use_enable xklavier libxklavier)
+                            $(use_enable upower upower-glib)
+                            $(use_enable colord)
+                            $(use_enable input_devices_libinput xorg-libinput)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - xfce4-session:
+        category: xfce-base
+        vars:
+          desc: A session manager for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+
+          iuse: nls policykit wayland +xscreensaver X
+          required_use: '|| ( X wayland )'
+          rdepend: |
+            x11-apps/xrdb
+            nls? ( x11-misc/xdg-user-dirs )
+            xscreensaver? ( xfce-extra/xfce4-screensaver )
+          depend: |
+            dev-libs/glib
+            x11-libs/gdk-pixbuf
+            x11-libs/gtk+[X?,wayland?]
+            xfce-base/libxfce4util
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4windowing
+            xfce-base/xfconf
+            policykit? ( sys-auth/polkit )
+            wayland? (
+                    gui-libs/gtk-layer-shell
+            )
+            X? (
+                    x11-apps/iceauth
+                    x11-libs/libICE
+                    x11-libs/libSM
+                    x11-libs/libX11
+                    x11-libs/libwnck
+            )
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable X x11)
+                            $(use_enable wayland)
+                            $(use_enable policykit polkit)
+                    )
+                    econf "${myconf[@]}"
+            }
+            src_install() {
+                    default
+                    exeinto /etc/X11/Sessions
+                    newexe - Xfce4 <<<startxfce4
+                    dosym Xfce4 /etc/X11/Sessions/Xfce
+            }
+
+    - xfdesktop:
+        category: xfce-base
+        vars:
+          desc: Desktop manager for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+ CC-BY-SA-4.0
+          iuse: libnotify +thunar wayland X
+          required_use: '|| ( wayland X )'
+          depend: |
+            x11-libs/cairo
+            dev-libs/glib
+            x11-libs/gtk+[wayland?,X?]
+            xfce-base/exo
+            xfce-base/garcon
+            xfce-base/libxfce4ui[X(+)?]
+            xfce-base/libxfce4util
+            xfce-base/libxfce4windowing[X?]
+            xfce-base/xfconf
+            libnotify? ( x11-libs/libnotify )
+            thunar? (
+                    dev-libs/libyaml
+                    xfce-base/thunar
+            )
+            wayland? ( gui-libs/gtk-layer-shell )
+            X? ( x11-libs/libX11 )
+          bdepend: |
+            dev-libs/glib
+            dev-util/gdbus-codegen
+            dev-util/glib-utils
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable wayland)
+                            $(use_enable X x11)
+                            $(use_enable thunar file-icons)
+                            $(use_enable thunar thunarx)
+                            $(use_enable libnotify notifications)
+                            --disable-tests
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - xfwm4:
+        category: xfce-base
+        vars:
+          desc: Window manager for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+
+          iuse: opengl startup-notification +xcomposite +xpresent
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+
+            x11-libs/libX11
+            x11-libs/libXext
+            x11-libs/libXi
+            x11-libs/libXinerama
+            x11-libs/libXrandr
+            x11-libs/libXrender
+            x11-libs/libXres
+            x11-libs/pango
+            x11-libs/libwnck
+            xfce-base/libxfce4util
+            xfce-base/libxfce4ui
+            xfce-base/xfconf
+            opengl? ( media-libs/libepoxy[X(+)] )
+            startup-notification? ( x11-libs/startup-notification )
+            xcomposite? (
+                    x11-libs/libXcomposite
+                    x11-libs/libXdamage
+                    x11-libs/libXfixes
+            )
+            xpresent? ( x11-libs/libXpresent )
+          bdepend: |
+            dev-libs/glib
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable opengl epoxy)
+                            $(use_enable startup-notification)
+                            $(use_enable xcomposite compositor)
+                            $(use_enable xpresent)
+                            --enable-randr
+                            --enable-render
+                            --enable-xi2
+                            --enable-xsync
+                    )
+                    econf "${myconf[@]}"
+            }
+
+    - xfce4-appfinder:
+        category: xfce-base
+        vars:
+          desc: A tool to find and launch installed applications for the Xfce desktop
+          inherit:
+            - xdg
+          license: GPL-2+
+          depend: |
+            dev-libs/glib
+            x11-libs/gtk+
+            xfce-base/garcon
+            xfce-base/libxfce4util
+            xfce-base/libxfce4ui[gtk3(+)]
+            xfce-base/xfconf
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+
+    - xfce4-power-manager:
+        category: xfce-base
+        vars:
+          desc: Power manager for the Xfce desktop environment
+          inherit:
+            - xdg
+          license: GPL-2+
+          iuse: +panel-plugin policykit wayland X
+          required_use: '|| ( wayland X )'
+          rdepend: ""
+          depend: |
+            dev-libs/glib
+            sys-power/upower
+            x11-libs/gtk+[wayland?,X?]
+            x11-libs/libnotify
+            xfce-base/xfconf
+            xfce-base/libxfce4ui[gtk3(+)]
+            xfce-base/libxfce4util
+            panel-plugin? ( xfce-base/xfce4-panel )
+            policykit? ( sys-auth/polkit )
+            wayland? (
+                    dev-libs/wayland
+            )
+            X? (
+                    x11-libs/libX11
+                    x11-libs/libXrandr
+                    x11-libs/libXext
+                    x11-base/xorg-proto
+            )
+          bdepend: |
+            dev-util/gdbus-codegen
+            sys-devel/gettext
+            virtual/pkgconfig
+            wayland? (
+                    dev-util/wayland-scanner
+            )
+          body: |
+            src_configure() {
+                    local myconf=(
+                            $(use_enable X x11)
+                            $(use_enable wayland)
+                            $(use_enable panel-plugin)
+                            $(use_enable policykit polkit)
+                    )
+                    econf "${myconf[@]}"
+            }
+
+xfburn:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-cdr
+    dir:
+      url: 'https://gitlab.xfce.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags'
+      matcher: "/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/tags/{{ .Values.pn }}-[0-9.]+"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://gitlab.xfce.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+    vars:
+      homepage: https://gitlab.xfce.org/apps/xfburn
+
+  packages:
+    - xfburn:
+        vars:
+          gitlab_user: apps
+          gitlab_repo: xfburn
+          desc: A simple CD/DVD burning tool based on libburnia libraries
+          inherit:
+            - meson
+            - xdg
+          license: GPL-2+
+          iuse: gstreamer +udev
+          depend: |
+            dev-libs/glib
+            dev-libs/libburn
+            dev-libs/libisofs
+            x11-libs/gtk+
+            xfce-base/exo
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util
+            gstreamer? (
+                    media-libs/gstreamer
+                    media-libs/gst-plugins-base
+            )
+            udev? ( dev-libs/libgudev )
+          rdepend: |
+            dev-libs/glib
+            dev-libs/libburn
+            dev-libs/libisofs
+            x11-libs/gtk+
+            xfce-base/exo
+            xfce-base/libxfce4ui
+            xfce-base/libxfce4util
+            gstreamer? (
+                    media-libs/gstreamer
+                    media-libs/gst-plugins-base
+            )
+            udev? ( dev-libs/libgudev )
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            post_src_unpack() {
+                    mv xfburn-xfburn-* "${S}" || die
+            }
+            src_configure() {
+                    local emesonargs=(
+                            $(meson_feature udev gudev)
+                            $(meson_feature gstreamer)
+                    )
+                    meson_src_configure
+            }

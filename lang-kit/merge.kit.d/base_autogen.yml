@@ -52,9 +52,26 @@ target:
         - '>=dev-lang/go-1.26.0'
         - '<dev-lang/go-1.27.0'
 
-    # Rust
+    # Rust 1.94
     - pkg: dev-lang/rust-bin
+      conditions:
+        - '>=dev-lang/rust-bin-1.94.0'
+        - '<dev-lang/rust-bin-1.95.0'
     - pkg: virtual/rust
+      conditions:
+        - '>=virtual/rust-1.94.0'
+        - '<virtual/rust-1.95.0'
+
+    # Rust 1.96
+    - pkg: dev-lang/rust-bin
+      conditions:
+        - '>=dev-lang/rust-bin-1.96.0'
+        - '<dev-lang/rust-bin-1.97.0'
+    - pkg: virtual/rust
+      conditions:
+        - '>=virtual/rust-1.96.0'
+        - '<virtual/rust-1.97.0'
+
 
     - pkg: net-libs/deno
 

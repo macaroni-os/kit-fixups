@@ -641,6 +641,58 @@ kde-seed:
   packages:
     - kde-seed:
 
+kdsoap_ws_discovery_client:
+  generator: builtin-gitlab
+  generator_opts:
+    host: https://invent.kde.org
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.bz2'
+        url: 'https://invent.kde.org/libraries/kdsoap-ws-discovery-client/-/archive/v{{ .Values.version }}/kdsoap-ws-discovery-client-v{{ .Values.version }}.tar.bz2'
+
+    gitlab:
+      user: libraries
+      query: tags
+
+    category: net-libs
+    vars:
+      patches:
+        - kdsoap-ws-discovery-client-0.2_pre20200317-no-install-docs.patch
+      desc: WS-Discovery client library based on KDSoap
+      license: CC0-1.0 GPL-3+
+      s: '${WORKDIR}/{{ .Values.pn }}-v{{ .Values.version }}'
+      rdepend: |
+        dev-qt/qtbase:6
+        net-libs/kdsoap
+      depend: '${RDEPEND}'
+      inherit:
+        - xdg
+        - cmake
+      body: |
+        src_prepare() {
+          xdg_environment_reset
+          export XDG_DATA_HOME="${T}/.local/share"
+          export XDG_CONFIG_HOME="${T}/.config"
+          export XDG_CACHE_HOME="${T}/.cache"
+          export FC_CACHEDIR="${T}/fontconfig"
+          addpredict /usr/share/fonts
+          cmake_src_prepare
+        }
+        src_configure() {
+          local mycmakeargs=(
+            -DQT_MAJOR_VERSION=6
+            -DBUILD_QCH=OFF
+          )
+          cmake_src_configure
+        }
+
+  packages:
+    - kdsoap-ws-discovery-client:
+
+
 kdsoap:
   generator: builtin-github
 

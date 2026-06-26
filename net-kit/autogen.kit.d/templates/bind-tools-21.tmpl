@@ -60,6 +60,11 @@ src_install() {
 
 	rm -r "${D}"/usr/bin/{arpaname,named*,nsec3hash} || die
 	rm -r "${D}"/usr/sbin || die
+
+	dodoc -r doc/arm doc/changelog doc/notes
+	rm -f "${D}"/usr/share/doc/${PF}/{ChangeLog,NEWS} || die
+	dosym arm/changelog.rst.bz2 /usr/share/doc/${PF}/ChangeLog
+	dosym arm/changelog.rst.bz2 /usr/share/doc/${PF}/NEWS
 }
 
 # vim: filetype=ebuild

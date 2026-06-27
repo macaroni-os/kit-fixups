@@ -77,7 +77,9 @@ kde-apps:
 
     - akonadi:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           iuse: "tools +webengine xml"
           desc: "Storage service for PIM data and libraries for PIM apps"
           homepage: https://community.kde.org/KDE_PIM/akonadi
@@ -849,7 +851,9 @@ kde-apps:
 
     - juk:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Jukebox and music manager by KDE"
           homepage: https://apps.kde.org/juk/
           rdepend: |
@@ -876,7 +880,9 @@ kde-apps:
 
     - k3b:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Full-featured burning and ripping application based on KDE Frameworks"
           homepage: https://apps.kde.org/k3b/ https://userbase.kde.org/K3b
           iuse: "dvd ffmpeg flac lame mad musepack sndfile sox taglib vcd vorbis webengine"
@@ -1135,7 +1141,9 @@ kde-apps:
 
     - kamoso:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Application to take pictures and videos from your webcam"
           homepage: https://apps.kde.org/kamoso/ https://userbase.kde.org/Kamoso
           # TODO: media-plugins/gst-plugins-qt6:1.0
@@ -1159,7 +1167,9 @@ kde-apps:
 
     - kanagram:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Game based on anagrams of words"
           homepage: https://apps.kde.org/kanagram/
           iuse: "speech"
@@ -1555,7 +1565,9 @@ kde-apps:
 
     - kdenlive:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Non-linear video editing suite by KDE"
           homepage: https://kdenlive.org/en/
           iuse: "gles2-only semantic-desktop v4l"
@@ -2036,7 +2048,9 @@ kde-apps:
 
     - kigo:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Go game by KDE"
           homepage: https://apps.kde.org/kigo/
           rdepend: |
@@ -2256,7 +2270,9 @@ kde-apps:
 
     - kjumpingcube:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Tactical one or two player game"
           homepage: https://apps.kde.org/kjumpingcube/
           rdepend: |
@@ -3074,7 +3090,9 @@ kde-apps:
 
     - kreversi:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - kde6
           desc: "Board game by KDE"
           homepage: https://apps.kde.org/kreversi/
           rdepend: |

@@ -2113,8 +2113,8 @@ kde-apps:
     - kio-extras:
         vars:
           inherit:
-            - cmake
             - xdg
+            - cmake
           desc: "KIO plugins present a filesystem-like view of arbitrary data"
           homepage: https://invent.kde.org/network/kio-extras
           iuse: "activities ios +man mtp nfs +libproxy openexr phonon samba +sftp taglib X"

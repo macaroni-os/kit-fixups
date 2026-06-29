@@ -898,3 +898,49 @@ libxml2_python:
   packages:
     - libxml2-python:
 
+
+libvirt_python:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    category: dev-python
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://download.libvirt.org/python/
+      matcher: "libvirt_python-.*.tar.gz$"
+      exclude: 'rc|alpha|beta'
+    transform:
+      - kind: string
+        match: "libvirt_python-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      s: '${WORKDIR}/libvirt_python-{{ .Values.version }}'
+      python_compat: python3+
+      license: LGPL-2
+      desc: libvirt Python bindings
+      homepage: https://www.libvirt.org
+      iuse: examples
+      rdepend: |
+        app-emulation/libvirt
+      bdepend: |
+        virtual/pkgconfig
+      inherit:
+        - distutils-r1
+      body: |
+        python_install_all() {
+          if use examples; then
+            dodoc -r examples
+            docompress -x /usr/share/doc/${PF}/examples
+          fi
+          distutils-r1_python_install_all
+        }
+  packages:
+    - libvirt-python:
+

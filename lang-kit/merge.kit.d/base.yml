@@ -8,10 +8,6 @@ sources:
   url: "https://github.com/macaroni-os/lang-kit"
   branch: "mark-unstable"
 
-- name: "geaaru-kit"
-  url: "https://github.com/geaaru/geaaru_overlay"
-  branch: "funtoo"
-
 target:
   name: lang-kit
   url: "https://github.com/macaroni-os/lang-kit"
@@ -42,8 +38,8 @@ target:
 
     - pkg: dev-lang/duktape
 
-    # Nodejs
-    - pkg: net-libs/nodejs::geaaru-kit
+    # Nodejs 14
+    - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-14.0.0'
         - '<net-libs/nodejs-15.0.0'

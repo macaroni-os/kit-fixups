@@ -96,6 +96,12 @@ target:
         - '>=net-libs/nodejs-24.0.0'
         - '<net-libs/nodejs-25.0.0'
 
+    # Nodejs 26
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-26.0.0'
+        - '<net-libs/nodejs-27.0.0'
+
     # Zig
     - pkg: dev-lang/zig
     - pkg: dev-lang/zig

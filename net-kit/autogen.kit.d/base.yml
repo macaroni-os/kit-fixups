@@ -144,6 +144,12 @@ bind_dirlisting:
     vars:
       python_compat: python3+
       tar_prefix: "bind"
+      docs:
+        - doc/arm/changelog.rst
+        - AUTHORS
+        - CONTRIBUTING.md
+        - README.md
+        - SECURITY.md
     dir:
       url: https://downloads.isc.org/isc/bind9/
       matcher: '9.*'
@@ -3585,7 +3591,6 @@ dovecot_dirlisting:
             --disable-rpath \
             --without-libbsd \
             --with-icu \
-            --with-ssl \
             --with-systemdsystemunitdir="$(systemd_get_systemunitdir)" \
             $( use_with argon2 sodium ) \
             $( use_with bzip2 bzlib ) \

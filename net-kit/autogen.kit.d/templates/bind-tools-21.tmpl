@@ -36,6 +36,14 @@ RDEPEND="${COMMON_DEPEND}
 S="{{ .Values.s }}"
 {{- end }}
 
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
 # sphinx required for man-page and html creation
 BDEPEND="
 	virtual/pkgconfig

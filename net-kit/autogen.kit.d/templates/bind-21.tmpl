@@ -39,6 +39,14 @@ RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-bind )
 	sys-process/psmisc"
 
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
 pkg_setup() {
 	ebegin "Creating named group and user"
 	enewgroup named 40
@@ -67,8 +75,6 @@ src_configure() {
 
 src_install() {
 	meson_src_install
-
-	dodoc README.md
 
 	insinto /etc/bind
 	newins "${FILESDIR}"/named.conf-r8 named.conf

@@ -56,6 +56,23 @@ pep517_standalone:
             - six
             - tomlkit
 
+    - setuptools_scm:
+        pypi_name: setuptools_scm
+        pydeps:
+          py:all:runtime:
+            - tomli
+            - packaging
+            - importlib_metadata
+          py:all:build:
+            - tomli
+            - packaging
+            - importlib_metadata
+            - vcs-versioning
+        vars:
+          license: MIT
+          homepage: https://github.com/pypa/setuptools-scm/
+
+
 setuptools:
   generator: builtin-pypi
 
@@ -136,6 +153,14 @@ setuptools_modules:
         pydeps:
           py:all:tool:
             - calver
+
+    - vcs-versioning:
+        vars:
+          license: MIT
+        pypi_name: vcs_versioning
+        pydeps:
+          py:all:runtime:
+            - packaging
 
 maturin:
   generator: builtin-pypi

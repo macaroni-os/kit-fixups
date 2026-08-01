@@ -31,6 +31,9 @@ target:
     max_versions: 3
 
   atoms:
+    - pkg: app-admin/pwgen
+    - pkg: app-admin/sshguard
+
     - pkg: app-crypt/argon2
     - pkg: app-crypt/gpgme:1
     - pkg: app-crypt/gnupg
@@ -52,11 +55,18 @@ target:
     - pkg: dev-libs/libtasn1
     - pkg: dev-libs/libunistring
     - pkg: dev-libs/libpwquality
+    - pkg: dev-libs/libmcrypt
     - pkg: dev-libs/xmlsec
     - pkg: dev-libs/nettle
     - pkg: dev-libs/npth
 
     - pkg: dev-libs/openssl
+      conditions:
+        - '<dev-libs/openssl-3.0'
+    - pkg: dev-libs/openssl
+      conditions:
+        - '>dev-libs/openssl-3.0'
+        - '<dev-libs/openssl-3.1'
 
     - pkg: net-libs/gnutls
     - pkg: net-misc/openssh

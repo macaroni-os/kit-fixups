@@ -45,24 +45,33 @@ target:
     - pkg: dev-lang/duktape
 
     # Nodejs
-    - pkg: net-libs/nodejs::geaaru-kit
+    - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-14.0.0'
         - '<net-libs/nodejs-15.0.0'
 
+    # Nodejs 20
     - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-20.0.0'
         - '<net-libs/nodejs-21.0.0'
 
+    # Nodejs 22
     - pkg: net-libs/nodejs
       conditions:
         - '>=net-libs/nodejs-22.0.0'
         - '<net-libs/nodejs-23.0.0'
 
+    # Nodejs 24
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-24.0.0'
+        - '<net-libs/nodejs-25.0.0'
 
     # Zig
     - pkg: dev-lang/zig
+      conditions:
+        - '<dev-lang/zig-0.16.0'
     - pkg: dev-lang/zig-bin
     - pkg: virtual/zig
 
@@ -80,6 +89,7 @@ target:
     - pkg: dev-lang/lua
     - pkg: dev-lua/lua:5.3
 
+    - pkg: dev-lua/lgi
     - pkg: dev-lua/lpeg
     - pkg: dev-lua/luaexpat
     - pkg: dev-lua/luajson

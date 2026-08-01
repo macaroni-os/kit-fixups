@@ -18,9 +18,7 @@ target:
 
   atoms:
     - pkg: app-metrics/freeradius_exporter
-    - pkg: app-metrics/snmp_notifier
 
-    # Autogen with mark-devkit
     - pkg: app-metrics/alertmanager-bin
     - pkg: app-metrics/blackbox_exporter-bin
     - pkg: app-metrics/consul_exporter-bin
@@ -29,5 +27,6 @@ target:
     - pkg: app-metrics/memcached_exporter-bin
     - pkg: app-metrics/prometheus-bin
     - pkg: app-metrics/node_exporter-bin
+    - pkg: app-metrics/snmp_notifier
 
     - pkg: www-apps/grafana-bin

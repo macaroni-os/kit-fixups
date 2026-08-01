@@ -7,3 +7,6 @@ CHOST="x86_64-pc-linux-gnu"
 # Hide the ABI_X86 USE_EXPAND back for non-multilib profile.
 USE_EXPAND_HIDDEN="ABI_X86"
 
+DEFAULT_ABI="amd64"
+ABI=${DEFAULT_ABI}
+LIBDIR_amd64="lib64"

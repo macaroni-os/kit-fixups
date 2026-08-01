@@ -34,6 +34,8 @@ target:
     - pkg: app-admin/sshguard
     - pkg: app-admin/ulogd
 
+    - pkg: dev-libs/libportal
+
     - pkg: mail-client/alpine
 
     - pkg: mail-mta/postfix
@@ -65,11 +67,13 @@ target:
     - pkg: net-dialup/minicom
 
     - pkg: net-dns/avahi
+    - pkg: net-dns/c-ares
     - pkg: net-dns/coredns
     - pkg: net-dns/dnsmasq
     - pkg: net-dns/dnssec-root
     - pkg: net-dns/libidn
     - pkg: net-dns/openresolv
+    - pkg: net-dns/unbound
 
     - pkg: net-firewall/arptables
     - pkg: net-firewall/conntrack-tools
@@ -83,11 +87,14 @@ target:
     - pkg: net-fs/minio
     - pkg: net-fs/minio-client
     - pkg: net-fs/nfs-utils
+    - pkg: net-fs/samba
 
     - pkg: net-ftp/atftp
     - pkg: net-ftp/ftpbase
     - pkg: net-ftp/proftpd
 
+    - pkg: net-libs/accounts-qt
+    - pkg: net-libs/enet:1.3
     - pkg: net-libs/libasyncns
     - pkg: net-libs/libesmtp
     - pkg: net-libs/libiscsi
@@ -102,6 +109,9 @@ target:
     - pkg: net-libs/libnetfilter_queue
     - pkg: net-libs/libnfnetlink
     - pkg: net-libs/libnftnl
+    - pkg: net-libs/libproxy
+    - pkg: net-libs/libqmi
+    - pkg: net-libs/ngtcp2
     - pkg: net-libs/libnsl
     - pkg: net-libs/libpcap
     - pkg: net-libs/libpcapnav
@@ -110,7 +120,9 @@ target:
     - pkg: net-libs/libssh2
     - pkg: net-libs/libtirpc
     - pkg: net-libs/libtorrent
+    - pkg: net-libs/rest
     - pkg: net-libs/rpcsvc-proto
+    - pkg: net-libs/signond
     - pkg: net-libs/zeromq
 
     - pkg: net-mail/dovecot
@@ -119,15 +131,18 @@ target:
     - pkg: net-mail/getmail
     - pkg: net-mail/mailutils
     - pkg: net-mail/mailx
+    - pkg: net-mail/ytnef
 
     - pkg: net-misc/bridge-utils
     - pkg: net-misc/dhcpcd
     - pkg: net-misc/dhcp
     - pkg: net-misc/ethertypes
+    - pkg: net-misc/freerdp
     - pkg: net-misc/ifenslave
     - pkg: net-misc/iputils
     - pkg: net-misc/iperf:3
     - pkg: net-misc/ipcalc
+    - pkg: net-misc/wsdd
     - pkg: net-misc/keychain
     - pkg: net-misc/networkmanager
     - pkg: net-misc/lksctp-tools
@@ -141,6 +156,7 @@ target:
     - pkg: net-misc/radvd
     - pkg: net-misc/rclone
     - pkg: net-misc/socat
+    - pkg: net-misc/spice-gtk
     - pkg: net-misc/sshpass
     - pkg: net-misc/stunnel
     - pkg: net-misc/tigervnc
@@ -154,6 +170,8 @@ target:
 
     - pkg: net-print/cups
     - pkg: net-print/cups-filters
+    - pkg: net-print/libcupsfilters
+    - pkg: net-print/libppd
 
     - pkg: net-proxy/cntlm
     - pkg: net-proxy/haproxy
@@ -163,8 +181,10 @@ target:
     - pkg: net-vpn/openconnect
     - pkg: net-vpn/openfortivpn
     - pkg: net-vpn/openvpn
+    - pkg: net-vpn/strongswan
     - pkg: net-vpn/wireguard-tools
     - pkg: net-vpn/tailscale
+    - pkg: net-vpn/tor
     - pkg: net-vpn/vpnc
 
     - pkg: net-wireless/crda
@@ -173,6 +193,7 @@ target:
     - pkg: net-wireless/wepattack
     - pkg: net-wireless/wireless-regdb
     - pkg: net-wireless/wireless-tools
+    - pkg: net-wireless/wpa_supplicant
 
     - pkg: sys-apps/iproute2
     - pkg: sys-apps/net-tools
@@ -209,3 +230,5 @@ target:
     - pkg: net-vpn/tor
 
     - pkg: net-wireless/wpa_supplicant
+
+    - pkg: sys-apps/flatpak

@@ -2033,8 +2033,14 @@ gitlab_freedesktop_dirlisting:
 
 
     - shared-mime-info:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+            url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.original_version }}/{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-xdgmime-{{ substr 0 7 .Values.xdgmime_sha }}.tar.bz2'
+            url: 'https://gitlab.freedesktop.org/{{ .Values.gitlab_user }}/xdgmime/-/archive/{{ .Values.xdgmime_sha }}.tar.bz2'
         category: x11-misc
         vars:
+          xdgmime_sha: 0305e05c8b8efa98e69880597f79c7cd1ba3c150
           desc: The Shared MIME-info Database specification
           homepage: https://gitlab.freedesktop.org/xdg/shared-mime-info
           license: GPL-2
@@ -2054,6 +2060,13 @@ gitlab_freedesktop_dirlisting:
             app-text/docbook-xml-dtd:4.1.2
             virtual/pkgconfig
           body: |
+            src_unpack() {
+              if [[ -n ${A} ]]; then
+                unpack ${A}
+                mv "${WORKDIR}"/xdgmime-* "${WORKDIR}"/${P}/subprojects/xdgmime || die
+                rm "${WORKDIR}"/${P}/subprojects/xdgmime.wrap || die
+              fi
+            }
             src_configure() {
               local emesonargs=(
                 -Dbuild-tools=true
@@ -3239,6 +3252,7 @@ xcb:
     template: ../../templates/simple.tmpl
     category: x11-misc
   packages:
+
     - xcb:
         revision: 2
         assets:

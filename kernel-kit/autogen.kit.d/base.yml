@@ -105,8 +105,10 @@ linux_kernel_dirlisting:
           - kind: string
             match: '.tar.xz'
             replace: ''
+        category: sys-kernel
         vars:
-          category: sys-kernel
+          depend: |
+            !<sys-kernel/linux-headers-6.12
           bdepend: |
             app-arch/xz-utils
             dev-lang/perl
@@ -160,6 +162,7 @@ virtual_os_headers:
     ignore_artefacts: true
   packages:
     - linux-headers:
+        revision: 1
         category: sys-kernel
         vars:
           depend: ${RDEPEND}
@@ -167,21 +170,25 @@ virtual_os_headers:
           homepage: https://kernel.org
           license: GPL-2
           rdepend: |
+            !<sys-kernel/linux-headers-{{ addf .Values.version 0.01 }}
+          pdepend: |
             || (
               >=sys-kernel/debian-headers-{{ .Values.version }}
               >=sys-kernel/vanilla-headers-{{ .Values.version }}
             )
-            !<sys-kernel/linux-headers-{{ addf .Values.version 0.01 }}
-            !>sys-kernel/debian-headers-{{ addf .Values.version 0.01 }}
-            !>sys-kernel/vanilla-headers-{{ addf .Values.version 0.01 }}
           versions:
             - '6.12'
+
     - os-headers:
         category: virtual
         vars:
           desc: "Virtual for operating system headers"
           # Presently we only support Linux
           depend: ${RDEPEND}
-          rdepend: sys-kernel/linux-headers
+          rdepend: |
+            || (
+              sys-kernel/debian-headers
+              sys-kernel/vanilla-headers
+            )
           versions:
-            - '1'
+            - '2'

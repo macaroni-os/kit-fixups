@@ -170,11 +170,11 @@ virtual_os_headers:
           homepage: https://kernel.org
           license: GPL-2
           rdepend: |
-            !<sys-kernel/linux-headers-{{ .Values.version }}
+            !<sys-kernel/linux-headers-{{ regexReplaceAll "-r[0-9]+$" .Values.version "" }}
           pdepend: |
             || (
-              >=sys-kernel/debian-headers-{{ .Values.version }}
-              >=sys-kernel/vanilla-headers-{{ .Values.version }}
+              >=sys-kernel/debian-headers-{{ regexReplaceAll "-r[0-9]+$" .Values.version "" }}
+              >=sys-kernel/vanilla-headers-{{ regexReplaceAll "-r[0-9]+$" .Values.version "" }}
             )
           versions:
             - '6.12'

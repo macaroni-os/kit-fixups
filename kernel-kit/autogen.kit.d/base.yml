@@ -170,7 +170,7 @@ virtual_os_headers:
           homepage: https://kernel.org
           license: GPL-2
           rdepend: |
-            !<sys-kernel/linux-headers-{{ addf .Values.version 0.01 }}
+            !<sys-kernel/linux-headers-{{ .Values.version }}
           pdepend: |
             || (
               >=sys-kernel/debian-headers-{{ .Values.version }}

@@ -1409,7 +1409,7 @@ locale_gen:
       homepage: 'https://gitweb.gentoo.org/proj/locale-gen.git/ https://github.com/gentoo/locale-gen'
       rdepend: |
         app-shells/bash
-        !!<sys-libs/glibc-2.37-r3
+        >=sys-libs/glibc-2.41
       body: |
         src_install() {
           dosbin locale-gen

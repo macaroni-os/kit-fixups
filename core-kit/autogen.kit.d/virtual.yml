@@ -32,11 +32,15 @@ virtual_core:
         vars:
           desc: Virtual for C library
           versions:
-            - "2"
+            - "3"
           rdepend: |
-            elibc_glibc? ( sys-libs/glibc )
+            elibc_glibc? (
+              >=sys-libs/glibc-2.41
+              sys-apps/locale-gen
+            )
             elibc_musl? ( sys-libs/musl )
             elibc_uclibc? ( sys-libs/uclibc-ng )
+          depend: '${RDEPEND}'
 
     - libelf:
         vars:

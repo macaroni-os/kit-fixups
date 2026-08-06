@@ -1410,6 +1410,7 @@ locale_gen:
       rdepend: |
         app-shells/bash
         >=sys-libs/glibc-2.41
+      depend: '${RDEPEND}'
       body: |
         src_install() {
           dosbin locale-gen

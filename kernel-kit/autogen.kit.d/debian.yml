@@ -110,8 +110,9 @@ debian_headers:
     files_dir: vanilla-headers
     template: ../../templates/simple.tmpl
     vars:
-      depend: |
+      rdepend: |
         >=sys-kernel/linux-headers-6.12
+      depend: '${RDEPEND}'
       bdepend: |
         app-arch/xz-utils
         dev-lang/perl

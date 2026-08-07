@@ -107,8 +107,9 @@ linux_kernel_dirlisting:
             replace: ''
         category: sys-kernel
         vars:
-          depend: |
+          rdepend: |
             >=sys-kernel/linux-headers-6.12
+          depend: '${RDEPEND}'
           bdepend: |
             app-arch/xz-utils
             dev-lang/perl

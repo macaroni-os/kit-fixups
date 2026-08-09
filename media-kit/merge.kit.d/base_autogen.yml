@@ -30,9 +30,16 @@ target:
 
     - pkg: media-video/mpv
 
+    # Blender release 5.2
+    - pkg: media-gfx/blender-bin
+      conditions:
+        - '<media-gfx/blender-bin-5.3.0'
+        - '>=media-gfx/blender-bin-5.2.0'
+
     # Blender release 4.5
     - pkg: media-gfx/blender-bin
       conditions:
+        - '<media-gfx/blender-bin-4.6.0'
         - '>=media-gfx/blender-bin-4.5.0'
 
     # Blender release 4.4
@@ -76,6 +83,7 @@ target:
     - pkg: media-libs/musicbrainz
     - pkg: media-libs/nv-codec-headers
     - pkg: media-libs/openjpeg
+    - pkg: media-libs/opencv
 
     - pkg: media-libs/sdl2-image
     - pkg: media-libs/sdl2-ttf

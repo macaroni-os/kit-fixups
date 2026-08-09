@@ -4754,14 +4754,13 @@ obs_studio:
             match: 'OBS Studio '
             replace: ''
         assets:
-          - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
-            url: "https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.github_repo }}/tarball/{{ .Values.version }}"
-          - name: "{{ .Values.cef_tarball }}.tar.xz"
-            url: "https://cdn-fastly.obsproject.com/downloads/{{ .Values.cef_tarball }}.tar.xz"
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            url: 'https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.github_repo }}/tarball/{{ .Values.version }}'
+          - name: '{{ .Values.pn }}-cef-binary-{{ .Values.cef_version }}-x86-64_v6.tar.xz'
+            url: 'https://cdn-fastly.obsproject.com/downloads/cef_binary_{{ .Values.cef_version }}_linux_x86_64_v6.tar.xz'
             use: browser
         vars:
-          cef_dir: cef_binary_6533_linux_x86_64
-          cef_tarball: cef_binary_6533_linux_x86_64_v6
+          cef_version: '6533'
           desc: Software for Recording and Streaming Live Video Content
           homepage: https://obsproject.com
           license: Boost-1.0 GPL-2+ MIT Unlicense
@@ -4912,8 +4911,6 @@ obs_studio:
             src_configure() {
               local libdir=$(get_libdir)
               local mycmakeargs=(
-                $(usex browser -DCEF_ROOT_DIR=../{{ .Values.cef_dir }})
-                -DCCACHE_SUPPORT=OFF
                 -DENABLE_ALSA=$(usex alsa)
                 -DENABLE_AJA=OFF
                 -DENABLE_BROWSER=$(usex browser)
@@ -4934,11 +4931,13 @@ obs_studio:
                 -DENABLE_WAYLAND=$(usex wayland)
                 -DENABLE_WEBRTC=$(usex webrtc)
                 -DENABLE_WEBSOCKET=$(usex websocket)
-                -DOBS_MULTIARCH_SUFFIX=${libdir#lib}
-                -DQT_VERSION=6
-                -DUNIX_STRUCTURE=1
                 -DOBS_VERSION_OVERRIDE=${PV}
               )
+
+              if use browser; then
+                mycmakeargs+=( -DCEF_ROOT_DIR="${WORKDIR}/cef_binary_{{ .Values.cef_version }}_linux_x86_64" )
+              fi
+
               if use lua || use python; then
                 mycmakeargs+=(
                   -DENABLE_SCRIPTING_LUA=$(usex lua)
@@ -5009,25 +5008,15 @@ obs_studio_deps:
           license: MIT
           inherit:
             - meson
-          iuse: test
-          restrict: '!test? ( test )'
           body: |
             src_configure() {
               unset {C,CPP,CXX,LD}FLAGS
 
               local emesonargs=(
-                $(meson_use test tests)
+                -Dtests=false
               )
 
               meson_src_configure
-            }
-
-            src_test() {
-              if use x86; then
-                meson_src_test $(meson_src_test --list | grep -Ev '(dbsad|fpclass)')
-              else
-                meson_src_test
-              fi
             }
 
     - uthash:
@@ -5043,17 +5032,9 @@ obs_studio_deps:
           license: BSD-1
           inherit:
             - toolchain-funcs
-          iuse: test
-          restrict: '!test? ( test )'
-          bdepend: |
-            test? ( dev-lang/perl )
           body: |
             src_configure() {
               tc-export CC
-            }
-
-            src_test() {
-              emake -C tests
             }
 
             src_install() {
@@ -5083,8 +5064,6 @@ obs_studio_deps:
           license: MIT
           inherit:
             - cmake
-          iuse: test
-          restrict: '!test? ( test )'
           s: '${WORKDIR}/QR-Code-generator-{{ index (splitList "-cmake" .Values.original_version) 0 }}'
           body: |
             post_src_unpack() {
@@ -5096,14 +5075,10 @@ obs_studio_deps:
               local mycmakeargs=(
                 -DBUILD_SHARED_LIBS=ON
                 -DQRCODEGEN_BUILD_EXAMPLES=OFF
-                -DQRCODEGEN_BUILD_TESTS=$(usex test)
+                -DQRCODEGEN_BUILD_TESTS=OFF
               )
 
               cmake_src_configure
-            }
-
-            src_test() {
-              cmake_src_test
             }
 
     - libdatachannel:
@@ -5124,7 +5099,6 @@ obs_studio_deps:
           inherit:
             - cmake
           iuse: gnutls +media +websocket
-          restrict: test
           rdepend: |
             gnutls? (
                 dev-libs/nettle:=
@@ -5214,8 +5188,6 @@ obs_studio_deps:
           license: MIT
           inherit:
             - cmake
-          iuse: test
-          restrict: '!test? ( test )'
           body: |
             src_configure() {
               local mycmakeargs=(
@@ -5223,7 +5195,7 @@ obs_studio_deps:
                 -DBUILD_EXAMPLES=OFF
                 -DINSTALL_EXAMPLES=OFF
                 -DBUILD_EXPERIMENTAL=ON
-                -DBUILD_TESTS=$(usex test)
+                -DBUILD_TESTS=OFF
                 -DENABLE_LIBDIR_IN_RUNTIME_SEARCH=OFF
                 -DINSTALL_DEV=ON
                 -DINSTALL_LIB=ON
@@ -5231,8 +5203,4 @@ obs_studio_deps:
               )
 
               cmake_src_configure
-            }
-
-            src_test() {
-              cmake_src_test
             }

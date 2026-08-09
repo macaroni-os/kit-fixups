@@ -1,0 +1,94 @@
+From c012b20eca546ec60878058094e59267ebfba1a9 Mon Sep 17 00:00:00 2001
+From: James Le Cuirot <chewi@gentoo.org>
+Date: Mon, 23 Dec 2024 16:50:25 +0000
+Subject: [PATCH 3/3] Allow setting target sysroot with ESYSROOT env var for
+ cross-compilers
+
+The variable is ignored for native compilers, when it matches BROOT, and
+when the target machine does not match CHOST (if set). The --sysroot
+command line option takes precedence.
+
+The CHOST check is necessary for a Canadian Cross. In that case, two
+cross-compilers are invoked, but only the one matching CHOST should have
+its sysroot set by ESYSROOT.
+
+Bug: https://bugs.gentoo.org/942672
+Closes: https://github.com/gentoo/gcc-patches/pull/7
+Signed-off-by: James Le Cuirot <chewi@gentoo.org>
+---
+ gcc/doc/invoke.texi | 11 +++++++++++
+ gcc/gcc.cc          | 29 +++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
+index 0a7a81b20..d66f53b65 100644
+--- a/gcc/doc/invoke.texi
++++ b/gcc/doc/invoke.texi
+@@ -19355,6 +19355,10 @@ for this option.  If your linker does not support this option, the
+ header file aspect of @option{--sysroot} still works, but the
+ library aspect does not.
+ 
++On Gentoo Linux, this option can also be set for cross-compilers using the
++@env{ESYSROOT} environmnent variable.  The command line option takes
++precedence.
++
+ @opindex no-sysroot-suffix
+ @item --no-sysroot-suffix
+ For some targets, a suffix is added to the root directory specified
+@@ -37590,6 +37594,13 @@ using GCC also uses these directories when searching for ordinary
+ libraries for the @option{-l} option (but directories specified with
+ @option{-L} come first).
+ 
++@vindex ESYSROOT
++@item ESYSROOT
++On Gentoo Linux, this variable sets the logical root directory for headers and
++libraries for cross-compilers.  It is ignored for native compilers, when it
++matches @env{BROOT}, and when the target machine does not match @env{CHOST}
++(if set).  The @option{--sysroot} option takes precedence.
++
+ @vindex LANG
+ @cindex locale definition
+ @item LANG
+diff --git a/gcc/gcc.cc b/gcc/gcc.cc
+index 4188f0049..e88c7067f 100644
+--- a/gcc/gcc.cc
++++ b/gcc/gcc.cc
+@@ -5486,6 +5486,35 @@ process_command (unsigned int decoded_options_count,
+       gcc_assert (!compare_debug_opt);
+     }
+ 
++  if (*cross_compile == '1' && !target_system_root_changed)
++    {
++      const char *esysroot = env.get("ESYSROOT");
++      const char *chost = env.get("CHOST");
++      if (esysroot && (!chost || strcmp(chost, spec_machine) == 0))
++	{
++	  char *my_esysroot = lrealpath(esysroot);
++	  if (my_esysroot[0] == '\0')
++	    my_esysroot = xstrdup("/");
++
++	  if (!target_system_root ||
++	      !filename_eq(my_esysroot, target_system_root[0] == '\0' ? "/" : target_system_root))
++	    {
++	      const char *broot = env.get("BROOT");
++	      char *my_broot = (!broot || broot[0] == '\0') ? xstrdup("/") : lrealpath(broot);
++
++	      if (!filename_eq(my_esysroot, my_broot))
++		{
++		  target_system_root = esysroot;
++		  target_system_root_changed = 1;
++		}
++
++	      free(my_broot);
++	    }
++
++	  free(my_esysroot);
++	}
++    }
++
+   /* Set up the search paths.  We add directories that we expect to
+      contain GNU Toolchain components before directories specified by
+      the machine description so that we will find GNU components (like
+-- 
+2.47.1
+

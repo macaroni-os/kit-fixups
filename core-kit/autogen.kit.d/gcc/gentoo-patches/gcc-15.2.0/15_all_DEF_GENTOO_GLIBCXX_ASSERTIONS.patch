@@ -1,0 +1,14 @@
+https://bugs.gentoo.org/876895
+--- a/gcc/c-family/c-cppbuiltin.cc
++++ b/gcc/c-family/c-cppbuiltin.cc
+@@ -967,6 +967,10 @@ c_cpp_builtins (cpp_reader *pfile)
+ 	  && (pedantic ? warn_vla == 0 : warn_vla <= 0))
+ 	cpp_define (pfile, "__cpp_runtime_arrays=198712L");
+ 
++      #if defined(DEF_GENTOO_GLIBCXX_ASSERTIONS) && !defined(ACCEL_COMPILER)
++	  cpp_define (pfile, "_GLIBCXX_ASSERTIONS");
++      #endif
++
+       if (cxx_dialect >= cxx11)
+ 	{
+ 	  /* Set feature test macros for C++11.  */

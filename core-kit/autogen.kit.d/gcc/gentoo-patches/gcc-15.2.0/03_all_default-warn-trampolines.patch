@@ -1,0 +1,15 @@
+Enable -Wtrampolines by default.
+
+--- a/gcc/common.opt
++++ b/gcc/common.opt
+@@ -825,7 +825,7 @@ Common Var(warn_tautological_compare) Warning LangEnabledBy(C ObjC C++ ObjC++,Wa
+ Warn if a comparison always evaluates to true or false.
+ 
+ Wtrampolines
+-Common Var(warn_trampolines) Warning
++Common Var(warn_trampolines) Init(1) Warning
+ Warn whenever a trampoline is generated.
+ 
+ Wtrivial-auto-var-init
+--
+2.54.0

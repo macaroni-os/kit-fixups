@@ -1,0 +1,35 @@
+https://bugs.gentoo.org/849722
+https://github.com/InBetweenNames/gentooLTO/issues/846
+https://github.com/vaeth/portage-bashrc-mv/issues/11
+--- a/gcc/configure
++++ b/gcc/configure
+@@ -5388,13 +5388,6 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
+ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+ 
+ 
+-# Remove the -O2: for historical reasons, unless bootstrapping we prefer
+-# optimizations to be activated explicitly by the toplevel.
+-case "$CC" in
+-  */prev-gcc/xgcc*) ;;
+-  *) CFLAGS=`echo "$CFLAGS " | sed -e "s/-Ofast[ 	]//" -e "s/-O[gs][ 	]//" -e "s/-O[0-9]*[ 	]//" `
+-     CXXFLAGS=`echo "$CXXFLAGS " | sed -e "s/-Ofast[ 	]//" -e "s/-O[gs][ 	]//" -e "s/-O[0-9]*[ 	]//" ` ;;
+-esac
+ 
+ 
+ 
+--- a/gcc/configure.ac
++++ b/gcc/configure.ac
+@@ -440,13 +440,6 @@ ACX_PROG_GDC([-I"$srcdir"/d])
+ # Do configure tests with the C++ compiler, since that's what we build with.
+ AC_LANG(C++)
+ 
+-# Remove the -O2: for historical reasons, unless bootstrapping we prefer
+-# optimizations to be activated explicitly by the toplevel.
+-case "$CC" in
+-  */prev-gcc/xgcc*) ;;
+-  *) CFLAGS=`echo "$CFLAGS " | sed -e "s/-Ofast[[ 	]]//" -e "s/-O[[gs]][[ 	]]//" -e "s/-O[[0-9]]*[[ 	]]//" `
+-     CXXFLAGS=`echo "$CXXFLAGS " | sed -e "s/-Ofast[[ 	]]//" -e "s/-O[[gs]][[ 	]]//" -e "s/-O[[0-9]]*[[ 	]]//" ` ;;
+-esac
+ AC_SUBST(CFLAGS)
+ AC_SUBST(CXXFLAGS)
+ AC_SUBST(GDCFLAGS)

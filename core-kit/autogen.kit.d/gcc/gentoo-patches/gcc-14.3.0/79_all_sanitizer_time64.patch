@@ -1,0 +1,29 @@
+From 47b42e967d5238a8cdb99b4a45f048f4b8393e94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Sat, 2 Nov 2024 20:30:22 +0100
+Subject: [PATCH] Fix sanitizer_procmaps_solaris.cpp with -D_TIME_BITS=64
+
+This is backport of upstream LLVM commit:
+https://github.com/llvm/llvm-project/commit/a1217020da219386b29c1a5a4a217904ecf07d7d
+---
+ libsanitizer/sanitizer_common/sanitizer_procmaps_solaris.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libsanitizer/sanitizer_common/sanitizer_procmaps_solaris.cpp b/libsanitizer/sanitizer_common/sanitizer_procmaps_solaris.cpp
+index eeb49e2af..80b8158f4 100644
+--- a/libsanitizer/sanitizer_common/sanitizer_procmaps_solaris.cpp
++++ b/libsanitizer/sanitizer_common/sanitizer_procmaps_solaris.cpp
+@@ -11,6 +11,10 @@
+ 
+ // Before Solaris 11.4, <procfs.h> doesn't work in a largefile environment.
+ #undef _FILE_OFFSET_BITS
++
++// Avoid conflict between `_TIME_BITS` defined vs. `_FILE_OFFSET_BITS`
++// undefined in some Linux configurations.
++#undef _TIME_BITS
+ #include "sanitizer_platform.h"
+ #if SANITIZER_SOLARIS
+ #  include <fcntl.h>
+-- 
+2.47.0
+

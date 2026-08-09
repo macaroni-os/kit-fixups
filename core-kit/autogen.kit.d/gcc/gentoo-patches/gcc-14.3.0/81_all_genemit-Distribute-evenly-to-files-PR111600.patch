@@ -1,0 +1,190 @@
+From a3a4e67e334de5512bca14341c26edba66f0b659 Mon Sep 17 00:00:00 2001
+Message-ID: <a3a4e67e334de5512bca14341c26edba66f0b659.1754211915.git.sam@gentoo.org>
+In-Reply-To: <c7b82a73d8ee92ce47734170978c22d2140ddae0.1754211915.git.sam@gentoo.org>
+References: <c7b82a73d8ee92ce47734170978c22d2140ddae0.1754211915.git.sam@gentoo.org>
+From: Robin Dapp <rdapp@ventanamicro.com>
+Date: Thu, 21 Nov 2024 15:34:37 +0100
+Subject: [PATCH 2/3] genemit: Distribute evenly to files [PR111600]
+
+currently we distribute insn patterns in genemit, partitioning them
+by the number of patterns per file.  The first 100 into file 1, the
+next 100 into file 2, and so on.  Depending on the patterns this
+can lead to files of very uneven sizes.
+
+Similar to the genmatch split, this patch introduces a dynamic
+choose_output () which considers the size of the output files
+and selects the shortest one for the next pattern.
+
+gcc/ChangeLog:
+
+	PR target/111600
+
+	* genemit.cc (handle_arg): Use files instead of filenames.
+	(main): Ditto.
+	* gensupport.cc (SIZED_BASED_CHUNKS): Define.
+	(choose_output): New function.
+	* gensupport.h (choose_output): Declare.
+
+(cherry picked from commit 2e6b3308af6ddf87925321ddd2d387bfd352e410)
+---
+ gcc/genemit.cc    | 54 +++++++++++++++--------------------------------
+ gcc/gensupport.cc | 33 +++++++++++++++++++++++++++++
+ gcc/gensupport.h  |  1 +
+ 3 files changed, 51 insertions(+), 37 deletions(-)
+
+diff --git a/gcc/genemit.cc b/gcc/genemit.cc
+index 98d0477424b0..bbbd4b12f454 100644
+--- a/gcc/genemit.cc
++++ b/gcc/genemit.cc
+@@ -897,14 +897,15 @@ from the machine description file `md'.  */\n\n");
+   fprintf (file, "#include \"target.h\"\n\n");
+ }
+ 
+-auto_vec<const char *, 10> output_files;
++auto_vec<FILE *, 10> output_files;
+ 
+ static bool
+ handle_arg (const char *arg)
+ {
+   if (arg[1] == 'O')
+     {
+-      output_files.safe_push (&arg[2]);
++      FILE *file = fopen (&arg[2], "w");
++      output_files.safe_push (file);
+       return true;
+     }
+   return false;
+@@ -925,47 +926,21 @@ main (int argc, const char **argv)
+   /* Assign sequential codes to all entries in the machine description
+      in parallel with the tables in insn-output.cc.  */
+ 
+-  int npatterns = count_patterns ();
+   md_rtx_info info;
+ 
+-  bool to_stdout = false;
+-  int npatterns_per_file = npatterns;
+-  if (!output_files.is_empty ())
+-    npatterns_per_file = npatterns / output_files.length () + 1;
+-  else
+-    to_stdout = true;
+-
+-  gcc_assert (npatterns_per_file > 1);
++  if (output_files.is_empty ())
++    output_files.safe_push (stdout);
+ 
+-  /* Reverse so we can pop the first-added element.  */
+-  output_files.reverse ();
++  for (auto f : output_files)
++    print_header (f);
+ 
+-  int count = 0;
+   FILE *file = NULL;
++  unsigned file_idx;
+ 
+   /* Read the machine description.  */
+   while (read_md_rtx (&info))
+     {
+-      if (count == 0 || count == npatterns_per_file)
+-	{
+-	  bool is_last = !to_stdout && output_files.is_empty ();
+-	  if (file && !is_last)
+-	    if (fclose (file) != 0)
+-	      return FATAL_EXIT_CODE;
+-
+-	  if (!output_files.is_empty ())
+-	    {
+-	      const char *const filename = output_files.pop ();
+-	      file = fopen (filename, "w");
+-	    }
+-	  else if (to_stdout)
+-	    file = stdout;
+-	  else
+-	    break;
+-
+-	  print_header (file);
+-	  count = 0;
+-	}
++      file = choose_output (output_files, file_idx);
+ 
+       switch (GET_CODE (info.def))
+ 	{
+@@ -991,10 +966,10 @@ main (int argc, const char **argv)
+ 	default:
+ 	  break;
+ 	}
+-
+-      count++;
+     }
+ 
++  file = choose_output (output_files, file_idx);
++
+   /* Write out the routines to add CLOBBERs to a pattern and say whether they
+      clobber a hard reg.  */
+   output_add_clobbers (&info, file);
+@@ -1007,5 +982,10 @@ main (int argc, const char **argv)
+       handle_overloaded_gen (oname, file);
+     }
+ 
+-  return (fclose (file) != 0 ? FATAL_EXIT_CODE : SUCCESS_EXIT_CODE);
++  int ret = SUCCESS_EXIT_CODE;
++  for (FILE *f : output_files)
++    if (fclose (f) != 0)
++      ret = FATAL_EXIT_CODE;
++
++  return ret;
+ }
+diff --git a/gcc/gensupport.cc b/gcc/gensupport.cc
+index 3a02132c8761..e0adf0c1bc54 100644
+--- a/gcc/gensupport.cc
++++ b/gcc/gensupport.cc
+@@ -3913,3 +3913,36 @@ find_optab (optab_pattern *p, const char *name)
+     }
+   return false;
+ }
++
++/* Find the file to write into next.  We try to evenly distribute the contents
++   over the different files.  */
++
++#define SIZED_BASED_CHUNKS 1
++
++FILE *
++choose_output (const vec<FILE *> &parts, unsigned &idx)
++{
++  if (parts.length () == 0)
++    gcc_unreachable ();
++#ifdef SIZED_BASED_CHUNKS
++  FILE *shortest = NULL;
++  long min = 0;
++  idx = 0;
++  for (unsigned i = 0; i < parts.length (); i++)
++    {
++      FILE *part  = parts[i];
++      long len = ftell (part);
++      if (!shortest || min > len)
++	{
++	  shortest = part;
++	  min = len;
++	  idx = i;
++       }
++    }
++  return shortest;
++#else
++  static int current_file;
++  idx = current_file++ % parts.length ();
++  return parts[idx];
++#endif
++}
+diff --git a/gcc/gensupport.h b/gcc/gensupport.h
+index b7a1da34518c..781c9e9ffcea 100644
+--- a/gcc/gensupport.h
++++ b/gcc/gensupport.h
+@@ -231,5 +231,6 @@ extern file_location get_file_location (rtx);
+ extern const char *get_emit_function (rtx);
+ extern bool needs_barrier_p (rtx);
+ extern bool find_optab (optab_pattern *, const char *);
++extern FILE *choose_output (const vec<FILE *> &, unsigned &);
+ 
+ #endif /* GCC_GENSUPPORT_H */
+-- 
+2.50.1
+

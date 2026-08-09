@@ -1,0 +1,334 @@
+From 7285d16718aa5d9abccfa005bbab00d9362c25ea Mon Sep 17 00:00:00 2001
+Message-ID: <7285d16718aa5d9abccfa005bbab00d9362c25ea.1765875507.git.sam@gentoo.org>
+From: Stefan Schulze Frielinghaus <stefansf@gcc.gnu.org>
+Date: Wed, 3 Dec 2025 15:03:56 +0100
+Subject: [PATCH] libphobos libgo: Fix dealing with boilerplate [PR122794]
+
+While experimenting with a new warning, I was running into build errors
+for libphobos as e.g.
+
+libtool: compile: mv -f "atomic.o" "core/.libs/atomic.o"
+mv: cannot stat 'atomic.o': No such file or directory
+
+or when building libgo like
+
+libtool: compile: mv -f "tables.o" ".libs/unicode.o"
+mv: cannot stat 'tables.o': No such file or directory
+
+These boil down to the fact that test _LT_COMPILER_C_O evaluates to "no"
+for those, i.e., we have
+
+lt_cv_prog_compiler_c_o=yes
+lt_cv_prog_compiler_c_o_D=no
+
+likewise
+
+lt_cv_prog_compiler_c_o=yes
+lt_cv_prog_compiler_c_o_GO=no
+
+and at the same time _LT_ENABLE_LOCK/need_locks evaluates to "no" which
+breaks parallel builds due to races on those files.  Although I think
+for a parallel build need_locks should be rather set to "yes" in case
+_LT_COMPILER_C_O evaluates to "no", this patch enables a parallel build
+without the need of locks.
+
+_LT_COMPILER_C_O evaluates to "no" in the first place because
+boilerplate is computed with a different CC when it is compared to.
+When boilerplate is computed, CC equals xgcc which means we emit
+warnings of the form
+
+xgcc: warning: ...
+d21: warning: ...
+
+whereas when we compute _LT_COMPILER_C_O, CC is changed shortly before
+to gdc so we end up with warnings of the form
+
+gdc: warning: ...
+d21: warning: ...
+
+which ultimately means the check whether the warning is expected fails
+and we do not set _LT_COMPILER_C_O to "yes".
+
+Fixed by moving the computation of boilerplate after setting CC to
+gdc/gccgo.
+
+	PR d/122794
+
+ChangeLog:
+
+	* libgo/config/libtool.m4: Move _LT_COMPILER_BOILERPLATE and
+	_LT_LINKER_BOILERPLATE after setting CC.
+	* libgo/configure: Regenerate.
+
+libphobos/ChangeLog:
+
+* configure: Regenerate.
+	* m4/libtool.m4: Move _LT_COMPILER_BOILERPLATE and
+	_LT_LINKER_BOILERPLATE after setting CC.
+---
+ libgo/config/libtool.m4 | 49 +++++++++++++++++++++--------------------
+ libgo/configure         | 28 +++++++++++------------
+ libphobos/configure     | 28 +++++++++++------------
+ libphobos/m4/libtool.m4 |  8 +++----
+ 4 files changed, 57 insertions(+), 56 deletions(-)
+
+diff --git a/libgo/config/libtool.m4 b/libgo/config/libtool.m4
+index 4ca90ee71bca..4d27d86b63ba 100644
+--- a/libgo/config/libtool.m4
++++ b/libgo/config/libtool.m4
+@@ -5476,10 +5476,6 @@ if test "$_lt_caught_CXX_error" != yes; then
+   # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+   _LT_TAG_COMPILER
+ 
+-  # save warnings/boilerplate of simple test code
+-  _LT_COMPILER_BOILERPLATE
+-  _LT_LINKER_BOILERPLATE
+-
+   # Allow CC to be a program name with arguments.
+   lt_save_CC=$CC
+   lt_save_LD=$LD
+@@ -5503,6 +5499,10 @@ if test "$_lt_caught_CXX_error" != yes; then
+   _LT_TAGVAR(compiler, $1)=$CC
+   _LT_CC_BASENAME([$compiler])
+ 
++  # save warnings/boilerplate of simple test code
++  _LT_COMPILER_BOILERPLATE
++  _LT_LINKER_BOILERPLATE
++
+   if test -n "$compiler"; then
+     # We don't want -fno-exception when compiling C++ code, so set the
+     # no_builtin_flag separately
+@@ -6727,10 +6727,6 @@ if test "$_lt_disable_F77" != yes; then
+   # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+   _LT_TAG_COMPILER
+ 
+-  # save warnings/boilerplate of simple test code
+-  _LT_COMPILER_BOILERPLATE
+-  _LT_LINKER_BOILERPLATE
+-
+   # Allow CC to be a program name with arguments.
+   lt_save_CC="$CC"
+   lt_save_GCC=$GCC
+@@ -6739,6 +6735,11 @@ if test "$_lt_disable_F77" != yes; then
+   _LT_TAGVAR(compiler, $1)=$CC
+   _LT_CC_BASENAME([$compiler])
+   GCC=$G77
++
++  # save warnings/boilerplate of simple test code
++  _LT_COMPILER_BOILERPLATE
++  _LT_LINKER_BOILERPLATE
++
+   if test -n "$compiler"; then
+     AC_MSG_CHECKING([if libtool supports shared libraries])
+     AC_MSG_RESULT([$can_build_shared])
+@@ -6857,10 +6858,6 @@ if test "$_lt_disable_FC" != yes; then
+   # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+   _LT_TAG_COMPILER
+ 
+-  # save warnings/boilerplate of simple test code
+-  _LT_COMPILER_BOILERPLATE
+-  _LT_LINKER_BOILERPLATE
+-
+   # Allow CC to be a program name with arguments.
+   lt_save_CC="$CC"
+   lt_save_GCC=$GCC
+@@ -6868,6 +6865,10 @@ if test "$_lt_disable_FC" != yes; then
+   compiler=$CC
+   GCC=$ac_cv_fc_compiler_gnu
+ 
++  # save warnings/boilerplate of simple test code
++  _LT_COMPILER_BOILERPLATE
++  _LT_LINKER_BOILERPLATE
++
+   _LT_TAGVAR(compiler, $1)=$CC
+   _LT_CC_BASENAME([$compiler])
+ 
+@@ -6952,10 +6953,6 @@ lt_simple_link_test_code='public class conftest { public static void main(String
+ # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+ _LT_TAG_COMPILER
+ 
+-# save warnings/boilerplate of simple test code
+-_LT_COMPILER_BOILERPLATE
+-_LT_LINKER_BOILERPLATE
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC="$CC"
+ lt_save_GCC=$GCC
+@@ -6973,6 +6970,10 @@ _LT_TAGVAR(old_archive_cmds, $1)=$old_archive_cmds
+ _LT_TAGVAR(reload_flag, $1)=$reload_flag
+ _LT_TAGVAR(reload_cmds, $1)=$reload_cmds
+ 
++# save warnings/boilerplate of simple test code
++_LT_COMPILER_BOILERPLATE
++_LT_LINKER_BOILERPLATE
++
+ ## CAVEAT EMPTOR:
+ ## There is no encapsulation within the following macros, do not change
+ ## the running order or otherwise move them around unless you know exactly
+@@ -7019,10 +7020,6 @@ lt_simple_link_test_code='package main; func main() { }'
+ # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+ _LT_TAG_COMPILER
+ 
+-# save warnings/boilerplate of simple test code
+-_LT_COMPILER_BOILERPLATE
+-_LT_LINKER_BOILERPLATE
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC="$CC"
+ lt_save_GCC="$GCC"
+@@ -7033,6 +7030,10 @@ _LT_TAGVAR(compiler, $1)=$CC
+ _LT_TAGVAR(LD, $1)="$LD"
+ _LT_CC_BASENAME([$compiler])
+ 
++# save warnings/boilerplate of simple test code
++_LT_COMPILER_BOILERPLATE
++_LT_LINKER_BOILERPLATE
++
+ # Go did not exist at the time GCC didn't implicitly link libc in.
+ _LT_TAGVAR(archive_cmds_need_lc, $1)=no
+ 
+@@ -7085,10 +7086,6 @@ lt_simple_link_test_code="$lt_simple_compile_test_code"
+ # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+ _LT_TAG_COMPILER
+ 
+-# save warnings/boilerplate of simple test code
+-_LT_COMPILER_BOILERPLATE
+-_LT_LINKER_BOILERPLATE
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC="$CC"
+ lt_save_GCC=$GCC
+@@ -7099,6 +7096,10 @@ _LT_TAGVAR(compiler, $1)=$CC
+ _LT_CC_BASENAME([$compiler])
+ _LT_TAGVAR(lt_cv_prog_compiler_c_o, $1)=yes
+ 
++# save warnings/boilerplate of simple test code
++_LT_COMPILER_BOILERPLATE
++_LT_LINKER_BOILERPLATE
++
+ if test -n "$compiler"; then
+   :
+   _LT_CONFIG($1)
+diff --git a/libgo/configure b/libgo/configure
+index bba3c7aa7804..ddb6eec5c283 100755
+--- a/libgo/configure
++++ b/libgo/configure
+@@ -11912,20 +11912,6 @@ LTCFLAGS=${LTCFLAGS-"$CFLAGS"}
+ compiler=$CC
+ 
+ 
+-# save warnings/boilerplate of simple test code
+-ac_outfile=conftest.$ac_objext
+-echo "$lt_simple_compile_test_code" >conftest.$ac_ext
+-eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+-_lt_compiler_boilerplate=`cat conftest.err`
+-$RM conftest*
+-
+-ac_outfile=conftest.$ac_objext
+-echo "$lt_simple_link_test_code" >conftest.$ac_ext
+-eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+-_lt_linker_boilerplate=`cat conftest.err`
+-$RM -r conftest*
+-
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC="$CC"
+ lt_save_GCC="$GCC"
+@@ -11945,6 +11931,20 @@ done
+ cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+ 
+ 
++# save warnings/boilerplate of simple test code
++ac_outfile=conftest.$ac_objext
++echo "$lt_simple_compile_test_code" >conftest.$ac_ext
++eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
++_lt_compiler_boilerplate=`cat conftest.err`
++$RM conftest*
++
++ac_outfile=conftest.$ac_objext
++echo "$lt_simple_link_test_code" >conftest.$ac_ext
++eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
++_lt_linker_boilerplate=`cat conftest.err`
++$RM -r conftest*
++
++
+ # Go did not exist at the time GCC didn't implicitly link libc in.
+ archive_cmds_need_lc_GO=no
+ 
+diff --git a/libphobos/configure b/libphobos/configure
+index 3965e64e593b..65f23887c245 100755
+--- a/libphobos/configure
++++ b/libphobos/configure
+@@ -12624,20 +12624,6 @@ LTCFLAGS=${LTCFLAGS-"$CFLAGS"}
+ compiler=$CC
+ 
+ 
+-# save warnings/boilerplate of simple test code
+-ac_outfile=conftest.$ac_objext
+-echo "$lt_simple_compile_test_code" >conftest.$ac_ext
+-eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+-_lt_compiler_boilerplate=`cat conftest.err`
+-$RM conftest*
+-
+-ac_outfile=conftest.$ac_objext
+-echo "$lt_simple_link_test_code" >conftest.$ac_ext
+-eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
+-_lt_linker_boilerplate=`cat conftest.err`
+-$RM -r conftest*
+-
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC=$CC
+ lt_save_CFLAGS=$CFLAGS
+@@ -12659,6 +12645,20 @@ done
+ cc_basename=`$ECHO "$cc_temp" | $SED "s%.*/%%; s%^$host_alias-%%"`
+ 
+ 
++# save warnings/boilerplate of simple test code
++ac_outfile=conftest.$ac_objext
++echo "$lt_simple_compile_test_code" >conftest.$ac_ext
++eval "$ac_compile" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
++_lt_compiler_boilerplate=`cat conftest.err`
++$RM conftest*
++
++ac_outfile=conftest.$ac_objext
++echo "$lt_simple_link_test_code" >conftest.$ac_ext
++eval "$ac_link" 2>&1 >/dev/null | $SED '/^$/d; /^ *+/d' >conftest.err
++_lt_linker_boilerplate=`cat conftest.err`
++$RM -r conftest*
++
++
+ # GDC did not exist at the time GCC didn't implicitly link libc in.
+ archive_cmds_need_lc_D=no
+ 
+diff --git a/libphobos/m4/libtool.m4 b/libphobos/m4/libtool.m4
+index 0263a530cf01..6d7a6f958638 100644
+--- a/libphobos/m4/libtool.m4
++++ b/libphobos/m4/libtool.m4
+@@ -34,10 +34,6 @@ lt_simple_link_test_code="\
+ # ltmain only uses $CC for tagged configurations so make sure $CC is set.
+ _LT_TAG_COMPILER
+ 
+-# save warnings/boilerplate of simple test code
+-_LT_COMPILER_BOILERPLATE
+-_LT_LINKER_BOILERPLATE
+-
+ # Allow CC to be a program name with arguments.
+ lt_save_CC=$CC
+ lt_save_CFLAGS=$CFLAGS
+@@ -50,6 +46,10 @@ _LT_TAGVAR(compiler, $1)=$CC
+ _LT_TAGVAR(LD, $1)=$CC
+ _LT_CC_BASENAME([$compiler])
+ 
++# save warnings/boilerplate of simple test code
++_LT_COMPILER_BOILERPLATE
++_LT_LINKER_BOILERPLATE
++
+ # GDC did not exist at the time GCC didn't implicitly link libc in.
+ _LT_TAGVAR(archive_cmds_need_lc, $1)=no
+ 
+
+base-commit: 3dfd545671f0b3ffb2bd5166637381665fea7ebb
+-- 
+2.52.0
+

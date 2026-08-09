@@ -1,0 +1,108 @@
+https://inbox.sourceware.org/gcc-patches/87v80cn24t.fsf@gentoo.org/
+
+See also d4c98533530d9478391b0593fd84cf37ac9c97cb in ::gentoo.
+
+From 1e216be94b87d607cafd6f35fd2ece5ba5004a76 Mon Sep 17 00:00:00 2001
+Message-ID: <1e216be94b87d607cafd6f35fd2ece5ba5004a76.1723114981.git.sam@gentoo.org>
+From: Sam James <sam@gentoo.org>
+Date: Thu, 8 Aug 2024 12:00:41 +0100
+Subject: [PATCH] testsuite: fortran: pass -Wcomplain-wrong-lang where
+ appropriate
+
+These tests expect the diagnostic from -Wcomplain-wrong-lang but
+don't explicitly enable it. This causes issues if running the testsuite
+with -Wno-complain-wrong-lang.
+
+gcc/testsuite/ChangeLog:
+        * gfortran.dg/ISO_Fortran_binding_17.f90: Pass -Wcomplain-wrong-lang.
+        * gfortran.dg/c-interop/allocate-errors.f90: Likewise.
+        * gfortran.dg/c-interop/establish-errors.f90: Likewise.
+        * gfortran.dg/c-interop/section-errors.f90: Likewise.
+        * gfortran.dg/c-interop/select-errors.f90: Likewise.
+        * gfortran.dg/c-interop/setpointer-errors.f90: Likewise.
+---
+ gcc/testsuite/gfortran.dg/ISO_Fortran_binding_17.f90      | 2 +-
+ gcc/testsuite/gfortran.dg/c-interop/allocate-errors.f90   | 2 +-
+ gcc/testsuite/gfortran.dg/c-interop/establish-errors.f90  | 2 +-
+ gcc/testsuite/gfortran.dg/c-interop/section-errors.f90    | 2 +-
+ gcc/testsuite/gfortran.dg/c-interop/select-errors.f90     | 2 +-
+ gcc/testsuite/gfortran.dg/c-interop/setpointer-errors.f90 | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/gcc/testsuite/gfortran.dg/ISO_Fortran_binding_17.f90 b/gcc/testsuite/gfortran.dg/ISO_Fortran_binding_17.f90
+index c399e710ce97..c321c7a61f54 100644
+--- a/gcc/testsuite/gfortran.dg/ISO_Fortran_binding_17.f90
++++ b/gcc/testsuite/gfortran.dg/ISO_Fortran_binding_17.f90
+@@ -1,6 +1,6 @@
+ ! { dg-do run }
+ ! { dg-additional-sources ISO_Fortran_binding_17.c }
+-! { dg-options "-fcheck=all" }
++! { dg-options "-Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! PR fortran/92470
+diff --git a/gcc/testsuite/gfortran.dg/c-interop/allocate-errors.f90 b/gcc/testsuite/gfortran.dg/c-interop/allocate-errors.f90
+index a58d05a33681..1cf3fbd9fdd7 100644
+--- a/gcc/testsuite/gfortran.dg/c-interop/allocate-errors.f90
++++ b/gcc/testsuite/gfortran.dg/c-interop/allocate-errors.f90
+@@ -1,6 +1,6 @@
+ ! { dg-do run }
+ ! { dg-additional-sources "allocate-errors-c.c dump-descriptors.c" }
+-! { dg-additional-options "-Wno-error -fcheck=all" }
++! { dg-additional-options "-Wno-error -Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! This program tests that the CFI_allocate and CFI_deallocate functions
+diff --git a/gcc/testsuite/gfortran.dg/c-interop/establish-errors.f90 b/gcc/testsuite/gfortran.dg/c-interop/establish-errors.f90
+index 307a2664b743..c505c1904c75 100644
+--- a/gcc/testsuite/gfortran.dg/c-interop/establish-errors.f90
++++ b/gcc/testsuite/gfortran.dg/c-interop/establish-errors.f90
+@@ -1,7 +1,7 @@
+ ! PR101317
+ ! { dg-do run }
+ ! { dg-additional-sources "establish-errors-c.c dump-descriptors.c" }
+-! { dg-additional-options "-Wno-error -fcheck=all" }
++! { dg-additional-options "-Wno-error -Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! This program tests that the CFI_establish function properly detects
+diff --git a/gcc/testsuite/gfortran.dg/c-interop/section-errors.f90 b/gcc/testsuite/gfortran.dg/c-interop/section-errors.f90
+index 28328b799b30..699fa8940849 100644
+--- a/gcc/testsuite/gfortran.dg/c-interop/section-errors.f90
++++ b/gcc/testsuite/gfortran.dg/c-interop/section-errors.f90
+@@ -1,6 +1,6 @@
+ ! { dg-do run }
+ ! { dg-additional-sources "section-errors-c.c dump-descriptors.c" }
+-! { dg-additional-options "-Wno-error -fcheck=all" }
++! { dg-additional-options "-Wno-error -Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! This program tests that the CFI_section function properly detects
+diff --git a/gcc/testsuite/gfortran.dg/c-interop/select-errors.f90 b/gcc/testsuite/gfortran.dg/c-interop/select-errors.f90
+index b719c9e68679..199f314ed359 100644
+--- a/gcc/testsuite/gfortran.dg/c-interop/select-errors.f90
++++ b/gcc/testsuite/gfortran.dg/c-interop/select-errors.f90
+@@ -1,6 +1,6 @@
+ ! { dg-do run }
+ ! { dg-additional-sources "select-errors-c.c dump-descriptors.c" }
+-! { dg-additional-options "-Wno-error -fcheck=all" }
++! { dg-additional-options "-Wno-error -Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! This program tests that the CFI_select_part function properly detects
+diff --git a/gcc/testsuite/gfortran.dg/c-interop/setpointer-errors.f90 b/gcc/testsuite/gfortran.dg/c-interop/setpointer-errors.f90
+index 84a01ce16b12..3af7cc7f0e0f 100644
+--- a/gcc/testsuite/gfortran.dg/c-interop/setpointer-errors.f90
++++ b/gcc/testsuite/gfortran.dg/c-interop/setpointer-errors.f90
+@@ -1,7 +1,7 @@
+ ! PR 101317
+ ! { dg-do run }
+ ! { dg-additional-sources "setpointer-errors-c.c dump-descriptors.c" }
+-! { dg-additional-options "-Wno-error -fcheck=all" }
++! { dg-additional-options "-Wno-error -Wcomplain-wrong-lang -fcheck=all" }
+ ! { dg-warning "command-line option '-fcheck=all' is valid for Fortran but not for C" "" { target *-*-* } 0 }
+ !
+ ! This program tests that the CFI_setpointer function properly detects
+-- 
+2.45.2
+

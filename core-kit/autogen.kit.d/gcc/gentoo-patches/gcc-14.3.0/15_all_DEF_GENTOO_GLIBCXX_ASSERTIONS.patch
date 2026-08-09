@@ -1,0 +1,14 @@
+https://bugs.gentoo.org/876895
+--- a/gcc/c-family/c-cppbuiltin.cc
++++ b/gcc/c-family/c-cppbuiltin.cc
+@@ -957,6 +957,10 @@ c_cpp_builtins (cpp_reader *pfile)
+ 	  cpp_define (pfile, "__cpp_rtti=199711L");
+ 	}
+ 
++      #if defined(DEF_GENTOO_GLIBCXX_ASSERTIONS) && !defined(ACCEL_COMPILER)
++	  cpp_define (pfile, "_GLIBCXX_ASSERTIONS");
++      #endif
++
+       if (cxx_dialect >= cxx11)
+         cpp_define (pfile, "__GXX_EXPERIMENTAL_CXX0X__");
+ 

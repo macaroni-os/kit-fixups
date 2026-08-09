@@ -4728,3 +4728,479 @@ flite:
     - flite:
 
 
+obs_studio:
+  generator: builtin-github
+
+  extensions_defs:
+    git-submodules:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-video
+    github:
+      user: obsproject
+      repo: obs-studio
+      query: releases
+
+  packages:
+
+    - obs-studio:
+        extensions:
+          - git-submodules
+        transform:
+          - kind: string
+            match: 'OBS Studio '
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            url: 'https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.github_repo }}/tarball/{{ .Values.version }}'
+          - name: '{{ .Values.pn }}-cef-binary-{{ .Values.cef_version }}-x86-64_v6.tar.xz'
+            url: 'https://cdn-fastly.obsproject.com/downloads/cef_binary_{{ .Values.cef_version }}_linux_x86_64_v6.tar.xz'
+            use: browser
+        vars:
+          cef_version: '6533'
+          desc: Software for Recording and Streaming Live Video Content
+          homepage: https://obsproject.com
+          license: Boost-1.0 GPL-2+ MIT Unlicense
+          python_compat: python3+
+          extra_envs:
+            - 'CMAKE_REMOVE_MODULES_LIST=( FindFreetype )'
+            - 'LUA_COMPAT=( luajit )'
+            - |
+              QA_PREBUILT="
+              usr/lib*/obs-plugins/chrome-sandbox
+              usr/lib*/obs-plugins/libcef.so
+              usr/lib*/obs-plugins/libEGL.so
+              usr/lib*/obs-plugins/libGLESv2.so
+              usr/lib*/obs-plugins/libvk_swiftshader.so
+              usr/lib*/obs-plugins/libvulkan.so.1
+              "
+          inherit:
+            - cmake
+            - lua-single
+            - optfeature
+            - python-single-r1
+            - xdg
+          iuse: |
+            +alsa browser decklink fdk jack lua nvenc pipewire pulseaudio
+            python qsv speex +ssl truetype v4l vlc wayland webrtc websocket
+          required_use: |
+            browser? ( || ( alsa pulseaudio ) )
+            lua? ( ${LUA_REQUIRED_USE} )
+            python? ( ${PYTHON_REQUIRED_USE} )
+          bdepend: |
+            lua? ( dev-lang/swig )
+            python? ( dev-lang/swig )
+          rdepend: |
+            dev-libs/glib:2
+            dev-libs/jansson:=
+            dev-libs/simde
+            dev-libs/uthash
+            media-libs/libglvnd
+            x11-libs/libva
+            media-libs/x264:=
+            net-misc/curl
+            sys-apps/dbus
+            sys-apps/pciutils
+            sys-apps/util-linux
+            sys-libs/zlib:=
+            >=media-video/ffmpeg-6.1:=[opus,x264]
+            dev-cpp/nlohmann_json
+            net-libs/mbedtls:=
+            x11-libs/libdrm
+            x11-libs/libX11
+            x11-libs/libXcomposite
+            x11-libs/libXfixes
+            x11-libs/libxcb:=
+            alsa? ( media-libs/alsa-lib )
+            browser? (
+                || (
+                    >=app-accessibility/at-spi2-core-2.46.0:2
+                    ( app-accessibility/at-spi2-atk dev-libs/atk )
+                )
+                dev-libs/expat
+                dev-libs/glib
+                dev-libs/nspr
+                dev-libs/nss
+                dev-libs/wayland
+                media-libs/alsa-lib
+                media-libs/fontconfig
+                media-libs/mesa[gbm(+)]
+                net-print/cups
+                x11-libs/cairo
+                x11-libs/libdrm
+                x11-libs/libXcursor
+                x11-libs/libXdamage
+                x11-libs/libXext
+                x11-libs/libXi
+                x11-libs/libxkbcommon
+                x11-libs/libXrandr
+                x11-libs/libXrender
+                x11-libs/libXScrnSaver
+                x11-libs/libxshmfence
+                x11-libs/libXtst
+                x11-libs/pango
+            )
+            fdk? ( media-libs/fdk-aac:= )
+            jack? ( virtual/jack )
+            lua? ( ${LUA_DEPS} )
+            nvenc? ( media-libs/nv-codec-headers )
+            pipewire? ( media-video/pipewire:= )
+            pulseaudio? ( media-sound/pulseaudio )
+            python? ( ${PYTHON_DEPS} )
+            qsv? (
+                media-libs/libvpl
+                x11-libs/libva
+            )
+            >=dev-qt/qtbase-6.8:6[xml(+)]
+            >=dev-qt/qtsvg-6.8:6
+            x11-libs/libxkbcommon
+            speex? ( media-libs/speexdsp )
+            truetype? (
+                media-libs/fontconfig
+                media-libs/freetype
+            )
+            v4l? (
+                media-libs/libv4l
+                virtual/udev
+            )
+            vlc? ( media-video/vlc:= )
+            wayland? (
+                dev-libs/wayland
+                x11-libs/libxkbcommon
+            )
+            webrtc? ( net-libs/libdatachannel )
+            websocket? (
+                dev-cpp/asio
+                >=dev-cpp/websocketpp-0.8.2
+                dev-libs/qrcodegencpp
+            )
+          depend: '${RDEPEND}'
+          body: |
+            post_src_unpack() {
+              local d main_dir bundle_dir
+              for d in "${WORKDIR}"/obsproject-obs-studio-*; do
+                if [[ -f ${d}/CMakeLists.txt ]]; then
+                  main_dir=${d}
+                else
+                  bundle_dir=${d}
+                fi
+              done
+
+              [[ -n ${main_dir} ]] || die "could not locate main obs-studio source directory"
+
+              if [[ -n ${bundle_dir} && ${bundle_dir} != "${main_dir}" ]]; then
+                cp -r "${bundle_dir}"/plugins/. "${main_dir}"/plugins/ || die
+              fi
+
+              mv "${main_dir}" "${S}" || die
+            }
+
+            pkg_setup() {
+              use lua && lua-single_pkg_setup
+              use python && python-single-r1_pkg_setup
+            }
+
+            src_prepare() {
+              default
+              cmake_src_prepare
+            }
+
+            src_configure() {
+              local libdir=$(get_libdir)
+              local mycmakeargs=(
+                -DENABLE_ALSA=$(usex alsa)
+                -DENABLE_AJA=OFF
+                -DENABLE_BROWSER=$(usex browser)
+                -DENABLE_DECKLINK=$(usex decklink)
+                -DENABLE_FREETYPE=$(usex truetype)
+                -DENABLE_JACK=$(usex jack)
+                -DENABLE_LIBFDK=$(usex fdk)
+                -DENABLE_NEW_MPEGTS_OUTPUT=OFF # Requires librist and libsrt.
+                -DENABLE_NVENC=$(usex nvenc)
+                -DENABLE_PIPEWIRE=$(usex pipewire)
+                -DENABLE_PULSEAUDIO=$(usex pulseaudio)
+                -DENABLE_QSV11=$(usex qsv)
+                -DENABLE_RNNOISE=ON
+                -DENABLE_SPEEXDSP=$(usex speex)
+                -DENABLE_V4L2=$(usex v4l)
+                -DENABLE_VLC=$(usex vlc)
+                -DENABLE_VST=ON
+                -DENABLE_WAYLAND=$(usex wayland)
+                -DENABLE_WEBRTC=$(usex webrtc)
+                -DENABLE_WEBSOCKET=$(usex websocket)
+                -DOBS_VERSION_OVERRIDE=${PV}
+              )
+
+              if use browser; then
+                mycmakeargs+=( -DCEF_ROOT_DIR="${WORKDIR}/cef_binary_{{ .Values.cef_version }}_linux_x86_64" )
+              fi
+
+              if use lua || use python; then
+                mycmakeargs+=(
+                  -DENABLE_SCRIPTING_LUA=$(usex lua)
+                  -DENABLE_SCRIPTING_PYTHON=$(usex python)
+                  -DENABLE_SCRIPTING=ON
+                )
+              else
+                mycmakeargs+=( -DENABLE_SCRIPTING=OFF )
+              fi
+
+              if use browser && use ssl; then
+                mycmakeargs+=( -DENABLE_WHATSNEW=ON )
+              else
+                mycmakeargs+=( -DENABLE_WHATSNEW=OFF )
+              fi
+
+              cmake_src_configure
+            }
+
+            pkg_postinst() {
+              xdg_pkg_postinst
+
+              if ! use alsa && ! use pulseaudio; then
+                elog
+                elog "For the audio capture features to be available,"
+                elog "at least one of the 'alsa' or 'pulseaudio' USE-flags needs to"
+                elog "be enabled."
+                elog
+              fi
+
+              if use v4l && has_version media-video/v4l2loopback; then
+                elog
+                elog "Depending on system configuration, the v4l2loopback kernel module"
+                elog "may need to be loaded manually, and needs to be re-built after"
+                elog "kernel changes."
+                elog
+              fi
+
+              optfeature "VA-API hardware encoding" media-video/ffmpeg[vaapi]
+              optfeature "virtual camera support" media-video/v4l2loopback
+            }
+
+
+obs_studio_deps:
+  generator: builtin-github
+
+  extensions_defs:
+    git-submodules:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: media-libs
+    github:
+      query: releases
+
+  packages:
+
+    - simde:
+        category: dev-libs
+        github:
+          user: simd-everywhere
+          repo: simde
+        vars:
+          desc: Header-only library providing implementations of SIMD instruction sets
+          homepage: https://simd-everywhere.github.io/blog/
+          license: MIT
+          inherit:
+            - meson
+          body: |
+            src_configure() {
+              unset {C,CPP,CXX,LD}FLAGS
+
+              local emesonargs=(
+                -Dtests=false
+              )
+
+              meson_src_configure
+            }
+
+    - uthash:
+        category: dev-libs
+        github:
+          user: troydhanson
+          repo: uthash
+          query: tags
+          match: '^v[0-9.]+$'
+        vars:
+          desc: An easy-to-use hash implementation for C programmers
+          homepage: https://troydhanson.github.io/uthash/index.html
+          license: BSD-1
+          inherit:
+            - toolchain-funcs
+          body: |
+            src_configure() {
+              tc-export CC
+            }
+
+            src_install() {
+              doheader src/*.h
+              dodoc doc/*.txt
+            }
+
+    - qrcodegencpp:
+        category: dev-libs
+        github:
+          user: EasyCoding
+          repo: qrcodegen-cmake
+          query: tags
+          match: '^v[0-9.]+-cmake[0-9]+$'
+        transform:
+          - kind: regex
+            match: '-cmake'
+            replace: '_p'
+        assets:
+          - name: 'QR-Code-generator-{{ index (splitList "-cmake" .Values.original_version) 0 }}.tar.gz'
+            url: 'https://github.com/nayuki/QR-Code-generator/archive/refs/tags/v{{ index (splitList "-cmake" .Values.original_version) 0 }}.tar.gz'
+          - name: 'qrcodegen-cmake-v{{ .Values.original_version }}.tar.gz'
+            url: 'https://github.com/{{ .Values.github_user }}/{{ .Values.github_repo }}/archive/refs/tags/v{{ .Values.original_version }}.tar.gz'
+        vars:
+          desc: High-quality QR Code generator library for C and C++
+          homepage: https://www.nayuki.io/page/qr-code-generator-library
+          license: MIT
+          inherit:
+            - cmake
+          s: '${WORKDIR}/QR-Code-generator-{{ index (splitList "-cmake" .Values.original_version) 0 }}'
+          body: |
+            post_src_unpack() {
+              cp -r "${WORKDIR}"/qrcodegen-cmake-*/cmake "${S}"/ || die
+              cp "${WORKDIR}"/qrcodegen-cmake-*/CMakeLists.txt "${S}"/ || die
+            }
+
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=ON
+                -DQRCODEGEN_BUILD_EXAMPLES=OFF
+                -DQRCODEGEN_BUILD_TESTS=OFF
+              )
+
+              cmake_src_configure
+            }
+
+    - libdatachannel:
+        category: net-libs
+        extensions:
+          - git-submodules
+        github:
+          user: paullouisageneau
+          repo: libdatachannel
+        transform:
+          - kind: string
+            match: 'Version '
+            replace: ''
+        vars:
+          desc: C/C++ WebRTC network library featuring Data Channels, Media Transport, and WebSockets
+          homepage: https://github.com/paullouisageneau/libdatachannel
+          license: MPL-2.0 BSD MIT
+          inherit:
+            - cmake
+          iuse: gnutls +media +websocket
+          rdepend: |
+            gnutls? (
+                dev-libs/nettle:=
+                net-libs/gnutls:=
+            )
+            !gnutls? ( dev-libs/openssl:= )
+          depend: '${RDEPEND}'
+          body: |
+            post_src_unpack() {
+              local d main_dir bundle_dir
+              for d in "${WORKDIR}"/paullouisageneau-libdatachannel-*; do
+                if [[ -f ${d}/CMakeLists.txt ]]; then
+                  main_dir=${d}
+                else
+                  bundle_dir=${d}
+                fi
+              done
+
+              [[ -n ${main_dir} ]] || die "could not locate main libdatachannel source directory"
+
+              if [[ -n ${bundle_dir} && ${bundle_dir} != "${main_dir}" ]]; then
+                cp -r "${bundle_dir}"/deps/. "${main_dir}"/deps/ || die
+              fi
+
+              mv "${main_dir}" "${S}" || die
+            }
+
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=ON
+                -DBUILD_SHARED_DEPS_LIBS=OFF
+                -DNO_EXAMPLES=ON
+                -DNO_MEDIA=$(usex media OFF ON)
+                -DNO_TESTS=ON
+                -DNO_WEBSOCKET=$(usex websocket OFF ON)
+                -DPREFER_SYSTEM_LIB=OFF
+                -DRTC_UPDATE_VERSION_HEADER=OFF
+                -DUSE_GNUTLS=$(usex gnutls)
+                -DUSE_MBEDTLS=OFF
+                -DUSE_NICE=OFF
+                -DWARNINGS_AS_ERRORS=OFF
+              )
+
+              cmake_src_configure
+            }
+
+    - nv-codec-headers:
+        github:
+          user: FFmpeg
+          repo: nv-codec-headers
+        transform:
+          - kind: string
+            match: 'Version '
+            replace: ''
+        vars:
+          desc: FFmpeg version of headers required to interface with NVIDIA codec APIs
+          homepage: https://github.com/FFmpeg/nv-codec-headers
+          license: MIT
+          inherit:
+            - multilib
+          body: |
+            src_compile() {
+              emake PREFIX="${EPREFIX}/usr" LIBDIR="$(get_libdir)"
+            }
+
+            src_install() {
+              emake \
+                PREFIX="${EPREFIX}/usr" \
+                LIBDIR="$(get_libdir)" \
+                DESTDIR="${D}" \
+                install
+
+              einstalldocs
+            }
+
+    - libvpl:
+        github:
+          user: intel
+          repo: libvpl
+          per_page: 100
+          num_pages: 2
+        selector:
+          - '<3.0'
+        vars:
+          desc: Intel Video Processing Library dispatcher and API headers
+          homepage: https://github.com/intel/libvpl
+          license: MIT
+          inherit:
+            - cmake
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=ON
+                -DBUILD_EXAMPLES=OFF
+                -DINSTALL_EXAMPLES=OFF
+                -DBUILD_EXPERIMENTAL=ON
+                -DBUILD_TESTS=OFF
+                -DENABLE_LIBDIR_IN_RUNTIME_SEARCH=OFF
+                -DINSTALL_DEV=ON
+                -DINSTALL_LIB=ON
+                -DCMAKE_INSTALL_SYSCONFDIR="${EPREFIX}/etc"
+              )
+
+              cmake_src_configure
+            }

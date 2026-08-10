@@ -675,3 +675,214 @@ xmlsec:
         selector:
           - '>=1.3.0'
 
+gnupg_libs:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: app-crypt
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://gnupg.org/ftp/gcrypt/{{ .Values.pn }}/
+      exclude: 'rc|beta|alpha'
+    vars:
+      license: 'GPL-2 LGPL-2.1'
+      depend: '${RDEPEND}'
+
+  packages:
+    - libgpg-error:
+        category: dev-libs
+        # gpgme/gpgmepp/qgpgme all require >=1.47.
+        selector:
+          - '>=1.47'
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: Contains error handling functions used by GnuPG software
+          homepage: https://www.gnupg.org/related_software/libgpg-error/
+          iuse: common-lisp nls static-libs
+          inherit:
+            - autotools
+            - toolchain-funcs
+            - prefix
+          rdepend: |
+            nls? ( >=virtual/libintl-0-r1 )
+          bdepend: |
+            nls? ( sys-devel/gettext )
+          body: |
+            src_prepare() {
+              default
+
+              # only necessary for as long as we run eautoreconf, configure.ac
+              # uses ./autogen.sh to generate PACKAGE_VERSION, but autogen.sh is
+              # not a pure /bin/sh script, so it fails on some hosts
+              hprefixify -w 1 autogen.sh
+              eautoreconf
+            }
+            src_configure() {
+              local myeconfargs=(
+                $(use_enable common-lisp languages)
+                $(use_enable nls)
+                # required for sys-power/suspend[crypt], bug 751568
+                $(use_enable static-libs static)
+                --disable-tests
+
+                # See bug #699206 and its duplicates wrt gpgme-config
+                # Upstream no longer install this by default and we should
+                # seek to disable it at some point.
+                --enable-install-gpg-error-config
+
+                --enable-threads
+                CC_FOR_BUILD="$(tc-getBUILD_CC)"
+                $("${S}/configure" --help | grep -o -- '--without-.*-prefix')
+              )
+              ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              find "${ED}" -type f -name '*.la' -delete || die
+            }
+
+    - gpgme:
+        selector:
+          - '>=2.1.0'
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: GnuPG Made Easy is a library for making GnuPG easier to use
+          homepage: https://www.gnupg.org/related_software/gpgme/
+          slot: '1/45.1'
+          iuse: common-lisp static-libs
+          inherit:
+            - libtool
+            - flag-o-matic
+          patches:
+            - gpgme-tests-start-stop-agent-use-command-v.patch
+          rdepend: |
+            app-crypt/gnupg
+            !<app-crypt/gpgme-1.24.3
+            >=dev-libs/libassuan-2.5.3
+            >=dev-libs/libgpg-error-1.47
+          body: |
+            src_prepare() {
+              default
+
+              elibtoolize
+
+              # bug #697456
+              addpredict /run/user/$(id -u)/gnupg
+
+              local MAX_WORKDIR=66
+
+              # Make best effort to allow longer PORTAGE_TMPDIR as usock limitation
+              # fails build/tests.
+              ln -s "${P}" "${WORKDIR}/b" || die
+              S="${WORKDIR}/b"
+            }
+            src_configure() {
+              # bug #847955
+              append-lfs-flags
+
+              local languages=(
+                $(usev common-lisp 'cl')
+              )
+
+              local myeconfargs=(
+                --disable-gpgconf-test
+                --disable-gpg-test
+                --disable-gpgsm-test
+                --disable-g13-test
+                --enable-languages="${languages[*]}"
+                $(use_enable static-libs static)
+                GPGRT_CONFIG="${ESYSROOT}/usr/bin/gpgrt-config"
+              )
+
+              ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              find "${ED}" -type f -name '*.la' -delete || die
+            }
+
+    - gpgmepp:
+        selector:
+          - '>=2.1.0'
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: GPGME++ - C++ bindings/wrapper for GPGME
+          homepage: https://www.gnupg.org/related_software/gpgme/
+          inherit:
+            - cmake
+          rdepend: |
+            >=app-crypt/gpgme-2.1.0:=
+            >=dev-libs/libgpg-error-1.47
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+              )
+
+              cmake_src_configure
+            }
+
+    - qgpgme:
+        selector:
+          - '>=2.1.0'
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: Qt API bindings/wrapper for GPGME
+          homepage: https://www.gnupg.org/related_software/gpgme/
+          license: GPL-2
+          iuse: qt5 +qt6
+          required_use: '|| ( qt5 qt6 )'
+          inherit:
+            - cmake
+          rdepend: |
+            >=app-crypt/gpgme-2.1.0:=
+            >=app-crypt/gpgmepp-2.1.0
+            >=dev-libs/libgpg-error-1.47
+            qt5? ( >=dev-qt/qtcore-5.15.0:5 )
+            qt6? ( >=dev-qt/qtbase-6.5.0:6 )
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_WITH_QT5=$(usex qt5)
+                -DBUILD_WITH_QT6=$(usex qt6)
+                -DBUILD_TESTING=OFF
+              )
+
+              cmake_src_configure
+            }
+

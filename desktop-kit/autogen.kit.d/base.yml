@@ -711,9 +711,9 @@ general_github:
             pkg_setup() {
               export LIGHTDM_USER=${LIGHTDM_USER:-lightdm}
               if use non_root ; then
-                enewgroup ${LIGHTDM_USER}
-                enewgroup video
-                enewuser ${LIGHTDM_USER} -1 -1 /var/lib/${LIGHTDM_USER} ${LIGHTDM_USER},video
+                enewgroup ${LIGHTDM_USER} 134
+                enewgroup video 27
+                enewuser ${LIGHTDM_USER} 134 -1 /var/lib/${LIGHTDM_USER} ${LIGHTDM_USER},video
                 esethome ${LIGHTDM_USER} /var/lib/${LIGHTDM_USER}
               fi
             }

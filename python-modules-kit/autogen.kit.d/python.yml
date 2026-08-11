@@ -484,23 +484,41 @@ mesonpy_modules:
             dev-util/cmake
             virtual/pkgconfig
           body: |
-            DISTUTILS_ARGS=(
-              -Dsystem-freetype=true
-              -Dsystem-qhull=true
-              -Dmacosx=false
-            )
+            src_prepare() {
+              default
+              sed -i -e 's|3.10|3.9|g' meson.build pyproject.toml || die
+            }
+            src_configure() {
+              # Forcing linker setup to avoid issues on
+              # linking external libagg library inside the package.
+              if tc-is-clang; then
+                export AR="llvm-ar"
+                export NM="llvm-nm"
+                export RANLIB="llvm-ranlib"
+              else
+                export AR="gcc-ar"
+                export NM="gcc-nm"
+                export RANLIB="gcc-ranlib"
+              fi
 
-            python_prepare_all() {
-              export SETUPTOOLS_SCM_PRETEND_VERSION="${PV}"
+              DISTUTILS_ARGS=(
+                -Dsystem-freetype=true
+                -Dsystem-qhull=true
+                -Dmacosx=false
+              )
 
               unset DISPLAY
 
               export XDG_RUNTIME_DIR="${T}/runtime-dir"
               mkdir "${XDG_RUNTIME_DIR}" || die
               chmod 0700 "${XDG_RUNTIME_DIR}" || die
+            }
 
+            python_prepare_all() {
+              export SETUPTOOLS_SCM_PRETEND_VERSION="${PV}"
               distutils-r1_python_prepare_all
             }
+
 
 poetry_modules:
   generator: builtin-pypi

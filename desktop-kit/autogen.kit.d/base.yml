@@ -649,10 +649,11 @@ general_github:
     - lightdm:
         category: x11-misc
         github:
-          user: canonical
-          query: tags
+          user: ubuntu
+          match: '^1.*'
+          num_pages: 4
         vars:
-          homepage: https://github.com/canonical/lightdm
+          homepage: https://github.com/ubuntu/lightdm
           desc: A lightweight display manager
           license: GPL-3 LGPL-3
           inherit:

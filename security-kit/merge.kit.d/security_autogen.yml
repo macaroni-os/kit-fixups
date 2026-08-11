@@ -27,7 +27,13 @@ target:
       conditions:
         - '<app-crypt/gcr-4.0'
 
+    - pkg: app-crypt/gpgme
+    - pkg: app-crypt/gpgmepp
+    - pkg: app-crypt/qgpgme
+
     - pkg: app-misc/pax-utils
+
+    - pkg: dev-libs/libgpg-error
 
     - pkg: dev-libs/xmlsec
       conditions:

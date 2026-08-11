@@ -694,9 +694,6 @@ gnupg_libs:
   packages:
     - libgpg-error:
         category: dev-libs
-        # gpgme/gpgmepp/qgpgme all require >=1.47.
-        selector:
-          - '>=1.47'
         dir:
           matcher: '{{ .Values.pn }}-.*.tar.bz2$'
         transform:
@@ -753,8 +750,6 @@ gnupg_libs:
             }
 
     - gpgme:
-        selector:
-          - '>=2.1.0'
         dir:
           matcher: '{{ .Values.pn }}-.*.tar.bz2$'
         transform:
@@ -821,8 +816,6 @@ gnupg_libs:
             }
 
     - gpgmepp:
-        selector:
-          - '>=2.1.0'
         dir:
           matcher: '{{ .Values.pn }}-.*.tar.xz$'
         transform:
@@ -850,8 +843,6 @@ gnupg_libs:
             }
 
     - qgpgme:
-        selector:
-          - '>=2.1.0'
         dir:
           matcher: '{{ .Values.pn }}-.*.tar.xz$'
         transform:

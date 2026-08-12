@@ -791,3 +791,61 @@ qt6:
             dev-qt/qtdeclarative:{{ .Values.slot }}
             dev-qt/qtwebengine:{{ .Values.slot }}
           depend: ${RDEPEND}
+
+qtkeychain:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: dev-libs
+    github:
+      user: frankosterfeld
+      repo: qtkeychain
+      query: tags
+
+  packages:
+
+    - qtkeychain:
+        vars:
+          desc: "Qt API for storing passwords securely"
+          homepage: https://github.com/frankosterfeld/qtkeychain
+          license: BSD
+          slot: '0/1'
+          inherit:
+            - cmake
+          iuse: +keyring qt5 +qt6
+          required_use: '^^ ( qt5 qt6 )'
+          docs:
+            - ChangeLog
+            - ReadMe.md
+          rdepend: |
+            keyring? ( app-crypt/libsecret )
+            qt5? (
+              dev-qt/qtcore:5
+              dev-qt/qtdbus:5
+            )
+            qt6? ( dev-qt/qtbase:6 )
+          depend: '${RDEPEND}'
+          bdepend: |
+            keyring? ( virtual/pkgconfig )
+            qt5? ( dev-qt/linguist-tools:5 )
+            qt6? ( dev-qt/qttools:6[linguist] )
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_WITH_QT5=$(usex qt5)
+                -DBUILD_TEST_APPLICATION=OFF
+                -DBUILD_TRANSLATIONS=ON
+                -DLIBSECRET_SUPPORT=$(usex keyring)
+              )
+              cmake_src_configure
+            }
+
+            pkg_postinst() {
+              if ! use keyring ; then
+                elog "libsecret support is disabled. Secrets are stored via kwallet when it"
+                elog "is reachable on the session bus, and in a plaintext file otherwise."
+                elog "Enable USE=keyring, or make sure kwalletmanager is installed and running."
+              fi
+            }

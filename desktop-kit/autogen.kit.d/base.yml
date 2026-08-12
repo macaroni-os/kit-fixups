@@ -456,6 +456,85 @@ wezterm:
             }
 
 
+cool-retro-term:
+  generator: builtin-github
+  defaults:
+    category: x11-terms
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: Swordfish90
+      query: releases
+
+  packages:
+
+    - cool-retro-term:
+        extensions:
+          - git-submodules
+        transform:
+          - kind: regex
+            match: '^Cool-Retro-Term v?'
+            replace: ''
+          - kind: string
+            match: '-beta'
+            replace: '_beta'
+        vars:
+          desc: Terminal emulator which mimics the look and feel of the old cathode tube screens
+          homepage: https://github.com/Swordfish90/cool-retro-term
+          license: GPL-2 GPL-3 MIT
+          inherit:
+            - qmake-utils
+            - xdg
+          rdepend: |
+            dev-qt/qt5compat:6
+            dev-qt/qtbase:6[gui,sql,sqlite]
+            dev-qt/qtdeclarative:6
+          depend: '${RDEPEND}'
+          bdepend: |
+            dev-qt/qtshadertools:6
+          body: |
+            # Qt6 qmake binary path
+            _get_qt6_qmake() {
+              echo "${EPREFIX}/usr/$(get_libdir)/qt6/bin/qmake"
+            }
+            src_prepare() {
+              xdg_src_prepare
+              # The tarball has no git metadata, so stamp the version directly
+              sed -e "s|^APP_VERSION = .*|APP_VERSION = {{ .Values.original_version }}|" \
+                -i app/app.pro || die
+            }
+            src_configure() {
+              $(_get_qt6_qmake) \
+                -makefile \
+                QMAKE_AR="$(tc-getAR) cqs" \
+                QMAKE_CC="$(tc-getCC)" \
+                QMAKE_LINK_C="$(tc-getCC)" \
+                QMAKE_LINK_C_SHLIB="$(tc-getCC)" \
+                QMAKE_CXX="$(tc-getCXX)" \
+                QMAKE_LINK="$(tc-getCXX)" \
+                QMAKE_LINK_SHLIB="$(tc-getCXX)" \
+                QMAKE_OBJCOPY="$(tc-getOBJCOPY)" \
+                QMAKE_RANLIB= \
+                QMAKE_STRIP= \
+                QMAKE_CFLAGS="${CFLAGS}" \
+                QMAKE_CFLAGS_RELEASE= \
+                QMAKE_CFLAGS_DEBUG= \
+                QMAKE_CXXFLAGS="${CXXFLAGS}" \
+                QMAKE_CXXFLAGS_RELEASE= \
+                QMAKE_CXXFLAGS_DEBUG= \
+                QMAKE_LFLAGS="${LDFLAGS}" \
+                QMAKE_LFLAGS_RELEASE= \
+                QMAKE_LFLAGS_DEBUG= \
+                || die "qmake failed"
+            }
+            src_install() {
+              # upstream install targets write straight into /usr without INSTALL_ROOT
+              emake -j1 INSTALL_ROOT="${D}" install
+              doman packaging/debian/cool-retro-term.1
+              insinto /usr/share/metainfo
+              doins packaging/appdata/cool-retro-term.appdata.xml
+            }
+
+
 postman:
   generator: builtin-json
   defaults:

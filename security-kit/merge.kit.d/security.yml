@@ -44,7 +44,8 @@ target:
     - pkg: app-crypt/gcr:0
       conditions:
         - '<app-crypt/gcr-4.0'
-    - pkg: app-crypt/gpgme:1
+    - pkg: app-crypt/gpgme
+    - pkg: app-crypt/gpgmepp
     - pkg: app-crypt/gnupg
     - pkg: app-crypt/libb2
     - pkg: app-crypt/libmd
@@ -55,6 +56,7 @@ target:
     - pkg: app-crypt/rhash
     - pkg: app-crypt/mhash
     - pkg: app-crypt/mit-krb5
+    - pkg: app-crypt/qgpgme
     - pkg: app-crypt/trousers
     - pkg: app-crypt/tpm2-abrmd
     - pkg: app-crypt/tpm2-tools

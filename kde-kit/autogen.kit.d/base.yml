@@ -894,3 +894,50 @@ libqaccessibilityclient:
               )
               cmake_src_configure
             }
+
+kcolorpicker:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    github:
+      user: ksnip
+      repo: kColorPicker
+      query: tags
+    assets:
+      - name: 'kColorPicker-{{ .Values.version }}.tar.gz'
+        url: 'https://github.com/ksnip/kColorPicker/archive/v{{ .Values.version }}.tar.gz'
+    vars:
+      license: LGPL-3+
+      qt_slot: '6'
+      homepage: https://github.com/ksnip/kColorPicker
+      s: '${WORKDIR}/kColorPicker-{{ .Values.version }}'
+      inherit:
+        - cmake
+      iuse: qt5 +qt6
+      required_use: '^^ ( qt5 qt6 )'
+      rdepend: |
+        qt5? (
+          dev-qt/qtcore:5
+          dev-qt/qtgui:5
+          dev-qt/qtwidgets:5
+        )
+        qt6? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
+      depend: '${RDEPEND}'
+
+  packages:
+    - kcolorpicker:
+        vars:
+          desc: Qt based color picker with popup menu
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=ON
+                -DBUILD_WITH_QT6=$(usex qt6)
+                -DBUILD_EXAMPLE=OFF
+                -DBUILD_TESTS=OFF
+              )
+              cmake_src_configure
+            }

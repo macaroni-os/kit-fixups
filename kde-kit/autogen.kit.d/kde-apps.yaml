@@ -12,13 +12,20 @@ kde-apps:
         inherit:
           - cmake
         depend: '${RDEPEND}'
+        # For fresh releases
+        #download_prefixurl: https://download.kde.org/stable/
+        # For old releases
+        download_prefixurl: https://download.kde.org/Attic/
 
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
-         url: https://download.kde.org/stable/release-service/{{ .Values.version }}/src/{{ .Values.pn }}-{{ .Values.version}}.tar.xz
+         url: '{{ .Values.download_prefixurl }}/release-service/{{ .Values.version }}/src/{{ .Values.pn }}-{{ .Values.version}}.tar.xz'
     dir:
-        url: "https://download.kde.org/stable/release-service/"
+        url: "{{ .Values.download_prefixurl }}/release-service/"
         matcher: "^25.*"
+    selector:
+      # Temporary to move ahead in mark-iii
+      - '<25.12.3'
 
   packages:
 
@@ -3684,7 +3691,6 @@ kde-apps:
           iuse: "kwallet"
           rdepend: |
             virtual/kde-seed[gui]
-            >=kde-apps/libksane-common
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/ktextwidgets:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}

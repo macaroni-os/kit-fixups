@@ -30,9 +30,6 @@ kde-apps:
   packages:
 
     - partitionmanager:
-        selector:
-          # Temporary to move ahead in mark-iii
-          - '<25.12.3'
         vars:
           inherit:
             - kde6
@@ -63,9 +60,6 @@ kde-apps:
 
     - kpmcore:
         category: sys-libs
-        selector:
-          # Temporary to move ahead in mark-iii
-          - '<25.12.3'
         vars:
           inherit:
             - kde6
@@ -3694,8 +3688,18 @@ kde-apps:
             kde-frameworks/ki18n:{{ .Values.slot }}
             kde-frameworks/ktextwidgets:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-            media-libs/ksanecore:{{ .Values.slot }}
+            kde-apps/ksanecore:{{ .Values.slot }}
             kwallet? ( kde-frameworks/kwallet:{{ .Values.slot }} )
+
+    - ksanecore:
+        vars:
+          desc: Qt-based interface for SANE library to control scanner hardware
+          license: '|| ( LGPL-2.1 LGPL-3 )'
+          homepage: https://invent.kde.org/libraries/ksanecore
+          rdepend: |
+            virtual/kde-seed[gui]
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            media-gfx/sane-backends
 
     - libksieve:
         vars:

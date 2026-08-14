@@ -1,0 +1,567 @@
+From 8bc449a063d7f3d0929740f179b58239aadbcf21 Mon Sep 17 00:00:00 2001
+Message-ID: <8bc449a063d7f3d0929740f179b58239aadbcf21.1764773217.git.sam@gentoo.org>
+From: Daniil Frolov <exactlywb@ispras.ru>
+Date: Fri, 22 Dec 2023 17:10:38 +0300
+Subject: [PATCH] object lifetime instrumentation for Valgrind [PR66487]
+
+PR 66487 is asking to provide sanitizer-like detection for C++ object
+lifetime violations that are worked around with -fno-lifetime-dse or
+-flifetime-dse=1 in Firefox, LLVM (PR 106943), OpenJade (PR 69534).
+
+The discussion in the PR was centered around extending MSan, but MSan
+was not ported to GCC (and requires rebuilding everything with
+instrumentation).
+
+Instead, allow Valgrind to see lifetime boundaries by emitting client
+requests along *this = { CLOBBER }.  The client request marks the
+"clobbered" memory as undefined for Valgrind; clobbering assignments
+mark the beginning of ctor and end of dtor execution for C++ objects.
+Hence, attempts to read object storage after the destructor, or
+"pre-initialize" its fields prior to the constructor will be caught.
+
+Valgrind client requests are offered as macros that emit inline asm.
+For use in code generation, let's wrap them as libgcc builtins.
+
+gcc/ChangeLog:
+
+	* Makefile.in (OBJS): Add gimple-valgrind-interop.o.
+	* builtins.def (BUILT_IN_VALGRIND_MAKE_UNDEFINED): New.
+	* common.opt (-fvalgrind-annotations): New option.
+	* doc/install.texi (--enable-valgrind-interop): Document.
+	* doc/invoke.texi (-fvalgrind-annotations): Document.
+	* passes.def (pass_instrument_valgrind): Add.
+	* tree-pass.h (make_pass_instrument_valgrind): Declare.
+	* gimple-valgrind-interop.cc: New file.
+
+libgcc/ChangeLog:
+
+	* Makefile.in (LIB2ADD_ST): Add valgrind-interop.c.
+	* config.in: Regenerate.
+	* configure: Regenerate.
+	* configure.ac (--enable-valgrind-interop): New flag.
+	* libgcc2.h (__gcc_vgmc_make_mem_undefined): Declare.
+	* valgrind-interop.c: New file.
+
+gcc/testsuite/ChangeLog:
+
+	* g++.dg/valgrind-annotations-1.C: New test.
+	* g++.dg/valgrind-annotations-2.C: New test.
+
+Co-authored-by: Alexander Monakov <amonakov@ispras.ru>
+---
+ gcc/Makefile.in                               |   1 +
+ gcc/builtins.def                              |   3 +
+ gcc/common.opt                                |   4 +
+ gcc/doc/install.texi                          |   5 +
+ gcc/doc/invoke.texi                           |  27 ++++
+ gcc/gimple-valgrind-interop.cc                | 125 ++++++++++++++++++
+ gcc/passes.def                                |   1 +
+ gcc/testsuite/g++.dg/valgrind-annotations-1.C |  22 +++
+ gcc/testsuite/g++.dg/valgrind-annotations-2.C |  12 ++
+ gcc/tree-pass.h                               |   1 +
+ libgcc/Makefile.in                            |   3 +
+ libgcc/config.in                              |   6 +
+ libgcc/configure                              |  22 ++-
+ libgcc/configure.ac                           |  15 ++-
+ libgcc/libgcc2.h                              |   2 +
+ libgcc/valgrind-interop.c                     |  40 ++++++
+ 16 files changed, 287 insertions(+), 2 deletions(-)
+ create mode 100644 gcc/gimple-valgrind-interop.cc
+ create mode 100644 gcc/testsuite/g++.dg/valgrind-annotations-1.C
+ create mode 100644 gcc/testsuite/g++.dg/valgrind-annotations-2.C
+ create mode 100644 libgcc/valgrind-interop.c
+
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+index 8ecef4ccdc7..e4d803c856f 100644
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -1547,6 +1547,7 @@ OBJS = \
+ 	gimple-ssa-warn-restrict.o \
+ 	gimple-streamer-in.o \
+ 	gimple-streamer-out.o \
++	gimple-valgrind-interop.o \
+ 	gimple-walk.o \
+ 	gimple-warn-recursion.o \
+ 	gimplify.o \
+diff --git a/gcc/builtins.def b/gcc/builtins.def
+index 8ab0599b17f..98c0563e35f 100644
+--- a/gcc/builtins.def
++++ b/gcc/builtins.def
+@@ -1271,6 +1271,9 @@ DEF_GCC_BUILTIN (BUILT_IN_LINE, "LINE", BT_FN_INT, ATTR_NOTHROW_LEAF_LIST)
+ /* Control Flow Redundancy hardening out-of-line checker.  */
+ DEF_BUILTIN_STUB (BUILT_IN___HARDCFR_CHECK, "__builtin___hardcfr_check")
+ 
++/* Wrappers for Valgrind client requests.  */
++DEF_EXT_LIB_BUILTIN (BUILT_IN_VALGRIND_MAKE_UNDEFINED, "__gcc_vgmc_make_mem_undefined", BT_FN_VOID_PTR_SIZE, ATTR_NOTHROW_LEAF_LIST)
++
+ /* Synchronization Primitives.  */
+ #include "sync-builtins.def"
+ 
+diff --git a/gcc/common.opt b/gcc/common.opt
+index 5d0e255a40d..a08811122d0 100644
+--- a/gcc/common.opt
++++ b/gcc/common.opt
+@@ -3574,6 +3574,10 @@ Enum(auto_init_type) String(pattern) Value(AUTO_INIT_PATTERN)
+ EnumValue
+ Enum(auto_init_type) String(zero) Value(AUTO_INIT_ZERO)
+ 
++fvalgrind-annotations
++Common Var(flag_valgrind_annotations) Optimization
++Annotate lifetime boundaries with Valgrind client requests.
++
+ ; -fverbose-asm causes extra commentary information to be produced in
+ ; the generated assembly code (to make it more readable).  This option
+ ; is generally only of use to those who actually need to read the
+diff --git a/gcc/doc/install.texi b/gcc/doc/install.texi
+index 001d16fe67a..7ec45913f92 100644
+--- a/gcc/doc/install.texi
++++ b/gcc/doc/install.texi
+@@ -1708,6 +1708,11 @@ Disable TM clone registry in libgcc. It is enabled in libgcc by default.
+ This option helps to reduce code size for embedded targets which do
+ not use transactional memory.
+ 
++@item --enable-valgrind-interop
++Provide wrappers for Valgrind client requests in libgcc, which are used for
++@option{-fvalgrind-annotations}.  Requires Valgrind header files for the
++target (in the build-time sysroot if building a cross-compiler).
++
+ @item --with-cpu=@var{cpu}
+ @itemx --with-cpu-32=@var{cpu}
+ @itemx --with-cpu-64=@var{cpu}
+diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
+index 9207a021e64..79a4836b00a 100644
+--- a/gcc/doc/invoke.texi
++++ b/gcc/doc/invoke.texi
+@@ -720,6 +720,7 @@ Objective-C and Objective-C++ Dialects}.
+ -fno-stack-limit  -fsplit-stack
+ -fstrub=disable  -fstrub=strict  -fstrub=relaxed
+ -fstrub=all  -fstrub=at-calls  -fstrub=internal
++-fvalgrind-annotations
+ -fvtable-verify=@r{[}std@r{|}preinit@r{|}none@r{]}
+ -fvtv-counts  -fvtv-debug
+ -finstrument-functions  -finstrument-functions-once
+@@ -14204,6 +14205,9 @@ can use @option{-flifetime-dse=1}.  The default behavior can be
+ explicitly selected with @option{-flifetime-dse=2}.
+ @option{-flifetime-dse=0} is equivalent to @option{-fno-lifetime-dse}.
+ 
++See @option{-fvalgrind-annotations} for instrumentation that allows to
++detect violations of standard lifetime semantics using Valgrind.
++
+ @opindex flive-range-shrinkage
+ @opindex fno-live-range-shrinkage
+ @item -flive-range-shrinkage
+@@ -18083,6 +18087,29 @@ function attributes that tell which mode was selected for each function.
+ The primary use of this option is for testing, to exercise thoroughly
+ the @code{strub} machinery.
+ 
++@opindex fvalgrind-annotations
++@item -fvalgrind-annotations
++Emit Valgrind client requests annotating object lifetime boundaries.
++This allows to detect attempts to access fields of a C++ object after
++its destructor has completed (but storage was not deallocated yet), or
++to initialize it in advance from @code{operator new} rather than the
++constructor.
++
++This instrumentation relies on presence of @code{__gcc_vgmc_make_mem_undefined}
++function that wraps the corresponding Valgrind client request. It is provided
++by libgcc when it is configured with @samp{--enable-valgrind-interop}.
++Otherwise, you can implement it like this:
++
++@smallexample
++#include <valgrind/memcheck.h>
++
++void
++__gcc_vgmc_make_mem_undefined (void *addr, size_t size)
++@{
++  VALGRIND_MAKE_MEM_UNDEFINED (addr, size);
++@}
++@end smallexample
++
+ @opindex fvtable-verify
+ @item -fvtable-verify=@r{[}std@r{|}preinit@r{|}none@r{]}
+ This option is only available when compiling C++ code.
+diff --git a/gcc/gimple-valgrind-interop.cc b/gcc/gimple-valgrind-interop.cc
+new file mode 100644
+index 00000000000..05d9bdc6602
+--- /dev/null
++++ b/gcc/gimple-valgrind-interop.cc
+@@ -0,0 +1,125 @@
++/* Annotate lifetime boundaries for Valgrind.
++   Copyright (C) 2023 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the
++Free Software Foundation; either version 3, or (at your option) any
++later version.
++
++GCC is distributed in the hope that it will be useful, but WITHOUT
++ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++#include "config.h"
++#include "system.h"
++#include "coretypes.h"
++#include "tree.h"
++#include "function.h"
++#include "cfg.h"
++#include "basic-block.h"
++#include "gimple.h"
++#include "gimple-iterator.h"
++#include "tree-pass.h"
++#include "gimplify-me.h"
++#include "fold-const.h"
++
++namespace {
++
++/* Emit VALGRIND_MAKE_MEM_UNDEFINED annotation for the object given by VAR.  */
++
++bool
++annotate_undef (gimple_stmt_iterator *gsi, tree var)
++{
++  tree size = arg_size_in_bytes (TREE_TYPE (var));
++  if (size == size_zero_node)
++    return false;
++
++  tree addr = build_fold_addr_expr (var);
++  tree decl = builtin_decl_explicit (BUILT_IN_VALGRIND_MAKE_UNDEFINED);
++  tree call = build_call_expr (decl, 2, addr, size);
++
++  force_gimple_operand_gsi (gsi, call, false, NULL_TREE, false, GSI_NEW_STMT);
++  return true;
++}
++
++const pass_data pass_data_instrument_valgrind = {
++  GIMPLE_PASS, /* type */
++  "valgrind",  /* name */
++  OPTGROUP_NONE, /* optinfo_flags */
++  TV_NONE, /* tv_id */
++  PROP_cfg, /* properties_required */
++  0, /* properties_provided */
++  0, /* properties_destroyed */
++  0, /* todo_flags_start */
++  0, /* todo_flags_finish */
++};
++
++}
++
++class pass_instrument_valgrind : public gimple_opt_pass
++{
++public:
++  pass_instrument_valgrind (gcc::context *ctxt)
++    : gimple_opt_pass (pass_data_instrument_valgrind, ctxt)
++  {
++  }
++
++  unsigned int execute (function *) final override;
++  bool gate (function *) final override;
++};
++
++bool
++pass_instrument_valgrind::gate (function *)
++{
++  return flag_valgrind_annotations;
++}
++
++/* Scan for GIMPLE clobbers that mark object lifetime boundaries and
++   make them known to Valgrind by emitting corresponding client requests.  */
++
++unsigned int
++pass_instrument_valgrind::execute (function *fun)
++{
++  bool changed = false;
++  basic_block bb;
++  FOR_EACH_BB_FN (bb, fun)
++    {
++      for (gimple_stmt_iterator gsi = gsi_start_nondebug_bb (bb);
++	   !gsi_end_p (gsi); gsi_next_nondebug (&gsi))
++	{
++	  gimple *stmt = gsi_stmt (gsi);
++
++	  if (gimple_clobber_p (stmt))
++	    switch (CLOBBER_KIND (gimple_assign_rhs1 (stmt)))
++	      {
++	      case CLOBBER_UNDEF:
++	      case CLOBBER_OBJECT_BEGIN:
++	      case CLOBBER_OBJECT_END:
++		changed |= annotate_undef (&gsi, gimple_assign_lhs (stmt));
++		break;
++	      case CLOBBER_STORAGE_BEGIN:
++	      case CLOBBER_STORAGE_END:
++		/* Leave these for ASan.  */
++		break;
++	      case CLOBBER_LAST:
++	      default:
++		gcc_unreachable ();
++	      }
++	}
++    }
++
++  return changed ? TODO_update_ssa : 0;
++}
++
++gimple_opt_pass *
++make_pass_instrument_valgrind (gcc::context *ctxt)
++{
++  return new pass_instrument_valgrind (ctxt);
++}
+diff --git a/gcc/passes.def b/gcc/passes.def
+index cdddb87302f..52d6e22e06f 100644
+--- a/gcc/passes.def
++++ b/gcc/passes.def
+@@ -57,6 +57,7 @@ along with GCC; see the file COPYING3.  If not see
+   PUSH_INSERT_PASSES_WITHIN (pass_build_ssa_passes)
+       NEXT_PASS (pass_fixup_cfg);
+       NEXT_PASS (pass_build_ssa);
++      NEXT_PASS (pass_instrument_valgrind);
+       NEXT_PASS (pass_walloca, /*strict_mode_p=*/true);
+       NEXT_PASS (pass_warn_printf);
+       NEXT_PASS (pass_warn_nonnull_compare);
+diff --git a/gcc/testsuite/g++.dg/valgrind-annotations-1.C b/gcc/testsuite/g++.dg/valgrind-annotations-1.C
+new file mode 100644
+index 00000000000..49dc5a9cf13
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/valgrind-annotations-1.C
+@@ -0,0 +1,22 @@
++/* { dg-do compile { target c++11 } } */
++/* { dg-options "-O2 -fvalgrind-annotations -fdump-tree-optimized" } */
++
++#include <new>
++
++struct Foo
++{
++  int val;
++};
++
++struct Bar : Foo
++{
++  Bar() {}
++};
++
++int main ()
++{
++  alignas(Bar) char buf [sizeof (Bar)];
++  Bar *obj = new(buf) Bar;
++}
++
++/* { dg-final { scan-tree-dump-times "__builtin___gcc_vgmc_make_mem_undefined" 1 "optimized" } } */
+diff --git a/gcc/testsuite/g++.dg/valgrind-annotations-2.C b/gcc/testsuite/g++.dg/valgrind-annotations-2.C
+new file mode 100644
+index 00000000000..a8b646d0765
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/valgrind-annotations-2.C
+@@ -0,0 +1,12 @@
++/* { dg-do compile { target c++11 } } */
++/* { dg-options "-O2 -fvalgrind-annotations -fdump-tree-optimized" } */
++
++struct Foo
++{
++  char buf [1024];
++  Foo () {}
++};
++
++Foo Obj;
++
++/* { dg-final { scan-tree-dump-times "__builtin___gcc_vgmc_make_mem_undefined" 1 "optimized" } } */
+diff --git a/gcc/tree-pass.h b/gcc/tree-pass.h
+index b3c97658a8f..d26fb67336b 100644
+--- a/gcc/tree-pass.h
++++ b/gcc/tree-pass.h
+@@ -444,6 +444,7 @@ extern gimple_opt_pass *make_pass_omp_device_lower (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_object_sizes (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_early_object_sizes (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_warn_access (gcc::context *ctxt);
++extern gimple_opt_pass *make_pass_instrument_valgrind (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_warn_printf (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_warn_recursion (gcc::context *ctxt);
+ extern gimple_opt_pass *make_pass_strlen (gcc::context *ctxt);
+diff --git a/libgcc/Makefile.in b/libgcc/Makefile.in
+index 8b8fe6e9a28..e2743a710c6 100644
+--- a/libgcc/Makefile.in
++++ b/libgcc/Makefile.in
+@@ -442,6 +442,9 @@ LIB2ADD += $(srcdir)/hardcfr.c
+ # Stack scrubbing infrastructure.
+ @HAVE_STRUB_SUPPORT@LIB2ADD += $(srcdir)/strub.c
+ 
++# Wrappers for Valgrind client requests.
++LIB2ADD_ST += $(srcdir)/valgrind-interop.c
++
+ # While emutls.c has nothing to do with EH, it is in LIB2ADDEH*
+ # instead of LIB2ADD because that's the way to be sure on some targets
+ # (e.g. *-*-darwin*) only one copy of it is linked.
+diff --git a/libgcc/config.in b/libgcc/config.in
+index a8b6f91610e..5d82224cd9e 100644
+--- a/libgcc/config.in
++++ b/libgcc/config.in
+@@ -3,6 +3,9 @@
+ /* Define to the .hidden-like directive if it exists. */
+ #undef AS_HIDDEN_DIRECTIVE
+ 
++/* Build Valgrind request wrappers */
++#undef ENABLE_VALGRIND_INTEROP
++
+ /* Define to 1 if the assembler supports AVX. */
+ #undef HAVE_AS_AVX
+ 
+@@ -61,6 +64,9 @@
+ /* Define to 1 if you have the <unistd.h> header file. */
+ #undef HAVE_UNISTD_H
+ 
++/* Define to 1 if you have the <valgrind/memcheck.h> header file. */
++#undef HAVE_VALGRIND_MEMCHECK_H
++
+ /* Define to 1 if __getauxval is available. */
+ #undef HAVE___GETAUXVAL
+ 
+diff --git a/libgcc/configure b/libgcc/configure
+index f2bee6d90fe..4dcf17fab00 100755
+--- a/libgcc/configure
++++ b/libgcc/configure
+@@ -719,6 +719,7 @@ with_system_libunwind
+ enable_cet
+ enable_explicit_exception_frame_registration
+ enable_tm_clone_registry
++enable_valgrind_interop
+ with_glibc_version
+ enable_tls
+ with_gcc_major_version_only
+@@ -1364,6 +1365,8 @@ Optional Features:
+                           start, for use e.g. for compatibility with
+                           installations without PT_GNU_EH_FRAME support
+   --disable-tm-clone-registry    disable TM clone registry
++  --enable-valgrind-interop
++                          build wrappers for Valgrind client requests
+   --enable-tls            Use thread-local storage [default=yes]
+   --enable-werror         build with -Werror for selected targets
+ 
+@@ -4472,7 +4475,8 @@ as_fn_arith $ac_cv_sizeof_long_double \* 8 && long_double_type_size=$as_val
+ 
+ for ac_header in inttypes.h stdint.h stdlib.h ftw.h \
+ 	unistd.h sys/stat.h sys/types.h \
+-	string.h strings.h memory.h sys/auxv.h sys/mman.h
++	string.h strings.h memory.h sys/auxv.h sys/mman.h \
++	valgrind/memcheck.h
+ do :
+   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ ac_fn_c_check_header_preproc "$LINENO" "$ac_header" "$as_ac_Header"
+@@ -5064,6 +5068,22 @@ fi
+ 
+ 
+ 
++# Check whether --enable-valgrind-interop was given.
++if test "${enable_valgrind_interop+set}" = set; then :
++  enableval=$enable_valgrind_interop;
++else
++  enable_valgrind_interop=no
++fi
++
++if test $enable_valgrind_interop != no; then
++  if test $ac_cv_header_valgrind_memcheck_h = no; then
++    as_fn_error $? "--enable-valgrind-interop: valgrind/memcheck.h not found" "$LINENO" 5
++  fi
++
++$as_echo "#define ENABLE_VALGRIND_INTEROP 1" >>confdefs.h
++
++fi
++
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the linker ($LD) is GNU ld" >&5
+ $as_echo_n "checking if the linker ($LD) is GNU ld... " >&6; }
+ if ${acl_cv_prog_gnu_ld+:} false; then :
+diff --git a/libgcc/configure.ac b/libgcc/configure.ac
+index 72d23b427d0..40fafa45adf 100644
+--- a/libgcc/configure.ac
++++ b/libgcc/configure.ac
+@@ -231,7 +231,8 @@ AC_SUBST(long_double_type_size)
+ 
+ AC_CHECK_HEADERS(inttypes.h stdint.h stdlib.h ftw.h \
+ 	unistd.h sys/stat.h sys/types.h \
+-	string.h strings.h memory.h sys/auxv.h sys/mman.h)
++	string.h strings.h memory.h sys/auxv.h sys/mman.h \
++	valgrind/memcheck.h)
+ AC_HEADER_STDC
+ 
+ # Check for decimal float support.
+@@ -317,6 +318,18 @@ esac
+ ])
+ AC_SUBST([use_tm_clone_registry])
+ 
++AC_ARG_ENABLE([valgrind-interop],
++              [AC_HELP_STRING([--enable-valgrind-interop],
++                              [build wrappers for Valgrind client requests])],
++              [],
++              [enable_valgrind_interop=no])
++if test $enable_valgrind_interop != no; then
++  if test $ac_cv_header_valgrind_memcheck_h = no; then
++    AC_MSG_ERROR([--enable-valgrind-interop: valgrind/memcheck.h not found])
++  fi
++  AC_DEFINE(ENABLE_VALGRIND_INTEROP, 1, [Build Valgrind request wrappers])
++fi
++
+ AC_LIB_PROG_LD_GNU
+ 
+ GCC_AC_THREAD_MODEL
+diff --git a/libgcc/libgcc2.h b/libgcc/libgcc2.h
+index 79185d8e880..9e23a19ebeb 100644
+--- a/libgcc/libgcc2.h
++++ b/libgcc/libgcc2.h
+@@ -560,6 +560,8 @@ extern void __strub_enter (void **);
+ extern void __strub_update (void**);
+ extern void __strub_leave (void **);
+ 
++extern void __gcc_vgmc_make_mem_undefined (void *, size_t);
++
+ #ifndef HIDE_EXPORTS
+ #pragma GCC visibility pop
+ #endif
+diff --git a/libgcc/valgrind-interop.c b/libgcc/valgrind-interop.c
+new file mode 100644
+index 00000000000..fdb8d41bc56
+--- /dev/null
++++ b/libgcc/valgrind-interop.c
+@@ -0,0 +1,40 @@
++/* Wrappers for Valgrind client requests.
++   Copyright (C) 2023 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify it under
++the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 3, or (at your option) any later
++version.
++
++GCC is distributed in the hope that it will be useful, but WITHOUT ANY
++WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++for more details.
++
++Under Section 7 of GPL version 3, you are granted additional
++permissions described in the GCC Runtime Library Exception, version
++3.1, as published by the Free Software Foundation.
++
++You should have received a copy of the GNU General Public License and
++a copy of the GCC Runtime Library Exception along with this program;
++see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++<http://www.gnu.org/licenses/>.  */
++
++#include "tsystem.h"
++#include "auto-target.h"
++
++#ifdef ENABLE_VALGRIND_INTEROP
++
++#include <valgrind/memcheck.h>
++
++/* Externally callable wrapper for Valgrind Memcheck client request:
++   declare SIZE bytes of memory at address ADDR as uninitialized.  */
++
++void
++__gcc_vgmc_make_mem_undefined (void *addr, size_t size)
++{
++  VALGRIND_MAKE_MEM_UNDEFINED (addr, size);
++}
++#endif

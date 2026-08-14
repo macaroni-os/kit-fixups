@@ -1,0 +1,68 @@
+From f6959883aecd1500698ea969de631ffa010ce833 Mon Sep 17 00:00:00 2001
+Message-ID: <f6959883aecd1500698ea969de631ffa010ce833.1733807152.git.sam@gentoo.org>
+From: Sam James <sam@gentoo.org>
+Date: Fri, 6 Dec 2024 09:11:11 +0000
+Subject: [PATCH] config: nvptx: fix bashisms with gen-copyright.sh use
+
+Providing parameters to `.` when sourcing is a bashism and not supported
+by POSIX shell which causes a build failure when compiling a toolchain
+for nvptx-none with dash as /bin/sh.
+
+gen-copyright.sh takes a parameter for the format of copyright notice
+required. Switch that to using an environment variable `NVPTX_GEN_COPYRIGHT`,
+although this could be changed to a function if desired (just more churn
+in gen-copyright.sh then).
+
+gcc/ChangeLog:
+	PR target/117854
+
+	* config/nvptx/gen-copyright.sh: Read NVPTX_GEN_COPYRIGHT envvar.
+	* config/nvptx/gen-h.sh: Set NVPTX_GEN_COPYRIGHT.
+	* config/nvptx/gen-opt.sh: Ditto.
+---
+ gcc/config/nvptx/gen-copyright.sh | 2 +-
+ gcc/config/nvptx/gen-h.sh         | 2 +-
+ gcc/config/nvptx/gen-opt.sh       | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/gcc/config/nvptx/gen-copyright.sh b/gcc/config/nvptx/gen-copyright.sh
+index d0a86acb832c..b140de0eb76d 100644
+--- a/gcc/config/nvptx/gen-copyright.sh
++++ b/gcc/config/nvptx/gen-copyright.sh
+@@ -18,7 +18,7 @@
+ # along with GCC; see the file COPYING3.  If not see
+ # <http://www.gnu.org/licenses/>.
+ 
+-style="$1"
++style="${NVPTX_GEN_COPYRIGHT}"
+ case $style in
+     opt)
+     ;;
+diff --git a/gcc/config/nvptx/gen-h.sh b/gcc/config/nvptx/gen-h.sh
+index bc4ce9af1e2a..a5c18d864504 100644
+--- a/gcc/config/nvptx/gen-h.sh
++++ b/gcc/config/nvptx/gen-h.sh
+@@ -36,7 +36,7 @@ EOF
+ # Separator.
+ echo
+ 
+-. $gen_copyright_sh c
++NVPTX_GEN_COPYRIGHT=c . $gen_copyright_sh
+ 
+ # Separator.
+ echo
+diff --git a/gcc/config/nvptx/gen-opt.sh b/gcc/config/nvptx/gen-opt.sh
+index 103bcddc02b5..40c949425f27 100644
+--- a/gcc/config/nvptx/gen-opt.sh
++++ b/gcc/config/nvptx/gen-opt.sh
+@@ -40,7 +40,7 @@ EOF
+ # Separator.
+ echo
+ 
+-. $gen_copyright_sh opt
++NVPTX_GEN_COPYRIGHT=opt . $gen_copyright_sh
+ 
+ # Not emitting the following here (in addition to having it in 'nvptx.opt'), as
+ # we'll otherwise run into:
+-- 
+2.47.1

@@ -1,0 +1,39 @@
+From b2ee3846dfcea638e0fbf2d550234f1c7594fcdb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Fri, 1 Nov 2024 07:48:37 +0100
+Subject: [PATCH] Support forcing _TIME_BITS=64 for time64 profiles
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Support forcing _TIME_BITS=64 and _FILE_OFFSET_BITS=64
+via -D_GENTOO_TIME64_FORCE=1, for time64 profiles.
+
+Signed-off-by: Michał Górny <mgorny@gentoo.org>
+---
+ gcc/c-family/c-cppbuiltin.cc | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/gcc/c-family/c-cppbuiltin.cc b/gcc/c-family/c-cppbuiltin.cc
+index 8bbfe84b2..962cbd414 100644
+--- a/gcc/c-family/c-cppbuiltin.cc
++++ b/gcc/c-family/c-cppbuiltin.cc
+@@ -1593,6 +1593,15 @@ c_cpp_builtins (cpp_reader *pfile)
+     builtin_define_with_int_value ("_FORTIFY_SOURCE", GENTOO_FORTIFY_SOURCE_LEVEL);
+ #endif
+ 
++#ifndef _GENTOO_TIME64_FORCE
++  #define _GENTOO_TIME64_FORCE 0
++#endif
++
++  if (_GENTOO_TIME64_FORCE) {
++    cpp_define (pfile, "_FILE_OFFSET_BITS=64");
++    cpp_define (pfile, "_TIME_BITS=64");
++  }
++
+   /* Misc.  */
+   if (flag_gnu89_inline)
+     cpp_define (pfile, "__GNUC_GNU_INLINE__");
+-- 
+2.47.0
+

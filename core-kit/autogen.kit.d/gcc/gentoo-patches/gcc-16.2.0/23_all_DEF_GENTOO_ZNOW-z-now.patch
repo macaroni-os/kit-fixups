@@ -1,0 +1,26 @@
+If requested we add -z now
+
+--- a/gcc/gcc.cc
++++ b/gcc/gcc.cc
+@@ -1001,6 +1001,12 @@ proper position among the other output files.  */
+ #endif
+ #endif
+ 
++#ifdef DEF_GENTOO_ZNOW
++#define LINK_NOW_SPEC "%{!nonow:-z now} "
++#else
++#define LINK_NOW_SPEC ""
++#endif
++
+ #ifdef ENABLE_DEFAULT_PIE
+ #define PIE_SPEC		"!no-pie"
+ #define NO_FPIE1_SPEC		"fno-pie"
+@@ -1161,7 +1167,7 @@ proper position among the other output files.  */
+     %(linker) " \
+     LINK_PLUGIN_SPEC \
+    "%{flto|flto=*:%<fcompare-debug*} \
+-    %{flto} %{fno-lto} %{flto=*} %l " LINK_PIE_SPEC \
++    %{flto} %{fno-lto} %{flto=*} %l " LINK_PIE_SPEC LINK_NOW_SPEC \
+    "%{fuse-ld=*:-fuse-ld=%*} " LINK_COMPRESS_DEBUG_SPEC \
+    "%X %{o*} %{e*} %{N} %{n} %{r}\
+     %{s} %{t} %{u*} %{z} %{Z} %{!nostdlib:%{!r:%{!nostartfiles:%S}}} \

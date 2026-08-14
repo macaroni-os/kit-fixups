@@ -1,0 +1,247 @@
+From c7b82a73d8ee92ce47734170978c22d2140ddae0 Mon Sep 17 00:00:00 2001
+Message-ID: <c7b82a73d8ee92ce47734170978c22d2140ddae0.1754211915.git.sam@gentoo.org>
+From: Xianmiao Qu <cooper.qu@linux.alibaba.com>
+Date: Wed, 22 May 2024 15:25:16 +0800
+Subject: [PATCH 1/3] genoutput: Accelerate the place_operands function
+
+With the increase in the number of modes and patterns for some
+backend architectures, the place_operands function becomes a
+bottleneck int the speed of genoutput, and may even become a
+bottleneck int the overall speed of building the GCC project.
+This patch aims to accelerate the place_operands function,
+the optimizations it includes are:
+1. Use a hash table to store operand information,
+   improving the lookup time for the first operand.
+2. Move mode comparison to the beginning to avoid the scenarios of most strcmp.
+
+I tested the speed improvements for the following backends,
+	Improvement Ratio
+x86_64	197.9%
+aarch64	954.5%
+riscv	2578.6%
+If the build machine is slow, then this improvement can save a lot of time.
+
+I tested the genoutput output for x86_64/aarch64/riscv backends,
+and there was no difference compared to before the optimization,
+so this shouldn't introduce any functional issues.
+
+gcc/
+	* genoutput.cc (struct operand_data): Add member 'eq_next' to
+	point to the next member with the same hash value in the
+	hash table.
+	(compare_operands): Move the comparison of the mode to the very
+	beginning to accelerate the comparison of the two operands.
+	(struct operand_data_hasher): New, a class that takes into account
+	the necessary elements for comparing the equality of two operands
+	in its hash value.
+	(operand_data_hasher::hash): New.
+	(operand_data_hasher::equal): New.
+	(operand_datas): New, hash table of konwn pattern operands.
+	(place_operands): Use a hash table instead of traversing the array
+	to find the same operand.
+	(main): Add initialization of the hash table 'operand_datas'.
+
+(cherry picked from commit ca7936f7764116a39d785bb087584805072a3461)
+---
+ gcc/genoutput.cc | 111 +++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 88 insertions(+), 23 deletions(-)
+
+diff --git a/gcc/genoutput.cc b/gcc/genoutput.cc
+index efd81766bb5b..16fd811b5dd5 100644
+--- a/gcc/genoutput.cc
++++ b/gcc/genoutput.cc
+@@ -91,6 +91,7 @@ along with GCC; see the file COPYING3.  If not see
+ #include "errors.h"
+ #include "read-md.h"
+ #include "gensupport.h"
++#include "hash-table.h"
+ 
+ /* No instruction can have more operands than this.  Sorry for this
+    arbitrary limit, but what machine will have an instruction with
+@@ -112,6 +113,8 @@ static int next_operand_number = 1;
+ struct operand_data
+ {
+   struct operand_data *next;
++  /* Point to the next member with the same hash value in the hash table.  */
++  struct operand_data *eq_next;
+   int index;
+   const char *predicate;
+   const char *constraint;
+@@ -127,7 +130,7 @@ struct operand_data
+ 
+ static struct operand_data null_operand =
+ {
+-  0, 0, "", "", E_VOIDmode, 0, 0, 0, 0, 0
++  0, 0, 0, "", "", E_VOIDmode, 0, 0, 0, 0, 0
+ };
+ 
+ static struct operand_data *odata = &null_operand;
+@@ -174,8 +177,8 @@ static void output_operand_data (void);
+ static void output_insn_data (void);
+ static void output_get_insn_name (void);
+ static void scan_operands (class data *, rtx, int, int);
+-static int compare_operands (struct operand_data *,
+-			     struct operand_data *);
++static int compare_operands (const struct operand_data *,
++			     const struct operand_data *);
+ static void place_operands (class data *);
+ static void process_template (class data *, const char *);
+ static void validate_insn_alternatives (class data *);
+@@ -528,10 +531,18 @@ scan_operands (class data *d, rtx part, int this_address_p,
+ /* Compare two operands for content equality.  */
+ 
+ static int
+-compare_operands (struct operand_data *d0, struct operand_data *d1)
++compare_operands (const struct operand_data *d0,
++		  const struct operand_data *d1)
+ {
+   const char *p0, *p1;
+ 
++  /* On one hand, comparing strings for predicate and constraint
++     is time-consuming, and on the other hand, the probability of
++     different modes is relatively high. Therefore, checking the mode
++     first can speed up the execution of the program.  */
++  if (d0->mode != d1->mode)
++    return 0;
++
+   p0 = d0->predicate;
+   if (!p0)
+     p0 = "";
+@@ -550,9 +561,6 @@ compare_operands (struct operand_data *d0, struct operand_data *d1)
+   if (strcmp (p0, p1) != 0)
+     return 0;
+ 
+-  if (d0->mode != d1->mode)
+-    return 0;
+-
+   if (d0->strict_low != d1->strict_low)
+     return 0;
+ 
+@@ -562,6 +570,46 @@ compare_operands (struct operand_data *d0, struct operand_data *d1)
+   return 1;
+ }
+ 
++/* This is a class that takes into account the necessary elements for
++   comparing the equality of two operands in its hash value.  */
++struct operand_data_hasher : nofree_ptr_hash <operand_data>
++{
++  static inline hashval_t hash (const operand_data *);
++  static inline bool equal (const operand_data *, const operand_data *);
++};
++
++hashval_t
++operand_data_hasher::hash (const operand_data * op_info)
++{
++  inchash::hash h;
++  const char *pred, *cons;
++
++  pred = op_info->predicate;
++  if (!pred)
++    pred = "";
++  h.add (pred, strlen (pred) + 1);
++
++  cons = op_info->constraint;
++  if (!cons)
++    cons = "";
++  h.add (cons, strlen (cons) + 1);
++
++  h.add_object (op_info->mode);
++  h.add_object (op_info->strict_low);
++  h.add_object (op_info->eliminable);
++  return h.end ();
++}
++
++bool
++operand_data_hasher::equal (const operand_data * op_info1,
++			    const operand_data * op_info2)
++{
++  return compare_operands (op_info1, op_info2);
++}
++
++/* Hashtable of konwn pattern operands.  */
++static hash_table<operand_data_hasher> *operand_datas;
++
+ /* Scan the list of operands we've already committed to output and either
+    find a subsequence that is the same, or allocate a new one at the end.  */
+ 
+@@ -569,6 +617,7 @@ static void
+ place_operands (class data *d)
+ {
+   struct operand_data *od, *od2;
++  struct operand_data **slot;
+   int i;
+ 
+   if (d->n_operands == 0)
+@@ -577,23 +626,24 @@ place_operands (class data *d)
+       return;
+     }
+ 
++  od = operand_datas->find (&d->operand[0]);
+   /* Brute force substring search.  */
+-  for (od = odata, i = 0; od; od = od->next, i = 0)
+-    if (compare_operands (od, &d->operand[0]))
+-      {
+-	od2 = od->next;
+-	i = 1;
+-	while (1)
+-	  {
+-	    if (i == d->n_operands)
+-	      goto full_match;
+-	    if (od2 == NULL)
+-	      goto partial_match;
+-	    if (! compare_operands (od2, &d->operand[i]))
+-	      break;
+-	    ++i, od2 = od2->next;
+-	  }
+-      }
++  for (; od; od = od->eq_next)
++    {
++      od2 = od->next;
++      i = 1;
++      while (1)
++	{
++	  if (i == d->n_operands)
++	    goto full_match;
++	  if (od2 == NULL)
++	    goto partial_match;
++	  if (! compare_operands (od2, &d->operand[i]))
++	    break;
++	  ++i, od2 = od2->next;
++	}
++    }
++  i = 0;
+ 
+   /* Either partial match at the end of the list, or no match.  In either
+      case, we tack on what operands are remaining to the end of the list.  */
+@@ -605,6 +655,20 @@ place_operands (class data *d)
+       *odata_end = od2;
+       odata_end = &od2->next;
+       od2->index = next_operand_number++;
++      /* Insert the operand_data variable OD2 into the hash table.
++	 If a variable with the same hash value already exists in
++	 the hash table, insert the element at the end of the
++	 linked list connected through the eq_next member.  */
++      slot = operand_datas->find_slot (od2, INSERT);
++      if (*slot)
++	{
++	  struct operand_data *last = (struct operand_data *) *slot;
++	  while (last->eq_next)
++	    last = last->eq_next;
++	  last->eq_next = od2;
++	}
++      else
++	*slot = od2;
+     }
+   *odata_end = NULL;
+   return;
+@@ -1049,6 +1113,7 @@ main (int argc, const char **argv)
+   progname = "genoutput";
+ 
+   init_insn_for_nothing ();
++  operand_datas = new hash_table<operand_data_hasher> (1024);
+ 
+   if (!init_rtx_reader_args (argc, argv))
+     return (FATAL_EXIT_CODE);
+-- 
+2.50.1
+

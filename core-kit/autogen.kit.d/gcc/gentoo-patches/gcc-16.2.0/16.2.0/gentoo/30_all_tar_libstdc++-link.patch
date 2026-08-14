@@ -1,0 +1,57 @@
+From eae11e896edef4199a128bf6720b5bd4e5edc2f9 Mon Sep 17 00:00:00 2001
+From: Sam James <sam@gentoo.org>
+Date: Sat, 17 Dec 2022 02:42:59 +0000
+Subject: [PATCH] Fix calling libarchive's tar
+
+https://bugs.gentoo.org/886447
+
+Very similar to 33_all_msgfmt-libstdc++-link.patch, whose description is:
+"""
+Ensure that msgfmt doesn't encounter problems during gcc bootstrapping.
+
+Solves error messages like the following:
+
+msgfmt: /var/tmp/portage/sys-devel/gcc-4.1.2/work/build/./gcc/libgcc_s.so.1: version `GCC_4.2.0' not found (required by /usr/lib/gcc/x86_64-pc-linux-gnu/4.5.3/libstdc++.so.6)
+
+The libgcc_s.so used during build doesn't satisfy the needs of the
+libstdc++.so that msgfmt is linked against. On the other hand, msgfmt
+is used as a stand-alone application here, and what library it uses
+behind the scenes is of no concern to the gcc build process.
+Therefore, simply invoking it "as usual", i.e. without any special
+library path, will make it work as expected here.
+
+2011-09-19 Martin von Gagern
+
+References:
+https://bugs.gentoo.org/372377
+https://bugs.gentoo.org/295480
+https://bugs.gentoo.org/843119
+"""
+
+Signed-off-by: Sam James <sam@gentoo.org>
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -3955,10 +3955,10 @@ install-headers-tar: stmp-int-hdrs install-include-dir
+ # Unless a full pathname is provided, some shells would print the new CWD,
+ # found in CDPATH, corrupting the output.  We could just redirect the
+ # output of `cd', but some shells lose on redirection within `()'s
+-	(cd `${PWD_COMMAND}`/include ; \
+-	 tar -cf - .; exit 0) | (cd $(DESTDIR)$(libsubdir)/include; tar xpf - )
+-	(cd `${PWD_COMMAND}`/include-fixed ; \
+-	 tar -cf - .; exit 0) | (cd $(DESTDIR)$(libsubdir)/include-fixed; tar xpf - )
++	(unset LD_LIBRARY_PATH ; cd `${PWD_COMMAND}`/include ; \
++	 tar -cf - .; exit 0) | (unset LD_LIBRARY_PATH ; cd $(DESTDIR)$(libsubdir)/include; tar xpf - )
++	(unset LD_LIBRARY_PATH ; cd `${PWD_COMMAND}`/include-fixed ; \
++	 tar -cf - .; exit 0) | (unset LD_LIBRARY_PATH ; cd $(DESTDIR)$(libsubdir)/include-fixed; tar xpf - )
+ # /bin/sh on some systems returns the status of the first tar,
+ # and that can lose with GNU tar which always writes a full block.
+ # So use `exit 0' to ignore its exit status.
+@@ -3979,7 +3979,7 @@ install-headers-cp: stmp-int-hdrs install-include-dir
+ # Targets without dependencies, for use in prev-gcc during bootstrap.
+ real-install-headers-tar:
+ 	(cd `${PWD_COMMAND}`/include-fixed ; \
+-	 tar -cf - .; exit 0) | (cd $(DESTDIR)$(libsubdir)/include-fixed; tar xpf - )
++	 unset LD_LIBRARY_PATH; tar -cf - .; exit 0) | (cd $(DESTDIR)$(libsubdir)/include-fixed; unset LD_LIBRARY_PATH; tar xpf - )
+ 
+ real-install-headers-cpio:
+ 	cd `${PWD_COMMAND}`/include-fixed ; \

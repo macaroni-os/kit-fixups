@@ -1,0 +1,22 @@
+GCC's --enable-checking=yes includes 'gc' which also then disables the
+default (already conservative) GC threshold heuristics.
+--- a/gcc/ggc-common.cc
++++ b/gcc/ggc-common.cc
+@@ -1029,7 +1029,7 @@ mmap_gt_pch_use_address (void *&base, size_t size, int fd, size_t offset)
+ }
+ #endif /* HAVE_MMAP_FILE */
+ 
+-#if !defined ENABLE_GC_CHECKING && !defined ENABLE_GC_ALWAYS_COLLECT
++#if !defined ENABLE_GC_ALWAYS_COLLECT
+ 
+ /* Modify the bound based on rlimits.  */
+ static double
+@@ -1126,7 +1126,7 @@ ggc_min_heapsize_heuristic (void)
+ void
+ init_ggc_heuristics (void)
+ {
+-#if !defined ENABLE_GC_CHECKING && !defined ENABLE_GC_ALWAYS_COLLECT
++#if !defined ENABLE_GC_ALWAYS_COLLECT
+   param_ggc_min_expand = ggc_min_expand_heuristic ();
+   param_ggc_min_heapsize = ggc_min_heapsize_heuristic ();
+ #endif

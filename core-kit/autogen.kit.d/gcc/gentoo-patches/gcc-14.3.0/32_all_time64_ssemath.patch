@@ -1,0 +1,43 @@
+From 33ba5944f2b887fe8bddd541790645b74f1f2655 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20G=C3=B3rny?= <mgorny@gentoo.org>
+Date: Sun, 24 Nov 2024 14:45:37 +0100
+Subject: [PATCH] Default to -mfpmath=sse on x86 with time64
+
+Our time64 stages already default to `-mfpmath=sse`, so let's have
+the time64 flag implicitly enable it as the default to make things more
+consistent.  Furthermore, this also improves compatibility with clang
+that always enables it whenever the target architectures supports SSE.
+
+Note that this works only if `-march=` with SSE support is specified.
+We could technically improve the consistency even further by raising
+the default `-march=`, but that seems a bit intrusive and probably
+unnecessary, given that the vast majority of Gentoo users and/or
+upstream projects will specify `-march=`.
+
+See also:
+https://public-inbox.gentoo.org/gentoo-dev/ce894afe6c2b324fef012da9bb9387cfde7aed03.camel@gentoo.org/
+https://public-inbox.gentoo.org/gentoo-dev/baa1ca92da4941b0999ea2feecf02334b5b20ade.camel@gentoo.org/
+---
+ gcc/config/i386/i386-options.cc | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/gcc/config/i386/i386-options.cc b/gcc/config/i386/i386-options.cc
+index 6c212a8ed..03801f382 100644
+--- a/gcc/config/i386/i386-options.cc
++++ b/gcc/config/i386/i386-options.cc
+@@ -2881,7 +2881,11 @@ ix86_option_override_internal (bool main_args_p,
+      Also -mfpmath=387 is overall a lot more compact (bout 4-5%) than SSE
+      codegen.  We may switch to 387 with -ffast-math for size optimized
+      functions. */
+-  else if (fast_math_flags_set_p (&global_options)
++#ifndef _GENTOO_TIME64_FORCE
++  #define _GENTOO_TIME64_FORCE 0
++#endif
++
++  else if ((fast_math_flags_set_p (&global_options) || _GENTOO_TIME64_FORCE)
+ 	   && TARGET_SSE2_P (opts->x_ix86_isa_flags))
+     opts->x_ix86_fpmath = FPMATH_SSE;
+   else
+-- 
+2.47.0
+

@@ -1,0 +1,13 @@
+`perf` doesn't seem to work well in sandbox and this isn't so useful
+anyway for packaging testing purposes. These tests seemed to hang.
+--- a/gcc/testsuite/lib/target-supports.exp
++++ b/gcc/testsuite/lib/target-supports.exp
+@@ -807,7 +807,7 @@ proc check_profiling_available { test_what } {
+ 	}
+ 	puts $wrapper
+ 	global srcdir
+-	set status [remote_exec host "$wrapper true -v >/dev/null"]
++	set status [remote_exec host "false >/dev/null"]
+ 	if { [lindex $status 0] != 0 } {
+ 	    verbose "autofdo not supported because perf does not work"
+ 	    return 0

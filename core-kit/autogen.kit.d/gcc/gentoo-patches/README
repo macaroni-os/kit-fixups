@@ -1,0 +1,31 @@
+Gentoo Patches
+==============
+
+Naming
+------
+00-24	boilerplate stuff not expected to change between releases
+25-49	arch-specific bits
+50-74	everything else
+75-99	backports and patches already fixed upstream for later versions
+
+##_all_[arch]_[PR]_[GCCVER]_my-desc.patch
+
+(use GCCVER for backports to indicate what version the bug will be fixed in)
+
+
+Documention
+-----------
+All patches need a header describing what the patch does, where it came from,
+and all relevent URLs.  Read https://dev.gentoo.org/~vapier/clean-patches (or
+https://devmanual.gentoo.org/ebuild-writing/misc-files/patches/index.html#clean-patch-howto)
+and in particular use scrub_patch() or face the wrath.
+
+Update README.history whenever you add (+), remove (-), or update (U) a patch.
+
+
+Patching configure
+------------------
+During a system bootstrap autoconf may not be installed yet.  If you need to
+patch configure.ac you also need to regenerate configure.  Look in the
+configure header to get the version of autoconf it was generated with, install
+it, and run autoconf in the directory of the configure.ac you patched.

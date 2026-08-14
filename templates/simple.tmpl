@@ -94,7 +94,17 @@ S="{{ .Values.s }}"
 {{- end }}
 
 {{- if .Values.body }}
-{{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
+{{- $body := .Values.body }}
+{{- $processed := list }}
+{{- range $line := splitList "\n" $body }}
+{{- $stripped := regexReplaceAll "^ *" $line "" }}
+{{- $spaceCount := sub (len $line) (len $stripped) }}
+{{- $tabCount := int (div (int $spaceCount) 2) }}
+{{- $out := $stripped }}
+{{- if gt $tabCount 0 }}{{ $out = print (repeat $tabCount "\t") $out }}{{- end }}
+{{- $processed = append $processed $out }}
+{{- end }}
+{{ join "\n" $processed }}
 {{- end }}
 {{- if .Values.body_raw }}
 {{ .Values.body_raw }}

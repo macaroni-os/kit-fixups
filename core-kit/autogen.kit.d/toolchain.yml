@@ -13,7 +13,8 @@ sys_devel_gcc:
     category: sys-devel
 
     vars:
-      # Slot = full version without revision suffix (e.g., "14.3.0")
+      # use the major version (e.g. 14) as the slot
+      slot: '{{- $v := .Values.version  }}{{ join "" ( slice ( splitList "." $v ) 0 1 ) }}'
       inherit:
         - eutils
         - pax-utils
@@ -653,7 +654,6 @@ sys_devel_gcc:
         extensions: [custom]
 
         vars:
-          slot: ${PV}
           gentoo_patches:
             - gentoo-patches/gcc-14.3.0/01_all_default-fortify-source.patch
             - gentoo-patches/gcc-14.3.0/02_all_default-warn-format-security.patch
@@ -704,7 +704,6 @@ sys_devel_gcc:
         extensions: [custom]
 
         vars:
-          slot: ${PV}
           gentoo_patches:
             - gentoo-patches/gcc-15.2.0/01_all_default-fortify-source.patch
             - gentoo-patches/gcc-15.2.0/02_all_default-warn-format-security.patch
@@ -751,7 +750,6 @@ sys_devel_gcc:
         extensions: [custom]
 
         vars:
-          slot: ${PV}
           gentoo_patches:
             - gentoo-patches/gcc-16.2.0/01_all_default-fortify-source.patch
             - gentoo-patches/gcc-16.2.0/02_all_default-warn-format-security.patch

@@ -79,14 +79,16 @@ kde-apps:
     - akonadi:
         vars:
           inherit:
+            - cmake
             - xdg
-            - kde6
-          iuse: "tools +webengine xml"
+          # The use postgres sqlite mysql are used to configure
+          # the default storage backend used.
+          # We use by default sqlite.
+          iuse: "tools +webengine xml postgres +sqlite mysql"
           desc: "Storage service for PIM data and libraries for PIM apps"
           homepage: https://community.kde.org/KDE_PIM/akonadi
           rdepend: |
             virtual/kde-seed[gui,sql,declarative]
-            kde-apps/akonadi-config
             kde-frameworks/kcolorscheme:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}
@@ -105,7 +107,16 @@ kde-apps:
             xml? ( dev-libs/libxml2:= )
             app-arch/xz-utils
             dev-libs/libxslt
+            mysql? ( virtual/mysql )
+            postgres? ( dev-db/postgresql )
+            sqlite? ( dev-db/sqlite )
+          required_use: '|| ( mysql postgres sqlite )'
           body: |
+            src_prepare() {
+              cmake_src_prepare
+              sed -i -e 's|static_assert(false, "This links to QWidgets")|//static_assert(false, "This links to QWidgets")|g' \
+                src/agentbase/agentbase.h
+            }
             src_configure() {
               local mycmakeargs=(
                 -DBUILD_TOOLS=$(usex tools)
@@ -114,6 +125,16 @@ kde-apps:
                 $(cmake_use_find_package xml LibXml2)
               )
               cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              use postgres && DRIVER="QPSQL"
+              use sqlite && DRIVER="QSQLITE"
+              use mysql && DRIVER="QMYSQL"
+              cp "${FILESDIR}"/akonadiserverrc "${T}"/akonadiserverrc
+              sed -i -e "s|DRIVER|${DRIVER}|g" "${T}"/akonadiserverrc
+              insinto /usr/share/config/akonadi
+              doins "${T}"/akonadiserverrc
             }
 
     - akonadi-calendar:

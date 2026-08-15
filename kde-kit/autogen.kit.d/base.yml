@@ -4,16 +4,20 @@ stable_kde_stuff:
   defaults:
     vars:
       qt_slot: '6'
+      # For fresh releases
+      #download_prefixurl: https://download.kde.org/stable/
+      # For old releases
+      download_prefixurl: https://download.kde.org/Attic/
 
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
     dir:
-      url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/'
+      url: '{{ .Values.download_prefixurl }}/{{ .Values.path | default .Values.pn }}/'
       matcher: "[0-9.]+/$"
       exclude: '[0-9]{5}'
     assets:
       - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
-        url: 'https://download.kde.org/stable/{{ .Values.path | default .Values.pn }}/{{ .Values.version }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+        url: '{{ .Values.download_prefixurl }}/{{ .Values.path | default .Values.pn }}/{{ .Values.version }}/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
 
   packages:
 

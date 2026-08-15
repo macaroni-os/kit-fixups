@@ -143,7 +143,7 @@ kde-apps:
           restrict: test
           rdepend: |
             virtual/kde-seed[gui]
-            >=dev-cpp/gpgmepp-1.23.2:=
+            >=app-crypt/gpgmepp-1.23.2:=
             >=dev-libs/qgpgme-1.23.2:=
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
@@ -175,7 +175,7 @@ kde-apps:
           desc: "Library for akonadi contact integration"
           rdepend: |
             virtual/kde-seed[gui]
-            >=dev-cpp/gpgmepp-1.23.2:=
+            >=app-crypt/gpgmepp-1.23.2:=
             >=dev-libs/qgpgme-1.23.2:=
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-mime:{{ .Values.slot }}=
@@ -1639,7 +1639,7 @@ kde-apps:
           rdepend: |
             virtual/kde-seed[gui]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
@@ -1918,7 +1918,7 @@ kde-apps:
             kde-frameworks/kxmlgui:{{ .Values.slot }}
             bittorrent? ( net-libs/libktorrent:{{ .Values.slot }} )
             gpg? (
-              dev-cpp/gpgmepp:=
+              app-crypt/gpgmepp:=
               dev-libs/qgpgme:=
             )
             mms? ( media-libs/libmms )
@@ -2336,7 +2336,7 @@ kde-apps:
             virtual/kde-seed[gui]
             >=app-crypt/gnupg-2.1
             app-crypt/paperkey
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             dev-libs/libassuan:=
             dev-libs/libgpg-error
@@ -2467,7 +2467,7 @@ kde-apps:
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
             =kde-apps/kdepim-runtime*:{{ .Values.slot }}
             =kde-apps/kmail-account-wizard*:{{ .Values.slot }}
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
             >=dev-libs/libgpg-error-1.36
@@ -2527,7 +2527,7 @@ kde-apps:
           desc: "Assistant for KMail accounts configuration"
           rdepend: |
             virtual/kde-seed[gui]
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
             kde-apps/akonadi:{{ .Values.slot }}=
@@ -3662,7 +3662,7 @@ kde-apps:
           desc: "Library for encryption handling"
           rdepend: |
             virtual/kde-seed[gui]
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/libgpg-error-1.36
             kde-frameworks/kcodecs:{{ .Values.slot }}
@@ -3811,7 +3811,7 @@ kde-apps:
           iuse: "activities"
           rdepend: |
             virtual/kde-seed[gui,multimedia]
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
@@ -3925,7 +3925,7 @@ kde-apps:
           rdepend: |
             virtual/kde-seed[gui]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             dev-libs/openssl:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]
@@ -3974,7 +3974,7 @@ kde-apps:
           desc: "Libraries for messaging functions"
           rdepend: |
             virtual/kde-seed[gui,declarative]
-            dev-cpp/gpgmepp:=
+            app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             kde-apps/kmbox:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=

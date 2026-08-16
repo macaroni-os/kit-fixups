@@ -1,0 +1,107 @@
+# Distributed under the terms of the GNU General Public License v2
+# Autogen by MARK Devkit
+
+EAPI={{ .Values.eapi | default "7" }}
+
+{{- if .Values.python_compat | default false }}
+PYTHON_COMPAT=( {{ .Values.python_compat }} )
+{{- end }}
+{{- if .Values.extra_envs | default false }}
+{{- range $p := .Values.extra_envs }}
+{{ $p }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.inherit | default false }}
+inherit {{ .Values.inherit | join " " }}
+{{- end }}
+
+DESCRIPTION="{{ .Values.desc }}"
+{{- if .Values.homepage | default false }}
+HOMEPAGE="{{ .Values.homepage }}"
+{{- end }}
+{{- $assets_len := .Values.artefacts | len }}
+{{- if gt $assets_len 1 }}
+SRC_URI="{{- range $k, $v := .Values.artefacts }}
+{{- if eq $v.Use "" }}
+{{ $v.SrcUri | first }} -> {{ $v.Name }}
+{{- else }}
+{{ $v.Use }}? ( {{ $v.SrcUri | first }} -> {{ $v.Name }} )
+{{- end }}
+{{- end }}"
+{{- else }}
+{{- if .Values.src_uri | default false }}
+SRC_URI="{{ .Values.src_uri }}"
+{{- end }}
+{{- end }}
+
+{{- if .Values.license | default false }}
+LICENSE="{{ .Values.license }}"
+{{- end }}
+SLOT="{{ .Values.slot | default 0 }}"
+KEYWORDS="{{ .Values.keywords | default "*" }}"
+
+{{- if .Values.patches | default false }}
+PATCHES=(
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
+)
+{{- end }}
+
+{{- if .Values.docs | default false }}
+DOCS=(
+	{{- range $d := .Values.docs }}
+	{{ $d }}
+	{{- end }}
+)
+{{- end }}
+
+{{- if .Values.iuse | default false }}
+IUSE="{{ .Values.iuse }}"
+{{- end }}
+{{- if .Values.required_use | default false }}
+REQUIRED_USE="{{ .Values.required_use }}"
+{{- end }}
+{{- if .Values.restrict | default false }}
+RESTRICT="{{ .Values.restrict }}"
+{{- end }}
+
+{{- if .Values.cdepend | default false }}
+# Commons depends
+CDEPEND="{{ regexReplaceAll "\\n" .Values.cdepend "\n\t" }}
+"
+{{- end }}
+
+{{- if .Values.bdepend | default false }}
+BDEPEND="{{ regexReplaceAll "\\n" .Values.bdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.rdepend | default false }}
+RDEPEND="{{- regexReplaceAll "\\n" .Values.rdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.depend | default false }}
+DEPEND="{{ regexReplaceAll "\\n" .Values.depend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.pdepend | default false }}
+PDEPEND="{{ regexReplaceAll "\\n" .Values.pdepend "\n\t" }}
+"
+{{- end }}
+{{- if .Values.s | default false }}
+S="{{ .Values.s }}"
+{{- end }}
+
+post_src_unpack() {
+	mv {{ .Values.gitlab_repo }}-* ${S}
+}
+
+{{ if .Values.body }}
+{{ regexReplaceAll "\\n\\s\\s" .Values.body "\n\t" }}
+{{ end }}
+{{- if .Values.body_raw }}
+{{ .Values.body_raw }}
+{{- end }}
+
+# vim: filetype=ebuild

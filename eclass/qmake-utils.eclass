@@ -205,4 +205,34 @@ eqmake5() {
 	fi
 }
 
+# @FUNCTION: eqmake6
+# @USAGE: [arguments for qmake]
+# @DESCRIPTION:
+# Wrapper for Qt6's qmake. All arguments are passed to qmake.
+#
+# For recursive build systems, i.e. those based on the subdirs template,
+# you should run eqmake6 on the top-level project file only, unless you
+# have a valid reason to do otherwise. During the building, qmake will
+# be automatically re-invoked with the right arguments on every directory
+# specified inside the top-level project file.
+eqmake6() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	ebegin "Running qmake"
+
+	local -a args
+	mapfile -t args <<<"$(qt6_get_qmake_args)"
+	# NB: we're passing literal quotes in but qmake doesn't seem to mind
+	"$(qt6_get_bindir)"/qmake -makefile "${args[@]}" "$@"
+
+	if ! eend $? ; then
+		echo
+		eerror "Running qmake has failed! (see above for details)"
+		eerror "This shouldn't happen - please send a bug report to https://bugs.gentoo.org/"
+		echo
+		die "eqmake6 failed"
+	fi
+}
+
+
 fi

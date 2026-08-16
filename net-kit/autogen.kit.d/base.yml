@@ -3290,6 +3290,7 @@ gitlab_various:
                 mv lib/SignOn/libsignon-qt5.pc.in lib/SignOn/libsignon-qt6.pc.in || die
                 sed -i \
                     -e 's/libsignon-qt5/libsignon-qt6/g' \
+                    -e 's/signon-qt5/signon-qt6/g' \
                     -e 's/Qt5 bindings/Qt6 bindings/' \
                     -e 's/Requires: Qt5Core/Requires: Qt6Core/' \
                     lib/SignOn/libsignon-qt6.pc.in || die
@@ -3684,3 +3685,48 @@ dovecot_dirlisting:
   packages:
 
     - dovecot:
+
+signon_oauth:
+  generator: builtin-noop
+
+  defaults:
+    category: net-libs
+    template:  ../../templates/simple-gitlab.tmpl
+    vars:
+      inherit:
+        - qmake-utils
+      desc: OAuth2 plugin for Signon daemon
+      homepage: 'https://gitlab.com/nicolasfella/signon-plugin-oauth2'
+      license: LGPL-2.1
+      rdepend: |
+        dev-qt/qtbase:6
+        net-libs/signond
+      depend: '${RDEPEND}'
+      versions:
+        - '0.25_p20231015'
+      git_sha: 'fab698862466994a8fdc9aa335c87b4f05430ce6'
+      gitlab_user: nicolasfella
+      gitlab_repo: signon-plugin-oauth2
+      body: |
+        src_prepare() {
+          default
+          sed -i "s|@LIBDIR@|$(get_libdir)|g" src/signon-oauth2plugin.pc || die
+          sed -i -e \
+            "s|TEMPLATE|INCLUDEPATH += /usr/include/signon-qt6 /usr/include/signon-qt6/SignOn\nTEMPLATE|g" \
+             signon-oauth2.pro
+        }
+        src_configure() {
+          local mycmakeargs=( LIBDIR=/usr/$(get_libdir) )
+          eqmake6 "${myqmakeargs[@]}"
+        }
+        src_install() {
+          emake INSTALL_ROOT="${D}" install
+        }
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.git_sha }}.tar.bz2'
+        url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.git_sha }}/{{ .Values.gitlab_repo }}-{{ .Values.git_sha }}.tar.bz2'
+
+  packages:
+    - signon-oauth2:
+

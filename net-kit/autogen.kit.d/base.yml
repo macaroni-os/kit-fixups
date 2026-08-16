@@ -2747,6 +2747,7 @@ openprinting:
           depend: '${RDEPEND}'
           bdepend: |
             >=sys-devel/gettext-0.18.3
+            media-libs/libjxl
             virtual/pkgconfig
           body: |
             src_prepare() {

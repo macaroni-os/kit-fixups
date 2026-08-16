@@ -25,6 +25,40 @@ dev_github:
               cmake_src_configure
             }
 
+    - pdfio:
+        category: dev-libs
+        github:
+          user: michaelrsweet
+        vars:
+          license: Apache-2.0
+          slot: '0'
+          desc: PDF read/write library
+          homepage: https://github.com/michaelrsweet/pdfio
+          iuse: png static-libs
+          rdepend: |
+            sys-libs/zlib
+            png? ( media-libs/libpng )
+          depend: |
+            ${RDEPEND}
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                --enable-shared
+                $(use_enable static-libs static)
+                $(use_enable png libpng)
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+
+            src_compile() {
+              emake
+            }
+
+            src_install() {
+              emake DESTDIR="${D}" install
+            }
+
     - qpdf:
         github:
           user: qpdf

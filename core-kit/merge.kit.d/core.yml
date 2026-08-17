@@ -551,7 +551,12 @@ target:
     max_versions: 3
 
   atoms:
+
+
     - pkg: sys-devel/gcc:12.3.0
+    - pkg: sys-devel/gcc:14
+    - pkg: sys-devel/gcc:15
+    - pkg: sys-devel/gcc:16
     - pkg: sys-libs/glibc:2.2
       conditions:
         - '>=sys-libs/glibc-2.33-r4:2.2'

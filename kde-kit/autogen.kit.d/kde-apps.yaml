@@ -592,7 +592,9 @@ kde-apps:
 
     - dolphin:
         vars:
-          inherit: kde6 optfeature xdg
+          inherit:
+            - cmake
+            - xdg
           iuse: "semantic-desktop telemetry test"
           desc: "Plasma filemanager focusing on usability"
           homepage: "https://apps.kde.org/dolphin/ https://userbase.kde.org/Dolphin"

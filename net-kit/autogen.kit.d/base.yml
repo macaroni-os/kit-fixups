@@ -3729,3 +3729,52 @@ signon_oauth:
   packages:
     - signon-oauth2:
 
+
+signon_ui:
+  generator: builtin-noop
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: net-libs
+    template:  ../../templates/simple-gitlab.tmpl
+    vars:
+      inherit:
+        - qmake-utils
+      desc: Online accounts signon UI
+      homepage: https://gitlab.com/accounts-sso/signon-ui
+      license: GPL-2 GPL-3
+      rdepend: |
+        dev-libs/glib:2
+        dev-qt/qtbase:6
+        dev-qt/qtwebchannel:6
+        dev-qt/qtdeclarative:6
+        dev-qt/qtwebengine:6
+        net-libs/libproxy
+        net-libs/signond
+        x11-libs/libnotify
+      depend: '${RDEPEND}'
+      versions:
+        - '0.17_p20231016'
+      git_sha: 'eef943f0edf3beee8ecb85d4a9dae3656002fc24'
+      gitlab_user: accounts-sso
+      gitlab_repo: signon-ui
+      patches:
+        - signon-ui-0.17_p20231016-webengine-cachedir-path.patch
+      body: |
+        src_configure() {
+          eqmake6 PREFIX=/usr
+        }
+        src_compile() {
+          emake -j1
+        }
+        src_install() {
+          emake INSTALL_ROOT="${D}" -j1 install
+        }
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.git_sha }}.tar.bz2'
+        url: 'https://gitlab.com/{{ .Values.gitlab_user }}/{{ .Values.gitlab_repo }}/-/archive/{{ .Values.git_sha }}/{{ .Values.gitlab_repo }}-{{ .Values.git_sha }}.tar.bz2'
+
+  packages:
+    - signon-ui:
+

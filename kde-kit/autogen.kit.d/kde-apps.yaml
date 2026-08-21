@@ -29,6 +29,86 @@ kde-apps:
 
   packages:
 
+    - ktorrent:
+        category: net-p2p
+        vars:
+          desc: Powerful BitTorrent client based on KDE Frameworks
+          homepage: https://apps.kde.org/en/ktorrent
+          license: GPL-2
+          iuse: |
+            +bwscheduler +downloadorder +infowidget +ipfilter +logviewer
+            +magnetgenerator +mediaplayer rss +scanfolder +shutdown +stats +upnp
+            +webengine +zeroconf
+          bdepend: |
+            sys-devel/gettext
+          cdepend: |
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            kde-frameworks/kcmutils:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kconfigwidgets:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/kdbusaddons:{{ .Values.slot }}
+            kde-frameworks/kglobalaccel:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kiconthemes:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/knotifications:{{ .Values.slot }}
+            kde-frameworks/knotifyconfig:{{ .Values.slot }}
+            kde-frameworks/kparts:{{ .Values.slot }}
+            kde-frameworks/kstatusnotifieritem:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            kde-frameworks/kwindowsystem:{{ .Values.slot }}
+            kde-frameworks/kxmlgui:{{ .Values.slot }}
+            net-libs/libktorrent:{{ .Values.slot }}
+            infowidget? ( dev-libs/geoip )
+            ipfilter? ( kde-frameworks/karchive:{{ .Values.slot }} )
+            mediaplayer? (
+              dev-qt/qtmultimedia:{{ .Values.qt_slot }}
+              media-libs/taglib:=
+            )
+            rss? (
+              dev-qt/qtwebengine:{{ .Values.qt_slot }}
+              kde-frameworks/syndication:{{ .Values.slot }}
+            )
+            stats? ( kde-frameworks/kplotting:{{ .Values.slot }} )
+            upnp? ( kde-frameworks/kcompletion:{{ .Values.slot }} )
+            webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
+            zeroconf? ( kde-frameworks/kdnssd:{{ .Values.slot }} )
+          rdepend: |
+            ${CDEPEND}
+            ipfilter? (
+              app-arch/bzip2
+              app-arch/unzip
+              kde-apps/kio-extras:{{ .Values.slot }}
+              kde-frameworks/ktextwidgets:{{ .Values.slot }}
+            )
+          depend: |
+            ${CDEPEND}
+            dev-libs/boost
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DENABLE_BWSCHEDULER_PLUGIN=$(usex bwscheduler)
+                -DENABLE_DOWNLOADORDER_PLUGIN=$(usex downloadorder)
+                -DENABLE_INFOWIDGET_PLUGIN=$(usex infowidget)
+                -DENABLE_IPFILTER_PLUGIN=$(usex ipfilter)
+                -DENABLE_LOGVIEWER_PLUGIN=$(usex logviewer)
+                -DENABLE_MAGNETGENERATOR_PLUGIN=$(usex magnetgenerator)
+                $(cmake_use_find_package mediaplayer Taglib)
+                $(cmake_use_find_package mediaplayer Qt6Multimedia)
+                $(cmake_use_find_package rss KF6Syndication)
+                -DENABLE_MEDIAPLAYER_PLUGIN=$(usex mediaplayer)
+                -DENABLE_SCANFOLDER_PLUGIN=$(usex scanfolder)
+                -DENABLE_SHUTDOWN_PLUGIN=$(usex shutdown)
+                -DENABLE_STATS_PLUGIN=$(usex stats)
+                -DENABLE_UPNP_PLUGIN=$(usex upnp)
+                -DENABLE_SEARCH_PLUGIN=$(usex webengine)
+                -DENABLE_ZEROCONF_PLUGIN=$(usex zeroconf)
+              )
+              cmake_src_configure
+            }
+
     - partitionmanager:
         vars:
           inherit:
@@ -979,7 +1059,7 @@ kde-apps:
           homepage: https://community.kde.org/KTp
           rdepend: |
             virtual/kde-seed[gui,declarative]
-            dev-qt/qtwebengine:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtwebengine:{{ .Values.qt_slot }}
             >=net-libs/signon-oauth2-0.25
             >=net-libs/signon-ui-0.15_p20231016
             kde-apps/kaccounts-integration:{{ .Values.slot }}
@@ -3886,7 +3966,7 @@ kde-apps:
               kde-frameworks/kio:{{ .Values.slot }}
               kde-frameworks/kparts:{{ .Values.slot }}
               kde-frameworks/krunner:{{ .Values.slot }}
-              webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }}[qml] )
+              webengine? ( dev-qt/qtwebengine:{{ .Values.qt_slot }} )
             )
             pbf? (
               dev-cpp/abseil-cpp:=

@@ -945,3 +945,69 @@ kcolorpicker:
               )
               cmake_src_configure
             }
+
+libktorrent:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-libs
+    vars:
+        slot: 6
+        qt_slot: 6
+        homepage: https://apps.kde.org/en/ktorrent https://userbase.kde.org/KTorrent
+        desc: BitTorrent library based on KDE Frameworks
+        inherit:
+          - cmake
+        iuse: xfs
+        rdepend: |
+          app-crypt/qca:2
+          dev-libs/gmp:=
+          dev-libs/openssl:=
+          dev-libs/libgcrypt:=
+          dev-qt/qtbase:{{ .Values.qt_slot }}
+          kde-frameworks/karchive:{{ .Values.slot }}
+          kde-frameworks/kconfig:{{ .Values.slot }}
+          kde-frameworks/kcoreaddons:{{ .Values.slot }}
+          kde-frameworks/kcrash:{{ .Values.slot }}
+          kde-frameworks/ki18n:{{ .Values.slot }}
+          kde-frameworks/kio:{{ .Values.slot }}
+          kde-frameworks/solid:{{ .Values.slot }}
+          xfs? ( sys-fs/xfsprogs )
+        depend: |
+          ${RDEPEND}
+          dev-libs/boost
+        bdepend: |
+          sys-devel/gettext
+        license: GPL-2+
+        download_prefixurl: https://download.kde.org/Attic/
+        body: |
+          src_prepare() {
+            cmake_src_prepare
+            sed -i -e "/^find_package/ s/\"\${LibGMP_MIN_VERSION}\" //" \
+              CMakeLists.txt || die
+            sed -i -e "/^find_dependency/ s/ \"@LibGMP_MIN_VERSION@\"//" \
+              KTorrent6Config.cmake.in || die
+          }
+          src_configure() {
+            local mycmakeargs=(
+              -DUSE_CRYPTO_BACKEND=OpenSSL
+              -DWITH_XFS=$(usex xfs)
+            )
+            cmake_src_configure
+          }
+
+    assets:
+       - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
+         url: '{{ .Values.download_prefixurl }}/release-service/{{ .Values.version }}/src/{{ .Values.pn }}-{{ .Values.version}}.tar.xz'
+    dir:
+        url: "{{ .Values.download_prefixurl }}/release-service/"
+        matcher: "^25.*"
+    selector:
+      # Temporary to move ahead in mark-iii
+      - '<25.12.3'
+
+  packages:
+    - libktorrent:
+

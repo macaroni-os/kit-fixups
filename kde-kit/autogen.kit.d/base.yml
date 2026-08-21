@@ -960,7 +960,7 @@ libktorrent:
         desc: BitTorrent library based on KDE Frameworks
         inherit:
           - cmake
-        iuse: xfs
+        iuse: xfs ssl
         rdepend: |
           app-crypt/qca:2
           dev-libs/gmp:=
@@ -975,6 +975,7 @@ libktorrent:
           kde-frameworks/kio:{{ .Values.slot }}
           kde-frameworks/solid:{{ .Values.slot }}
           xfs? ( sys-fs/xfsprogs )
+          ssl? ( >=dev-libs/openssl-3.0 )
         depend: |
           ${RDEPEND}
           dev-libs/boost
@@ -992,9 +993,13 @@ libktorrent:
           }
           src_configure() {
             local mycmakeargs=(
-              -DUSE_CRYPTO_BACKEND=OpenSSL
               -DWITH_XFS=$(usex xfs)
             )
+            if use ssl ; then
+              mycmakeargs+=(
+                -DUSE_CRYPTO_BACKEND=OpenSSL
+              )
+            fi
             cmake_src_configure
           }
 

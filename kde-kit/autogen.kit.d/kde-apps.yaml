@@ -29,6 +29,26 @@ kde-apps:
 
   packages:
 
+    - skanlite:
+        category: kde-misc
+        vars:
+          desc: Simple image scanning application based on libksane and KDE Frameworks
+          homepage: https://apps.kde.org/skanlite/
+          license: '|| ( GPL-2 GPL-3 )'
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            kde-apps/libksane:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kconfigwidgets:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/kjobwidgets:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            kde-frameworks/kxmlgui:{{ .Values.slot }}
+          depend: '${RDEPEND}'
+
     - ktorrent:
         category: net-p2p
         vars:

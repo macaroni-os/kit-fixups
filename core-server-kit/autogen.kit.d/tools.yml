@@ -3321,9 +3321,6 @@ incus:
             CGO_ENABLED=1 go build -v -x -tags "libsqlite3" -o bin/ ./cmd/${k}/... || die "Failed to build ${k}"
           done
           CGO_ENABLED=0 CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -x -tags "agent,netgo" -o bin/ ./cmd/incus-agent/... || die "Failed to build incus-agent"
-          pushd "${S}"/cmd/lxd-to-incus || die
-          CGO_ENABLED=0 CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -x -o ../../bin/ ./ || die "Failed to build lxd-to-incus"
-          popd
           use nls && emake build-mo
         }
         src_install() {
@@ -3331,7 +3328,6 @@ incus:
           local bindir="bin"
           dosbin ${bindir}/incusd
           dosbin ${bindir}/incus-user
-          dosbin ${bindir}/lxd-to-incus
           for l in incus-agent incus-benchmark incus-migrate incus lxc-to-incus; do
             dobin ${bindir}/${l}
           done

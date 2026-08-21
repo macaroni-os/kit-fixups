@@ -910,31 +910,55 @@ kcolorpicker:
       user: ksnip
       repo: kColorPicker
       query: tags
-    assets:
-      - name: 'kColorPicker-{{ .Values.version }}.tar.gz'
-        url: 'https://github.com/ksnip/kColorPicker/archive/v{{ .Values.version }}.tar.gz'
     vars:
       license: LGPL-3+
       qt_slot: '6'
-      homepage: https://github.com/ksnip/kColorPicker
-      s: '${WORKDIR}/kColorPicker-{{ .Values.version }}'
       inherit:
         - cmake
-      iuse: qt5 +qt6
-      required_use: '^^ ( qt5 qt6 )'
-      rdepend: |
-        qt5? (
-          dev-qt/qtcore:5
-          dev-qt/qtgui:5
-          dev-qt/qtwidgets:5
-        )
-        qt6? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
       depend: '${RDEPEND}'
 
   packages:
-    - kcolorpicker:
+
+    - kimageannotator:
+        template: ../../templates/simple-github.tmpl
+        github:
+          repo: kImageAnnotator
         vars:
+          desc: Tool for annotating images
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.qt_slot }}[gui]
+            dev-qt/qtsvg:{{ .Values.qt_slot }}
+            media-libs/kcolorpicker
+            x11-libs/libX11
+          bdepend: |
+            dev-qt/qttools:{{ .Values.qt_slot }}
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTS=OFF
+                -DBUILD_WITH_QT6=ON
+              )
+              cmake_src_configure
+            }
+
+
+    - kcolorpicker:
+        assets:
+          - name: 'kColorPicker-{{ .Values.version }}.tar.gz'
+            url: 'https://github.com/ksnip/kColorPicker/archive/v{{ .Values.version }}.tar.gz'
+        vars:
+          s: '${WORKDIR}/kColorPicker-{{ .Values.version }}'
+          homepage: https://github.com/ksnip/kColorPicker
           desc: Qt based color picker with popup menu
+          iuse: qt5 +qt6
+          required_use: '^^ ( qt5 qt6 )'
+          rdepend: |
+            qt5? (
+              dev-qt/qtcore:5
+              dev-qt/qtgui:5
+              dev-qt/qtwidgets:5
+            )
+            qt6? ( dev-qt/qtbase:{{ .Values.qt_slot }}[gui] )
           body: |
             src_configure() {
               local mycmakeargs=(

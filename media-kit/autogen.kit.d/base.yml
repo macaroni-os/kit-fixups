@@ -5790,3 +5790,80 @@ obs_studio_deps:
 
               cmake_src_configure
             }
+
+
+raptor:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "5s"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: https://download.librdf.org/source/
+      matcher: '{{ .Values.tarball_prefix | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$'
+    transform:
+      - kind: string
+        match: "{{ .Values.tarball_prefix | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".{{ .Values.tarball_suffix }}"
+        replace: ""
+    vars:
+      license: Apache-2.0 GPL-2 LGPL-2.1
+      slot: 2
+      iuse: +curl debug json static-libs
+      homepage: https://librdf.org/raptor/
+      desc: The RDF Parser Toolkit
+      tarball_suffix: 'tar.gz'
+      tarball_prefix: 'raptor2'
+      rdepend: |
+        dev-libs/libxml2
+        dev-libs/libxslt
+        curl? ( net-misc/curl )
+        json? ( dev-libs/yajl )
+        !media-libs/raptor:0
+      depend: '${RDEPEND}'
+      bdepend: |
+        sys-devel/bison
+        sys-devel/flex
+        virtual/pkgconfig
+      s: '${WORKDIR}/{{ .Values.pn }}2-{{ .Values.version }}'
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+        - NOTICE
+        - README
+      inherit:
+        - autotools
+        - toolchain-funcs
+      body: |
+        src_prepare() {
+          default
+          eautoreconf
+          elibtoolize # Keep this for ~*-fbsd
+          # Fix compatibility with libxml2 - macaroni-os/mark-issues#420
+          sed -e '/ret->checked/d'  -i src/raptor_libxml.c || die
+        }
+        src_configure() {
+          tc-export PKG_CONFIG
+          local myeconfargs=(
+            --with-html-dir="${EPREFIX}"/usr/share/gtk-doc/html
+            $(usex curl --with-www=curl --with-www=xml)
+            $(use_enable debug)
+            $(use_with json yajl)
+            $(use_enable static-libs static)
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          find "${ED}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - raptor:

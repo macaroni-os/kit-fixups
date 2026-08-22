@@ -3691,6 +3691,14 @@ kde-apps:
           rdepend: |
             virtual/kde-seed[gui]
             >=media-libs/libraw-0.16:=
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+              -DBUILD_TESTS=OFF
+              -DBUILD_WITH_QT6=ON
+              )
+              cmake_src_configure
+            }
 
     - libkdegames:
         vars:

@@ -875,7 +875,7 @@ async def do_process(*, input_file: str, versions_file: str):
             },
         })
 
-        versions_d['vars']['slot'] = f'"{config["branch"]}/{ver}"'
+        versions_d['vars']['slot'] = f'{config["branch"]}/{ver}'
 
         versions_d['vars']['versions'].append(ver)
 

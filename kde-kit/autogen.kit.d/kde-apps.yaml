@@ -3204,7 +3204,7 @@ kde-apps:
             activities? ( kde-plasma/plasma-activities:{{ .Values.slot }} )
             rdp? (
               kde-frameworks/kio:{{ .Values.slot }}
-              >=net-misc/freerdp-2.10:3
+              net-misc/freerdp
             )
             ssh? ( net-libs/libssh:= )
             vnc? ( >=net-libs/libvncserver-0.9.15 )

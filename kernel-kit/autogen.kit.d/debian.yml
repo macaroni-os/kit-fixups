@@ -28,16 +28,18 @@ debian_sources:
       homepage: 'https://packages.debian.org/unstable/kernel/'
       license: GPL-2
       iuse: 'acpi-ec binary btrfs custom-cflags dracut ec2 +logo luks lvm mdadm savedconfig sshd sign-modules zfs'
+      # Root-filesystem managers: needed at RUNTIME to activate/manage
+      # the root (lvm/luks/raid/btrfs/zfs), so they persist with the
+      # package. Also required at build time for dracut initramfs
+      # generation (RDEPEND is available through pkg_postinst).
       rdepend: |
-        # Root-filesystem managers: needed at RUNTIME to activate/manage
-        # the root (lvm/luks/raid/btrfs/zfs), so they persist with the
-        # package. Also required at build time for dracut initramfs
-        # generation (RDEPEND is available through pkg_postinst).
         btrfs? ( sys-fs/btrfs-progs )
         zfs? ( sys-fs/zfs )
         luks? ( sys-fs/cryptsetup )
         lvm? ( sys-fs/lvm2 )
         mdadm? ( sys-fs/mdadm )
+      # Build-time only. Available from src_prepare through
+      # pkg_postinst, then dep-cleanable. Not needed at runtime.
       bdepend: |
         # Build-time only. Available from src_prepare through
         # pkg_postinst, then dep-cleanable. Not needed at runtime.

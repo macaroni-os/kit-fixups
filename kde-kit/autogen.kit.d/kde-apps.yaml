@@ -1352,7 +1352,7 @@ kde-apps:
             - xdg
           desc: "Multi-document editor with network transparency, Plasma integration and more"
           homepage: "https://kate-editor.org/ https://apps.kde.org/kate/"
-          iuse: "sql telemetry"
+          iuse: "kwrite sql telemetry"
           rdepend: |
             virtual/kde-seed[gui,X,declarative,sql?]
             kde-frameworks/kdoctools:6
@@ -1386,13 +1386,11 @@ kde-apps:
               local mycmakeargs=(
                   -DCMAKE_DISABLE_FIND_PACKAGE_SeleniumWebDriverATSPI=TRUE
                   -DBUILD_addons=TRUE
-                  -DBUILD_kwrite=FALSE
+                  -DBUILD_kwrite=$(usex kwrite)
                   -USE_DBUS=TRUE
                   -DBUILD_PYTHON_BINDINGS=FALSE
                   $(cmake_use_find_package telemetry KF6UserFeedback)
               )
-              # provided by kde-apps/kate-lib
-              append-libs -lkateprivate
               cmake_src_configure
             }
 

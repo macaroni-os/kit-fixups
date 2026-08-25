@@ -4838,6 +4838,8 @@ gnome_apps:
               default
               vala_src_prepare
               gnome3_environment_reset
+              sed -e '/case GPGME_EVENT_NEXT_TRUSTITEM/d' -i \
+                pgp/seahorse-gpgme.c
             }
             src_configure() {
               local emesonargs=(

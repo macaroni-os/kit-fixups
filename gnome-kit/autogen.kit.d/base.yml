@@ -79,7 +79,7 @@ net_misc_cat:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
   template:
     engine: helm
 
@@ -229,7 +229,7 @@ mail_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -325,7 +325,7 @@ glycin_gitlab:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
 
   extensions_defs:
     rust:
@@ -487,7 +487,7 @@ gnome_user_share:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
 
   extensions_defs:
     rust:
@@ -570,7 +570,7 @@ gnome_release_pkgs:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
 
   extensions_defs:
     rust:
@@ -2884,7 +2884,7 @@ gnome_apps:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
 
   defaults:
     files_dir: "{{ .Values.pn }}"
@@ -8988,7 +8988,7 @@ cairo_stuff:
   generator: builtin-dirlisting
   generator_opts:
     rate_limiter: "1"
-    rate_duration: "10s"
+    rate_duration: "15s"
   defaults:
     template: ../../templates/simple.tmpl
     files_dir: "{{ .Values.pn }}"
@@ -9083,11 +9083,6 @@ cairo_stuff:
 
 virtual_pkgs:
   generator: builtin-noop
-  generator_opts:
-    rate_limiter: "1"
-    rate_duration: "10s"
-  template:
-    engine: helm
 
   defaults:
     template: ../../templates/simple.tmpl

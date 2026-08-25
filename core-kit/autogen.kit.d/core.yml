@@ -1422,3 +1422,98 @@ locale_gen:
 
   packages:
     - locale-gen:
+
+
+elfutils:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+    dir:
+      url: https://sourceware.org/elfutils/ftp
+      matcher: "^0[.0-9]+"
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.bz2'
+        url: 'https://sourceware.org/elfutils/ftp/{{ .Values.version }}/{{ .Values.pn }}-{{ .Values.pv }}.tar.bz2'
+
+    vars:
+      inherit:
+        - autotools
+        - flag-o-matic
+      desc: Libraries/utilities to handle ELF objects (drop in replacement for libelf)
+      homepage: https://sourceware.org/elfutils/
+      license: '|| ( GPL-2+ LGPL-3+ ) utils? ( GPL-3+ )'
+      iuse: bzip2 debuginfod libarchive lzma nls static-libs +threads +utils valgrind zstd
+      rdepend: |
+        sys-libs/zlib[static-libs?]
+        bzip2? ( app-arch/bzip2[static-libs?] )
+        lzma? ( app-arch/xz-utils[static-libs?] )
+        zstd? ( app-arch/zstd:=[static-libs?] )
+        debuginfod? (
+          dev-db/sqlite:3=
+          dev-libs/json-c:=
+          net-libs/libmicrohttpd:=
+          net-misc/curl[static-libs?]
+        )
+        libarchive? ( app-arch/libarchive:= )
+
+      depend: |
+        ${RDEPEND}
+        valgrind? ( dev-util/valgrind )
+      bdepend: |
+        sys-devel/flex
+        sys-devel/m4
+        nls? ( sys-devel/gettext )
+      required_use: |
+        debuginfod? ( libarchive )
+      body: |
+        src_prepare() {
+          default
+          eautoreconf
+          if ! use static-libs; then
+            sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in || die
+          fi
+          # https://sourceware.org/PR23914
+          sed -i 's:-Werror::' */Makefile.in || die
+        }
+        src_configure() {
+          unset LEX YACC
+
+          local myeconfargs=(
+            $(use_enable nls)
+            $(use_enable debuginfod)
+            $(use_enable debuginfod libdebuginfod)
+            $(use_enable valgrind valgrind-annotations)
+            $(use_enable threads thread-safety)
+            # Valgrind option is just for running tests under it; dodgy under sandbox
+            # and indeed even w/ glibc with newer instructions.
+            --disable-valgrind
+            --program-prefix="eu-"
+            --with-zlib
+            $(use_with bzip2 bzlib)
+            $(use_with libarchive)
+            $(use_with lzma)
+            $(use_with zstd)
+
+          )
+          # Valgrind option is just for running tests under it; dodgy under sandbox
+          # and indeed even w/ glibc with newer instructions.
+          #
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          einstalldocs
+          dodoc NOTES
+          # These build quick, and are needed for most tests, so don't
+          # disable their building when the USE flag is disabled.
+          if ! use utils; then
+            rm -rf "${ED}"/usr/bin || die
+          fi
+        }
+
+  packages:
+
+    - elfutils:

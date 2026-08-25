@@ -513,7 +513,7 @@ gnome_user_share:
     vars:
       license: LGPL-2.1+
       homepage: 'https://gitlab.gnome.org/GNOME/{{ .Values.pkgname | default .Values.pn }}'
-      release: 49
+      release: '49'
 
   packages:
 
@@ -8522,7 +8522,7 @@ gnome_apps:
         category: x11-libs
         vars:
           python_compat: python3+
-          release: 1.8
+          release: '1.8'
           desc: Building blocks for modern GNOME applications
           homepage: https://gnome.pages.gitlab.gnome.org/libadwaita/ https://gitlab.gnome.org/GNOME/libadwaita
           iuse: doc +introspection +vala
@@ -8626,7 +8626,7 @@ gnome_apps:
     - libcloudproviders:
         category: net-libs
         vars:
-          release: 0.3
+          release: '0.3'
           inherit:
             - meson
             - vala
@@ -8844,7 +8844,7 @@ gnome_apps:
             - xdg
             - gnome3
           slot: 2
-          release: 2.44
+          release: '2.44'
           desc: Image loading library for GTK+
           homepage: https://gitlab.gnome.org/GNOME/gdk-pixbuf
           iuse: gtk-doc +introspection gif jpeg tiff glycin

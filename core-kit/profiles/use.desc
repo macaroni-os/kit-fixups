@@ -1,8 +1,8 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
-# Keep them sorted
 
+# Keep them sorted
 3dfx - Enable support for Voodoo chipsets, also called as 3DFX and TDFX
 X - Add support for X11
 Xaw3d - Add support for the 3d athena widget set
@@ -60,6 +60,24 @@ crypt - Add support for encryption -- using mcrypt or gpg where applicable
 cscope - Enable cscope interface -- in vim for example
 css - Enable reading of encrypted DVDs
 ctype - Enable ctype functions
+cuda_sm_100 Build for NVIDIA Blackwell datacenter GPUs (compute capability 10.0, B100/B200/GB200)
+cuda_sm_101 Build for NVIDIA Jetson Thor (compute capability 10.1, Jetson platform CUDA; renumbered to sm_110 in CUDA 13.x, so the general 11.x/12.x toolkits cannot target it)
+cuda_sm_103 Build for NVIDIA Blackwell datacenter GPUs (compute capability 10.3, B300)
+cuda_sm_110 Build for NVIDIA Jetson Thor under CUDA 13.x (compute capability 11.0, renumbered from sm_101)
+cuda_sm_120 Build for NVIDIA Blackwell consumer GPUs (compute capability 12.0, RTX 50-series)
+cuda_sm_121 Build for NVIDIA Blackwell consumer GPUs (compute capability 12.1, GB10, DGX Spark)
+cuda_sm_50 Build for NVIDIA Maxwell GPUs (compute capability 5.0, GTX 900 series)
+cuda_sm_52 Build for NVIDIA Maxwell GPUs (compute capability 5.2)
+cuda_sm_60 Build for NVIDIA Pascal GPUs (compute capability 6.0, Tesla P100, DGX-1)
+cuda_sm_61 Build for NVIDIA Pascal GPUs (compute capability 6.1, GTX 10-series)
+cuda_sm_70 Build for NVIDIA Volta GPUs (compute capability 7.0, V100, DGX-2)
+cuda_sm_75 Build for NVIDIA Turing GPUs (compute capability 7.5, RTX 20-series)
+cuda_sm_80 Build for NVIDIA Ampere GPUs (compute capability 8.0, A100)
+cuda_sm_86 Build for NVIDIA Ampere GPUs (compute capability 8.6, RTX 30-series)
+cuda_sm_87 Build for NVIDIA Ampere GPUs (compute capability 8.7, Jetson AGX Orin)
+cuda_sm_89 Build for NVIDIA Ada Lovelace GPUs (compute capability 8.9, RTX 40-series)
+cuda_sm_90 Build for NVIDIA Hopper GPUs (compute capability 9.0, H100)
+cuda_sm_90a Build for NVIDIA Hopper GPUs (compute capability 9.0a, H100, architecture-specific features)
 cups - Add support for CUPS (Common Unix Printing System)
 curl - Add support for client-side URL transfer library
 custom-cflags - Build with user-specified CFLAGS (unsupported)

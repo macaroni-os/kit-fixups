@@ -1807,6 +1807,46 @@ devlibs_github:
               find "${D}" -name '*.la' -delete || die
             }
 
+    - quazip:
+        github:
+          user: stachenov
+        transform:
+          - kind: string
+            match: 'v'
+            replace: ''
+        vars:
+          desc: Simple C++ wrapper over Gilles Vollant's ZIP/UNZIP package
+          homepage: https://stachenov.github.io/quazip/
+          license: LGPL-2.1-with-linking-exception
+          slot: '0'
+          inherit:
+            - cmake
+          iuse: +bzip2 qt5 +qt6
+          required_use: '^^ ( qt5 qt6 )'
+          rdepend: |
+            sys-libs/zlib:=
+            bzip2? ( app-arch/bzip2:= )
+            qt5? ( dev-qt/qtcore:5 )
+            qt6? (
+              dev-qt/qtbase:6
+              dev-qt/qt5compat:6
+            )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DQUAZIP_QT_MAJOR_VERSION=$(usex qt6 6 5)
+                -DQUAZIP_BZIP2=$(usex bzip2)
+                -DQUAZIP_ENABLE_TESTS=OFF
+                -DQUAZIP_ENABLE_QTEXTCODEC=ON
+                -DQUAZIP_INSTALL=ON
+                -DQUAZIP_USE_QT_ZLIB=OFF
+                -DQUAZIP_FETCH_LIBS=OFF
+                -DQUAZIP_FORCE_FETCH_LIBS=OFF
+              )
+              cmake_src_configure
+            }
+
 
 libevdev_dirlisting:
   generator: builtin-dirlisting

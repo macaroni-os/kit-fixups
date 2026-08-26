@@ -1,48 +1,61 @@
-debian_sources:
-  generator: custom
-  generator_opts:
-    script: sys-kernel/debian-sources/generator_v2.py
-    enable_set_version: 'false'
+# kernel-sources.yml — unified vanilla-sources + debian-sources autogen spec.
+#
+# ONE file, ONE shared ebuild body, ONE template, ONE files/ dir,
+# ONE discovery block (dir url/matcher + transform in defaults,
+# driven by the per-atom slot). The body is
+# gated by {{ if .Values.is_debian }} so the vanilla flavor stays out of the
+# Debian-only paths (patchset, config-extract, debian/ tree, .tmp module staging).
+# The body is a SINGLE SOURCE (YAML anchor on vanilla, alias on debian): when a
+# major fix lands in one flavor, edit it once. See references/kernel-sources-sync.md.
 
+kernel_sources_vanilla:
+  generator: builtin-dirlisting
   defaults:
-    files_dir: sys-kernel/debian-sources/files
+    files_dir: debian-sources
     template: ../../templates/simple.tmpl
     category: sys-kernel
     selector4slot: true
+    # Discovery (builtin-dirlisting): the url and matcher are rendered
+    # from the per-atom slot, which is the major.minor the ebuild carries
+    # as SLOT. The slot is hard-coded per selector because the version is
+    # only known once the dir is listed, so it cannot drive the url that
+    # lists it. The optional point-release keeps the mainline 0-release
+    # (linux-7.2.tar.xz) discoverable by the same matcher.
+    dir:
+      url: '{{ .Values.kernel_dot_org_base_url }}{{ .Values.slot | splitList "." | first }}.x/'
+      matcher: 'linux-{{ join "\\." (splitList "." .Values.slot) }}(\.\d+)?\.tar\.xz$'
+    transform:
+      - kind: string
+        match: 'linux-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
     vars:
-      # Mirror list for artifact downloads (new format: list of URLs)
-      # Supports any number of mirrors - checked in parallel, first available wins
-      mirrors:
-        - https://deb.debian.org/debian/pool/main/l/linux
-        - https://mirrors.edge.kernel.org/pub/linux/dist/debian/pool/main/l/linux
-      # Legacy single URL format (for backward compatibility)
-      # debian_sources_url: https://deb.debian.org/debian/pool/main/l/linux
-      # debian_sources_fallback_url: https://mirrors.edge.kernel.org/pub/linux/dist/debian/pool/main/l/linux
+      # Flavor gate (drives the {{ if .Values.is_debian }} body branches)
+      is_debian: false
+      # URL bases for artefact downloads
       kernel_dot_org_base_url: https://mirrors.edge.kernel.org/pub/linux/kernel/v
-      # Artifact verification (opt-in)
-      verify_artifacts: true
-      # OpenZFS compatibility - version tag from GitHub repo
-      # Generator constructs URL: https://raw.githubusercontent.com/openzfs/zfs/{version}/META
-      openzfs_version: zfs-2.3-release
-      desc: 'Debian Sources (and optional binary kernel)'
-      homepage: 'https://packages.debian.org/unstable/kernel/'
+      desc: 'Vanilla Sources (and optional binary kernel)'
+      homepage: 'https://kernel.org'
       license: GPL-2
-      iuse: 'acpi-ec binary btrfs custom-cflags dracut ec2 +logo luks lvm mdadm savedconfig sshd sign-modules zfs'
+      iuse: 'acpi-ec binary btrfs custom-cflags dracut ec2 +logo +symlink luks lvm mdadm savedconfig sshd sign-modules zfs'
       # Root-filesystem managers: needed at RUNTIME to activate/manage
       # the root (lvm/luks/raid/btrfs/zfs), so they persist with the
       # package. Also required at build time for dracut initramfs
       # generation (RDEPEND is available through pkg_postinst).
+      # NOTE: keep comments at YAML level, NEVER inside the |- block:
+      # portage's dep parser treats '#' as an invalid atom (masks ebuild).
       rdepend: |
         btrfs? ( sys-fs/btrfs-progs )
         zfs? ( sys-fs/zfs )
         luks? ( sys-fs/cryptsetup )
         lvm? ( sys-fs/lvm2 )
         mdadm? ( sys-fs/mdadm )
-      # Build-time only. Available from src_prepare through
-      # pkg_postinst, then dep-cleanable. Not needed at runtime.
+
+      # Build-time only: available from src_prepare through pkg_postinst,
+      # then dep-cleanable. Not needed at runtime.
       bdepend: |
-        # Build-time only. Available from src_prepare through
-        # pkg_postinst, then dep-cleanable. Not needed at runtime.
         virtual/libelf
         sys-apps/gawk
         binary? (
@@ -52,6 +65,7 @@ debian_sources:
         	virtual/dracut-mark
         )
         sign-modules? ( sys-apps/findutils )
+
       required_use: |
         binary? (
         	^^ ( dracut )
@@ -61,32 +75,37 @@ debian_sources:
         	lvm? ( dracut )
         	sshd? ( dracut )
         )
-        dracut? ( binary )
         sshd? ( binary )
       restrict: binchecks strip
 
       # Kernel type metadata
-      ktype: debian
-      ksuffix: debian-mark
+      ktype: vanilla       # kernel type for naming
+      ksuffix: mark
       inherit:
         - check-reqs
         - eutils
         - ego
         - savedconfig
 
-      # Config extraction version (default, overridden per-package)
-      config_extract: 6.6
-
-      # Source directory (no nested dirs — LINUX_SRCDIR computed by generator)
+      # Source directory (no nested dirs)
       s: '${WORKDIR}/linux-${KERNEL_TRIPLET}'
+
+      # Extra env vars (LINUX_SRCDIR = source tree name)
+      extra_envs:
+        - KERNEL_TRIPLET="${PV%-*}"
+        - MACARONI_KTYPE="vanilla"
+        - MACARONI_KVER="${KERNEL_TRIPLET}"
+        - MACARONI_KSUFFIX="mark"
+        - EXTRAVERSION="-mark"
+        - MOD_DIR_NAME="${PV%-*}-mark"
+        - LINUX_SRCDIR="linux-${PV%-*}-mark"
 
       # Patches (empty defaults, set per-package)
       common_patches: []
       patches: []
       use_patches: {}
 
-      # Kernel config options (parameterized)
-      # Structure: {use_flag: {config: [{option, value}], file?: path}}
+      # Kernel config options (same structure as debian-sources)
       kernel_config_options:
         acpi-ec:
           config:
@@ -151,9 +170,10 @@ debian_sources:
       dracut_drivers:
         luks: dm-crypt
 
-      # Ebuild body (moved from debian-sources.tmpl, parameterized)
-      body: |
+      # Ebuild body (similar to debian-sources but without Debian patchset/config)
+      body: &kernbody |
         # Helper functions
+        {{- if .Values.is_debian }}
         get_patch_list() {
           [[ -z "${1}" ]] && die "No patch series file specified"
           local patch_series="${1}"
@@ -163,6 +183,7 @@ debian_sources:
             fi
           done < "${patch_series}"
         }
+        {{- end }}
 
         tweak_config() {
           einfo "Setting $2=$3 in kernel config."
@@ -180,11 +201,25 @@ debian_sources:
           esac
         }
 
+        {{- if .Values.is_debian }}
         get_vendor() {
           vendor_string=$(grep vendor /proc/cpuinfo | uniq | cut -d ':' -f 2)
           vendor=$([[ ${vendor_string^^} =~ (INTEL)|(AMD) ]] && echo ${BASH_REMATCH[0]})
           echo $vendor
         }
+        {{- else }}
+        get_vendor() {
+          local vendor_string
+          vendor_string=$(grep -m1 "vendor_id" /proc/cpuinfo | cut -d ':' -f 2 | tr -d '[:space:]')
+          if [[ "${vendor_string}" == *"GenuineIntel"* ]]; then
+            echo "INTEL"
+          elif [[ "${vendor_string}" == *"AuthenticAMD"* ]]; then
+            echo "AMD"
+          else
+            echo ""
+          fi
+        }
+        {{- end }}
 
         pkg_pretend() {
           # Ensure we have enough disk space to compile
@@ -218,6 +253,7 @@ debian_sources:
 
         src_prepare() {
           default
+          {{- if .Values.is_debian }}
           # Apply Debian patchset
           for debpatch in $( get_patch_list "${WORKDIR}/debian/patches/series" ); do
             eapply -p1 "${WORKDIR}/debian/patches/${debpatch}"
@@ -295,6 +331,82 @@ debian_sources:
           if ! use savedconfig; then
             ./config-extract ${DEB_ARCH} ${FEATURESET} ${DEB_SUBARCH} || die
           fi
+          {{- else }}
+          # Apply user patches from /etc/portage/patches/<category>/<package>/
+          eapply_user
+          # Apply common patches
+          {{- if .Values.common_patches | default false }}
+          {{- range $p := .Values.common_patches }}
+          eapply "${FILESDIR}/latest/{{ $p }}" || die
+          {{- end }}
+          {{- end }}
+
+          # Apply branch-specific patches
+          {{- if .Values.patches | default false }}
+          {{- range $p := .Values.patches }}
+          eapply "${FILESDIR}"/{{ $p }} || die
+          {{- end }}
+          {{- end }}
+
+          # Apply USE-gated patches (applied before kernel config)
+          {{- if .Values.use_patches | default false }}
+          {{- range $flag, $patches := .Values.use_patches }}
+          if use {{ $flag }}; then
+            {{- range $p := $patches }}
+            eapply "${FILESDIR}/{{ $p }}" || die "use-patch {{ $p }} failed"
+            {{- end }}
+          fi
+          {{- end }}
+          {{- end }}
+          # Clean source tree after patches to avoid "source tree is not clean" errors
+          # (kernel build detects stale auto.conf, .config, etc from prior partial builds)
+          cd "${S}" || die
+          rm -f .config >/dev/null
+          make mrproper || die "make mrproper failed"
+
+          # Detect architecture first (needed for defconfig path)
+          if [ "${REAL_ARCH}" = x86 ]; then
+            export KERN_ARCH="i686"
+          elif [ "${REAL_ARCH}" = amd64 ]; then
+            export KERN_ARCH="x86_64"
+          elif [ "${REAL_ARCH}" = arm ]; then
+            export KERN_ARCH="arm"
+          elif [ "${REAL_ARCH}" = arm64 ]; then
+            export KERN_ARCH="aarch64"
+          else
+            die "Architecture '${REAL_ARCH}' not handled in ebuild"
+          fi
+
+          # Restore saved .config if savedconfig useflag is enabled
+          if use savedconfig; then
+            einfo Restoring saved .config ...
+            restore_config .config
+            # Update saved config with any new kernel options (required for savedconfig)
+            yes "" | make olddefconfig >/dev/null 2>&1 || die
+            # Clean generated config state that causes "source tree not clean" in src_compile
+            rm -rf include/config/ include/generated/autoconf.h include/generated/rustc_cfg include/config/*/ 2>/dev/null || true
+          else
+            # Use defconfig as base - handle x86 unified arch (arch/x86/configs/) and per-arch defconfig names
+            if [ "${REAL_ARCH}" = amd64 ]; then
+              local kern_arch_dir="x86"
+              local defconfig="x86_64_defconfig"
+            elif [ "${REAL_ARCH}" = x86 ]; then
+              local kern_arch_dir="x86"
+              local defconfig="i386_defconfig"
+            elif [ "${REAL_ARCH}" = arm64 ]; then
+              local kern_arch_dir="arm64"
+              local defconfig="defconfig"
+            elif [ "${REAL_ARCH}" = arm ]; then
+              local kern_arch_dir="arm"
+              local defconfig="defconfig"
+            else
+              die "No defconfig found for architecture ${REAL_ARCH}"
+            fi
+            cp "${WORKDIR}"/linux-${KERNEL_TRIPLET}/arch/${kern_arch_dir}/configs/${defconfig} .config || die
+          fi
+          # like "vanilla-x86_64-6.12.38-mark"
+          export KERN_SUFFIX="${MACARONI_KTYPE}-${KERN_ARCH}-${MACARONI_KVER}-${MACARONI_KSUFFIX}"
+          {{- end }}
 
           # Apply unconditional options (wildcards supported, applied in order)
           {{- range .Values.kernel_config_options.unconditional }}
@@ -441,12 +553,24 @@ debian_sources:
 
           # get config into good state:
           yes "" | make oldconfig >/dev/null 2>&1 || die
+          {{- if not .Values.is_debian }}
+          # Clean generated config state that causes "source tree not clean" in src_compile
+          rm -rf include/config/ include/generated/autoconf.h include/generated/rustc_cfg include/config/*/ 2>/dev/null || true
+          {{- end }}
           cp .config "${T}"/config || die
+          {{- if .Values.is_debian }}
           make -s mrproper || die "make mrproper failed"
+          {{- end }}
         }
 
         src_compile() {
           ! use binary && return
+          {{- if not .Values.is_debian }}
+          cd "${S}" || die
+          # Clean generated config artifacts right before build to avoid stale state detection
+          make mrproper || die "make mrproper failed"
+
+          {{- end }}
           install -d "${WORKDIR}"/build
           cp "${T}"/config "${WORKDIR}"/build/.config || die "couldn't copy kernel config"
           make ${MAKEOPTS} O="${WORKDIR}"/build bzImage || die "kernel build failure"
@@ -461,10 +585,14 @@ debian_sources:
           # prepare for real-world use and 3rd-party module building:
           make mrproper || die
           cp "${T}"/config .config || die
+          {{- if .Values.is_debian }}
           cp -a "${T}"/debian debian || die
 
           # if we didn't compile a kernel, we're done. The kernel source tree is left in
           # an unconfigured state - you can't compile 3rd-party modules against it yet.
+          {{- else }}
+          # an unconfigured state - you can't compile 3rd-party modules against it yet.
+          {{- end }}
           use binary || return
           make ${MAKEOPTS} O="${WORKDIR}"/build INSTALL_MOD_PATH="${D}" modules_install || die "modules install failure"
           insinto /boot
@@ -480,6 +608,7 @@ debian_sources:
           # module symlink fixup:
           rm -f "${D}"/lib/modules/*/source || die
           rm -f "${D}"/lib/modules/*/build || die
+          {{- if .Values.is_debian }}
           cd "${D}"/lib/modules
           local moddir="$(make -s -C "${WORKDIR}"/build kernelrelease)"
           ln -s /usr/src/${LINUX_SRCDIR} "${D}"/lib/modules/${moddir}/source || die
@@ -503,12 +632,33 @@ debian_sources:
           # when the package is uninstalled, the modules are not removed.
           # Otherwise, modules for the current running kernel might be erased!
           mv "${D}"/lib/modules/${moddir}{,.tmp}
+          {{- else }}
+          # use kernelrelease to match EXTRAVERSION-aware name:
+          local moddir="$(make -s -C "${WORKDIR}"/build kernelrelease)"
+          ln -s /usr/src/${LINUX_SRCDIR} "${D}"/lib/modules/${moddir}/source || die
+          ln -s /usr/src/${LINUX_SRCDIR} "${D}"/lib/modules/${moddir}/build || die
+          # Fixes FL-14
+          cp "${WORKDIR}"/build/System.map "${D}/usr/src/${LINUX_SRCDIR}/" || die
+          cp "${WORKDIR}"/build/Module.symvers "${D}/usr/src/${LINUX_SRCDIR}/" || die
+          if use sign-modules; then
+            # Requires kernel >= 6.12+ CONFIG_MODULE_COMPRESS_XZ support detection.
+            find "${D}"/lib/modules -iname *.ko ! -iname *.ko.xz \
+                -exec ${WORKDIR}/build/scripts/sign-file sha512 \
+                $certs_dir/signing_key.pem $certs_dir/signing_key.x509 {} \; || die
+            # install the sign-file executable for future use.
+            exeinto /usr/src/${LINUX_SRCDIR}/scripts
+            doexe ${WORKDIR}/build/scripts/sign-file
+          fi
+          # Move to .tmp so Portage tracks it; pkg_postinst renames to MOD_DIR_NAME
+          mv "${D}"/lib/modules/${moddir}{,.tmp} || die
+          {{- end }}
         }
 
         pkg_postinst() {
           # Ensure that /boot is mounted in this phase
           ego_pkg_preinst
 
+          {{- if .Values.is_debian }}
           # Back up existing initramfs as .old before generating a new one
           # (matches kernel backup pattern: vmlinuz, System.map, config)
           if use binary && use dracut; then
@@ -547,6 +697,47 @@ debian_sources:
               mv "$tmp_moddir" "/lib/modules/${MOD_DIR_NAME}" || die
             fi
           fi
+          {{- else }}
+          # Prevent kernel and modules erasure during upgrade.
+          if use binary; then
+              # first rename the initramfs (back up .old before new one overwrites)
+            if use dracut; then
+              if [[ -f "/boot/initramfs-${KERN_SUFFIX}" ]]; then
+                rm -f "/boot/initramfs-${KERN_SUFFIX}.old"
+                mv /boot/initramfs-${KERN_SUFFIX}{,.old} || die
+              fi
+            fi
+            # then rename everything else, and copy the new files into place
+            for i in {vmlinuz,System.map,config}; do
+              if [[ -f "/boot/$i-${KERN_SUFFIX}" ]]; then
+                # USE=savedconfig means the config might have changed!
+                if use savedconfig; then
+                  if [[ -f /boot/$i-${KERN_SUFFIX}.old ]]; then
+                    rm /boot/$i-${KERN_SUFFIX}.old
+                  fi
+                  einfo "Preserving: mv /boot/$i-${KERN_SUFFIX}{,.old}"
+                  mv /boot/$i-${KERN_SUFFIX}{,.old} || die
+                else
+                  rm /boot/$i-${KERN_SUFFIX} || die
+                fi
+              fi
+              mv /boot/$i-${KERN_SUFFIX}{.tmp,} || die
+            done
+            if [[ -d "/lib/modules/${MOD_DIR_NAME}" ]]; then
+              # USE=savedconfig means the config might have changed!
+              if use savedconfig; then
+                if [[ -d "/lib/modules/${MOD_DIR_NAME}.old" ]]; then
+                  rm -r /lib/modules/${MOD_DIR_NAME}.old
+                fi
+                einfo "Preserving: mv /lib/modules/${MOD_DIR_NAME}{,.old}"
+                mv /lib/modules/${MOD_DIR_NAME}{,.old} || die
+              else
+                rm -r /lib/modules/${MOD_DIR_NAME} || die
+              fi
+            fi
+            mv /lib/modules/${MOD_DIR_NAME}{.tmp,} || die
+          fi
+          {{- end }}
 
           # Finally, generate a new initramfs with dracut, via whip
           # NOTE: For now, the initramfs is generic.
@@ -567,14 +758,19 @@ debian_sources:
             KTYPE="${MACARONI_KTYPE}" \
             KSUFFIX="${MACARONI_KSUFFIX}" \
             KMODDIR="/lib/modules/$MOD_DIR_NAME" \
+            {{- if .Values.is_debian }}
             whip h initramfs.generate_with_dracut || ewarn "whip initramfs generation failed (non-fatal)"
+            {{- else }}
+            whip h initramfs.generate_with_dracut || die
+            {{- end }}
           fi
 
-          if use binary && [[ -h /usr/src/linux ]]; then
+          {{- if .Values.is_debian }}
+          if use symlink && use binary && [[ -h /usr/src/linux ]]; then
             rm /usr/src/linux || die
           fi
 
-          if use binary && [[ ! -e /usr/src/linux ]]; then
+          if use symlink && use binary && [[ ! -e /usr/src/linux ]]; then
             ewarn "With binary use flag enabled /usr/src/linux"
             ewarn "symlink automatically set to debian kernel"
             ewarn "If you have external modules, don't forget to rebuild them with:"
@@ -587,11 +783,260 @@ debian_sources:
           if [ -e /lib/modules ]; then
             depmod -a $MOD_DIR_NAME || die
           fi
+          {{- else }}
+          if use symlink && use binary && [[ -h "${ROOT}"usr/src/linux ]]; then
+            rm "${ROOT}"usr/src/linux || die
+          fi
+
+          if use symlink && use binary && [[ ! -e "${ROOT}"usr/src/linux ]]; then
+            ewarn "With binary use flag enabled /usr/src/linux"
+            ewarn "symlink automatically set to vanilla kernel"
+            ewarn "If you have external modules, don't forget to rebuild them with:"
+            ewarn ""
+            ewarn "  emerge @module-rebuild"
+            ewarn ""
+            ln -sf ${LINUX_SRCDIR} "${ROOT}"usr/src/linux || die
+          fi
+
+          if [ -e ${ROOT}lib/modules ]; then
+            depmod -a $MOD_DIR_NAME || die
+          fi
+          {{- end }}
 
           # Update bootloader and unmount /boot
           ego_pkg_postinst
         }
+  packages:
+    - vanilla-sources:
+        selector:
+          - '>5.9'
+          - '<5.11'
+        vars:
+          slot: '5.10'
+          use_patches:
+            custom-cflags:
+              - 5.8-5.14/more-ISA-levels-and-uarches-for-kernel-5.8-5.14.patch
+    - vanilla-sources:
+        selector:
+          - '>5.14'
+          - '<5.16'
+        vars:
+          slot: '5.15'
+          use_patches:
+            custom-cflags:
+              - 5.15-5.16/more-ISA-levels-and-uarches-for-kernel-5.15-5.16.patch
+    - vanilla-sources:
+        selector:
+          - '>6.0'
+          - '<6.2'
+        vars:
+          slot: '6.1'
+          use_patches:
+            custom-cflags:
+              - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+    - vanilla-sources:
+        selector:
+          - '>6.5'
+          - '<6.7'
+        vars:
+          slot: '6.6'
+          use_patches:
+            custom-cflags:
+              - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+    - vanilla-sources:
+        selector:
+          - '>6.11'
+          - '<6.13'
+        vars:
+          slot: '6.12'
+          use_patches:
+            custom-cflags:
+              - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
+    - vanilla-sources:
+        selector:
+          - '>6.17'
+          - '<6.19'
+        vars:
+          slot: '6.18'
+          use_patches:
+            custom-cflags:
+              - 6.16+/more-ISA-levels-and-uarches-for-kernel-6.16+.patch
+    - vanilla-sources:
+        selector:
+          - '>7.0'
+          - '<7.2'
+        vars:
+          slot: '7.1'
+          use_patches:
+            custom-cflags:
+              - 7.1+/more-ISA-levels-and-uarches-for-kernel-7.1.x+.patch
+    - vanilla-sources:
+        selector:
+          - '>7.1'
+          - '<7.3'
+        vars:
+          slot: '7.2'
+          use_patches:
+            custom-cflags:
+              - 7.2+/more-ISA-levels-and-uarches-for-kernel-7.2.x+.patch
 
+kernel_sources_debian:
+  generator: custom
+  generator_opts:
+    script: generators/generator_v2.1.py
+    enable_set_version: 'false'
+
+  defaults:
+    files_dir: debian-sources
+    template: ../../templates/simple.tmpl
+    category: sys-kernel
+    selector4slot: true
+    vars:
+      # Flavor gate (drives the {{ if .Values.is_debian }} body branches)
+      is_debian: true
+      # Mirror list for artifact downloads (new format: list of URLs)
+      # Supports any number of mirrors - checked in parallel, first available wins
+      mirrors:
+        - https://deb.debian.org/debian/pool/main/l/linux
+        - https://mirrors.edge.kernel.org/pub/linux/dist/debian/pool/main/l/linux
+      # Legacy single URL format (for backward compatibility)
+      # debian_sources_url: https://deb.debian.org/debian/pool/main/l/linux
+      # debian_sources_fallback_url: https://mirrors.edge.kernel.org/pub/linux/dist/debian/pool/main/l/linux
+      kernel_dot_org_base_url: https://mirrors.edge.kernel.org/pub/linux/kernel/v
+      # Artifact verification (opt-in)
+      verify_artifacts: true
+      # OpenZFS compatibility - version tag from GitHub repo
+      # Generator constructs URL: https://raw.githubusercontent.com/openzfs/zfs/{version}/META
+      openzfs_version: zfs-2.3-release
+      desc: 'Debian Sources (and optional binary kernel)'
+      homepage: 'https://packages.debian.org/unstable/kernel/'
+      license: GPL-2
+      iuse: 'acpi-ec binary btrfs custom-cflags dracut ec2 +logo +symlink luks lvm mdadm savedconfig sshd sign-modules zfs'
+      # Root-filesystem managers: needed at RUNTIME to activate/manage
+      # the root (lvm/luks/raid/btrfs/zfs), so they persist with the
+      # package. Also required at build time for dracut initramfs
+      # generation (RDEPEND is available through pkg_postinst).
+      # NOTE: keep comments at YAML level, NEVER inside the |- block:
+      # portage's dep parser treats '#' as an invalid atom (masks ebuild).
+      rdepend: |
+        btrfs? ( sys-fs/btrfs-progs )
+        zfs? ( sys-fs/zfs )
+        luks? ( sys-fs/cryptsetup )
+        lvm? ( sys-fs/lvm2 )
+        mdadm? ( sys-fs/mdadm )
+      # Build-time only: available from src_prepare through pkg_postinst,
+      # then dep-cleanable. Not needed at runtime.
+      bdepend: |
+        virtual/libelf
+        sys-apps/gawk
+        binary? (
+        	app-admin/whip
+        	sys-apps/whip-catalog
+        	sys-kernel/dracut
+        	virtual/dracut-mark
+        )
+        sign-modules? ( sys-apps/findutils )
+      required_use: |
+        binary? (
+        	^^ ( dracut )
+        	btrfs? ( dracut )
+        	mdadm? ( dracut )
+        	luks? ( dracut )
+        	lvm? ( dracut )
+        	sshd? ( dracut )
+        )
+        dracut? ( binary )
+        sshd? ( binary )
+      restrict: binchecks strip
+
+      # Kernel type metadata
+      ktype: debian
+      ksuffix: debian-mark
+      inherit:
+        - check-reqs
+        - eutils
+        - ego
+        - savedconfig
+
+      # Config extraction version (default, overridden per-package)
+      config_extract: 6.6
+
+      # Source directory (no nested dirs — LINUX_SRCDIR computed by generator)
+      s: '${WORKDIR}/linux-${KERNEL_TRIPLET}'
+
+      # Patches (empty defaults, set per-package)
+      common_patches: []
+      patches: []
+      use_patches: {}
+
+      # Kernel config options (parameterized)
+      # Structure: {use_flag: {config: [{option, value}], file?: path}}
+      kernel_config_options:
+        acpi-ec:
+          config:
+            - option: CONFIG_ACPI_EC_DEBUGFS
+              value: m
+            - option: CONFIG_DEBUG_FS
+              value: y
+        ec2:
+          config:
+            - option: CONFIG_BLK_DEV_NVME
+              value: y
+            - option: CONFIG_XEN_BLKDEV_FRONTEND
+              value: y
+            - option: CONFIG_XEN_BLKDEV_BACKEND
+              value: y
+            - option: CONFIG_IXGBEVF
+              value: y
+        logo:
+          config:
+            - option: CONFIG_LOGO
+              value: y
+          file: macaroni-os_logo_clut224.ppm
+        sign-modules:
+          config:
+            - option: CONFIG_MODULE_SIG
+              value: y
+            - option: CONFIG_MODULE_SIG_FORCE
+              value: n
+            - option: CONFIG_MODULE_SIG_ALL
+              value: n
+            - option: CONFIG_MODULE_SIG_HASH
+              value: '"sha512"'
+            - option: CONFIG_MODULE_SIG_KEY
+              value: '"${certs_dir}/signing_key.pem"'
+            - option: CONFIG_SYSTEM_TRUSTED_KEYRING
+              value: y
+            - option: CONFIG_SYSTEM_EXTRA_CERTIFICATE
+              value: y
+            - option: CONFIG_SYSTEM_EXTRA_CERTIFICATE_SIZE
+              value: 4096
+            - option: CONFIG_MODULE_SIG_SHA512
+              value: y
+        custom-cflags:
+          config: []
+        unconditional:
+          - option: CONFIG_DEBUG*
+            value: n
+          - option: CONFIG_MODULE_COMPRESS*
+            value: n
+          - option: CONFIG_MODULE_COMPRESS_NONE
+            value: y
+          - option: CONFIG_CRYPTO_CRC32C
+            value: y
+
+      # Dracut modules (parameterized)
+      dracut_modules:
+        lvm: lvm
+        luks: crypt
+        mdadm: mdraid
+        btrfs: btrfs
+        sshd: sshd
+      dracut_drivers:
+        luks: dm-crypt
+
+      # Ebuild body (moved from debian-sources.tmpl, parameterized)
+      body: *kernbody
   packages:
     - debian-sources:
         revision: 999
@@ -600,7 +1045,6 @@ debian_sources:
         vars:
           level: unstable
           branch: sid
-          patches: []
           use_patches:
             custom-cflags:
               - 7.1+/more-ISA-levels-and-uarches-for-kernel-7.1.x+.patch
@@ -615,7 +1059,6 @@ debian_sources:
         vars:
           level: testing
           branch: forky
-          patches: []
           use_patches:
             custom-cflags:
               - 7.1+/more-ISA-levels-and-uarches-for-kernel-7.1.x+.patch
@@ -630,7 +1073,6 @@ debian_sources:
         vars:
           level: stable
           branch: trixie
-          patches: []
           use_patches:
             custom-cflags:
               - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
@@ -645,7 +1087,6 @@ debian_sources:
         vars:
           level: oldstable
           branch: bookworm
-          patches: []
           use_patches:
             custom-cflags:
               - 6.1.79+/more-ISA-levels-and-uarches-for-kernel-6.1.79+.patch
@@ -657,7 +1098,7 @@ debian_sources:
 debian_headers:
   generator: custom
   generator_opts:
-    script: sys-kernel/debian-sources/generator.py
+    script: generators/generator_v2.1.py
     enable_set_version: 'false'
   defaults:
     category: sys-kernel
@@ -684,6 +1125,7 @@ debian_headers:
       license: GPL-2
       openzfs_meta_url: https://raw.githubusercontent.com/openzfs/zfs/zfs-2.3-release/META
       slot: 0
+      base_revision: 0
       s: '${WORKDIR}/linux-${PV%%_p*}'
       track_openzfs: False
       body: |
@@ -731,26 +1173,3 @@ debian_headers:
         selector:
           - '>6.12'
           - '<6.13'
-
-# TODO: move to separate file, as it's not specifically debian-sources--related
-dracut_config:
-  generator: builtin-noop
-  template:
-    engine: helm
-  defaults:
-    template: ../../templates/simple.tmpl
-    category: virtual
-    ignore_artefacts: true
-  packages:
-    - dracut-mark:
-        files_dir: virtual/dracut-mark
-        vars:
-          versions:
-            - "1"
-          desc: A virtual package that installs a Dracut config for MARK
-          s: "${WORKDIR}"
-          body: |
-            src_install() {
-              insinto /etc/dracut.conf.d/
-              newins ${FILESDIR}/dracut-mark.conf 99-macaroni.conf
-            }

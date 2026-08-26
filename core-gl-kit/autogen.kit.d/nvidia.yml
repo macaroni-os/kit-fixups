@@ -21,7 +21,7 @@ nvidia_drivers:
         # 535.86
         vars:
           slot: 535
-          max_kernel_version: 6.12
+          max_kernel_version: '6.12'
         dir:
           matcher: "535.*"
         # The selector is needed in order
@@ -36,7 +36,7 @@ nvidia_drivers:
         # 550.*
         vars:
           slot: 550
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "550.*"
         selector:
@@ -47,7 +47,7 @@ nvidia_drivers:
         # 555.*
         vars:
           slot: 555
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "555.*"
         selector:
@@ -58,7 +58,7 @@ nvidia_drivers:
         # 560.*
         vars:
           slot: 560
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "560.*"
         selector:
@@ -69,7 +69,7 @@ nvidia_drivers:
         # 565.*
         vars:
           slot: 565
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "565.*"
         selector:
@@ -80,7 +80,7 @@ nvidia_drivers:
         # 570.*
         vars:
           slot: 570
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "570.*"
         selector:
@@ -93,7 +93,7 @@ nvidia_drivers:
         # 575.*
         vars:
           slot: 575
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "575.*"
         selector:
@@ -106,7 +106,7 @@ nvidia_drivers:
         # 580.*
         vars:
           slot: 580
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "580.*"
         selector:
@@ -119,12 +119,34 @@ nvidia_drivers:
         # 590.*
         vars:
           slot: 590
-          max_kernel_version: 6.18
+          max_kernel_version: '6.18'
         dir:
           matcher: "590.*"
         selector:
           - '<591'
           - '>590'
+
+    - nvidia-drivers:
+        # 595.*
+        vars:
+          slot: 595
+          max_kernel_version: '6.18'
+        dir:
+          matcher: "595.*"
+        selector:
+          - '<596'
+          - '>595'
+
+    - nvidia-drivers:
+        # 595.*
+        vars:
+          slot: 610
+          max_kernel_version: '7.1'
+        dir:
+          matcher: "610.*"
+        selector:
+          - '<611'
+          - '>610'
 
 nvidia_kernel_modules:
   generator: builtin-dirlisting
@@ -210,7 +232,7 @@ nvidia_kernel_modules:
         # 575.*
         vars:
           slot: 575
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "575.*"
         selector:
@@ -223,7 +245,7 @@ nvidia_kernel_modules:
         # 580.*
         vars:
           slot: 580
-          max_kernel_version: 6.14
+          max_kernel_version: '6.14'
         dir:
           matcher: "580.*"
         selector:
@@ -236,12 +258,34 @@ nvidia_kernel_modules:
         # 590.*
         vars:
           slot: 590
-          max_kernel_version: 6.18
+          max_kernel_version: '6.18'
         dir:
           matcher: "590.*"
         selector:
           - '<591'
           - '>590'
+
+    - nvidia-kernel-modules:
+        # 595.*
+        vars:
+          slot: 595
+          max_kernel_version: '6.18'
+        dir:
+          matcher: "595.*"
+        selector:
+          - '<596'
+          - '>595'
+
+    - nvidia-kernel-modules:
+        # 610.*
+        vars:
+          slot: 610
+          max_kernel_version: '7.1'
+        dir:
+          matcher: "610.*"
+        selector:
+          - '<611'
+          - '>610'
 
 cuda_kit:
   generator: builtin-dirlisting

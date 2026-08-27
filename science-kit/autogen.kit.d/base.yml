@@ -92,3 +92,63 @@ github_libs:
                 fi
               fi
             }
+
+noop_pkgs:
+  generator: builtin-noop
+
+  defaults:
+    template:  ../../templates/simple.tmpl
+    category: sci-chemistry
+    files_dir: "{{ .Values.pn }}"
+    github:
+      user: dleidert
+      repo: chemical-mime
+    vars:
+      github_user: dleidert
+      github_repo: chemical-mime
+      versions:
+        - '0.1.95_pre20171122'
+      inherit:
+        - autotools
+        - xdg
+      homepage: https://github.com/dleidert/chemical-mime
+      desc: A collection of data files to add support for chemical MIME types
+      git_sha: 4fd66e3b3b7d922555d1e25587908b036805c45b
+      license: LGPL-2.1
+      rdepend: |
+        x11-misc/shared-mime-info
+      depend: '${RDEPEND}'
+      bdepend: |
+        dev-libs/libxslt
+        dev-util/intltool
+        dev-util/desktop-file-utils
+        virtual/pkgconfig
+      body: |
+        post_src_unpack() {
+          mv {{ .Values.github_repo }}-* ${S}
+        }
+        src_prepare() {
+          default
+          # https://github.com/dleidert/chemical-mime/issues/4
+          sed -i -e \
+            '/<_comment/a\\t\t<generic-icon name="image-x-generic"/>' \
+            src/chemical-mime-database.xml.in || die
+          sed -i -e \
+            's:acronym|alias|comment|:acronym|alias|comment|generic-icon|:' \
+            xsl/cmd_freedesktop_org.xsl || die
+          eautoreconf
+        }
+        src_configure() {
+          econf \
+            --disable-update-database \
+            --without-gnome-mime \
+            --without-kde-mime \
+            --without-kde-magic
+        }
+
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.git_sha }}.tar.gz"
+        url: https://github.com/dleidert/chemical-mime/archive/{{ .Values.git_sha }}.tar.gz
+
+  packages:
+    - chemical-mime-data:

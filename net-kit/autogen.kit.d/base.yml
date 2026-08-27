@@ -2744,11 +2744,11 @@ openprinting:
             poppler? ( >=app-text/poppler-0.32:=[cxx] )
             png? ( media-libs/libpng:= )
             tiff? ( media-libs/tiff:= )
+            media-libs/libjxl
+            dev-libs/pdfio
           depend: '${RDEPEND}'
           bdepend: |
             >=sys-devel/gettext-0.18.3
-            media-libs/libjxl
-            dev-libs/pdfio
             virtual/pkgconfig
           body: |
             src_prepare() {

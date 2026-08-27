@@ -1961,7 +1961,9 @@ kde-plasma:
 
     - plymouth-kcm:
         vars:
-          inherit: kde6 xdg
+          inherit:
+            - xdg
+            - cmake
           desc: "KDE Plasma control module for Plymouth"
           homepage: "https://invent.kde.org/plasma/plymouth-kcm"
           license: "GPL-2+"
@@ -1981,6 +1983,13 @@ kde-plasma:
             sys-boot/plymouth
           bdepend: |
             kde-frameworks/kcmutils:{{ .Values.slot }}
+          body: |
+            src_prepare() {
+              cmake_src_prepare
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+            }
 
     - polkit-kde-agent:
         assets:

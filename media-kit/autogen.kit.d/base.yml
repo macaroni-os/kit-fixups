@@ -5867,3 +5867,57 @@ raptor:
 
   packages:
     - raptor:
+
+
+sndio:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-sound
+    dir:
+      url: https://sndio.org/
+      matcher: '{{ .Values.tarball_prefix | default .Values.pn }}-.*.{{ .Values.tarball_suffix }}$'
+    transform:
+      - kind: string
+        match: "{{ .Values.tarball_prefix | default .Values.pn }}-"
+        replace: ""
+      - kind: string
+        match: ".{{ .Values.tarball_suffix }}"
+        replace: ""
+    vars:
+      tarball_suffix: 'tar.gz'
+      license: ISC
+      inherit:
+        - autotools
+        - toolchain-funcs
+        - user
+      iuse: alsa
+      homepage: https://sndio.org/
+      desc: Small audio and MIDI framework part of the OpenBSD project
+      rdepend: |
+        dev-libs/libbsd
+        alsa? ( media-libs/alsa-lib )
+      depend: '${RDEPEND}'
+      body: |
+        pkg_setup(){
+          enewuser sndiod -1 -1 -1 audio
+        }
+        src_configure() {
+          tc-export CC
+          ./configure \
+            --prefix=/usr \
+            --libdir=/usr/$(get_libdir) \
+            --privsep-user=sndiod \
+            --with-libbsd \
+            $(use_enable alsa) \
+          || die "Configure failed"
+        }
+        src_install() {
+          default
+          doinitd "${FILESDIR}/sndiod"
+        }
+
+  packages:
+    - sndio:

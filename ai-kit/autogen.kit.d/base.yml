@@ -1,4 +1,4 @@
-ollama:
+ai_github:
   generator: builtin-github
   defaults:
     category: app-ai
@@ -93,198 +93,6 @@ ollama:
               doexe {{ .Values.pn }}
               dodoc README.md
             }
-
-    - llama-cpp:
-        github:
-          #per_page: 5
-          user: ggml-org
-          repo: llama.cpp
-          ignore_tags: true
-        transform:
-          - kind: regex
-            match: "b"
-            replace: "0.0."
-        vars:
-          inherit:
-            - cmake
-          nvidia_cuda_capability:
-            - 120
-            - 100
-            - 87
-            - 89
-            - 75
-            #- 61
-            # Maybe we can use all directly.
-
-          # The single source of truth for the NVIDIA compute capabilities
-          # this kit can target, one sm_* per line. The iuse, required_use,
-          # and the src_configure architecture loop are all rendered from
-          # this list, so a new generation is added here and nowhere else.
-          #
-          # The gfxcard-nvidia-<gen> ego mix-ins (core-kit) enable a
-          # generation's flags:
-          #   maxwell    sm_50 sm_52
-          #   pascal     sm_60 sm_61
-          #   volta      sm_70
-          #   turing     sm_75
-          #   ampere     sm_80 sm_86 sm_87
-          #   ada        sm_89
-          #   hopper     sm_90 sm_90a
-          #   blackwell  sm_100 sm_101 sm_103 sm_110 sm_120 sm_121
-          #
-          # sm_101 (Jetson Thor) is renumbered to sm_110 by the 13.x
-          # toolkit, so it is declared alongside it.
-          gpus:
-            #   maxwell
-            - sm_50
-            - sm_52
-            #   pascal
-            - sm_60
-            - sm_61
-            #   volta
-            - sm_70
-            #   turing
-            - sm_75
-            #   ampere
-            - sm_80
-            - sm_86
-            - sm_87
-            #   ada
-            - sm_89
-            #   hopper
-            - sm_90
-            - sm_90a
-            #   blackwell
-            - sm_100
-            - sm_101
-            - sm_103
-            - sm_110
-            - sm_120
-            - sm_121
-
-          # cuda-native: Used to force local GPU identification. It is
-          # kept as a per-emerge escape hatch because the toolkit auto-
-          # detection is not perfect; it is outclassed by the cuda_sm_*
-          # flags and the raw -D of MYCMAKEARGS.
-          iuse: |-
-            static blas cuda nccl vulkan cuda-native
-            {{- range $g := .Values.gpus }} cuda_{{ $g }}{{ end }}
-          required_use: |-
-            nccl? ( cuda )
-            {{- range $g := .Values.gpus }} cuda_{{ $g }}? ( cuda ){{ end }}
-          cdepend: |
-            cuda? (
-              dev-util/nvidia-cuda-toolkit
-            )
-            nccl? (
-              dev-util/nvidia-nccl
-            )
-            vulkan? (
-              dev-util/vulkan-tools
-              media-libs/vulkan-layers
-              media-libs/vulkan-loader
-              media-libs/shaderc
-              sci-libs/gsl
-            )
-            blas? (
-              virtual/blas
-              virtual/lapack
-            )
-          bdepend: |
-            vulkan? (
-              dev-util/vulkan-headers
-            )
-          depend: '${CDEPEND}'
-          rdepend: '${CDEPEND}'
-          body: |
-            src_configure() {
-              addpredict /proc/self/task
-              if use blas ; then
-                # It seems that -lcblas -lblas is not injected. It's inject only -llapack
-                export LDFLAGS="${LDFLAGS} -lcblas -lblas"
-              fi
-              export BUILD_COMMIT={{ .Values.sha }}
-
-              local mycmakeargs=(
-                -DBUILD_SHARED_LIBS=$(usex static OFF ON)
-                -DGGML_CUDA=$(usex cuda ON OFF)
-                -DGGML_BLAS=$(usex blas ON OFF)
-                -DGGML_VULKAN=$(usex vulkan ON OFF)
-                -DGGML_BLAS_VENDOR=Generic
-                -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-              )
-              local cuda_archs= cuda_major= cuda_supported=
-              local arch cuda_flagged=() cuda_dropped=()
-              if use cuda ; then
-                # Multi-GPU support is optional: nccl is OFF by default and a
-                # rebuild of dev-util/nvidia-nccl (or nvidia-cuda-toolkit,
-                # which it depends on) marks this package to rebuild, since it
-                # is a build dependency.
-                mycmakeargs+=(
-                  -DGGML_CUDA_NCCL=$(usex nccl ON OFF)
-                )
-                # The architecture list comes from the enabled cuda_sm_*
-                # flags, filtered against the set the installed toolkit
-                # major can target (same per-major sets as
-                # app-ai/ollama; CUDA only drops architectures at major
-                # boundaries, and sm_101 is renumbered to sm_110 in 13.x).
-                cuda_major=$(
-                  nvcc --version 2>/dev/null |
-                  sed -n 's/.*release \([0-9][0-9]*\).*/\1/p'
-                )
-                case ${cuda_major:-12} in
-                  13)
-                    cuda_supported="75 80 86 87 89 90 90a 100 103 110 120 121"
-                    ;;
-                  11)
-                    cuda_supported="50 52 60 61 70 75 80 86 87 89 90"
-                    ;;
-                  *)
-                    [[ -z ${cuda_major} ]] && \
-                      ewarn "Could not detect the CUDA toolkit major version (nvcc not found); defaulting to the CUDA 12 supported set"
-                    cuda_supported="50 52 60 61 70 75 80 86 87 89 90 90a 100 103 120 121"
-                    ;;
-                esac
-                for arch in {{ range $i, $g := .Values.gpus }}{{ trimPrefix "sm_" $g }} {{ end }}; do
-                  use cuda_sm_${arch} || continue
-                  if has "${arch}" ${cuda_supported} ; then
-                    cuda_flagged+=("${arch}")
-                  else
-                    cuda_dropped+=("${arch}")
-                  fi
-                done
-                if [[ ${#cuda_flagged[@]} -gt 0 || ${#cuda_dropped[@]} -gt 0 ]] ; then
-                  if [[ ${#cuda_dropped[@]} -gt 0 ]] ; then
-                    ewarn "Dropping CUDA architectures unsupported by the installed toolkit (major ${cuda_major:-unknown}): $(join ' ' "${cuda_dropped[@]}")"
-                  fi
-                  if [[ ${#cuda_flagged[@]} -eq 0 ]] ; then
-                    die "all enabled cuda_sm_* flags are unsupported by the installed CUDA toolkit; enable flags matching your card, or override with MYCMAKEARGS=\"-DCMAKE_CUDA_ARCHITECTURES=...\""
-                  fi
-                  cuda_archs="$(join ';' "${cuda_flagged[@]}")"
-                fi
-              fi
-              # Precedence: the enabled cuda_sm_* flags, then the explicit
-              # cuda-native USE flag (per-emerge choice), then the package
-              # default. A raw -D in MYCMAKEARGS still speaks last, since the
-              # cmake eclass appends it after mycmakeargs and cmake's last -D
-              # wins.
-              if [[ -z ${cuda_archs} ]] ; then
-                if use cuda-native ; then
-                  cuda_archs=native
-                else
-                  cuda_archs='{{ .Values.nvidia_cuda_capability | join ";" }}'
-                fi
-              fi
-              mycmakeargs+=(
-                -DCMAKE_CUDA_ARCHITECTURES="${cuda_archs}"
-              )
-              cmake_src_configure
-            }
-            src_install() {
-              cmake_src_install
-              dodoc README.md SECURITY.md CONTRIBUTING.md
-            }
-
 
     - ollama:
         # TODO:
@@ -488,3 +296,227 @@ ollama:
 
 
 
+llama_cpp:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    markdevkit_min_version: 0.35.0
+    github:
+      user: ggml-org
+      repo: llama.cpp
+      ignore_tags: true
+    transform:
+      - kind: regex
+        match: "b"
+        replace: "0.0."
+    vars:
+      inherit:
+        - cmake
+      nvidia_cuda_capability:
+        - 120
+        - 100
+        - 87
+        - 89
+        - 75
+        #- 61
+        # Maybe we can use all directly.
+
+      # The single source of truth for the NVIDIA compute capabilities
+      # this kit can target, one sm_* per line. The iuse, required_use,
+      # and the src_configure architecture loop are all rendered from
+      # this list, so a new generation is added here and nowhere else.
+      #
+      # The gfxcard-nvidia-<gen> ego mix-ins (core-kit) enable a
+      # generation's flags:
+      #   maxwell    sm_50 sm_52
+      #   pascal     sm_60 sm_61
+      #   volta      sm_70
+      #   turing     sm_75
+      #   ampere     sm_80 sm_86 sm_87
+      #   ada        sm_89
+      #   hopper     sm_90 sm_90a
+      #   blackwell  sm_100 sm_101 sm_103 sm_110 sm_120 sm_121
+      #
+      # sm_101 (Jetson Thor) is renumbered to sm_110 by the 13.x
+      # toolkit, so it is declared alongside it.
+      gpus:
+        #   maxwell
+        - sm_50
+        - sm_52
+        #   pascal
+        - sm_60
+        - sm_61
+        #   volta
+        - sm_70
+        #   turing
+        - sm_75
+        #   ampere
+        - sm_80
+        - sm_86
+        - sm_87
+        #   ada
+        - sm_89
+        #   hopper
+        - sm_90
+        - sm_90a
+        #   blackwell
+        - sm_100
+        - sm_101
+        - sm_103
+        - sm_110
+        - sm_120
+        - sm_121
+
+      # cuda-native: Used to force local GPU identification. It is
+      # kept as a per-emerge escape hatch because the toolkit auto-
+      # detection is not perfect; it is outclassed by the cuda_sm_*
+      # flags and the raw -D of MYCMAKEARGS.
+      iuse: |-
+        static blas cuda nccl vulkan cuda-native
+        {{- range $g := .Values.gpus }}
+        cuda_{{ $g }}
+        {{- end }}
+      required_use: |-
+        nccl? ( cuda )
+        {{- range $g := .Values.gpus }}
+        cuda_{{ $g }}? ( cuda )
+        {{- end }}
+      cdepend: |
+        cuda? (
+          dev-util/nvidia-cuda-toolkit
+        )
+        nccl? (
+          dev-util/nvidia-nccl
+        )
+        vulkan? (
+          dev-util/vulkan-tools
+          media-libs/vulkan-layers
+          media-libs/vulkan-loader
+          media-libs/shaderc
+          sci-libs/gsl
+        )
+        blas? (
+          virtual/blas
+          virtual/lapack
+        )
+        {{ .Values.cdepend_extra }}
+      bdepend: |
+        vulkan? (
+          dev-util/vulkan-headers
+        )
+      rdepend: '${CDEPEND}'
+      depend: '${CDEPEND}'
+      body: |
+        src_configure() {
+          addpredict /proc/self/task
+          if use blas ; then
+            # It seems that -lcblas -lblas is not injected. It's inject only -llapack
+            export LDFLAGS="${LDFLAGS} -lcblas -lblas"
+          fi
+          export BUILD_COMMIT={{ .Values.sha }}
+
+          local mycmakeargs=(
+            -DBUILD_SHARED_LIBS=$(usex static OFF ON)
+            -DGGML_CUDA=$(usex cuda ON OFF)
+            -DGGML_BLAS=$(usex blas ON OFF)
+            -DGGML_VULKAN=$(usex vulkan ON OFF)
+            -DGGML_BLAS_VENDOR=Generic
+            -DGGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+          )
+          local cuda_archs= cuda_major= cuda_supported=
+          local arch cuda_flagged=() cuda_dropped=()
+          if use cuda ; then
+            # Multi-GPU support is optional: nccl is OFF by default and a
+            # rebuild of dev-util/nvidia-nccl (or nvidia-cuda-toolkit,
+            # which it depends on) marks this package to rebuild, since it
+            # is a build dependency.
+            mycmakeargs+=(
+              -DGGML_CUDA_NCCL=$(usex nccl ON OFF)
+            )
+            # The architecture list comes from the enabled cuda_sm_*
+            # flags, filtered against the set the installed toolkit
+            # major can target (same per-major sets as
+            # app-ai/ollama; CUDA only drops architectures at major
+            # boundaries, and sm_101 is renumbered to sm_110 in 13.x).
+            cuda_major=$(
+              nvcc --version 2>/dev/null |
+              sed -n 's/.*release \([0-9][0-9]*\).*/\1/p'
+            )
+            case ${cuda_major:-12} in
+              13)
+                cuda_supported="75 80 86 87 89 90 90a 100 103 110 120 121"
+                ;;
+              11)
+                cuda_supported="50 52 60 61 70 75 80 86 87 89 90"
+                ;;
+              *)
+                [[ -z ${cuda_major} ]] && \
+                  ewarn "Could not detect the CUDA toolkit major version (nvcc not found); defaulting to the CUDA 12 supported set"
+                cuda_supported="50 52 60 61 70 75 80 86 87 89 90 90a 100 103 120 121"
+                ;;
+            esac
+            for arch in {{ range $i, $g := .Values.gpus }}{{ trimPrefix "sm_" $g }} {{ end }}; do
+              use cuda_sm_${arch} || continue
+              if has "${arch}" ${cuda_supported} ; then
+                cuda_flagged+=("${arch}")
+              else
+                cuda_dropped+=("${arch}")
+              fi
+            done
+            if [[ ${#cuda_flagged[@]} -gt 0 || ${#cuda_dropped[@]} -gt 0 ]] ; then
+              if [[ ${#cuda_dropped[@]} -gt 0 ]] ; then
+                ewarn "Dropping CUDA architectures unsupported by the installed toolkit (major ${cuda_major:-unknown}): $(join ' ' "${cuda_dropped[@]}")"
+              fi
+              if [[ ${#cuda_flagged[@]} -eq 0 ]] ; then
+                die "all enabled cuda_sm_* flags are unsupported by the installed CUDA toolkit; enable flags matching your card, or override with MYCMAKEARGS=\"-DCMAKE_CUDA_ARCHITECTURES=...\""
+              fi
+              cuda_archs="$(join ';' "${cuda_flagged[@]}")"
+            fi
+          fi
+          # Precedence: the enabled cuda_sm_* flags, then the explicit
+          # cuda-native USE flag (per-emerge choice), then the package
+          # default. A raw -D in MYCMAKEARGS still speaks last, since the
+          # cmake eclass appends it after mycmakeargs and cmake's last -D
+          # wins.
+          if [[ -z ${cuda_archs} ]] ; then
+            if use cuda-native ; then
+              cuda_archs=native
+            else
+              cuda_archs='{{ .Values.nvidia_cuda_capability | join ";" }}'
+            fi
+          fi
+          mycmakeargs+=(
+            -DCMAKE_CUDA_ARCHITECTURES="${cuda_archs}"
+          )
+          cmake_src_configure
+        }
+        src_install() {
+          cmake_src_install
+          dodoc README.md SECURITY.md CONTRIBUTING.md
+        }
+
+
+
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+
+    - llama-cpp:
+        github:
+          experimental: true
+          match: '^b.*'
+        vars:
+          slot: snapshot
+          cdepend_extra: |
+            !app-ai/llama-cpp:0
+
+    - llama-cpp:
+        github:
+          match: '^[^b]'
+        vars:
+          cdepend_extra: |
+            !app-ai/llama-cpp:snapshot

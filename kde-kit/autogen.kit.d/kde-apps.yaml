@@ -3864,6 +3864,7 @@ kde-apps:
              url: https://download.kde.org/stable/release-service/{{ .Values.version }}/src/ktnef-{{ .Values.version}}.tar.xz
         vars:
           desc: "Library for handling TNEF data"
+          s: '${WORKDIR}/ktnef-{{ .Values.pv }}'
           rdepend: |
             virtual/kde-seed
             kde-apps/kcalutils:{{ .Values.slot }}=

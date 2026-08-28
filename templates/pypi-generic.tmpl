@@ -42,6 +42,19 @@ SRC_URI="{{ src_uri}}
 {{indented('$(cargo_crate_uris ${CRATES})',2)}}
 {%- endif %}
 "
+LICENSE="{{license|default('')}}"
+SLOT="{{slot|default('0')}}"
+KEYWORDS="{{keywords|default('*')}}"
+
+{%- if patches is defined %}
+PATCHES=(
+{%- for patch in patches %}
+	"$FILESDIR"/{{ patch }}
+{%- endfor %}
+)
+
+{%- endif %}
+
 
 {%- if cdepend is defined %}
 CDEPEND="
@@ -49,10 +62,11 @@ CDEPEND="
 "
 {%- endif %}
 
-{%- if depend is defined or py_depend is defined %}
-DEPEND="
-{% if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
-{% if py_depend is defined %}{{indented(py_depend|default(''),1)}}{%- endif %}
+
+{%- if bdepend is defined or py_bdepend is defined %}
+BDEPEND="
+{%- if bdepend is defined %}{{indented(bdepend|default(''),1)}}{%- endif %}
+{%- if py_bdepend is defined %}{{indented(py_bdepend|default(''),1)}}{%- endif %}
 "
 {%- endif %}
 {%- if rdepend is defined or py_rdepend is defined %}
@@ -63,19 +77,18 @@ RDEPEND="
 {%- endif %}
 "
 {%- endif %}
+{%- if depend is defined or py_depend is defined %}
+DEPEND="
+{% if depend is defined %}{{indented(depend|default(''),1)}}{%- endif %}
+{% if py_depend is defined %}{{indented(py_depend|default(''),1)}}{%- endif %}
+"
+{%- endif %}
 {%- if pdepend is defined or py_pdepend is defined %}
 PDEPEND="
 {%- if pdepend is defined %}{{indented(pdepend|default(''),1)}}{%- endif %}
 {%- if py_pdepend is defined %}{{indented(py_pdepend|default(''),1)}}{%- endif %}
 "
 {%- endif %}
-{%- if bdepend is defined or py_bdepend is defined %}
-BDEPEND="
-{%- if bdepend is defined %}{{indented(bdepend|default(''),1)}}{%- endif %}
-{%- if py_bdepend is defined %}{{indented(py_bdepend|default(''),1)}}{%- endif %}
-"
-{%- endif %}
-
 {%- if iuse is defined %}
 IUSE="{{indented(iuse|default(''),1)}}"
 {%- endif %}
@@ -85,18 +98,6 @@ REQUIRED_USE="{{indented(required_use, 1)}}
 {%- endif %}
 {%- if restrict is defined %}
 RESTRICT="{{restrict|default('')}}"
-{%- endif %}
-SLOT="{{slot|default('0')}}"
-LICENSE="{{license|default('')}}"
-KEYWORDS="{{keywords|default('*')}}"
-
-{%- if patches is defined %}
-PATCHES=(
-{%- for patch in patches %}
-	"$FILESDIR"/{{ patch }}
-{%- endfor %}
-)
-
 {%- endif %}
 {%- if s is defined %}
 S="{{ s }}"

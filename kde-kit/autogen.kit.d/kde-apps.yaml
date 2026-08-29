@@ -2566,8 +2566,8 @@ kde-apps:
             virtual/kde-seed[gui]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}
             >=dev-libs/qtkeychain-0.14.2:=[qt6(+)]
-            =kde-apps/kdepim-runtime*:{{ .Values.slot }}
-            =kde-apps/kmail-account-wizard*:{{ .Values.slot }}
+            kde-apps/kdepim-runtime:{{ .Values.slot }}
+            kde-apps/kmail-account-wizard:{{ .Values.slot }}
             app-crypt/gpgmepp:=
             dev-libs/qgpgme:=
             >=dev-libs/ktextaddons-1.6.0:{{ .Values.slot }}[speech?]

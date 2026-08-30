@@ -3468,6 +3468,11 @@ media_libs_gh:
           user: kcat
           repo: openal-soft
           query: tags
+          per_page: 100
+          num_pages: 2
+        selector:
+          - '>=1.22.0'
+          - '<4.0'
         exclude:
           - '[a-zA-Z]'
         vars:

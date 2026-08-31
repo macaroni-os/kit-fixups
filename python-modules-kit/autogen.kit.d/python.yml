@@ -11,6 +11,13 @@ hatchling_modules:
       python_compat: "python3+"
 
   packages:
+
+    - attrs:
+        pydeps:
+          py:all:build:
+            - hatch-vcs
+            - hatch-fancy-pypi-readme
+
     - expandvars:
         pydeps_ignore:
           - "extra == 'tests'"
@@ -68,6 +75,10 @@ flit_modules:
     python_compat: "python3+"
 
   packages:
+
+    - idna:
+        pydeps_ignore:
+          - 'extra == "all"'
 
     - typing-extensions:
         pypi_name: typing_extensions
@@ -193,6 +204,91 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+
+    - aiohttp:
+        vars:
+          depend: |
+            ${RDEPEND}
+        pydeps:
+          py:all:runtime:
+            - aiodns
+            - aiohappyeyeballs
+            - aiosignal
+            - attrs
+            - frozenlist
+            - propcache
+            - yarl
+            - multidict
+            - typing-extensions
+            - charset_normalizer
+          py:all:build:
+            - cython
+
+    - aiodns:
+        pydeps:
+          py:all:runtime:
+            - pycares
+          py:all:build:
+            - pycares
+
+    - pycares:
+        vars:
+          rdepend: |
+            virtual/python-cffi[${PYTHON_USEDEP}]
+            net-dns/c-ares:=
+          bdepend: |
+            virtual/python-cffi[${PYTHON_USEDEP}]
+            net-dns/c-ares:=
+        pydeps:
+          py:all:runtime:
+            - idna
+
+    - multidict:
+        pydeps:
+          py:all:build:
+            - cython
+
+    - aiosignal:
+        pydeps:
+          py:all:runtime:
+            - frozenlist
+            - typing-extensions
+          py:all:build:
+            - frozenlist
+            - typing-extensions
+
+    - crc32c:
+
+    - pyjwt:
+        pydeps:
+          py:all:runtime:
+            - cryptography
+            - typing-extensions
+          py:all:build:
+            - cryptography
+            - typing-extensions
+        pypi_name: pyjwt
+
+    - circuitbreaker:
+
+    - pytz:
+        vars:
+          license: MIT
+          rdepend: |
+            sys-libs/timezone-data
+          depend: |
+            ${RDEPEND}
+            app-arch/unzip
+          body: |
+            src_prepare() {
+              default
+              # configure the source code to grab zoneinfo files from /usr/share/zoneinfo by default:
+              sed -i -e "/zoneinfo_dir = os.environ.get/s:None:'/usr/share/zoneinfo':" $S/pytz/__init__.py || die
+              }
+            post_src_install() {
+              # Remove all bundled zoneinfo data:
+              find "$D" -type d -name zoneinfo -exec rm -rf {} \; 2>/dev/null
+            }
 
     - shtab:
         vars:
@@ -541,6 +637,9 @@ poetry_modules:
     python_compat: "python3+"
 
   packages:
+
+    - aiohappyeyeballs:
+
     - qrcode:
 
 standalone_modules:

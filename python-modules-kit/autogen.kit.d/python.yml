@@ -12,6 +12,15 @@ hatchling_modules:
 
   packages:
 
+    - wcwidth:
+        vars:
+          body: |
+            src_prepare() {
+              distutils-r1_src_prepare
+              rm README.rst
+              cp docs/intro.rst README.rst
+            }
+
     - attrs:
         pydeps:
           py:all:build:
@@ -75,6 +84,14 @@ flit_modules:
     python_compat: "python3+"
 
   packages:
+
+    - click:
+
+    - arrow:
+        pydeps:
+          py:all:both:
+            - python-dateutil
+
 
     - idna:
         pydeps_ignore:
@@ -204,6 +221,12 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+
+    - prompt_toolkit:
+
+    - six:
+
+    - jmespath:
 
     - aiohttp:
         vars:
@@ -637,6 +660,19 @@ poetry_modules:
     python_compat: "python3+"
 
   packages:
+
+    - terminaltables:
+        vars:
+          body: |
+            src_prepare() {
+              sed -e '/requires/s:poetry:&-core:' \
+                -e '/backend/s:poetry:&.core:' \
+                -i pyproject.toml || die
+              # Fix terminal_io.py
+              sed -e 's|sys.stdout.write|sys.stdout.buffer.write|g' \
+                -i terminaltables/terminal_io.py || die
+              distutils-r1_src_prepare
+            }
 
     - aiohappyeyeballs:
 

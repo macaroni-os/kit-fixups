@@ -193,3 +193,25 @@ virtual_os_headers:
             )
           versions:
             - '2'
+
+dracut_config:
+  generator: builtin-noop
+  template:
+    engine: helm
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+    ignore_artefacts: true
+  packages:
+    - dracut-mark:
+        files_dir: virtual/dracut-mark
+        vars:
+          versions:
+            - "1"
+          desc: A virtual package that installs a Dracut config for MARK
+          s: "${WORKDIR}"
+          body: |
+            src_install() {
+              insinto /etc/dracut.conf.d/
+              newins ${FILESDIR}/dracut-mark.conf 99-macaroni.conf
+            }

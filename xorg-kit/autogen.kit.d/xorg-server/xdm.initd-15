@@ -1,9 +1,9 @@
 #!/sbin/openrc-run
+# Copyright 2025-2026 Macaroni OS
 # Copyright 1999-2014 Gentoo Foundation
+# Originally based on Gentoo initd script.
 # Distributed under the terms of the GNU General Public License, v2
 
-# This is here to serve as a note to myself, and future developers.
-#
 # Any Display manager (gdm,kdm,xdm) has the following problem:  if
 # it is started before any getty, and no vt is specified, it will
 # usually run on vt2.  When the getty on vt2 then starts, and the
@@ -30,37 +30,23 @@
 # /etc/X11/startDM.sh after the current runlevel completes (this
 # script should only be added to the actual runlevel the user is
 # using).
-#
-# Martin Schlemmer
-# aka Azarah
-# 04 March 2002
 
 depend() {
 	need localmount xdm-setup
 
-	# this should start as early as possible
-	# we can't do 'before *' as that breaks it
-	# (#139824) Start after ypbind and autofs for network authentication
-	# (#145219 #180163) Could use lirc mouse as input device
-	# (#70689 comment #92) Start after consolefont to avoid display corruption
-	# (#291269) Start after quota, since some dm need readable home
-	# (#390609) gdm-3 will fail when dbus is not running
-	# (#366753) starting keymaps after X causes problems
 	after bootmisc consolefont modules netmount
 	after readahead-list ypbind autofs openvpn gpm lircmd
 	after quota keymaps
 	before alsasound
 
-	# Funtoo tweak
 	case ${DISPLAYMANAGER} in
-		gdm|gnome|lightdm)
+		gdm|gnome|lightdm|sddm)
 			need elogind dbus
 			;;
 	esac
 
 	# Start before X
-	use consolekit dbus xfs
-
+	use dbus xfs
 }
 
 setup_dm() {
@@ -74,10 +60,6 @@ setup_dm() {
 
 	NAME=
 	case "${MY_XDM}" in
-		kdm|kde)
-			EXE=/usr/bin/kdm
-			PIDFILE=/run/kdm.pid
-			;;
 		entrance*)
 			EXE=/usr/sbin/entrance
 			PIDFILE=/run/entrance.pid
@@ -93,7 +75,6 @@ setup_dm() {
 				EXE=/usr/bin/gdm
 				PIDFILE=/run/gdm.pid
 			fi
-			[ "${RC_UNAME}" != "Linux" ] && NAME=gdm-binary
 			;;
 		wdm)
 			EXE=/usr/bin/wdm
@@ -155,6 +136,16 @@ vtstatic() {
 
 start() {
 	local EXE NAME PIDFILE AUTOCLEAN_CGROUP
+	
+	# Plymouth generates issues for GDM when is enabled.
+	# It's better deactive it and clear terminal before
+	# starts xdm.
+	if command -v plymouth >/dev/null 2>&1; then
+		plymouth deactivate
+		plymouth quit
+		clear > /dev/tty1 2>/dev/null
+	fi
+
 	setup_dm
 
 	if [ -f /etc/.noxdm ]; then

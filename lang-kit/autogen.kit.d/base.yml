@@ -1055,3 +1055,67 @@ erlang:
     - erlang:
         selector:
           - '<29'
+
+julia_bin:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-lang
+    github:
+      user: JuliaLang
+      repo: julia
+      num_pages: 4
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}-x86_64.tar.gz'
+        use: amd64
+        url: '{{- $mpv := join "." ( slice ( splitList "." .Values.pv ) 0 2 ) }}{{ .Values.base_srcuri }}/linux/x64/{{ $mpv }}/julia-{{ .Values.pv }}-linux-x86_64.tar.gz'
+
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}-arm64.tar.gz'
+        use: arm64
+        url: '{{- $mpv := join "." ( slice ( splitList "." .Values.pv ) 0 2 ) }}{{ .Values.base_srcuri }}/linux/aarch64/{{ $mpv }}/julia-{{ .Values.pv }}-linux-aarch64.tar.gz'
+
+    vars:
+      s: '${WORKDIR}/{{ .Values.pn | replace "-bin" "" }}-{{ .Values.pv }}'
+      base_srcuri: 'https://julialang-s3.julialang.org/bin'
+      iuse: amd64 arm64
+      restrict: strip
+      extra_envs:
+        - 'QA_PREBUILT="*"'
+      body: |
+        {{- $pn_original := .Values.pn | replace "-bin" "" }}
+        {{- $p_original := printf "%s-%s" $pn_original .Values.pv }}
+        {{- $v := .Values.pv }}
+        src_install() {
+          insinto "/usr/$(get_libdir)/{{ $p_original }}/"
+          exeinto "/usr/$(get_libdir)/{{ $p_original }}/bin"
+
+          doins -r ./etc
+          doins -r ./include
+          doins -r ./lib
+          doins -r ./share
+
+          doexe bin/julia
+          dosym "../$(get_libdir)/{{ $p_original }}/bin/{{ $pn_original }}" \
+            "/usr/bin/{{ $pn_original }}{{ join "." ( slice ( splitList "." $v ) 0 2 ) }}"
+
+          {
+            echo "PATH=\"/usr/$(get_libdir)/{{ $p_original }}/bin\""
+          } > "${T}"/99{{ $pn_original }}
+          doenvd "${T}"/99{{ $pn_original }}
+        }
+
+
+  packages:
+
+    # release v12
+    - julia-bin:
+        selector:
+          - '<1.13'
+          - '>1.12.0'
+
+    # release v10
+    - julia-bin:
+        selector:
+          - '<1.11'
+          - '>=1.10.0'

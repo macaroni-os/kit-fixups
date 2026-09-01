@@ -1302,7 +1302,7 @@ kde-apps:
             virtual/kde-seed[gui,declarative,multimedia]
             dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
             speech? ( dev-qt/qtspeech:{{ .Values.qt_slot }} )
-            kde-apps/kdeedu-data:*
+            kde-apps/kdeedu-data:{{ .Values.slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kconfig:{{ .Values.slot }}
             kde-frameworks/kconfigwidgets:{{ .Values.slot }}

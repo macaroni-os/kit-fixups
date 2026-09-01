@@ -640,7 +640,7 @@ kde-apps:
           rdepend: |
             virtual/kde-seed[gui,cups,svg]
             dev-qt/qtwebengine:{{ .Values.qt_slot }}
-            julia? ( dev-lang/julia )
+            julia? ( dev-lang/julia-bin )
             postscript? ( app-text/libspectre )
             kde-frameworks/karchive:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}

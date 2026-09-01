@@ -1095,7 +1095,7 @@ kde-apps:
           iuse: "activities telemetry"
           rdepend: |
             virtual/kde-seed[gui]
-            =kde-apps/kdepim-runtime*:{{ .Values.slot }}
+            kde-apps/kdepim-runtime:{{ .Values.slot }}
             kde-apps/akonadi:{{ .Values.slot }}=
             kde-apps/akonadi-contacts:{{ .Values.slot }}=
             kde-apps/akonadi-search:{{ .Values.slot }}=

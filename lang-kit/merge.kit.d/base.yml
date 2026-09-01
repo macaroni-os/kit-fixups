@@ -26,6 +26,19 @@ target:
 
   atoms:
 
+    # Julia
+    # v12
+    - pkg: dev-lang/julia-bin
+      conditions:
+        - '>=dev-lang/julia-bin-1.12.0'
+        - '<dev-lang/julia-bin-1.13.0'
+
+    # v10
+    - pkg: dev-lang/julia-bin
+      conditions:
+        - '>=dev-lang/julia-bin-1.10.0'
+        - '<dev-lang/julia-bin-1.11.0'
+
     - pkg: dev-lang/orc
     - pkg: dev-lang/swig
     - pkg: dev-lang/yasm

@@ -2084,7 +2084,7 @@ kde-apps:
             dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
             dev-qt/qtdeclarative:{{ .Values.qt_slot }}[widgets]
             dev-libs/kirigami-addons:{{ .Values.slot }}
-            kde-apps/kdeedu-data:*
+            kde-apps/kdeedu-data:{{ .Values.slot }}
             kde-frameworks/kirigami:{{ .Values.slot }}
             kde-apps/libkeduvocdocument:{{ .Values.slot }}
             kde-frameworks/kcompletion:{{ .Values.slot }}

@@ -4198,7 +4198,7 @@ kde-apps:
           iuse: "webengine"
           rdepend: |
             virtual/kde-seed[gui,multimedia,svg]
-            kde-apps/kdeedu-data:*
+            kde-apps/kdeedu-data:{{ .Values.slot }}
             app-i18n/translate-shell
             dev-libs/libxml2:2=
             dev-libs/libxslt

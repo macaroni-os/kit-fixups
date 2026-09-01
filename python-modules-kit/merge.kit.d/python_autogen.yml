@@ -25,6 +25,18 @@ target:
     - pkg: dev-python/certifi
     - pkg: dev-python/cffi
     - pkg: dev-python/circuitbreaker
+    # Cython 3.1
+    - pkg: dev-python/cython
+      conditions:
+        - '<dev-python/cython-3.2'
+    # Cython 3.2
+    - pkg: dev-python/cython
+      conditions:
+        - '<dev-python/cython-3.2'
+    # Cython 3.3
+    - pkg: dev-python/cython
+      conditions:
+        - '<dev-python/cython-3.3'
     - pkg: dev-python/click
     - pkg: dev-python/contourpy
     - pkg: dev-python/cryptography

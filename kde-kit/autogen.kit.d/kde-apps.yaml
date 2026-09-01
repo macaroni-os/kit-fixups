@@ -1157,7 +1157,7 @@ kde-apps:
           iuse: "mpv +pim speech X"
           rdepend: |
             virtual/kde-seed[gui]
-            pim? ( =kde-apps/kdepim-runtime*:{{ .Values.slot }} )
+            pim? ( kde-apps/kdepim-runtime:{{ .Values.slot }} )
             kde-apps/kcalutils:{{ .Values.slot }}=
             kde-apps/kidentitymanagement:{{ .Values.slot }}=
             kde-apps/kmime:{{ .Values.slot }}=

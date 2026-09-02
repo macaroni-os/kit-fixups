@@ -1,0 +1,58 @@
+freecell_solver:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-games
+    template: ../../templates/simple.tmpl
+
+    dir:
+      url: https://fc-solve.shlomifish.org/download.html
+      matcher: "{{ .Values.pn }}-.*.tar.xz"
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ""
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      homepage: https://fc-solve.shlomifish.org/
+      desc: C library for automatically solving Freecell and some other solitaire variants
+      python_compat: python3+
+      inherit:
+        - cmake-utils
+        - python-single-r1
+      license: MIT
+      required_use: '${PYTHON_REQUIRED_USE}'
+      rdepend: |
+        ${PYTHON_DEPS}
+        dev-libs/rinutils
+        dev-python/pysol_cards[${PYTHON_USEDEP}]
+        dev-python/random2[${PYTHON_USEDEP}]
+        dev-python/six[${PYTHON_USEDEP}]
+      depend: |
+        ${RDEPEND}
+        dev-perl/Moo
+        dev-perl/Path-Tiny
+        dev-perl/Template-Toolkit
+      body: |
+        src_prepare() {
+          sed -i -e "s|share/doc/freecell-solver/|share/doc/{{ .Values.p }}|" CMakeLists.txt || die
+
+          python_fix_shebang board_gen
+          cmake-utils_src_prepare
+        }
+        src_configure() {
+          local mycmakeargs=(
+            -DBUILD_STATIC_LIBRARY=OFF
+            -DFCS_BUILD_DOCS=OFF
+            -DFCS_WITH_TEST_SUITE=OFF
+          )
+          cmake-utils_src_configure
+        }
+
+
+  packages:
+
+    - freecell-solver:

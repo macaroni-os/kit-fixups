@@ -2771,3 +2771,34 @@ dev_libs_dirlisting:
               fi
             }
 
+rinutils:
+  generator: builtin-github
+  defaults:
+    files_dir: '{{ .Values.pn }}'
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    github:
+      user: shlomif
+    assets:
+      - name: '{{ .Values.p }}-{{ substr 0 7 .Values.sha }}.tar.xz'
+        matcher: '{{ .Values.pn }}-.*.tar.xz$'
+    vars:
+      inherit:
+        - cmake
+      body: |
+        src_prepare() {
+          cmake_src_prepare
+          sed -i -e 's|^CMAKE_MINIMUM_REQUIRED(VERSION.*|CMAKE_MINIMUM_REQUIRED(VERSION 3.10..3.31)|g' \
+            CMakeLists.txt
+        }
+        src_configure() {
+          local mycmakeargs=(
+            -DDISABLE_APPLYING_RPATH=OFF
+            -DWITH_TEST_SUITE=OFF
+          )
+          cmake_src_configure
+        }
+
+  packages:
+    - rinutils:
+

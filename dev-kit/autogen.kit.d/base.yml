@@ -1847,6 +1847,23 @@ devlibs_github:
               cmake_src_configure
             }
 
+    - xsimd:
+        category: dev-cpp
+        github:
+          user: xtensor-stack
+          query: tags
+        vars:
+          homepage: https://github.com/xtensor-stack/xsimd
+          inherit:
+            - cmake
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTS=OFF
+              )
+              cmake_src_configure
+            }
+
 
 libevdev_dirlisting:
   generator: builtin-dirlisting

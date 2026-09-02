@@ -802,6 +802,70 @@ libs_gh:
               meson_src_configure
             }
 
+    - libunibreak:
+        category: dev-libs
+        github:
+          user: adah1972
+          query: releases
+          match: '^libunibreak [0-9]+\.[0-9]+$'
+        transform:
+          - kind: string
+            match: 'libunibreak '
+            replace: ''
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            matcher: '^libunibreak-[0-9.]+\.tar\.gz$'
+        vars:
+          homepage: https://github.com/adah1972/libunibreak http://vimgadgets.sourceforge.net/libunibreak/
+          iuse: doc +man static-libs
+          bdepend: |
+            doc? ( app-doc/doxygen )
+            man? ( app-doc/doxygen )
+          body: |
+            src_prepare() {
+              default
+
+              if use man || use doc; then
+                echo "GENERATE_MAN=$(usex man YES NO)" >> Doxyfile || die
+                echo "GENERATE_HTML=$(usex doc YES NO)" >> Doxyfile || die
+              fi
+            }
+
+            src_configure() {
+              econf $(use_enable static-libs static)
+            }
+
+            src_compile() {
+              default
+
+              if use man || use doc; then
+                doxygen || die "doxygen failed"
+              fi
+
+              if use man; then
+                cd doc/man || die
+                mv man3 x || die
+                mkdir man3 || die
+                local h
+                for h in unibreakbase unibreakdef linebreak linebreakdef \
+                  eastasianwidthdef graphemebreak wordbreak; do
+                  mv x/${h}.h.3 man3/ || die "man page for ${h}.h not found"
+                done
+                rm -r x || die
+                cd "${S}" || die
+              fi
+            }
+
+            src_install() {
+              use doc && local HTML_DOCS=( doc/html/. )
+
+              default
+
+              use man && doman doc/man/man3/*.3
+
+              find "${ED}" -name '*.la' -delete || die
+            }
+
 
 sdl_tff_autogen:
   generator: builtin-github
@@ -3543,6 +3607,84 @@ media_libs_gh:
                   -DALSOFT_CPUEXT_NEON=$(usex cpu_flags_arm_neon)
                 )
               fi
+              cmake_src_configure
+            }
+
+    - mlt:
+        github:
+          user: mltframework
+        vars:
+          homepage: https://www.mltframework.org https://github.com/mltframework/mlt
+          inherit:
+            - cmake
+          iuse: +ffmpeg frei0r gdk jack opencv qt6 rtaudio +sdl sox +vorbis
+          rdepend: |
+            dev-libs/glib:2=
+            dev-libs/libxml2:2
+            media-libs/libsamplerate
+            sci-libs/fftw:3.0=
+            ffmpeg? ( media-video/ffmpeg:= )
+            frei0r? ( media-plugins/frei0r-plugins )
+            gdk? (
+              media-libs/fontconfig:1.0
+              media-libs/libexif
+              x11-libs/gdk-pixbuf:2
+              x11-libs/pango
+            )
+            jack? (
+              media-libs/ladspa-sdk
+              media-libs/lilv
+              virtual/jack
+            )
+            opencv? ( media-libs/opencv:= )
+            qt6? (
+              dev-qt/qtbase:6[gui]
+              dev-qt/qtsvg:6
+              media-libs/libexif
+            )
+            rtaudio? (
+              media-libs/alsa-lib
+              media-sound/pulseaudio
+            )
+            sdl? ( media-libs/libsdl2 )
+            sox? ( media-sound/sox )
+            vorbis? (
+              media-libs/libogg
+              media-libs/libvorbis
+            )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DBUILD_DOCS=OFF
+                -DCLANG_FORMAT=OFF
+                -DMOD_MOVIT=OFF
+                -DMOD_RUBBERBAND=OFF
+                -DMOD_RNNOISE=OFF
+                -DMOD_VIDSTAB=OFF
+                -DMOD_NDI=OFF
+                -DMOD_SPATIALAUDIO=OFF
+                -DMOD_GLAXNIMATE_QT6=OFF
+                -DMOD_SDL1=OFF
+                -DGPL=ON
+                -DGPL3=$(usex qt6)
+                -DMOD_AVFORMAT=$(usex ffmpeg)
+                -DUSE_AVDEVICE=$(usex ffmpeg)
+                -DMOD_FREI0R=$(usex frei0r)
+                -DMOD_GDK=$(usex gdk)
+                -DMOD_JACKRACK=$(usex jack)
+                -DUSE_LV2=$(usex jack)
+                -DUSE_VST2=$(usex jack)
+                -DMOD_OPENCV=$(usex opencv)
+                -DMOD_QT6=$(usex qt6)
+                -DMOD_RTAUDIO=$(usex rtaudio)
+                -DMOD_SDL2=$(usex sdl)
+                -DMOD_SOX=$(usex sox)
+                -DMOD_VORBIS=$(usex vorbis)
+              )
               cmake_src_configure
             }
 

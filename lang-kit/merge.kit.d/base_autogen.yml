@@ -86,6 +86,16 @@ target:
         - '>=virtual/rust-1.96.0'
         - '<virtual/rust-1.97.0'
 
+    # Rust 1.98
+    - pkg: dev-lang/rust-bin
+      conditions:
+        - '>=dev-lang/rust-bin-1.98.0:stable'
+        - '<dev-lang/rust-bin-1.99.0:stable'
+    - pkg: virtual/rust
+      conditions:
+        - '>=virtual/rust-1.98.0'
+        - '<virtual/rust-1.99.0'
+
 
     - pkg: net-libs/deno
 

@@ -257,6 +257,47 @@ video_gh:
               xdg_pkg_postrm
             }
 
+    - openshot:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: OpenShot
+          repo: openshot-qt
+        vars:
+          license: GPL-3+
+          python_compat: python3+
+          extra_envs:
+            - 'PYTHON_REQ_USE=xml'
+            - 'DISTUTILS_SINGLE_IMPL=1'
+          inherit:
+            - distutils-r1
+            - xdg
+          iuse: doc
+          rdepend: |
+            $(python_gen_cond_dep '
+              dev-python/defusedxml[${PYTHON_USEDEP}]
+              dev-python/numpy[${PYTHON_USEDEP}]
+              dev-python/pillow[${PYTHON_USEDEP}]
+              dev-python/pyzmq[${PYTHON_USEDEP}]
+              dev-python/requests[${PYTHON_USEDEP}]
+              dev-python/PyQt6[statemachine,${PYTHON_USEDEP}]
+            ')
+            >=media-libs/libopenshot-1.0.0:0=[python,${PYTHON_SINGLE_USEDEP}]
+          bdepend: |
+            $(python_gen_cond_dep '
+              doc? ( dev-python/sphinx[${PYTHON_USEDEP}] )
+            ')
+          body: |
+            src_prepare() {
+              distutils-r1_python_prepare_all
+              sed -i 's/^ROOT =.*/ROOT = False/' setup.py || die
+            }
+            python_compile_all() {
+              use doc && emake -C doc html
+            }
+            python_install_all() {
+              use doc && local HTML_DOCS=( doc/_build/html/. )
+              distutils-r1_python_install_all
+            }
 
 sound_gh:
   generator: builtin-github
@@ -866,6 +907,120 @@ libs_gh:
               find "${ED}" -name '*.la' -delete || die
             }
 
+    - libopenshot-audio:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: OpenShot
+        vars:
+          inherit:
+            - cmake
+          iuse: doc
+          docs:
+            - AUTHORS
+            - INSTALL.md
+            - README.md
+          rdepend: |
+            media-libs/alsa-lib
+            sys-libs/zlib
+          depend: '${RDEPEND}'
+          bdepend: |
+            doc? ( app-doc/doxygen )
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DENABLE_AUDIO_DOCS=$(usex doc)
+                -DAUTO_INSTALL_DOCS=ON
+              )
+              cmake_src_configure
+            }
+
+    - libopenshot:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: OpenShot
+        vars:
+          python_compat: python3+
+          inherit:
+            - cmake
+            - python-single-r1
+            - toolchain-funcs
+          iuse: babl doc examples +imagemagick +opencv +pipewire +python
+          required_use: 'python? ( ${PYTHON_REQUIRED_USE} )'
+          patches:
+            - libopenshot-guard-trackedobjectbbox-without-opencv.patch
+          rdepend: |
+            dev-libs/jsoncpp:0=
+            dev-qt/qtbase:6[gui]
+            dev-qt/qtsvg:6
+            >=media-libs/libopenshot-audio-1.0.0:0=
+            media-video/ffmpeg:0[encode,x264,xvid,vpx,mp3,theora,vorbis]
+            net-libs/cppzmq
+            net-libs/zeromq
+            babl? ( media-libs/babl )
+            imagemagick? ( >=media-gfx/imagemagick-7:0=[cxx] )
+            opencv? (
+              >=media-libs/opencv-4.5.2:=[contrib]
+              dev-libs/protobuf:=
+            )
+            pipewire? (
+              dev-libs/glib:2
+              media-video/pipewire
+              sys-apps/xdg-desktop-portal
+            )
+            python? ( ${PYTHON_DEPS} )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+            python? ( >=dev-lang/swig-3.0 )
+          body: |
+            pkg_pretend() {
+              [[ ${MERGE_TYPE} != binary ]] && tc-check-openmp
+            }
+            pkg_setup() {
+              [[ ${MERGE_TYPE} != binary ]] && tc-check-openmp
+              use python && python-single-r1_pkg_setup
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DDISABLE_BUNDLED_JSONCPP=ON
+                -DUSE_SYSTEM_JSONCPP=ON
+                -DUSE_HW_ACCEL=ON
+                -DUSE_QT6=ON
+                -DENABLE_LIB_DOCS=$(usex doc)
+                -DENABLE_MAGICK=$(usex imagemagick)
+                -DENABLE_OPENCV=$(usex opencv)
+                -DENABLE_WAYLAND_CAPTURE=$(usex pipewire)
+                -DENABLE_VULKAN_BENCHMARK=OFF
+                -DENABLE_PYTHON=$(usex python)
+                -DENABLE_RUBY=OFF # TODO: add ruby support
+                -DENABLE_JAVA=OFF
+                -DENABLE_GODOT=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_Resvg=ON
+                $(cmake_use_find_package imagemagick ImageMagick)
+                $(cmake_use_find_package babl babl)
+              )
+              use python && mycmakeargs+=(
+                -DPYTHON_EXECUTABLE="${PYTHON}"
+                -DPYTHON_INCLUDE_DIR="$(python_get_includedir)"
+                -DPYTHON_LIBRARY="$(python_get_library_path)"
+                -DPYTHON_MODULE_PATH="$(python_get_sitedir)"
+              )
+              cmake_src_configure
+            }
+            src_compile() {
+              cmake_src_compile
+              use doc && cmake_build doc
+            }
+            src_install() {
+              local DOCS=( AUTHORS README.md doc/HW-ACCEL.md )
+
+              cmake_src_install
+
+              use examples && dodoc examples/Example*.{cpp,py,rb}
+              use python && python_optimize
+            }
 
 sdl_tff_autogen:
   generator: builtin-github

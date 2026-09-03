@@ -31,6 +31,10 @@ target:
     - pkg: app-misc/yq3-bin
     - pkg: app-misc/yq4-bin
 
+    - pkg: dev-cpp/catch
+    - pkg: dev-cpp/highway
+    - pkg: dev-cpp/xsimd
+
     # Release 8.0.x
     - pkg: dev-db/mysql-connector-c
       conditions:
@@ -55,12 +59,18 @@ target:
 
     - pkg: dev-libs/appstream
     - pkg: dev-libs/ding-libs
+    - pkg: dev-libs/dqlite
     - pkg: dev-libs/fribidi
     - pkg: dev-libs/libbpf
     - pkg: dev-libs/libevdev
     - pkg: dev-libs/liblinear
     - pkg: dev-libs/libxslt
+    - pkg: dev-libs/libzip
+    - pkg: dev-libs/mpc
+    - pkg: dev-libs/mpfr
     - pkg: dev-libs/nss
+    - pkg: dev-libs/quazip
+    - pkg: dev-libs/rinutils
     - pkg: dev-libs/jansson
     - pkg: dev-libs/libmspack
     - pkg: dev-libs/xerces-c
@@ -70,20 +80,22 @@ target:
     - pkg: dev-util/cbindgen
     - pkg: dev-util/cmake
     - pkg: dev-util/cmocka
-    - pkg: dev-libs/dqlite
     - pkg: dev-util/go-swagger
+    - pkg: dev-util/gn
     - pkg: dev-util/lttng-ust
     - pkg: dev-util/lttng-tools
     - pkg: dev-util/lttng-modules
     - pkg: dev-util/meson
     - pkg: dev-util/ninja
     - pkg: dev-util/pnpm-bin
+    - pkg: dev-util/scc
     - pkg: dev-util/unifdef
 
     - pkg: dev-vcs/hub
 
     - pkg: sys-apps/osinfo-db
     - pkg: sys-apps/osinfo-db-tools
+    - pkg: sys-apps/man-pages
     - pkg: sys-apps/miscfiles
 
     - pkg: sys-libs/talloc

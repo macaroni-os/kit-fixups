@@ -3143,6 +3143,17 @@ kde-apps:
           bdepend: |
             app-arch/gzip
 
+          # The blackholesolver seems unmaintained. Last release 2020.
+          # We disable it for now.
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+              -DWITH_BH_SOLVER=OFF
+              )
+              cmake_src_configure
+            }
+
+
     - kpimtextedit:
         vars:
           desc: "Extended text editor for PIM applications"

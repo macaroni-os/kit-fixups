@@ -1,0 +1,30 @@
+TrackedObjectBBox.cpp is only compiled inside the ENABLE_OPENCV block
+(src/CMakeLists.txt: OPENSHOT_CV_SOURCES), and USE_OPENCV=1 is only
+defined there. EffectBase::TrackedObjectMask() dereferences the class
+unguarded, so a -opencv build produces a libopenshot.so with undefined
+references to TrackedObjectBBox::Contains, ::GetBox and its typeinfo,
+which breaks every executable that links the library.
+
+Clip.cpp and Timeline.cpp already guard the identical usage with
+#ifdef USE_OPENCV; this applies the same guard to EffectBase.cpp.
+
+--- a/src/EffectBase.cpp
++++ b/src/EffectBase.cpp
+@@ -548,6 +548,7 @@
+ }
+ 
+ std::shared_ptr<QImage> EffectBase::TrackedObjectMask(std::shared_ptr<QImage> target_image, int64_t frame_number) const {
++#ifdef USE_OPENCV
+ 	if (!target_image || target_image->isNull() || trackedObjects.empty())
+ 		return {};
+ 
+@@ -595,6 +596,9 @@
+ 	if (!drew_any_box)
+ 		return {};
+ 	return mask_image;
++#else
++	return {};
++#endif
+ }
+ 
+ void EffectBase::BlendWithMask(std::shared_ptr<QImage> original_image, std::shared_ptr<QImage> effected_image,

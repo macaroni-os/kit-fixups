@@ -123,6 +123,29 @@ sys_apps:
               fi
             }
 
+noop_pkgs:
+  generator: builtin-noop
+  defaults:
+    category: sys-auth
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+  packages:
+    - elogind-libsystemd:
+        vars:
+          versions:
+            - "1"
+          rdepend: |
+            sys-auth/elogind
+            !sys-apps/systemd
+          s: "${WORKDIR}"
+          desc: Provide standalone libsystemd.so without systemd by linking libelogind.so
+          homepage: https://github.com/elogind/elogind
+          body: |
+            src_install() {
+                dosym libelogind.so.0 /usr/$(get_libdir)/libsystemd.so.0
+                dosym libsystemd.so.0 /usr/$(get_libdir)/libsystemd.so
+            }
+
 sys_auth_pkgs:
   generator: builtin-github
   defaults:

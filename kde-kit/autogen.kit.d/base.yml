@@ -1158,62 +1158,16 @@ kcolorpicker:
               cmake_src_configure
             }
 
-libktorrent:
+apps:
   generator: builtin-dirlisting
 
   defaults:
     files_dir: "{{ .Values.pn }}"
     template: ../../templates/simple.tmpl
-    category: net-libs
     vars:
         slot: 6
         qt_slot: 6
-        homepage: https://apps.kde.org/en/ktorrent https://userbase.kde.org/KTorrent
-        desc: BitTorrent library based on KDE Frameworks
-        inherit:
-          - cmake
-        iuse: xfs ssl
-        rdepend: |
-          app-crypt/qca:2
-          dev-libs/gmp:=
-          dev-libs/openssl:=
-          dev-libs/libgcrypt:=
-          dev-qt/qtbase:{{ .Values.qt_slot }}
-          kde-frameworks/karchive:{{ .Values.slot }}
-          kde-frameworks/kconfig:{{ .Values.slot }}
-          kde-frameworks/kcoreaddons:{{ .Values.slot }}
-          kde-frameworks/kcrash:{{ .Values.slot }}
-          kde-frameworks/ki18n:{{ .Values.slot }}
-          kde-frameworks/kio:{{ .Values.slot }}
-          kde-frameworks/solid:{{ .Values.slot }}
-          xfs? ( sys-fs/xfsprogs )
-          ssl? ( >=dev-libs/openssl-3.0 )
-        depend: |
-          ${RDEPEND}
-          dev-libs/boost
-        bdepend: |
-          sys-devel/gettext
-        license: GPL-2+
         download_prefixurl: https://download.kde.org/Attic/
-        body: |
-          src_prepare() {
-            cmake_src_prepare
-            sed -i -e "/^find_package/ s/\"\${LibGMP_MIN_VERSION}\" //" \
-              CMakeLists.txt || die
-            sed -i -e "/^find_dependency/ s/ \"@LibGMP_MIN_VERSION@\"//" \
-              KTorrent6Config.cmake.in || die
-          }
-          src_configure() {
-            local mycmakeargs=(
-              -DWITH_XFS=$(usex xfs)
-            )
-            if use ssl ; then
-              mycmakeargs+=(
-                -DUSE_CRYPTO_BACKEND=OpenSSL
-              )
-            fi
-            cmake_src_configure
-          }
 
     assets:
        - name: "{{ .Values.pn }}-{{ .Values.version}}.tar.xz"
@@ -1227,108 +1181,188 @@ libktorrent:
 
   packages:
     - libktorrent:
+        category: net-libs
+        vars:
+          homepage: https://apps.kde.org/en/ktorrent https://userbase.kde.org/KTorrent
+          desc: BitTorrent library based on KDE Frameworks
+          inherit:
+            - cmake
+          iuse: xfs ssl
+          rdepend: |
+            app-crypt/qca:2
+            dev-libs/gmp:=
+            dev-libs/openssl:=
+            dev-libs/libgcrypt:=
+            dev-qt/qtbase:{{ .Values.qt_slot }}
+            kde-frameworks/karchive:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/solid:{{ .Values.slot }}
+            xfs? ( sys-fs/xfsprogs )
+            ssl? ( >=dev-libs/openssl-3.0 )
+          depend: |
+            ${RDEPEND}
+            dev-libs/boost
+          bdepend: |
+            sys-devel/gettext
+          license: GPL-2+
+          body: |
+            src_prepare() {
+              cmake_src_prepare
+              sed -i -e "/^find_package/ s/\"\${LibGMP_MIN_VERSION}\" //" \
+                CMakeLists.txt || die
+              sed -i -e "/^find_dependency/ s/ \"@LibGMP_MIN_VERSION@\"//" \
+                KTorrent6Config.cmake.in || die
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DWITH_XFS=$(usex xfs)
+              )
+              if use ssl ; then
+                mycmakeargs+=(
+                  -DUSE_CRYPTO_BACKEND=OpenSSL
+                )
+              fi
+              cmake_src_configure
+            }
 
-
-kdeconnect:
-  generator: builtin-dirlisting
-
-  defaults:
-    files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
-    category: kde-misc
-    vars:
-        slot: 6
-        qt_slot: 6
-        pkgname: kdeconnect-kde
-        homepage: https://kdeconnect.kde.org/ https://apps.kde.org/kdeconnect/
-        desc: Adds communication between KDE Plasma and your smartphone
-        license: '|| ( GPL-2 GPL-3 ) LGPL-2.1+ BSD-2 CC0-1.0 MIT'
-        inherit:
-          - cmake
-          - xdg
-        iuse: +bluetooth modemmanager +pulseaudio X
-        rdepend: |
-          virtual/kde-seed[declarative,gui,multimedia,svg,wayland]
-          dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
-          dev-qt/qtwayland:{{ .Values.qt_slot }}
-          dev-libs/kirigami-addons:{{ .Values.slot }}
-          dev-libs/kpeoplevcard:{{ .Values.slot }}
-          dev-libs/libei
-          dev-libs/libevdev
-          dev-libs/openssl:0=
-          dev-libs/wayland
-          kde-frameworks/kcolorscheme:{{ .Values.slot }}
-          kde-frameworks/kcmutils:{{ .Values.slot }}
-          kde-frameworks/kconfig:{{ .Values.slot }}[qml]
-          kde-frameworks/kcoreaddons:{{ .Values.slot }}
-          kde-frameworks/kcrash:{{ .Values.slot }}
-          kde-frameworks/kdbusaddons:{{ .Values.slot }}
-          kde-frameworks/kdeclarative:{{ .Values.slot }}
-          kde-frameworks/kguiaddons:{{ .Values.slot }}
-          kde-frameworks/ki18n:{{ .Values.slot }}
-          kde-frameworks/kiconthemes:{{ .Values.slot }}
-          kde-frameworks/kio:{{ .Values.slot }}
-          kde-frameworks/kirigami:{{ .Values.slot }}
-          kde-frameworks/kitemmodels:{{ .Values.slot }}
-          kde-frameworks/knotifications:{{ .Values.slot }}
-          kde-frameworks/kpackage:{{ .Values.slot }}
-          kde-frameworks/kpeople:{{ .Values.slot }}
-          kde-frameworks/kservice:{{ .Values.slot }}
-          kde-frameworks/kstatusnotifieritem:{{ .Values.slot }}
-          kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
-          kde-frameworks/kwindowsystem:{{ .Values.slot }}
-          kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
-          kde-frameworks/solid:{{ .Values.slot }}
-          kde-plasma/libplasma:{{ .Values.slot }}
-          net-fs/sshfs
-          sys-apps/dbus
-          x11-libs/libxkbcommon
-          bluetooth? ( dev-qt/qtconnectivity:{{ .Values.qt_slot }} )
-          modemmanager? ( kde-frameworks/modemmanager-qt:{{ .Values.slot }} )
-          pulseaudio? ( media-libs/pulseaudio-qt:{{ .Values.slot }} )
-          X? (
-            x11-libs/libfakekey
-            x11-libs/libX11
-            x11-libs/libXtst
-          )
-        depend: |
-          ${RDEPEND}
-          dev-libs/wayland-protocols
-        s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
-        download_prefixurl: https://download.kde.org/stable/
-        body: |
-          src_prepare() {
-            cmake_src_prepare
-          }
-          src_configure() {
-            local mycmakeargs=(
-              -DBUILD_TESTING=OFF
-              -DBLUETOOTH_ENABLED=$(usex bluetooth)
-              -DWITH_PULSEAUDIO=$(usex pulseaudio)
-              -DWITH_X11=$(usex X)
-              -DINSTALL_UFW_APPLICATION_RULE=OFF
-              $(cmake_use_find_package modemmanager KF6ModemManagerQt)
-            )
-            cmake_src_configure
-          }
-          pkg_postinst() {
-            xdg_pkg_postinst
-
-            elog "The Android companion app is available via"
-            elog "https://play.google.com/store/apps/details?id=org.kde.kdeconnect_tp"
-            elog "or via"
-            elog "https://f-droid.org/packages/org.kde.kdeconnect_tp/"
-          }
-
-    assets:
-       - name: "{{ .Values.pkgname }}-{{ .Values.version }}.tar.xz"
-         url: '{{ .Values.download_prefixurl }}/release-service/{{ .Values.version }}/src/{{ .Values.pkgname }}-{{ .Values.version }}.tar.xz'
-    dir:
-        url: "{{ .Values.download_prefixurl }}/release-service/"
-        matcher: '^26.*'
-
-  packages:
     - kdeconnect:
+        category: kde-misc
+        assets:
+          - name: '{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+            url: '{{ .Values.download_prefixurl }}/release-service/{{ .Values.version }}/src/{{ .Values.pkgname | default .Values.pn }}-{{ .Values.version }}.tar.xz'
+        vars:
+          pkgname: kdeconnect-kde
+          homepage: https://kdeconnect.kde.org/ https://apps.kde.org/kdeconnect/
+          desc: Adds communication between KDE Plasma and your smartphone
+          license: '|| ( GPL-2 GPL-3 ) LGPL-2.1+ BSD-2 CC0-1.0 MIT'
+          inherit:
+            - cmake
+            - xdg
+          iuse: +bluetooth modemmanager +pulseaudio X
+          rdepend: |
+            virtual/kde-seed[declarative,gui,multimedia,svg,wayland]
+            dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
+            dev-qt/qtwayland:{{ .Values.qt_slot }}
+            dev-libs/kirigami-addons:{{ .Values.slot }}
+            dev-libs/kpeoplevcard:{{ .Values.slot }}
+            dev-libs/libei
+            dev-libs/libevdev
+            dev-libs/openssl:0=
+            dev-libs/wayland
+            kde-frameworks/kcolorscheme:{{ .Values.slot }}
+            kde-frameworks/kcmutils:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}[qml]
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/kdbusaddons:{{ .Values.slot }}
+            kde-frameworks/kdeclarative:{{ .Values.slot }}
+            kde-frameworks/kguiaddons:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kiconthemes:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kitemmodels:{{ .Values.slot }}
+            kde-frameworks/knotifications:{{ .Values.slot }}
+            kde-frameworks/kpackage:{{ .Values.slot }}
+            kde-frameworks/kpeople:{{ .Values.slot }}
+            kde-frameworks/kservice:{{ .Values.slot }}
+            kde-frameworks/kstatusnotifieritem:{{ .Values.slot }}
+            kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+            kde-frameworks/kwindowsystem:{{ .Values.slot }}
+            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+            kde-frameworks/solid:{{ .Values.slot }}
+            kde-plasma/libplasma:{{ .Values.slot }}
+            net-fs/sshfs
+            sys-apps/dbus
+            x11-libs/libxkbcommon
+            bluetooth? ( dev-qt/qtconnectivity:{{ .Values.qt_slot }} )
+            modemmanager? ( kde-frameworks/modemmanager-qt:{{ .Values.slot }} )
+            pulseaudio? ( media-libs/pulseaudio-qt:{{ .Values.slot }} )
+            X? (
+              x11-libs/libfakekey
+              x11-libs/libX11
+              x11-libs/libXtst
+            )
+          depend: |
+            ${RDEPEND}
+            dev-libs/wayland-protocols
+          s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+          body: |
+            src_prepare() {
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DBLUETOOTH_ENABLED=$(usex bluetooth)
+                -DWITH_PULSEAUDIO=$(usex pulseaudio)
+                -DWITH_X11=$(usex X)
+                -DINSTALL_UFW_APPLICATION_RULE=OFF
+                $(cmake_use_find_package modemmanager KF6ModemManagerQt)
+              )
+              cmake_src_configure
+            }
+            pkg_postinst() {
+              xdg_pkg_postinst
+
+              elog "The Android companion app is available via"
+              elog "https://play.google.com/store/apps/details?id=org.kde.kdeconnect_tp"
+              elog "or via"
+              elog "https://f-droid.org/packages/org.kde.kdeconnect_tp/"
+            }
+
+    - elisa:
+        category: media-sound
+        vars:
+          homepage: https://apps.kde.org/elisa/
+          desc: Simple music player by KDE
+          license: LGPL-3+ GPL-3+
+          inherit:
+            - cmake
+            - xdg
+          iuse: +mpris +vlc
+          rdepend: |
+            virtual/kde-seed[declarative,gui,multimedia,sql,svg]
+            dev-libs/kirigami-addons:{{ .Values.slot }}
+            kde-frameworks/kcodecs:{{ .Values.slot }}
+            kde-frameworks/kcolorscheme:{{ .Values.slot }}
+            kde-frameworks/kconfig:{{ .Values.slot }}
+            kde-frameworks/kcoreaddons:{{ .Values.slot }}
+            kde-frameworks/kcrash:{{ .Values.slot }}
+            kde-frameworks/kfilemetadata:{{ .Values.slot }}
+            kde-frameworks/ki18n:{{ .Values.slot }}
+            kde-frameworks/kiconthemes:{{ .Values.slot }}
+            kde-frameworks/kio:{{ .Values.slot }}
+            kde-frameworks/kirigami:{{ .Values.slot }}
+            kde-frameworks/kxmlgui:{{ .Values.slot }}
+            kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+            mpris? ( kde-frameworks/kdbusaddons:{{ .Values.slot }} )
+            vlc? ( media-video/vlc:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/gettext
+          body: |
+            src_prepare() {
+              cmake_src_prepare
+            }
+
+            src_configure() {
+              local mycmakeargs=(
+                $(cmake_use_find_package mpris Qt6DBus)
+                $(cmake_use_find_package mpris KF6DBusAddons)
+                $(cmake_use_find_package vlc LIBVLC)
+                -DCMAKE_DISABLE_FIND_PACKAGE_UPNPQT=ON
+              )
+              cmake_src_configure
+            }
+
+            pkg_postinst() {
+              xdg_pkg_postinst
+            }
 
 kpeoplevcard:
   generator: builtin-noop

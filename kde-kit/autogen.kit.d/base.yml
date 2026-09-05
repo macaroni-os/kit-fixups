@@ -1228,3 +1228,158 @@ libktorrent:
   packages:
     - libktorrent:
 
+
+kdeconnect:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: kde-misc
+    vars:
+        slot: 6
+        qt_slot: 6
+        pkgname: kdeconnect-kde
+        homepage: https://kdeconnect.kde.org/ https://apps.kde.org/kdeconnect/
+        desc: Adds communication between KDE Plasma and your smartphone
+        license: '|| ( GPL-2 GPL-3 ) LGPL-2.1+ BSD-2 CC0-1.0 MIT'
+        inherit:
+          - cmake
+          - xdg
+        iuse: +bluetooth modemmanager +pulseaudio X
+        rdepend: |
+          virtual/kde-seed[declarative,gui,multimedia,svg,wayland]
+          dev-qt/qtmultimedia:{{ .Values.qt_slot }}[qml]
+          dev-qt/qtwayland:{{ .Values.qt_slot }}
+          dev-libs/kirigami-addons:{{ .Values.slot }}
+          dev-libs/kpeoplevcard:{{ .Values.slot }}
+          dev-libs/libei
+          dev-libs/libevdev
+          dev-libs/openssl:0=
+          dev-libs/wayland
+          kde-frameworks/kcolorscheme:{{ .Values.slot }}
+          kde-frameworks/kcmutils:{{ .Values.slot }}
+          kde-frameworks/kconfig:{{ .Values.slot }}[qml]
+          kde-frameworks/kcoreaddons:{{ .Values.slot }}
+          kde-frameworks/kcrash:{{ .Values.slot }}
+          kde-frameworks/kdbusaddons:{{ .Values.slot }}
+          kde-frameworks/kdeclarative:{{ .Values.slot }}
+          kde-frameworks/kguiaddons:{{ .Values.slot }}
+          kde-frameworks/ki18n:{{ .Values.slot }}
+          kde-frameworks/kiconthemes:{{ .Values.slot }}
+          kde-frameworks/kio:{{ .Values.slot }}
+          kde-frameworks/kirigami:{{ .Values.slot }}
+          kde-frameworks/kitemmodels:{{ .Values.slot }}
+          kde-frameworks/knotifications:{{ .Values.slot }}
+          kde-frameworks/kpackage:{{ .Values.slot }}
+          kde-frameworks/kpeople:{{ .Values.slot }}
+          kde-frameworks/kservice:{{ .Values.slot }}
+          kde-frameworks/kstatusnotifieritem:{{ .Values.slot }}
+          kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
+          kde-frameworks/kwindowsystem:{{ .Values.slot }}
+          kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+          kde-frameworks/solid:{{ .Values.slot }}
+          kde-plasma/libplasma:{{ .Values.slot }}
+          net-fs/sshfs
+          sys-apps/dbus
+          x11-libs/libxkbcommon
+          bluetooth? ( dev-qt/qtconnectivity:{{ .Values.qt_slot }} )
+          modemmanager? ( kde-frameworks/modemmanager-qt:{{ .Values.slot }} )
+          pulseaudio? ( media-libs/pulseaudio-qt:{{ .Values.slot }} )
+          X? (
+            x11-libs/libfakekey
+            x11-libs/libX11
+            x11-libs/libXtst
+          )
+        depend: |
+          ${RDEPEND}
+          dev-libs/wayland-protocols
+        s: '${WORKDIR}/{{ .Values.pkgname }}-{{ .Values.version }}'
+        download_prefixurl: https://download.kde.org/stable/
+        body: |
+          src_prepare() {
+            cmake_src_prepare
+          }
+          src_configure() {
+            local mycmakeargs=(
+              -DBUILD_TESTING=OFF
+              -DBLUETOOTH_ENABLED=$(usex bluetooth)
+              -DWITH_PULSEAUDIO=$(usex pulseaudio)
+              -DWITH_X11=$(usex X)
+              -DINSTALL_UFW_APPLICATION_RULE=OFF
+              $(cmake_use_find_package modemmanager KF6ModemManagerQt)
+            )
+            cmake_src_configure
+          }
+          pkg_postinst() {
+            xdg_pkg_postinst
+
+            elog "The Android companion app is available via"
+            elog "https://play.google.com/store/apps/details?id=org.kde.kdeconnect_tp"
+            elog "or via"
+            elog "https://f-droid.org/packages/org.kde.kdeconnect_tp/"
+          }
+
+    assets:
+       - name: "{{ .Values.pkgname }}-{{ .Values.version }}.tar.xz"
+         url: '{{ .Values.download_prefixurl }}/release-service/{{ .Values.version }}/src/{{ .Values.pkgname }}-{{ .Values.version }}.tar.xz'
+    dir:
+        url: "{{ .Values.download_prefixurl }}/release-service/"
+        matcher: '^26.*'
+
+  packages:
+    - kdeconnect:
+
+kpeoplevcard:
+  generator: builtin-noop
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    vars:
+        slot: 6
+        qt_slot: 6
+        # snapshot as 0.1 is qt5/kf5
+        commit: d4acaa3038f6b030d0d6390e628c39e9f8d87903
+        versions:
+          - '0.2_p20241202'
+        homepage: https://invent.kde.org/pim/kpeoplevcard
+        desc: Library to expose vcards to KPeople
+        license: LGPL-2.1+ BSD
+        inherit:
+          - cmake
+        rdepend: |
+          virtual/kde-seed[gui]
+          kde-frameworks/kcontacts:{{ .Values.slot }}
+          kde-frameworks/kcoreaddons:{{ .Values.slot }}
+          kde-frameworks/ki18n:{{ .Values.slot }}
+          kde-frameworks/kpeople:{{ .Values.slot }}
+        depend: '${RDEPEND}'
+        s: '${WORKDIR}/{{ .Values.pn }}-{{ .Values.commit }}'
+        body: |
+          src_configure() {
+            local mycmakeargs=(
+              -DQT_MAJOR_VERSION={{ .Values.qt_slot }}
+              -DBUILD_TESTING=OFF
+            )
+            cmake_src_configure
+          }
+
+          src_install() {
+            cmake_src_install
+
+            # kpeople ships this same plugin, so depend and rm
+            local plugin="${ED}/usr/$(get_libdir)/qt{{ .Values.qt_slot }}/plugins/kpeople/datasource/KPeopleVCard.so"
+
+            [[ -f ${plugin} ]] || die "expected plugin at ${plugin} - upstream layout changed"
+            rm "${plugin}" || die "failed to remove ${plugin}"
+            rmdir "${plugin%/*}" || die "failed to remove empty ${plugin%/*}"
+          }
+
+    assets:
+       - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+         url: 'https://invent.kde.org/pim/{{ .Values.pn }}/-/archive/{{ .Values.commit }}/{{ .Values.pn }}-{{ .Values.commit }}.tar.gz'
+
+  packages:
+    - kpeoplevcard:

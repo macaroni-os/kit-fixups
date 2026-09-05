@@ -134,6 +134,15 @@ target:
     - pkg: x11-drivers/nvidia-drivers:590
       conditions:
         - '>=x11-drivers/nvidia-drivers-590:590'
+    # 595 release
+    - pkg: x11-drivers/nvidia-drivers:595
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-595:595'
+    # 610 release
+    - pkg: x11-drivers/nvidia-drivers:610
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-610:610'
+
 
     # 535 release
     - pkg: x11-drivers/nvidia-kernel-modules:535
@@ -179,5 +188,16 @@ target:
     - pkg: x11-drivers/nvidia-kernel-modules:590
       conditions:
         - '>=x11-drivers/nvidia-kernel-modules-590:590'
+
+    # 595 release
+    - pkg: x11-drivers/nvidia-kernel-modules:595
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-595:595'
+
+    # 610 release
+    - pkg: x11-drivers/nvidia-kernel-modules:610
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-610:610'
+
 
     - pkg: sys-power/switcheroo-control

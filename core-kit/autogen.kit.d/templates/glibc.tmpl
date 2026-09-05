@@ -179,7 +179,10 @@ RDEPEND+="
 	>=net-dns/libidn2-2.3.0
 	vanilla? ( !sys-libs/timezone-data )
 "
-PDEPEND+=" !vanilla? ( sys-libs/timezone-data )"
+PDEPEND+="
+	!vanilla? ( sys-libs/timezone-data )
+	sys-apps/locale-gen
+"
 
 # Ignore tests whitelisted below
 GENTOO_GLIBC_XFAIL_TESTS="${GENTOO_GLIBC_XFAIL_TESTS:-yes}"

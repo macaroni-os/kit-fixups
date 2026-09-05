@@ -480,6 +480,12 @@ core_dirlisting:
     - debianutils:
         vars:
           body: |
+            post_src_unpack() {
+              # Ensure to use always same S
+              if [ ! -e "${S}" ] ; then
+                mv debian* "${S}"
+              fi
+            }
             src_prepare() {
               # Avoid adding po4a dependency, upstream refreshes manpages.
               sed -i -e '/SUBDIRS/s|po4a||' Makefile.am || die
@@ -512,7 +518,6 @@ core_dirlisting:
           desc: A selection of tools from Debian
           homepage: https://packages.qa.debian.org/d/debianutils.html
           license: BSD GPL-2 SMAIL
-          s: ${WORKDIR}/debianutils
         dir:
           url: http://ftp.it.debian.org/debian/pool/main/d/debianutils/
           matcher: "debianutils_.*.tar.xz$"

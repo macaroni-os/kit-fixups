@@ -1330,6 +1330,73 @@ kdeconnect:
   packages:
     - kdeconnect:
 
+elisa:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-sound
+    vars:
+        slot: 6
+        qt_slot: 6
+        homepage: https://apps.kde.org/elisa/
+        desc: Simple music player by KDE
+        license: LGPL-3+ GPL-3+
+        inherit:
+          - cmake
+          - xdg
+        iuse: +mpris +vlc
+        restrict: test
+        rdepend: |
+          virtual/kde-seed[declarative,gui,multimedia,sql,svg]
+          dev-libs/kirigami-addons:{{ .Values.slot }}
+          kde-frameworks/kcodecs:{{ .Values.slot }}
+          kde-frameworks/kcolorscheme:{{ .Values.slot }}
+          kde-frameworks/kconfig:{{ .Values.slot }}
+          kde-frameworks/kcoreaddons:{{ .Values.slot }}
+          kde-frameworks/kcrash:{{ .Values.slot }}
+          kde-frameworks/kfilemetadata:{{ .Values.slot }}
+          kde-frameworks/ki18n:{{ .Values.slot }}
+          kde-frameworks/kiconthemes:{{ .Values.slot }}
+          kde-frameworks/kio:{{ .Values.slot }}
+          kde-frameworks/kirigami:{{ .Values.slot }}
+          kde-frameworks/kxmlgui:{{ .Values.slot }}
+          kde-frameworks/qqc2-desktop-style:{{ .Values.slot }}
+          mpris? ( kde-frameworks/kdbusaddons:{{ .Values.slot }} )
+          vlc? ( media-video/vlc:= )
+        depend: '${RDEPEND}'
+        bdepend: |
+          sys-devel/gettext
+        body: |
+          src_prepare() {
+            cmake_src_prepare
+          }
+
+          src_configure() {
+            local mycmakeargs=(
+              $(cmake_use_find_package mpris Qt6DBus)
+              $(cmake_use_find_package mpris KF6DBusAddons)
+              $(cmake_use_find_package vlc LIBVLC)
+              -DCMAKE_DISABLE_FIND_PACKAGE_UPNPQT=ON
+            )
+            cmake_src_configure
+          }
+
+          pkg_postinst() {
+            xdg_pkg_postinst
+          }
+
+    assets:
+       - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
+         url: 'https://download.kde.org/stable/release-service/{{ .Values.version }}/src/{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+    dir:
+        url: "https://download.kde.org/stable/release-service/"
+        matcher: '^26.*'
+
+  packages:
+    - elisa:
+
 kpeoplevcard:
   generator: builtin-noop
 

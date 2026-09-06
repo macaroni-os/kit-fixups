@@ -1,0 +1,96 @@
+From 6d80bd53de7fdb8510a820aecc312a9a654d422d Mon Sep 17 00:00:00 2001
+From: Finn Thain <fthain@linux-m68k.org>
+Date: Tue, 3 Dec 2024 11:32:55 +1100
+Subject: [PATCH 23/24] Specify minimum PyGC_Head and PyObject alignment to fix
+ build failure
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+As documented in InternalDocs/garbage_collector.md, the garbage collector
+stores flags in the least significant two bits of the _gc_prev pointer
+in struct PyGC_Head. Consequently, this pointer is only capable of storing
+a location that's aligned to a 4-byte boundary.
+
+This alignment requirement is documented but it's not actually encoded.
+The code only works when python happens to run on a platform that has a
+sufficiently large minimum alignment for the structs in question.
+
+The same problem arises with PyObject pointers because the least
+significant bits get used for PyStackRef tags.
+
+Since we know that 2 bits are needed, we also know the minimum alignment
+that's needed. Let's make that explicit, so the compiler can then make
+those bits available.
+
+This patch fixes a segfault in _bootstrap_python. In 3.14.0 beta 2
+this fixes the "Assertion `!PyStackRef_IsTaggedInt(ref)' failed" when
+built with --config-pydebug.
+
+Also, making the requirements explicit improves clarity.
+
+This bug was previously investigated by Adrian Glaubitz here:
+https://lists.debian.org/debian-68k/2024/11/msg00020.html
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1087600
+
+Although Adrian's patch isn't really correct (because natural alignment
+is not needed), he deserves full credit for finding the root cause.
+
+Origin: Backported from upstream, https://github.com/fthain/cpython/commit/a173b50b22b2f884853fcde45fec9bffb0fc5aae
+Bug-Upstream: https://github.com/python/cpython/issues/127545
+Bug-Debian: https://bugs.debian.org/1105110
+Signed-off-by: Michał Górny <mgorny@gentoo.org>
+---
+ Include/internal/pycore_gc.h | 5 +++--
+ Include/object.h             | 7 ++++++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/Include/internal/pycore_gc.h b/Include/internal/pycore_gc.h
+index 16c1893639f..4ba3b311407 100644
+--- a/Include/internal/pycore_gc.h
++++ b/Include/internal/pycore_gc.h
+@@ -16,8 +16,9 @@ typedef struct {
+ 
+     // Pointer to previous object in the list.
+     // Lowest two bits are used for flags documented later.
++    // Those bits are made available by the struct's minimum alignment.
+     uintptr_t _gc_prev;
+-} PyGC_Head;
++} PyGC_Head Py_ALIGNED(1 << _PyObject_ALIGNMENT_SHIFT);
+ 
+ #define _Py_AS_GC(o) ((PyGC_Head *)(o)-1)
+ #define _PyGC_Head_UNUSED PyGC_Head
+@@ -38,7 +39,7 @@ typedef struct {
+ /* Bit 1 is set when the object is in generation which is GCed currently. */
+ #define _PyGC_PREV_MASK_COLLECTING (2)
+ /* The (N-2) most significant bits contain the real address. */
+-#define _PyGC_PREV_SHIFT           (2)
++#define _PyGC_PREV_SHIFT           _PyObject_ALIGNMENT_SHIFT
+ #define _PyGC_PREV_MASK            (((uintptr_t) -1) << _PyGC_PREV_SHIFT)
+ 
+ // Lowest bit of _gc_next is used for flags only in GC.
+diff --git a/Include/object.h b/Include/object.h
+index f2af428e2bb..e3e4402cc73 100644
+--- a/Include/object.h
++++ b/Include/object.h
+@@ -92,6 +92,11 @@ whose size is determined when the object is allocated.
+ #define PyObject_VAR_HEAD      PyVarObject ob_base;
+ #define Py_INVALID_SIZE (Py_ssize_t)-1
+ 
++/* PyObjects are given a minimum alignment so that the least significant bits
++ * of an object pointer become available for other purposes.
++ */
++#define _PyObject_ALIGNMENT_SHIFT       2
++
+ /* Nothing is actually declared to be a PyObject, but every pointer to
+  * a Python object can be cast to a PyObject*.  This is inheritance built
+  * by hand.  Similarly every pointer to a variable-size Python object can,
+@@ -101,7 +106,7 @@ struct _object {
+     _PyObject_HEAD_EXTRA
+     Py_ssize_t ob_refcnt;
+     PyTypeObject *ob_type;
+-};
++} Py_ALIGNED(1 << _PyObject_ALIGNMENT_SHIFT);
+ 
+ /* Cast argument to PyObject* type. */
+ #define _PyObject_CAST(op) _Py_CAST(PyObject*, (op))

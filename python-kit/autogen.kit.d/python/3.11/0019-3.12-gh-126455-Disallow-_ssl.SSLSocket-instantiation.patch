@@ -1,0 +1,31 @@
+From 7f28169f839345c2113b47030a88b2a56bda5dce Mon Sep 17 00:00:00 2001
+From: "Miss Islington (bot)"
+ <31488909+miss-islington@users.noreply.github.com>
+Date: Wed, 6 Nov 2024 12:21:21 +0100
+Subject: [PATCH 19/24] [3.12] gh-126455: Disallow _ssl.SSLSocket instantiation
+ (GH-126481) (#126487)
+
+gh-126455: Disallow _ssl.SSLSocket instantiation (GH-126481)
+
+Prevent creation of incomplete/invalid _ssl.SSLSocket objects when
+created directly.
+(cherry picked from commit b1c4ffc20573befb4db66bbbdd569b9bd13bb127)
+
+Co-authored-by: Victor Stinner <vstinner@python.org>
+---
+ Modules/_ssl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Modules/_ssl.c b/Modules/_ssl.c
+index 2dec8f9bcba..2389fb570c4 100644
+--- a/Modules/_ssl.c
++++ b/Modules/_ssl.c
+@@ -2936,7 +2936,7 @@ static PyType_Spec PySSLSocket_spec = {
+     .name = "_ssl._SSLSocket",
+     .basicsize = sizeof(PySSLSocket),
+     .flags = (Py_TPFLAGS_DEFAULT | Py_TPFLAGS_IMMUTABLETYPE |
+-              Py_TPFLAGS_HAVE_GC),
++              Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DISALLOW_INSTANTIATION),
+     .slots = PySSLSocket_slots,
+ };
+ 

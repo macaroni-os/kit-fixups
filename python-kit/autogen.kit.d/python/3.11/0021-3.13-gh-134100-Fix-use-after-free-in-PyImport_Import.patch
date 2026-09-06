@@ -1,0 +1,69 @@
+From 0eca68b532e6317b7bd6762d9278ca4fab10b6cc Mon Sep 17 00:00:00 2001
+From: "Miss Islington (bot)"
+ <31488909+miss-islington@users.noreply.github.com>
+Date: Sun, 18 May 2025 17:08:28 +0200
+Subject: [PATCH 21/24] [3.13] gh-134100: Fix use-after-free in
+ `PyImport_ImportModuleLevelObject` (GH-134117) (#134172)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+gh-134100: Fix use-after-free in `PyImport_ImportModuleLevelObject` (GH-134117)
+(cherry picked from commit 4e9005d32ff466925f40af410f2ea6bf2329bcf8)
+
+Co-authored-by: Nico-Posada <102486290+Nico-Posada@users.noreply.github.com>
+Signed-off-by: Michał Górny <mgorny@gentoo.org>
+---
+ .../import_/test_relative_imports.py              | 15 +++++++++++++++
+ Python/import.c                                   |  4 +++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/Lib/test/test_importlib/import_/test_relative_imports.py b/Lib/test/test_importlib/import_/test_relative_imports.py
+index 99c24f1fd94..f6585e0e986 100644
+--- a/Lib/test/test_importlib/import_/test_relative_imports.py
++++ b/Lib/test/test_importlib/import_/test_relative_imports.py
+@@ -223,6 +223,21 @@ def test_relative_import_no_package_exists_absolute(self):
+             self.__import__('sys', {'__package__': '', '__spec__': None},
+                             level=1)
+ 
++    def test_malicious_relative_import(self):
++        # https://github.com/python/cpython/issues/134100
++        # Test to make sure UAF bug with error msg doesn't come back to life
++        import sys
++        loooong = "".ljust(0x23000, "b")
++        name = f"a.{loooong}.c"
++
++        with util.uncache(name):
++            sys.modules[name] = {}
++            with self.assertRaisesRegex(
++                KeyError,
++                r"'a\.b+' not in sys\.modules as expected"
++            ):
++                __import__(f"{loooong}.c", {"__package__": "a"}, level=1)
++
+ 
+ (Frozen_RelativeImports,
+  Source_RelativeImports
+diff --git a/Python/import.c b/Python/import.c
+index c4e2145a47c..84e2ddcdc27 100644
+--- a/Python/import.c
++++ b/Python/import.c
+@@ -1892,15 +1892,17 @@ PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,
+                 }
+ 
+                 final_mod = import_get_module(tstate, to_return);
+-                Py_DECREF(to_return);
+                 if (final_mod == NULL) {
+                     if (!_PyErr_Occurred(tstate)) {
+                         _PyErr_Format(tstate, PyExc_KeyError,
+                                       "%R not in sys.modules as expected",
+                                       to_return);
+                     }
++                    Py_DECREF(to_return);
+                     goto error;
+                 }
++
++                Py_DECREF(to_return);
+             }
+         }
+         else {

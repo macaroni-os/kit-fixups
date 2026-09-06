@@ -301,10 +301,14 @@ python:
     - python:
         vars:
           patches:
-            # Patches from Gentoo/Funtoo
-            - 3.10/0004-Improve-distutils-C-support.patch
-            - 3.10/0007-Install-shared-libs-in-LIBDEST.patch
-            - 3.10/0011-bpo-45433-Do-not-link-libpython-against-libcrypt.patch
+            # Patches from Gentoo
+            - 3.11/0001-distutils-make-OO-enable-both-opt-1-and-opt-2-optimi.patch
+            - 3.11/0016-3.12-gh-126106-Fix-NULL-possible-derefrence-in-Modul.patch
+            - 3.11/0017-3.12-gh-79846-Make-ssl.create_default_context-ignore.patch
+            - 3.11/0018-3.12-gh-116810-fix-memory-leak-in-ssl-module-GH-1232.patch
+            - 3.11/0019-3.12-gh-126455-Disallow-_ssl.SSLSocket-instantiation.patch
+            - 3.11/0021-3.13-gh-134100-Fix-use-after-free-in-PyImport_Import.patch
+            - 3.11/0023-Specify-minimum-PyGC_Head-and-PyObject-alignment-to-.patch
           slot: '3.11'
 
 python_exec:

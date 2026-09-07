@@ -1,0 +1,82 @@
+zfs_kmod:
+  generator: builtin-github
+  defaults:
+    category: sys-fs
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: openzfs
+      repo: zfs
+    transform:
+      - kind: string
+        match: 'zfs-'
+        replace: ''
+    vars:
+      inherit:
+        - autotools
+        - flag-o-matic
+        - linux-mod
+        - toolchain-funcs
+      license: CDDL MIT
+      iuse: custom-cflags debug +rootfs
+      bdepend: |
+        dev-lang/perl
+        virtual/awk
+      body: |
+        pkg_setup() {
+          linux-info_pkg_setup
+        }
+        src_prepare() {
+          default
+          # Set revision number
+          sed -i "s/\(Release:\)\(.*\)1/\1\2${PR}-macaronios/" META || die "Could not set MacaroniOS release"
+        }
+        src_configure() {
+          set_arch_to_kernel
+
+          use custom-cflags || strip-flags
+
+          filter-ldflags -Wl,*
+
+          ./autogen.sh
+
+          local myconf=(
+            CROSS_COMPILE="${CHOST}-"
+            HOSTCC="$(tc-getBUILD_CC)"
+            --bindir=/bin
+            --sbindir=/sbin
+            --with-config=kernel
+            --with-linux="${KV_DIR}"
+            --with-linux-obj="${KV_OUT_DIR}"
+            $(use_enable debug)
+          )
+
+          econf "${myconf[@]}"
+        }
+        src_install() {
+          set_arch_to_kernel
+
+          myemakeargs+=(
+            DEPMOD=/bin/true
+            DESTDIR="${D}"
+          )
+
+          emake "${myemakeargs[@]}" install
+          einstalldocs
+        }
+        pkg_postinst() {
+          linux-mod_pkg_postinst
+        }
+
+
+  packages:
+
+    - zfs-kmod:
+        selector:
+          - '<2.4'
+          - '>=2.3.0'
+
+    - zfs-kmod:
+        selector:
+          - '<2.5'
+          - '>=2.4.0'
+

@@ -649,3 +649,123 @@ popper:
             }
 
 
+saalen:
+  generator: builtin-gitlab
+  generator_opts:
+    host: https://gitlab.com
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-text
+    gitlab:
+      user: saalen
+      query: tags
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.bz2'
+        url: 'https://gitlab.com/saalen/{{ .Values.pn }}/-/archive/v{{ .Values.version }}/{{ .Values.pn }}-v{{ .Values.version }}.tar.bz2'
+
+  packages:
+
+    - highlight:
+        vars:
+          desc: Converts source code to formatted text (HTML, LaTeX, etc.) with syntax highlight
+          license: GPL-3
+          s: '${WORKDIR}/{{ .Values.pn }}-v{{ .Values.version }}'
+          extra_envs:
+            - 'LUA_COMPAT=( lua5-3 )'
+          inherit:
+            - lua-single
+            - qmake-utils
+            - toolchain-funcs
+            - xdg
+          iuse: examples gui
+          required_use: '${LUA_REQUIRED_USE}'
+          rdepend: |
+            ${LUA_DEPS}
+            gui? ( dev-qt/qtbase:6[gui] )
+          depend: |
+            ${RDEPEND}
+            dev-libs/boost
+          bdepend: |
+            virtual/pkgconfig
+            gui? ( dev-qt/qttools:6[linguist] )
+          body: |
+            myhlopts=(
+              CXX="$(tc-getCXX)"
+              AR="$(tc-getAR)"
+              LDFLAGS="${LDFLAGS}"
+              CFLAGS="${CXXFLAGS} -DNDEBUG -std=c++17 -D_FILE_OFFSET_BITS=64"
+              DESTDIR="${D}"
+              PREFIX="${EPREFIX}/usr"
+              HL_CONFIG_DIR="${EPREFIX}/etc/highlight/"
+              HL_DATA_DIR="${EPREFIX}/usr/share/highlight/"
+              hl_conf_dir="${EPREFIX}/etc/highlight/"
+              hl_data_dir="${EPREFIX}/usr/share/highlight/"
+              hl_doc_dir="${EPREFIX}/usr/share/doc/${PF}/"
+              examples_dir="${EPREFIX}/usr/share/doc/${PF}/extras/"
+            )
+            hl_assert_pattern() {
+              local re=$1 f
+              shift
+              for f ; do
+                grep -Eq "${re}" "${f}" \
+                  || die "pattern '${re}' no longer matches ${f}: upstream renamed it, re-check the sed that follows"
+              done
+            }
+
+            src_prepare() {
+              default
+
+              # Disable man page compression
+              hl_assert_pattern 'GZIP' makefile
+              sed -e "/GZIP/d" -i makefile || die
+
+              hl_assert_pattern "LSB_DOC_DIR.*doc/${PN}" src/core/datadir.cpp
+              sed -e "/LSB_DOC_DIR/s:doc/${PN}:doc/${PF}:" \
+                -i src/core/datadir.cpp || die
+
+              hl_assert_pattern '^LUA_.*pkg-config.*\<lua\>' \
+                extras/tcl/makefile extras/swig/makefile
+              sed -r -e "/^LUA_.*pkg-config/s,\<lua\>,${ELUA},g" \
+                -i extras/tcl/makefile extras/swig/makefile \
+                || die "failed to set Lua implementation for extras"
+
+              hl_assert_pattern 'LIBS \+= -llua$' src/gui-qt/highlight.pro
+              hl_assert_pattern 'PKGCONFIG \+= lua$' src/gui-qt/highlight.pro
+              sed -e "/LIBS += -llua/d" \
+                -e "s/PKGCONFIG += lua$/PKGCONFIG += ${ELUA}/" \
+                -i src/gui-qt/highlight.pro \
+                || die "failed to set Lua implementation for the GUI"
+            }
+
+            src_configure() {
+              if use gui ; then
+                pushd src/gui-qt > /dev/null || die
+                eqmake6 \
+                  'DEFINES+=HL_DATA_DIR=\\\"'"${EPREFIX}"'/usr/share/highlight/\\\" HL_CONFIG_DIR=\\\"'"${EPREFIX}"'/etc/highlight/\\\" HL_DOC_DIR=\\\"'"${EPREFIX}"'/usr/share/doc/'"${PF}"'/\\\"'
+                popd > /dev/null || die
+              fi
+            }
+
+            src_compile() {
+              emake -f makefile LUA_PKG_NAME="${ELUA}" "${myhlopts[@]}"
+
+              if use gui ; then
+                emake -C src/gui-qt
+              fi
+            }
+
+            src_install() {
+              emake -f makefile "${myhlopts[@]}" install
+
+              if use gui ; then
+                emake -f makefile "${myhlopts[@]}" install-gui
+              fi
+
+              if use examples ; then
+                docompress -x /usr/share/doc/${PF}/extras
+              else
+                rm -r "${ED}"/usr/share/doc/${PF}/extras || die
+              fi
+            }

@@ -75,6 +75,16 @@ target:
     - pkg: sys-cluster/libqb
 
     - pkg: sys-fs/lxcfs
+    # ZFS 2.3
+    - pkg: sys-fs/zfs
+      conditions:
+        - '<sys-fs/zfs-2.4.0'
+        - '>=sys-fs/zfs-2.3.0'
+    # ZFS 2.4
+    - pkg: sys-fs/zfs
+      conditions:
+        - '<sys-fs/zfs-2.5.0'
+        - '>=sys-fs/zfs-2.4.0'
 
     - pkg: sys-libs/ldb
     - pkg: sys-libs/liburing

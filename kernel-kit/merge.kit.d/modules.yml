@@ -14,3 +14,12 @@ target:
 
   atoms:
     - pkg: sys-fs/zfs-kmod
+      conditions:
+        - '<sys-fs/zfs-kmod-2.5'
+        - '>=sys-fs/zfs-kmod-2.4.0'
+
+    - pkg: sys-fs/zfs-kmod
+      conditions:
+        - '<sys-fs/zfs-kmod-2.4'
+        - '>=sys-fs/zfs-kmod-2.3.0'
+

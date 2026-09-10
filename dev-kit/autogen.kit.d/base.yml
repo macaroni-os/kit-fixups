@@ -2802,3 +2802,116 @@ rinutils:
   packages:
     - rinutils:
 
+
+drobilla_dirlisting:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+    dir:
+      url: https://download.drobilla.net/
+      matcher: '{{ .Values.pn }}-.*.tar.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: ".tar.xz"
+        replace: ""
+    vars:
+      license: ISC
+      bdepend: |
+        virtual/pkgconfig
+      inherit:
+        - meson
+
+  packages:
+
+    - serd:
+        vars:
+          desc: Lightweight C library for working with RDF data
+          homepage: https://drobilla.net/software/serd
+          iuse: +tools
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddocs=disabled
+                -Dhtml=disabled
+                -Dman_html=disabled
+                -Dsinglehtml=disabled
+                -Dlint=false
+                -Dman=enabled
+                -Dstatic=false
+                -Dtests=disabled
+                $(meson_feature tools)
+              )
+
+              meson_src_configure
+            }
+
+            src_install() {
+              local DOCS=( AUTHORS NEWS README.md )
+              meson_src_install
+            }
+
+    - sord:
+        vars:
+          desc: Lightweight C library for storing RDF statements in memory
+          homepage: https://drobilla.net/software/sord
+          iuse: +tools
+          rdepend: |
+            >=dev-libs/serd-0.30.10
+            >=dev-libs/zix-0.4.0
+            tools? ( dev-libs/libpcre2 )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddocs=disabled
+                -Dlint=false
+                -Dman=enabled
+                -Dtests=disabled
+                $(meson_feature tools)
+                -Dbindings_cpp=disabled
+              )
+
+              meson_src_configure
+            }
+
+            src_install() {
+              local DOCS=( AUTHORS NEWS README.md )
+              meson_src_install
+            }
+
+    - zix:
+        vars:
+          desc: Lightweight C library of portability wrappers and data structures
+          homepage: https://gitlab.com/drobilla/zix
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddocs=disabled
+                -Dhtml=disabled
+                -Dsinglehtml=disabled
+                -Dlint=false
+                -Dbenchmarks=disabled
+                -Dchecks=enabled
+                -Dposix=enabled
+                -Dthreads=enabled
+                -Dtests=disabled
+                -Dtests_cpp=disabled
+              )
+
+              meson_src_configure
+            }
+
+            src_install() {
+              local DOCS=( NEWS README.md )
+              meson_src_install
+            }

@@ -225,7 +225,7 @@ app_node_path="${NPM_PACKAGEDIR}/node_modules/"
 
 export NODE_PATH=\${app_node_path}:\${def_node_path}
 
-${nodecmd}${bindir}/${binfile} \$@
+${nodecmd} ${NODE_EXTRA_OPTS} ${bindir}/${binfile} \$@
 " >     ${ED}/usr/bin/${scriptname} || return 1
 
 		chmod a+x ${ED}/usr/bin/${scriptname} || return 1

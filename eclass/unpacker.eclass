@@ -207,7 +207,7 @@ unpack_makeself() {
 				skip=$(head -n ${skip} "${src}" | wc -c)
 				exe="dd"
 				;;
-			2.4.5)
+			2.4.5|2.5.0|2.7.0|2.7.1)
 				# e.g.: skip="713"
 				skip=$(
 					sed -n -e '/^skip=/{s:skip="\(.*\)":\1:p;q}' "${src}"
@@ -219,7 +219,7 @@ unpack_makeself() {
 				eerror "I'm sorry, but I was unable to support the Makeself file."
 				eerror "The version I detected was '${ver}'."
 				eerror "Please file a bug about the file ${src##*/} at"
-				eerror "https://bugs.gentoo.org/ so that support can be added."
+				eerror "https://github.com/macaroni-os/mark-issues so that support can be added."
 				die "makeself version '${ver}' not supported"
 				;;
 		esac

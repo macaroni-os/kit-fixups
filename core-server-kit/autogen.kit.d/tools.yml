@@ -4513,6 +4513,7 @@ virtualbox_bin:
         replace: '.'
     vars:
       homepage: https://www.virtualbox.org/
+      download_prefix: https://download.virtualbox.org/virtualbox
 
   packages:
     - virtualbox-bin:
@@ -4530,7 +4531,6 @@ virtualbox_bin:
         vars:
           desc: Family of powerful x86 virtualization products for enterprise and home use
           python_compat: python3+
-          download_prefix: https://download.virtualbox.org/virtualbox
           license: GPL-2 PUEL
           iuse: +additions doc headless python vboxwebsrv sdk
           depend: |

@@ -4491,3 +4491,648 @@ zfs:
           - '<2.5'
           - '>=2.4.0'
 
+virtualbox_bin:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-emulation
+    dir:
+      url: https://www.virtualbox.org/wiki/Linux_Downloads
+      matcher: VirtualBox-[0-9.-]+-Linux_amd64.run
+    transform:
+      - kind: string
+        match: VirtualBox-
+        replace: ''
+      - kind: string
+        match: '-Linux_amd64.run'
+        replace: ''
+      - kind: string
+        match: '-'
+        replace: '.'
+    vars:
+      homepage: https://www.virtualbox.org/
+
+  packages:
+    - virtualbox-bin:
+        assets:
+          - name: '{{ .Values.p }}-Linux_amd64.run'
+            url: '{{- $v := .Values.pv }}{{- $vbox_v := join "." ( slice ( splitList "." $v ) 0 3 ) }}{{- $vbox_build := join "." ( slice ( splitList "." $v ) 3 4 ) }}{{ .Values.download_prefix }}/{{ $vbox_v }}/VirtualBox-{{ $vbox_v }}-{{ $vbox_build }}-Linux_amd64.run'
+
+          - name: '{{ .Values.p }}-oracle-extension_pack.tar.gz'
+            url: '{{- $v := .Values.pv }}{{- $vbox_v := join "." ( slice ( splitList "." $v ) 0 3 ) }}{{- $vbox_build := join "." ( slice ( splitList "." $v ) 3 4 ) }}{{ .Values.download_prefix }}/{{ $vbox_v }}/Oracle_VirtualBox_Extension_Pack-{{ $vbox_v }}-{{ $vbox_build }}.vbox-extpack'
+
+          - name: '{{ .Values.p }}-sdk.zip'
+            url: '{{- $v := .Values.pv }}{{- $vbox_v := join "." ( slice ( splitList "." $v ) 0 3 ) }}{{- $vbox_build := join "." ( slice ( splitList "." $v ) 3 4 ) }}{{ .Values.download_prefix }}/{{ $vbox_v }}/VirtualBoxSDK-{{ $vbox_v }}-{{ $vbox_build }}.zip'
+            use: sdk
+
+        vars:
+          desc: Family of powerful x86 virtualization products for enterprise and home use
+          python_compat: python3+
+          download_prefix: https://download.virtualbox.org/virtualbox
+          license: GPL-2 PUEL
+          iuse: +additions doc headless python vboxwebsrv sdk
+          depend: |
+            app-arch/unzip
+            ${PYTHON_DEPS}
+          pdepend: |
+            ~app-emulation/virtualbox-modules-{{ .Values.pv }}
+          rdepend: |
+            !app-emulation/virtualbox-additions
+            !headless? (
+              app-crypt/mit-krb5
+              dev-libs/glib
+              media-libs/fontconfig
+              media-libs/freetype
+              media-libs/libpng
+              media-libs/libsdl[X]
+              x11-libs/libXcursor
+              x11-libs/libXext
+              x11-libs/libXfixes
+              x11-libs/libXft
+              x11-libs/libXi
+              x11-libs/libXinerama
+              x11-libs/libXrandr
+              x11-libs/libXrender
+            )
+            dev-libs/libxml2
+            sys-fs/lvm2
+            x11-libs/libXau
+            x11-libs/libX11
+            x11-libs/libXt
+            x11-libs/libXmu
+            x11-libs/libSM
+            x11-libs/libICE
+            x11-libs/libXdmcp
+            ${PYTHON_DEPS}
+          required_use: ${PYTHON_REQUIRED_USE}
+          inherit:
+            - xdg-utils
+            - desktop
+            - pax-utils
+            - python-r1
+            - udev
+            - unpacker
+          s: '"${WORKDIR}"'
+          extra_envs:
+            # It seems that QA_* is yet present. We need investigate.
+            - 'QA_PREBUILT="/opt/VirtualBox/*"'
+            - 'QA_FLAGS_IGNORED=".*"'
+            - 'PYTHON_UPDATER_IGNORE="1"'
+          body: |
+            {{- $v := .Values.pv }}
+            {{- $vbox_v := join "." ( slice ( splitList "." $v ) 0 3 ) }}
+            {{- $vbox_build := join "." ( slice ( splitList "." $v ) 3 4 ) }}
+            pkg_setup() {
+              enewgroup vboxusers
+            }
+            src_unpack() {
+              unpack_makeself {{ .Values.p }}-Linux_amd64.run
+              unpack ./VirtualBox.tar.bz2
+
+              mkdir "${S}"/Oracle_VM_VirtualBox_Extension_Pack || die
+              pushd "${S}"/Oracle_VM_VirtualBox_Extension_Pack &>/dev/null || die
+              unpack {{ .Values.p }}-oracle-extension_pack.tar.gz
+              popd &>/dev/null || die
+
+              if use sdk ; then
+                unpack {{ .Values.p }}-sdk.zip
+              fi
+            }
+            src_configure() {
+              :;
+            }
+            src_compile() {
+              :;
+            }
+            src_install() {
+              # create virtualbox configurations files
+              insinto /etc/vbox
+              newins "${FILESDIR}/${PN}-config" vbox.cfg
+
+              if ! use headless ; then
+                newmenu "${FILESDIR}"/${PN}.desktop-2 ${PN}.desktop
+
+                # set up symlinks (bug #572012)
+                dosym ../../../../opt/VirtualBox/virtualbox.xml /usr/share/mime/packages/virtualbox.xml
+
+                local size ico icofile
+                for size in 16 24 32 48 64 72 96 128 256 ; do
+                  pushd "${S}"/icons/${size}x${size} &>/dev/null || die
+                  if [[ -f "virtualbox.png" ]] ; then
+                    doicon -s ${size} virtualbox.png
+                  fi
+                  for ico in hdd ova ovf vbox{,-extpack} vdi vdh vmdk ; do
+                    icofile="virtualbox-${ico}.png"
+                    if [[ -f "${icofile}" ]] ; then
+                      doicon -s ${size} ${icofile}
+                    fi
+                  done
+                  popd &>/dev/null || die
+                done
+                doicon -s scalable "${S}"/icons/scalable/virtualbox.svg
+                insinto /usr/share/pixmaps
+                newins "${S}"/icons/48x48/virtualbox.png ${PN}.png
+              fi
+
+              pushd "${S}"/Oracle_VM_VirtualBox_Extension_Pack &>/dev/null || die
+              insinto /opt/VirtualBox/ExtensionPacks/Oracle_VM_VirtualBox_Extension_Pack
+              doins -r linux.${ARCH}
+              doins ExtPack* PXE-Intel.rom
+              popd &>/dev/null || die
+              rm -rf "${S}"/Oracle_VM_VirtualBox_Extension_Pack
+
+              insinto /opt/VirtualBox
+              dodir /opt/bin
+
+              if use doc; then
+                dodoc UserManual.pdf
+                docompress -x /usr/share/doc/${PF}/qt
+                docinto qt
+                dodoc UserManual.q{ch,hc}
+              fi
+
+              if use sdk ; then
+                doins -r sdk
+              fi
+
+              if use additions; then
+                doins -r additions
+              fi
+
+              if use vboxwebsrv; then
+                doins vboxwebsrv
+                fowners root:vboxusers /opt/VirtualBox/vboxwebsrv
+                fperms 0750 /opt/VirtualBox/vboxwebsrv
+                dosym ../../opt/VirtualBox/VBox.sh /opt/bin/vboxwebsrv
+                newinitd "${FILESDIR}"/vboxwebsrv-initd vboxwebsrv
+                newconfd "${FILESDIR}"/vboxwebsrv-confd vboxwebsrv
+              fi
+
+              use python && doins VBoxPython3.so
+
+              rm -rf src rdesktop* deffiles install* routines.sh runlevel.sh \
+                vboxdrv.sh VBox.sh VBox.png vboxnet.sh additions VirtualBox.desktop \
+                VirtualBox.tar.bz2 LICENSE VBoxSysInfo.sh rdesktop* vboxwebsrv \
+                webtest vbox-create-usb-node.sh 90-vbox-usb.fdi uninstall.sh \
+                vboxshell.py vboxdrv-pardus.py VBoxPython?_*.so
+
+              if use headless ; then
+                rm -rf VirtualBox{,VM} VBoxKeyboard.so VirtualBoxVM.so UICommon.so
+              fi
+
+              doins -r * || die
+
+              # create symlinks for working around unsupported $ORIGIN/.. in VBoxC.so (setuid)
+              dosym ../VBoxVMM.so /opt/VirtualBox/components/VBoxVMM.so
+              dosym ../VBoxRT.so /opt/VirtualBox/components/VBoxRT.so
+              dosym ../VBoxDDU.so /opt/VirtualBox/components/VBoxDDU.so
+              dosym ../VBoxXPCOM.so /opt/VirtualBox/components/VBoxXPCOM.so
+
+              local each
+              for each in VBox{Manage,SVC,ExtPackHelperApp} $(usex headless '' VirtualBox) ; do
+                fowners root:vboxusers /opt/VirtualBox/${each}
+                fperms 0750 /opt/VirtualBox/${each}
+                pax-mark -m "${ED%/}"/opt/VirtualBox/${each}
+              done
+              # VBoxNetAdpCtl and VBoxNetDHCP binaries need to be suid root in any case..
+              for each in VBoxNet{AdpCtl,DHCP,NAT} $(usex headless '' VirtualBoxVM) ; do
+                fowners root:vboxusers /opt/VirtualBox/${each}
+                fperms 4750 /opt/VirtualBox/${each}
+                pax-mark -m "${ED%/}"/opt/VirtualBox/${each}
+              done
+
+              if ! use headless ; then
+                # Hardened build: Mark selected binaries set-user-ID-on-execution
+                #for each in VBox{SDL,Headless} ; do
+                for each in VBoxHeadless ; do
+                  fowners root:vboxusers /opt/VirtualBox/${each}
+                  fperms 4510 /opt/VirtualBox/${each}
+                  pax-mark -m "${ED%/}"/opt/VirtualBox/${each}
+                done
+
+                dosym ../VirtualBox/VBox.sh /opt/bin/VirtualBox
+                #dosym ../VirtualBox/VBox.sh /opt/bin/VBoxSDL
+              else
+                # Hardened build: Mark selected binaries set-user-ID-on-execution
+                fowners root:vboxusers /opt/VirtualBox/VBoxHeadless
+                fperms 4510 /opt/VirtualBox/VBoxHeadless
+                pax-mark -m "${ED%/}"/opt/VirtualBox/VBoxHeadless
+              fi
+
+              exeinto /opt/VirtualBox
+              newexe "${FILESDIR}/${PN}-3-wrapper" "VBox.sh"
+              fowners root:vboxusers /opt/VirtualBox/VBox.sh
+              fperms 0750 /opt/VirtualBox/VBox.sh
+
+              dosym ../VirtualBox/VBox.sh /opt/bin/VBoxManage
+              dosym ../VirtualBox/VBox.sh /opt/bin/VBoxVRDP
+              dosym ../VirtualBox/VBox.sh /opt/bin/VBoxHeadless
+              #dosym ../VirtualBox/VBoxTunctl /opt/bin/VBoxTunctl
+
+              # set an env-variable for 3rd party tools
+              echo -n "VBOX_APP_HOME=/opt/VirtualBox" > "${T}/90virtualbox"
+              doenvd "${T}/90virtualbox"
+
+              local udevdir="$(get_udevdir)"
+              insinto ${udevdir}/rules.d
+              doins "${FILESDIR}"/10-virtualbox.rules
+              sed "s@%UDEVDIR%@${udevdir}@" \
+                -i "${ED%/}"${udevdir}/rules.d/10-virtualbox.rules || die
+              # move udev scripts into ${udevdir} (bug #372491)
+              mv "${ED%/}"/opt/VirtualBox/VBoxCreateUSBNode.sh "${ED%/}"${udevdir} || die
+              fperms 0750 ${udevdir}/VBoxCreateUSBNode.sh
+            }
+
+            pkg_postinst() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+
+              udevadm control --reload-rules && udevadm trigger --subsystem-match=usb
+
+              elog ""
+              if ! use headless ; then
+                elog "To launch VirtualBox just type: \"VirtualBox\""
+                elog ""
+              fi
+              elog "You must be in the vboxusers group to use VirtualBox."
+              elog ""
+              elog "For advanced networking setups you should emerge:"
+              elog "net-misc/bridge-utils and sys-apps/usermode-utilities"
+              elog ""
+              elog "Please visit http://www.virtualbox.org/wiki/Editions for"
+              elog "an overview about the different features of ${PN}"
+              elog "and virtualbox-ose"
+              if [ -e "${ROOT}/etc/udev/rules.d/10-virtualbox.rules" ] ; then
+                elog ""
+                elog "Please remove \"${ROOT}/etc/udev/rules.d/10-virtualbox.rules\""
+                elog "or else USB in ${PN} won't work."
+              fi
+            }
+            pkg_postrm() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+              xdg_mimeinfo_database_update
+            }
+
+
+
+    - virtualbox-modules:
+        assets:
+          - name: '{{ .Values.p }}-Linux_amd64.run'
+            url: '{{- $v := .Values.pv }}{{- $vbox_v := join "." ( slice ( splitList "." $v ) 0 3 ) }}{{- $vbox_build := join "." ( slice ( splitList "." $v ) 3 4 ) }}{{ .Values.download_prefix }}/{{ $vbox_v }}/VirtualBox-{{ $vbox_v }}-{{ $vbox_build }}-Linux_amd64.run'
+        vars:
+          inherit:
+            - linux-mod
+            - user
+          desc: Kernel Modules for Virtualbox
+          license: GPL-2
+          extra_envs:
+            - 'BUILD_TARGETS="all"'
+            - 'BUILD_TARGET_ARCH="${ARCH}"'
+            - 'MODULE_NAMES="vboxdrv(misc:${S}) vboxnetflt(misc:${S}) vboxnetadp(misc:${S})"'
+            - 'MODULESD_VBOXDRV_ENABLED="yes"'
+            - 'MODULESD_VBOXNETADP_ENABLED="no"'
+            - 'MODULESD_VBOXNETFLT_ENABLED="no"'
+          body: |
+            src_unpack() {
+              sh ${DISTDIR}/${A} --noexec --keep --nox11 || die
+              cd install && tar -xaf VirtualBox.tar.bz2
+              mv src/vboxhost ${S}
+            }
+            pkg_setup() {
+              linux-mod_pkg_setup
+              BUILD_PARAMS="CC=$(tc-getBUILD_CC) KERN_DIR=${KV_DIR} KERN_VER=${KV_FULL} O=${KV_OUT_DIR} V=1 KBUILD_VERBOSE=1"
+            }
+            src_prepare() {
+              sed -i -e 's/^#if RTLNX_VER_MIN(6,5,0)/#if RTLNX_VER_MIN(6,4,10)/' ${S}/vboxnetflt/linux/VBoxNetFlt-linux.c || die
+              default
+            }
+            src_install() {
+              linux-mod_src_install
+              insinto /usr/lib/modules-load.d/
+              doins "${FILESDIR}"/virtualbox.conf
+            }
+            pkg_postinst() {
+              # Remove vboxpci.ko from current running kernel
+              find /lib/modules/${KV_FULL}/misc -type f -name "vboxpci.ko" -delete
+              linux-mod_pkg_postinst
+            }
+
+
+virtualbox_additions:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: app-emulation
+    dir:
+      url: https://download.virtualbox.org/virtualbox/
+      matcher: '7[.0-9]+'
+
+    vars:
+      homepage: https://www.virtualbox.org/
+      download_prefix: https://download.virtualbox.org/virtualbox
+
+  packages:
+
+    - virtualbox-additions:
+        vars:
+          s: '"${WORKDIR}"'
+          desc: CD image containing guest additions for VirtualBox
+          license: GPL-2+ LGPL-2.1+ MIT SGI-B-2.0 CDDL
+          body: |
+            src_unpack() {
+              :;
+            }
+            src_install() {
+              insinto /usr/share/virtualbox
+              newins "${DISTDIR}"/{{ .Values.p }}.iso VBoxGuestAdditions.iso
+            }
+
+        assets:
+          - name: '{{ .Values.p }}.iso'
+            url: '{{ .Values.download_prefix }}/{{ .Values.pv }}/VBoxGuestAdditions_{{ .Values.pv  }}.iso'
+
+    - virtualbox-guest-additions:
+        assets:
+          - name: '{{ .Values.p }}.tar.bz2'
+            url: '{{ .Values.download_prefix }}/{{ .Values.pv }}/VirtualBox-{{ .Values.pv  }}.tar.bz2'
+        vars:
+          s: '"${WORKDIR}"/VirtualBox-{{ .Values.pv }}'
+          desc: VirtualBox kernel modules and user-space tools for MacaroniOS guests
+          license: GPL-3 LGPL-2.1+ MIT || ( GPL-3 CDDL )
+          iuse: +dbus systemd X
+          rdepend: |
+            X? (
+              x11-apps/xrandr
+              x11-apps/xrefresh
+              x11-libs/libXmu
+              x11-libs/libX11
+              x11-libs/libXt
+              x11-libs/libXext
+            )
+            sys-libs/pam
+            sys-libs/zlib
+            dbus? ( sys-apps/dbus )
+          depend: |
+            ${RDEPEND}
+            X? (
+              x11-libs/libICE
+              x11-libs/libSM
+              x11-libs/libXau
+              x11-libs/libXdmcp
+              x11-base/xorg-proto
+            )
+            virtual/linux-sources
+          bdepend: |
+            dev-lang/yasm
+            dev-util/kbuild
+            sys-devel/bin86
+            sys-power/iasl
+          pdepend: |
+            X? ( x11-drivers/xf86-video-vbox )
+
+          inherit:
+            - linux-mod
+            - systemd
+            - toolchain-funcs
+            - udev
+            - user
+          body: |
+            BUILD_TARGETS="all"
+            BUILD_TARGET_ARCH="${ARCH}"
+
+            VBOX_MOD_SRC_DIR="${S}/out/linux.${ARCH}/release/bin/additions/src"
+            MODULESD_VBOXSF_ALIASES=("fs-vboxsf vboxsf")
+
+            pkg_setup() {
+              export DISTCC_DISABLE=1
+              MODULE_NAMES="vboxguest(misc:${VBOX_MOD_SRC_DIR}/vboxguest:${VBOX_MOD_SRC_DIR}/vboxguest)
+                vboxsf(misc:${VBOX_MOD_SRC_DIR}/vboxsf:${VBOX_MOD_SRC_DIR}/vboxsf)"
+              use X && MODULE_NAMES+=" vboxvideo(misc:${VBOX_MOD_SRC_DIR}/vboxvideo::${VBOX_MOD_SRC_DIR}/vboxvideo)"
+
+              linux-mod_pkg_setup
+            }
+
+            src_prepare() {
+              # Remove shipped binaries (kBuild,yasm)
+              rm -r kBuild/bin tools || die
+
+              # Provide kernel sources
+              pushd src/VBox/Additions &>/dev/null || die
+              ebegin "Extracting guest kernel module sources"
+              kmk GuestDrivers-src vboxguest-src vboxsf-src vboxvideo-src &>/dev/null
+              eend $?
+              popd &>/dev/null || die
+
+              # PaX fixes
+              pushd "${VBOX_MOD_SRC_DIR}" &>/dev/null || die
+              eapply "${FILESDIR}"/vboxguest-6.1.36-log-use-c99.patch
+              popd &>/dev/null || die
+
+              # Disable things unused or splitted into separate ebuilds
+              cp "${FILESDIR}/${PN}-5-localconfig" LocalConfig.kmk || die
+              if ! use X; then
+                echo "VBOX_WITH_X11_ADDITIONS :=" >> LocalConfig.kmk || die
+              fi
+
+              # Remove pointless GCC version check
+              sed -e '/^check_gcc$/d' -i configure || die
+
+              # Respect LDFLAGS
+              sed -i -e '/TEMPLATE_VBOXR3EXE_LDFLAGS.linux[    ]*=/ s/$/ $(CCLDFLAGS)/' Config.kmk || die
+
+              eapply "${FILESDIR}/patches"
+              eapply_user
+            }
+
+            src_configure() {
+              tc-export AR CC CXX LD RANLIB
+
+              # Build the user-space tools, warnings are harmless
+              local myconf=(
+                --nofatal
+                --disable-xpcom
+                --disable-sdl-ttf
+                --disable-pulse
+                --disable-alsa
+                $(usev !dbus --disable-dbus)
+                --with-gcc="$(tc-getCC)"
+                --with-g++="$(tc-getCXX)"
+                --target-arch=${ARCH}
+                --with-linux="${KV_OUT_DIR}"
+                --build-headless
+              )
+
+              # bug #843437
+              # Respect LDFLAGS (bug #759100)
+              # Cannot use LDFLAGS here because they also get passed to $(LD)
+              cat >> LocalConfig.kmk <<-EOF || die
+                CFLAGS=${CFLAGS}
+                CXXFLAGS=${CXXFLAGS}
+                CCLDFLAGS=${LDFLAGS}
+              EOF
+
+              ./configure "${myconf[@]}" || die "Configure failed"
+            }
+
+            src_compile() {
+              source ./env.sh || die
+
+              # Force kBuild to respect C[XX]FLAGS and MAKEOPTS (bug #178529)
+              MAKEJOBS=$(grep -Eo '(\-j|\-\-jobs)(=?|[[:space:]]*)[[:digit:]]+' <<< ${MAKEOPTS})
+              MAKELOAD=$(grep -Eo '(\-l|\-\-load-average)(=?|[[:space:]]*)[[:digit:]]+' <<< ${MAKEOPTS})
+              MAKEOPTS="${MAKEJOBS} ${MAKELOAD}"
+
+              local myemakeargs=(
+                VBOX_BUILD_PUBLISHER=_Macaroni
+                VBOX_ONLY_ADDITIONS=1
+
+                KBUILD_VERBOSE=2
+
+                AS="$(tc-getCC)"
+                CC="$(tc-getCC)"
+                CXX="$(tc-getCXX)"
+                LD="$(tc-getCC)"
+
+                TOOL_GCC3_CC="$(tc-getCC)"
+                TOOL_GCC3_CXX="$(tc-getCXX)"
+                TOOL_GCC3_LD="$(tc-getCC)"
+                TOOL_GCC3_AS="$(tc-getCC)"
+                TOOL_GCC3_AR="$(tc-getAR)"
+                TOOL_GCC3_OBJCOPY="$(tc-getOBJCOPY)"
+                #TOOL_GCC3_LD_SYSMOD="$(tc-getCC)"
+
+                TOOL_GXX3_CC="$(tc-getCC)"
+                TOOL_GXX3_CXX="$(tc-getCXX)"
+                TOOL_GXX3_LD="$(tc-getCXX)"
+                TOOL_GXX3_AS="$(tc-getCXX)"
+                TOOL_GXX3_AR="$(tc-getAR)"
+                TOOL_GXX3_OBJCOPY="$(tc-getOBJCOPY)"
+                #TOOL_GXX3_LD_SYSMOD="$(tc-getCXX)"
+
+                TOOL_GCC3_CFLAGS="${CFLAGS}"
+                TOOL_GCC3_CXXFLAGS="${CXXFLAGS}"
+                VBOX_GCC_OPT="${CXXFLAGS}"
+                VBOX_NM="$(tc-getNM)"
+                TOOL_YASM_AS=yasm
+              )
+
+              MAKE="kmk" emake "${myemakeargs[@]}"
+
+              # Now creating the kernel modules. We must do this _after_
+              # we compiled the user-space tools as we need two of the
+              # automatically generated header files. (>=3.2.0)
+              # Move this here for bug 836037
+              BUILD_PARAMS="KERN_DIR=/lib/modules/${KV_FULL}/build KERNOUT=${KV_OUT_DIR} KBUILD_EXTRA_SYMBOLS=${S}/Module.symvers"
+              linux-mod_src_compile
+            }
+
+            src_install() {
+              linux-mod_src_install
+
+              cd "${S}"/out/linux.${ARCH}/release/bin/additions || die
+
+              insinto /sbin
+              newins mount.vboxsf mount.vboxsf
+              fperms 4755 /sbin/mount.vboxsf
+
+              if use dbus; then
+                newinitd "${FILESDIR}"/${PN}-8.initd ${PN}
+              else
+                newinitd <(sed 's/ dbus\>//' "${FILESDIR}"/${PN}-8.initd) ${PN}
+              fi
+
+              insinto /usr/sbin/
+              newins VBoxService vboxguest-service
+              fperms 0755 /usr/sbin/vboxguest-service
+
+              insinto /usr/bin
+              doins VBoxControl
+              fperms 0755 /usr/bin/VBoxControl
+
+              # VBoxClient user service and xrandr wrapper
+              if use X ; then
+                doins VBoxClient
+                fperms 0755 /usr/bin/VBoxClient
+                doins VBoxDRMClient
+                fperms 4755 /usr/bin/VBoxDRMClient
+
+                pushd "${S}"/src/VBox/Additions/x11/Installer &>/dev/null \
+                  || die
+                newins 98vboxadd-xclient VBoxClient-all
+                fperms 0755 /usr/bin/VBoxClient-all
+                popd &>/dev/null || die
+              fi
+
+              # udev rule for vboxdrv
+              local udev_rules_dir="/lib/udev/rules.d"
+              dodir ${udev_rules_dir}
+              echo 'KERNEL=="vboxguest", OWNER="vboxguest", GROUP="vboxguest", MODE="0660"' \
+                >> "${ED}/${udev_rules_dir}/60-virtualbox-guest-additions.rules" \
+                || die
+              echo 'KERNEL=="vboxuser", OWNER="vboxguest", GROUP="vboxguest", MODE="0660"' \
+                >> "${ED}/${udev_rules_dir}/60-virtualbox-guest-additions.rules" \
+                || die
+
+              # VBoxClient autostart file
+              insinto /etc/xdg/autostart
+              doins "${FILESDIR}"/vboxclient.desktop
+
+              # sample xorg.conf
+              insinto /usr/share/doc/${PF}
+              doins "${FILESDIR}"/xorg.conf.vbox
+
+              use systemd && systemd_dounit "${FILESDIR}/${PN}.service"
+            }
+
+            pkg_preinst() {
+              enewgroup vboxguest
+              enewuser vboxguest -1 /bin/sh /dev/null vboxguest
+              # automount Error: VBoxServiceAutoMountWorker: Group "vboxsf" does not exist
+              enewgroup vboxsf
+            }
+
+            pkg_postinst() {
+              linux-mod_pkg_postinst
+              udev_reload
+              if ! use X ; then
+                elog "use flag X is off, enable it to install the"
+                elog "X Window System video driver."
+              fi
+              elog ""
+              elog "Please add users to the \"vboxguest\" group so they can"
+              elog "benefit from seamless mode, auto-resize and clipboard."
+              elog ""
+              elog "The vboxsf group has been added to make automount services work."
+              elog "These services are part of the shared folders support."
+              elog ""
+              elog "Please add:"
+              elog "/etc/init.d/${PN}"
+              elog "to the default runlevel in order to start"
+              elog "needed services."
+              elog "To use the VirtualBox X driver, use the following"
+              elog "file as your /etc/X11/xorg.conf:"
+              elog "    /usr/share/doc/${PF}/xorg.conf.vbox"
+              elog ""
+              elog "An autostart .desktop file has been installed to start"
+              elog "VBoxClient in desktop sessions."
+              elog ""
+              elog "You can mount shared folders with:"
+              elog "    mount -t vboxsf <shared_folder_name> <mount_point>"
+              elog ""
+              elog "Warning:"
+              elog "this ebuild is only needed if you are running Funtoo"
+              elog "inside a VirtualBox Virtual Machine, you don't need"
+              elog "it to run VirtualBox itself."
+              elog ""
+            }
+
+            pkg_postrm() {
+              linux-mod_pkg_postrm
+              udev_reload
+            }

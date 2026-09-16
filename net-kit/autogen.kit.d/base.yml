@@ -720,8 +720,10 @@ net_misc_github:
           - golang
         category: net-dns
         vars:
+          iuse: systemd
           inherit:
             - go-module
+            - systemd
           bdepend: |
             dev-lang/go
           body: |
@@ -737,7 +739,11 @@ net_misc_github:
               doins "${FILESDIR}"/Corefile
               dodoc README.md
               doman man/*
-              newinitd "${FILESDIR}"/"${PN}".initd ${PN}
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/coredns.service
+              else
+                newinitd "${FILESDIR}"/"${PN}".initd ${PN}
+              fi
               newconfd "${FILESDIR}"/"${PN}".confd ${PN}
               keepdir /var/log/"${PN}"
             }

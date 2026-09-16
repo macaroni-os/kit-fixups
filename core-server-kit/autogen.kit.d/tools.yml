@@ -4532,14 +4532,16 @@ virtualbox_bin:
           desc: Family of powerful x86 virtualization products for enterprise and home use
           python_compat: python3+
           license: GPL-2 PUEL
-          iuse: +additions doc headless python vboxwebsrv sdk
+          iuse: additions doc headless python vboxwebsrv sdk
           depend: |
             app-arch/unzip
             ${PYTHON_DEPS}
           pdepend: |
             ~app-emulation/virtualbox-modules-{{ .Values.pv }}
           rdepend: |
-            !app-emulation/virtualbox-additions
+            additions? (
+              app-emulation/virtualbox-additions
+            )
             !headless? (
               app-crypt/mit-krb5
               dev-libs/glib
@@ -4655,10 +4657,6 @@ virtualbox_bin:
 
               if use sdk ; then
                 doins -r sdk
-              fi
-
-              if use additions; then
-                doins -r additions
               fi
 
               if use vboxwebsrv; then

@@ -66,6 +66,11 @@ target:
         - '>=dev-lang/go-1.26.0'
         - '<dev-lang/go-1.27.0'
 
+    - pkg: dev-lang/go
+      conditions:
+        - '>=dev-lang/go-1.27.0'
+        - '<dev-lang/go-1.28.0'
+
     # Rust 1.94
     - pkg: dev-lang/rust-bin
       conditions:

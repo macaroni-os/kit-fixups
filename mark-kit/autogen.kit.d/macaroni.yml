@@ -144,7 +144,7 @@ geaaru_tools:
           src_install: |
 
             dobin "anise"
-            dosym /usr/bin/{{ .Values.pn }} /usr/bin/luet
+            dosym /usr/bin/anise /usr/bin/luet
             dodoc README.md
 
             insinto /etc/anise
@@ -171,7 +171,7 @@ geaaru_tools:
           bindir: anise-build/
           src_install: |
 
-            dobin anise-build/{{ .Values.pn }}
+            dobin anise-build/anise-build
             dodoc README.md
 
         transform:

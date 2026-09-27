@@ -134,22 +134,21 @@ geaaru_tools:
     - anise:
         category: app-admin
         github:
-          repo: luet
+          user: macaroni-os
+          repo: anise
         template: "templates/anise.tmpl"
         vars:
           ldflags_ns: pkg/config
-          homepage: https://github.com/geaaru/luet
+          homepage: https://github.com/macaroni-os/anise
           desc: Macaroni OS Package Manager System
           src_install: |
 
             dobin "anise"
-            dosym /usr/bin/${PN} /usr/bin/luet
+            dosym /usr/bin/{{ .Values.pn }} /usr/bin/luet
             dodoc README.md
 
-            dosym /etc/anise /etc/luet
             insinto /etc/anise
             newins "${FILESDIR}"/anise.yaml anise.yaml
-            dosym /etc/anise/anise.yaml /etc/anise/luet.yaml
 
             insinto /etc/anise/repos.conf.d
             newins "${FILESDIR}"/geaaru-repo-index.yml geaaru-repo-index.yml
@@ -162,17 +161,17 @@ geaaru_tools:
     - anise-build:
         category: app-admin
         github:
-          repo: luet
+          user: macaroni-os
+          repo: anise
         template: "templates/anise.tmpl"
         vars:
           ldflags_ns: pkg/config
-          homepage: https://github.com/geaaru/luet
+          homepage: https://github.com/macaroni-os/anise
           desc: Macaroni OS Build Package/Repository Tool
-          bindir: luet-build/
+          bindir: anise-build/
           src_install: |
 
-            dobin luet-build/${PN}
-            dosym /usr/bin/${PN} /usr/bin/luet-build
+            dobin anise-build/{{ .Values.pn }}
             dodoc README.md
 
         transform:

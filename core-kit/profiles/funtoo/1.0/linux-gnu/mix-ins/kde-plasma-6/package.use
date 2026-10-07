@@ -61,15 +61,7 @@ media-video/pipewire sound-server
 # required by kde-plasma/kwin-x11-6.4.5::kde-kit
 # required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
 # required by kde-plasma/plasma-meta:6 (argument)
->=dev-qt/qt5compat-6.8.3 qml
-# required by kde-plasma/kwin-x11-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
-# required by kde-plasma/plasma-meta:6 (argument)
 >=dev-qt/qtbase-6.8.3 wayland
-# required by kde-plasma/kwin-x11-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
-# required by kde-plasma/plasma-meta:6 (argument)
->=kde-frameworks/kconfig-6.18 qml
 # required by kde-plasma/kwin-x11-6.4.5::kde-kit
 # required by kde-plasma/plasma-meta-6.4.5::kde-kit[X]
 # required by kde-plasma/plasma-meta:6 (argument)
@@ -113,23 +105,12 @@ media-video/pipewire sound-server
 # required by kde-plasma/plasma-meta:6 (argument)
 >=dev-qt/qtbase-6.8.3 libinput
 
-# required by kde-plasma/plasma-workspace-6.4.5::kde-kit
-# required by kde-plasma/powerdevil-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta:6 (argument)
->=kde-frameworks/prison-6.18 qml
-
 # required by dev-qt/qtmultimedia-6.8.3::qt-kit[gstreamer]
 # required by dev-libs/kirigami-addons-1.9.0::kde-kit
 # required by kde-plasma/plasma-systemmonitor-6.4.5::kde-kit
 # required by kde-plasma/plasma-meta-6.4.5::kde-kit
 # required by kde-plasma/plasma-meta:6 (argument)
 >=media-libs/gst-plugins-base-1.18.4-r1 wayland
-# required by dev-libs/kirigami-addons-1.9.0::kde-kit
-# required by kde-plasma/plasma-systemmonitor-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta-6.4.5::kde-kit
-# required by kde-plasma/plasma-meta:6 (argument)
->=dev-qt/qtmultimedia-6.8.3 qml
 
 # required by media-libs/gst-plugins-base-1.18.4-r1::media-kit[-gles2,opengl]
 # required by media-libs/gst-plugins-bad-1.18.4-r1::media-kit
@@ -158,13 +139,22 @@ media-video/pipewire sound-server
 # required by kde-apps/kdecore-meta-25.08.1::kde-kit[handbook]
 # required by kdecore-meta:6 (argument)
 >=kde-frameworks/kio-6.18.0 handbook
-# required by dev-qt/qtwebengine-6.8.3::qt-kit
-# required by kde-apps/khelpcenter-25.08.1::kde-kit
-# required by kde-apps/kdecore-meta-25.08.1::kde-kit[handbook]
-# required by kdecore-meta:6 (argument)
->=dev-qt/qtwebchannel-6.8.3 qml
 
-kde-frameworks/sonnet qml
 kde-frameworks/kwallet runtime
 app-office/libreoffice-bin -kde
-app-text/poppler nss
+
+# Required by kde-frameworks/kdnssd (kio-zeroconf)
+net-dns/avahi mdnsresponder-compat
+
+# Boost: app-text/poppler[qt6] recommended w/ Boost
+app-text/poppler nss boost
+
+# Required by flac and mp3 metadata support
+kde-apps/k3b taglib
+kde-frameworks/kfilemetadata taglib
+
+# Not required, but makes life easier with Qt
+app-arch/unzip natspec
+
+# required for various kde packages
+virtual/kde-seed gui libinput libproxy multimedia sql svg wayland

@@ -6824,3 +6824,232 @@ media_plugins_gh:
               )
               cmake_src_configure
             }
+
+mediaarea:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: media-libs
+    dir:
+      url: 'https://mediaarea.net/download/source/{{ .Values.pn }}/'
+      matcher: '^[0-9.]+/$'
+    assets:
+      - name: '{{ .Values.pn }}_{{ .Values.version }}.tar.xz'
+        url: 'https://mediaarea.net/download/source/{{ .Values.pn }}/{{ .Values.original_version }}/{{ .Values.pn }}_{{ .Values.original_version }}.tar.xz'
+
+  packages:
+    - libzen:
+        vars:
+          desc: Shared library for libmediainfo and mediainfo
+          homepage: https://github.com/MediaArea/ZenLib
+          license: ZLIB
+          upstream_pn: ZenLib
+          inherit:
+            - autotools
+          iuse: doc static-libs
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+          s: '${WORKDIR}/{{ .Values.upstream_pn }}/Project/GNU/Library'
+          body: |
+            src_prepare() {
+              default
+              sed -i 's:-O2::' configure.ac || die
+              eautoreconf
+            }
+
+            src_configure() {
+              econf \
+                --enable-unicode \
+                --enable-shared \
+                $(use_enable static-libs static)
+            }
+
+            src_compile() {
+              default
+              if use doc ; then
+                cd "${WORKDIR}"/{{ .Values.upstream_pn }}/Source/Doc || die
+                doxygen Doxyfile || die
+              fi
+            }
+
+            src_install() {
+              default
+
+              rm -f "${ED}"/usr/bin/libzen-config || die
+
+              insinto /usr/$(get_libdir)/pkgconfig
+              doins {{ .Values.pn }}.pc
+
+              local x
+              for x in ./ Format/Html Format/Http HTTP_Client ; do
+                insinto /usr/include/{{ .Values.upstream_pn }}/${x}
+                doins "${WORKDIR}"/{{ .Values.upstream_pn }}/Source/{{ .Values.upstream_pn }}/${x}/*.h
+              done
+
+              dodoc "${WORKDIR}"/{{ .Values.upstream_pn }}/History.txt
+              if use doc ; then
+                docinto html
+                dodoc "${WORKDIR}"/{{ .Values.upstream_pn }}/Doc/*
+              fi
+
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+    - libmediainfo:
+        vars:
+          desc: MediaInfo libraries
+          homepage: https://mediaarea.net/en/MediaInfo https://github.com/MediaArea/MediaInfoLib
+          license: BSD-2
+          upstream_pn: MediaInfo
+          inherit:
+            - autotools
+            - edos2unix
+            - flag-o-matic
+          iuse: curl doc mms
+          rdepend: |
+            dev-libs/tinyxml2:=
+            >=media-libs/libzen-0.4.41
+            sys-libs/zlib:=
+            curl? ( net-misc/curl )
+            mms? ( >=media-libs/libmms-0.6.1 )
+          depend: ${RDEPEND}
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+          s: '${WORKDIR}/{{ .Values.upstream_pn }}Lib'
+          body: |
+            src_prepare() {
+              default
+              cd Project/GNU/Library || die
+              sed -i 's:-O2::' configure.ac || die
+              append-cppflags -DMEDIAINFO_LIBMMS_DESCRIBE_SUPPORT=0
+              eautoreconf
+            }
+
+            src_configure() {
+              cd Project/GNU/Library || die
+              econf \
+                --enable-shared \
+                --disable-static \
+                --disable-staticlibs \
+                --with-libtinyxml2 \
+                $(use_with curl libcurl) \
+                $(use_with mms libmms)
+            }
+
+            src_compile() {
+              cd Project/GNU/Library || die
+              default
+              if use doc; then
+                cd "${WORKDIR}"/{{ .Values.upstream_pn }}Lib/Source/Doc || die
+                doxygen Doxyfile || die
+              fi
+            }
+
+            src_install() {
+              if use doc; then
+                local HTML_DOCS=( "${WORKDIR}"/{{ .Values.upstream_pn }}Lib/Doc/*.html )
+              fi
+
+              cd Project/GNU/Library || die
+              default
+
+              edos2unix {{ .Values.pn }}.pc
+              insinto /usr/$(get_libdir)/pkgconfig
+              doins {{ .Values.pn }}.pc
+
+              local x
+              for x in ./ Archive Audio Duplicate Export Image Multiple Reader Tag Text Video; do
+                insinto /usr/include/{{ .Values.upstream_pn }}/${x}
+                doins "${S}"/Source/{{ .Values.upstream_pn }}/${x}/*.h
+              done
+
+              insinto /usr/include/{{ .Values.upstream_pn }}DLL
+              doins "${S}"/Source/{{ .Values.upstream_pn }}DLL/*.h
+
+              dodoc "${S}"/*.txt
+
+              find "${ED}" -name '*.la' -delete || die
+            }
+
+    - mediainfo:
+        category: media-video
+        vars:
+          desc: MediaInfo supplies technical and tag information about media files
+          homepage: https://mediaarea.net/en/mediainfo/ https://github.com/MediaArea/MediaInfo
+          license: BSD-2
+          extra_envs:
+            - 'WX_GTK_VER="3.0-gtk3"'
+          inherit:
+            - autotools
+            - wxwidgets
+            - xdg-utils
+          iuse: curl mms wxwidgets
+          rdepend: |
+            ~media-libs/libmediainfo-${PV}[curl=,mms=]
+            >=media-libs/libzen-0.4.41
+            sys-libs/zlib:=
+            wxwidgets? ( x11-libs/wxGTK:${WX_GTK_VER}=[X] )
+          depend: |
+            ${RDEPEND}
+            wxwidgets? ( app-eselect/eselect-wxwidgets )
+          bdepend: virtual/pkgconfig
+          s: '${WORKDIR}/MediaInfo'
+          body: |
+            pkg_setup() {
+              TARGETS="CLI"
+              if use wxwidgets; then
+                TARGETS+=" GUI"
+                setup-wxwidgets
+              fi
+            }
+
+            src_prepare() {
+              default
+              local target
+              for target in ${TARGETS}; do
+                cd "${S}"/Project/GNU/${target} || die
+                sed -i -e "s:-O2::" configure.ac || die
+                eautoreconf
+              done
+            }
+
+            src_configure() {
+              local target args
+              for target in ${TARGETS}; do
+                cd "${S}"/Project/GNU/${target} || die
+                args=""
+                [[ ${target} == "GUI" ]] && args="--with-wxwidgets --with-wx-gui"
+                econf ${args}
+              done
+            }
+
+            src_compile() {
+              local target
+              for target in ${TARGETS}; do
+                cd "${S}"/Project/GNU/${target} || die
+                default
+              done
+            }
+
+            src_install() {
+              local target
+              for target in ${TARGETS}; do
+                cd "${S}"/Project/GNU/${target} || die
+                default
+                dodoc "${S}"/History_${target}.txt
+              done
+            }
+
+            pkg_postinst() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+            }
+
+            pkg_postrm() {
+              xdg_icon_cache_update
+              xdg_desktop_database_update
+            }

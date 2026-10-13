@@ -317,7 +317,7 @@ ntp:
       homepage: http://www.ntp.org/
       release: 4.2.8
       license: HPND BSD ISC
-      iuse: caps debug ipv6 ntp-cron parse-clocks readline samba snmp ssl +threads vim-syntax zeroconf
+      iuse: caps debug ipv6 ntp-cron parse-clocks readline samba systemd snmp ssl +threads vim-syntax zeroconf
       cdepend: |
         readline? ( sys-libs/readline:= )
         dev-libs/libevent:=[threads?]
@@ -413,7 +413,6 @@ ntp:
           if ! use caps ; then
             sed -i "s|-u ntp:ntp||" "${ED}"/etc/conf.d/ntpd || die
           fi
-          sed -i "s:/usr/bin:/usr/sbin:" "${ED}"/etc/init.d/ntpd || die
 
           keepdir /var/lib/ntp
           use prefix || fowners ntp:ntp /var/lib/ntp
@@ -443,6 +442,8 @@ ntp:
             newinitd "${FILESDIR}"/sntp.rc sntp
             newinitd "${FILESDIR}"/ntp-client.rc ntp-client
           fi
+
+          sed -i "s:/usr/bin:/usr/sbin:" "${ED}"/etc/init.d/ntpd || die
 
         }
 

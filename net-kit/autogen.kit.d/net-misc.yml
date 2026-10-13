@@ -441,9 +441,9 @@ ntp:
             newinitd "${FILESDIR}"/ntpd.rc-r1 ntpd
             newinitd "${FILESDIR}"/sntp.rc sntp
             newinitd "${FILESDIR}"/ntp-client.rc ntp-client
+            sed -i "s:/usr/bin:/usr/sbin:" "${ED}"/etc/init.d/ntpd || die
           fi
 
-          sed -i "s:/usr/bin:/usr/sbin:" "${ED}"/etc/init.d/ntpd || die
 
         }
 

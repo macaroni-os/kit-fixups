@@ -221,9 +221,10 @@ grafana:
         replace: ""
     vars:
       license: AGPL-3
-      iuse: amd64 arm64
+      iuse: amd64 arm64 systemd
       inherit:
         - user
+        - systemd
   packages:
     - grafana-bin:
         vars:
@@ -252,7 +253,11 @@ grafana:
               dobin bin/grafana
 
               newconfd "${FILESDIR}"/grafana.confd grafana
-              newinitd "${FILESDIR}"/grafana.initd.4 grafana
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/grafana.service || die
+              else
+                newinitd "${FILESDIR}"/grafana.initd.4 grafana
+              fi
 
               keepdir /var/{lib,log}/grafana
               keepdir /var/lib/grafana/{dashboards,plugins}

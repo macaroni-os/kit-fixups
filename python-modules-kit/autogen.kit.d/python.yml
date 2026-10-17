@@ -6,6 +6,7 @@ hatchling_modules:
   defaults:
     category: dev-python
     template: "../../templates/pypi-generic.tmpl"
+    files_dir: '{{ .Values.pn }}'
     vars:
       du_pep517: hatchling
       python_compat: "python3+"
@@ -50,6 +51,8 @@ hatchling_modules:
 
     - urllib3:
         vars:
+          patches:
+            - urllib3-python39-union.patch
           iuse: brotli http2 zstd
           body: |
             src_prepare() {

@@ -1,0 +1,12 @@
+diff --git a/src/urllib3/_base_connection.py b/src/urllib3/_base_connection.py
+--- a/src/urllib3/_base_connection.py
++++ b/src/urllib3/_base_connection.py
+@@ -6,6 +6,6 @@ from .util.timeout import _DEFAULT_TIMEOUT, _TYPE_TIMEOUT
+ from .util.url import Url
+
+ _TYPE_BODY = typing.Union[
+-    bytes, typing.IO[typing.Any], typing.Iterable[bytes | str], str
++    bytes, typing.IO[typing.Any], typing.Iterable[typing.Union[bytes, str]], str
+ ]
+
+

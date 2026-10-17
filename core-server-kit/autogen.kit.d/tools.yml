@@ -1833,6 +1833,11 @@ github_pkgs:
           # the nodejs bundle extensions.
           restrict: network-sandbox
           body: |
+            src_prepare() {
+              npmv1_src_prepare
+              # Replace the function running git command for retrieve sha
+              sed -i -e 's|.*rev-parse.*|  const result \= "{{ .Values.sha }}"\;|g' vite.config.ts
+            }
             src_compile() {
               npmv1_src_compile
               npm run build

@@ -3226,7 +3226,6 @@ incus:
         match: '.tar.xz'
         replace: ''
     vars:
-      s: '${WORKDIR}/{{ .Values.pn }}-{{- $v := .Values.version }}{{ join "." ( slice ( splitList "." $v ) 0 2 ) }}'
       desc: Powerful system container and virtual machine manager
       homepage: https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus
       license: Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0

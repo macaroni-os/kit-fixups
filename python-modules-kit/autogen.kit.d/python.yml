@@ -225,6 +225,35 @@ setuptools_modules:
 
   packages:
 
+    - m2crypto:
+        pypi_name: m2crypto
+        vars:
+          homepage: https://gitlab.com/m2crypto/m2crypto https://pypi.org/project/M2Crypto/
+          inherit:
+            - distutils-r1
+            - toolchain-funcs
+          rdepend: |
+            dev-libs/openssl:=
+            virtual/python-typing[${PYTHON_USEDEP}]
+          bdepend: |
+            dev-lang/swig
+          license: MIT
+          body: |
+            swig_define() {
+                local x
+                for x; do
+                    if tc-cpp-is-true "defined(${x})"; then
+                        SWIG_FEATURES+=" -D${x}"
+                    fi
+                done
+            }
+            python_compile() {
+                local -x SWIG_FEATURES=
+                swig_define __ILP32__
+                swig_define __ARM_PCS_VFP
+                distutils-r1_python_compile
+            }
+
     - pysol_cards:
         pypi_name: pysol_cards
 

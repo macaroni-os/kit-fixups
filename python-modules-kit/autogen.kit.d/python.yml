@@ -139,10 +139,6 @@ flit_modules:
           homepage: https://pypi.org/project/typing-extensions/
 
     - importlib_metadata:
-        selector:
-          # keep same version for now
-          # fix issue macaroni-os/mark-issues#350
-          - '<=6.7.0'
         pypi_name: importlib_metadata
         pydeps:
           py:all:runtime:
@@ -157,7 +153,7 @@ flit_modules:
               # write a custom pyproject.toml to ease setuptools bootstrap
               cat > pyproject.toml <<-EOF || die
               [build-system]
-              requires = ["flit_core >=3.2,<4"]
+              requires = ["flit_core >=3.2,<5"]
               build-backend = "flit_core.buildapi"
 
               [project]

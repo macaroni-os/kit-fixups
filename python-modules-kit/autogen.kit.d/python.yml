@@ -88,6 +88,38 @@ flit_modules:
 
   packages:
 
+    - ptyprocess:
+        # bump revision because upstream there aren't new releases.
+        revision: 1
+        pydeps:
+          py:all:build:
+            - flit_core
+        vars:
+          body: |
+            src_configure() {
+              # Override pyproject.toml to support flit_core 4
+              {
+                echo '
+                [build-system]
+                requires = ["flit_core >=3.2,<5"]
+                build-backend = "flit_core.buildapi"
+
+                [project]
+                readme = "README.rst"
+                name = "ptyprocess"
+                version = "{{ .Values.original_version }}"
+                description = "Read metadata from Python packages"
+                authors = [
+                    { name = "Thomas Kluyver", email = "thomas@kluyver.me.uk" },
+                ]
+
+                [project.urls]
+                Homepage = "https://github.com/pexpect/ptyprocess"
+                '
+              } > pyproject.toml
+            }
+
+
     - click:
 
     - arrow:

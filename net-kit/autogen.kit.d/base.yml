@@ -1194,7 +1194,7 @@ alpine:
           versions:
             - "2.26"
 
-minio:
+silo:
   generator: builtin-github
   defaults:
     category: net-fs
@@ -1236,8 +1236,9 @@ minio:
           inherit:
             - go-module
           desc: Fast tool to manage MinIO clusters (Pgsty Fork)
-          homepage: https://github.com/pgsty/minio
+          homepage: https://github.com/pgsty/silo
           license: AGPL-3.0
+          
           body: |
             src_unpack() {
               go-module_src_unpack
@@ -1257,7 +1258,7 @@ minio:
               dobin mc
             }
 
-    - minio:
+    - silo:
         vars:
           extra_envs:
             - EGO_SKIP_TIDY=1
@@ -1265,7 +1266,7 @@ minio:
             - MY_PV="$(ver_cut 1-3)T$(ver_cut 4-7)Z"
             - MY_PV=${MY_PV//./-}
           desc: An Amazon S3 compatible object storage server (Pgsty Fork)
-          homepage: https://github.com/pgsty/minio
+          homepage: https://github.com/pgsty/silo
           iuse: systemd
           license: AGPL-3.0
           inherit:
@@ -1274,8 +1275,8 @@ minio:
             - systemd
           body: |
             pkg_setup() {
-              enewgroup ${PN}
-              enewuser ${PN} -1 -1 /var/lib/${PN} ${PN}
+              enewgroup {{ .Values.pn }}
+              enewuser {{ .Values.pn }} -1 -1 /var/lib/{{ .Values.pn }} {{ .Values.pn }}
             }
             src_unpack() {
               go-module_src_unpack
@@ -1283,28 +1284,29 @@ minio:
             }
             src_compile() {
               unset XDG_CACHE_HOME
-              export MINIO_RELEASE="${MY_PV}"
-              local minio_ldflags=(
-                      "-X github.com/minio/minio/cmd.Version=${MINIO_RELEASE}"
-                      "-X github.com/minio/minio/cmd.CopyrightYear=$(date -u '+%Y')"
-                      "-X github.com/minio/minio/cmd.ReleaseTag=\"${PV}\""
-                      "-X github.com/minio/minio/cmd.CommitID={{ .Values.sha }}"
-                      "-X github.com/minio/minio/cmd.ShortCommitID={{ substr 0 7 .Values.sha }}"
+              export SILO_RELEASE="${MY_PV}"
+              local silo_ldflags=(
+                      "-X github.com/pgsty/silo/cmd.Version=${MINIO_RELEASE}"
+                      "-X github.com/pgsty/silo/cmd.CopyrightYear=$(date -u '+%Y')"
+                      "-X github.com/pgsty/silo/cmd.ReleaseTag=\"${PV}\""
+                      "-X github.com/pgsty/silo/cmd.CommitID={{ .Values.sha }}"
+                      "-X github.com/pgsty/silo/cmd.ShortCommitID={{ substr 0 7 .Values.sha }}"
               )
               CGO_ENABLED=0 \
-                go build --ldflags "${minio_ldflags[*]}" -o ${PN} || die
+                go build --ldflags "${silo_ldflags[*]}" -o ${PN} || die
             }
             src_install() {
               dobin ${PN}
               insinto /etc/"${PN}"
               dodoc -r README.md CONTRIBUTING.md docs
               if use systemd ; then
-                systemd_dounit "${FILESDIR}"/minio.service
+                systemd_dounit "${FILESDIR}"/silo.service
               else
-                newinitd "${FILESDIR}"/minio.initd minio
+                newinitd "${FILESDIR}"/silo.initd silo
               fi
               newconfd "${FILESDIR}"/"${PN}".confd ${PN}
               keepdir /var/{lib,log}/"${PN}"
+              # for now keep minio user
               fowners minio:minio /
             }
 

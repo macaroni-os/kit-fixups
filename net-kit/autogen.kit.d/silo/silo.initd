@@ -1,10 +1,10 @@
 #!/sbin/openrc-run
 # Distributed under the terms of the GNU General Public License v2
 
-description="Minio Object Storage Server"
+description="Silo Object Storage Server"
 pidfile=${pidfile:-"/run/${SVCNAME}.pid"}
-command="/usr/bin/minio"
-command_args="${command_args:-server /var/lib/minio}"
+command="/usr/bin/silo"
+command_args="${command_args:-server /var/lib/silo}"
 command_background="true"
 start_stop_daemon_args="--stdout /var/log/${SVCNAME}.log \
 	--stderr /var/log/${SVCNAME}.log"

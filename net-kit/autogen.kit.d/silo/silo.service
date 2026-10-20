@@ -1,18 +1,18 @@
 [Unit]
-Description=MinIO
-Documentation=https://docs.min.io
+Description=SiLO
+Documentation=https://silo.pgsty.com/
 Wants=network-online.target
 After=network-online.target
-AssertFileIsExecutable=/usr/bin/minio
+AssertFileIsExecutable=/usr/bin/silo
 
 [Service]
 User=minio
 Group=minio
 
-EnvironmentFile=/etc/conf.d/minio
+EnvironmentFile=/etc/conf.d/silo
 ExecStartPre=/bin/sh -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\"; exit 1; fi"
 
-ExecStart=/usr/bin/minio server $MINIO_OPTS $MINIO_VOLUMES
+ExecStart=/usr/bin/silo server $MINIO_OPTS $MINIO_VOLUMES
 
 # Let systemd restart this service always
 Restart=always

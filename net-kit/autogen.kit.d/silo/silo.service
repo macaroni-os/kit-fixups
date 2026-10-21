@@ -6,11 +6,11 @@ After=network-online.target
 AssertFileIsExecutable=/usr/bin/silo
 
 [Service]
-User=minio
-Group=minio
+User=silo
+Group=silo
 
 EnvironmentFile=/etc/conf.d/silo
-ExecStartPre=/bin/sh -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo \"Variable MINIO_VOLUMES not set in /etc/default/minio\"; exit 1; fi"
+ExecStartPre=/bin/sh -c "if [ -z \"${MINIO_VOLUMES}\" ]; then echo \"Variable MINIO_VOLUMES not set in /etc/conf.d/silo\"; exit 1; fi"
 
 ExecStart=/usr/bin/silo server $MINIO_OPTS $MINIO_VOLUMES
 

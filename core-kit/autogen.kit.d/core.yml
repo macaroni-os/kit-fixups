@@ -17,6 +17,10 @@ arch_dirlisting:
           - kind: string
             match: "ca-certificates_"
             replace: ""
+          # Support NMU (Non-Maintainer Upload) releases too
+          - kind: string
+            match: "+nmu"
+            replace: "."
           - kind: string
             match: "_all.deb"
             replace: ""

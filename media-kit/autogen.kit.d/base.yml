@@ -7055,11 +7055,17 @@ mediaarea:
             }
 
 libde265:
-  generator: builtin-noop
+  generator: builtin-github
 
   defaults:
+    github:
+      user: strukturag
+    transform:
+      - kind: regex
+        match: ' -.*'
+        replace: ''
     category: media-libs
-    template: ../../templates/simple.tmpl
+    template: ../../templates/simple-github.tmpl
     vars:
       homepage: https://github.com/strukturag/libde265
       desc: "Open h.265 video codec implementation"
@@ -7085,11 +7091,6 @@ libde265:
             cmake_src_configure
         }
 
+
   packages:
     - libde265:
-        vars:
-          versions:
-            - "1.1.3"
-        assets:
-          - name: "libde265-{{ .Values.pv }}.tar.gz"
-            url: "https://github.com/strukturag/libde265/releases/download/v{{ .Values.pv }}/libde265-{{ .Values.pv }}.tar.gz"

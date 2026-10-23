@@ -2921,18 +2921,13 @@ libcbor:
 
   defaults:
     category: dev-libs
-    template: ../../templates/simple.tmpl
+    template: ../../templates/simple-github.tmpl
     github:
       user: PJK
       query: releases
-    transform:
-      - kind: string
-        match: "^v"
-        replace: ""
     vars:
       homepage: https://github.com/PJK/libcbor
       desc: "Library for parsing and generating CBOR, the general-purpose data interchange format"
-      s: '${WORKDIR}/PJK-libcbor-{{ substr 0 7 .Values.sha }}'
       license: MIT
       inherit:
         - cmake
@@ -2975,9 +2970,7 @@ libfido2:
       bdepend: |
         virtual/pkgconfig
       depend: |
-        dev-libs/libcbor
-        >=dev-libs/openssl-1.1.1:=
-        sys-libs/zlib
+        ${RDEPEND}
         examples? ( dev-libs/popt )
       rdepend: |
         dev-libs/libcbor

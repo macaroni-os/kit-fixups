@@ -2012,6 +2012,7 @@ unifdef:
       license: BSD
       inherit:
         - toolchain-funcs
+        - flag-o-matic
       homepage: https://dotat.at/prog/unifdef/
       desc: 'remove #ifdef ed lines from a file while otherwise leaving the file alone'
       docs:
@@ -2020,6 +2021,10 @@ unifdef:
         src_prepare() {
           sed -i "/^prefix/s:=.*:=${EPREFIX}/usr:" Makefile || die
           tc-export CC
+          # unifdef 2.12 uses 'constexpr' as a variable name, which is a
+          # reserved keyword since C23 (default of >=sys-devel/gcc-15).
+          # Pin the C standard until upstream renames it.
+          append-flags -std=gnu17
           default
         }
 

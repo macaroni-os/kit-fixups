@@ -39,11 +39,14 @@ RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-bind )
 "
 
+{{- if .Values.patches | default false }}
 PATCHES=(
-	"${FILESDIR}"/${PN}-1.5.7-trust-anchor-file.patch
-	"${FILESDIR}"/${PN}-1.6.3-pkg-config.patch
-	"${FILESDIR}"/${PN}-1.10.1-find-ar.patch
+	{{- range $p := .Values.patches }}
+	"${FILESDIR}/{{ $p }}"
+	{{- end }}
 )
+{{- end }}
+
 
 S=${WORKDIR}/${MY_P}
 

@@ -133,7 +133,12 @@ net_dns_dirlisting:
           - kind: string
             match: '.tar.gz'
             replace: ''
-
+        vars:
+          patches:
+            - unbound-1.5.7-trust-anchor-file.patch
+            - unbound-1.6.3-pkg-config.patch
+            - unbound-1.10.1-find-ar.patch
+            - unbound-swig-4.5.patch
 
 bind_dirlisting:
   generator: builtin-dirlisting

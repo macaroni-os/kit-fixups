@@ -7053,3 +7053,44 @@ mediaarea:
               xdg_icon_cache_update
               xdg_desktop_database_update
             }
+
+libde265:
+  generator: builtin-github
+
+  defaults:
+    github:
+      user: strukturag
+    transform:
+      - kind: regex
+        match: ' -.*'
+        replace: ''
+    category: media-libs
+    template: ../../templates/simple-github.tmpl
+    vars:
+      homepage: https://github.com/strukturag/libde265
+      desc: "Open h.265 video codec implementation"
+      license: LGPL-3
+      inherit:
+        - cmake
+      iuse: "+dec265 sdl debug"
+      bdepend: |
+        dec265? ( virtual/pkgconfig )
+      rdepend: |
+        sdl? ( media-libs/libsdl2 )
+      depend: |
+        ${RDEPEND}
+      body: |
+        src_configure() {
+            local mycmakeargs=(
+                -DDE265_LOG_LEVEL=$(usex debug debug error)
+                -DENABLE_DECODER=$(usex dec265 ON OFF)
+                -DENABLE_SDL=$(usex sdl ON OFF)
+                -DENABLE_SHERLOCK265=OFF
+            )
+
+            cmake_src_configure
+        }
+
+
+  packages:
+    - libde265:

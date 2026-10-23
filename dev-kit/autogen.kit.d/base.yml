@@ -2915,3 +2915,86 @@ drobilla_dirlisting:
               local DOCS=( NEWS README.md )
               meson_src_install
             }
+
+libcbor:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    github:
+      user: PJK
+      query: releases
+    transform:
+      - kind: string
+        match: "^v"
+        replace: ""
+    vars:
+      homepage: https://github.com/PJK/libcbor
+      desc: "Library for parsing and generating CBOR, the general-purpose data interchange format"
+      s: '${WORKDIR}/PJK-libcbor-{{ substr 0 7 .Values.sha }}'
+      license: MIT
+      inherit:
+        - cmake
+      body: |
+        src_configure() {
+            local mycmakeargs=(
+                -DENABLE_EXAMPLES=OFF
+                -DENABLE_TESTS=OFF
+            )
+
+            cmake_src_configure
+        }
+
+  packages:
+    - libcbor:
+
+libfido2:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://developers.yubico.com/libfido2/Releases/
+      matcher: "libfido2-.*.tar.gz$"
+    transform:
+      - kind: string
+        match: "libfido2-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      homepage: https://developers.yubico.com/libfido2/
+      desc: "A library for communicating with FIDO U2F and FIDO2 CTAP1/CTAP2 authenticators"
+      license: BSD-2
+      inherit:
+        - cmake
+      iuse: examples
+      bdepend: |
+        virtual/pkgconfig
+      depend: |
+        dev-libs/libcbor
+        >=dev-libs/openssl-1.1.1:=
+        sys-libs/zlib
+        examples? ( dev-libs/popt )
+      rdepend: |
+        dev-libs/libcbor
+        >=dev-libs/openssl-1.1.1:=
+        sys-libs/zlib
+      body: |
+        src_configure() {
+            local mycmakeargs=(
+                -DBUILD_EXAMPLES=$(usex examples)
+                -DBUILD_MANUALS=OFF
+                -DBUILD_TOOLS=ON
+                -DENABLE_PCSC=OFF
+                -DENABLE_NFC=OFF
+            )
+
+            cmake_src_configure
+        }
+
+  packages:
+    - libfido2:

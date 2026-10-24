@@ -2023,8 +2023,8 @@ unifdef:
           # files that the Makefile requires (only the dotat.at tarballs do);
           # recreate them, format per scripts/reversion.sh.
           if [ ! -f version.h ]; then
-              printf 'V="unifdef-%s"\nD="released"\n' "${PV}" > version.sh || die
-              printf '"@(#) $Version: unifdef-%s $\\n"\n' "${PV}" > version.h || die
+              printf 'V="unifdef-{{ .Values.pv }}"\nD="released"\n' > version.sh || die
+              printf '"@(#) $Version: unifdef-{{ .Values.pv }} $\\n"\n' > version.h || die
               printf '"@(#) $Date: released $\\n"\n' >> version.h || die
           fi
           default

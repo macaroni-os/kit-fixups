@@ -13,15 +13,6 @@ hatchling_modules:
 
   packages:
 
-    - wcwidth:
-        vars:
-          body: |
-            src_prepare() {
-              distutils-r1_src_prepare
-              rm README.rst
-              cp docs/intro.rst README.rst
-            }
-
     - attrs:
         pydeps:
           py:all:build:
@@ -252,6 +243,15 @@ setuptools_modules:
     python_compat: "python3+"
 
   packages:
+
+    - wcwidth:
+        vars:
+          body: |
+            src_prepare() {
+              distutils-r1_src_prepare
+              rm README.rst
+              cp docs/intro.rst README.rst
+            }
 
     - m2crypto:
         pypi_name: m2crypto

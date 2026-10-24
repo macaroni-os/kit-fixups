@@ -2450,7 +2450,7 @@ gitlab_freedesktop_dirlisting:
             - systemd
           pkgname: NetworkManager
           iuse: |
-            audit bluetooth +concheck connection-sharing debug dhclient dhcpcd
+            audit bluetooth clat +concheck connection-sharing debug dhcpcd
             elogind gnutls +gtk-doc +introspection iptables iwd psl libedit lto
             +nss nftables +modemmanager ofono ovs policykit +ppp resolvconf syslog
             systemd teamd +tools +vala +wext +wifi
@@ -2479,7 +2479,6 @@ gitlab_freedesktop_dirlisting:
             )
             bluetooth? ( net-wireless/bluez )
             ofono? ( net-misc/ofono )
-            dhclient? ( net-misc/dhcp[client] )
             dhcpcd? ( net-misc/dhcpcd )
             ovs? ( dev-libs/jansson:= )
             resolvconf? ( virtual/resolvconf )
@@ -2489,6 +2488,10 @@ gitlab_freedesktop_dirlisting:
               nftables? ( net-firewall/nftables )
             )
             psl? ( net-libs/libpsl )
+            clat? (
+              >=dev-libs/libbpf-1.3.0
+              >=net-libs/libndp-1.9
+            )
             concheck? ( net-misc/curl )
             tools? (
               dev-libs/newt
@@ -2560,7 +2563,6 @@ gitlab_freedesktop_dirlisting:
                 -Ddist_version=${PVR}
                 $(meson_use policykit polkit)
                 $(meson_use policykit config_auth_polkit_default)
-                -Dmodify_system=true
                 -Dpolkit_agent_helper_1=/usr/lib/polkit-1/polkit-agent-helper-1
                 -Dselinux=false
                 # TODO: check if we can customize this for macaroni
@@ -2582,6 +2584,7 @@ gitlab_freedesktop_dirlisting:
                 $(meson_use tools nm_cloud_setup)
                 $(meson_use bluetooth bluez5_dun)
                 -Debpf=true
+                $(meson_use clat)
 
                 -Dconfig_wifi_backend_default=$(usex iwd iwd default)
                 -Dconfig_plugins_default=keyfile
@@ -2592,10 +2595,12 @@ gitlab_freedesktop_dirlisting:
                 -Dnetconfig=no
                 -Dconfig_dns_rc_manager_default=auto
 
-                $(meson_nm_program dhclient "" /sbin/dhclient)
                 $(meson_nm_program dhcpcd "" /sbin/dhcpcd)
 
                 $(meson_use introspection)
+                # Git archive tarballs ship no prebuilt manpages: man needs
+                # xsltproc, which is only a BDEPEND with introspection.
+                $(meson_use introspection man)
                 $(meson_use vala vapi)
                 $(meson_use gtk-doc docs)
                 -Dtests=no
@@ -2613,6 +2618,10 @@ gitlab_freedesktop_dirlisting:
                 -Dsession_tracking_consolekit=false
                 $(meson_use lto b_lto)
                 -Dsystemdsystemunitdir=$(systemd_get_systemunitdir)
+                # Explicit generator dir: NM 1.58+ asserts on missing libsystemd
+                # otherwise; files live under /lib/systemd and are removed when
+                # USE=-systemd (see src_install).
+                -Dsystemdsystemgeneratordir=$(dirname "$(systemd_get_systemunitdir)")/system-generators
               )
 
               if use elogind; then
@@ -2642,9 +2651,7 @@ gitlab_freedesktop_dirlisting:
                 emesonargs+=( -Dconfig_logging_backend_default=default )
               fi
 
-              if use dhclient; then
-                emesonargs+=( -Dconfig_dhcp_default=dhclient )
-              elif use dhcpcd; then
+              if use dhcpcd; then
                 emesonargs+=( -Dconfig_dhcp_default=dhcpcd )
               else
                 emesonargs+=( -Dconfig_dhcp_default=internal )

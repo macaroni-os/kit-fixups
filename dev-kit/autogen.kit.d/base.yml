@@ -3195,3 +3195,64 @@ libdbi_drivers:
 
   packages:
     - libdbi-drivers:
+
+# Converted from merge-only to autogen with builtin-github tracking
+# google/googletest releases: the pinned 1.9.0_pre20190607 snapshot cannot
+# build with gcc >= 13 / libstdc++ >= 15 (missing <cstdint> transitive
+# include, e.g. gtest-death-test.cc 'uintptr_t' does not name a type) and
+# upstream includes <cstdint> explicitly since 1.10, so tracking releases
+# is the fix itself (no local patches carried).
+# Fixes https://github.com/macaroni-os/mark-issues/issues/836
+gtest:
+  generator: builtin-github
+
+  defaults:
+    category: dev-cpp
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: google
+      repo: googletest
+      query: releases
+    vars:
+      homepage: https://github.com/google/googletest
+      desc: "Google C++ Testing Framework"
+      license: BSD
+      inherit:
+        - cmake-multilib
+      iuse: doc examples test
+      rdepend: |
+        !dev-cpp/gmock
+      body: |
+        multilib_src_configure() {
+          local mycmakeargs=(
+            -DBUILD_GMOCK=ON
+            -DINSTALL_GTEST=ON
+
+            # tests
+            -Dgmock_build_tests=$(usex test)
+            -Dgtest_build_tests=$(usex test)
+          )
+          cmake-utils_src_configure
+        }
+
+        multilib_src_install_all() {
+          einstalldocs
+
+          if use doc; then
+            docinto googletest
+            dodoc -r googletest/docs/.
+            docinto googlemock
+            dodoc -r googlemock/docs/.
+          fi
+
+          if use examples; then
+            docinto examples
+            dodoc googletest/samples/*.{cc,h}
+          fi
+        }
+
+  packages:
+    - gtest:
+        # googletest publishes pre-release tags such as -rc; never track them
+        exclude:
+          - "rc"

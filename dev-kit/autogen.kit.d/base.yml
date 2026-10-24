@@ -772,12 +772,15 @@ dev_github:
           - kind: string
             match: 'pnpm '
             replace: ''
+        # Since pnpm v11 the linuxstatic-* assets are no longer published.
+        # Releases now ship pnpm-linux-{x64,arm64}.tar.gz archives containing
+        # the standalone (Node SEA) binary at ./pnpm plus a dist/ tree.
         assets:
-          - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64-linux'
-            matcher: '{{ .Values.pn | replace "-bin" "" }}-linuxstatic-x64'
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^pnpm-linux-x64\.tar\.gz$'
             use: amd64
-          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64-linux'
-            matcher: '{{ .Values.pn | replace "-bin" "" }}-linuxstatic-arm64'
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^pnpm-linux-arm64\.tar\.gz$'
             use: arm64
         vars:
           iuse: amd64 arm64
@@ -791,12 +794,18 @@ dev_github:
             src_configure() { :; }
             src_compile() { :; }
             src_install() {
+              local asset
               if use amd64 ; then
-                newbin "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-amd64-linux pnpm
+                asset="${DISTDIR}/{{ .Values.pn }}-{{ .Values.version }}-amd64-linux.tar.gz"
               fi
               if use arm64 ; then
-                newbin "${DISTDIR}"/{{ .Values.pn }}-{{ .Values.version }}-arm64-linux pnpm
+                asset="${DISTDIR}/{{ .Values.pn }}-{{ .Values.version }}-arm64-linux.tar.gz"
               fi
+              [[ -n "${asset}" ]] || die "No pnpm binary asset available for the current ARCH"
+              # The upstream tarball holds the standalone Node SEA executable
+              # as ./pnpm (plus an unneeded dist/ tree). Extract only the binary.
+              tar xzf "${asset}" -C "${T}" pnpm || die
+              newbin "${T}/pnpm" pnpm
             }
 
     - libbpf:

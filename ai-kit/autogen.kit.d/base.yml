@@ -293,7 +293,158 @@ ai_github:
               newenvd "${FILESDIR}"/ollama.envd "90ollama"
             }
 
+    - opencode:
+        github:
+          user: anomalyco
+          repo: opencode
+          # Version detection from the git tags (per the request in
+          # mark-issues#840): the v-prefix is stripped by builtin-github.
+          # The tags are the upstream source-of-truth release line; note the
+          # tag listing currently leads with the 2.x line plus a vscode-*
+          # series (skipped by the generator's version parsing).
+          query: tags
+        # Source build following upstream's own non-binary recipe
+        # (nix/opencode.nix + nix/node_modules.nix in the repo). Repo facts
+        # verified against the tag tarballs v1.19.4 and v2.1.4:
+        #   * TypeScript/Bun workspaces monorepo; packageManager: bun@1.4.4.
+        #   * The CLI binary is produced by script/build.ts of the CLI
+        #     workspace (packages/opencode at v1.x, renamed to packages/cli
+        #     at v2.x) via Bun.build({ compile: { target:
+        #     "bun-linux-x64|arm64" } }): bun bundles the app and embeds its
+        #     runtime, so dev-lang/go is NOT involved (the old Go TUI is
+        #     gone; no go.mod exists in either tag, the TUI is TypeScript
+        #     via @opentui/core, and dev-lang/go is deliberately absent).
+        #   * dev-lang/bun IS needed for the build (BDEPEND below, the
+        #     any-of group also accepts the binary flavour dev-lang/bun-bin
+        #     that landed in lang-kit meanwhile); the build additionally
+        #     needs npm-registry access for "bun install --frozen-lockfile"
+        #     (node_modules is not vendored in the tarball; upstream nix
+        #     isolates that into a separate hashed fixed-output derivation,
+        #     and build.ts even re-fetches cross-libc native packages when
+        #     not skipped). See PR #480 for the evidence; this definition
+        #     is the honest best-effort source spec requested upstream-side.
+        vars:
+          desc: The open source AI coding agent (built from sources)
+          # The bun-compiled output embeds a runtime in the ELF; stripping it
+          # post-build is exactly what the pnpm-bin/ollama binaries avoid.
+          # "bun install" fetches from registry.npmjs.org at build time (the
+          # tag tarballs do not vendor node_modules), so opt out of the
+          # network sandbox like net-libs/deno does.
+          restrict: 'strip network-sandbox'
+          bdepend: '|| ( dev-lang/bun dev-lang/bun-bin )'
+          # /usr/bin/opencode is also shipped by the binary flavour of this
+          # same autogen group; the pair mutually blocks (same idiom as the
+          # RDEPEND="!cat/pkg" blocker lines used across the core-kit tree).
+          rdepend: '!app-ai/opencode-bin'
+          body: |
+            src_prepare() {
+              default
+              # packages/script/src/index.ts hard-fails unless the running
+              # bun satisfies ^1.4.4 (root package.json packageManager pin).
+              # Downgrade the throw to a warning, exactly like the postPatch
+              # of upstream's nix/opencode.nix derivation.
+              sed -i \
+                's/throw new Error(`This script requires bun/console.warn(`Warning: This script requires bun/' \
+                packages/script/src/index.ts || die
+            }
 
+            src_configure() { :; }
+
+            src_compile() {
+              # Keep bun's download cache inside the build area.
+              export BUN_INSTALL_CACHE_DIR="${T}/bun-cache"
+
+              # Pin the embedded version/channel: without OPENCODE_VERSION
+              # the shared build script queries registry.npmjs.org at build
+              # time, and without OPENCODE_CHANNEL it shells out to git,
+              # neither of which belongs in an ebuild sandbox (nix recipe
+              # sets the same pair).
+              export OPENCODE_VERSION="{{ .Values.pv }}"
+              export OPENCODE_CHANNEL="prod"
+              # The bundle is memory-hungry; same bump as nix/opencode.nix.
+              export NODE_OPTIONS="--max-old-space-size=4096"
+
+              # Install the JS dependency graph from the checked-in lockfile,
+              # scoped like upstream's nix/node_modules.nix recipe (root
+              # workspace for peer resolution + the CLI, the embedded web UI
+              # and the desktop workspace). Scripts are skipped: they only
+              # set up dev tooling. NOTE: this needs network access; see the
+              # spec comment and PR #480 for the offline-build discussion.
+              bun install \
+                --filter './' \
+                --filter './packages/cli' \
+                --filter './packages/desktop' \
+                --filter './packages/app' \
+                --frozen-lockfile \
+                --ignore-scripts \
+                --no-progress || die "bun install failed (needs npm-registry access)"
+
+              # --single: build only the native glibc target of this ARCH
+              #   (v1 wrote dist/opencode-linux-<arch>/, v2 dist/cli-linux-
+              #   <arch>/, so the install phase globs for the binary).
+              # --skip-install: dependency graph prepared just above.
+              local clipkg=packages/cli
+              [[ -d ${clipkg} ]] || clipkg=packages/opencode
+              cd "${clipkg}" || die
+              bun --bun ./script/build.ts --single --skip-install || die
+            }
+
+            src_install() {
+              # dist/<target>/bin/opencode, exactly one target with --single.
+              local bin=$(find packages/cli/dist packages/opencode/dist \
+                -type f -path '*/bin/opencode' -print -quit 2>/dev/null)
+              [[ -n ${bin} ]] || die "compiled binary not found under packages/*/dist"
+              newbin "${bin}" opencode
+            }
+
+    - opencode-bin:
+        github:
+          user: anomalyco
+          repo: opencode
+          # Upstream has thousands of tags (including the vscode-* line),
+          # the tag listing never reaches the current releases in one page
+          # fetch, so do not require tag presence (same as llama_cpp above).
+          ignore_tags: true
+        # simple.tmpl (as used by dev-util/pnpm-bin), not the group's
+        # simple-github.tmpl: the latter emits a post_src_unpack() that
+        # renames the source tarball unpack dir, but this atom downloads
+        # only prebuilt release assets, so there is nothing to rename.
+        template: ../../templates/simple.tmpl
+        # Upstream (renamed from sst/opencode) publishes bun-compiled
+        # standalone executables as release assets. The auto-generated
+        # release tarball is source-only, so download the per-arch linux
+        # asset instead (same scheme as dev-util/pnpm-bin). The tarballs
+        # ship the single ./opencode executable and nothing else; the
+        # -musl and -baseline variants are skipped: mark is glibc and
+        # the baseline builds target pre-AVX2 CPUs only.
+        # Note: the local asset names keep the "opencode-" distfile prefix
+        # so distfiles stay identical to the previously verified ones.
+        assets:
+          - name: 'opencode-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^opencode-linux-x64\.tar\.gz$'
+            use: amd64
+          - name: 'opencode-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^opencode-linux-arm64\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          desc: The open source AI coding agent (upstream binary)
+          restrict: strip
+          # See the source-flavoured entry above: the two packages install
+          # the same /usr/bin/opencode and must not coexist.
+          rdepend: '!app-ai/opencode'
+          # The asset tarballs carry the bare ./opencode executable at the
+          # archive root (no top-level directory), so the default
+          # src_unpack() extracts it straight into ${WORKDIR}; pointing S
+          # there (same s: override idiom used across the dev-kit autogen
+          # specs) lets src_install pick it up without any custom phase.
+          s: '${WORKDIR}'
+          extra_envs:
+            - 'QA_PREBUILT="/usr/bin/opencode"'
+          body: |
+            src_install() {
+              newbin opencode opencode
+            }
 
 
 llama_cpp:

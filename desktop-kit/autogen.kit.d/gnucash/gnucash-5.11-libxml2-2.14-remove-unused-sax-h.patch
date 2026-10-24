@@ -1,0 +1,27 @@
+From: John Ralls <jralls@ceridwen.us>
+Date: Fri, 2 May 2025 10:59:16 -0700
+Subject: [PATCH] Remove unused include of libxml2/SAX.h
+
+It raises a deprecation warning in libxml2-2.14.0.
+
+Backport of upstream commit 940085a0172216240232551022686cea4da86096.
+With libxml2 >= 2.14 libxml/SAX.h is an empty stub emitting a
+#warning; GnuCash builds with -Werror, so the warning aborts the
+build (macaroni-os/mark-issues#776). The SAX1 symbols are not used:
+xmlSAXHandler (sixtp-stack.h) comes from libxml/SAX2.h via
+libxml/parser.h, which is included right below.
+
+--- a/libgnucash/backend/xml/gnc-xml-helper.h
++++ b/libgnucash/backend/xml/gnc-xml-helper.h
+@@ -27,11 +27,10 @@
+ 
+ #include <glib.h>
+ 
+ #include <libxml/xmlversion.h>
+ 
+-#  include <libxml/SAX.h>
+ #  include <libxml/tree.h>
+ #  include <libxml/parser.h>
+ #  include <libxml/xmlmemory.h>
+ #  include <libxml/parserInternals.h>
+ 

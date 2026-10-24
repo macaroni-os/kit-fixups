@@ -434,7 +434,7 @@ mesa:
       iuse: |
         cpu_flags_x86_sse2 d3d9 debug +egl +gbm gles1 +gles2 +glvnd +llvm
         lm_sensors opencl unwind vaapi valgrind vulkan
-        vulkan-overlay wayland +X xa zink +zstd llvm_targets_AMDGPU
+        vulkan-overlay wayland +X zink +zstd llvm_targets_AMDGPU
       required_use: |
         d3d9?   ( || ( video_cards_intel video_cards_r300 video_cards_r600 video_cards_radeonsi video_cards_nouveau video_cards_vmware ) )
         vulkan? ( video_cards_radeonsi? ( llvm ) )
@@ -442,7 +442,6 @@ mesa:
         video_cards_radeon? ( llvm )
         video_cards_r300?   ( llvm )
         video_cards_radeonsi?   ( llvm )
-        xa? ( X )
         zink? ( vulkan )
       rdepend: |
         dev-libs/expat
@@ -1219,10 +1218,7 @@ x11_video_drivers_configure:
           desc: "Driver for xorg-server"
           rdepend_extra: |
             x11-libs/libdrm[libkms,video_cards_vmware]
-            || (
-              media-libs/mesa[xa]
-              media-libs/mesa[video_cards_xa]
-            )
+            media-libs/mesa
         dir:
           matcher: "xf86-video-vmware-.*.tar.xz$"
         transform:

@@ -7229,3 +7229,98 @@ xvid:
 
   packages:
     - xvid:
+
+# media-sound/mpg123 was merge-only; the pinned 1.25.10-r1 cannot be built
+# with gcc >= 14 (INT123_catchsignal in src/compat/compat.c returns
+# void (*)(void) instead of void (*)(int), a hard error under
+# -Wincompatible-pointer-types). Upstream fixed it in the 1.26.x series,
+# so bump to the current stable instead of backporting. Also unblocks
+# flipping MPEG support on in libsndfile (PR #479).
+# https://github.com/macaroni-os/mark-issues/issues/842
+mpg123:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: media-sound
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://www.mpg123.org/download/
+      matcher: "mpg123-[0-9]+\\.[0-9]+\\.[0-9]+\\.tar\\.bz2$"
+      # skip pre-releases (e.g. mpg123-1.26rc1.tar.bz2, 1.34.0_beta1)
+      exclude: "(rc|RC|beta|Beta)[0-9]"
+    transform:
+      - kind: string
+        match: "mpg123-"
+        replace: ""
+      - kind: string
+        match: ".tar.bz2"
+        replace: ""
+    assets:
+      - name: "mpg123-{{ .Values.pv }}.tar.bz2"
+        url: "https://www.mpg123.org/download/mpg123-{{ .Values.pv }}.tar.bz2"
+    vars:
+      homepage: https://www.mpg123.org/
+      desc: "a realtime MPEG 1.0/2.0/2.5 audio player for layers 1, 2 and 3"
+      license: GPL-2 LGPL-2.1
+      inherit:
+        - autotools
+      # cpu_flags_x86_* and altivec dropped from the old merge ebuild:
+      # mpg123 detects the CPU and loads the matching modules at runtime,
+      # coreaudio is macOS-only.
+      iuse: alsa int-quality ipv6 jack nas oss portaudio pulseaudio sdl
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+        - NEWS.libmpg123
+        - README
+      # NOTE: literal deps live in rdepend because simple.tmpl emits
+      # RDEPEND before DEPEND
+      rdepend: |
+        app-eselect/eselect-mpg123
+        dev-libs/libltdl:0
+        alsa? ( media-libs/alsa-lib )
+        jack? ( virtual/jack )
+        nas? ( media-libs/nas )
+        portaudio? ( media-libs/portaudio )
+        pulseaudio? ( media-sound/pulseaudio )
+        sdl? ( media-libs/libsdl )
+      depend: '${RDEPEND}'
+      bdepend: virtual/pkgconfig
+      body: |
+        src_configure() {
+          local audio=dummy
+          local output=dummy
+
+          for flag in nas portaudio sdl oss jack alsa pulseaudio; do
+            if use ${flag}; then
+              audio+=" ${flag/pulseaudio/pulse}"
+              output=${flag/pulseaudio/pulse}
+            fi
+          done
+
+          econf \
+            --with-audio="${audio}" \
+            --with-default-audio="${output}" \
+            --enable-network \
+            $(use_enable ipv6) \
+            --enable-int-quality=$(usex int-quality)
+        }
+
+        src_install() {
+          default
+          # the binary is managed by eselect-mpg123
+          mv "${ED%/}"/usr/bin/mpg123{,-mpg123} || die
+          find "${ED%/}" -name "*.la" -delete || die
+        }
+
+        pkg_postinst() {
+          eselect mpg123 update ifunset
+        }
+
+        pkg_postrm() {
+          eselect mpg123 update ifunset
+        }
+
+  packages:
+    - mpg123:

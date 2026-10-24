@@ -633,6 +633,48 @@ libs_gh:
 
   packages:
 
+    - libsndfile:
+        # libsndfile 1.2.x is required by media-video/pipewire pw-cat
+        # (SF_FORMAT_NMS_ADPCM_*, SF_FORMAT_OPUS, SF_FORMAT_MPEG_*), macaroni-os/mark-issues#798
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: libsndfile
+        vars:
+          desc: C library for reading and writing files containing sampled sound
+          homepage: "https://libsndfile.github.io/libsndfile/ https://github.com/libsndfile/libsndfile"
+          license: LGPL-2.1
+          iuse: alsa +external-libs static-libs
+          restrict: test
+          inherit:
+            - cmake
+          bdepend: |
+            virtual/pkgconfig
+          rdepend: |
+            alsa? ( media-libs/alsa-lib:= )
+            external-libs? (
+            	media-libs/flac:=
+            	media-libs/libogg:=
+            	media-libs/libvorbis:=
+            	media-libs/opus:=
+            )
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_EXAMPLES=OFF
+                -DBUILD_PROGRAMS=ON
+                -DBUILD_REGTEST=OFF
+                -DBUILD_SHARED_LIBS=$(usex !static-libs ON OFF)
+                -DBUILD_TESTING=OFF
+                -DENABLE_EXTERNAL_LIBS=$(usex external-libs ON OFF)
+                # MPEG codecs need media-sound/mpg123 >= 1.26 (tree has
+                # 1.25.10 which fails to build with gcc >= 14); re-enable
+                # once mpg123 is updated, macaroni-os/mark-issues#798
+                -DENABLE_MPEG=OFF
+              )
+              cmake_src_configure
+            }
+
     - openjpeg:
         template: ../../templates/simple-github.tmpl
         github:

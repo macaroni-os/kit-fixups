@@ -289,6 +289,27 @@ setuptools_modules:
         pypi_name: cython
         selector:
           - '<3.4'
+        vars:
+          body: |
+            python_compile() {
+              # Cython bootstraps itself from .pyx sources at build time:
+              # when setuptools build_ext gets -j (always passed by this
+              # kit's EAPI-7 distutils-r1 eclass from MAKEOPTS), cythonize
+              # runs in parallel *threads* sharing non-thread-safe compiler
+              # state (Cython.Compiler.Options, e.g. cimport_from_pyx).
+              # This intermittently emits inconsistent C files (undeclared
+              # __pyx_v_* symbols in Cython/Compiler/Parsing.c, "redeclared"
+              # errors in refnanny.pyx):
+              #   https://github.com/cython/cython/issues/7997
+              # Open and unfixed as of 3.3.0 (fix proposals #8008/#8013 are
+              # unmerged); Gentoo stopped passing -j to setuptools builds
+              # for the same "silent miscompilation" class of bugs. Keep
+              # the cythonize step serial until upstream ships a fix, and
+              # mirror the sys.path guard from the upstream Gentoo ebuild.
+              # Refs https://github.com/macaroni-os/mark-issues/issues/828
+              local -x PYTHONPATH=
+              distutils-r1_python_compile -j 1
+            }
 
     - cython:
         pypi_name: cython

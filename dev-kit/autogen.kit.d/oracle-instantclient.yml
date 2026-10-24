@@ -1,0 +1,98 @@
+# Oracle Instant Client SDK (dev headers + demo makefiles), ported from
+# https://github.com/geaaru/geaaru_overlay/tree/funtoo/autogen.kit.d/oracle-instantclient.yml
+#
+# Splits the overlay definition in two kits together with
+# core-server-kit/autogen.kit.d/oracle-instantclient.yml (the runtime
+# basic package): the -sdk package only carries build-time artifacts
+# (headers, lib symlinks, demo makefiles) needed to compile OCI consumers
+# such as dev-db/libdbi-drivers[oci], so it lives in dev-kit; the runtime
+# client libraries live in core-server-kit.
+#
+# The version selectors mirror the overlay: one ebuild per supported
+# release line (currently 19c and 21c LTS); the 23ai line is excluded
+# until the consumers are verified against it. Distfiles come from the
+# public https://download.oracle.com/otn_software/ CDN but remain under
+# the OTN license.
+oracle_instantclient_sdk:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "10s"
+
+  defaults:
+    category: dev-db
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    override_user_agent: "curl/8.12.1"
+    dir:
+      url: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+      matcher: 'instantclient-sdk-linux.x64-.*.zip'
+      exclude: 'el9'
+    transform:
+      - kind: string
+        match: 'instantclient-sdk-linux.x64-'
+        replace: ''
+      - kind: string
+        match: 'dbru'
+        replace: ''
+      - kind: string
+        match: '.zip'
+        replace: ''
+    vars:
+      homepage: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+      desc: "Oracle Instant Client SDK: development headers and demo makefiles for OCI consumers"
+      inherit:
+        - eutils
+      license: OTN
+      depend: |
+        app-arch/unzip
+      rdepend: |
+        >=dev-db/oracle-instantclient-basic-{{ .Values.pv }}
+      patches:
+        - 19.21.0.0-makefile.patch
+      s: '{{- $v := .Values.pv  }}${WORKDIR}/instantclient_{{ join "_" ( slice ( splitList "." $v ) 0 2 ) }}/'
+      body: |
+        {{- $v := .Values.pv  }}
+        src_install() {
+          local ldpath=
+          # all binaries go here
+          local oracle_home=/usr/$(get_libdir)/oracle/{{ $v }}/client
+          into "${oracle_home}"
+
+          # runtime library path
+          ldpath+=${ldpath:+:}${oracle_home}/$(get_libdir)
+
+          einfo "Installing SDK ..."
+          cd "${S}"/sdk || die
+
+          # SDK makefile, for #165834
+          # As we change the relative filesystem layout compared
+          # to vanilla instantclient.zip content, it feels easier
+          # to fake the layout found in Oracle eXpress Edition.
+          # Both layouts are known to DBD::Oracle (cpan).
+          insinto "${oracle_home}"/rdbms/demo
+          newins demo/demo.mk demo_xe.mk
+
+          # Remove ldap.h, #299562
+          rm include/ldap.h || die
+          # DBD::Oracle needs rdbms/public as real directory
+          insinto "${oracle_home}"/rdbms/public
+          doins include/*.h
+          dosym rdbms/public "${oracle_home}"/include
+          # ruby-oci8 expects the headers here
+          dosym "${oracle_home}"/rdbms/public /usr/include/oracle/{{ $v }}/client
+
+          dodoc demo/*
+
+          eend $?
+        }
+
+  packages:
+
+    - oracle-instantclient-sdk:
+        selector:
+          - '<20'
+
+    - oracle-instantclient-sdk:
+        selector:
+          - '<22'

@@ -16,6 +16,18 @@ target:
 
     - pkg: dev-db/mysql-community:8.0
 
+    # InstantClient 19c
+    - pkg: dev-db/oracle-instantclient-basic
+      conditions:
+        - '>=dev-db/oracle-instantclient-basic-19.0.0'
+        - '<dev-db/oracle-instantclient-basic-20.0.0'
+
+    # InstantClient 21c
+    - pkg: dev-db/oracle-instantclient-basic
+      conditions:
+        - '>=dev-db/oracle-instantclient-basic-21.0.0'
+        - '<dev-db/oracle-instantclient-basic-22.0.0'
+
     - pkg: sys-auth/sssd
 
     - pkg: sys-block/thin-provisioning-tools

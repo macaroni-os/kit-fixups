@@ -1,0 +1,115 @@
+# Oracle Instant Client Basic (runtime client libraries), ported from
+# https://github.com/geaaru/geaaru_overlay/tree/funtoo/autogen.kit.d/oracle-instantclient.yml
+#
+# Splits the overlay definition in two kits together with
+# dev-kit/autogen.kit.d/oracle-instantclient.yml (the -sdk package):
+# the runtime shared libraries installed here are what OCI consumers need
+# at run time, so this is placed in core-server-kit alongside the other
+# server-side database runtimes (dev-db/mysql-community, mariadb, ...);
+# the compile-time headers package stays in dev-kit next to its
+# consumers such as dev-db/libdbi-drivers[oci].
+#
+# The version selectors mirror the overlay: one ebuild per supported
+# release line (currently 19c and 21c LTS); the 23ai line is excluded
+# until the consumers are verified against it. Distfiles come from the
+# public https://download.oracle.com/otn_software/ CDN but remain under
+# the OTN license.
+oracle_instantclient_basic:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+    rate_duration: "10s"
+
+  defaults:
+    category: dev-db
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    override_user_agent: "curl/8.12.1"
+    dir:
+      url: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+      matcher: 'instantclient-basic-linux.x64-.*.zip'
+      exclude: 'el9'
+    transform:
+      - kind: string
+        match: 'instantclient-basic-linux.x64-'
+        replace: ''
+      - kind: string
+        match: 'dbru'
+        replace: ''
+      - kind: string
+        match: '.zip'
+        replace: ''
+    vars:
+      homepage: https://www.oracle.com/database/technologies/instant-client/linux-x86-64-downloads.html
+      desc: "Oracle Instant Client Basic: shared libraries required to run OCI (Oracle Call Interface) applications"
+      inherit:
+        - eutils
+      license: OTN
+      depend: |
+        app-arch/unzip
+      rdepend: |
+        dev-libs/libaio
+      extra_envs:
+        - 'QA_PREBUILT="usr/lib*/oracle/{{ .Values.pv }}/client/lib*/lib*"'
+      s: '{{- $v := .Values.pv  }}${WORKDIR}/instantclient_{{ join "_" ( slice ( splitList "." $v ) 0 2 ) }}/'
+      body: |
+        {{- $v := .Values.pv  }}
+        src_install() {
+          local ldpath=
+          # all binaries go here
+          local oracle_home=/usr/$(get_libdir)/oracle/{{ .Values.pv }}/client
+          into "${oracle_home}"
+
+          # shared libraries
+          dolib.so lib*.so*
+
+          # ensure to be linkable
+          [[ -e libocci.so ]] ||
+          dosym libocci.so.{{ join "" ( slice ( splitList "." $v ) 0 1 ) }}.1 \
+            "${oracle_home}"/$(get_libdir)/libocci.so
+          [[ -e libclntsh.so ]] ||
+          dosym libclntsh.so.{{ join "" ( slice ( splitList "." $v ) 0 1 ) }}.1 \
+            "${oracle_home}"/$(get_libdir)/libclntsh.so
+
+          # java archives
+          insinto "${oracle_home}"/$(get_libdir)
+          doins *.jar
+
+          # runtime library path
+          ldpath+=${ldpath:+:}${oracle_home}/$(get_libdir)
+
+          # ensure ORACLE_HOME/lib exists
+          [[ -e ${ED}${oracle_home}/lib ]] ||
+          dosym $(get_libdir) "${oracle_home}"/lib
+
+          # create path for tnsnames.ora
+          insinto /etc/oracle
+          doins "${FILESDIR}"/tnsnames.ora.sample
+
+          # Add OCI libs to library path
+          {
+            echo "ORACLE_HOME=${oracle_home}"
+            echo "LDPATH=${ldpath}"
+            # who does need this?
+            # echo "C_INCLUDE_PATH=${oracle_home}/include"
+            echo "TNS_ADMIN=/etc/oracle/"
+          } > "${T}"/50oracle-instantclient-basic
+          doenvd "${T}"/50oracle-instantclient-basic
+        }
+        pkg_postinst() {
+          elog "TNS_ADMIN has been set to ${EROOT}etc/oracle by default,"
+          elog "put your tnsnames.ora there or configure TNS_ADMIN"
+          elog "to point to your user specific configuration."
+          ewarn "Please re-source your shell settings for ORACLE_HOME"
+          ewarn "  changes, such as: source /etc/profile"
+        }
+
+  packages:
+
+    - oracle-instantclient-basic:
+        selector:
+          - '<20'
+
+    - oracle-instantclient-basic:
+        selector:
+          - '<22'

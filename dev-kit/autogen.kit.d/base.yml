@@ -3071,3 +3071,115 @@ libedit:
 
   packages:
     - libedit:
+
+# Keep 0.9.0 pinned (last upstream release, 2015) but fix the build with
+# gcc >= 14/15/16 defaulting to C23, where implicit function declarations
+# and int/pointer conversions are hard errors:
+#   - the bundled cgreen test suite calls wait() in unit.c without
+#     <sys/wait.h> and constraint.c mixes intptr_t/function pointers.
+#   - the clang16-build-fix patch (Gentoo bug 894750) was already shipped
+#     in files/ but never referenced by PATCHES, so it was never applied.
+# Fixes https://github.com/macaroni-os/mark-issues/issues/838
+libdbi_drivers:
+  generator: builtin-noop
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-db
+    template: ../../templates/simple.tmpl
+    assets:
+      - name: 'libdbi-drivers-{{ .Values.version }}.tar.gz'
+        url: 'https://sourceforge.net/projects/libdbi-drivers/files/libdbi-drivers/libdbi-drivers-{{ .Values.version }}/libdbi-drivers-{{ .Values.version }}.tar.gz'
+    vars:
+      versions:
+        - '0.9.0'
+      homepage: http://libdbi-drivers.sourceforge.net/
+      desc: "The libdbi-drivers project maintains drivers for libdbi"
+      license: LGPL-2.1+
+      inherit:
+        - autotools
+      iuse: doc firebird mysql oci postgres +sqlite static-libs
+      required_use: "|| ( mysql postgres sqlite firebird oci )"
+      restrict: "firebird? ( bindist )"
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+        - README
+        - README.osx
+        - TODO
+      patches:
+        - libdbi-drivers-0.9.0-doc-build-fix.patch
+        - libdbi-drivers-0.9.0-slibtool-libdir.patch
+        - libdbi-drivers-0.9.0-clang16-build-fix.patch
+      rdepend: |
+        >=dev-db/libdbi-0.9.0
+        firebird? ( dev-db/firebird )
+        mysql? ( dev-db/mysql-connector-c:= )
+        oci? (
+          dev-db/oracle-instantclient-basic
+        )
+        postgres? ( dev-db/postgresql:* )
+        sqlite? ( dev-db/sqlite:3 )
+      depend: |
+        ${RDEPEND}
+        oci? (
+          dev-db/oracle-instantclient-sdk
+          dev-db/oracle-instantclient-basic
+        )
+      bdepend: |
+        doc? ( app-text/openjade )
+      body: |
+        pkg_setup() {
+          use oci && [[ -z "${ORACLE_HOME}" ]] && die "\$ORACLE_HOME is not set!"
+        }
+
+        src_prepare() {
+          default
+          eautoreconf
+        }
+
+        src_configure() {
+          local myconf=""
+          # WARNING: the configure script does NOT work correctly
+          # --without-$driver does NOT work
+          # so do NOT use `use_with...`
+          # Future additions:
+          # msql
+          # freetds
+          # ingres
+          # db2
+          use mysql && myconf+=" --with-mysql"
+          use postgres && myconf+=" --with-pgsql"
+          use sqlite && myconf+=" --with-sqlite3"
+          use firebird && myconf+=" --with-firebird"
+          if use oci; then
+            [[ -z "${ORACLE_HOME}" ]] && die "\$ORACLE_HOME is not set!"
+            myconf+=" --with-oracle-dir=${ORACLE_HOME} --with-oracle"
+          fi
+
+          econf \
+            $(use_enable doc docs) \
+            $(use_enable static-libs static) \
+            --with-dbi-libdir=/usr/$(get_libdir) \
+            ${myconf}
+        }
+
+        src_test() {
+          if [[ -z "${WANT_INTERACTIVE_TESTS}" ]]; then
+            ewarn "Tests disabled due to interactivity."
+            ewarn "Run with WANT_INTERACTIVE_TESTS=1 if you want them."
+            return 0
+          fi
+          einfo "Running interactive tests"
+          emake check
+        }
+
+        src_install() {
+          default
+
+          find "${ED}" -name '*.la' -type f -delete || die
+        }
+
+  packages:
+    - libdbi-drivers:

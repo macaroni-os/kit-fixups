@@ -363,8 +363,8 @@ swig:
         match: swig-
         replace: ""
     assets:
-      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
-        url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+      - name: "{{ .Values.pn }}-{{ .Values.pv }}.tar.gz"
+        url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.pv }}.tar.gz"
     vars:
       desc: Simplified Wrapper and Interface Generator
       license: GPL-3+ BSD BSD-2
@@ -776,7 +776,7 @@ erlang:
         replace: ''
 
     assets:
-      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+      - name: '{{ .Values.pn }}-{{ .Values.pv }}.tar.gz'
         matcher: 'otp_src_.*.tar.gz$'
       - name: '{{ .Values.pn }}-{{ .Values.version }}-doc-man.tar.gz'
         matcher: 'otp_doc_man_.*.tar.gz$'
@@ -961,3 +961,66 @@ julia_bin:
         selector:
           - '<1.11'
           - '>=1.10.0'
+
+yasm:
+  generator: builtin-dirlisting
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: dev-lang
+    template: ../../templates/simple.tmpl
+
+    dir:
+      url: https://www.tortall.net/projects/yasm/releases/
+      matcher: "yasm-1.*.tar.gz$"
+    transform:
+      - kind: string
+        match: "yasm-"
+        replace: ""
+      - kind: string
+        match: ".tar.gz"
+        replace: ""
+    vars:
+      homepage: https://yasm.tortall.net/
+      desc: "A modifiable assembler for the x86 instruction set"
+      license: "BSD-2 BSD || ( Artistic GPL-2 LGPL-2 )"
+      inherit:
+        - toolchain-funcs
+        - flag-o-matic
+      iuse: nls
+      bdepend: |
+        nls? ( sys-devel/gettext )
+      depend: |
+        nls? ( virtual/libintl )
+      rdepend: "${DEPEND}"
+      body: |
+        src_prepare() {
+            default
+            # C23 (default since gcc-15) makes 'true'/'false' reserved keywords,
+            # while libyasm/bitvect.h still uses them as enumeration constants.
+            # Pin the C standard until upstream (inactive since 1.3.0/2014) or a
+            # FreeBSD-yasm-style rename patch lands. macaroni-os/mark-issues#830
+            append-flags -std=gnu17
+        }
+
+        src_configure() {
+            local myconf=(
+                CC_FOR_BUILD="$(tc-getBUILD_CC)"
+                CCLD_FOR_BUILD="$(tc-getBUILD_CC)"
+                --disable-warnerror
+                --disable-python
+                --disable-python-bindings
+                $(use_enable nls)
+            )
+
+            econf "${myconf[@]}"
+        }
+
+        src_test() {
+            # https://bugs.gentoo.org/718870
+            emake -j1 check
+        }
+
+  packages:
+    - yasm:
+        revision: 2

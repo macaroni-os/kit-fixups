@@ -1024,3 +1024,56 @@ yasm:
   packages:
     - yasm:
         revision: 2
+
+# Bun JavaScript runtime, shipped as the prebuilt ELF from the upstream
+# GitHub release assets (glibc builds only). Same packaging scheme as
+# dev-util/pnpm-bin (macaroni-os/kit-fixups#475). macaroni-os/mark-issues#841
+bun_bin:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-lang
+    github:
+      query: releases
+      user: oven-sh
+      repo: bun
+    # Release title is "Bun v1.4.4" (tag bun-v1.4.4); strip the prefix
+    # from either form so PV is clean.
+    transform:
+      - kind: regex
+        match: '(?i)^bun[- ]?v'
+        replace: ''
+    # glibc linux assets only; skip the -musl / -android / -profile
+    # (and non-linux) variants, same as #475 skipped musl.
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-amd64-linux.zip'
+        matcher: '^bun-linux-x64\.zip$'
+        use: amd64
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-arm64-linux.zip'
+        matcher: '^bun-linux-aarch64\.zip$'
+        use: arm64
+    vars:
+      homepage: https://bun.sh
+      desc: Incredibly fast JavaScript runtime, bundler, test runner and package manager (upstream binary)
+      license: MIT
+      iuse: amd64 arm64
+      restrict: strip
+      extra_envs:
+        - 'QA_PREBUILT="*"'
+      body: |
+        post_src_unpack() {
+          # The glibc zip unpacks into a single bun-linux-<arch>/ dir that
+          # holds just the ELF binary. Point S at it when the unpacker
+          # single-directory heuristic did not do it for us.
+          if [ ! -d "${S}" ] ; then
+            mv "${WORKDIR}"/bun-linux-* "${S}" || die
+          fi
+        }
+        src_configure() { :; }
+        src_compile() { :; }
+        src_install() {
+          newbin "${S}"/bun bun
+        }
+  packages:
+    - bun-bin:

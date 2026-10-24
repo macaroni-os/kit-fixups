@@ -17,7 +17,6 @@ IUSE="ap bindist dbus eap-sim eapol_test fasteap +fils +hs2-0 macsec p2p privsep
 CDEPEND="dbus? ( sys-apps/dbus )
 	kernel_linux? (
 		dev-libs/libnl:3
-		net-wireless/crda
 		eap-sim? ( sys-apps/pcsc-lite )
 	)
 	qt5? (

@@ -1989,25 +1989,19 @@ gnome_dirlisting:
             }
 
 unifdef:
-  generator: builtin-dirlisting
-  generator_opts:
-    # Limit rate at 1reqs/sec
-    rate_limiter: "1"
+  generator: builtin-github
 
   defaults:
     category: dev-util
     files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
-    dir:
-      url: https://dotat.at/prog/unifdef/
-      matcher: "{{ .Values.pn }}-.*.tar.xz$"
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: fanf2
+      query: tags
     transform:
-      - kind: string
-        match: "{{ .Values.pn }}-"
-        replace: ""
-      - kind: string
-        match: ".tar.xz"
-        replace: ""
+      - kind: regex
+        match: '^unifdef-'
+        replace: ''
     vars:
       license: BSD
       inherit:
@@ -2025,6 +2019,14 @@ unifdef:
           # reserved keyword since C23 (default of >=sys-devel/gcc-15).
           # Pin the C standard until upstream renames it.
           append-flags -std=gnu17
+          # GitHub tag archives do not ship the release-generated version
+          # files that the Makefile requires (only the dotat.at tarballs do);
+          # recreate them, format per scripts/reversion.sh.
+          if [ ! -f version.h ]; then
+              printf 'V="unifdef-{{ .Values.pv }}"\nD="released"\n' > version.sh || die
+              printf '"@(#) $Version: unifdef-{{ .Values.pv }} $\\n"\n' > version.h || die
+              printf '"@(#) $Date: released $\\n"\n' >> version.h || die
+          fi
           default
         }
 

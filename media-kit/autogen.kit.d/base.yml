@@ -7094,3 +7094,96 @@ libde265:
 
   packages:
     - libde265:
+
+# media-libs/xvid was merge-only (ebuild copied verbatim), so there was no way
+# to carry a fix for its build failure with gcc >= 15: xvidcore does
+# `typedef int bool` in src/encoder.h, and bool is a reserved keyword since
+# C23, the gcc >= 15 default (error: 'bool' cannot be defined via 'typedef').
+# Convert to autogen (builtin-dirlisting on https://downloads.xvid.com/downloads/,
+# the address used by the assets entry) so the bot tracks the newest upstream
+# release and the generated ebuild pins the C standard to C17 in src_prepare
+# (the typedef is still present upstream). The ebuild uses the plain autotools
+# eclass (we don't support multilib) and has no FreeBSD branches (unsupported
+# on the mark-* branches).
+# Fixes https://github.com/macaroni-os/mark-issues/issues/834
+xvid:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: media-libs
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://downloads.xvid.com/downloads/
+      matcher: 'xvidcore-[0-9].*\.tar\.bz2$'
+      # skip the pre-releases (e.g. xvidcore-1.3.0-rc1.tar.bz2)
+      exclude: '-rc[0-9]|-beta[0-9]'
+    transform:
+      - kind: string
+        match: 'xvidcore-'
+        replace: ''
+      - kind: string
+        match: '.tar.bz2'
+        replace: ''
+    assets:
+      - name: 'xvidcore-{{ .Values.version }}.tar.bz2'
+        url: 'https://downloads.xvid.com/downloads/xvidcore-{{ .Values.version }}.tar.bz2'
+    vars:
+      homepage: https://www.xvid.org/
+      desc: "High performance/quality MPEG-4 video de-/encoding solution"
+      license: GPL-2
+      inherit:
+        - flag-o-matic
+        - autotools
+      iuse: examples pic +threads
+      # the tarball unpacks to a plain xvidcore/ directory
+      s: '${WORKDIR}/xvidcore/build/generic'
+      depend: |
+        sys-apps/grep
+        amd64? ( || ( >=dev-lang/yasm-1 >=dev-lang/nasm-2 ) )
+        x86? ( || ( >=dev-lang/yasm-1 >=dev-lang/nasm-2 ) )
+        x86-macos? ( >=dev-lang/nasm-2 )
+        x64-macos? ( >=dev-lang/nasm-2 )
+      body: |
+        src_prepare() {
+          # >=sys-devel/gcc-15 defaults to C23, where bool is a keyword, but
+          # xvidcore does typedef int bool in src/encoder.h. Pin C17 until
+          # upstream fixes it.
+          # https://github.com/macaroni-os/mark-issues/issues/834
+          append-flags -std=gnu17
+          default
+
+          # make build verbose
+          sed \
+            -e 's/@$(CC)/$(CC)/' \
+            -e 's/@$(AS)/$(AS)/' \
+            -e 's/@$(RM)/$(RM)/' \
+            -e 's/@$(INSTALL)/$(INSTALL)/' \
+            -e 's/@cd/cd/' \
+            -i Makefile || die
+        }
+
+        src_configure() {
+          use sparc && append-cflags -mno-vis #357149
+
+          local myconf=( $(use_enable threads pthread) )
+          #421841
+          if use pic ; then
+            myconf+=( --disable-assembly )
+          fi
+
+          econf "${myconf[@]}"
+        }
+
+        src_install() {
+          default
+
+          dodoc "${S}"/../../{AUTHORS,ChangeLog*,CodingStyle,README,TODO}
+
+          if use examples; then
+            insinto /usr/share/${PN}
+            doins -r "${S}"/../../examples
+          fi
+        }
+
+  packages:
+    - xvid:

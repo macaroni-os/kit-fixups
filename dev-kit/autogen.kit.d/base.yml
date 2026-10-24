@@ -868,7 +868,10 @@ dev_github:
           user: mesonbuild
         selector:
           # Move ahead by steps
-          - '<1.9'
+          # fontconfig >= 2.18 needs meson >= 1.11
+          # (https://github.com/macaroni-os/mark-issues/issues/805);
+          # keep < 1.12 since meson 1.12 drops Python 3.9 support.
+          - '<1.12'
         vars:
           python_compat: python3+
           extra_envs:

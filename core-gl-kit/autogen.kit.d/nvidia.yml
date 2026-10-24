@@ -138,7 +138,7 @@ nvidia_drivers:
           - '>595'
 
     - nvidia-drivers:
-        # 595.*
+        # 610.*
         vars:
           slot: 610
           max_kernel_version: '7.1'
@@ -147,6 +147,17 @@ nvidia_drivers:
         selector:
           - '<611'
           - '>610'
+
+    - nvidia-drivers:
+        # 615.*
+        vars:
+          slot: 615
+          max_kernel_version: '7.1'
+        dir:
+          matcher: "615.*"
+        selector:
+          - '<616'
+          - '>615'
 
 nvidia_kernel_modules:
   generator: builtin-dirlisting
@@ -286,6 +297,17 @@ nvidia_kernel_modules:
         selector:
           - '<611'
           - '>610'
+
+    - nvidia-kernel-modules:
+        # 615.*
+        vars:
+          slot: 615
+          max_kernel_version: '7.1'
+        dir:
+          matcher: "615.*"
+        selector:
+          - '<616'
+          - '>615'
 
 cuda_kit:
   generator: builtin-dirlisting

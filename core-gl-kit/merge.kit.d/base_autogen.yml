@@ -138,6 +138,10 @@ target:
     - pkg: x11-drivers/nvidia-drivers:610
       conditions:
         - '>=x11-drivers/nvidia-drivers-610:610'
+    # 615 release
+    - pkg: x11-drivers/nvidia-drivers:615
+      conditions:
+        - '>=x11-drivers/nvidia-drivers-615:615'
 
     # 535 release
     - pkg: x11-drivers/nvidia-kernel-modules:535
@@ -193,5 +197,10 @@ target:
     - pkg: x11-drivers/nvidia-kernel-modules:610
       conditions:
         - '>=x11-drivers/nvidia-kernel-modules-610:610'
+
+    # 615 release
+    - pkg: x11-drivers/nvidia-kernel-modules:615
+      conditions:
+        - '>=x11-drivers/nvidia-kernel-modules-615:615'
 
     - pkg: sys-power/switcheroo-control

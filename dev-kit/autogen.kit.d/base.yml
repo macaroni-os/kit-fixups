@@ -2998,3 +2998,76 @@ libfido2:
 
   packages:
     - libfido2:
+
+# Converted from merge-only to autogen: builtin-dirlisting on
+# https://thrysoee.dk/editline/ (the site hosting the distfile used in
+# SRC_URI; the page links exactly the current upstream libedit snapshot as
+# libedit-<date>-<api>.tar.gz, e.g. libedit-20260512-3.1.tar.gz, which the
+# transform maps to PV 20260512.3.1 following the tree's date+API-version
+# convention, e.g. 20170329.3.1).
+# The merge-only ebuild was stuck on 20170329.3.1, which fails to build with
+# gcc >= 14: filecomplete.c called narrow strchr() on the wchar_t arrays
+# break_chars/extra_quote_chars (UB with --enable-widec, and the
+# -Wincompatible-pointer-types warning is a hard C23 error), and
+# examples/fileman.c had no prototypes (C23 reads `f ()` as `f (void)`).
+# All the old kit patches are obsolete in the current snapshot: filecomplete.c
+# was reworked around a properly typed _el_fn_complete(), tokenizer.c picks
+# strchr/wcschr through a Strchr macro, fileman.c has real prototypes, and
+# tinfo detection plus the libedit.pc link flags were fixed upstream, so the
+# version bump alone fixes the build and no local patches are carried.
+# Fixes https://github.com/macaroni-os/mark-issues/issues/835
+# Part of  https://github.com/macaroni-os/mark-issues/issues/615 (autogen)
+libedit:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://thrysoee.dk/editline/
+      # the site only links the current snapshot; anchoring on .tar.gz$
+      # also keeps signature files out should they ever be linked
+      matcher: 'libedit-[0-9]{8}-[0-9.]+\.tar\.gz$'
+    transform:
+      # libedit-20260512-3.1.tar.gz -> 20260512.3.1
+      - kind: regex
+        match: '^libedit-([0-9]{8})-([0-9.]+)\.tar\.gz$'
+        replace: '${1}.${2}'
+    assets:
+      - name: '{{ .Values.pn }}-{{ regexReplaceAll `^([0-9]+)\.` .Values.pv "${1}-" }}.tar.gz'
+        url: 'https://thrysoee.dk/editline/{{ .Values.pn }}-{{ regexReplaceAll `^([0-9]+)\.` .Values.pv "${1}-" }}.tar.gz'
+    vars:
+      homepage: https://thrysoee.dk/editline/
+      desc: "BSD replacement for libreadline"
+      license: BSD-2
+      inherit:
+        - autotools
+      iuse: static-libs
+      # the snapshot unpacks to libedit-<date>-<api> (dash before the API
+      # version), i.e. {{ .Values.p }} with the first dot replaced
+      s: '${WORKDIR}/{{ regexReplaceAll `(-[0-9]+)\.` .Values.p "${1}-" }}'
+      # NOTE: literal dependency goes in rdepend because simple.tmpl emits
+      # RDEPEND before DEPEND (same order as the liblinear atom above)
+      rdepend: '>=sys-libs/ncurses-5.9-r3[static-libs?]'
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          default
+          eautoreconf
+        }
+
+        src_configure() {
+          econf \
+            $(use_enable static-libs static) \
+            --enable-widec \
+            --enable-fast-install
+        }
+
+        src_install() {
+          emake DESTDIR="${D}" install
+          einstalldocs
+          find "${D}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - libedit:

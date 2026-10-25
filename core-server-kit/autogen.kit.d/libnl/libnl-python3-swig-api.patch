@@ -1,0 +1,57 @@
+diff -ruN a/python/netlink/capi.i b/python/netlink/capi.i
+--- a/python/netlink/capi.i	2026-10-23 18:10:53.855820970 -0000
++++ b/python/netlink/capi.i	2026-10-23 18:10:53.861820978 -0000
+@@ -625,8 +625,8 @@
+ 	}
+ 	resobj = PyObject_CallObject(funcobj, cbparobj);
+ 	Py_DECREF(cbparobj);
+-	if (resobj && PyInt_Check(resobj))
+-		result = (int)PyInt_AsLong(resobj);
++	if (resobj && PyLong_Check(resobj))
++		result = (int)PyLong_AsLong(resobj);
+ 	else
+ 		result = NL_STOP;
+ 	Py_XDECREF(resobj);
+@@ -661,8 +661,8 @@
+ 	}
+ 	resobj = PyObject_CallObject(funcobj, cbparobj);
+ 	Py_DECREF(cbparobj);
+-	if (resobj && PyInt_Check(resobj))
+-		result = (int)PyInt_AsLong(resobj);
++	if (resobj && PyLong_Check(resobj))
++		result = (int)PyLong_AsLong(resobj);
+ 	else
+ 		result = NL_STOP;
+ 	Py_XDECREF(resobj);
+@@ -817,8 +817,8 @@
+ 	$1 = Py_SIZE($input);
+ 	if (PyByteArray_Check($input)) {
+ 		$2 = ($2_ltype)PyByteArray_AsString($input);
+-	} else if (PyString_Check($input)) {
+-		$2 = ($2_ltype)PyString_AsString($input);
++	} else if (PyUnicode_Check($input)) {
++		$2 = ($2_ltype)PyUnicode_AsUTF8($input);
+ 	} else
+ 		SWIG_exception(SWIG_TypeError,
+ 			       "pointer must be bytearray or string.");
+@@ -887,7 +887,7 @@
+ 		attrs = PyDict_New();
+ 		for (i = 0; i <= max; i++)
+ 			if (tb_msg[i]) {
+-				k = PyInt_FromLong((long)i);
++				k = PyLong_FromLong((long)i);
+ 				v = SWIG_NewPointerObj(SWIG_as_voidptr(tb_msg[i]), SWIGTYPE_p_nlattr, 0 |  0 );
+ 				PyDict_SetItem(attrs, k, v);
+ 			}
+diff -ruN a/python/netlink/genl/capi.i b/python/netlink/genl/capi.i
+--- a/python/netlink/genl/capi.i	2026-10-23 18:10:53.856820971 -0000
++++ b/python/netlink/genl/capi.i	2026-10-23 18:10:53.864185050 -0000
+@@ -99,7 +99,7 @@
+ 		attrs = PyDict_New();
+ 		for (i = 0; i <= max; i++)
+ 			if (tb_msg[i]) {
+-				k = PyInt_FromLong((long)i);
++				k = PyLong_FromLong((long)i);
+ 				v = SWIG_NewPointerObj(SWIG_as_voidptr(tb_msg[i]), SWIGTYPE_p_nlattr, 0 |  0 );
+ 				PyDict_SetItem(attrs, k, v);
+ 			}

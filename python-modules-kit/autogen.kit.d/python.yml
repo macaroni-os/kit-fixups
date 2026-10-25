@@ -253,6 +253,27 @@ setuptools_modules:
               cp docs/intro.rst README.rst
             }
 
+    - aws-crt-python:
+        pypi_name: awscrt
+        pydeps_ignore:
+          - 'extra == "dev"'
+        vars:
+          homepage: https://github.com/awslabs/aws-crt-python https://pypi.org/project/awscrt/
+          license: Apache-2.0
+          depend: |
+            dev-libs/openssl:=
+          rdepend: |
+            dev-libs/openssl:=
+          bdepend: |
+            dev-util/cmake
+          restrict: test
+          body: |
+            src_configure() {
+              # Build the bundled aws-c-* libs but link against system OpenSSL
+              # instead of compiling the bundled AWS-LC (no perl toolchain needed)
+              export AWS_CRT_BUILD_USE_SYSTEM_LIBCRYPTO=1
+            }
+
     - m2crypto:
         pypi_name: m2crypto
         vars:

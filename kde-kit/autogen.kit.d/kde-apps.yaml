@@ -1222,9 +1222,9 @@ kde-apps:
 
     - kalzium:
         vars:
+          # solver USE dropped per maintainer call, macaroni-os/mark-issues#790 — facile/OCaml stack not in tree
           desc: "Periodic table of the elements"
           homepage: https://apps.kde.org/kalzium/
-          iuse: "solver"
           rdepend: |
             virtual/kde-seed[gui,declarative,svg]
             dev-qt/qt5compat:{{ .Values.qt_slot }}
@@ -1243,7 +1243,6 @@ kde-apps:
             kde-frameworks/kunitconversion:{{ .Values.slot }}
             kde-frameworks/kwidgetsaddons:{{ .Values.slot }}
             kde-frameworks/kxmlgui:{{ .Values.slot }}
-            solver? ( dev-ml/facile:=[ocamlopt] )
 
     - kamera:
         vars:

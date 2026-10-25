@@ -1,0 +1,125 @@
+# Autogen rules for core-server-kit dev-libs packages.
+#
+# dev-libs/libnl: upstream SWIG interface files (python/netlink/*.i) still
+# use the Python-2 C-API (PyInt_*, PyString_*), so USE=python builds break
+# with gcc >= 14 / python3 (macaroni-os/mark-issues#832). The verified fix
+# from https://github.com/thom311/libnl/pull/463 is carried in the package
+# files_dir below; drop the patch once that upstream PR is merged and
+# released.
+dev_libs_github:
+  generator: builtin-github
+
+  defaults:
+    files_dir: '{{ .Values.pn }}'
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+
+    github:
+      user: thom311
+      query: releases
+      exclude:
+        - rc
+
+    # GitHub release titles are "libnl <version>" (e.g. "libnl 3.12.0"),
+    # so stripping the name prefix with its trailing space is enough to
+    # get a clean PV (3.12.0).
+    transform:
+      - kind: string
+        match: 'libnl '
+        replace: ''
+
+    # The stable source tarball asset only: skips libnl-doc-*.tar.gz and
+    # the .md5sum/.sha256sum/.sig sidecars.
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+        matcher: '^libnl-[0-9][0-9A-Za-z.\-]*\.tar\.gz$'
+
+    vars:
+      python_compat: python3+
+      extra_envs:
+        - 'DISTUTILS_OPTIONAL=1'
+      inherit:
+        - distutils-r1
+        - libtool
+      desc: Libraries providing APIs to netlink protocol based Linux kernel interfaces
+      homepage: 'https://www.infradead.org/~tgr/libnl/ https://github.com/thom311/libnl'
+      license: 'LGPL-2.1 utils? ( GPL-2 )'
+      slot: '3'
+      iuse: '+debug static-libs python +threads utils'
+      required_use: 'python? ( ${PYTHON_REQUIRED_USE} )'
+      docs:
+        - ChangeLog
+      patches:
+        - libnl-python3-swig-api.patch
+
+      rdepend: |
+        python? ( ${PYTHON_DEPS} )
+
+      bdepend: |
+        sys-devel/bison
+        sys-devel/flex
+        virtual/pkgconfig
+        python? ( dev-lang/swig )
+
+      depend: |
+        ${RDEPEND}
+
+      # Kept close to the previous in-tree ebuild, without the multilib
+      # machinery (Macaroni autogen packages are native-arch only). Since
+      # 3.5 upstream generates python/setup.py from setup.py.in during the
+      # root configure, so the distutils phases run after it configured
+      # the tree.
+      body: |
+        src_prepare() {
+        	default
+
+        	if use python; then
+        		pushd "${S}"/python > /dev/null || die
+        		distutils-r1_src_prepare
+        		popd > /dev/null || die
+        	fi
+        }
+
+        src_configure() {
+        	# Upstream renamed the threads knob to --enable-pthreads, so
+        	# plain `use_enable threads` no longer maps to a configure flag.
+        	econf \
+        		$(use_enable utils cli) \
+        		$(use_enable debug) \
+        		$(use_enable static-libs static) \
+        		$(use_enable threads pthreads) \
+        		--disable-silent-rules
+        }
+
+        src_compile() {
+        	default
+
+        	if use python; then
+        		pushd python > /dev/null || die
+        		distutils-r1_src_compile
+        		popd > /dev/null || die
+        	fi
+        }
+
+        src_install() {
+        	emake DESTDIR="${D}" install
+
+        	if use python; then
+        		# Unset DOCS= since distutils-r1.eclass interferes
+        		local DOCS=()
+
+        		pushd python > /dev/null || die
+        		distutils-r1_src_install
+        		popd > /dev/null || die
+        	fi
+
+        	einstalldocs
+        	prune_libtool_files --modules
+        }
+
+  packages:
+    # Keep the kit SLOT=3 semantics: the libnl v4 series (if ever
+    # released) is a different ABI and must not be picked automatically.
+    - libnl:
+        selector:
+          - '<4.0.0'

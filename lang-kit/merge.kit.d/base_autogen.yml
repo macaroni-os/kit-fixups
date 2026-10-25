@@ -146,3 +146,21 @@ target:
     # Swig
     - pkg: dev-lang/swig
     - pkg: dev-lang/yasm
+
+    # PHP: keep the latest stable release of each maintained slot
+    # (selector/exclude in autogen.kit.d/base.yml guarantee one
+    # version per line, mesa/nvidia-drivers precedent).
+    - pkg: dev-lang/php:8.2
+      conditions:
+        - '>=dev-lang/php-8.2.0:8.2'
+        - '<dev-lang/php-8.3.0:8.2'
+
+    - pkg: dev-lang/php:8.3
+      conditions:
+        - '>=dev-lang/php-8.3.0:8.3'
+        - '<dev-lang/php-8.4.0:8.3'
+
+    - pkg: dev-lang/php:8.4
+      conditions:
+        - '>=dev-lang/php-8.4.0:8.4'
+        - '<dev-lang/php-8.5.0:8.4'

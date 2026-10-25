@@ -59,6 +59,14 @@ target:
     - pkg: media-gfx/graphviz
     - pkg: media-gfx/inkscape
 
+    # openvdb is capped to the 11.x series on purpose: the autogen spec ABI USE
+    # flags are 11-based (abi9/10/11) and majors 12/13 are a separate
+    # maintainer migration decision.
+    - pkg: media-gfx/openvdb
+      conditions:
+        - '>=media-gfx/openvdb-11.0.0'
+        - '<media-gfx/openvdb-12.0.0'
+
     - pkg: media-libs/a52dec
     - pkg: media-libs/dav1d
     - pkg: media-libs/exempi

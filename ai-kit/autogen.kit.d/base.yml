@@ -668,6 +668,10 @@ llama_cpp:
     - llama-cpp:
         github:
           match: '^[^b]'
+          # keep this high because there
+          # are a lot of snapshots.
+          # If this fails, also the snapshot fails.
+          num_pages: 10
         vars:
           cdepend_extra: |
             !app-ai/llama-cpp:snapshot

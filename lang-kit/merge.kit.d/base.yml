@@ -26,6 +26,8 @@ target:
 
   atoms:
 
+    - pkg: dev-lang/bun-bin
+
     - pkg: dev-lang/orc
     - pkg: dev-lang/swig
     - pkg: dev-lang/yasm
@@ -62,6 +64,12 @@ target:
         - '>=net-libs/nodejs-24.0.0'
         - '<net-libs/nodejs-25.0.0'
 
+    # Nodejs 26
+    - pkg: net-libs/nodejs
+      conditions:
+        - '>=net-libs/nodejs-26.0.0'
+        - '<net-libs/nodejs-27.0.0'
+
     # Zig
     - pkg: dev-lang/zig
       conditions:
@@ -74,9 +82,24 @@ target:
 
     - pkg: virtual/rust
 
+    # Julia
+    # v12
+    - pkg: dev-lang/julia-bin
+      conditions:
+        - '>=dev-lang/julia-bin-1.12.0'
+        - '<dev-lang/julia-bin-1.13.0'
+
+    # v10
+    - pkg: dev-lang/julia-bin
+      conditions:
+        - '>=dev-lang/julia-bin-1.10.0'
+        - '<dev-lang/julia-bin-1.11.0'
+
     - pkg: dev-lang/R
 
     - pkg: dev-lang/erlang
+
+    - pkg: dev-node/typescript
 
     - pkg: dev-tcltk/expect
 
@@ -96,3 +119,5 @@ target:
     # PHP
     - pkg: dev-lang/php:8.1
     - pkg: dev-lang/php:8.2
+
+    - pkg: net-libs/deno

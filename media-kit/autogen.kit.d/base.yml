@@ -8,6 +8,82 @@ video_gh:
 
   packages:
 
+    # Upstream moved to https://github.com/ldo/dvdauthor (referenced by the
+    # project homepage for current development; the sourceforge file release
+    # page has no uploads since the 0.7.2 release). Track its tags.
+    # 0.7.2-r4 fixes the autotools bootstrap with libxml2 >= 2.12, which no
+    # longer installs the aclocal macro defining AM_PATH_XML2
+    # (https://github.com/macaroni-os/mark-issues/issues/764).
+    # Building from the tagged git tree needs the autotools bootstrap kept in
+    # src_prepare, config.rpath for AM_ICONV (shipped by sys-devel/gettext),
+    # flex/bison for the src/*.l,*.y rules, and carries the man pages that
+    # the release tarball shipped pre-generated instead of requiring the
+    # legacy SGML docbook toolchain at build time.
+    - dvdauthor:
+        template: ../../templates/simple-github.tmpl
+        revision: 4
+        github:
+          user: ldo
+          query: tags
+        vars:
+          desc: Tools for generating DVD files to be played on standalone DVD players
+          homepage: "http://dvdauthor.sourceforge.net/"
+          license: GPL-2
+          inherit:
+            - autotools
+            - flag-o-matic
+            - toolchain-funcs
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - README
+            - TODO
+          iuse: graphicsmagick +imagemagick
+          required_use: '^^ ( graphicsmagick imagemagick )'
+          patches:
+            - dvdauthor-freetype_pkgconfig.patch
+            - dvdauthor-0.7.2-libxml2-pkgconfig.patch
+            - dvdauthor-0.7.2-release-manpages.patch
+          rdepend: |
+            >=dev-libs/fribidi-0.19.2
+            dev-libs/libxml2
+            >=media-libs/freetype-2
+            media-libs/libdvdread
+            media-libs/libpng:0=
+            graphicsmagick? ( media-gfx/graphicsmagick:= )
+            imagemagick? ( media-gfx/imagemagick:= )
+          depend: ${RDEPEND}
+          bdepend: |
+            sys-devel/bison
+            sys-devel/flex
+            sys-devel/gettext
+            virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+
+              # The release tarballs shipped autotools/config.rpath for the
+              # AM_ICONV macro; the git tree does not, so take the copy
+              # installed by sys-devel/gettext (mark-issues#764).
+              mkdir -p autotools || die
+              cp "${ESYSROOT}/usr/share/gettext/config.rpath" autotools/config.rpath || die
+
+              eautoreconf
+
+              if use imagemagick && has_version '>=media-gfx/imagemagick-7.0.1.0' ; then
+                eapply "${FILESDIR}/${PN}-0.7.2-imagemagick7.patch"
+              fi
+
+              if use graphicsmagick ; then
+                sed -i -e 's:ExportImagePixels:dIsAbLeAuToMaGiC&:' configure || die
+              fi
+            }
+            src_configure() {
+              use graphicsmagick && \
+                append-cppflags "$($(tc-getPKG_CONFIG) --cflags GraphicsMagick)"
+              append-cppflags "$($(tc-getPKG_CONFIG) --cflags fribidi)"
+              econf
+            }
     - mpv:
         github:
           user: mpv-player

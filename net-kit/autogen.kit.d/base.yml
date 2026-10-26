@@ -4025,3 +4025,83 @@ wireshark_dirlisting:
               ewarn "add yourself to the pcap group. This security measure ensures"
               ewarn "that only trusted users are allowed to sniff your traffic."
             }
+
+# net-kit net-libs packages sourced from GitLab instances (builtin-gitlab).
+net_libs_gitlab:
+  generator: builtin-gitlab
+  generator_opts:
+    host: https://gitlab.gnome.org
+
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: '{{ .Values.pn }}'
+    template: ../../templates/simple.tmpl
+    category: net-libs
+
+    gitlab:
+      user: World
+      query: tags
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.bz2'
+        url: 'https://gitlab.gnome.org/World/dLeyna/-/archive/v{{ .Values.version }}/dLeyna-v{{ .Values.version }}.tar.bz2'
+
+  packages:
+
+    # Consolidated dLeyna monorepo (macaroni-os/mark-issues#678). Tags v0.1.0
+    # through v0.7.0 predate the consolidation of dleyna-core,
+    # dleyna-connector-dbus and dleyna-server into a single release, so the
+    # selector floor is >=0.8.0. The <0.8.4 cap mirrors Gentoo (stable on
+    # 0.8.3): dLeyna >=0.8.4 uses g_autoptr(GUPnPDIDLLiteParser) cleanup
+    # macros that net-libs/gupnp-av 0.12.x does not define, so device.c
+    # fails to compile against the tree's gupnp-av-0.12.11.
+    - dleyna:
+        selector:
+          - '>=0.8.0'
+          - '<0.8.4'
+        vars:
+          desc: A set of services and D-Bus APIs to simplify access to UPnP/DLNA media devices
+          homepage: https://gitlab.gnome.org/World/dLeyna
+          license: LGPL-2.1
+          slot: '1.0'
+          patches:
+            - dleyna-0.8.3-gupnp-av-autoptr-cleanup.patch
+          python_compat: python3+
+          s: '${WORKDIR}/dLeyna-v{{ .Values.version }}'
+          inherit:
+            - meson
+            - python-single-r1
+          required_use: '${PYTHON_REQUIRED_USE}'
+          rdepend: |
+            >=dev-libs/glib-2.28:2
+            >=net-libs/gssdp-1.6.0:1.6
+            >=net-libs/gupnp-1.6.0:1.6
+            >=net-libs/gupnp-av-0.12.9:0=
+            >=media-libs/gupnp-dlna-0.9.4:2.0
+            >=net-libs/libsoup-3.0:3
+            dev-libs/libxml2:2
+            ${PYTHON_DEPS}
+            !net-libs/dleyna-connector-dbus
+            !net-libs/dleyna-core
+            !net-libs/dleyna-renderer
+            !net-misc/dleyna-server
+          bdepend: |
+            dev-python/docutils
+            virtual/pkgconfig
+          depend: '${RDEPEND}'
+          body: |
+            src_configure() {
+              local emesonargs=(
+                -Ddbus_service_dir="${EPREFIX}/usr/share/dbus-1/services"
+                -Dman_pages=true
+                -Ddocs=false
+              )
+              meson_src_configure
+            }
+
+            src_install() {
+              meson_src_install
+              python_optimize
+            }

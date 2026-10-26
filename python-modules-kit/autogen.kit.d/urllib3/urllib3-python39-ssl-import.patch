@@ -1,0 +1,26 @@
+--- a/src/urllib3/util/ssl_.py
++++ b/src/urllib3/util/ssl_.py
+@@ -63,14 +63,21 @@
+         OPENSSL_VERSION,
+         PROTOCOL_TLS,
+         PROTOCOL_TLS_CLIENT,
+-        VERIFY_X509_PARTIAL_CHAIN,
+-        VERIFY_X509_STRICT,
+         OP_NO_SSLv2,
+         OP_NO_SSLv3,
+         SSLContext,
+         TLSVersion,
+     )
+ 
++    try:
++        from ssl import VERIFY_X509_PARTIAL_CHAIN, VERIFY_X509_STRICT
++    except ImportError:
++        # Python < 3.12: same numeric fallbacks the module's own
++        # no-ssl branch uses; OpenSSL honors both flags via
++        # SSL_CTX_set_verify regardless of the stdlib binding age.
++        VERIFY_X509_PARTIAL_CHAIN = 0x80000
++        VERIFY_X509_STRICT = 0x20
++
+     PROTOCOL_SSLv23 = PROTOCOL_TLS
+ 
+     # Setting SSLContext.hostname_checks_common_name = False didn't work with

@@ -1,0 +1,20 @@
+--- a/libdleyna/server/device.c
++++ b/libdleyna/server/device.c
+@@ -42,6 +42,17 @@
+ #include <libgupnp-dlna/gupnp-dlna-profile-guesser.h>
+ #include <libgupnp-av/gupnp-media-collection.h>
+ #include <libgupnp-av/gupnp-cds-last-change-parser.h>
++
++/*
++ * dLeyna >= 0.8 assumes a newer gupnp-av API surface than the released 0.12
++ * series (checked through 0.12.11): it expects gupnp-media-collection.h to
++ * pull gupnp-didl-lite-parser.h in transitively, and g_autoptr() cleanup
++ * support for GUPnPDIDLLiteParser. Provide both here; drop this once
++ * net-libs/gupnp-av is bumped past 0.12.11 (macaroni-os/mark-issues#678).
++ */
++#include <libgupnp-av/gupnp-didl-lite-parser.h>
++
++G_DEFINE_AUTOPTR_CLEANUP_FUNC(GUPnPDIDLLiteParser, g_object_unref)
+ #include <libsoup/soup.h>
+ 
+ #include <libdleyna/core/core.h>

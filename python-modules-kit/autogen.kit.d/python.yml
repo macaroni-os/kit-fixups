@@ -44,6 +44,7 @@ hatchling_modules:
         vars:
           patches:
             - urllib3-python39-union.patch
+            - urllib3-python39-ssl-import.patch
           iuse: brotli http2 zstd
           body: |
             src_prepare() {

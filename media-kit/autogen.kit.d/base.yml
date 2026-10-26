@@ -1022,6 +1022,51 @@ libs_gh:
               use python && python_optimize
             }
 
+    - opentimelineio:
+        template: ../../templates/simple-github.tmpl
+        github:
+          user: AcademySoftwareFoundation
+          repo: OpenTimelineIO
+          query: tags
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+            url: 'https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.github_repo }}/tarball/v{{ .Values.version }}'
+          - name: 'rapidjson-{{ .Values.rapidjson_commit }}.tar.gz'
+            url: 'https://github.com/Tencent/rapidjson/archive/{{ .Values.rapidjson_commit }}.tar.gz'
+        vars:
+          rapidjson_commit: 24b5e7a8b27f42fa16b96fc70aade9106cf7102f
+          inherit:
+            - cmake
+          docs:
+            - README.md
+          rdepend: |
+            dev-libs/imath:=
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              mv -T "${WORKDIR}"/rapidjson-{{ .Values.rapidjson_commit }} src/deps/rapidjson || die
+              sed -e "s|\(set(OTIO_RESOLVED_CXX_DYLIB_INSTALL_DIR \"\${CMAKE_INSTALL_PREFIX}/\)lib\")|\1$(get_libdir)\")|" \
+                -i CMakeLists.txt || die
+              sed -e "s|share/opentime|$(get_libdir)/cmake/opentime|g" \
+                -i src/opentime{,lineio}/CMakeLists.txt || die
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=no
+                -DOTIO_AUTOMATIC_SUBMODULES=no
+                -DOTIO_FIND_IMATH=yes
+                -DOTIO_FIND_RAPIDJSON=no
+                -DOTIO_SHARED_LIBS=yes
+                -DOTIO_CXX_COVERAGE=no
+                -DOTIO_CXX_EXAMPLES=no
+                -DOTIO_CXX_INSTALL=yes
+                -DOTIO_DEPENDENCIES_INSTALL=no
+                -DOTIO_PYTHON_INSTALL=no
+              )
+              cmake_src_configure
+            }
+
 sdl_tff_autogen:
   generator: builtin-github
 

@@ -942,6 +942,52 @@ kdsoap:
                 cmake_src_configure
             }
 
+kddockwidgets:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: gui-libs
+    github:
+      user: KDAB
+      repo: KDDockWidgets
+    transform:
+      - kind: regex
+        match: '^.* v?'
+        replace: ''
+    vars:
+      qt_slot: '6'
+
+  packages:
+    - kddockwidgets:
+        vars:
+          inherit:
+            - cmake
+          iuse: qml
+          rdepend: |
+            dev-qt/qtbase:{{ .Values.qt_slot }}=[X,gui]
+            qml? ( dev-qt/qtdeclarative:{{ .Values.qt_slot }}= )
+          depend: |
+            ${RDEPEND}
+            dev-cpp/nlohmann_json
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DKDDockWidgets_EXAMPLES=no
+                -DKDDockWidgets_FRONTENDS="qtwidgets$(usex qml ';qtquick' '')"
+                -DKDDockWidgets_NO_SPDLOG=yes
+                -DKDDockWidgets_PYTHON_BINDINGS=no
+                -DKDDockWidgets_XLib=no
+              )
+              cmake_src_configure
+            }
+
+            src_install() {
+              cmake_src_install
+              rm -r -- "${ED}"/usr/share/doc/${PF}-qt6 || die
+            }
+
 calamares:
   generator: builtin-forgejo
   markdevkit_min_version: 0.30.0

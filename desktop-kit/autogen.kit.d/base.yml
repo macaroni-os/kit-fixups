@@ -1311,3 +1311,55 @@ twm:
             x11-libs/libICE
             x11-libs/libSM
 
+
+media-gfx_plantuml:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: media-gfx
+    github:
+      user: plantuml
+      repo: plantuml
+      query: releases
+
+  packages:
+
+    - plantuml:
+        # Upstream versioning changed history: legacy v8059/v2017.x tags
+        # sort above the modern v1.x line, and the releases listing also
+        # carries snapshot and -native (GraalVM) entries. github.match
+        # '^1.*' keeps generation on the 1.x series, and the asset
+        # matcher downloads exactly the main GPL jar.
+        github:
+          match: '^1.*'
+        assets:
+          - name: 'plantuml-{{ .Values.version }}.jar'
+            matcher: '^plantuml-{{ .Values.version }}\.jar$'
+        vars:
+          inherit:
+            - desktop
+          desc: Draw UML diagrams using a simple and human readable text description
+          homepage: https://plantuml.com
+          license: GPL-3
+          s: '${WORKDIR}'
+          rdepend: |
+            virtual/jre
+            media-gfx/graphviz
+          body: |
+            src_unpack() {
+              # .jar is a zip archive: the default unpack() would explode the jar
+              # into ${WORKDIR}, so copy the distfile over as-is.
+              cp "${DISTDIR}/${A}" "${WORKDIR}"/ || die
+            }
+            src_install() {
+              insinto /usr/share/plantuml
+              newins plantuml-{{ .Values.version }}.jar plantuml.jar
+              # desktop-kit has no java eclasses: install a plain launcher.
+              printf '%s\n' '#!/bin/sh' 'exec java -jar /usr/share/plantuml/plantuml.jar "$@"' \
+                > "${T}/plantuml" || die
+              exeinto /usr/bin
+              newexe "${T}/plantuml" plantuml
+              # plantuml.jar opens its Swing GUI when invoked without
+              # arguments on a display: expose it in menus (geaaru review).
+              make_desktop_entry plantuml PlantUML
+            }

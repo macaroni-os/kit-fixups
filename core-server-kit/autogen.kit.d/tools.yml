@@ -5138,3 +5138,58 @@ virtualbox_additions:
               linux-mod_pkg_postrm
               udev_reload
             }
+
+
+tools_python_github:
+  generator: builtin-github
+  defaults:
+    category: app-admin
+    template: ../../templates/simple-github.tmpl
+
+  packages:
+
+    - awscliv2:
+        github:
+          user: aws
+          repo: aws-cli
+          query: tags
+        selector:
+          - '<3.0.0'
+        exclude:
+          - dev
+          - rc
+          - beta
+        vars:
+          python_compat: python3+
+          desc: Universal Command Line Environment for AWS
+          homepage: https://github.com/aws/aws-cli
+          license: Apache-2.0 BSD
+          extra_envs:
+            - DISTUTILS_USE_PEP517=standalone
+          inherit:
+            - distutils-r1
+          # No urllib3 cap: 2.6.3 carries 5 open CVEs (2026-44431/44432
+          # fixed in 2.7.0; 2026-97687/97688/97689 in 2.8.0). The historical
+          # pin (upstream 2.38.5 pyproject: urllib3>=1.25.4,<=2.6.3) traced
+          # to urllib3's own py3.9 gaps, fixed tree-side instead of patching
+          # vendored botocore: urllib3-python39-union.patch (PEP604 import)
+          # + urllib3-python39-ssl-import.patch (combined `from ssl import`
+          # pulled 3.12+ VERIFY_X509_* constants, ImportError left
+          # SSLContext=None; split import with upstream's own numeric
+          # fallbacks). aws-cli develop has since relaxed to
+          # urllib3>=1.25.4,!=2.2.0,<3. See kit-fixups review #492 round 3.
+          rdepend: |
+            !app-admin/awscli
+            !app-admin/awscli-bin
+            dev-python/aws-crt-python[${PYTHON_USEDEP}]
+            dev-python/colorama[${PYTHON_USEDEP}]
+            dev-python/distro[${PYTHON_USEDEP}]
+            dev-python/docutils[${PYTHON_USEDEP}]
+            dev-python/jmespath[${PYTHON_USEDEP}]
+            dev-python/prompt_toolkit[${PYTHON_USEDEP}]
+            dev-python/python-dateutil[${PYTHON_USEDEP}]
+            dev-python/ruamel-yaml[${PYTHON_USEDEP}]
+            dev-python/urllib3[${PYTHON_USEDEP}]
+            dev-python/wcwidth[${PYTHON_USEDEP}]
+          bdepend: |
+            dev-python/flit_core[${PYTHON_USEDEP}]

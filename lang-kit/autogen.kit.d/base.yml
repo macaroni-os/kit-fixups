@@ -1161,7 +1161,11 @@ php:
       # 8.2/8.3 line sources, so the list is set per track below
       # (core-kit/toolchain.yml "per-version patches" pattern).
       patches: []
-      bdepend: 'virtual/pkgconfig'
+      # the oci8/pdo_oci extensions compile against the SDK headers;
+      # -basic only carries the runtime libraries (macaroni-os/mark-issues#844)
+      bdepend: |-
+        virtual/pkgconfig
+        oci8-instant-client? ( dev-db/oracle-instantclient-sdk )
       # Commons dependencies via the spec CDEPEND key (renders
       # CDEPEND="..." and is pulled in by RDEPEND/DEPEND below).
       cdepend: |-

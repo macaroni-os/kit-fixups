@@ -94,5 +94,11 @@ oracle_instantclient_sdk:
           - '<20'
 
     - oracle-instantclient-sdk:
+        vars:
+          # 21.x restructured demo.mk (no-space vars; rules dropped the
+          # explicit -I); the 19.21 makefile patch does not apply there
+          # (macaroni-os/mark-issues#844)
+          patches:
+            - 21.24-makefile.patch
         selector:
           - '<22'

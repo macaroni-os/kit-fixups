@@ -3259,3 +3259,52 @@ gtest:
         # googletest publishes pre-release tags such as -rc; never track them
         exclude:
           - "rc"
+
+# dev-util/lcov: gcov coverage driver collection (noarch perl tools),
+# required by dev-lang/php[coverage] (macaroni-os/mark-issues#844).
+# Installed via the upstream Makefile; the sphinx doc build and the
+# optional C++20 XS speedup are skipped with upstream's own switches
+# (LCOV_NO_DOC/LCOV_NO_XS) — house convention: docs are read online.
+lcov:
+  generator: builtin-github
+
+  defaults:
+    category: dev-util
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: linux-test-project
+      query: tags
+    exclude:
+      - '(?i)rc|beta|alpha'
+    vars:
+      homepage: https://github.com/linux-test-project/lcov
+      desc: 'Linux Test Project GUI for gcov: capture, merge and generate coverage reports'
+      license: GPL-2
+      # runtime perl modules actually imported by lcov 2.x scripts and
+      # lib/lcovutil.pm (verified against the v2.6 tag sources)
+      rdepend: |
+        dev-lang/perl
+        dev-perl/Capture-Tiny
+        dev-perl/DateTime
+        dev-perl/Devel-StackTrace
+        dev-perl/Module-Runtime
+        dev-perl/TimeDate
+      body: |
+        src_prepare() {
+          default
+          # GitHub tag archives lack the release-generated .version file
+          # (only the `make dist` tarball/RPM ship it); without it the
+          # Makefile's bin/get_version.sh falls back to a hardcoded 2.5.0
+          # and mislabels the installed scripts. Recreate it for the built
+          # PV (same failure class as unifdef in this kit).
+          if [ ! -f .version ] ; then
+            printf 'VERSION="{{ .Values.pv }}"\nRELEASE="0"\nFULL="{{ .Values.pv }}-0"\n' > .version || die
+          fi
+        }
+
+        src_install() {
+          emake install DESTDIR="${D}" PREFIX="${EPREFIX}/usr" LCOV_NO_DOC=1 LCOV_NO_XS=1
+        }
+
+  packages:
+    - lcov:

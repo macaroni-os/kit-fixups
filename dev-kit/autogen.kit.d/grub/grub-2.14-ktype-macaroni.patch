@@ -1,0 +1,70 @@
+# Macaroni kernel-type naming for 10_linux, resynced for grub 2.14.
+# The xzfs rpool line gained a zdb fallback in 2.14; old hunk #1 context no longer
+# matched (macaroni-os/mark-issues#689).
+#
+# The xzfs rpool probe stays commented out on purpose (maintainer decision in
+# macaroni-os/kit-fixups#508, 2026-10-31): grub commands are run inside
+# containers for initrd generation from anise and during ISO generation, and
+# on Incus/LXD hosts with a ZFS backend the probe can pick up a bogus pool
+# name from GRUB_DEVICE. ZFS installs get their root= from /etc/default/grub
+# (GRUB_CMDLINE_LINUX, set by the installer), which lands after the generated
+# root= on the linux line and wins. Do not reinstate the probe on future
+# resyncs; keep this hunk aligned with the previous grub-ktype-macaroni.patch
+# semantics.
+--- a/util/grub.d/10_linux.in
++++ b/util/grub.d/10_linux.in
+@@ -73,7 +73,7 @@
+ 	    GRUB_CMDLINE_LINUX="rootflags=subvol=${rootsubvol} ${GRUB_CMDLINE_LINUX}"
+ 	fi;;
+     xzfs)
+-	rpool=`${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || zdb -l ${GRUB_DEVICE} | awk -F \' '/ name/ { print $2 }'`
++	#rpool=`${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || zdb -l ${GRUB_DEVICE} | awk -F \' '/ name/ { print $2 }'`
+ 	bootfs="`make_system_path_relative_to_its_root / | sed -e "s,@$,,"`"
+ 	LINUX_ROOT_DEVICE="ZFS=${rpool}${bootfs%/}"
+ 	;;
+@@ -140,7 +140,13 @@
+     fi
+     printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
+   fi
+-  message="$(gettext_printf "Loading Linux %s ..." ${version})"
++
++  if [ -z "${ktype}" ] ; then
++	  msg_version=${version}
++  else
++	  msg_version=${ktype}-${version}
++  fi
++  message="$(gettext_printf "Loading Linux %s ..." ${msg_version})"
+   sed "s/^/$submenu_indentation/" << EOF
+ 	echo	'$(echo "$message" | grub_quote)'
+ 	linux	${rel_dirname}/${basename} root=${linux_root_device_thisversion} ro ${args}
+@@ -213,6 +219,7 @@
+   rel_dirname=`make_system_path_relative_to_its_root $dirname`
+   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
++  ktype=$(echo ${basename/kernel-/} | sed -e "s/-${alt_version}//g")
+   linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+ 
+   initrd_early=
+@@ -225,11 +232,17 @@
+ 
+   initrd_real=
+   for i in "initrd.img-${version}" "initrd-${version}.img" \
+-	   "initrd-${alt_version}.img.old" "initrd-${version}.gz" \
+-	   "initrd-${alt_version}.gz.old" "initrd-${version}" \
+-	   "initramfs-${version}.img" "initramfs-${alt_version}.img.old" \
+-	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
+-	   "initrd-${alt_version}" "initramfs-${alt_version}.img" \
++	   "initrd-${version}.gz" \
++	   "initrd-${version}" \
++	   "initrd-${alt_version}.img.old" \
++	   "initrd-${alt_version}.gz.old" \
++	   "initramfs-${version}.img" \
++	   "initramfs-${alt_version}.img.old" \
++	   "initrd.img-${alt_version}" \
++	   "initrd-${alt_version}.img" \
++	   "initramfs-${alt_version}.img" \
++	   "initrd-${alt_version}" \
++	   "initramfs-${ktype}-${alt_version}" \
+ 	   "initramfs-genkernel-${version}" \
+ 	   "initramfs-genkernel-${alt_version}" \
+ 	   "initramfs-genkernel-${GENKERNEL_ARCH}-${version}" \

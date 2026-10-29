@@ -47,12 +47,16 @@ grub:
           license: GPL-3+ BSD MIT fonts? ( GPL-2-with-font-exception ) themes? ( CC-BY-SA-3.0 BitstreamVera )
           slot: 2
           s: '${WORKDIR}/${P%_*}'
+          # Resynced for 2.14 (macaroni-os/mark-issues#689): 2.14 added
+          # GRUB_FORCE_EFI_ALL_VIDEO to the grub-mkconfig.in export list and a
+          # zdb fallback to the xzfs rpool line in 10_linux.in, breaking the old
+          # hunk contexts. The 2.12-r1 ebuild keeps the original files.
           patches:
             - grub-gfxpayload.patch
-            - grub-2.02_beta2-KERNEL_GLOBS.patch
+            - grub-2.14-KERNEL_GLOBS.patch
             - grub-2.06-test-words.patch
             - grub-2.06-binutils-2.36.patch
-            - grub-ktype-macaroni.patch
+            - grub-2.14-ktype-macaroni.patch
           iuse: |
             device-mapper doc efiemu +fonts mount nls sdl +themes truetype libzfs
             grub_platforms_coreboot grub_platforms_efi-32 grub_platforms_efi-64
@@ -119,9 +123,10 @@ grub:
 
               eautoreconf
 
-              # Avoid error due to extra_deps.lst missing from source tarball:
-              #       make[3]: *** No rule to make target 'grub-core/extra_deps.lst', needed by 'syminfo.lst'.  Stop.
-              echo "depends bli part_gpt" > grub-core/extra_deps.lst || die
+              # Do NOT pre-create grub-core/extra_deps.lst: since 2.14 upstream
+              # generates it in the build dir via a srcdir-less Makefile rule, and a
+              # copy in SRC makes VPATH builds skip the rule, failing syminfo.lst
+              # (macaroni-os/mark-issues#689).
             }
 
             grub_do() {

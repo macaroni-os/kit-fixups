@@ -1124,7 +1124,7 @@ php:
           fpm? ( BSD-2 )
           gd? ( gd )
           unicode? ( BSD-2 LGPL-2.1 )
-      iuse: embed +cli cgi fpm apache2 phpdbg threads acl apparmor argon2 bcmath berkdb bzip2 calendar cdb cjk coverage +ctype curl debug enchant exif ffi +fileinfo +filter firebird +flatfile ftp gd gdbm gmp +iconv imap inifile intl iodbc ipv6 kerberos ldap ldap-sasl libedit lmdb mhash mssql mysql mysqli nls oci8-instant-client odbc +opcache pcntl pdo +phar +posix postgres qdbm readline selinux +session session-mm sharedmem +simplexml snmp soap sockets sodium spell sqlite ssl sysvipc tidy +tokenizer tokyocabinet truetype unicode webp +xml xmlreader xmlwriter xpm xslt zip zlib -zts
+      iuse: embed +cli cgi fpm apache2 phpdbg threads acl apparmor argon2 bcmath berkdb bzip2 calendar cdb cjk coverage +ctype curl debug enchant exif ffi +fileinfo +filter firebird +flatfile ftp gd gdbm gmp +iconv imap inifile intl iodbc ipv6 kerberos ldap ldap-sasl libedit lmdb mhash mssql mysql mysqli nls oci8-instant-client odbc +opcache pcntl pdo +phar +posix postgres qdbm readline selinux +session sharedmem +simplexml snmp soap sockets sodium spell sqlite ssl sysvipc tidy +tokenizer truetype unicode webp +xml xmlreader xmlwriter xpm xslt zip zlib -zts
       required_use: |-
         || ( cli cgi fpm apache2 embed phpdbg )
         cli? ( ^^ ( readline libedit ) )
@@ -1142,7 +1142,6 @@ php:
         xslt? ( xml )
         ldap-sasl? ( ldap )
         qdbm? ( !gdbm )
-        session-mm? ( session !threads )
         mysql? ( || ( mysqli pdo ) )
         firebird? ( pdo )
         mssql? ( pdo )
@@ -1180,14 +1179,14 @@ php:
         cdb? ( || ( dev-db/cdb dev-db/tinycdb ) )
         coverage? ( dev-util/lcov )
         curl? ( >=net-misc/curl-7.10.5 )
-        enchant? ( <app-text/enchant-2.0:0 )
+        enchant? ( app-text/enchant:2= )
         ffi? ( >=dev-libs/libffi-3.0.11 )
         firebird? ( dev-db/firebird )
         gd? ( >=virtual/jpeg-0-r3:0 media-libs/libpng:0= )
         gdbm? ( >=sys-libs/gdbm-1.8.0:0= )
         gmp? ( dev-libs/gmp:0= )
         iconv? ( virtual/libiconv )
-        imap? ( >=virtual/imap-c-client-2[kerberos=,ssl=] )
+        imap? ( net-libs/c-client[kerberos=,ssl=] )
         intl? ( dev-libs/icu:= )
         kerberos? ( virtual/krb5 )
         ldap? ( >=net-nds/openldap-1.2.11 )
@@ -1201,14 +1200,12 @@ php:
         postgres? ( dev-db/postgresql:* )
         qdbm? ( dev-db/qdbm )
         readline? ( sys-libs/readline:0= )
-        session-mm? ( dev-libs/mm )
         snmp? ( >=net-analyzer/net-snmp-5.2 )
         sodium? ( dev-libs/libsodium:= )
         spell? ( >=app-text/aspell-0.50 )
         sqlite? ( >=dev-db/sqlite-3.7.6.3 )
         ssl? ( dev-libs/openssl:= )
         tidy? ( || ( app-text/tidy-html5 app-text/htmltidy ) )
-        tokyocabinet? ( dev-db/tokyocabinet )
         truetype? ( =media-libs/freetype-2* )
         unicode? ( dev-libs/oniguruma:= )
         webp? ( media-libs/libwebp:0= )
@@ -1388,7 +1385,7 @@ php:
 
           # DBA support
           if use cdb || use berkdb || use flatfile || use gdbm || use inifile \
-            || use qdbm || use lmdb || use tokyocabinet ; then
+            || use qdbm || use lmdb ; then
             our_conf+=( "--enable-dba" )
           fi
 
@@ -1400,7 +1397,6 @@ php:
             $(use_with gdbm gdbm "${EPREFIX}/usr")
             $(use_enable inifile)
             $(use_with qdbm qdbm "${EPREFIX}/usr")
-            $(use_with tokyocabinet tcadb "${EPREFIX}/usr")
             $(use_with lmdb lmdb "${EPREFIX}/usr")
           )
 
@@ -1485,11 +1481,7 @@ php:
           )
 
           # Session support
-          if use session ; then
-            our_conf+=( $(use_with session-mm mm "${EPREFIX}/usr") )
-          else
-            our_conf+=( $(use_enable session) )
-          fi
+          our_conf+=( $(use_enable session) )
 
           # Use pic for shared modules such as apache2's mod_php
           our_conf+=( --with-pic )

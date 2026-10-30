@@ -3423,7 +3423,9 @@ lxd:
   defaults:
     category: app-emulation
     files_dir: "{{ .Values.pn }}"
-    template: ../../templates/simple.tmpl
+    template: ../../templates/simple-github.tmpl
+    extensions:
+      - golang
     transform:
       - kind: string
         match: 'LXD '
@@ -3431,10 +3433,10 @@ lxd:
       - kind: string
         match: ' LTS'
         replace: ''
-    assets:
-      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
-        matcher: '{{ .Values.pn }}-[0-9.]+.tar.gz$'
-
+    # No assets matcher: canonical/lxd retired the lxd-<version>.tar.gz release
+    # asset with lxd-6.10.0 (macaroni-os/mark-issues#847), so the generator takes
+    # the source from the GitHub tag tarball itself; the golang extension bundle
+    # supplies Go modules hermetically (go-module.eclass local GOPROXY).
     vars:
       desc: Powerful system container and virtual machine manager from Canonical
       homepage: https://github.com/canonical/lxd https://canonical.com/lxd
@@ -3514,7 +3516,7 @@ lxd:
         }
         src_compile() {
           export GOPATH="${S}/_dist"
-          export GOFLAGS="-buildmode=pie -trimpath -mod=vendor"
+          export GOFLAGS="-buildmode=pie -trimpath -mod=mod"
           export CGO_LDFLAGS_ALLOW="(-Wl,-wrap,pthread_create)|(-Wl,-z,now)"
 
           CGO_ENABLED=0 go build -v -x -tags lxd-metadata -o bin/ ./lxd/lxd-metadata/... || die "Failed to build lxd-metadata"

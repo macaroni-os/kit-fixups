@@ -1,0 +1,25 @@
+# Instantiated from the upstream tarball template
+# builds/install/arch-specific/linux/firebird.service.in: only the
+# @FB_SBINDIR@ placeholder was substituted with /usr/sbin (matching
+# --with-fbsbin). fbguard detaches with -daemon (the OpenRC initd runs
+# it the same way), so Type=forking; RuntimeDirectory/PIDFile replace
+# the initd's start_pre checkpath and -pidfile argument, since /run is
+# a tmpfs there.
+[Unit]
+Description=Firebird Database Server
+After=syslog.target network.target
+Documentation=https://firebirdsql.org/en/firebird-rdbms/
+
+[Service]
+User=firebird
+Group=firebird
+Type=forking
+RuntimeDirectory=firebird
+RuntimeDirectoryMode=0770
+RuntimeDirectoryOwner=firebird
+RuntimeDirectoryGroup=firebird
+PIDFile=/run/firebird/firebird.pid
+ExecStart=/usr/sbin/fbguard -daemon -forever -pidfile /run/firebird/firebird.pid
+
+[Install]
+WantedBy=multi-user.target

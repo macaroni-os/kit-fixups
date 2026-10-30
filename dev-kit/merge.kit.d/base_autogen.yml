@@ -38,6 +38,9 @@ target:
 
     - pkg: dev-db/libdbi-drivers
 
+    # enables the dev-lang/php mssql USE flag (macaroni-os/mark-issues#844)
+    - pkg: dev-db/freetds
+
     # Release 8.0.x
     - pkg: dev-db/mysql-connector-c
       conditions:

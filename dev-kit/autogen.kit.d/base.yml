@@ -3308,3 +3308,99 @@ lcov:
 
   packages:
     - lcov:
+
+# dev-db/freetds — FreeTDS: Tabular DataStream (TDS) client library for
+# MS SQL Server / Sybase. New package requested on macaroni-os/mark-issues#844:
+# dev-lang/php's mssql USE flag has "mssql? ( dev-db/freetds[mssql] )" and
+# nothing in the tree provided it.
+# Upstream GitHub releases ship a proper ${P}.tar.bz2 asset that unpacks to
+# ${P}, so simple.tmpl + default src_unpack works (no post_src_unpack rename).
+# Release titles are "FreeTDS <ver> minor release" / "FreeTDS <ver> Release";
+# the transforms strip the prefix/suffix. Garbage filtering is native:
+# the generator skips prerelease=true releases (all R1_5RC* are flagged, see
+# autogen log) and skips releases whose tag is outside the fetched tag pages
+# (the R1_4 title collapses to 1.4 but is dropped as "without tag").
+# The mssql USE flag is NOT cosmetic: --enable-msdblib emits "#define MSDBLIB 1"
+# into the installed tds_sysdep_public.h (vs SYBDBLIB), and sybdb.h hard-errors
+# if both/neither are defined — it selects MS- vs Sybase-style dblib semantics
+# that php's pdo_dblib is built against. Upstream Gentoo keeps the same flag
+# (freetds-1.5.6) and the same use-dep (php-8.3.36: mssql? ( dev-db/freetds[mssql] )).
+freetds:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: dev-db
+    github:
+      user: FreeTDS
+      query: releases
+    assets:
+      - name: '{{ .Values.p }}.tar.bz2'
+        matcher: '{{ .Values.p }}\.tar\.bz2'
+    transform:
+      - kind: string
+        match: 'FreeTDS '
+        replace: ''
+      # only strip trailing " Release"/" minor release" words: an unexpected
+      # "release candidate N" tail survives as a non-version string and makes
+      # the generator fail LOUDLY instead of silently selecting an RC
+      - kind: regex
+        match: ' (minor )?[Rr]elease$'
+        replace: ''
+    vars:
+      homepage: https://www.freetds.org/
+      desc: Tabular DataStream Library
+      license: GPL-2+ LGPL-2+
+      inherit:
+        - autotools
+      iuse: debug gnutls iconv iodbc kerberos mssql odbc ssl static-libs
+      required_use: '?? ( iodbc odbc )'
+      restrict: test
+      docs:
+        - NEWS.md
+        - README.md
+      # iODBC and unixODBC are mutually exclusive ODBC driver managers; current
+      # configure scripts error out if both are requested.
+      # Upstream Gentoo adds a hard net-dns/bind RDEPEND because the bundled
+      # osql script calls "host"; dropped here (house simplification): it is
+      # the only consumer, and the bind closure is unbuildable on this tree
+      # (dev-libs/jemalloc-5.3.0 fails with '__throw_bad_alloc' is not a
+      # member of 'std' under gcc-15). Re-add if maintainers want parity.
+      rdepend: |
+        gnutls? ( net-libs/gnutls:= )
+        iconv? ( virtual/libiconv )
+        iodbc? ( dev-db/libiodbc )
+        kerberos? ( virtual/krb5 )
+        odbc? ( dev-db/unixODBC )
+        ssl? ( dev-libs/openssl:= )
+      depend: '${RDEPEND}'
+      # configure probes gnutls/openssl via pkg-config; EAPI 7 has no implicit
+      # pkgconfig dependency
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        src_configure() {
+          econf \
+            --enable-shared \
+            $(use_enable debug) \
+            $(use_enable iconv libiconv) \
+            $(use_enable kerberos krb5) \
+            $(use_enable mssql msdblib) \
+            $(use_enable static-libs static) \
+            $(use_with gnutls) \
+            $(use_with iodbc) \
+            $(use_with iconv libiconv-prefix "/usr") \
+            $(use_with odbc unixodbc "/usr") \
+            $(use_with ssl openssl "/usr")
+        }
+
+        src_install() {
+          default
+          find "${ED}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - freetds:
+        exclude:
+          - rc
+          - beta
+          - alpha

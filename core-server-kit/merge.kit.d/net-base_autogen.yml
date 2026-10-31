@@ -18,3 +18,12 @@ target:
     - pkg: www-servers/caddy
 
     - pkg: sys-cluster/glusterfs
+
+    # dual release lines (upstream maintains mainline + stable branches)
+    - pkg: www-servers/nginx
+      conditions:
+        - '>=www-servers/nginx-1.31.0'
+
+    - pkg: www-servers/nginx
+      conditions:
+        - '<www-servers/nginx-1.31.0'

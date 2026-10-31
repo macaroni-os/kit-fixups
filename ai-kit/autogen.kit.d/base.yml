@@ -446,6 +446,226 @@ ai_github:
               newbin opencode opencode
             }
 
+# pi-bin and pi track the same upstream repository (earendil-works/pi),
+# so per the macaroni-os/kit-fixups#512 review they live in a dedicated
+# cluster whose defaults define the common keys once and the package
+# entries keep only the flavour-specific vars/assets/body.
+pi:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    files_dir: "{{ .Values.pn }}"
+    # simple.tmpl for both flavours, not simple-github.tmpl: they download
+    # uploaded release assets whose archives unpack into known directories
+    # (the per-platform binaries into a versionless pi/ wrapper directory
+    # that upstream build-binaries.sh adds "for mise compatibility", the
+    # source snapshot into pi-<ver>/), so there is no <user>-<repo>-*
+    # unpack dir for the generated post_src_unpack() to rename (and it
+    # would match nothing).
+    template: ../../templates/simple.tmpl
+    github:
+      user: earendil-works
+      # The upstream repository is earendil-works/pi for both flavours:
+      # equal to PN for pi, but pinned explicitly here because the -bin
+      # postfix (PR #512 review) makes that one PN differ from it.
+      repo: pi
+    vars:
+      # strip: the installed ELF is bun-compiled and embeds its own
+      # runtime in both flavours (pi builds with the same bun --compile
+      # recipe). network-sandbox: pi needs registry.npmjs.org because
+      # npm ci installs the lockfile (the source archive is
+      # dependency-free by design), like the opencode source entry in PR
+      # #480; pi-bin restricts it out too, same option the backrest entry
+      # in core-server-kit/autogen.kit.d/tools.yml uses, as asked in the
+      # PR #512 review.
+      restrict: 'strip network-sandbox'
+      # QA_PREBUILT is identical in both flavours: /usr/lib/pi/pi is the
+      # bun-compiled ELF and the native/ tree carries the TUI
+      # linux-platform-*.node addons, checked-in prebuilds staged
+      # verbatim, so both must survive the QA binary scan untouched.
+      extra_envs:
+        - 'QA_PREBUILT="/usr/lib/pi/pi /usr/lib/pi/native/*/*/*/*.node"'
+  packages:
+
+    - pi-bin:
+        # Upstream ships bun-compiled standalone executables of its
+        # "AI agent toolkit: unified LLM API, agent loop, TUI, coding
+        # agent CLI" as per-platform release assets
+        # (macaroni-os/mark-issues#853). The pi-*-source.tar.gz asset is
+        # the source snapshot handled by the pi entry below and the
+        # pi-coding-agent-install-package.* / SHA256SUMS assets are
+        # installer helper files; none belong in the distfiles.
+        # darwin/windows assets are skipped (mark is linux-only). Asset
+        # names verified against v1.4.0; the release titles are plain
+        # semver ("v1.4.0"), so the default version parsing applies and
+        # no transform is needed.
+        assets:
+          - name: 'pi-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^pi-linux-x64\.tar\.gz$'
+            use: amd64
+          - name: 'pi-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^pi-linux-arm64\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          desc: 'AI agent toolkit: unified LLM API, agent loop, TUI, coding agent CLI (upstream binary)'
+          # /usr/bin/pi is also shipped by the source-built flavour below;
+          # the pair mutually blocks, same idiom as the opencode /
+          # opencode-bin entry pair in the ai_github cluster (PR #480).
+          rdepend: '!app-ai/pi'
+          # pi-bin is the only flavour that needs an explicit S: the asset
+          # tarball unpacks into the versionless pi/ wrapper directory
+          # (upstream build-binaries.sh adds it "for mise
+          # compatibility"), where portage's default S=${WORKDIR}/${P}
+          # would expect pi-bin-<ver>/ (macaroni-os/kit-fixups#512
+          # review: "This is the default. It's only needed for pi-bin").
+          s: '${WORKDIR}/pi'
+          # The bun-compiled binary resolves every runtime sidecar
+          # relative to dirname(process.execPath) (/proc/self/exe, which
+          # follows symlinks): packages/coding-agent/src/config.ts
+          # derives the package dir (isBunBinary/getPackageDir), the
+          # theme/ directory and export-html/ from it, photon.ts loads
+          # photon_rs_bg.wasm next to the executable, and the TUI probes
+          # the native/ prebuilds there last. So the resource tree is
+          # installed as a whole under /usr/lib/pi and /usr/bin/pi is a
+          # symlink into it. docs/ is installed because the binary
+          # self-references package-relative docs paths at runtime: the
+          # model-catalog hint prints absolute <pkgdir>/docs/*.md (proved
+          # with 'pi --list-models' against a docs-less install, and the
+          # executable embeds providers.md/models.md/extensions.md
+          # references). examples/ is demo TypeScript source the program
+          # never reads, so it is not installed (the same content lives
+          # in the upstream repo); README/CHANGELOG go in via dodoc.
+          # LICENSE (MIT) is taken from the GitHub API, same as the
+          # opencode-bin entry in the ai_github cluster.
+          body: |
+            src_install() {
+              # Install the executable together with every sidecar in
+              # one directory so the execPath-relative lookups keep
+              # working through the /usr/bin/pi symlink.
+              insinto /usr/lib/pi
+              doins -r native theme export-html assets docs
+              doins photon_rs_bg.wasm package.json
+              exeinto /usr/lib/pi
+              doexe pi
+              dosym /usr/lib/pi/pi /usr/bin/pi
+              dodoc README.md CHANGELOG.md
+            }
+
+    - pi:
+        # Source-built sibling of app-ai/pi-bin above, completing the
+        # opencode / opencode-bin pattern from PR #480
+        # (macaroni-os/mark-issues#853).
+        # Why the UPLOADED source asset and not the GitHub-generated tag
+        # tarball: the release pipeline first runs npm run hydrate:model-data
+        # and force-adds the git-ignored result (packages/ai/src/
+        # models.generated.ts plus packages/ai/src/providers/data/*.json)
+        # into the archive; the validator in scripts/create-source-archive.sh
+        # requires those paths and the checked-in packages/tui/native
+        # prebuilds, while refusing node_modules/ and binaries/. The
+        # auto-generated tarball of the same commit lacks the model data,
+        # so npm run build:offline cannot work from it; the uploaded asset
+        # is the only complete source snapshot, and it is exactly what CI
+        # compiles the release binaries from (.github/workflows/
+        # build-binaries.yml).
+        # Build recipe = scripts/build-binaries.sh --offline-model-data
+        # restricted to the linux branch for ${ARCH}: npm ci --ignore-scripts,
+        # npm run build:offline, then the bun --compile of the coding-agent
+        # CLI plus the sidecar staging, so the installed tree matches the
+        # binary flavour. CI pins bun 1.4.4 and node 22 (root package.json
+        # engines: node >= 22.19.0), hence the BDEPEND floor below.
+        assets:
+          - name: 'pi-{{ .Values.version }}-source.tar.gz'
+            # Anchored at the end with escaped dots: the only v1.4.0 asset
+            # ending in -source.tar.gz is pi-1.4.0-source.tar.gz; the binary
+            # flavour assets (pi-linux-x64.tar.gz & co), the installer
+            # helpers (pi-coding-agent-install-package.*) and SHA256SUMS
+            # cannot match.
+            matcher: '\-source\.tar\.gz$'
+        vars:
+          desc: 'AI agent toolkit: unified LLM API, agent loop, TUI, coding agent CLI (built from sources)'
+          # No s: key here, unlike pi-bin above: the uploaded source
+          # archive unpacks into a pi-<ver>/ root (scripts/
+          # create-source-archive.sh git-archives with prefix
+          # "pi-${version}"), which is exactly portage's default
+          # S=${WORKDIR}/${P} (macaroni-os/kit-fixups#512 review).
+          bdepend: |
+            >=net-libs/nodejs-22.19.0
+            || ( dev-lang/bun dev-lang/bun-bin )
+          # Same /usr/bin/pi as the binary flavour above; the pair
+          # mutually blocks (opencode idiom, PR #480).
+          rdepend: '!app-ai/pi-bin'
+          body: |
+            src_compile() {
+              # Upstream release recipe (scripts/build-binaries.sh
+              # --offline-model-data), linux only. Keep npm's cache and
+              # HOME inside the build area.
+              export HOME="${T}"
+              export npm_config_cache="${T}/npm-cache"
+
+              # Install the JS dependency graph from the committed
+              # package-lock.json (.npmrc has save-exact=true, so pins
+              # are exact). --ignore-scripts exactly like upstream: the
+              # hooks are dev tooling (the husky prepare would want git).
+              npm ci --ignore-scripts || die "npm ci failed (needs npm-registry access)"
+
+              # Workspace chain build telemetry -> chord -> tui ->
+              # codemode -> mcp -> ai:build:offline -> durable -> env ->
+              # agent -> coding-agent; the offline variant never shells
+              # out to hydrate:model-data, the hydrated model snapshot
+              # is compiled in from the archive.
+              npm run build:offline || die
+
+              cd packages/coding-agent || die
+              local bun_target platform_arch
+              case ${ARCH} in
+                amd64) bun_target=bun-linux-x64-baseline; platform_arch=linux-x64 ;;
+                arm64) bun_target=bun-linux-arm64; platform_arch=linux-arm64 ;;
+                *) die "unsupported ARCH: ${ARCH}" ;;
+              esac
+
+              # --compile embeds the bun runtime (hence RESTRICT=strip);
+              # the two worker scripts must stay explicit entrypoints so
+              # that they are embedded (upstream comment), and the
+              # autoload opt-outs are upstream issues #7684 and #10473.
+              bun build --compile --no-compile-autoload-bunfig \
+                --no-compile-autoload-dotenv --target="${bun_target}" \
+                ./dist/bun/cli.js ./src/utils/image-resize-worker.ts \
+                ./src/extensions/codemode/worker.ts --outfile dist/pi || die
+
+              # Stage the release directory like the "Copy shared files"
+              # loop of scripts/build-binaries.sh. examples/ is skipped:
+              # demo TypeScript the program never reads, and the pi-bin
+              # flavour does not install it either.
+              local stage=${S}/pi-stage
+              mkdir -p "${stage}"/theme "${stage}"/assets \
+                "${stage}"/native/linux/prebuilds || die
+              cp dist/pi package.json README.md CHANGELOG.md "${stage}"/ || die
+              cp ../../node_modules/@silvia-odwyer/photon-node/photon_rs_bg.wasm \
+                "${stage}"/ || die
+              cp dist/modes/interactive/theme/*.json "${stage}"/theme/ || die
+              cp dist/modes/interactive/assets/* "${stage}"/assets/ || die
+              cp -r dist/core/export-html docs "${stage}"/ || die
+              cp -R ../tui/native/linux/prebuilds/"${platform_arch}" \
+                "${stage}"/native/linux/prebuilds/ || die
+            }
+
+            src_install() {
+              # Identical file set and layout to the pi-bin entry above:
+              # the executable resolves every runtime sidecar relative to
+              # dirname(process.execPath) (getPackageDir in
+              # packages/coding-agent/src/config.ts), so the whole staged
+              # tree goes under /usr/lib/pi and /usr/bin/pi is a symlink
+              # into it; README/CHANGELOG go in via dodoc.
+              cd "${S}/pi-stage" || die
+              insinto /usr/lib/pi
+              doins -r native theme export-html assets docs
+              doins photon_rs_bg.wasm package.json
+              exeinto /usr/lib/pi
+              doexe pi
+              dosym /usr/lib/pi/pi /usr/bin/pi
+              dodoc README.md CHANGELOG.md
+            }
 
 llama_cpp:
   generator: builtin-github

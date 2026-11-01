@@ -552,3 +552,135 @@ loki:
             app-arch/unzip
           rdepend: |
             !app-metrics/loki
+
+mimir:
+  generator: builtin-github
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-metrics
+    files_dir: '{{ .Values.pn | replace "-bin" "" }}'
+    github:
+      user: grafana
+      repo: mimir
+      query: releases
+      ignore_tags: true
+
+    vars:
+      desc: Grafana Mimir horizontally-scalable, highly-available, multi-tenant compatible Prometheus as a Service
+      homepage: https://grafana.com/oss/mimir/ https://github.com/grafana/mimir
+      license: AGPL-3
+      inherit:
+        - user
+        - systemd
+      body: |
+        {{ $pn := .Values.pn | replace "-bin" "" }}
+        pkg_setup() {
+          enewgroup mimir 515
+          enewuser mimir 515 -1 /var/lib/mimir mimir
+        }
+        {{- if eq .Values.pn "mimir-bin" }}
+
+        src_unpack() {
+          mkdir "${S}" || die
+        }
+
+        src_prepare() {
+          default
+          local arch=amd64
+          use arm64 && arch=arm64
+          cp "${DISTDIR}/mimir-${PV}-linux-${arch}" "${S}/mimir" || die
+          cp "${DISTDIR}/mimirtool-${PV}-linux-${arch}" "${S}/mimirtool" || die
+          cp "${DISTDIR}/query-tee-${PV}-linux-${arch}" "${S}/query-tee" || die
+          cp "${DISTDIR}/metaconvert-${PV}-linux-${arch}" "${S}/metaconvert" || die
+        }
+        {{- else }}
+
+        post_src_unpack() {
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+
+        src_compile() {
+          local ldflags="-X github.com/grafana/mimir/pkg/util/version.Version={{ .Values.pv }}"
+          for c in mimir mimirtool query-tee metaconvert ; do
+            go build -mod=vendor -trimpath -ldflags "${ldflags}" -o bin/"${c}" ./cmd/"${c}" || die
+          done
+        }
+        {{- end }}
+
+        src_install() {
+          {{- if eq .Values.pn "mimir-bin" }}
+          dobin mimir mimirtool query-tee metaconvert
+          {{- else }}
+          dobin bin/mimir bin/mimirtool bin/query-tee bin/metaconvert
+          einstalldocs
+          {{- end }}
+          insinto /etc/mimir
+          newins "${FILESDIR}/config.yaml" config.yaml
+          newconfd "${FILESDIR}/{{ $pn }}.confd" {{ $pn }}
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}/{{ $pn }}.service"
+          else
+            newinitd "${FILESDIR}/{{ $pn }}.initd" {{ $pn }}
+          fi
+          keepdir /var/{lib,log}/mimir
+          fowners mimir:mimir /var/{lib,log}/mimir
+          fperms 0750 /var/{lib,log}/mimir
+        }
+
+  packages:
+    - mimir:
+        github:
+          match: '^3.*'
+        vars:
+          iuse: systemd
+          restrict: strip
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            !app-metrics/mimir-bin
+          docs:
+            - CHANGELOG.md
+            - LICENSE
+            - README.md
+
+    - mimir-bin:
+        github:
+          match: '^3.*'
+        assets:
+          - name: 'mimir-{{ .Values.version }}-linux-amd64'
+            matcher: '^mimir-linux-amd64$'
+            use: amd64
+
+          - name: 'mimirtool-{{ .Values.version }}-linux-amd64'
+            matcher: '^mimirtool-linux-amd64$'
+            use: amd64
+
+          - name: 'query-tee-{{ .Values.version }}-linux-amd64'
+            matcher: '^query-tee-linux-amd64$'
+            use: amd64
+
+          - name: 'metaconvert-{{ .Values.version }}-linux-amd64'
+            matcher: '^metaconvert-linux-amd64$'
+            use: amd64
+
+          - name: 'mimir-{{ .Values.version }}-linux-arm64'
+            matcher: '^mimir-linux-arm64$'
+            use: arm64
+
+          - name: 'mimirtool-{{ .Values.version }}-linux-arm64'
+            matcher: '^mimirtool-linux-arm64$'
+            use: arm64
+
+          - name: 'query-tee-{{ .Values.version }}-linux-arm64'
+            matcher: '^query-tee-linux-arm64$'
+            use: arm64
+
+          - name: 'metaconvert-{{ .Values.version }}-linux-arm64'
+            matcher: '^metaconvert-linux-arm64$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64 systemd
+          restrict: strip
+          rdepend: |
+            !app-metrics/mimir

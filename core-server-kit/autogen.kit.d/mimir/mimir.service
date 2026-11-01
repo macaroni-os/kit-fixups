@@ -1,0 +1,14 @@
+[Unit]
+Description=Mimir service
+After=network.target
+
+[Service]
+Type=simple
+User=mimir
+ExecStart=/usr/bin/mimir -config.file=/etc/mimir/config.yaml -activity-tracker.filepath=/var/lib/mimir/metrics-activity.log
+TimeoutSec=120
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

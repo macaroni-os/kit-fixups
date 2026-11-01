@@ -1,0 +1,38 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+name="Mimir"
+description="Grafana Mimir scalable long-term storage for Prometheus"
+pidfile="/run/${RC_SVCNAME}.pid"
+command=/usr/bin/${RC_SVCNAME}
+command_args="${MIMIR_ARGS}"
+
+depend() {
+	need localmount
+	after net
+}
+
+start() {
+	ebegin "Starting $name"
+
+	start-stop-daemon --start -b \
+		--make-pidfile \
+		--pidfile "${pidfile}" \
+		--user ${MIMIR_USER}:${MIMIR_GROUP} \
+		--stdout /var/log/${RC_SVCNAME}/${RC_SVCNAME}.log \
+		--stderr /var/log/${RC_SVCNAME}/${RC_SVCNAME}.log \
+		--exec "${command}" -- ${command_args}
+
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping $name"
+
+	start-stop-daemon --stop \
+		--pidfile "${pidfile}" \
+		--user "${MIMIR_USER}" \
+		--retry=TERM/120/KILL/5
+
+	eend $?
+}

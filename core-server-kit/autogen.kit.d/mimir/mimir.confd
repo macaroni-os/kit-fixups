@@ -1,0 +1,13 @@
+# Config file for /etc/init.d/mimir
+
+# The user to run Mimir as
+MIMIR_USER=mimir
+
+# The group to run Mimir as
+MIMIR_GROUP=mimir
+
+# Location of default Mimir config file
+MIMIR_CONFIG="/etc/mimir/config.yaml"
+
+# Extra args to pass Mimir
+MIMIR_ARGS="-config.file=/etc/mimir/config.yaml -activity-tracker.filepath=/var/lib/mimir/metrics-activity.log"

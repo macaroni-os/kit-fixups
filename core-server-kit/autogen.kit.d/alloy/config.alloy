@@ -1,0 +1,14 @@
+// Minimal Alloy configuration for Macaroni OS.
+// Full reference: https://grafana.com/docs/alloy/latest/configuration/
+logging {
+  level = "info"
+}
+
+prometheus.exporter.unix "default" {
+  disable_collectors = ["mdadm"]
+}
+
+prometheus.scrape "default" {
+  targets    = prometheus.exporter.unix.default.targets
+  forward_to = []
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=Alloy service
+Documentation=https://grafana.com/docs/alloy
+After=network.target
+
+[Service]
+Type=simple
+User=alloy
+ExecStart=/usr/bin/alloy run --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+TimeoutSec=120
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

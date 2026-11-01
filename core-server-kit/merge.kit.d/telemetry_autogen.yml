@@ -23,10 +23,6 @@ target:
     - pkg: app-metrics/redis_exporter-bin
     - pkg: app-metrics/tempo
     - pkg: app-metrics/tempo-bin
-    - pkg: app-metrics/mimir
-    - pkg: app-metrics/mimir-bin
-    - pkg: app-metrics/alloy
-    - pkg: app-metrics/alloy-bin
 
     # dual release lines (upstream maintains 3.7 current + 3.6 LTS)
     - pkg: app-metrics/loki
@@ -48,5 +44,11 @@ target:
       conditions:
         - '>=app-metrics/loki-bin-3.6.0'
         - '<app-metrics/loki-bin-3.7.0'
+
+    - pkg: app-metrics/mimir
+    - pkg: app-metrics/mimir-bin
+
+    - pkg: app-metrics/alloy
+    - pkg: app-metrics/alloy-bin
 
     - pkg: www-apps/grafana-bin

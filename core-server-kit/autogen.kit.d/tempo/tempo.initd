@@ -1,0 +1,38 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+name="Tempo"
+description="Grafana Tempo distributed tracing backend"
+pidfile="/run/${RC_SVCNAME}.pid"
+command=/usr/bin/${RC_SVCNAME}
+command_args="${TEMPO_ARGS}"
+
+depend() {
+	need localmount
+	after net
+}
+
+start() {
+	ebegin "Starting $name"
+
+	start-stop-daemon --start -b \
+		--make-pidfile \
+		--pidfile "${pidfile}" \
+		--user ${TEMPO_USER}:${TEMPO_GROUP} \
+		--stdout /var/log/${RC_SVCNAME}/${RC_SVCNAME}.log \
+		--stderr /var/log/${RC_SVCNAME}/${RC_SVCNAME}.log \
+		--exec "${command}" -- ${command_args}
+
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping $name"
+
+	start-stop-daemon --stop \
+		--pidfile "${pidfile}" \
+		--user "${TEMPO_USER}" \
+		--retry=TERM/20/KILL/5
+
+	eend $?
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=Loki service
+After=network.target
+
+[Service]
+Type=simple
+User=loki
+ExecStart=/usr/bin/loki -config.file=/etc/loki/config.yaml
+TimeoutSec=120
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

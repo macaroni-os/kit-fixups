@@ -365,3 +365,190 @@ tempo:
           s: '${WORKDIR}'
           rdepend: |
             !app-metrics/tempo
+
+loki:
+  generator: builtin-github
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-metrics
+    files_dir: '{{ .Values.pn | replace "-bin" "" }}'
+    github:
+      user: grafana
+      repo: loki
+
+    vars:
+      desc: "Loki: like Prometheus, but for logs"
+      homepage: https://grafana.com/oss/loki/ https://github.com/grafana/loki
+      license: AGPL-3
+      inherit:
+        - user
+        - systemd
+      body: |
+        {{ $pn := .Values.pn | replace "-bin" "" }}
+        pkg_setup() {
+          enewgroup loki 513
+          enewuser loki 513 -1 /var/lib/loki loki
+        }
+        {{- if eq .Values.pn "loki-bin" }}
+
+        src_compile() { :; }
+        {{- else }}
+
+        post_src_unpack() {
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+
+        src_compile() {
+          local ldflags="-X github.com/grafana/loki/v3/pkg/util/build.Version={{ .Values.pv }}-{{ substr 0 7 .Values.sha }}"
+          for c in loki logcli lokitool loki-canary ; do
+            go build -mod=vendor -trimpath -ldflags "${ldflags}" -o bin/"${c}" ./cmd/"${c}" || die
+          done
+        }
+        {{- end }}
+
+        src_install() {
+          {{- if eq .Values.pn "loki-bin" }}
+          newbin loki-linux-* loki
+          newbin logcli-linux-* logcli
+          newbin lokitool-linux-* lokitool
+          newbin loki-canary-linux-* loki-canary
+          {{- else }}
+          dobin bin/loki bin/logcli bin/lokitool bin/loki-canary
+          einstalldocs
+          {{- end }}
+          insinto /etc/loki
+          newins "${FILESDIR}/config.yaml" config.yaml
+          newconfd "${FILESDIR}/{{ $pn }}.confd" {{ $pn }}
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}/{{ $pn }}.service"
+          else
+            newinitd "${FILESDIR}/{{ $pn }}.initd" {{ $pn }}
+          fi
+          keepdir /var/{lib,log}/loki
+          fowners loki:loki /var/{lib,log}/loki
+          fperms 0750 /var/{lib,log}/loki
+        }
+
+  packages:
+    - loki:
+        selector:
+          - '>=3.7.0'
+          - '<4.0.0'
+        vars:
+          iuse: systemd
+          restrict: strip
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            !app-metrics/loki-bin
+          docs:
+            - CHANGELOG.md
+            - LICENSE
+            - README.md
+
+    - loki:
+        selector:
+          - '>=3.6.0'
+          - '<3.7.0'
+        vars:
+          iuse: systemd
+          restrict: strip
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            !app-metrics/loki-bin
+          docs:
+            - CHANGELOG.md
+            - LICENSE
+            - README.md
+
+    - loki-bin:
+        selector:
+          - '>=3.7.0'
+          - '<4.0.0'
+        assets:
+          - name: 'loki-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^loki-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'logcli-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^logcli-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'lokitool-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^lokitool-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'loki-canary-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^loki-canary-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'loki-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^loki-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'logcli-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^logcli-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'lokitool-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^lokitool-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'loki-canary-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^loki-canary-linux-arm64\.zip$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64 systemd
+          restrict: strip
+          s: '${WORKDIR}'
+          bdepend: |
+            app-arch/unzip
+          rdepend: |
+            !app-metrics/loki
+
+    - loki-bin:
+        selector:
+          - '>=3.6.0'
+          - '<3.7.0'
+        assets:
+          - name: 'loki-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^loki-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'logcli-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^logcli-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'lokitool-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^lokitool-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'loki-canary-{{ .Values.version }}-linux-amd64.zip'
+            matcher: '^loki-canary-linux-amd64\.zip$'
+            use: amd64
+
+          - name: 'loki-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^loki-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'logcli-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^logcli-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'lokitool-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^lokitool-linux-arm64\.zip$'
+            use: arm64
+
+          - name: 'loki-canary-{{ .Values.version }}-linux-arm64.zip'
+            matcher: '^loki-canary-linux-arm64\.zip$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64 systemd
+          restrict: strip
+          s: '${WORKDIR}'
+          bdepend: |
+            app-arch/unzip
+          rdepend: |
+            !app-metrics/loki

@@ -1,0 +1,13 @@
+# Config file for /etc/init.d/loki
+
+# The user to run Loki as
+LOKI_USER=loki
+
+# The group to run Loki as
+LOKI_GROUP=loki
+
+# Location of default Loki config file
+LOKI_CONFIG="/etc/loki/config.yaml"
+
+# Extra args to pass Loki
+LOKI_ARGS="-config.file=/etc/loki/config.yaml"

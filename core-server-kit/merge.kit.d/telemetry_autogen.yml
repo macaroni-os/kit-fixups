@@ -24,4 +24,25 @@ target:
     - pkg: app-metrics/tempo
     - pkg: app-metrics/tempo-bin
 
+    # dual release lines (upstream maintains 3.7 current + 3.6 LTS)
+    - pkg: app-metrics/loki
+      conditions:
+        - '>=app-metrics/loki-3.7.0'
+        - '<app-metrics/loki-4.0.0'
+
+    - pkg: app-metrics/loki
+      conditions:
+        - '>=app-metrics/loki-3.6.0'
+        - '<app-metrics/loki-3.7.0'
+
+    - pkg: app-metrics/loki-bin
+      conditions:
+        - '>=app-metrics/loki-bin-3.7.0'
+        - '<app-metrics/loki-bin-4.0.0'
+
+    - pkg: app-metrics/loki-bin
+      conditions:
+        - '>=app-metrics/loki-bin-3.6.0'
+        - '<app-metrics/loki-bin-3.7.0'
+
     - pkg: www-apps/grafana-bin

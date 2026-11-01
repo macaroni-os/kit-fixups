@@ -684,3 +684,95 @@ mimir:
           restrict: strip
           rdepend: |
             !app-metrics/mimir
+
+alloy:
+  generator: builtin-github
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-metrics
+    files_dir: '{{ .Values.pn | replace "-bin" "" }}'
+    github:
+      user: grafana
+      repo: alloy
+
+    vars:
+      desc: Vendor-agnostic OpenTelemetry Collector distribution with programmable pipelines
+      homepage: https://grafana.com/oss/alloy/ https://github.com/grafana/alloy
+      license: Apache-2.0
+      inherit:
+        - user
+        - systemd
+      body: |
+        {{ $pn := .Values.pn | replace "-bin" "" }}
+        pkg_setup() {
+          enewgroup alloy 516
+          enewuser alloy 516 -1 /var/lib/alloy alloy
+        }
+        {{- if eq .Values.pn "alloy-bin" }}
+
+        src_compile() { :; }
+        {{- else }}
+
+        post_src_unpack() {
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+
+        src_compile() {
+          # main package is collector's; the root module is wired via replace ../
+          cd collector || die
+          go build -mod=mod -trimpath \
+            -ldflags "-X github.com/grafana/alloy/internal/build.Version={{ .Values.pv }}-{{ substr 0 7 .Values.sha }}" \
+            -o ../bin/alloy . || die
+        }
+        {{- end }}
+
+        src_install() {
+          {{- if eq .Values.pn "alloy-bin" }}
+          newbin alloy-linux-* alloy
+          {{- else }}
+          dobin bin/alloy
+          {{- end }}
+          einstalldocs
+          insinto /etc/alloy
+          newins "${FILESDIR}/config.alloy" config.alloy
+          newconfd "${FILESDIR}/{{ $pn }}.confd" {{ $pn }}
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}/{{ $pn }}.service"
+          else
+            newinitd "${FILESDIR}/{{ $pn }}.initd" {{ $pn }}
+          fi
+          keepdir /var/lib/alloy/data
+          keepdir /var/log/"{{ $pn }}"
+          fowners -R alloy:alloy /var/lib/alloy /var/log/"{{ $pn }}"
+          fperms -R 0750 /var/lib/alloy /var/log/"{{ $pn }}"
+        }
+
+  packages:
+    - alloy:
+        vars:
+          iuse: systemd
+          # Interim until the mark-devkit golang extension can bundle collector/go.sum
+          # too (alloy is a two-module Go tree), the build then needs the network:
+          # macaroni-os/mark-issues#848
+          restrict: strip network-sandbox
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            !app-metrics/alloy-bin
+
+    - alloy-bin:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-amd64.zip'
+            matcher: '^alloy-linux-amd64\.zip$'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-arm64.zip'
+            matcher: '^alloy-linux-arm64\.zip$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64 systemd
+          restrict: strip
+          s: '${WORKDIR}'
+          bdepend: |
+            app-arch/unzip

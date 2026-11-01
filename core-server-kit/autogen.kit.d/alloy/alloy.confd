@@ -1,0 +1,13 @@
+# Config file for /etc/init.d/alloy
+
+# The user to run Alloy as
+ALLOY_USER=alloy
+
+# The group to run Alloy as
+ALLOY_GROUP=alloy
+
+# Location of default Alloy config file
+ALLOY_CONFIG="/etc/alloy/config.alloy"
+
+# Extra args to pass Alloy
+ALLOY_ARGS="run --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy"

@@ -1,0 +1,28 @@
+# Minimal Tempo configuration for Macaroni OS.
+# Full reference: https://grafana.com/docs/tempo/latest/configuration/
+server:
+  http_listen_port: 3200
+  log_level: info
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+
+live_store:
+  wal:
+    path: /var/lib/tempo/live-store/traces
+  shutdown_marker_dir: /var/lib/tempo/live-store/shutdown-marker
+
+backend_scheduler:
+  local_work_path: /var/lib/tempo/scheduler
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/lib/tempo/wal
+    local:
+      path: /var/lib/tempo/blocks

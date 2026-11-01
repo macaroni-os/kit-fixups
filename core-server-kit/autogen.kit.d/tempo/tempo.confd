@@ -1,0 +1,13 @@
+# Config file for /etc/init.d/tempo
+
+# The user to run Tempo as
+TEMPO_USER=tempo
+
+# The group to run Tempo as
+TEMPO_GROUP=tempo
+
+# Location of default Tempo config file
+TEMPO_CONFIG="/etc/tempo/config.yml"
+
+# Extra args to pass Tempo
+TEMPO_ARGS="-config.file=/etc/tempo/config.yml"

@@ -274,3 +274,94 @@ grafana:
               elog "wish to use external rotation of logs. In this case, you also need to make"
               elog "sure the built-in rotation is turned off."
             }
+
+tempo:
+  generator: builtin-github
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: app-metrics
+    files_dir: '{{ .Values.pn | replace "-bin" "" }}'
+    github:
+      user: grafana
+      repo: tempo
+
+    vars:
+      desc: Grafana Tempo distributed tracing backend
+      homepage: https://grafana.com/oss/tempo/ https://github.com/grafana/tempo
+      license: AGPL-3
+      inherit:
+        - user
+        - systemd
+      docs:
+        - CHANGELOG.md
+        - LICENSE
+        - README.md
+      body: |
+        {{ $pn := .Values.pn | replace "-bin" "" }}
+        pkg_setup() {
+          enewgroup tempo 514
+          enewuser tempo 514 -1 /var/lib/tempo tempo
+        }
+        {{- if eq .Values.pn "tempo-bin" }}
+
+        src_compile() { :; }
+        {{- else }}
+
+        post_src_unpack() {
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+
+        src_compile() {
+          local ldflags="-X main.Version={{ .Values.pv }}-{{ substr 0 7 .Values.sha }}"
+          for c in tempo tempo-query tempo-cli ; do
+            go build -mod=vendor -trimpath -ldflags "${ldflags}" -o bin/"${c}" ./cmd/"${c}" || die
+          done
+        }
+        {{- end }}
+
+        src_install() {
+          {{- if eq .Values.pn "tempo-bin" }}
+          dobin tempo tempo-query tempo-cli
+          {{- else }}
+          dobin bin/tempo bin/tempo-query bin/tempo-cli
+          {{- end }}
+          einstalldocs
+          insinto /etc/tempo
+          newins "${FILESDIR}/config.yml" config.yml
+          newconfd "${FILESDIR}/{{ $pn }}.confd" {{ $pn }}
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}/{{ $pn }}.service"
+          else
+            newinitd "${FILESDIR}/{{ $pn }}.initd" {{ $pn }}
+          fi
+          keepdir /var/{lib,log}/"{{ $pn }}"
+          fowners tempo:tempo /var/{lib,log}/"{{ $pn }}"
+          fperms 0750 /var/{lib,log}/"{{ $pn }}"
+        }
+
+  packages:
+    - tempo:
+        vars:
+          iuse: systemd
+          restrict: strip
+          bdepend: |
+            dev-lang/go
+          rdepend: |
+            !app-metrics/tempo-bin
+
+    - tempo-bin:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-amd64.tar.gz'
+            matcher: '^tempo_{{ .Values.version }}_linux_amd64\.tar\.gz$'
+            use: amd64
+
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.linux-arm64.tar.gz'
+            matcher: '^tempo_{{ .Values.version }}_linux_arm64\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64 systemd
+          restrict: strip
+          s: '${WORKDIR}'
+          rdepend: |
+            !app-metrics/tempo

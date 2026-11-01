@@ -1,0 +1,40 @@
+# Minimal Grafana Mimir configuration for Macaroni OS.
+# Single-binary mode (all targets) with filesystem storage.
+# Full reference: https://grafana.com/docs/mimir/latest/configure/about-configuration-parameters/
+target: all
+
+server:
+  http_listen_address: 0.0.0.0
+  http_listen_port: 9009
+  log_level: info
+
+blocks_storage:
+  backend: filesystem
+  filesystem:
+    dir: /var/lib/mimir/blocks
+  bucket_store:
+    sync_dir: /var/lib/mimir/tsdb-sync
+  tsdb:
+    dir: /var/lib/mimir/tsdb
+
+alertmanager_storage:
+  backend: filesystem
+  filesystem:
+    dir: /var/lib/mimir/alertmanager
+
+ruler_storage:
+  backend: filesystem
+  filesystem:
+    dir: /var/lib/mimir/rules
+
+compactor:
+  data_dir: /var/lib/mimir/compactor
+
+ingester:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+ruler:
+  rule_path: /var/lib/mimir/rules-tmp

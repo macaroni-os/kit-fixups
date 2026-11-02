@@ -343,6 +343,10 @@ tempo:
   packages:
     - tempo:
         vars:
+          inherit:
+            - user
+            - systemd
+            - go-module
           iuse: systemd
           restrict: strip
           bdepend: |
@@ -436,6 +440,10 @@ loki:
           - '>=3.7.0'
           - '<4.0.0'
         vars:
+          inherit:
+            - user
+            - systemd
+            - go-module
           iuse: systemd
           restrict: strip
           bdepend: |
@@ -452,6 +460,10 @@ loki:
           - '>=3.6.0'
           - '<3.7.0'
         vars:
+          inherit:
+            - user
+            - systemd
+            - go-module
           iuse: systemd
           restrict: strip
           bdepend: |
@@ -633,6 +645,10 @@ mimir:
         github:
           match: '^3.*'
         vars:
+          inherit:
+            - user
+            - systemd
+            - go-module
           iuse: systemd
           restrict: strip
           bdepend: |
@@ -718,6 +734,22 @@ alloy:
           mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
         }
 
+        post_src_prepare() {
+          # go-module toolchain override only sees the root go.mod at ${S}; alloy
+          # builds from collector/, which replaces sibling local modules (../syntax
+          # and others), each carrying its own go directive - mirror the override
+          # across every module in the tree (macaroni-os/mark-issues#848).
+          local gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+          local gomod gotoolchain_pkg
+          for gomod in $(find "${S}" -name go.mod -not -path '*/vendor/*'); do
+            gotoolchain_pkg=$(grep '^go ' "${gomod}" | sed -e 's|go ||g')
+            if [ -n "${gotoolchain_pkg}" ] && [ "${gotoolchain_pkg}" != "${gotoolchain_local}" ] ; then
+              ewarn "Module ${gomod#${S}/} needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+              sed -i -e "s|^go .*|go ${gotoolchain_local}|g" "${gomod}"
+            fi
+          done
+        }
+
         src_compile() {
           # main package is collector's; the root module is wired via replace ../
           cd collector || die
@@ -751,6 +783,10 @@ alloy:
   packages:
     - alloy:
         vars:
+          inherit:
+            - user
+            - systemd
+            - go-module
           iuse: systemd
           # Interim until the mark-devkit golang extension can bundle collector/go.sum
           # too (alloy is a two-module Go tree), the build then needs the network:

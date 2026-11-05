@@ -134,3 +134,97 @@ mark-portage:
               echo
               chmod o-rwx $ROOT/var/tmp/portage
             }
+
+eselect:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-admin
+
+    vars:
+      inherit:
+        - autotools
+        - bash-completion-r1
+      desc: A multi-purpose configuration and management tool
+      homepage: https://wiki.gentoo.org/wiki/Project:Eselect
+      license: GPL-2+ || ( GPL-2+ CC-BY-SA-3.0 )
+      iuse: doc emacs vim-syntax
+      rdepend: |
+        sys-apps/sed
+        || (
+          sys-apps/coreutils
+          sys-freebsd/freebsd-bin
+          app-misc/realpath
+        )
+        sys-apps/file
+        sys-libs/ncurses:0
+      depend: |
+        ${RDEPEND}
+        doc? ( dev-python/docutils )
+      pdepend: |
+        emacs? ( app-emacs/eselect-mode )
+        vim-syntax? ( app-vim/eselect-syntax )
+      body: |
+        src_prepare() {
+          default
+
+          eautoreconf
+        }
+
+        src_compile() {
+          emake
+          use doc && emake html
+        }
+
+        src_install() {
+          emake DESTDIR="${D}" install
+          newbashcomp misc/${PN}.bashcomp ${PN}
+          dodoc AUTHORS ChangeLog NEWS README TODO doc/*.txt
+          if use doc; then
+            docinto html
+            dodoc *.html doc/*.html doc/*.css
+          fi
+
+          # needed by news module
+          keepdir /var/lib/macaroni/news
+          if ! use prefix; then
+            fowners root:portage /var/lib/macaroni/news
+            fperms g+w /var/lib/macaroni/news
+          fi
+        }
+
+        pkg_postinst() {
+          # fowners in src_install doesn't work for the portage group:
+          # merging changes the group back to root
+          if ! use prefix; then
+            chgrp portage "${EROOT}/var/lib/macaroni/news" \
+              && chmod g+w "${EROOT}/var/lib/macaroni/news"
+          fi
+        }
+
+  packages:
+
+    # Autogen covers >=1.4.23 only (maintainer decision on
+    # macaroni-os/kit-fixups#523): there upstream already hardcodes the
+    # canonical bash shebang (#!@EPREFIX@/bin/bash) and calls plain
+    # env-update, so only the two macaroni patches are needed; older
+    # releases stay in the tree unpatched (macaroni-os/mark-issues#857).
+    - eselect:
+        selector:
+          - '>=1.4.23'
+        vars:
+          patches:
+            - eselect-macaronictl-env-update-1.4.23.patch
+            - eselect-macaroni-news-dir.patch
+        dir:
+          url: https://dev.gentoo.org/~ulm/eselect/
+          matcher: 'eselect-[0-9.]+\.tar\.xz$'
+        transform:
+          - kind: string
+            match: 'eselect-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''

@@ -1,0 +1,18 @@
+Move the news spool directory from /var/lib/gentoo/news to
+/var/lib/macaroni/news. The old path is only ever touched by the
+bundled news module (NEWS_DIR below) and by the ebuild that creates
+the directory; nothing else in the Macaroni OS stack reads it (for
+example, macaronictl has no news support at all). Ownership and
+group-writability semantics are unchanged. Requested on
+macaroni-os/kit-fixups#523, part of macaroni-os/mark-issues#857.
+--- a/modules/news.eselect
++++ b/modules/news.eselect
+@@ -7,7 +7,7 @@
+ DESCRIPTION="Read Gentoo (\"GLEP 42\") news items"
+ MAINTAINER="ulm@gentoo.org"
+ 
+-NEWS_DIR="/var/lib/gentoo/news"
++NEWS_DIR="/var/lib/macaroni/news"
+ 
+ # read list of news items
+ # list of parameters may contain "unread" or "read"

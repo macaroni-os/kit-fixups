@@ -41,8 +41,13 @@ def get_kernel_dot_org_url(major_version: str, base_url: str) -> str:
 def parse_version_tuple(ver_str):
     """Parse a kernel version string into a comparable tuple.
 
+    Accepts both the three-field kernel form (X.Y.Z) and the two-field
+    mainline form used by kernel.org (X.Y). The patch field is zero for a
+    two-field version, but the original string is never rewritten: the tuple
+    exists for comparison, not to fabricate a '.0' in ebuild versions.
+
     Args:
-        ver_str: Version string like '6.12.38_p1' or '6.12.38'
+        ver_str: Version string like '6.12.38_p1', '6.12.38', or '7.2'
 
     Returns:
         Tuple (major, minor, patch, debpatch) or None if invalid
@@ -50,11 +55,13 @@ def parse_version_tuple(ver_str):
     Examples:
         '6.12.38_p1' -> (6, 12, 38, 1)
         '6.12.38' -> (6, 12, 38, 0)
+        '7.2' -> (7, 2, 0, 0)
     """
-    match = re.match(r'(\d+)\.(\d+)\.(\d+)(?:_p(\d+))?', ver_str)
+    match = re.match(r'(\d+)\.(\d+)(?:\.(\d+))?(?:_p(\d+))?$', ver_str)
     if not match:
         return None
-    return (int(match.group(1)), int(match.group(2)), int(match.group(3)),
+    return (int(match.group(1)), int(match.group(2)),
+            int(match.group(3)) if match.group(3) else 0,
             int(match.group(4)) if match.group(4) else 0)
 
 
@@ -62,15 +69,15 @@ def parse_version_branch(ver_str):
     """Extract the major.minor branch from a version string.
 
     Args:
-        ver_str: Version string like '6.12.38_p1' or '6.1.0_p2'
+        ver_str: Version string like '6.12.38_p1', '6.1.0_p2', or '7.2'
 
     Returns:
         Branch string like '6.12' or None if invalid
     """
-    match = re.match(r'(\d+)\.(\d+)\.\d+', ver_str)
-    if not match:
+    parsed = parse_version_tuple(ver_str)
+    if parsed is None:
         return None
-    return f'{match.group(1)}.{match.group(2)}'
+    return f'{parsed[0]}.{parsed[1]}'
 
 
 def version_in_range(version_str, min_ver, max_ver):
@@ -112,7 +119,8 @@ async def find_latest_in_branch(branch, min_ver, max_ver, pool_url, kernel_base_
 
     Returns:
         Tuple of (version_string, is_compatible, reason)
-        version_string is in 'X.Y.Z' format (no Debian patch level)
+        version_string is in 'X.Y' or 'X.Y.Z' format (no Debian patch level);
+        it is never fabricated from the branch name.
     """
     # Try to list versions from kernel.org for this branch
     branch_versions = []
@@ -124,25 +132,26 @@ async def find_latest_in_branch(branch, min_ver, max_ver, pool_url, kernel_base_
         r = await _request_with_retry(requests.get, branch_url, timeout=10)
         r.raise_for_status()
 
-        # Parse HTML links for tarballs
+        # Parse HTML links for tarballs. kernel.org publishes both X.Y.Z
+        # longterm releases and X.Y mainline releases (e.g. linux-7.2.tar.xz).
         links = re.findall(
-            r'<a[^>]*href=["\']([^"\']+linux_\d+\.\d+\.\d+[^"\']*)["\']',
+            r'<a[^>]*href=["\']([^"\']+linux_\d+\.\d+(?:\.\d+)?[^"\']*)["\']',
             r.text
         )
 
         # Extract versions from filenames
         for link in links:
-            ver_match = re.search(r'linux_(\d+\.\d+\.\d+)', link)
+            ver_match = re.search(r'linux_(\d+\.\d+(?:\.\d+)?)', link)
             if ver_match:
                 branch_versions.append(ver_match.group(1))
 
         # Also try .tar.xz files
         links2 = re.findall(
-            r'<a[^>]*href=["\']([^"\']*linux-\d+\.\d+\.\d+\.tar\.xz)["\']',
+            r'<a[^>]*href=["\']([^"\']*linux-\d+\.\d+(?:\.\d+)?\.tar\.xz)["\']',
             r.text
         )
         for link in links2:
-            ver_match = re.search(r'linux-(\d+\.\d+\.\d+)', link)
+            ver_match = re.search(r'linux-(\d+\.\d+(?:\.\d+)?)', link)
             if ver_match:
                 branch_versions.append(ver_match.group(1))
 
@@ -152,7 +161,7 @@ async def find_latest_in_branch(branch, min_ver, max_ver, pool_url, kernel_base_
     if not branch_versions:
         raise RuntimeError(f'Could not query kernel.org for branch {branch}')
 
-    # Sort versions (they should be strings like '6.12.38')
+    # Sort versions (they can be X.Y.Z longterm or X.Y mainline)
     # Use parse_version_tuple for proper sorting
     branch_versions_with_parse = [
         (parse_version_tuple(v), v)
@@ -161,7 +170,7 @@ async def find_latest_in_branch(branch, min_ver, max_ver, pool_url, kernel_base_
     ]
 
     if not branch_versions_with_parse:
-        return branch + '.0_p0', False, 'No versions found'
+        return None, False, 'No versions found'
 
     # Sort descending (latest first)
     branch_versions_with_parse.sort(reverse=True)
@@ -177,46 +186,90 @@ async def find_latest_in_branch(branch, min_ver, max_ver, pool_url, kernel_base_
     return branch_versions_with_parse[0][1], False, 'No compatible version in branch'
 
 
-async def get_version(*, rel: str, pool_base: str, use_security: bool):
-    """Get the latest Debian kernel source version for a release.
+# Cache of downloaded+decompressed Packages.xz text, keyed by
+# (rel, effective_pool_base, use_security). Avoids re-downloading when both
+# get_version and get_release_candidates need the version list.
+_PKGS_XZ_CACHE = {}
 
-    Downloads the Debian package list and extracts the linux-source version.
+
+def _parse_linux_source_versions(text):
+    """Parse a Debian Packages file into a newest-first version list.
+
+    Returns a list of (version_tuple, version_str, patch_str) sorted
+    newest-first, e.g. [((6, 12, 38, 1), '6.12.38', '1'), ...].
     """
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', 'replace')
+    # Match pool/main/l/linux/linux-source_<version>_<patch>_all.deb.
+    # Debian kernel source versions can be X.Y.Z or (for a mainline branch)
+    # X.Y; both must reach the shared parser rather than being rejected.
+    v1 = re.findall(
+        r'pool/(?:updates/)?main/l/linux/linux-source_((\d+\.\d+(?:\.\d+)?)-(\d+))_all\.deb',
+        text
+    )
+    parsed = [(parse_version_tuple(f'{v[1]}_p{v[2]}'), v[1], v[2]) for v in v1]
+    parsed = [(t, ver, patch) for (t, ver, patch) in parsed if t is not None]
+    # Sort by version tuple to get the actual latest (not just last match)
+    parsed.sort(key=lambda x: x[0], reverse=True)
+    return parsed
+
+
+async def _fetch_packages_xz(*, rel: str, pool_base: str,
+                             use_security: bool) -> str:
+    """Download + decompress the Debian Packages.xz for a release (cached)."""
     # Switch to security archive when needed
     if use_security and 'security' not in pool_base:
         pool_base = pool_base.replace('deb.debian.org/debian',
                                       'deb.debian.org/debian-security')
+    key = (rel, pool_base, use_security)
+    if key in _PKGS_XZ_CACHE:
+        return _PKGS_XZ_CACHE[key]
 
     url = f'{pool_base}/dists/{rel}-security/main/binary-all/Packages.xz' if use_security else \
           f'{pool_base}/dists/{rel}/main/binary-all/Packages.xz'
 
     r = await _request_with_retry(requests.get, url, timeout=30)
     if r.status_code == 404 and use_security:
-        # Security suite doesn't exist yet (e.g., trixe is new) - fall back to main
+        # Security suite doesn't exist yet (e.g., trixie is new) - fall back to main
         url = f'{pool_base}/dists/{rel}/main/binary-all/Packages.xz'
         r = await _request_with_retry(requests.get, url, timeout=30)
     r.raise_for_status()
     text = lzma.decompress(r.content)
+    _PKGS_XZ_CACHE[key] = text
+    return text
 
- # Match pool/main/l/linux/linux-source_<version>_<patch>_all.deb
-    v1 = re.findall(
-        r'pool/(?:updates/)?main/l/linux/linux-source_((\d\.\d+\.\d+)[-](\d+))_all\.deb',
-        str(text)
-    )
 
-    if not v1:
-        raise ValueError(f'No kernel version found for Debian {rel}')
+async def get_version(*, rel: str, pool_base: str, use_security: bool):
+    """Get the latest Debian kernel source version for a release.
 
-    # Sort by version tuple to get the actual latest (not just last match)
-    parsed = [(parse_version_tuple(f'{v[1]}_p{v[2]}'), v) for v in v1]
-    parsed = [(t, v) for t, v in parsed if t is not None]
+    Downloads the Debian package list and extracts the linux-source version.
+    """
+    text = await _fetch_packages_xz(rel=rel, pool_base=pool_base,
+                                    use_security=use_security)
+    parsed = _parse_linux_source_versions(text)
     if not parsed:
-        raise ValueError(f'No valid kernel version found for Debian {rel}')
-    parsed.sort(key=lambda x: x[0], reverse=True)
-    latest = parsed[0][1]
-
+        raise ValueError(f'No kernel version found for Debian {rel}')
+    t, ver, patch = parsed[0]
     # Returns: 6.12.38_p1
-    return f'{latest[1]}_p{latest[2]}'
+    return f'{ver}_p{patch}'
+
+
+async def get_release_candidates(config: dict, pool_base: str):
+    """Enumerate all available versions for the tracked release (newest-first).
+
+    Used for graceful fallback when the selected (latest) version's assets are
+    missing. Shares the cached Packages.xz download with get_version.
+
+    Returns:
+        Dict {branch: [(version_str, triplet, patch_str), ...]} newest-first.
+    """
+    rel = config['branch']
+    use_security = config.get('use_security', True)
+    text = await _fetch_packages_xz(rel=rel, pool_base=pool_base,
+                                    use_security=use_security)
+    parsed = _parse_linux_source_versions(text)
+    cands = [(f'{ver}_p{patch}', ver, patch) for (t, ver, patch) in parsed]
+    return {rel: cands}
 
 
 async def get_openzfs_compat(*, openzfs_version: str):
@@ -330,16 +383,16 @@ async def check_version(*, openzfs_compat: dict, ver: str, rel: tuple,
     Returns:
         Tuple of (version_string, triplet, debpatch)
     """
-    v_match = re.findall(r'(\d+\.\d+\.\d+)_p(\d+)', ver)
-    if not v_match:
+    ver_match = re.match(r'(\d+\.\d+(?:\.\d+)?)_p(\d+)$', ver)
+    if not ver_match:
         raise ValueError(f'Invalid version format: {ver}')
 
-    v = v_match[0]
+    triplet, debpatch = ver_match.group(1), ver_match.group(2)
     branch, name = rel
 
     if not track_openzfs:
         print(f'  Skipping OpenZFS check for {name} (not tracking)')
-        return ver, v[0], v[1]
+        return ver, triplet, debpatch
 
     min_ver = openzfs_compat['min']
     max_ver = openzfs_compat['max']
@@ -347,7 +400,7 @@ async def check_version(*, openzfs_compat: dict, ver: str, rel: tuple,
     if version_in_range(ver, min_ver, max_ver):
         print(f'  ✅ {branch} kernel {ver} ({name}) compatible with OpenZFS '
               f'(range: {openzfs_compat["min_str"]} - {openzfs_compat["max_str"]})')
-        return ver, v[0], v[1]
+        return ver, triplet, debpatch
 
     else:
         # Version incompatible - find latest compatible in same branch
@@ -365,7 +418,7 @@ async def check_version(*, openzfs_compat: dict, ver: str, rel: tuple,
             kernel_base_url=kernel_base_url
         )
 
-        if found:
+        if found and fallback_ver is not None:
             # Re-check the fallback version to be sure
             if version_in_range(fallback_ver, min_ver, max_ver):
                 print(f'  ✅ Found compatible version: {fallback_ver} ({reason})')
@@ -379,7 +432,7 @@ async def check_version(*, openzfs_compat: dict, ver: str, rel: tuple,
             print(f'  ⚠️  No compatible version found in branch {branch_num}')
             print(f'     Reason: {reason}')
             # Return the original - will fail but at least we tried
-            return ver, v[0], v[1]
+            return ver, triplet, debpatch
 
 
 async def get_releases(config: dict, pool_base: str):
@@ -682,8 +735,10 @@ async def verify_debian_artifact(artifact_url: str, artifact_name: str,
         print(f'   ℹ️  No checksum in Release for {artifact_name} (skipping verification)')
         return True  # Skip verification if no checksum available
     
-    # Download artifact to temp file
-    temp_path = f'{temp_dir}/{artifact_name}'
+    # Download artifact to temp file (reuse the mark-devkit workdir/downloads
+    # dir passed in; previously referenced an undefined `temp_dir` global, which
+    # made verification silently skip whenever a Release checksum was present).
+    temp_path = f'{downloads_dir}/{artifact_name}'
     try:
         r = await _request_with_retry(requests.get, artifact_url, timeout=30, stream=True)
         r.raise_for_status()
@@ -715,6 +770,87 @@ async def verify_debian_artifact(artifact_url: str, artifact_name: str,
     except Exception as e:
         print(f'   ⚠️  Could not verify checksum for {artifact_name}: {e}')
         return True  # Skip verification on error
+async def resolve_version_assets(*, k, v, zfs_compat, track_openzfs,
+                                 pool_url, mirrors, kernel_dot_org_base_url,
+                                 config, candidates):
+    """Resolve the kernel version + (triplet, debpatch) whose required assets
+    (Debian tarball on a mirror AND kernel.org tarball) are all available.
+
+    Graceful-fallback core: if the selected (latest) version's assets are
+    missing, walk `candidates` (newest-first) for an older version whose
+    assets ARE available, respecting the OpenZFS range when tracking. If no
+    version has complete assets, returns None so the caller can skip the
+    release with a warning (keeping the generator exit code clean) instead of
+    raising a fatal error that aborts `mark-devkit autogen`.
+
+    Args:
+        k: release key (config['branch'])
+        v: selected version string like '6.12.38_p1'
+        zfs_compat: OpenZFS range dict (or {} if not tracking)
+        track_openzfs: whether OpenZFS compatibility is enforced
+        pool_url / mirrors / kernel_dot_org_base_url: asset sources. `mirrors`
+            is the caller's lookup list (security pool first for security
+            releases, then the regular pool mirrors) so both tarball lookups
+            and the Release-file lookup agree.
+        config: spec vars (used for branch/level metadata)
+        candidates: newest-first list of (version_str, triplet, patch_str)
+
+    Returns:
+        (version_str, triplet, debpatch, debian_tarball_url) or None if no
+        version has assets.
+    """
+    async def _assets_available(triplet, debpatch):
+        debian_name = f'linux_{triplet}-{debpatch}.debian.tar.xz'
+        kernel_name = f'linux-{triplet}.tar.xz'
+        # Debian tarball must be on at least one lookup mirror (security pool
+        # first for security releases, then the regular pool).
+        try:
+            debian_url = await get_artifact_url(
+                name=debian_name, mirrors=mirrors, timeout=10)
+        except Exception as e:
+            print(f'   ⚠️  {debian_name} not available on any mirror: {e}')
+            return None
+        # Kernel.org tarball must be reachable.
+        kernel_url = (f'{get_kernel_dot_org_url(triplet.split(".")[0], kernel_dot_org_base_url)}/{kernel_name}')
+        chk = await check_url_available(kernel_url, timeout=10)
+        if not chk.get('available', False):
+            print(f'   ⚠️  kernel.org tarball not available: {kernel_url}')
+            return None
+        return debian_url
+
+    # Fast path: the selected (latest) version's assets are present.
+    v_match = re.findall(r'(\d+\.\d+(?:\.\d+)?)_p(\d+)$', v)
+    if v_match:
+        debian_url = await _assets_available(v_match[0][0], v_match[0][1])
+        if debian_url is not None:
+            return v, v_match[0][0], v_match[0][1], debian_url
+
+    print(f'   🔁 No available assets for selected version {v} — '
+          f'falling back to the newest older version with complete assets...')
+    sel_tuple = parse_version_tuple(v)
+    for (cand_ver, cand_triplet, cand_patch) in candidates:
+        cand_tuple = parse_version_tuple(cand_ver)
+        if cand_tuple is None:
+            continue
+        # Never fall back to a version newer than the selected one.
+        if sel_tuple is not None and cand_tuple > sel_tuple:
+            continue
+        # Honour the OpenZFS range when tracking; skip incompatible older
+        # versions (the loop is newest-first, so the first compatible one wins).
+        if track_openzfs and zfs_compat and \
+                not version_in_range(cand_ver, zfs_compat['min'], zfs_compat['max']):
+            print(f'   ⏭️  {cand_ver} outside OpenZFS range — skipping')
+            continue
+        debian_url = await _assets_available(cand_triplet, cand_patch)
+        if debian_url is not None:
+            print(f'   ✅ Fallback: using {cand_ver} (assets available)')
+            return cand_ver, cand_triplet, cand_patch, debian_url
+
+    print(f'   ⚠️  No version for {config.get("branch", k)} has complete assets. '
+          f'Skipping this release (generator stays exit-clean; no ebuild emitted).')
+    return None
+
+
 async def do_process(*, input_file: str, versions_file: str):
     """Main processing function.
 
@@ -792,6 +928,38 @@ async def do_process(*, input_file: str, versions_file: str):
         s = filtered_s
         print('   ✅ Pinned version filter applied')
 
+    # Pinned versions are requested exactly: never silently substitute an
+    # older version if their assets are missing (warn + skip instead).
+    # Auto-discovered versions may fall back to the newest older one with
+    # available assets when the latest one is missing.
+    pinned = 'versions' in config and isinstance(config['versions'], list)
+
+    # Security-pool lookup mirrors: for releases on the security suite,
+    # Debian tarballs (and the Release file for checksums) live on
+    # debian-security, not the regular pool. Consult the security pool
+    # FIRST, then the regular pool mirrors (a testing release's newest
+    # version can still be main-pool). Derived the same way
+    # _fetch_packages_xz switches archives.
+    use_security = config.get('use_security', True)
+    security_mirrors = [
+        m.replace('deb.debian.org/debian', 'deb.debian.org/debian-security')
+        for m in mirrors
+    ] if (use_security and 'security' not in pool_url) else []
+    lookup_mirrors = security_mirrors + mirrors
+
+    # Enumerate all available versions (newest-first) for graceful fallback.
+    # Shares the cached Packages.xz download with get_version (no re-download).
+    if pinned:
+        release_candidates = {k: [] for k in s}
+    else:
+        try:
+            release_candidates = await get_release_candidates(config, pool_base)
+        except Exception as e:
+            # Candidate enumeration is a best-effort aid for fallback; if it
+            # fails (e.g. transient), proceed with no fallback candidates.
+            print(f'   ⚠️  Could not enumerate version candidates for fallback: {e}')
+            release_candidates = {k: [] for k in s}
+
     versions_d = {
         'vars': {
             'versions': [],
@@ -808,6 +976,27 @@ async def do_process(*, input_file: str, versions_file: str):
             pool_url=pool_url,
             kernel_base_url=kernel_dot_org_base_url
         )
+
+        # Graceful asset resolution: if the selected (latest) version's
+        # required assets are missing, fall back to the newest older version
+        # that has them (or skip the release with a warning if none do).
+        # This keeps the generator exit code clean so `mark-devkit autogen`
+        # (and its merge-at-autogen step) don't abort.
+        resolved = await resolve_version_assets(
+            k=k, v=ver,
+            zfs_compat=zfs_compat if zfs_compat else {},
+            track_openzfs=track_openzfs,
+            pool_url=pool_url,
+            mirrors=lookup_mirrors,
+            kernel_dot_org_base_url=kernel_dot_org_base_url,
+            config=config,
+            candidates=release_candidates.get(k, [])
+        )
+        if resolved is None:
+            # No version for this release has complete assets. Skip it without
+            # raising so the overall autogen stays exit-clean.
+            continue
+        ver, triplet, debpatch, debian_tarball_url = resolved
 
         # Start with KERNEL_TRIPLET (always first)
         spec_extra_envs = []
@@ -875,25 +1064,33 @@ async def do_process(*, input_file: str, versions_file: str):
             },
         })
 
-        versions_d['vars']['slot'] = f'{config["branch"]}/{ver}'
+        # SLOT subslot is the kernel major.minor (e.g. trixie/6.12), not the
+        # full point-release version (trixie/6.12.101_p1). Kernel point
+        # releases within the same branch then keep the same subslot, so
+        # dependents aren't needlessly rebuilt on every bump; the subslot only
+        # changes when the kernel branch changes. (Atom matching uses the
+        # branch prefix before '/', which is unchanged.)
+        #
+        # No embedded quotes here: the template already wraps .Values.slot in
+        # quotes (SLOT="{{ ... }}"), so embedding them double-quotes the value.
+        # (commit 8f62a6f had added embedded quotes, regressing the clean
+        # SLOT="branch/sub" form the deployed ebuilds use.)
+        slot_sub = parse_version_branch(triplet) or triplet
+        versions_d['vars']['slot'] = f'{config["branch"]}/{slot_sub}'
 
         versions_d['vars']['versions'].append(ver)
 
          # Get artifact URLs - use filtered version if pins were applied  
-        # triplet/debpatch come from check_version which already respects filtering
+        # triplet/debpatch come from check_version/resolve_version_assets which
+        # already respect filtering and asset availability.
         debian_tarball_name = f'linux_{triplet}-{debpatch}.debian.tar.xz'
         kernel_tarball_name = f'linux-{triplet}.tar.xz'
 
-        do_verify = config.get('verify_artifacts', False)
-        if not do_verify:
-            print(f'   ⏭️  Skipping artifact verification (verify_artifacts: false)')  
-            debian_tarball_url = f'{pool_url}/{debian_tarball_name}'
-        else:
-            debian_tarball_url = await get_artifact_url(
-                name=debian_tarball_name,
-                mirrors=mirrors,
-                timeout=10
-            )
+        # resolve_version_assets confirmed both tarballs are available and
+        # returns the confirmed Debian-tarball URL (security pool first for
+        # security releases, regular pool otherwise). Using it directly means
+        # a missing asset can no longer raise here (handled as fallback/skip
+        # above, keeping the generator exit code clean).
         kernel_tarball_url = f'{get_kernel_dot_org_url(triplet.split(".")[0], kernel_dot_org_base_url)}/{kernel_tarball_name}'
 
         versions_d['artefacts'] = [
@@ -924,7 +1121,7 @@ async def do_process(*, input_file: str, versions_file: str):
             try:
                 # Get suite from branch config for Release file lookup
                 suite = config.get('branch', config.get('debian_suite', 'trixie'))
-                release_content = await download_release_file(suite, mirrors, timeout=30)
+                release_content = await download_release_file(suite, lookup_mirrors, timeout=30)
                 debian_checksums = parse_release_checksums(release_content)
 
                 # Download to mark-devkit's workdir/downloads/ so they're reused later

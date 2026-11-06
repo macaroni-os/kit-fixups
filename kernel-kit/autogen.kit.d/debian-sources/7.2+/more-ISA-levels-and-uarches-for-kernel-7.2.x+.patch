@@ -63,7 +63,7 @@ Verified: patch -p1 --dry-run applies with no fuzz on linux-7.2.
  
 +choice
 +	prompt "x86_64 Compiler Build Optimization"
-+	depends on !X86_NATIVE_CPU
++	depends on X86_64
 +	default GENERIC_CPU
 +
 +config GENERIC_CPU

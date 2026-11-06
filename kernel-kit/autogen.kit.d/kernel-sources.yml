@@ -456,13 +456,19 @@ kernel_sources_vanilla:
                 # CONFIG_MNATIVE_AMD) to the same "native" key, causing last-write-wins collisions.
                 # Those are handled separately by the vendor-detection fallback below.
                 declare -A MARCH_MAP
+                MCFG=""
                 while IFS= read -r line; do
-                  cfg=$(echo "$line" | grep -oP 'CONFIG_M[A-Z0-9_]+')
-                  mch=$(echo "$line" | sed 's/.*-march=//;s/[[:space:]].*//')
-                  # Skip "native" — handled by vendor detection
-                  [[ "$mch" == "native" ]] && continue
-                  [ -n "$cfg" ] && [ -n "$mch" ] && MARCH_MAP[$mch]=$cfg
-                done < <(grep -E '^\s+cflags-\$\(CONFIG_M' arch/x86/Makefile | grep 'march=')
+                  case "$line" in
+                    *'ifdef CONFIG_M'*|*'cflags-$(CONFIG_M'*)
+                      MCFG=$(echo "$line" | grep -oP 'CONFIG_M[A-Z0-9_]+')
+                      ;;
+                  esac
+                  if [[ "$line" == *-march=* ]]; then
+                    mch=$(echo "$line" | sed 's/.*-march=//;s/[[:space:]].*//')
+                    [[ "$mch" == "native" ]] && continue
+                    [ -n "$MCFG" ] && [ -n "$mch" ] && MARCH_MAP[$mch]=$MCFG
+                  fi
+                done < arch/x86/Makefile
 
                 # Extract subarch from -march=subarch
                 SUBARCH=$(echo "$MARCH" | sed 's/.*-march=//')

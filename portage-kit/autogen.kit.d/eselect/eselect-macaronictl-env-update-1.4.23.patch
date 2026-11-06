@@ -1,0 +1,21 @@
+Route the Portage branch of env_update() through macaronictl when the
+system is managed by Macaroni OS. The flat /etc/macaroni-release marker
+is installed by sys-apps/baselayout, and macaronictl regenerates the
+environment without Portage metadata, so gcc-config also works on
+Terragon/Eagle/Phoenix installations. See macaroni-os/mark-issues#857.
+--- a/libs/package-manager.bash.in
++++ b/libs/package-manager.bash.in
+@@ -209,7 +209,12 @@
+ 	local noldconfig
+ 	[[ $1 -ne 0 ]] || noldconfig=y
+ 	case $(package_manager) in
+-		portage) env-update ${noldconfig:+--no-ldconfig} ;;
++		portage)
++			if [ -e /etc/macaroni-release ] ; then
++				"/usr/bin/macaronictl" env-update ${noldconfig:+--ldconfig=false}
++			else
++				env-update ${noldconfig:+--no-ldconfig}
++			fi ;;
+ 		pkgcore) pmaint env-update ${noldconfig:+--skip-ldconfig} ;;
+ 		paludis) return 127 ;;
+ 	esac

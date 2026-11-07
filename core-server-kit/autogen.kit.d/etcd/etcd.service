@@ -1,0 +1,16 @@
+[Unit]
+Description=Etcd Server
+After=network.target
+
+[Service]
+Type=notify
+Environment=ETCD_DATA_DIR=/var/lib/etcd
+Environment=ETCD_NAME=%m
+WorkingDirectory=/var/lib/etcd/
+User=etcd
+ExecStart=/usr/bin/etcd
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=default.target

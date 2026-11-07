@@ -5195,3 +5195,367 @@ tools_python_github:
             dev-python/wcwidth[${PYTHON_USEDEP}]
           bdepend: |
             dev-python/flit_core[${PYTHON_USEDEP}]
+
+container_tools:
+  generator: builtin-github
+
+  defaults:
+    category: app-emulation
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+
+  extensions_defs:
+    rust:
+      opts:
+
+  packages:
+
+    - catatonit:
+        github:
+          user: openSUSE
+        transform:
+          - kind: string
+            match: 'catatonit '
+            replace: ''
+        vars:
+          desc: A container init that is so simple it is effectively brain-dead
+          homepage: https://github.com/openSUSE/catatonit
+          license: GPL-2
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_install() {
+              default
+              dodir /usr/libexec/podman
+              dosym ../../bin/catatonit /usr/libexec/podman/catatonit
+            }
+
+    - conmon:
+        github:
+          user: containers
+        vars:
+          desc: An OCI container runtime monitor
+          homepage: https://github.com/containers/conmon
+          license: Apache-2.0
+          inherit:
+            - toolchain-funcs
+          depend: |
+            dev-libs/glib:=
+            sys-libs/libseccomp
+          rdepend: '${DEPEND}'
+          body: |
+            src_compile() {
+              tc-export CC PKG_CONFIG
+              emake DISABLE_SYSTEMD=1 bin/conmon
+            }
+            src_install() {
+              dobin bin/conmon
+              dodir /usr/libexec/podman
+              dosym ../../bin/conmon /usr/libexec/podman/conmon
+            }
+
+    - netavark:
+        template: ../../templates/simple.tmpl
+        extensions:
+          - rust
+        github:
+          user: containers
+        vars:
+          desc: A container network stack
+          homepage: https://github.com/containers/netavark
+          license: Apache-2.0
+          inherit:
+            - cargo
+          bdepend: |
+            dev-libs/protobuf
+            virtual/rust
+          rdepend: |
+            >=app-emulation/aardvark-dns-2.0.0
+            net-firewall/nftables[json]
+          depend: '${RDEPEND}'
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="usr/libexec/podman/netavark"'
+            - 'QA_PRESTRIPPED="usr/libexec/podman/netavark"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S} || die
+            }
+            src_install() {
+              local target_dir="${CARGO_TARGET_DIR:-target}/$(usex debug debug release)"
+              exeinto /usr/libexec/podman
+              newexe "${target_dir}/netavark" netavark
+            }
+
+    - aardvark-dns:
+        template: ../../templates/simple.tmpl
+        extensions:
+          - rust
+        github:
+          user: containers
+        vars:
+          desc: A container-focused DNS server
+          homepage: https://github.com/containers/aardvark-dns
+          license: Apache-2.0
+          inherit:
+            - cargo
+          bdepend: |
+            virtual/rust
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="usr/libexec/podman/aardvark-dns"'
+            - 'QA_PRESTRIPPED="usr/libexec/podman/aardvark-dns"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S} || die
+            }
+            src_install() {
+              local target_dir="${CARGO_TARGET_DIR:-target}/$(usex debug debug release)"
+              exeinto /usr/libexec/podman
+              newexe "${target_dir}/aardvark-dns" aardvark-dns
+            }
+
+    - crun:
+        template: ../../templates/simple.tmpl
+        github:
+          user: containers
+        assets:
+          - name: '{{ .Values.p }}.tar.gz'
+            matcher: 'crun-[0-9.]+\.tar\.gz$'
+        vars:
+          desc: Fast and low-memory footprint OCI container runtime fully written in C
+          homepage: https://github.com/containers/crun
+          license: GPL-2
+          depend: |
+            dev-libs/json-c:=
+            sys-libs/libcap
+            sys-libs/libseccomp
+          rdepend: '${DEPEND}'
+          bdepend: |
+            sys-kernel/linux-headers
+            virtual/pkgconfig
+          body: |
+            src_configure() {
+              econf --disable-systemd --enable-embedded-blake3=yes
+            }
+            src_install() {
+              emake DESTDIR="${D}" install-exec
+              doman crun.1
+            }
+
+    - fuse-overlayfs:
+        github:
+          user: containers
+        vars:
+          desc: FUSE implementation for overlayfs
+          homepage: https://github.com/containers/fuse-overlayfs
+          license: GPL-3
+          inherit:
+            - autotools
+          depend: sys-fs/fuse:3=
+          rdepend: '${DEPEND}'
+          bdepend: virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+
+    - containers-shortnames:
+        github:
+          user: containers
+          repo: shortnames
+        vars:
+          desc: Configures default shortnames (aliases) for containers
+          homepage: https://github.com/containers/shortnames
+          license: Apache-2.0
+          body: |
+            src_configure() {
+              :
+            }
+            src_compile() {
+              :
+            }
+            src_install() {
+              insinto /etc/containers/registries.conf.d
+              newins shortnames.conf 000-shortnames.conf
+            }
+
+    - podman:
+        files_dir: '{{ .Values.pn }}'
+        github:
+          user: podman-container-tools
+        exclude:
+          - rc
+        vars:
+          desc: A tool for managing OCI containers and pods with Docker-compatible CLI
+          homepage: https://podman.io/
+          license: Apache-2.0
+          iuse: apparmor btrfs cron systemd
+          inherit:
+            - go-module
+            - systemd
+          cdepend: |
+            app-crypt/gpgme:=
+            apparmor? ( sys-libs/libapparmor )
+            btrfs? ( sys-fs/btrfs-progs )
+            dev-db/sqlite:3
+            dev-libs/libassuan:=
+            dev-libs/libgpg-error:=
+            sys-apps/shadow:=
+            sys-libs/libseccomp
+          depend: '${CDEPEND}'
+          rdepend: |
+            ${CDEPEND}
+            app-emulation/aardvark-dns
+            app-emulation/catatonit
+            app-emulation/conmon
+            app-emulation/containers-shortnames
+            app-emulation/crun
+            app-emulation/fuse-overlayfs
+            app-emulation/netavark
+            app-emulation/passt
+            cron? ( virtual/cron )
+            systemd? ( sys-apps/systemd )
+          bdepend: virtual/pkgconfig
+          body: |
+            src_prepare() {
+              go-module_src_prepare
+
+              local file
+              for file in apparmor_tag btrfs_installed_tag sqlite_tag systemd_tag; do
+                [[ -f hack/${file}.sh ]] || die "Missing hack/${file}.sh"
+              done
+
+              cat > hack/apparmor_tag.sh <<-EOF || die
+              #!/usr/bin/env bash
+              $(usex apparmor "echo apparmor" echo)
+              EOF
+
+              cat > hack/btrfs_installed_tag.sh <<-EOF || die
+              #!/usr/bin/env bash
+              $(usex btrfs echo 'echo exclude_graphdriver_btrfs')
+              EOF
+
+              cat > hack/sqlite_tag.sh <<-EOF || die
+              #!/usr/bin/env bash
+              echo libsqlite3
+              EOF
+
+              cat > hack/systemd_tag.sh <<-EOF || die
+              #!/usr/bin/env bash
+              $(usex systemd "echo systemd" echo)
+              EOF
+            }
+            src_compile() {
+              export PREFIX="/usr" ETCDIR="/etc" BUILD_ORIGIN="Macaroni"
+              # Prevent git operations that are not possible from the release tarball.
+              export COMMIT_NO="" GIT_COMMIT="" EPOCH_TEST_COMMIT=""
+              export GOFLAGS="-v -x -mod=vendor"
+              emake BUILDFLAGS="-v -work -x" EXTRA_BUILDTAGS="$(usev systemd)" SELINUXOPT= all
+            }
+            src_install() {
+              emake DESTDIR="${D}" PREFIX="/usr" ETCDIR="/etc" SELINUXOPT= \
+                install.bin install.remote install.man install.completions
+
+              newconfd "${FILESDIR}"/podman.confd podman
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/podman.service "${FILESDIR}"/podman.socket
+              else
+                newinitd "${FILESDIR}"/podman.initd podman
+                newconfd "${FILESDIR}"/podman-restart.confd podman-restart
+                newinitd "${FILESDIR}"/podman-restart.initd podman-restart
+                newconfd "${FILESDIR}"/podman-clean-transient.confd podman-clean-transient
+                newinitd "${FILESDIR}"/podman-clean-transient.initd podman-clean-transient
+              fi
+
+              if use cron ; then
+                exeinto /etc/cron.daily
+                newexe "${FILESDIR}"/podman-auto-update.cron podman-auto-update
+              fi
+
+              insinto /etc/logrotate.d
+              newins "${FILESDIR}"/podman.logrotate podman
+
+              # /etc/containers configuration shared with the helper binaries.
+              # The OCI runtime defaults to runc, the runtime shipped by the kit.
+              insinto /usr/share/containers
+              doins "${FILESDIR}"/registries.conf "${FILESDIR}"/policy.json
+              newins vendor/go.podman.io/common/pkg/config/containers.conf containers.conf
+              newins vendor/go.podman.io/storage/storage.conf storage.conf
+              newins vendor/go.podman.io/common/pkg/seccomp/seccomp.json seccomp.json
+              newins vendor/go.podman.io/common/pkg/subscriptions/mounts.conf mounts.conf
+
+              keepdir /etc/containers/certs.d
+              keepdir /etc/containers/oci/hooks.d
+              keepdir /etc/containers/networks
+              keepdir /etc/containers/systemd
+              keepdir /etc/containers/registries.conf.d
+              keepdir /etc/containers/registries.d
+              keepdir /var/lib/containers/sigstore
+              keepdir /usr/share/containers/systemd
+
+              dodoc README.md
+            }
+            pkg_postinst() {
+              elog "Podman uses crun as the default OCI runtime."
+              elog "Edit /usr/share/containers/containers.conf to change it."
+              elog
+              elog "Rootless containers require subuid(5)/subgid(5) mappings for the user."
+            }
+
+passt:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: '1'
+
+  defaults:
+    category: app-emulation
+    template: ../../templates/simple.tmpl
+
+  packages:
+    - passt:
+        dir:
+          url: https://passt.top/passt/refs/tags/
+          matcher: 'passt-.*\.tar\.xz$'
+          exclude: 'rc'
+        transform:
+          - kind: string
+            match: 'passt-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+          - kind: regex
+            match: '\.[0-9a-f]+$'
+            replace: ''
+          - kind: string
+            match: '_'
+            replace: '.'
+        vars:
+          desc: User-mode networking daemons for VMs and namespaces
+          homepage: https://passt.top/
+          license: BSD GPL-2
+          body: |
+            post_src_unpack() {
+              mv ${WORKDIR}/passt-* ${S} || die
+            }
+            src_prepare() {
+              default
+              sed -i -e '/demo/d' Makefile || die
+            }
+            src_compile() {
+              export VERSION="{{ .Values.version }}"
+              export prefix="/usr" docdir="/usr/share/doc/{{ .Values.p }}"
+              emake
+            }
+            src_install() {
+              emake DESTDIR="${D}" prefix="/usr" docdir="/usr/share/doc/{{ .Values.p }}" install
+            }

@@ -19,6 +19,24 @@ target:
 
     - pkg: sys-cluster/glusterfs
 
+    # Kubernetes 1.35
+    - pkg: sys-cluster/kubectl
+      conditions:
+        - '<sys-cluster/kubectl-1.36.0'
+        - '>=sys-cluster/kubectl-1.35.0'
+
+    # Kubernetes 1.36
+    - pkg: sys-cluster/kubectl
+      conditions:
+        - '<sys-cluster/kubectl-1.37.0'
+        - '>=sys-cluster/kubectl-1.36.0'
+
+    # Kubernetes 1.37
+    - pkg: sys-cluster/kubectl
+      conditions:
+        - '<sys-cluster/kubectl-1.38.0'
+        - '>=sys-cluster/kubectl-1.37.0'
+
     # dual release lines (upstream maintains mainline + stable branches)
     - pkg: www-servers/nginx
       conditions:

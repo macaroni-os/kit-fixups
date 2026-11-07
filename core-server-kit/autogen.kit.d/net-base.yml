@@ -1011,3 +1011,84 @@ wwwservers_nginx_github:
     - nginx:
         selector:
           - '<1.31'
+
+
+# sys-cluster/kubectl (macaroni-os/mark-issues#862)
+#
+# Kubernetes stable releases carry no release assets: builtin-github
+# recovers the release tarball, whose unpack root the template's
+# post_src_unpack moves. The build uses the vendored dependencies
+# shipped in the archive (GOFLAGS="" restores go's automatic vendor
+# mode over the -mod=readonly default of the go-module eclass); the
+# eclass is inherited for the toolchain override only.
+kubectl:
+  generator: builtin-github
+  defaults:
+    category: sys-cluster
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: kubernetes
+      repo: kubernetes
+    vars:
+      desc: CLI to run commands against Kubernetes clusters
+      homepage: https://kubernetes.io
+      license: Apache-2.0
+      inherit:
+        - bash-completion-r1
+        - go-module
+      iuse: hardened
+      restrict: test
+      extra_envs:
+        - EGO_OVERRIDE_GOMOD=0
+      bdepend: |
+        >=dev-lang/go-1.21
+      depend: |
+        !sys-cluster/kubernetes
+      body: |
+        post_src_prepare() {
+          # The go-module toolchain override only rewrites the root go.mod,
+          # which breaks the go.work consistency checks of the kubernetes
+          # workspace (and its staging/src/k8s.io/* member modules). Replay
+          # it in the same spirit, but across the whole workspace and only
+          # when the local toolchain is older than the source requires.
+          local gotoolchain_local
+          local gotoolchain_pkg
+          gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+          gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
+          local newest
+          newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
+          if [ "${newest}" != "${gotoolchain_local}" ] ; then
+            ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+            find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
+            find "${S}" -name go.work -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
+          fi
+        }
+
+        src_compile() {
+          CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \
+            FORCE_HOST_GO=yes \
+            emake -j1 GOFLAGS="" GOLDFLAGS="" LDFLAGS="" WHAT=cmd/{{ .Values.pn }}
+        }
+
+        src_install() {
+          dobin _output/bin/{{ .Values.pn }}
+          _output/bin/{{ .Values.pn }} completion bash > {{ .Values.pn }}.bash || die
+          _output/bin/{{ .Values.pn }} completion zsh > {{ .Values.pn }}.zsh || die
+          newbashcomp {{ .Values.pn }}.bash {{ .Values.pn }}
+          insinto /usr/share/zsh/site-functions
+          newins {{ .Values.pn }}.zsh _{{ .Values.pn }}
+        }
+
+  packages:
+    - kubectl:
+        selector:
+          - '>=1.37.0'
+          - '<1.38.0'
+    - kubectl:
+        selector:
+          - '>=1.36.0'
+          - '<1.37.0'
+    - kubectl:
+        selector:
+          - '>=1.35.0'
+          - '<1.36.0'

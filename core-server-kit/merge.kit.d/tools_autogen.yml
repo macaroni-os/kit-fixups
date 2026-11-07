@@ -26,6 +26,25 @@ target:
     - pkg: app-backup/restic
 
     - pkg: app-emulation/containerd
+
+    # CRI-O Release 1.35
+    - pkg: app-emulation/cri-o
+      conditions:
+        - '<app-emulation/cri-o-1.36.0'
+        - '>=app-emulation/cri-o-1.35.0'
+
+    # CRI-O Release 1.36
+    - pkg: app-emulation/cri-o
+      conditions:
+        - '<app-emulation/cri-o-1.37.0'
+        - '>=app-emulation/cri-o-1.36.0'
+
+    # CRI-O Release 1.37
+    - pkg: app-emulation/cri-o
+      conditions:
+        - '<app-emulation/cri-o-1.38.0'
+        - '>=app-emulation/cri-o-1.37.0'
+
     - pkg: app-emulation/docker
     - pkg: app-emulation/docker-buildx
     - pkg: app-emulation/docker-cli

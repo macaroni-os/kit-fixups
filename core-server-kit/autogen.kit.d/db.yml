@@ -1,0 +1,278 @@
+# dev-db/etcd (macaroni-os/mark-issues#862)
+#
+# etcd is a multi-module Go repository that ships no vendor/ directory:
+# the golang extension bundles every module go.sum into a mark-go-bundle
+# distfile (gosum_paths opts). The extension opts are cluster-level and the
+# module set differs per release line, so each track gets its own cluster.
+global_settings:
+  defaults:
+    files_dir: '{{ .Values.pn }}'
+
+# etcd 3.7 (go.work workspace layout, scripts/build.sh entry point)
+etcd_3_7:
+  generator: builtin-github
+  defaults:
+    category: dev-db
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: etcd-io
+      num_pages: 3
+    extensions:
+      - golang
+    vars:
+      desc: Highly-available key value store for shared configuration and service discovery
+      homepage: https://github.com/etcd-io/etcd
+      license: Apache-2.0
+      inherit:
+        - go-module
+        - systemd
+        - user
+      iuse: +server systemd
+      extra_envs:
+        - EGO_OVERRIDE_GOMOD=0
+      bdepend: dev-lang/go
+      rdepend: |
+        !dev-db/etcdctl
+      body: |
+        post_src_prepare() {
+          # Workspace mode resolves the sibling modules through the go.work
+          # graph, which the per-module go.sum of the mark-go-bundle proxy
+          # cannot feed; the modules keep local replace directives anyway.
+          rm -f go.work go.work.sum || die
+          # The go-module toolchain override only rewrites the root go.mod;
+          # etcd's member modules keep their own go directives, so replay the
+          # same rule across the repository and drop the pinned toolchain
+          # lines, which would make go look for toolchain downloads through
+          # the bundled file:// proxy.
+          local gotoolchain_local
+          local gotoolchain_pkg
+          gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+          gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
+          local newest
+          newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
+          if [ "${newest}" != "${gotoolchain_local}" ] ; then
+            ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+            find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" {} + || die
+          fi
+          find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e '/^toolchain /d' {} + || die
+        }
+
+        src_compile() {
+          export GOTOOLCHAIN=local
+          ./scripts/build.sh || die
+        }
+
+        src_install() {
+          dobin bin/etcdctl bin/etcdutl
+          if use server ; then
+            dobin bin/etcd
+            if use systemd ; then
+              systemd_dounit "${FILESDIR}"/etcd.service
+              systemd_newtmpfilesd "${FILESDIR}"/etcd.tmpfiles.d.conf etcd.conf
+            else
+              newconfd "${FILESDIR}"/etcd.confd etcd
+              newinitd "${FILESDIR}"/etcd.initd etcd
+              insinto /etc/logrotate.d
+              newins "${FILESDIR}"/etcd.logrotated etcd
+            fi
+            keepdir /var/lib/etcd
+            fowners etcd:etcd /var/lib/etcd
+            fperms 0700 /var/lib/etcd
+            keepdir /var/log/etcd
+            fowners etcd:etcd /var/lib/etcd
+          fi
+        }
+
+        pkg_setup() {
+          if use server ; then
+            enewgroup etcd 426
+            enewuser etcd 426 -1 /dev/null etcd
+          fi
+        }
+
+  extensions_defs:
+    golang:
+      opts:
+        gosum_paths: 'go.sum,api/go.sum,cache/go.sum,client/pkg/go.sum,client/v3/go.sum,etcdctl/go.sum,etcdutl/go.sum,pkg/go.sum,server/go.sum,tools/mod/go.sum'
+
+  packages:
+    - etcd:
+        selector:
+          - '>=3.7.0'
+          - '<3.8.0'
+
+# etcd 3.6 (scripts/build.sh entry point, no cache module)
+etcd_3_6:
+  generator: builtin-github
+  defaults:
+    category: dev-db
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: etcd-io
+      num_pages: 3
+    extensions:
+      - golang
+    vars:
+      desc: Highly-available key value store for shared configuration and service discovery
+      homepage: https://github.com/etcd-io/etcd
+      license: Apache-2.0
+      inherit:
+        - go-module
+        - systemd
+        - user
+      iuse: +server systemd
+      extra_envs:
+        - EGO_OVERRIDE_GOMOD=0
+      bdepend: dev-lang/go
+      rdepend: |
+        !dev-db/etcdctl
+      body: |
+        post_src_prepare() {
+          # Replay the go-module toolchain override across the member modules
+          # (the eclass only rewrites the root go.mod) and drop the pinned
+          # toolchain lines, which would make go look for toolchain downloads
+          # through the bundled file:// proxy.
+          local gotoolchain_local
+          local gotoolchain_pkg
+          gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+          gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
+          local newest
+          newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
+          if [ "${newest}" != "${gotoolchain_local}" ] ; then
+            ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+            find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" {} + || die
+          fi
+          find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e '/^toolchain /d' {} + || die
+        }
+
+        src_compile() {
+          export GOTOOLCHAIN=local
+          ./scripts/build.sh || die
+        }
+
+        src_install() {
+          dobin bin/etcdctl bin/etcdutl
+          if use server ; then
+            dobin bin/etcd
+            if use systemd ; then
+              systemd_dounit "${FILESDIR}"/etcd.service
+              systemd_newtmpfilesd "${FILESDIR}"/etcd.tmpfiles.d.conf etcd.conf
+            else
+              newconfd "${FILESDIR}"/etcd.confd etcd
+              newinitd "${FILESDIR}"/etcd.initd etcd
+              insinto /etc/logrotate.d
+              newins "${FILESDIR}"/etcd.logrotated etcd
+            fi
+            keepdir /var/lib/etcd
+            fowners etcd:etcd /var/lib/etcd
+            fperms 0700 /var/lib/etcd
+            keepdir /var/log/etcd
+            fowners etcd:etcd /var/lib/etcd
+          fi
+        }
+
+        pkg_setup() {
+          if use server ; then
+            enewgroup etcd 426
+            enewuser etcd 426 -1 /dev/null etcd
+          fi
+        }
+
+  extensions_defs:
+    golang:
+      opts:
+        gosum_paths: 'go.sum,api/go.sum,client/pkg/go.sum,client/v3/go.sum,etcdctl/go.sum,etcdutl/go.sum,pkg/go.sum,server/go.sum,tools/mod/go.sum'
+
+  packages:
+    - etcd:
+        selector:
+          - '>=3.6.0'
+          - '<3.7.0'
+
+# etcd 3.5 (build.sh entry point, raft + client/v2 modules)
+etcd_3_5:
+  generator: builtin-github
+  defaults:
+    category: dev-db
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: etcd-io
+      num_pages: 3
+    extensions:
+      - golang
+    vars:
+      desc: Highly-available key value store for shared configuration and service discovery
+      homepage: https://github.com/etcd-io/etcd
+      license: Apache-2.0
+      inherit:
+        - go-module
+        - systemd
+        - user
+      iuse: +server systemd
+      extra_envs:
+        - EGO_OVERRIDE_GOMOD=0
+      bdepend: dev-lang/go
+      rdepend: |
+        !dev-db/etcdctl
+      body: |
+        post_src_prepare() {
+          # Replay the go-module toolchain override across the member modules
+          # (the eclass only rewrites the root go.mod) and drop the pinned
+          # toolchain lines, which would make go look for toolchain downloads
+          # through the bundled file:// proxy.
+          local gotoolchain_local
+          local gotoolchain_pkg
+          gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
+          gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
+          local newest
+          newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
+          if [ "${newest}" != "${gotoolchain_local}" ] ; then
+            ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
+            find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" {} + || die
+          fi
+          find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e '/^toolchain /d' {} + || die
+        }
+
+        src_compile() {
+          export GOTOOLCHAIN=local
+          ./build.sh || die
+        }
+
+        src_install() {
+          dobin bin/etcdctl bin/etcdutl
+          if use server ; then
+            dobin bin/etcd
+            if use systemd ; then
+              systemd_dounit "${FILESDIR}"/etcd.service
+              systemd_newtmpfilesd "${FILESDIR}"/etcd.tmpfiles.d.conf etcd.conf
+            else
+              newconfd "${FILESDIR}"/etcd.confd etcd
+              newinitd "${FILESDIR}"/etcd.initd etcd
+              insinto /etc/logrotate.d
+              newins "${FILESDIR}"/etcd.logrotated etcd
+            fi
+            keepdir /var/lib/etcd
+            fowners etcd:etcd /var/lib/etcd
+            fperms 0700 /var/lib/etcd
+            keepdir /var/log/etcd
+            fowners etcd:etcd /var/log/etcd
+          fi
+        }
+
+        pkg_setup() {
+          if use server ; then
+            enewgroup etcd 426
+            enewuser etcd 426 -1 /dev/null etcd
+          fi
+        }
+
+  extensions_defs:
+    golang:
+      opts:
+        gosum_paths: 'go.sum,api/go.sum,client/pkg/go.sum,client/v2/go.sum,client/v3/go.sum,etcdctl/go.sum,etcdutl/go.sum,pkg/go.sum,raft/go.sum,server/go.sum,tools/mod/go.sum'
+
+  packages:
+    - etcd:
+        selector:
+          - '>=3.5.0'
+          - '<3.6.0'

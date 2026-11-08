@@ -81,3 +81,6 @@ target:
     - pkg: www-servers/nginx
       conditions:
         - '<www-servers/nginx-1.31.0'
+
+    # Cilium CLI (client tool for the Cilium CNI on Kubernetes)
+    - pkg: sys-cluster/cilium-cli

@@ -3230,6 +3230,7 @@ incus:
       homepage: https://linuxcontainers.org/incus/introduction/ https://github.com/lxc/incus
       license: Apache-2.0 BSD BSD-2 LGPL-3 MIT MPL-2.0
       iuse: apparmor ipv6 nls systemd
+      s: '{{- $v := join "" ( slice ( splitList "." .Values.pv ) 2 3 ) }}${WORKDIR}/{{ .Values.pn }}-{{- if eq $v "0" }}{{- $v2 := join "." ( slice ( splitList "." .Values.pv ) 0 2 ) }}{{ $v2 }}{{- else }}{{ .Values.pv }}{{- end }}'
       inherit:
         - autotools
         - go-module

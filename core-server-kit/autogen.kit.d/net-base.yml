@@ -1013,7 +1013,7 @@ wwwservers_nginx_github:
           - '<1.31'
 
 
-# sys-cluster/{kubectl,kubeadm,kubelet} (macaroni-os/mark-issues#862)
+# sys-cluster/{kubectl,kubeadm,kubelet,kube-proxy} (macaroni-os/mark-issues#862)
 #
 # Kubernetes stable releases carry no release assets: builtin-github
 # recovers the release tarball, whose unpack root the template's
@@ -1021,7 +1021,7 @@ wwwservers_nginx_github:
 # shipped in the archive (GOFLAGS="" restores go's automatic vendor
 # mode over the -mod=readonly default of the go-module eclass); the
 # eclass is inherited for the toolchain override only.
-kubectl:
+kubernetes:
   generator: builtin-github
   defaults:
     category: sys-cluster
@@ -1044,6 +1044,8 @@ kubectl:
         >=dev-lang/go-1.21
       depend: |
         !sys-cluster/kubernetes
+      # kubectl and kube-proxy drive cobra completions; kubelet does not.
+      completions: true
       body: |
         post_src_prepare() {
           # The go-module toolchain override only rewrites the root go.mod,
@@ -1072,12 +1074,36 @@ kubectl:
 
         src_install() {
           dobin _output/bin/{{ .Values.pn }}
+        {{- if .Values.completions }}
           _output/bin/{{ .Values.pn }} completion bash > {{ .Values.pn }}.bash || die
           _output/bin/{{ .Values.pn }} completion zsh > {{ .Values.pn }}.zsh || die
           newbashcomp {{ .Values.pn }}.bash {{ .Values.pn }}
           insinto /usr/share/zsh/site-functions
           newins {{ .Values.pn }}.zsh _{{ .Values.pn }}
+        {{- end }}
+        {{- if .Values.service }}
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}"/{{ .Values.pn }}.service
+          else
+            newconfd "${FILESDIR}"/{{ .Values.pn }}.confd {{ .Values.pn }}
+            newinitd "${FILESDIR}"/{{ .Values.pn }}.initd {{ .Values.pn }}
+          fi
+          keepdir /var/lib/{{ .Values.pn }}
+          fowners {{ .Values.pn }}:{{ .Values.pn }} /var/lib/{{ .Values.pn }}
+          fperms 0700 /var/lib/{{ .Values.pn }}
+        {{- end }}
         }
+        {{- if .Values.service }}
+
+        pkg_setup() {
+          # Static ids from macaroni-commons packages/entities/groups.yaml
+          # (the {{ .Values.pn }} entity is added by macaroni-os/macaroni-commons#{{ .Values.entity_pr }}).
+          # The daemon itself runs as root, as on every real node: the
+          # account owns its state directory, not the process.
+          enewgroup {{ .Values.pn }} {{ .Values.uid }}
+          enewuser {{ .Values.pn }} {{ .Values.uid }} -1 /dev/null {{ .Values.pn }}
+        }
+        {{- end }}
 
   packages:
     - kubectl:
@@ -1119,53 +1145,10 @@ kubectl:
             - systemd
             - user
           iuse: hardened systemd
-          body: |
-            post_src_prepare() {
-              # The go-module toolchain override only rewrites the root go.mod,
-              # which breaks the go.work consistency checks of the kubernetes
-              # workspace (and its staging/src/k8s.io/* member modules). Replay
-              # it in the same spirit, but across the whole workspace and only
-              # when the local toolchain is older than the source requires.
-              local gotoolchain_local
-              local gotoolchain_pkg
-              gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
-              gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
-              local newest
-              newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
-              if [ "${newest}" != "${gotoolchain_local}" ] ; then
-                ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
-                find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-                find "${S}" -name go.work -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-              fi
-            }
-
-            src_compile() {
-              CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \
-                FORCE_HOST_GO=yes \
-                emake -j1 GOFLAGS="" GOLDFLAGS="" LDFLAGS="" WHAT=cmd/kubelet
-            }
-
-            src_install() {
-              dobin _output/bin/kubelet
-              if use systemd ; then
-                systemd_dounit "${FILESDIR}"/kubelet.service
-              else
-                newconfd "${FILESDIR}"/kubelet.confd kubelet
-                newinitd "${FILESDIR}"/kubelet.initd kubelet
-              fi
-              keepdir /var/lib/kubelet
-              fowners kubelet:kubelet /var/lib/kubelet
-              fperms 0700 /var/lib/kubelet
-            }
-
-            pkg_setup() {
-              # Static ids from macaroni-commons packages/entities/groups.yaml
-              # (the kubelet entity is added by macaroni-os/macaroni-commons#4).
-              # The daemon itself runs as root, as on every real node: the
-              # account owns its state directory, not the process.
-              enewgroup kubelet 517
-              enewuser kubelet 517 -1 /dev/null kubelet
-            }
+          service: true
+          completions: false
+          uid: 517
+          entity_pr: 4
         selector:
           - '>=1.37.0'
           - '<1.38.0'
@@ -1178,53 +1161,10 @@ kubectl:
             - systemd
             - user
           iuse: hardened systemd
-          body: |
-            post_src_prepare() {
-              # The go-module toolchain override only rewrites the root go.mod,
-              # which breaks the go.work consistency checks of the kubernetes
-              # workspace (and its staging/src/k8s.io/* member modules). Replay
-              # it in the same spirit, but across the whole workspace and only
-              # when the local toolchain is older than the source requires.
-              local gotoolchain_local
-              local gotoolchain_pkg
-              gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
-              gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
-              local newest
-              newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
-              if [ "${newest}" != "${gotoolchain_local}" ] ; then
-                ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
-                find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-                find "${S}" -name go.work -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-              fi
-            }
-
-            src_compile() {
-              CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \
-                FORCE_HOST_GO=yes \
-                emake -j1 GOFLAGS="" GOLDFLAGS="" LDFLAGS="" WHAT=cmd/kubelet
-            }
-
-            src_install() {
-              dobin _output/bin/kubelet
-              if use systemd ; then
-                systemd_dounit "${FILESDIR}"/kubelet.service
-              else
-                newconfd "${FILESDIR}"/kubelet.confd kubelet
-                newinitd "${FILESDIR}"/kubelet.initd kubelet
-              fi
-              keepdir /var/lib/kubelet
-              fowners kubelet:kubelet /var/lib/kubelet
-              fperms 0700 /var/lib/kubelet
-            }
-
-            pkg_setup() {
-              # Static ids from macaroni-commons packages/entities/groups.yaml
-              # (the kubelet entity is added by macaroni-os/macaroni-commons#4).
-              # The daemon itself runs as root, as on every real node: the
-              # account owns its state directory, not the process.
-              enewgroup kubelet 517
-              enewuser kubelet 517 -1 /dev/null kubelet
-            }
+          service: true
+          completions: false
+          uid: 517
+          entity_pr: 4
         selector:
           - '>=1.36.0'
           - '<1.37.0'
@@ -1237,53 +1177,58 @@ kubectl:
             - systemd
             - user
           iuse: hardened systemd
-          body: |
-            post_src_prepare() {
-              # The go-module toolchain override only rewrites the root go.mod,
-              # which breaks the go.work consistency checks of the kubernetes
-              # workspace (and its staging/src/k8s.io/* member modules). Replay
-              # it in the same spirit, but across the whole workspace and only
-              # when the local toolchain is older than the source requires.
-              local gotoolchain_local
-              local gotoolchain_pkg
-              gotoolchain_local=$(go env GOVERSION | sed -e 's|go||g')
-              gotoolchain_pkg=$(grep '^go ' go.mod | sed -e 's|go ||g')
-              local newest
-              newest=$(printf '%s\n%s\n' "${gotoolchain_local}" "${gotoolchain_pkg}" | sort -V | tail -1)
-              if [ "${newest}" != "${gotoolchain_local}" ] ; then
-                ewarn "Package needs go ${gotoolchain_pkg}. Forcing local version ${gotoolchain_local}."
-                find "${S}" -name go.mod -not -path '*/vendor/*' -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-                find "${S}" -name go.work -exec sed -i -e "s|^go .*|go ${gotoolchain_local}|" -e '/^toolchain /d' {} + || die
-              fi
-            }
-
-            src_compile() {
-              CGO_LDFLAGS="$(usex hardened '-fno-PIC ' '')" \
-                FORCE_HOST_GO=yes \
-                emake -j1 GOFLAGS="" GOLDFLAGS="" LDFLAGS="" WHAT=cmd/kubelet
-            }
-
-            src_install() {
-              dobin _output/bin/kubelet
-              if use systemd ; then
-                systemd_dounit "${FILESDIR}"/kubelet.service
-              else
-                newconfd "${FILESDIR}"/kubelet.confd kubelet
-                newinitd "${FILESDIR}"/kubelet.initd kubelet
-              fi
-              keepdir /var/lib/kubelet
-              fowners kubelet:kubelet /var/lib/kubelet
-              fperms 0700 /var/lib/kubelet
-            }
-
-            pkg_setup() {
-              # Static ids from macaroni-commons packages/entities/groups.yaml
-              # (the kubelet entity is added by macaroni-os/macaroni-commons#4).
-              # The daemon itself runs as root, as on every real node: the
-              # account owns its state directory, not the process.
-              enewgroup kubelet 517
-              enewuser kubelet 517 -1 /dev/null kubelet
-            }
+          service: true
+          completions: false
+          uid: 517
+          entity_pr: 4
+        selector:
+          - '>=1.35.0'
+          - '<1.36.0'
+    - kube-proxy:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes network proxy running on every node
+          inherit:
+            - bash-completion-r1
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          uid: 518
+          entity_pr: 5
+        selector:
+          - '>=1.37.0'
+          - '<1.38.0'
+    - kube-proxy:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes network proxy running on every node
+          inherit:
+            - bash-completion-r1
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          uid: 518
+          entity_pr: 5
+        selector:
+          - '>=1.36.0'
+          - '<1.37.0'
+    - kube-proxy:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes network proxy running on every node
+          inherit:
+            - bash-completion-r1
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          uid: 518
+          entity_pr: 5
         selector:
           - '>=1.35.0'
           - '<1.36.0'

@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Kubernetes network proxy"
+pidfile=/run/${RC_SVCNAME}.pid
+command=/usr/bin/kube-proxy
+command_args="${KUBEPROXY_KUBECONFIG_ARGS} ${KUBEPROXY_CONFIG_ARGS} ${KUBEPROXY_ARGS}"
+command_background=true
+retry="TERM/10/KILL/5"
+
+depend() {
+	need net
+	use dns
+	before kubelet
+}

@@ -1,0 +1,55 @@
+# sys-cluster/cilium-cli (macaroni-os/mark-issues#862)
+#
+# Cilium CLI, the client-side tool to install, manage and troubleshoot
+# Kubernetes clusters running Cilium. Built from source: builtin-github
+# recovers the release tarball, whose <user>-<repo>-<sha> unpack root the
+# template's post_src_unpack moves. The build consumes the vendored
+# modules shipped in the archive (GOFLAGS=-mod=vendor is forced over the
+# -mod=readonly default exported by the go-module eclass; the eclass is
+# inherited for its go.mod toolchain override — single module, no go.work
+# workspace, so the plain root go.mod rewrite applies, unlike kubectl).
+# The cilium daemon itself is not packaged (open scope question on the
+# issue); the per-arch release assets would allow a -bin flavour as a
+# sibling entry of this cluster later, if wanted.
+cilium_cli:
+  generator: builtin-github
+  defaults:
+    category: sys-cluster
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: cilium
+    transform:
+      - kind: string
+        match: 'Release v'
+        replace: ''
+    vars:
+      desc: CLI to install, manage and troubleshoot Kubernetes clusters running Cilium
+      homepage: https://cilium.io
+      license: Apache-2.0
+      inherit:
+        - bash-completion-r1
+        - go-module
+      restrict: test
+      bdepend: |
+        >=dev-lang/go-1.21
+      body: |
+        src_compile() {
+          # The tarball has no .git for the Makefile's git describe, so the
+          # CLI version is stamped explicitly the way upstream release builds
+          # do (the binary prints the value verbatim in `cilium version`).
+          export GOFLAGS="-v -x -mod=vendor"
+          emake CLI_VERSION=v{{ .Values.pv }}
+        }
+
+        src_install() {
+          # Upstream ships a single binary named cilium (PN is cilium-cli).
+          newbin cilium cilium
+          ./cilium completion bash > cilium.bash || die
+          ./cilium completion zsh > cilium.zsh || die
+          newbashcomp cilium.bash cilium
+          insinto /usr/share/zsh/site-functions
+          newins cilium.zsh _cilium
+        }
+
+  packages:
+    - cilium-cli:

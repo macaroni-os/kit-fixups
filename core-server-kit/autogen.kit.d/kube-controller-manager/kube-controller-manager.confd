@@ -1,0 +1,5 @@
+# Arguments for the kube-controller-manager daemon. The daemon talks to the
+# API server through a kubeconfig: without one kube-controller-manager exits
+# at startup, as upstream intends.
+KUBECONTROLLERMANAGER_KUBECONFIG_ARGS="--kubeconfig=/etc/kubernetes/controller-manager.conf"
+KUBECONTROLLERMANAGER_ARGS=""

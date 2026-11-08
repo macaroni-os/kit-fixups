@@ -1044,7 +1044,8 @@ kubernetes:
         >=dev-lang/go-1.21
       depend: |
         !sys-cluster/kubernetes
-      # kubectl and kube-proxy drive cobra completions; kubelet does not.
+      # kubectl and kube-proxy drive cobra completions; kubelet and the control-plane
+      # daemons (kube-apiserver, kube-controller-manager, kube-scheduler) do not.
       completions: true
       body: |
         post_src_prepare() {
@@ -1097,7 +1098,6 @@ kubernetes:
 
         pkg_setup() {
           # Static ids from macaroni-commons packages/entities/groups.yaml
-          # (the {{ .Values.pn }} entity is added by macaroni-os/macaroni-commons#{{ .Values.entity_pr }}).
           # The daemon itself runs as root, as on every real node: the
           # account owns its state directory, not the process.
           enewgroup {{ .Values.pn }} {{ .Values.uid }}
@@ -1148,7 +1148,6 @@ kubernetes:
           service: true
           completions: false
           uid: 517
-          entity_pr: 4
         selector:
           - '>=1.37.0'
           - '<1.38.0'
@@ -1164,7 +1163,6 @@ kubernetes:
           service: true
           completions: false
           uid: 517
-          entity_pr: 4
         selector:
           - '>=1.36.0'
           - '<1.37.0'
@@ -1180,7 +1178,6 @@ kubernetes:
           service: true
           completions: false
           uid: 517
-          entity_pr: 4
         selector:
           - '>=1.35.0'
           - '<1.36.0'
@@ -1196,7 +1193,6 @@ kubernetes:
           iuse: hardened systemd
           service: true
           uid: 518
-          entity_pr: 5
         selector:
           - '>=1.37.0'
           - '<1.38.0'
@@ -1212,7 +1208,6 @@ kubernetes:
           iuse: hardened systemd
           service: true
           uid: 518
-          entity_pr: 5
         selector:
           - '>=1.36.0'
           - '<1.37.0'
@@ -1228,7 +1223,141 @@ kubernetes:
           iuse: hardened systemd
           service: true
           uid: 518
-          entity_pr: 5
+        selector:
+          - '>=1.35.0'
+          - '<1.36.0'
+    - kube-apiserver:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes API server serving the cluster control-plane API
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 432
+        selector:
+          - '>=1.37.0'
+          - '<1.38.0'
+    - kube-apiserver:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes API server serving the cluster control-plane API
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 432
+        selector:
+          - '>=1.36.0'
+          - '<1.37.0'
+    - kube-apiserver:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes API server serving the cluster control-plane API
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 432
+        selector:
+          - '>=1.35.0'
+          - '<1.36.0'
+    - kube-controller-manager:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes controller manager running the control-plane controllers
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 433
+        selector:
+          - '>=1.37.0'
+          - '<1.38.0'
+    - kube-controller-manager:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes controller manager running the control-plane controllers
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 433
+        selector:
+          - '>=1.36.0'
+          - '<1.37.0'
+    - kube-controller-manager:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes controller manager running the control-plane controllers
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 433
+        selector:
+          - '>=1.35.0'
+          - '<1.36.0'
+    - kube-scheduler:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes scheduler assigning pods to nodes
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 434
+        selector:
+          - '>=1.37.0'
+          - '<1.38.0'
+    - kube-scheduler:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes scheduler assigning pods to nodes
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 434
+        selector:
+          - '>=1.36.0'
+          - '<1.37.0'
+    - kube-scheduler:
+        files_dir: '{{ .Values.pn }}'
+        vars:
+          desc: Kubernetes scheduler assigning pods to nodes
+          inherit:
+            - go-module
+            - systemd
+            - user
+          iuse: hardened systemd
+          service: true
+          completions: false
+          uid: 434
         selector:
           - '>=1.35.0'
           - '<1.36.0'

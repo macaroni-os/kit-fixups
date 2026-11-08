@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Kubernetes controller manager"
+pidfile=/run/${RC_SVCNAME}.pid
+command=/usr/bin/kube-controller-manager
+command_args="${KUBECONTROLLERMANAGER_KUBECONFIG_ARGS} ${KUBECONTROLLERMANAGER_ARGS}"
+command_background=true
+retry="TERM/10/KILL/5"
+
+depend() {
+	need net
+	use dns
+	after kube-apiserver
+}

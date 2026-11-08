@@ -1,0 +1,5 @@
+# Arguments for the kube-scheduler daemon. The daemon authenticates and
+# authorises against the API server through a kubeconfig: without one
+# kube-scheduler exits at startup, as upstream intends.
+KUBESCHEDULER_KUBECONFIG_ARGS="--kubeconfig=/etc/kubernetes/scheduler.conf --authentication-kubeconfig=/etc/kubernetes/scheduler.conf --authorization-kubeconfig=/etc/kubernetes/scheduler.conf"
+KUBESCHEDULER_ARGS=""

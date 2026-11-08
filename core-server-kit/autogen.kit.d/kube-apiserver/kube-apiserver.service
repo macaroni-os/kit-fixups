@@ -1,0 +1,15 @@
+[Unit]
+Description=kube-apiserver: The Kubernetes API server
+Documentation=https://kubernetes.io/docs/home/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/conf.d/kube-apiserver
+ExecStart=/usr/bin/kube-apiserver $KUBEAPISERVER_ETCD_ARGS $KUBEAPISERVER_CERT_ARGS $KUBEAPISERVER_ARGS
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

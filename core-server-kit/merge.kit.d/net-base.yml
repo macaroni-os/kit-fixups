@@ -48,3 +48,34 @@ target:
     - pkg: sys-cluster/singularity
     - pkg: sys-cluster/glusterfs
     - pkg: sys-cluster/kubectl
+
+    # Kubernetes node plane (macaroni-os/mark-issues#862)
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.36.0'
+        - '>=sys-cluster/kubelet-1.35.0'
+
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.37.0'
+        - '>=sys-cluster/kubelet-1.36.0'
+
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.38.0'
+        - '>=sys-cluster/kubelet-1.37.0'
+
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.36.0'
+        - '>=sys-cluster/kubeadm-1.35.0'
+
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.37.0'
+        - '>=sys-cluster/kubeadm-1.36.0'
+
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.38.0'
+        - '>=sys-cluster/kubeadm-1.37.0'

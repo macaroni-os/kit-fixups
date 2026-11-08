@@ -703,6 +703,21 @@ mimir:
 
 alloy:
   generator: builtin-github
+  # The golang extension gosum_paths multi-go.sum support (extensions_defs below)
+  # landed in mark-devkit 0.36.0; pinned to 0.36.1, the release carrying the
+  # extension review (macaroni-os/mark-issues#848).
+  markdevkit_min_version: '0.36.1'
+
+  extensions_defs:
+    golang:
+      opts:
+        # Alloy is a two-module Go tree: the main package lives in collector/ and
+        # each module keeps its own go.sum. Bundle both sums, relative to the
+        # repository root, so every module resolves from the mark-go-bundle
+        # distfile and the build runs inside the network sandbox
+        # (macaroni-os/mark-issues#848).
+        unpack_srcdir_prefix: grafana-alloy-
+        gosum_paths: go.sum,collector/go.sum
 
   defaults:
     template: ../../templates/simple.tmpl
@@ -782,16 +797,19 @@ alloy:
 
   packages:
     - alloy:
+        extensions:
+          - golang
         vars:
           inherit:
             - user
             - systemd
             - go-module
           iuse: systemd
-          # Interim until the mark-devkit golang extension can bundle collector/go.sum
-          # too (alloy is a two-module Go tree), the build then needs the network:
-          # macaroni-os/mark-issues#848
-          restrict: strip network-sandbox
+          # The golang extension bundles go.sum and collector/go.sum into the
+          # mark-go-bundle distfile (gosum_paths, mark-devkit >= 0.36.0), so the
+          # interim network-sandbox exception is dropped again
+          # (macaroni-os/mark-issues#848).
+          restrict: strip
           bdepend: |
             dev-lang/go
           rdepend: |

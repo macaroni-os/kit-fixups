@@ -1,0 +1,8 @@
+# Arguments for the kube-apiserver daemon. The daemon needs TLS material and
+# an etcd endpoint: without them kube-apiserver exits at startup, as upstream
+# intends. kubeadm-managed clusters drive the daemon from their own static pod
+# manifests and leave this file untouched; the knobs below serve hand-deployed
+# control planes.
+KUBEAPISERVER_ETCD_ARGS="--etcd-servers=http://127.0.0.1:2379"
+KUBEAPISERVER_CERT_ARGS="--cert-dir=/var/lib/kube-apiserver/pki"
+KUBEAPISERVER_ARGS=""

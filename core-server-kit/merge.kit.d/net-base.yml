@@ -95,6 +95,52 @@ target:
         - '<sys-cluster/kube-proxy-1.38.0'
         - '>=sys-cluster/kube-proxy-1.37.0'
 
+    # Kubernetes control plane (macaroni-os/mark-issues#862)
+    - pkg: sys-cluster/kube-apiserver
+      conditions:
+        - '<sys-cluster/kube-apiserver-1.36.0'
+        - '>=sys-cluster/kube-apiserver-1.35.0'
+
+    - pkg: sys-cluster/kube-apiserver
+      conditions:
+        - '<sys-cluster/kube-apiserver-1.37.0'
+        - '>=sys-cluster/kube-apiserver-1.36.0'
+
+    - pkg: sys-cluster/kube-apiserver
+      conditions:
+        - '<sys-cluster/kube-apiserver-1.38.0'
+        - '>=sys-cluster/kube-apiserver-1.37.0'
+
+    - pkg: sys-cluster/kube-controller-manager
+      conditions:
+        - '<sys-cluster/kube-controller-manager-1.36.0'
+        - '>=sys-cluster/kube-controller-manager-1.35.0'
+
+    - pkg: sys-cluster/kube-controller-manager
+      conditions:
+        - '<sys-cluster/kube-controller-manager-1.37.0'
+        - '>=sys-cluster/kube-controller-manager-1.36.0'
+
+    - pkg: sys-cluster/kube-controller-manager
+      conditions:
+        - '<sys-cluster/kube-controller-manager-1.38.0'
+        - '>=sys-cluster/kube-controller-manager-1.37.0'
+
+    - pkg: sys-cluster/kube-scheduler
+      conditions:
+        - '<sys-cluster/kube-scheduler-1.36.0'
+        - '>=sys-cluster/kube-scheduler-1.35.0'
+
+    - pkg: sys-cluster/kube-scheduler
+      conditions:
+        - '<sys-cluster/kube-scheduler-1.37.0'
+        - '>=sys-cluster/kube-scheduler-1.36.0'
+
+    - pkg: sys-cluster/kube-scheduler
+      conditions:
+        - '<sys-cluster/kube-scheduler-1.38.0'
+        - '>=sys-cluster/kube-scheduler-1.37.0'
+
     - pkg: sys-cluster/cilium-cli
 
     # Cilium agent (macaroni-os/mark-issues#862)

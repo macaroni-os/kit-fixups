@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Cilium eBPF-based networking agent"
+pidfile=/run/${RC_SVCNAME}.pid
+command=/usr/bin/cilium-agent
+command_args="${CILIUM_KUBECONFIG_ARGS} ${CILIUM_ARGS}"
+command_background=true
+retry="TERM/10/KILL/5"
+
+depend() {
+	need net
+	use dns
+	before kubelet
+}

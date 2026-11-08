@@ -1,0 +1,5 @@
+# Arguments for the cilium-agent daemon. The daemon needs a kubeconfig
+# pointing at a cluster: without one cilium-agent exits at startup, as
+# upstream intends.
+CILIUM_KUBECONFIG_ARGS="--k8s-kubeconfig-path=/etc/kubernetes/cilium.conf"
+CILIUM_ARGS=""

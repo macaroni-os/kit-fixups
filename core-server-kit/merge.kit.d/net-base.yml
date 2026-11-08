@@ -79,6 +79,23 @@ target:
       conditions:
         - '<sys-cluster/kubeadm-1.38.0'
         - '>=sys-cluster/kubeadm-1.37.0'
+
+    # kube-proxy (macaroni-os/mark-issues#862)
+    - pkg: sys-cluster/kube-proxy
+      conditions:
+        - '<sys-cluster/kube-proxy-1.36.0'
+        - '>=sys-cluster/kube-proxy-1.35.0'
+
+    - pkg: sys-cluster/kube-proxy
+      conditions:
+        - '<sys-cluster/kube-proxy-1.37.0'
+        - '>=sys-cluster/kube-proxy-1.36.0'
+
+    - pkg: sys-cluster/kube-proxy
+      conditions:
+        - '<sys-cluster/kube-proxy-1.38.0'
+        - '>=sys-cluster/kube-proxy-1.37.0'
+
     - pkg: sys-cluster/cilium-cli
 
     # Cilium agent (macaroni-os/mark-issues#862)

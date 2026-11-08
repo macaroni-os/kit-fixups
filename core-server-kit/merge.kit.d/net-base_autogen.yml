@@ -37,6 +37,42 @@ target:
         - '<sys-cluster/kubectl-1.38.0'
         - '>=sys-cluster/kubectl-1.37.0'
 
+    # Kubernetes 1.35
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.36.0'
+        - '>=sys-cluster/kubeadm-1.35.0'
+
+    # Kubernetes 1.36
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.37.0'
+        - '>=sys-cluster/kubeadm-1.36.0'
+
+    # Kubernetes 1.37
+    - pkg: sys-cluster/kubeadm
+      conditions:
+        - '<sys-cluster/kubeadm-1.38.0'
+        - '>=sys-cluster/kubeadm-1.37.0'
+
+    # Kubernetes 1.35
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.36.0'
+        - '>=sys-cluster/kubelet-1.35.0'
+
+    # Kubernetes 1.36
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.37.0'
+        - '>=sys-cluster/kubelet-1.36.0'
+
+    # Kubernetes 1.37
+    - pkg: sys-cluster/kubelet
+      conditions:
+        - '<sys-cluster/kubelet-1.38.0'
+        - '>=sys-cluster/kubelet-1.37.0'
+
     # dual release lines (upstream maintains mainline + stable branches)
     - pkg: www-servers/nginx
       conditions:

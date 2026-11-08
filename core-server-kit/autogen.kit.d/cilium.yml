@@ -8,8 +8,8 @@
 # -mod=readonly default exported by the go-module eclass; the eclass is
 # inherited for its go.mod toolchain override — single module, no go.work
 # workspace, so the plain root go.mod rewrite applies, unlike kubectl).
-# The cilium daemon itself is not packaged (open scope question on the
-# issue); the per-arch release assets would allow a -bin flavour as a
+# The cilium-agent daemon is a separate cluster entry below (cilium_daemon);
+# the per-arch cilium-cli release assets would allow a -bin flavour as a
 # sibling entry of this cluster later, if wanted.
 cilium_cli:
   generator: builtin-github
@@ -53,3 +53,85 @@ cilium_cli:
 
   packages:
     - cilium-cli:
+
+# sys-cluster/cilium (macaroni-os/mark-issues#862)
+#
+# cilium-agent, the Cilium node daemon, built from source from the same
+# repository as the CLI above. The daemon releases carry zero assets, so
+# builtin-github recovers the api.github.com release tarball; its
+# <user>-<repo>-<sha7> unpack root is moved by a hand-written
+# post_src_unpack (simple.tmpl, not simple-github, because the same hook
+# has to seed the GIT_VERSION stamp inside the moved tree).
+# Probe findings (v1.20.4, evidence in the PR): no codegen step is needed
+# — the generated API/deepcopy sources are committed, and `make -C daemon`
+# does not need the bpf datapath generation; upstream GO_BUILD already
+# passes -mod=vendor and CGO_ENABLED=0, so the agent builds offline without
+# docker, protoc or the cilium-builder image.
+# Only the stable 1.20 line is tracked. Cilium maintains 1.18/1.19 in
+# parallel with the same tree layout and go floor, so sibling selector
+# tracks are cheap follow-ups, but they were not built and verified here.
+# cilium-operator, hubble-relay, clustermesh-apiserver and the CNI plugins
+# are separate binaries of the same tree — declared out of scope.
+cilium_daemon:
+  generator: builtin-github
+  defaults:
+    category: sys-cluster
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+    github:
+      user: cilium
+    vars:
+      desc: cilium-agent, the eBPF-based networking, observability and security agent for Kubernetes nodes
+      homepage: https://cilium.io
+      license: Apache-2.0
+      inherit:
+        - go-module
+        - systemd
+      # Upstream hardcodes CGO_ENABLED=0 for the agent build, so the
+      # hardened knob used by the kubernetes binaries would be inert here
+      # and is left out.
+      iuse: systemd
+      restrict: test
+      bdepend: |
+        >=dev-lang/go-1.21
+      body: |
+        post_src_unpack() {
+          # Generator-recovered api.github.com tarball: the unpack root is
+          # cilium-cilium-<sha7>, not ${P}.
+          local d
+          for d in "${WORKDIR}"/cilium-cilium-*; do
+            mv "${d}" "${S}" || die
+            # Upstream stamps pkg/version.ciliumVersion with "$(cat VERSION)
+            # $(git show --format=%h %aI)" but reads a GIT_VERSION file when
+            # the tree has no .git (Makefile.defs). Stamp the sha7 from the
+            # unpack root so `cilium-agent --version` carries the revision.
+            # Upstream's own file holds "<sha7> <author-date>"; that date is
+            # not derivable offline and is not invented here — the raw
+            # version string stays exact and the structured parser in
+            # pkg/version/version.go sees the same field count as an
+            # upstream git-less build.
+            echo "${d##*-}" > "${S}/GIT_VERSION" || die
+          done
+        }
+
+        src_compile() {
+          # Upstream's GO_BUILD passes -mod=vendor explicitly (the archive
+          # ships a complete vendor/) and CGO_ENABLED=0; GOFLAGS="" keeps the
+          # go-module eclass -mod=readonly export from fighting that flag.
+          emake GOFLAGS="" -C daemon
+        }
+
+        src_install() {
+          dobin daemon/cilium-agent
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}"/cilium.service
+          else
+            newconfd "${FILESDIR}"/cilium.confd cilium
+            newinitd "${FILESDIR}"/cilium.initd cilium
+          fi
+        }
+  packages:
+    - cilium:
+        selector:
+          - '>=1.20.0'
+          - '<1.21.0'

@@ -1,0 +1,15 @@
+[Unit]
+Description=cilium-agent: eBPF-based networking and security for Kubernetes
+Documentation=https://docs.cilium.io/en/stable/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/conf.d/cilium
+ExecStart=/usr/bin/cilium-agent $CILIUM_KUBECONFIG_ARGS $CILIUM_ARGS
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

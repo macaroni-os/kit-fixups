@@ -1,0 +1,78 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="OVN Northbound database server"
+
+command="/usr/share/ovn/scripts/ovn-ctl"
+command_args=""
+pidfile="/var/run/ovn/ovnnb_db.pid"
+
+checkconfig() {
+	binaries=(
+		"/usr/share/ovn/scripts/ovn-ctl"
+	)
+
+	for b in ${binaries[@]}; do
+		if [ ! -x ${b} ]; then
+			eerror "Wrong permission to ${b}"
+			return 1
+		fi
+	done
+
+	# Default path of OVSDB databases.
+	export OVN_DBDIR=${OVN_DBDIR:-/var/lib/ovn}
+	export OVN_RUNDIR=${OVN_RUNDIR:-/var/run/ovn}
+
+	return 0
+}
+
+depend() {
+	need net
+	use logger
+}
+
+run_ovn_ctl() {
+	set /usr/share/ovn/scripts/ovn-ctl ${1-start_nb_ovsdb}
+	set "$@" $OVN_CTL_OPTS
+	"$@"
+	return $?
+}
+
+start() {
+	ebegin "Starting OVN Northbound database"
+
+	checkconfig || return 1
+	checkpath -d "${OVN_RUNDIR}" -m 0750
+
+	run_ovn_ctl
+	retval=$?
+	einfo ""
+	eend ${retval} "Failed starting OVN Northbound database"
+}
+
+status() {
+	checkconfig || return 1
+
+	if [ -s "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+		einfo "ovn-north is running"
+		return 0
+	fi
+
+	eerror "ovn-north is stopped"
+	return 3
+}
+
+restart() {
+	checkconfig || return 1
+	run_ovn_ctl restart_nb_ovsdb
+	return $?
+}
+
+stop() {
+	checkconfig || return 1
+	ebegin "Stopping OVN Northbound database"
+	run_ovn_ctl stop_nb_ovsdb
+	retval=$?
+	einfo ""
+	eend ${retval}
+}

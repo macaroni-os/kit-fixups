@@ -1,0 +1,5 @@
+# Arguments for the kubelet daemon. The daemon needs a kubeconfig pointing
+# at a cluster: without one kubelet exits at startup, as upstream intends.
+KUBELET_KUBECONFIG_ARGS="--kubeconfig=/etc/kubernetes/kubelet.conf"
+KUBELET_CONFIG_ARGS="--config=/etc/kubernetes/kubelet-config.yaml"
+KUBELET_ARGS=""

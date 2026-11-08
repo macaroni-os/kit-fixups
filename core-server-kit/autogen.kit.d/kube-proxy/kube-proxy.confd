@@ -1,0 +1,5 @@
+# Arguments for the kube-proxy daemon. The daemon needs a kubeconfig pointing
+# at a cluster: without one kube-proxy exits at startup, as upstream intends.
+KUBEPROXY_KUBECONFIG_ARGS="--kubeconfig=/etc/kubernetes/kube-proxy.conf"
+KUBEPROXY_CONFIG_ARGS="--config=/var/lib/kube-proxy/config.conf"
+KUBEPROXY_ARGS=""

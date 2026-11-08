@@ -1,0 +1,15 @@
+[Unit]
+Description=kube-proxy: The Kubernetes network proxy
+Documentation=https://kubernetes.io/docs/home/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/conf.d/kube-proxy
+ExecStart=/usr/bin/kube-proxy $KUBEPROXY_KUBECONFIG_ARGS $KUBEPROXY_CONFIG_ARGS $KUBEPROXY_ARGS
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

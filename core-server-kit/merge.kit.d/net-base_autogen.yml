@@ -177,3 +177,39 @@ target:
       conditions:
         - '<sys-cluster/kube-ovn-1.16.0'
         - '>=sys-cluster/kube-ovn-1.15.0'
+
+    # OVN-Kubernetes 1.4 (ovnkube master/node daemons + ovnkube-identity)
+    - pkg: sys-cluster/ovn-kubernetes
+      conditions:
+        - '<sys-cluster/ovn-kubernetes-1.5.0'
+        - '>=sys-cluster/ovn-kubernetes-1.4.0'
+
+    # OVN-Kubernetes 1.3
+    - pkg: sys-cluster/ovn-kubernetes
+      conditions:
+        - '<sys-cluster/ovn-kubernetes-1.4.0'
+        - '>=sys-cluster/ovn-kubernetes-1.3.0'
+
+    # OVN-Kubernetes 1.2
+    - pkg: sys-cluster/ovn-kubernetes
+      conditions:
+        - '<sys-cluster/ovn-kubernetes-1.3.0'
+        - '>=sys-cluster/ovn-kubernetes-1.2.0'
+
+    # OVN-Kubernetes CNI plugin 1.4 (worker CNI binary)
+    - pkg: sys-cluster/ovn-k8s-cni-overlay
+      conditions:
+        - '<sys-cluster/ovn-k8s-cni-overlay-1.5.0'
+        - '>=sys-cluster/ovn-k8s-cni-overlay-1.4.0'
+
+    # OVN-Kubernetes CNI plugin 1.3
+    - pkg: sys-cluster/ovn-k8s-cni-overlay
+      conditions:
+        - '<sys-cluster/ovn-k8s-cni-overlay-1.4.0'
+        - '>=sys-cluster/ovn-k8s-cni-overlay-1.3.0'
+
+    # OVN-Kubernetes CNI plugin 1.2
+    - pkg: sys-cluster/ovn-k8s-cni-overlay
+      conditions:
+        - '<sys-cluster/ovn-k8s-cni-overlay-1.3.0'
+        - '>=sys-cluster/ovn-k8s-cni-overlay-1.2.0'

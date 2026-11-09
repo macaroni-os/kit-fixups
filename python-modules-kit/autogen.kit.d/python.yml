@@ -1340,3 +1340,27 @@ libvirt_python:
   packages:
     - libvirt-python:
 
+
+ovs_pypi:
+  generator: builtin-pypi
+  template:
+    engine: helm
+
+  defaults:
+    category: dev-python
+    template: "../../templates/pypi-generic-helm.tmpl"
+    files_dir: '{{ .Values.pn }}'
+    vars:
+      du_pep517: setuptools
+    python_compat: "python3+"
+
+  packages:
+
+    - ovs:
+        pydeps:
+          py:all:runtime:
+            - sortedcontainers
+        vars:
+          desc: Open vSwitch library
+          homepage: http://www.openvswitch.org/ https://pypi.org/project/ovs/
+          license: Apache-2.0

@@ -159,3 +159,21 @@ target:
 
     # Cilium agent (the node daemon of the Cilium CNI)
     - pkg: sys-cluster/cilium
+
+    # Kube-OVN 1.17
+    - pkg: sys-cluster/kube-ovn
+      conditions:
+        - '<sys-cluster/kube-ovn-1.18.0'
+        - '>=sys-cluster/kube-ovn-1.17.0'
+
+    # Kube-OVN 1.16
+    - pkg: sys-cluster/kube-ovn
+      conditions:
+        - '<sys-cluster/kube-ovn-1.17.0'
+        - '>=sys-cluster/kube-ovn-1.16.0'
+
+    # Kube-OVN 1.15
+    - pkg: sys-cluster/kube-ovn
+      conditions:
+        - '<sys-cluster/kube-ovn-1.16.0'
+        - '>=sys-cluster/kube-ovn-1.15.0'

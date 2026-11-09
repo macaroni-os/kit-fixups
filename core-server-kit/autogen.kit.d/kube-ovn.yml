@@ -1,0 +1,168 @@
+# sys-cluster/kube-ovn (macaroni-os/mark-issues#862)
+#
+# Kube-OVN, a Kubernetes networking stack based on OVN, built from source.
+# The release assets carry no source tarball (probed on v1.17.0: the eight
+# assets are the Helm chart kube-ovn-v1.17.0.tgz plus the kubectl-ko plugin
+# binaries and checksums; v1.16.18/v1.15.33 only upload the chart), so
+# builtin-github recovers the api.github.com release tarball; the
+# simple-github template moves its kubeovn-kube-ovn-<sha7> unpack root
+# (mv kubeovn-kube-ovn-* ${S}). The stamping mirrors the upstream release
+# build (makefiles/build.mk: COMMIT=git-$(git rev-parse --short HEAD),
+# GOLDFLAGS set versions.VERSION to the release tag and versions.BUILDDATE
+# to `date`): COMMIT and VERSION render at generation time from the values
+# the builtin-github generator sets — {{ .Values.sha }} is the tag's commit
+# sha and {{ .Values.pv }} the plain version — so the ebuild carries the
+# literals and no unpack-time stashing is needed. The build date is not
+# derivable offline, so it keeps upstream's own "unknown" default from
+# versions/version.go — nothing is invented.
+#
+# The repository is a single Go module (github.com/kubeovn/kube-ovn) with
+# no vendor/ directory, so the golang extension bundles the root go.sum
+# into a mark-go-bundle distfile (plain extension opts, as the other
+# single-module golang clusters) and the ebuild inherits go-module: the
+# tag go.mods floor go 1.27.3 on the 1.17/1.16 lines and 1.26.10 on 1.15,
+# and the eclass rewrites the directive to the branch toolchain where
+# needed.
+#
+# Binary set, mirroring what the upstream image builds (makefiles/build.mk
+# + dist/images/Dockerfile), split per the maintainer request
+# (macaroni-os/mark-issues#862 issuecomment-6747169024): the controller,
+# the node daemon and the CNI plugin (into /opt/cni/bin, the tree
+# convention of net-misc/cni-plugins) are always installed, together with
+# the webhook, the OVN leader checker and the ovn monitor — the latter
+# three are argv[0]-dispatched subcommands of the single kube-ovn-cmd
+# binary (cmd/cmdmain.go) that the image exposes through symlinks, so the
+# symlinks are mirrored here as core. The helpers — kubectl-ko (a Go
+# command on 1.17, a dist/images shell script on 1.16/1.15),
+# kubectl-ko-node-agent (cmd/ko-helper), kube-ovn-tproxy, kube-ovn-ipsec,
+# kube-ovn-bfdd-supervisor, vpc-egress-gateway-observer and the
+# kube-ovn-speaker/kube-ovn-pinger dispatch symlinks — install behind the
+# `helpers` USE flag. Not every track carries every helper command
+# (cmd/tproxy, cmd/ipsec, cmd/ko-helper and cmd/kubectl-ko only exist on
+# 1.17; cmd/vpc-egress-gateway-observer not on 1.15), so each is built
+# when its cmd/ directory exists. The requested frr helper needs no own
+# file: the image's frr support is the `kube-ovn-cmd frr-render` mode of
+# the core binary (cmd/frr is a library package). cmd/ipsec installs as
+# kube-ovn-ipsec — upstream's own binary name — which avoids the
+# strongswan /usr/bin/ipsec collision. The ipsec tunnel agent runs as its
+# own workload and nothing in the core set execs it, so it goes behind
+# helpers, not into the core. acl_sample (sample code) and the
+# ovn_ic_controller dispatch are in neither requested set and stay
+# uninstalled.
+#
+# No init script by design: kube-ovn runs as Kubernetes workloads (its own
+# Deployment/DaemonSet via the Helm chart), never as a host service. The
+# host binaries need no OVN/openvswitch packages; that runtime dependency
+# is intentionally not declared before the OVN packages of
+# macaroni-os/kit-fixups#552 land.
+kube_ovn:
+  generator: builtin-github
+  defaults:
+    category: sys-cluster
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: kubeovn
+      num_pages: 3
+    extensions:
+      - golang
+    vars:
+      desc: A container networking solution for Kubernetes based on OVN
+      homepage: https://kube-ovn.io
+      license: Apache-2.0
+      inherit:
+        - go-module
+      iuse: helpers
+      restrict: test
+      bdepend: dev-lang/go
+      body: |
+        src_compile() {
+          # Upstream build-go flags, mirrored per binary
+          # (makefiles/build.mk): -trimpath plus -w -s -extldflags '-z now'
+          # and the versions stamping for every binary, CGO_ENABLED=0
+          # throughout, -buildmode=pie exactly for the binaries upstream
+          # builds PIE (everything except the kube-ovn CNI plugin,
+          # kubectl-ko, tproxy and ipsec). GOFLAGS comes from the go-module
+          # eclass (-mod=readonly against the mark-go-bundle proxy).
+          local goldflags="-extldflags '-z now' -X github.com/kubeovn/kube-ovn/versions.COMMIT={{ .Values.sha }} -X github.com/kubeovn/kube-ovn/versions.VERSION=v{{ .Values.pv }}"
+          export GOTOOLCHAIN=local
+          # Core: the controller, the node daemon, the CNI plugin and the
+          # kube-ovn-cmd dispatcher (webhook/leader-checker/monitor).
+          CGO_ENABLED=0 go build -trimpath -ldflags "-w -s ${goldflags}" -o kube-ovn ./cmd/cni || die
+          CGO_ENABLED=0 go build -trimpath -buildmode=pie -ldflags "-w -s ${goldflags}" -o kube-ovn-cmd ./cmd || die
+          CGO_ENABLED=0 go build -trimpath -buildmode=pie -ldflags "-w -s ${goldflags}" -o kube-ovn-daemon ./cmd/daemon || die
+          CGO_ENABLED=0 go build -trimpath -buildmode=pie -ldflags "-w -s ${goldflags}" -o kube-ovn-controller ./cmd/controller || die
+          if use helpers ; then
+            # Build what the track has: the 1.16/1.15 lines lack the Go
+            # kubectl-ko, ko-helper, tproxy and ipsec commands, 1.15 also
+            # the vpc-egress-gateway-observer.
+            if [ -d cmd/bfdd_supervisor ] ; then
+              CGO_ENABLED=0 go build -trimpath -buildmode=pie -ldflags "-w -s ${goldflags}" -o kube-ovn-bfdd-supervisor ./cmd/bfdd_supervisor || die
+            fi
+            if [ -d cmd/vpc-egress-gateway-observer ] ; then
+              CGO_ENABLED=0 go build -trimpath -buildmode=pie -ldflags "-w -s ${goldflags}" -o vpc-egress-gateway-observer ./cmd/vpc-egress-gateway-observer || die
+            fi
+            if [ -d cmd/tproxy ] ; then
+              CGO_ENABLED=0 go build -trimpath -ldflags "-w -s ${goldflags}" -o kube-ovn-tproxy ./cmd/tproxy || die
+            fi
+            if [ -d cmd/ipsec ] ; then
+              # Upstream name kube-ovn-ipsec, not ipsec: avoids the
+              # strongswan /usr/bin/ipsec collision.
+              CGO_ENABLED=0 go build -trimpath -ldflags "-w -s ${goldflags}" -o kube-ovn-ipsec ./cmd/ipsec || die
+            fi
+            if [ -d cmd/kubectl-ko ] ; then
+              # 1.17: the kubectl plugin became a Go command.
+              CGO_ENABLED=0 go build -trimpath -ldflags "-w -s ${goldflags}" -o kubectl-ko ./cmd/kubectl-ko || die
+            fi
+            if [ -d cmd/ko-helper ] ; then
+              CGO_ENABLED=0 go build -trimpath -ldflags "-w -s ${goldflags}" -o kubectl-ko-node-agent ./cmd/ko-helper || die
+            fi
+          fi
+        }
+
+        src_install() {
+          dobin kube-ovn-cmd kube-ovn-daemon kube-ovn-controller
+          # argv[0]-dispatched subcommands of kube-ovn-cmd (cmd/cmdmain.go),
+          # exposed as the upstream image does.
+          dosym kube-ovn-cmd /usr/bin/kube-ovn-webhook
+          dosym kube-ovn-cmd /usr/bin/kube-ovn-monitor
+          dosym kube-ovn-cmd /usr/bin/kube-ovn-leader-checker
+          # CNI plugin binary, tree convention from net-misc/cni-plugins.
+          exeinto /opt/cni/bin
+          doexe kube-ovn
+          if use helpers ; then
+            if [ -f kubectl-ko ] ; then
+              dobin kubectl-ko
+            elif [ -f dist/images/kubectl-ko ] ; then
+              # 1.16/1.15 ship kubectl-ko as a shell script.
+              dobin dist/images/kubectl-ko
+            fi
+            if [ -f kubectl-ko-node-agent ] ; then dobin kubectl-ko-node-agent ; fi
+            if [ -f kube-ovn-tproxy ] ; then dobin kube-ovn-tproxy ; fi
+            if [ -f kube-ovn-ipsec ] ; then dobin kube-ovn-ipsec ; fi
+            if [ -f kube-ovn-bfdd-supervisor ] ; then dobin kube-ovn-bfdd-supervisor ; fi
+            if [ -f vpc-egress-gateway-observer ] ; then dobin vpc-egress-gateway-observer ; fi
+            # Dispatch symlinks of the upstream image: speaker is another
+            # kube-ovn-cmd mode, pinger a kube-ovn-controller mode (all
+            # three lines symlink it in the Dockerfile).
+            dosym kube-ovn-cmd /usr/bin/kube-ovn-speaker
+            dosym kube-ovn-controller /usr/bin/kube-ovn-pinger
+          fi
+        }
+  extensions_defs:
+    golang:
+      opts:
+
+  packages:
+    # The three maintained upstream lines (1.15, 1.16, 1.17).
+    - kube-ovn:
+        selector:
+          - '>=1.17.0'
+          - '<1.18.0'
+    - kube-ovn:
+        selector:
+          - '>=1.16.0'
+          - '<1.17.0'
+    - kube-ovn:
+        selector:
+          - '>=1.15.0'
+          - '<1.16.0'

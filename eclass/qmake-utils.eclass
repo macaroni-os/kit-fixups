@@ -1,0 +1,238 @@
+# Copyright 1999-2015 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+# @ECLASS: qmake-utils.eclass
+# @MAINTAINER:
+# qt@gentoo.org
+# @AUTHOR:
+# Davide Pesavento <pesa@gentoo.org>
+# @BLURB: Common functions for qmake-based packages.
+# @DESCRIPTION:
+# Utility eclass providing wrapper functions for Qt5 and Qt6 qmake.
+#
+# This eclass does not set any metadata variables nor export any phase
+# functions. It can be inherited safely.
+
+if [[ -z ${_QMAKE_UTILS_ECLASS} ]]; then
+_QMAKE_UTILS_ECLASS=1
+
+[[ ${EAPI:-0} == [012345] ]] && inherit eutils multilib
+inherit estack toolchain-funcs
+
+# @FUNCTION: qt6_get_bindir
+# @DESCRIPTION:
+# Echoes the directory where Qt6 binaries are installed.
+# EPREFIX is already prepended to the returned path.
+qt6_get_bindir() {
+	echo $(qt6_get_libdir)/bin
+}
+
+# @FUNCTION: qt6_get_headerdir
+# @DESCRIPTION:
+# Echoes the directory where Qt4 headers are installed.
+qt6_get_headerdir() {
+	echo /usr/include/qt6
+}
+
+# @FUNCTION: qt6_get_libdir
+# @DESCRIPTION:
+# Echoes the directory where Qt4 libraries are installed.
+qt6_get_libdir() {
+	echo /usr/$(get_libdir)/qt6
+}
+
+# @FUNCTION: qt6_get_mkspecsdir
+# @DESCRIPTION:
+# Echoes the directory where Qt4 mkspecs are installed.
+qt6_get_mkspecsdir() {
+	echo /usr/share/qt6/mkspecs
+}
+
+# @FUNCTION: qt6_get_plugindir
+# @DESCRIPTION:
+# Echoes the directory where Qt4 plugins are installed.
+qt6_get_plugindir() {
+	echo $(qt6_get_libdir)/plugins
+}
+
+# @FUNCTION: qt6_get_qmake_args
+# @DESCRIPTION:
+# Echoes a multi-line string containing arguments to pass to qmake.
+qt6_get_qmake_args() {
+    cat <<-EOF
+		QMAKE_AR="$(tc-getAR) cqs"
+		QMAKE_CC="$(tc-getCC)"
+		QMAKE_LINK_C="$(tc-getCC)"
+		QMAKE_LINK_C_SHLIB="$(tc-getCC)"
+		QMAKE_CXX="$(tc-getCXX)"
+		QMAKE_LINK="$(tc-getCXX)"
+		QMAKE_LINK_SHLIB="$(tc-getCXX)"
+		QMAKE_OBJCOPY="$(tc-getOBJCOPY)"
+		QMAKE_RANLIB=
+		QMAKE_STRIP=
+		QMAKE_CFLAGS="${CFLAGS}"
+		QMAKE_CFLAGS_RELEASE=
+		QMAKE_CFLAGS_DEBUG=
+		QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO=
+		QMAKE_CXXFLAGS="${CXXFLAGS}"
+		QMAKE_CXXFLAGS_RELEASE=
+		QMAKE_CXXFLAGS_DEBUG=
+		QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO=
+		QMAKE_LFLAGS="${LDFLAGS}"
+		QMAKE_LFLAGS_RELEASE=
+		QMAKE_LFLAGS_DEBUG=
+		QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO=
+	EOF
+}
+
+# @FUNCTION: qt5_get_bindir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 binaries are installed.
+# EPREFIX is already prepended to the returned path.
+qt5_get_bindir() {
+	has "${EAPI:-0}" 0 1 2 && use !prefix && EPREFIX=
+
+	echo ${EPREFIX}$(qt5_get_libdir)/qt5/bin
+}
+
+# @FUNCTION: qt5_get_headerdir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 headers are installed.
+qt5_get_headerdir() {
+	echo /usr/include/qt5
+}
+
+# @FUNCTION: qt5_get_libdir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 libraries are installed.
+qt5_get_libdir() {
+	echo /usr/$(get_libdir)
+}
+
+# @FUNCTION: qt5_get_mkspecsdir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 mkspecs are installed.
+qt5_get_mkspecsdir() {
+	echo $(qt5_get_libdir)/qt5/mkspecs
+}
+
+# @FUNCTION: qt5_get_plugindir
+# @DESCRIPTION:
+# Echoes the directory where Qt5 plugins are installed.
+qt5_get_plugindir() {
+	echo $(qt5_get_libdir)/qt5/plugins
+}
+
+# @FUNCTION: qmake-utils_find_pro_file
+# @RETURN: zero or one qmake .pro file names
+# @INTERNAL
+# @DESCRIPTION:
+# Outputs a project file name that can be passed to eqmake.
+#   0 *.pro files found --> outputs null string;
+#   1 *.pro file found --> outputs its name;
+#   2 or more *.pro files found --> if "${PN}.pro" or
+#       "$(basename ${S}).pro" are there, outputs one of them.
+qmake-utils_find_pro_file() {
+	local dir_name=$(basename "${S}")
+
+	# set nullglob to avoid expanding *.pro to the literal
+	# string "*.pro" when there are no matching files
+	eshopts_push -s nullglob
+	local pro_files=(*.pro)
+	eshopts_pop
+
+	case ${#pro_files[@]} in
+	0)
+		: ;;
+	1)
+		echo "${pro_files}"
+		;;
+	*)
+		for pro_file in "${pro_files[@]}"; do
+			if [[ ${pro_file%.pro} == ${dir_name} || ${pro_file%.pro} == ${PN} ]]; then
+				echo "${pro_file}"
+				break
+			fi
+		done
+		;;
+	esac
+}
+
+# @FUNCTION: eqmake5
+# @USAGE: [arguments for qmake]
+# @DESCRIPTION:
+# Wrapper for Qt5's qmake. All arguments are passed to qmake.
+#
+# For recursive build systems, i.e. those based on the subdirs template,
+# you should run eqmake5 on the top-level project file only, unless you
+# have a valid reason to do otherwise. During the building, qmake will
+# be automatically re-invoked with the right arguments on every directory
+# specified inside the top-level project file.
+eqmake5() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	ebegin "Running qmake"
+
+	"$(qt5_get_bindir)"/qmake \
+		-makefile \
+		QMAKE_AR="$(tc-getAR) cqs" \
+		QMAKE_CC="$(tc-getCC)" \
+		QMAKE_LINK_C="$(tc-getCC)" \
+		QMAKE_LINK_C_SHLIB="$(tc-getCC)" \
+		QMAKE_CXX="$(tc-getCXX)" \
+		QMAKE_LINK="$(tc-getCXX)" \
+		QMAKE_LINK_SHLIB="$(tc-getCXX)" \
+		QMAKE_OBJCOPY="$(tc-getOBJCOPY)" \
+		QMAKE_RANLIB= \
+		QMAKE_STRIP= \
+		QMAKE_CFLAGS="${CFLAGS}" \
+		QMAKE_CFLAGS_RELEASE= \
+		QMAKE_CFLAGS_DEBUG= \
+		QMAKE_CXXFLAGS="${CXXFLAGS}" \
+		QMAKE_CXXFLAGS_RELEASE= \
+		QMAKE_CXXFLAGS_DEBUG= \
+		QMAKE_LFLAGS="${LDFLAGS}" \
+		QMAKE_LFLAGS_RELEASE= \
+		QMAKE_LFLAGS_DEBUG= \
+		"$@"
+
+	if ! eend $? ; then
+		echo
+		eerror "Running qmake has failed! (see above for details)"
+		eerror "This shouldn't happen - please send a bug report to https://bugs.gentoo.org/"
+		echo
+		die "eqmake5 failed"
+	fi
+}
+
+# @FUNCTION: eqmake6
+# @USAGE: [arguments for qmake]
+# @DESCRIPTION:
+# Wrapper for Qt6's qmake. All arguments are passed to qmake.
+#
+# For recursive build systems, i.e. those based on the subdirs template,
+# you should run eqmake6 on the top-level project file only, unless you
+# have a valid reason to do otherwise. During the building, qmake will
+# be automatically re-invoked with the right arguments on every directory
+# specified inside the top-level project file.
+eqmake6() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	ebegin "Running qmake"
+
+	local -a args
+	mapfile -t args <<<"$(qt6_get_qmake_args)"
+	# NB: we're passing literal quotes in but qmake doesn't seem to mind
+	"$(qt6_get_bindir)"/qmake -makefile "${args[@]}" "$@"
+
+	if ! eend $? ; then
+		echo
+		eerror "Running qmake has failed! (see above for details)"
+		eerror "This shouldn't happen - please send a bug report to https://bugs.gentoo.org/"
+		echo
+		die "eqmake6 failed"
+	fi
+}
+
+
+fi

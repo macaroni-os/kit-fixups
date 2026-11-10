@@ -446,6 +446,220 @@ ai_github:
               newbin opencode opencode
             }
 
+    - claude-code-bin:
+        github:
+          user: anthropics
+          # Equal to PN up to the -bin postfix; pinned explicitly per
+          # the pi-bin idiom (macaroni-os/kit-fixups#512 review).
+          repo: claude-code
+        # simple.tmpl (not the group's simple-github.tmpl): this atom
+        # downloads only prebuilt release assets, so there is no
+        # <user>-<repo>-* unpack dir for the generated post_src_unpack()
+        # to rename.
+        template: ../../templates/simple.tmpl
+        # Upstream (anthropics/claude-code) publishes self-contained
+        # native builds of the Claude Code CLI (single-file executables
+        # with the runtime embedded) as release assets, alongside the npm
+        # package. The claude-linux-x64/arm64 assets are the glibc
+        # builds; the *-musl variants are skipped (mark is glibc), as
+        # are the darwin/windows assets and the SHASUMS signing files.
+        # Release titles and tags are plain "v2.1.322" semver; the
+        # leading v is stripped automatically, so no transform applies.
+        # There is no source flavour: the GitHub repository is the
+        # product's issue-tracker/docs/ecosystem face (full recursive
+        # tree: 1983 entries dominated by mods/ customization modules
+        # that run inside the installed CLI against its public API,
+        # plus examples/, plugins/ and the changelog; no CLI
+        # implementation anywhere), while the product itself ships
+        # bundled. The -bin postfix marks the upstream-binary flavour
+        # per the maintainer convention (macaroni-os/mark-issues#867
+        # review; discord-bin is the tree precedent for a bin-only
+        # package).
+        assets:
+          - name: 'claude-code-bin-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^claude-linux-x64\.tar\.gz$'
+            use: amd64
+          - name: 'claude-code-bin-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^claude-linux-arm64\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          # The repository's LICENSE.md is a one-line proprietary
+          # notice ("(c) Anthropic PBC. All rights reserved. Use is
+          # subject to Anthropic's Commercial Terms of Service").
+          # GitHub's license detector does not classify it (its API
+          # probe returns 404), and that probe is the lookup the
+          # generator uses to auto-fill LICENSE=, so the identifier is
+          # set explicitly per the macaroni-os/mark-issues#867 review.
+          license: Anthropic PBC
+          desc: Anthropic's Claude Code agentic coding CLI (upstream binary)
+          restrict: strip
+          # The asset carries the single ./claude executable at the
+          # archive root (no top-level directory; name is identical on
+          # both arches), so the default src_unpack drops it straight
+          # into the workdir (opencode-bin idiom).
+          s: '${WORKDIR}'
+          extra_envs:
+            - 'QA_PREBUILT="/usr/bin/claude"'
+          body: |
+            src_install() {
+              newbin claude claude
+            }
+
+# app-ai/codex and app-ai/codex-bin track the same upstream repository
+# (openai/codex), so per the macaroni-os/kit-fixups#512 review they live
+# in a dedicated cluster whose defaults pin the shared github block; the
+# entries keep only their flavour-specific template/assets/vars
+# (macaroni-os/mark-issues#867).
+codex:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    files_dir: "{{ .Values.pn }}"
+    # simple-github.tmpl for the source flavour (its generated
+    # post_src_unpack() renames the API-tarball root openai-codex-<sha7>
+    # to S); the codex-bin entry overrides it with simple.tmpl.
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: openai
+      # Equal to the source flavour's PN, but pinned explicitly because
+      # the -bin postfix makes the sibling's PN differ from it (the
+      # pi-cluster idiom from the PR #512 review).
+      repo: codex
+      # The release tags carry a rust- prefix ("rust-v0.167.0") while the
+      # release titles are plain semver ("0.167.0"), and the repository
+      # has thousands of tags, so builtin-github's tag-listing
+      # cross-check never matches a release unless tag presence is
+      # dropped (same situation and remedy as the opencode-bin entry of
+      # the ai_github cluster; discriminating probe: with the flag
+      # removed, generation ends in "No versions found"). With
+      # ignore_tags the recorded sha is the release target_commitish;
+      # neither flavour references it. The ~1270 alpha releases are
+      # filtered natively as prereleases.
+      ignore_tags: true
+  packages:
+
+    - codex-bin:
+        # simple.tmpl, not the cluster's simple-github.tmpl: this atom
+        # downloads only prebuilt release assets, so there is no
+        # <user>-<repo>-* unpack dir for the generated post_src_unpack()
+        # to rename (opencode-bin idiom).
+        template: ../../templates/simple.tmpl
+        # Upstream (openai/codex) builds the CLI in Rust and publishes
+        # static-pie musl binaries as release assets; there are no glibc
+        # linux assets, and static binaries run unchanged on the glibc
+        # hosts (verified: 'codex --version' prints codex-cli 0.167.0 in
+        # the mark-unstable sandbox). The bare per-target asset is the
+        # artefact the official npm platform packages
+        # (codex-npm-linux-x64/arm64) wrap, i.e. the standalone-supported
+        # distribution shape; the codex-package-* assets additionally
+        # bundle optional sidecars (bwrap, ripgrep, code-mode host,
+        # voice stack) that the CLI runs without, so they are not needed
+        # for the binary flavour. The .zst/.sigstore/.dmg/.exe/.whl
+        # assets are for other platforms or verification and are skipped
+        # (mark is linux-only).
+        assets:
+          - name: 'codex-bin-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^codex-x86_64-unknown-linux-musl\.tar\.gz$'
+            use: amd64
+          - name: 'codex-bin-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^codex-aarch64-unknown-linux-musl\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          desc: OpenAI's Codex CLI coding agent (upstream binary)
+          # Prebuilt, already-stripped static-pie ELFs; nothing compiles
+          # here (same option the opencode-bin entry uses).
+          restrict: strip
+          # /usr/bin/codex is also shipped by the source flavour below;
+          # the pair mutually blocks (the opencode/pi idiom).
+          rdepend: '!app-ai/codex'
+          # The asset unpacks the single executable at the archive root
+          # under its raw target-triple name (codex-x86_64-unknown-linux-
+          # musl / codex-aarch64-unknown-linux-musl), so S is the workdir
+          # and src_install globs the name, which differs per USE arch.
+          s: '${WORKDIR}'
+          extra_envs:
+            - 'QA_PREBUILT="/usr/bin/codex"'
+          body: |
+            src_install() {
+              # Exactly one of the two USE-gated assets is fetched per
+              # profile, so there is a single binary in the workdir.
+              local bin=$(find . -maxdepth 1 -type f \
+                -name 'codex-*-unknown-linux-musl' -print -quit)
+              [[ -n ${bin} ]] || die "codex binary not found in ${S}"
+              newbin "${bin}" codex
+            }
+
+    - codex:
+        # Source flavour (macaroni-os/mark-issues#867): the CLI is pure
+        # Rust from the codex-rs/ workspace; the npm package is only a
+        # thin wrapper around the same binary, and the optional
+        # code-mode host sidecar that embeds V8 is a different binary,
+        # not built here.
+        # No explicit source asset (the kit's source-flavour idiom):
+        # builtin-github recovers the api.github.com tarball of the
+        # release tag, whose unpack root is openai-codex-<sha7>; the
+        # cluster template simple-github.tmpl renames it to S.
+        # Build recipe verified in the mark-unstable sandbox
+        # (rust-bin 1.96.1, 28 cores): cargo build --release -p codex-cli
+        # --bin codex finished in 24m06s with zero errors (1060 crates),
+        # producing a glibc ELF that dynamically links the system
+        # libssl/libcrypto/libz (ldd-verified); 'codex --version' smoke
+        # -> codex-cli 0.167.0.
+        vars:
+          desc: OpenAI's Codex CLI coding agent (built from sources)
+          # Cargo resolves the whole workspace lock at build time, which
+          # pins ~1296 crates.io packages plus 13 git dependencies
+          # (forks of crossterm, tungstenite, sqlx, rmcp, h3, nucleo,
+          # runfiles, mxc-sdk and rusty_v8), so network-sandbox is
+          # stripped — the same accepted shape as the opencode and pi
+          # source entries of this kit. The rust extension (offline
+          # mark-rust-bundle path) was tested with full autogen and is
+          # not usable today: mark-devkit's retrieveCargoLock scans only
+          # the archive's first-level directories, while codex keeps its
+          # workspace in codex-rs/ with no root Cargo.lock, so the
+          # extension aborts with "Cargo.lock file not found". Even with
+          # a nested-lock option, the bundle would clone the rusty_v8
+          # fork with its multi-GB chromium submodule tree although
+          # --bin codex never compiles v8 (the v8 puller,
+          # codex-code-mode-runtime, belongs to the code-mode-host
+          # sidecar). A lock-subdir option plus a git-dep-aware
+          # crates_skipped in mark-devkit are the feature asks that
+          # would let this move to the bundle path; flipping this entry
+          # to extensions: [rust] + inherit: cargo is then a two-line
+          # change.
+          restrict: network-sandbox
+          # Upstream pins rust 1.95.0 (codex-rs/rust-toolchain.toml):
+          # the let-chain match guards in codex-core are E0658 with 1.94
+          # (observed in the sandbox) and compile with 1.96; the tree
+          # offers 1.96/1.98, so the floor is the 1.96 rust virtual.
+          bdepend: |
+            >=virtual/rust-1.96
+            dev-libs/openssl
+            virtual/pkgconfig
+            sys-libs/zlib
+          rdepend: |
+            !app-ai/codex-bin
+            dev-libs/openssl
+            sys-libs/zlib
+          depend: '${RDEPEND}'
+          body: |
+            src_compile() {
+              # Keep the cargo registry and git checkouts in the build
+              # area (they are fetched by src_compile, not src_unpack,
+              # because the dependency graph is network-resolved).
+              export CARGO_HOME="${T}/cargo-home"
+              cd codex-rs || die
+              cargo build --release -p codex-cli --bin codex \
+                --target-dir target || die
+            }
+
+            src_install() {
+              newbin codex-rs/target/release/codex codex
+              dodoc README.md
+            }
+
 # pi-bin and pi track the same upstream repository (earendil-works/pi),
 # so per the macaroni-os/kit-fixups#512 review they live in a dedicated
 # cluster whose defaults define the common keys once and the package

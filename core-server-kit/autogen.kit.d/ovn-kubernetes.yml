@@ -1,0 +1,198 @@
+# sys-cluster/ovn-kubernetes + sys-cluster/ovn-k8s-cni-overlay (macaroni-os/mark-issues#862)
+#
+# OVN-Kubernetes, a Kubernetes networking platform built on OVN, split into
+# two packages at the maintainer's request
+# (macaroni-os/mark-issues#862 issuecomment-6745890088): ovn-kubernetes ships
+# the cluster daemons — ovnkube, whose runtime modes are the ovnkube-master
+# and ovnkube-node services, plus the ovnkube-identity service — and
+# ovn-k8s-cni-overlay ships the worker CNI plugin binary installed into
+# /opt/cni/bin, the tree convention of net-misc/cni-plugins (the qlist proof
+# posted in macaroni-os/kit-fixups#553). The release bodies document an
+# OVN/OVS/Kubernetes compatibility matrix (v1.4.0: "Kubernetes v1.36.2, OVN
+# ovn-26.03.1, OVS 3.6.2, Libovsdb v0.8.1") — kept as documentation here:
+# parsing it is a mark-devkit follow-up idea, not done in this spec.
+#
+# The releases upload the Linux binaries as assets; this is the source
+# flavour first, per the -bin-later stance used for the kubernetes and
+# cilium rounds on the same issue. builtin-github recovers the
+# api.github.com release tarball; the simple-github template moves its
+# ovn-kubernetes-ovn-kubernetes-<sha7> unpack root
+# (mv ovn-kubernetes-ovn-kubernetes-* ${S}). The release titles
+# ("OVN-Kubernetes v1.4.0") are reduced to the plain version by a string
+# transform.
+#
+# The module lives in go-controller/ (the module line of its go.mod carries
+# the import prefix — the ovn-org path on the 1.2/1.3 lines, the
+# ovn-kubernetes one on 1.4; it is read at build time, so no path is
+# hard-coded) and ships a committed vendor/ tree on all three tracks, so no
+# go bundle is needed and no bundle extension runs. The build mirrors
+# upstream go-controller/hack/build-go.sh: CGO_ENABLED=0, -mod vendor
+# (explicit on the command line, as upstream does, so the go-module eclass
+# -mod=readonly GOFLAGS never fights it) and the pkg/config Commit, Branch,
+# BuildUser and BuildDate stamps plus the client-go gitVersion derived from
+# go.mod exactly the way the upstream script derives it. A tarball has no
+# git, so Branch gets upstream's own "unknown" fallback and Commit the tag's
+# commit sha: the builtin-github generator sets .Values.sha and it renders
+# at generation time, so the ebuild carries the literal 40 characters
+# upstream's git rev-parse would print. Upstream's random -B
+# BUILDID, needed only for RPM debuginfo, is not reproducible and is not
+# mirrored; no Version stamp is passed because pkg/config.Version is
+# already the exact release constant inside each tag's source.
+#
+# Toolchain: the build is pinned to the go 1.26 line. The go floors alone
+# (1.24.0/1.25.0/1.26.0 on 1.2/1.3/1.4) would pass every branch, but the
+# sandbox round found the releases do not compile with go >= 1.27 at all:
+# the vendored k8s.io/kube-openapi go-json-experiment shim dies against the
+# 1.27 stdlib json with "undefined: json.SkipFunc / json.DiscardUnknownMembers"
+# (captured in the PR body) — upstream's own go.mod pins toolchain go1.26.3.
+# The go-module toolchain rewrite only helps when the local toolchain is
+# OLDER than the source asks, so the ceiling is declared as a BDEPEND range
+# instead (the tool-cap pattern); a 1.26.x ebuild exists on every release
+# branch (mark-unstable 1.26.10, mark-xl 1.26.10, mark-iii 1.26.9,
+# mark-31 1.26.10). go-module is still inherited, with its go.mod override
+# disabled via EGO_OVERRIDE_GOMOD=0 — the module sits in the go-controller
+# subdirectory where the eclass check does not reach it anyway (the kubernetes
+# cluster uses the same opt-out), and the pinned toolchain needs no rewrite.
+#
+# The extra `make all` binaries (ovnkube-observ, ovnkube-trace,
+# ovn-kube-util, hybrid-overlay-node, plus ovndbchecker on the 1.2/1.3 cmd
+# sets) install behind a `helpers` USE flag, mirroring the accepted kube-ovn
+# pattern the maintainer blessed on the issue
+# (macaroni-os/mark-issues#862 issuecomment-6747169024).
+#
+# No init script by design: ovnkube runs as a Kubernetes workload
+# (daemonsets; upstream's contrib/ systemd units are out of scope), the same
+# disclosed stance as the kube-ovn (#553) and cilium daemons. The binaries
+# do need OVS/OVN at runtime on the host; that RDEPEND is intentionally not
+# declared before the OVN packages of macaroni-os/kit-fixups#552 land on
+# mark-unstable.
+ovn_kubernetes:
+  generator: builtin-github
+  defaults:
+    category: sys-cluster
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: ovn-kubernetes
+      repo: ovn-kubernetes
+    transform:
+      - kind: string
+        match: 'OVN-Kubernetes v'
+        replace: ''
+    vars:
+      desc: A robust Kubernetes networking platform based on OVN
+      homepage: https://ovn-kubernetes.io
+      license: Apache-2.0
+      inherit:
+        - go-module
+      restrict: test
+      # Ceiling, not floor: see the toolchain note in the header.
+      bdepend: |
+        >=dev-lang/go-1.26.0
+        <dev-lang/go-1.27.0
+      extra_envs:
+        - EGO_OVERRIDE_GOMOD=0
+      cni_plugin: false
+      body: |
+        src_compile() {
+          # The Go module of the tree is the go-controller subdirectory.
+          cd "${S}/go-controller" || die
+          export GOTOOLCHAIN=local
+          # Mirrors upstream go-controller/hack/build-go.sh (see the header):
+          # CGO_ENABLED=0, -mod vendor, and the -X stamps of pkg/config. The
+          # stamp prefix is the module path read from go.mod itself, so it is
+          # correct on both import paths (ovn-org on 1.2/1.3, ovn-kubernetes
+          # on 1.4); BuildUser and BuildDate are the build-machine values as
+          # the upstream script produces them.
+          local gopkg
+          gopkg=$(grep -m1 '^module ' go.mod | cut -f2 -d' ')
+          local clientgo_version
+          clientgo_version=$(grep 'k8s.io/client-go' go.mod | head -1 | cut -f2 -d' ')
+          local goldflags="-X ${gopkg}/pkg/config.Commit={{ .Values.sha }} -X ${gopkg}/pkg/config.Branch=unknown -X ${gopkg}/pkg/config.BuildUser=$(whoami) -X ${gopkg}/pkg/config.BuildDate=$(date +%Y-%m-%d) -X k8s.io/client-go/pkg/version.gitVersion=${clientgo_version}"
+          {{- if .Values.cni_plugin }}
+          # The worker CNI plugin, the single binary of this flavour.
+          env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovn-k8s-cni-overlay ./cmd/ovn-k8s-cni-overlay || die
+          {{- else }}
+          # Core: the master/node daemon and the identity service.
+          env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovnkube ./cmd/ovnkube || die
+          env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovnkube-identity ./cmd/ovnkube-identity || die
+          if use helpers ; then
+            # The rest of upstream's `make all` binary set
+            # (go-controller/Makefile -> hack/build-go.sh): the observability
+            # client, the connectivity tracer, the utility and the hybrid
+            # overlay node agent (Linux build).
+            env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovnkube-observ ./cmd/ovnkube-observ || die
+            env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovnkube-trace ./cmd/ovnkube-trace || die
+            env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovn-kube-util ./cmd/ovn-kube-util || die
+            env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o hybrid-overlay-node ./hybrid-overlay/cmd/hybrid-overlay-node || die
+            # ovndbchecker exists only on the 1.2/1.3 cmd sets (dropped on 1.4).
+            if [ -d cmd/ovndbchecker ] ; then
+              env CGO_ENABLED=0 go build -v -mod vendor -ldflags "${goldflags}" -o ovndbchecker ./cmd/ovndbchecker || die
+            fi
+          fi
+          {{- end }}
+        }
+
+        src_install() {
+          cd "${S}/go-controller" || die
+          {{- if .Values.cni_plugin }}
+          # CNI plugin binary into /opt/cni/bin — the house convention proven
+          # for net-misc/cni-plugins in the macaroni-os/kit-fixups#553 body.
+          exeinto /opt/cni/bin
+          doexe ovn-k8s-cni-overlay
+          {{- else }}
+          dobin ovnkube ovnkube-identity
+          if use helpers ; then
+            dobin ovnkube-observ ovnkube-trace ovn-kube-util hybrid-overlay-node
+            if [ -f ovndbchecker ] ; then
+              dobin ovndbchecker
+            fi
+          fi
+          {{- end }}
+        }
+  packages:
+    # The three maintained modern lines (1.2, 1.3, 1.4 — upstream publishes one
+    # release per line, no patch releases); the older v1.0/v1.1 lines and the
+    # 2020-2022 v0.x tags are outside the tracked set per the plan comment
+    # (macaroni-os/mark-issues#862 issuecomment-6747635217).
+    - ovn-kubernetes:
+        vars:
+          desc: Daemons of the OVN-based Kubernetes networking platform (ovnkube master/node, ovnkube-identity)
+          iuse: helpers
+        selector:
+          - '>=1.4.0'
+          - '<1.5.0'
+    - ovn-kubernetes:
+        vars:
+          desc: Daemons of the OVN-based Kubernetes networking platform (ovnkube master/node, ovnkube-identity)
+          iuse: helpers
+        selector:
+          - '>=1.3.0'
+          - '<1.4.0'
+    - ovn-kubernetes:
+        vars:
+          desc: Daemons of the OVN-based Kubernetes networking platform (ovnkube master/node, ovnkube-identity)
+          iuse: helpers
+        selector:
+          - '>=1.2.0'
+          - '<1.3.0'
+    - ovn-k8s-cni-overlay:
+        vars:
+          desc: CNI plugin binary of OVN-Kubernetes for Kubernetes worker nodes
+          cni_plugin: true
+        selector:
+          - '>=1.4.0'
+          - '<1.5.0'
+    - ovn-k8s-cni-overlay:
+        vars:
+          desc: CNI plugin binary of OVN-Kubernetes for Kubernetes worker nodes
+          cni_plugin: true
+        selector:
+          - '>=1.3.0'
+          - '<1.4.0'
+    - ovn-k8s-cni-overlay:
+        vars:
+          desc: CNI plugin binary of OVN-Kubernetes for Kubernetes worker nodes
+          cni_plugin: true
+        selector:
+          - '>=1.2.0'
+          - '<1.3.0'

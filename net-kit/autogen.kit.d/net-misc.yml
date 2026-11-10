@@ -475,3 +475,312 @@ ntp:
     - ntp:
 
 
+
+openvswitch:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: net-misc
+    github:
+      user: openvswitch
+      repo: ovs
+      query: tags
+
+    vars:
+      python_compat: "python3+"
+      inherit:
+        - autotools
+        - python-single-r1
+        - systemd
+        - tmpfiles
+      desc: Production quality, multilayer virtual switch
+      homepage: https://www.openvswitch.org
+      license: Apache-2.0 GPL-2
+      iuse: debug monitor +ssl systemd unwind
+      required_use: "${PYTHON_REQUIRED_USE}"
+      cdepend: |
+        ssl? ( dev-libs/openssl:0= )
+        unwind? ( sys-libs/libunwind:= )
+      rdepend: |
+        ${CDEPEND}
+        ${PYTHON_DEPS}
+        dev-python/ovs[${PYTHON_USEDEP}]
+        dev-python/twisted[conch,${PYTHON_USEDEP}]
+        dev-python/zope-interface[${PYTHON_USEDEP}]
+        net-dns/unbound
+        sys-libs/libcap-ng
+        debug? ( dev-lang/perl )
+      depend: |
+        ${RDEPEND}
+        sys-apps/util-linux[caps]
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        pkg_setup() {
+          python-single-r1_pkg_setup
+        }
+        src_prepare() {
+          default
+          eautoreconf
+        }
+        src_configure() {
+          # flake8 is primarily a style guide tool: running it as part of the
+          # build only breaks it (Gentoo bug 607280).
+          export ovs_cv_flake8="no"
+          # Skip the man-page diagram; it would need graphviz (Gentoo bug 856286).
+          export ovs_cv_dot="no"
+          export PYTHON3="${PYTHON}"
+          export ac_cv_lib_unwind_unw_backtrace=$(usex unwind)
+
+          local myeconfargs=(
+            --with-rundir=/run/openvswitch
+            --with-logdir=/var/log/openvswitch
+            --with-pkidir=/etc/ssl/openvswitch
+            --with-dbdir=/var/lib/openvswitch
+            --enable-libcapng
+            $(use_enable ssl)
+            $(use_enable !debug ndebug)
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+
+          local script
+          if use monitor ; then
+            # The set of shipped Python helpers changes across OVS releases
+            # (4.0 dropped ovs-parse-backtrace/l3ping/test/vlan-test and
+            # bugtool/ovs-bugtool): install whichever utilities/ovs-* helper
+            # carries a Python shebang in this release.
+            for script in utilities/ovs-* ; do
+              [[ -f "${script}" ]] || continue
+              [[ "$(head -n 1 "${script}")" == *python* ]] || continue
+              python_doscript "${script}"
+            done
+            rm -r "${ED}"/usr/share/openvswitch/python || die
+          fi
+
+          keepdir /var/{lib,log}/openvswitch
+          keepdir /etc/openvswitch
+          keepdir /etc/ssl/openvswitch
+          fperms 0750 /etc/ssl/openvswitch
+
+          rm -rf "${ED}"/var/run || die
+
+          # The systemd units keep EnvironmentFile=-/etc/conf.d/<service>, so
+          # the same knobs work for both init systems.
+          newconfd "${FILESDIR}/ovsdb-server.confd" ovsdb-server
+          newconfd "${FILESDIR}/ovs-vswitchd.confd" ovs-vswitchd
+
+          if use systemd ; then
+            systemd_newunit "${FILESDIR}/ovsdb-server.service" ovsdb-server.service
+            systemd_newunit "${FILESDIR}/ovs-vswitchd.service" ovs-vswitchd.service
+            systemd_newunit rhel/usr_lib_systemd_system_ovs-delete-transient-ports.service ovs-delete-transient-ports.service
+            newtmpfiles "${FILESDIR}/openvswitch.tmpfiles" openvswitch.conf
+          else
+            newinitd "${FILESDIR}/ovsdb-server.initd" ovsdb-server
+            newinitd "${FILESDIR}/ovs-vswitchd.initd" ovs-vswitchd
+          fi
+
+          insinto /etc/logrotate.d
+          newins rhel/etc_logrotate.d_openvswitch openvswitch
+        }
+        pkg_postinst() {
+          if use systemd ; then
+            tmpfiles_process openvswitch.conf
+          fi
+
+          elog "Use the following command to create an initial database for ovsdb-server:"
+          elog "   emerge --config =${CATEGORY}/${PF}"
+          elog "(will create a database in /var/lib/openvswitch/conf.db)"
+          elog "or to convert the database to the current schema after upgrading."
+        }
+        pkg_config() {
+          local db="${EROOT}/var/lib/openvswitch/conf.db"
+          if [[ -e "${db}" ]] ; then
+            einfo "Database '${db}' already exists, doing schema migration..."
+            einfo "(if the migration fails, make sure that ovsdb-server is not running)"
+            ovsdb-tool convert "${db}" \
+              "${EROOT}/usr/share/openvswitch/vswitch.ovsschema" || die "converting database failed"
+          else
+            einfo "Creating new database '${db}'..."
+            ovsdb-tool create "${db}" \
+              "${EROOT}/usr/share/openvswitch/vswitch.ovsschema" || die "creating database failed"
+          fi
+        }
+  packages:
+    - openvswitch:
+        exclude:
+          - 'rc'
+          - 'beta'
+
+
+ovn:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  extensions_defs:
+    git-submodules:
+      opts:
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-misc
+    github:
+      user: ovn-org
+      repo: ovn
+      query: tags
+
+    vars:
+      python_compat: "python3+"
+      inherit:
+        - autotools
+        - python-single-r1
+        - systemd
+      desc: Open Virtual Network
+      homepage: https://www.ovn.org/
+      license: Apache-2.0 GPL-2
+      iuse: +dns +ssl systemd
+      required_use: "${PYTHON_REQUIRED_USE}"
+      rdepend: |
+        ${PYTHON_DEPS}
+        dev-libs/openssl:=
+        net-misc/openvswitch
+        sys-libs/libcap-ng
+        dns? ( net-dns/unbound )
+      depend: |
+        ${RDEPEND}
+      bdepend: |
+        virtual/pkgconfig
+      body: |
+        src_unpack() {
+          default
+
+          # The gitsubmodules bundle is always unpacked under pkg_basedir.
+          # For an annotated tag the default source tarball unpacks under the
+          # tag-object sha instead, so two roots can be present: move the
+          # bundle's ovs/ aside and keep the source tree.  With a lightweight
+          # tag both share one root and the ovs/ tree is already merged.
+          local bundle="${WORKDIR}/{{ .Values.pkg_basedir }}"
+          local roots=( "${WORKDIR}"/ovn-org-ovn-* )
+
+          if [[ ${#roots[@]} -eq 1 ]] ; then
+            mv "${roots[0]}" "${S}" || die
+          else
+            mv "${bundle}/ovs" "${WORKDIR}/ovs" || die
+            rm -rf "${bundle}" || die
+            mv "${WORKDIR}"/ovn-org-ovn-* "${S}" || die
+            rm -rf "${S}/ovs"
+            mv "${WORKDIR}/ovs" "${S}/ovs" || die
+          fi
+        }
+        src_prepare() {
+          default
+
+          pushd "${S}/ovs" >/dev/null || die
+          ./boot.sh || die
+          popd >/dev/null || die
+          ./boot.sh || die
+        }
+        src_configure() {
+          pushd "${S}/ovs" >/dev/null || die
+          econf \
+            --with-pkidir=/etc/ssl/openvswitch \
+            --enable-libcapng \
+            --enable-ssl \
+            PYTHON3="${PYTHON}" || die
+          popd >/dev/null || die
+
+          # OVN_CHECK_UNBOUND autodetects libunbound; pin it to the USE flag
+          # so USE=-dns really builds without the dependency.
+          export ac_cv_lib_unbound_ub_ctx_create=$(usex dns)
+
+          local myeconfargs=(
+            --with-ovs-source="${S}/ovs"
+            --with-ovs-build="${S}/ovs"
+            --with-rundir=/run/ovn
+            --with-dbdir=/var/lib/ovn
+            --with-logdir=/var/log/ovn
+            --with-pkidir=/etc/ssl/ovn
+            --enable-libcapng
+            $(use_enable ssl)
+          )
+          econf "${myeconfargs[@]}" PYTHON3="${PYTHON}"
+        }
+        src_compile() {
+          pushd "${S}/ovs" >/dev/null || die
+          emake
+          popd >/dev/null || die
+          emake
+        }
+        src_install() {
+          default
+
+          # Upstream installs the man-page helper as ovn_detrace.py.
+          mv "${ED}/usr/bin/ovn_detrace.py" "${ED}/usr/bin/ovn-detrace" || die
+
+          keepdir /var/{lib,log}/ovn
+          keepdir /etc/ssl/ovn
+          fperms 0750 /etc/ssl/ovn
+
+          insinto /etc/logrotate.d
+          newins rhel/etc_logrotate.d_ovn ovn
+
+          # ovn-central starts the northbound and southbound OVSDB servers
+          # plus ovn-northd (the Ubuntu/geaaru overlay layout LXD/Incus
+          # expects); ovn-controller is the per-host daemon.  The extra
+          # vtep/IC units are shipped too, as in the overlay.
+          newconfd "${FILESDIR}/ovn-central.confd" ovn-central
+          newconfd "${FILESDIR}/ovn-north.confd" ovn-north
+          newconfd "${FILESDIR}/ovn-south.confd" ovn-south
+          newconfd "${FILESDIR}/ovn-controller.confd" ovn-controller
+          newconfd "${FILESDIR}/ovn-controller-vtep.confd" ovn-controller-vtep
+          newconfd "${FILESDIR}/ovn-ic.confd" ovn-ic
+          newconfd "${FILESDIR}/ovn-ic-ovsdb.confd" ovn-ic-ovsdb
+
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}/ovn-central.service"
+            systemd_dounit "${FILESDIR}/ovn-north.service"
+            systemd_dounit "${FILESDIR}/ovn-south.service"
+            systemd_dounit "${FILESDIR}/ovn-controller.service"
+            systemd_dounit "${FILESDIR}/ovn-controller-vtep.service"
+            systemd_dounit "${FILESDIR}/ovn-ic.service"
+            systemd_dounit "${FILESDIR}/ovn-ic-ovsdb.service"
+          else
+            newinitd "${FILESDIR}/ovn-central.initd" ovn-central
+            newinitd "${FILESDIR}/ovn-north.initd" ovn-north
+            newinitd "${FILESDIR}/ovn-south.initd" ovn-south
+            newinitd "${FILESDIR}/ovn-controller.initd" ovn-controller
+            newinitd "${FILESDIR}/ovn-controller-vtep.initd" ovn-controller-vtep
+            newinitd "${FILESDIR}/ovn-ic.initd" ovn-ic
+            newinitd "${FILESDIR}/ovn-ic-ovsdb.initd" ovn-ic-ovsdb
+          fi
+        }
+  packages:
+    # LTS 26.03
+    - ovn:
+        selector:
+          - '>=26.03.0'
+          - '<26.09.0'
+        exclude:
+          - 'rc'
+          - 'beta'
+        extensions:
+          - git-submodules
+
+    # LTS 26.09
+    - ovn:
+        selector:
+          - '>=26.09.0'
+          - '<26.10.0'
+        exclude:
+          - 'rc'
+          - 'beta'
+        extensions:
+          - git-submodules

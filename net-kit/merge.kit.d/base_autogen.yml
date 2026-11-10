@@ -71,6 +71,17 @@ target:
     - pkg: net-mail/dovecot
 
     - pkg: net-misc/freerdp
+    # LTS 26.03
+    - pkg: net-misc/ovn
+      conditions:
+        - '>=net-misc/ovn-26.03.0'
+        - '<net-misc/ovn-26.09.0'
+    # LTS 26.09
+    - pkg: net-misc/ovn
+      conditions:
+        - '>=net-misc/ovn-26.09.0'
+        - '<net-misc/ovn-26.10.0'
+    - pkg: net-misc/openvswitch
     - pkg: net-misc/wsdd
     - pkg: net-misc/networkmanager
     - pkg: net-misc/ntp

@@ -1,0 +1,78 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="OVN Southbound database server"
+
+command="/usr/share/ovn/scripts/ovn-ctl"
+command_args=""
+pidfile="/var/run/ovn/ovnsb_db.pid"
+
+checkconfig() {
+	binaries=(
+		"/usr/share/ovn/scripts/ovn-ctl"
+	)
+
+	for b in ${binaries[@]}; do
+		if [ ! -x ${b} ]; then
+			eerror "Wrong permission to ${b}"
+			return 1
+		fi
+	done
+
+	# Default path of OVSDB databases.
+	export OVN_DBDIR=${OVN_DBDIR:-/var/lib/ovn}
+	export OVN_RUNDIR=${OVN_RUNDIR:-/var/run/ovn}
+
+	return 0
+}
+
+depend() {
+	need net
+	use logger
+}
+
+run_ovn_ctl() {
+	set /usr/share/ovn/scripts/ovn-ctl ${1-start_sb_ovsdb}
+	set "$@" $OVN_CTL_OPTS
+	"$@"
+	return $?
+}
+
+start() {
+	ebegin "Starting OVN Southbound database"
+
+	checkconfig || return 1
+	checkpath -d "${OVN_RUNDIR}" -m 0750
+
+	run_ovn_ctl
+	retval=$?
+	einfo ""
+	eend ${retval} "Failed starting OVN Southbound database"
+}
+
+status() {
+	checkconfig || return 1
+
+	if [ -s "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+		einfo "ovn-south is running"
+		return 0
+	fi
+
+	eerror "ovn-south is stopped"
+	return 3
+}
+
+restart() {
+	checkconfig || return 1
+	run_ovn_ctl restart_sb_ovsdb
+	return $?
+}
+
+stop() {
+	checkconfig || return 1
+	ebegin "Stopping OVN Southbound database"
+	run_ovn_ctl stop_sb_ovsdb
+	retval=$?
+	einfo ""
+	eend ${retval}
+}

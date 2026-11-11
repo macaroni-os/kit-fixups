@@ -1,0 +1,33 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="RustFS S3-compatible object storage server"
+
+command="/usr/bin/rustfs"
+command_args="${command_args:-server}"
+command_background="true"
+command_user="rustfs:rustfs"
+pidfile=${pidfile:-"/run/${RC_SVCNAME}.pid"}
+retry="TERM/10/KILL/5"
+
+LOG_PATH="/var/log/${RC_SVCNAME}"
+start_stop_daemon_args="--stdout ${LOG_PATH}/${RC_SVCNAME}.log --stderr ${LOG_PATH}/${RC_SVCNAME}.log"
+
+# The server is environment-driven: hand the conf.d settings to it.
+: "${RUSTFS_VOLUMES:=/var/lib/rustfs}"
+: "${RUSTFS_ADDRESS:=0.0.0.0:9000}"
+: "${RUSTFS_CONSOLE_ENABLE:=true}"
+: "${RUSTFS_CONSOLE_ADDRESS:=0.0.0.0:9001}"
+export RUSTFS_VOLUMES RUSTFS_ADDRESS RUSTFS_CONSOLE_ENABLE RUSTFS_CONSOLE_ADDRESS
+export RUSTFS_ACCESS_KEY RUSTFS_SECRET_KEY RUSTFS_SERVER_DOMAINS RUSTFS_TLS_PATH
+export RUSTFS_OBS_ENDPOINT RUSTFS_LICENSE
+
+depend() {
+	need net
+	use dns
+}
+
+start_pre() {
+	checkpath -q -d -o rustfs:rustfs -m 0700 /var/lib/rustfs
+	checkpath -q -d -o rustfs:rustfs -m 0750 "${LOG_PATH}"
+}

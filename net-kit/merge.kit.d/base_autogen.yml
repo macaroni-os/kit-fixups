@@ -52,6 +52,10 @@ target:
     - pkg: net-fs/silo
     - pkg: net-fs/minio-client
     - pkg: net-fs/samba
+    # Only the stable 1.0.x line: upstream tags prereleases below 1.0.0
+    - pkg: net-fs/rustfs
+      conditions:
+        - '>=net-fs/rustfs-1.0.0'
 
     - pkg: net-libs/accounts-qt
     - pkg: net-libs/c-client

@@ -1,0 +1,32 @@
+# Configuration for /etc/init.d/rustfs
+#
+# The server reads its runtime settings from the RUSTFS_* variables.
+
+# Data volume storage paths: a single directory, or the multi-volume
+# form "/var/lib/rustfs/vol{1...4}"
+RUSTFS_VOLUMES="/var/lib/rustfs"
+
+# S3 API listen address and port
+RUSTFS_ADDRESS="0.0.0.0:9000"
+
+# Embedded web console
+RUSTFS_CONSOLE_ENABLE="true"
+RUSTFS_CONSOLE_ADDRESS="0.0.0.0:9001"
+
+# Admin credentials: set both before the first start, otherwise the
+# server uses its built-in default credentials.
+#RUSTFS_ACCESS_KEY=""
+#RUSTFS_SECRET_KEY=""
+
+# Optional service domain(s) for virtual-hosted-style requests
+# (comma-separated). Without it only path-style addressing works.
+#RUSTFS_SERVER_DOMAINS="s3.example.com"
+
+# Optional directory with server TLS certificates (server.crt/server.key)
+#RUSTFS_TLS_PATH="/var/lib/rustfs/tls"
+
+# Optional OpenTelemetry collector endpoint
+#RUSTFS_OBS_ENDPOINT="http://localhost:4318"
+
+# Optional license content
+#RUSTFS_LICENSE=""

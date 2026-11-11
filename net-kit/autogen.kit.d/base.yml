@@ -4408,3 +4408,110 @@ net_libs_dirlisting:
               # Documentation
               dodoc README docs/*.txt docs/BUILD docs/CONFIG docs/RELNOTES docs/SSLBUILD
             }
+
+rustfs:
+  generator: builtin-github
+
+  defaults:
+    category: net-fs
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+    github:
+      user: rustfs
+    # Upstream publishes -alpha/-beta/-rc/-preview releases next to the
+    # stable line; they are all flagged as GitHub prereleases and the
+    # >=1.0.0 selector excludes them by semver order. The atom-level
+    # exclude list is the explicit guard on the same titles.
+    exclude:
+      - alpha
+      - beta
+      - rc
+      - preview
+
+  extensions_defs:
+    rust:
+      opts:
+        # The pinned git deps of the workspace live on non-default
+        # branches: the crate checkout needs all refs.
+        crates_git_single_branch: 'false'
+
+  packages:
+
+    - rustfs:
+        extensions:
+          - rust
+        # The upstream [patch.crates-io] section re-uses the crate name
+        # "zstd" for a path crate, so the name-keyed local crate detection
+        # of the rust extension drops the registry zstd pinned in
+        # Cargo.lock from the bundle. Declare that one crate directly; the
+        # list then must re-carry the main source tarball as first entry
+        # (an empty-vs-set assets list replaces the generator default).
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+            url: 'https://api.github.com/repos/{{ .Values.github_user }}/{{ .Values.github_repo }}/tarball/{{ .Values.version }}'
+          - name: 'zstd-{{ .Values.zstd_pv }}.crate'
+            url: 'https://crates.io/api/v1/crates/zstd/{{ .Values.zstd_pv }}/download'
+        transform:
+          - kind: string
+            match: 'RustFS '
+            replace: ''
+        vars:
+          zstd_pv: 0.14.3
+          desc: A high-performance distributed S3-compatible object storage server
+          homepage: https://rustfs.com
+          license: Apache-2.0
+          iuse: systemd
+          inherit:
+            - cargo
+            - systemd
+            - user
+          bdepend: |
+            app-arch/xz-utils
+            virtual/pkgconfig
+            virtual/rust
+          rdepend: |
+            app-arch/xz-utils:=
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="usr/bin/rustfs"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S} || die
+              # Load the zstd crate declared as asset into the vendored
+              # registry: ${A} only gets unpacked, not indexed, by the
+              # bundle branch of cargo_src_unpack.
+              _cargo_process_crate "${DISTDIR}/zstd-{{ .Values.zstd_pv }}.crate"
+            }
+
+            src_configure() {
+              # Upstream declares rust-version = 1.99.0 while the kit ships
+              # dev-lang/rust 1.98.1; the workspace compiles with the kit
+              # toolchain, so only the MSRV gate is ignored. --bin rustfs:
+              # the workspace also carries upstream test/tool binaries.
+              cargo_src_configure --ignore-rust-version --bin rustfs
+            }
+
+            src_install() {
+              local target_dir="${CARGO_TARGET_DIR:-target}/$(usex debug debug release)"
+              dobin "${target_dir}/rustfs"
+
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/rustfs.service
+              else
+                newinitd "${FILESDIR}"/rustfs.initd rustfs
+              fi
+              newconfd "${FILESDIR}"/rustfs.confd rustfs
+
+              keepdir /var/lib/rustfs
+              fowners rustfs:rustfs /var/lib/rustfs
+              fperms 0700 /var/lib/rustfs
+            }
+
+            pkg_setup() {
+              # Static uid/gid: macaroni-commons packages/entities/groups.yaml
+              enewgroup rustfs 519
+              enewuser rustfs 519 -1 /dev/null rustfs
+            }
+        selector:
+          - '>=1.0.0'

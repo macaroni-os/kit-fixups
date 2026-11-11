@@ -1,0 +1,44 @@
+[Unit]
+Description=RustFS Object Storage Server
+Documentation=https://rustfs.com/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+NotifyAccess=main
+User=rustfs
+Group=rustfs
+WorkingDirectory=/var/lib/rustfs
+EnvironmentFile=-/etc/conf.d/rustfs
+ExecStart=/usr/bin/rustfs server
+
+# Type=notify waits for READY=1, so the startup timeout must cover
+# initialization plus readiness checks on slower disks or cold starts.
+TimeoutStartSec=120s
+TimeoutStopSec=45s
+Restart=always
+RestartSec=10s
+LimitNOFILE=1048576
+LimitNPROC=32768
+TasksMax=infinity
+
+LogsDirectory=rustfs
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+ReadWritePaths=/var/lib/rustfs /var/log/rustfs
+
+[Install]
+WantedBy=multi-user.target

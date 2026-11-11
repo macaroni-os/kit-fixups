@@ -72,6 +72,11 @@ target:
     - pkg: net-fs/libnfs
     - pkg: net-fs/nfs-utils
 
+    # stable 1.0.x only: upstream tags prereleases below 1.0.0
+    - pkg: net-fs/rustfs
+      conditions:
+        - '>=net-fs/rustfs-1.0.0'
+
     - pkg: net-ftp/atftp
     - pkg: net-ftp/ftpbase
     - pkg: net-ftp/proftpd

@@ -1,0 +1,723 @@
+# Autogen cluster for the Vim editor stack. vim, vim-core and gvim are built
+# from the same upstream repository (https://github.com/vim/vim), so they share
+# one cluster and must always resolve the same version: vim and gvim pin
+# ~app-editors/vim-core-<pv>. Upstream publishes no GitHub releases, only tags.
+vim:
+  generator: builtin-github
+  defaults:
+    category: app-editors
+    files_dir: '{{ .Values.pn }}'
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: vim
+      repo: vim
+      query: tags
+    vars:
+      license: vim
+
+  packages:
+
+    - vim:
+        vars:
+          desc: Vim, an improved vi-style text editor
+          homepage: https://www.vim.org/ https://github.com/vim/vim
+          python_compat: python3+
+          extra_envs:
+            - LUA_COMPAT=( lua5-1 luajit )
+            - PYTHON_REQ_USE="threads(+)"
+            - USE_RUBY="ruby31"
+          inherit:
+            - vim-doc
+            - flag-o-matic
+            - bash-completion-r1
+            - python-single-r1
+            - lua-single
+            - ruby-single
+            - desktop
+            - xdg-utils
+          iuse: X acl crypt cscope debug gpm lua minimal nls perl python ruby sound tcl terminal vim-pager
+          required_use: |
+            lua? ( ${LUA_REQUIRED_USE} )
+            python? ( ${PYTHON_REQUIRED_USE} )
+            vim-pager? ( !minimal )
+          rdepend: |
+            >=app-eselect/eselect-vi-1.1
+            sys-libs/ncurses
+            nls? ( virtual/libintl )
+            acl? ( sys-apps/acl )
+            crypt? ( dev-libs/libsodium:= )
+            cscope? ( dev-util/cscope )
+            gpm? ( >=sys-libs/gpm-1.19.3 )
+            lua? (
+              ${LUA_DEPS}
+              $(lua_gen_impl_dep 'deprecated' lua5-1)
+            )
+            ~app-editors/vim-core-{{ .Values.pv }}
+            vim-pager? ( app-editors/vim-core[-minimal] )
+            perl? ( dev-lang/perl:= )
+            python? ( ${PYTHON_DEPS} )
+            ruby? ( ${RUBY_DEPS} )
+            sound? ( media-libs/libcanberra )
+            tcl? ( dev-lang/tcl:0= )
+            X? ( x11-libs/libXt )
+          depend: |
+            ${RDEPEND}
+            sys-devel/autoconf
+            lua? ( ${LUA_DEPS} )
+            nls? ( sys-devel/gettext )
+          pdepend: '!minimal? ( app-vim/gentoo-syntax )'
+          body: |
+            pkg_setup() {
+            	# People with broken alphabets run into trouble.
+            	unset LANG LC_ALL
+            	export LC_COLLATE="C"
+
+            	use lua && lua-single_pkg_setup
+            	use python && python-single-r1_pkg_setup
+            }
+
+            src_prepare() {
+            	default
+
+            	# Fix up a script to use awk instead of nawk
+            	sed -i -e '1s|.*|#!/usr/bin/awk -f|' \
+            		"${S}"/runtime/tools/mve.awk || die "mve.awk sed failed"
+
+            	# Read vimrc and gvimrc from /etc/vim
+            	echo '#define SYS_VIMRC_FILE "/etc/vim/vimrc"' \
+            		>> "${S}"/src/feature.h || die "echo failed"
+            	echo '#define SYS_GVIMRC_FILE "/etc/vim/gvimrc"' \
+            		>> "${S}"/src/feature.h || die "echo failed"
+
+            	# Use exuberant ctags which installs as /usr/bin/exuberant-ctags.
+            	# Hopefully this pattern won't break for a while at least.
+            	sed -i 's/\<ctags\("\| [-*.]\)/exuberant-&/g' \
+            		"${S}"/runtime/doc/syntax.txt \
+            		"${S}"/runtime/doc/tagsrch.txt \
+            		"${S}"/runtime/doc/usr_29.txt \
+            		"${S}"/runtime/menu.vim \
+            		"${S}"/src/configure.ac || die 'sed failed'
+
+            	# Don't be fooled by /usr/include/libc.h. When found, vim thinks
+            	# this is NeXT, but it's actually just a file in dev-libs/9libs
+            	sed -i 's/ libc\.h / /' "${S}"/src/configure.ac || die 'sed failed'
+
+            	# Conditionally make the manpager.sh script
+            	if use vim-pager; then
+            		cat > "${S}"/runtime/macros/manpager.sh <<-_EOF_ || die "cat EOF failed"
+            			#!/bin/sh
+            			sed -e 's/\x1B\[[[:digit:]]\+m//g' | col -b | \\
+            					vim \\
+            						-c 'let no_plugin_maps = 1' \\
+            						-c 'set nolist nomod ft=man ts=8' \\
+            						-c 'let g:showmarks_enable=0' \\
+            						-c 'runtime! macros/less.vim' -
+            		_EOF_
+            	fi
+
+            	# Try to avoid sandbox problems in the po test target.
+            	if [[ -d "${S}"/src/po ]]; then
+            		sed -i -e \
+            			'/-S check.vim/s,..VIM.,ln -s $(VIM) testvim \; ./testvim -X,' \
+            			"${S}"/src/po/Makefile || die "sed failed"
+            	fi
+
+            	cp "${S}"/src/config.mk.dist "${S}"/src/auto/config.mk || die "Failed to copy config.mk."
+
+            	# Build properly with >=perl-core/ExtUtils-ParseXS-3.20.0
+            	sed -i "s:\\\$(PERLLIB)/ExtUtils/xsubpp:/usr/bin/xsubpp:" \
+            		"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
+            }
+
+            src_configure() {
+            	# Disallow -funroll-all-loops, it causes problems
+            	filter-flags -funroll-all-loops
+
+            	# -O3 causes problems, use -O2 instead
+            	replace-flags -O3 -O2
+
+            	emake -j1 -C src autoconf
+
+            	# This should fix a sandbox violation. The hvc things are for
+            	# ppc64 consoles.
+            	for file in /dev/pty/s* /dev/console /dev/hvc/* /dev/hvc*; do
+            		if [[ -e "${file}" ]]; then
+            			addwrite ${file}
+            		fi
+            	done
+
+            	local myconf=()
+            	if use minimal ; then
+            		myconf=(
+            			--with-features=tiny
+            			--disable-nls
+            			--disable-multibyte
+            			--disable-acl
+            			--enable-gui=no
+            			--without-x
+            			--disable-darwin
+            			--disable-luainterp
+            			--disable-perlinterp
+            			--disable-pythoninterp
+            			--disable-mzschemeinterp
+            			--disable-rubyinterp
+            			--disable-selinux
+            			--disable-tclinterp
+            			--disable-gpm
+            		)
+            	else
+            		use debug && append-flags "-DDEBUG"
+
+            		myconf=(
+            			--with-features=huge
+            			$(use_enable sound canberra)
+            			$(use_enable acl)
+            			$(use_enable crypt libsodium)
+            			$(use_enable cscope)
+            			$(use_enable gpm)
+            			$(use_enable nls)
+            			$(use_enable perl perlinterp)
+            			$(use_enable python python3interp)
+            			$(use_with python python3-command "${PYTHON}")
+            			$(use_enable ruby rubyinterp)
+            			$(use_enable tcl tclinterp)
+            			$(use_enable terminal)
+            		)
+
+            		# --with-features=huge forces on cscope even if we --disable it,
+            		# so sed it out of feature.h to avoid screwiness.
+            		if ! use cscope ; then
+            			sed -i '/# define FEAT_CSCOPE/d' src/feature.h || \
+            			die "couldn't disable cscope"
+            		fi
+
+            		if use lua; then
+            			# -DLUA_COMPAT_OPENLIB=1 is required to enable the
+            			# luaL_openlib API deprecated in lua 5.1
+            			use lua_single_target_lua5-1 && append-cppflags -DLUA_COMPAT_OPENLIB=1
+
+            			myconf+=(
+            				--enable-luainterp
+            				$(use_with lua_single_target_luajit luajit)
+            				--with-lua-prefix="/usr"
+            			)
+            		fi
+
+            		# Don't test USE=X here, but provide a way to link against X
+            		myconf+=(
+            			--enable-gui=no
+            			--disable-darwin
+            			$(use_with X x)
+            		)
+            	fi
+
+            	# let package manager strip binaries
+            	export ac_cv_prog_STRIP="$(type -P true ) faking strip"
+
+            	econf \
+            		--with-modified-by=MacaroniOS-{{ .Values.pv }} \
+            		"${myconf[@]}"
+            }
+
+            src_compile() {
+            	# The following allows emake to be used
+            	emake -j1 -C src auto/osdef.h objects
+
+            	emake
+            }
+
+            # Call eselect vi update with --if-unset to respect user's choice
+            eselect_vi_update() {
+            	ebegin "Calling eselect vi update"
+            	eselect vi update --if-unset
+            	eend $?
+            }
+
+            src_install() {
+            	local vimfiles=/usr/share/vim/vim{{ regexReplaceAll "\\." (regexFind "^[0-9]+\\.[0-9]+" .Values.pv) "" }}
+
+            	# Note: Do not install symlinks for 'vi', 'ex', or 'view', as
+            	# these are managed by eselect-vi
+            	dobin src/vim
+            	if ! use minimal ; then
+            		dosym vim /usr/bin/vimdiff
+            	fi
+            	dosym vim /usr/bin/rvim
+            	dosym vim /usr/bin/rview
+            	if use vim-pager ; then
+            		dosym ${vimfiles}/macros/less.sh /usr/bin/vimpager
+            		dosym ${vimfiles}/macros/manpager.sh /usr/bin/vimmanpager
+            		insinto ${vimfiles}/macros
+            		doins runtime/macros/manpager.sh
+            		fperms a+x ${vimfiles}/macros/manpager.sh
+            	fi
+
+            	domenu runtime/vim.desktop
+
+            	newbashcomp "${FILESDIR}"/{{ .Values.pn }}-completion {{ .Values.pn }}
+
+            	# keep in sync with 'complete ... -F' list
+            	bashcomp_alias vim ex vi view rvim rview vimdiff
+            }
+
+            pkg_postinst() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Call eselect vi update
+            	eselect_vi_update
+
+            	# update desktop file mime cache
+            	xdg_desktop_database_update
+            }
+
+            pkg_postrm() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Call eselect vi update
+            	eselect_vi_update
+
+            	# update desktop file mime cache
+            	xdg_desktop_database_update
+            }
+
+    - vim-core:
+        vars:
+          desc: Vim and GVim shared files
+          homepage: https://www.vim.org/ https://github.com/vim/vim
+          inherit:
+            - bash-completion-r1
+            - desktop
+            - flag-o-matic
+            - vim-doc
+            - xdg-utils
+          iuse: nls acl minimal
+          # The tree carries only modern ncurses (sys-libs/ncurses-6.5), so
+          # no version floor or subslot operator is required
+          depend: 'sys-libs/ncurses'
+          bdepend: 'sys-devel/autoconf'
+          body: |
+            pkg_setup() {
+            	# People with broken alphabets run into trouble.
+            	unset LANG LC_ALL
+            	export LC_COLLATE="C"
+            }
+
+            src_prepare() {
+            	default
+
+            	# Fix up a script to use awk instead of nawk
+            	sed -i \
+            		-e '1s|.*|#!/usr/bin/awk -f|' \
+            		"${S}"/runtime/tools/mve.awk || die "sed failed"
+
+            	# Remove the vimspell helper after tarball extraction
+            	rm -v "${S}"/runtime/tools/vimspell.sh || die "rm failed"
+
+            	# Read vimrc and gvimrc from /etc/vim
+            	echo '#define SYS_VIMRC_FILE "/etc/vim/vimrc"' >> "${S}"/src/feature.h
+            	echo '#define SYS_GVIMRC_FILE "/etc/vim/gvimrc"' >> "${S}"/src/feature.h
+
+            	# Use exuberant ctags which installs as /usr/bin/exuberant-ctags.
+            	# Hopefully this pattern won't break for a while at least.
+            	sed -i 's/\<ctags\("\| [-*.]\)/exuberant-&/g' \
+            		"${S}"/runtime/doc/syntax.txt \
+            		"${S}"/runtime/doc/tagsrch.txt \
+            		"${S}"/runtime/doc/usr_29.txt \
+            		"${S}"/runtime/menu.vim \
+            		"${S}"/src/configure.ac || die 'sed failed'
+
+            	# Don't be fooled by /usr/include/libc.h. When found, vim thinks
+            	# this is NeXT, but it's actually just a file in dev-libs/9libs
+            	sed -i 's/ libc\.h / /' "${S}"/src/configure.ac || die 'sed failed'
+
+            	# Try to avoid sandbox problems in the po test target.
+            	if [[ -d "${S}"/src/po ]] ; then
+            		sed -i -e \
+            			'/-S check.vim/s,..VIM.,ln -s $(VIM) testvim \; ./testvim -X,' \
+            			"${S}"/src/po/Makefile
+            	fi
+
+            	cp "${S}"/src/config.mk.dist "${S}"/src/auto/config.mk || die "Failed to copy config.mk"
+
+            	# Build properly with >=perl-core/ExtUtils-ParseXS-3.20.0
+            	sed -i "s:\\\$(PERLLIB)/ExtUtils/xsubpp:/usr/bin/xsubpp:" \
+            		"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
+
+            	# -O3 causes problems, use -O2 instead
+            	replace-flags -O3 -O2
+
+            	# Prevent "make" from the following chain:
+            	# (1) Notice configure.ac is newer than auto/configure
+            	# (2) Rebuild auto/configure
+            	# (3) Notice auto/configure is newer than auto/config.mk
+            	# (4) Run ./configure (with wrong args) to remake auto/config.mk
+            	sed -i 's# auto/config\.mk:#:#' src/Makefile || die "Makefile sed failed"
+
+            	# Remove the src/auto/configure file
+            	rm -v src/auto/configure || die "rm configure failed"
+            }
+
+            src_configure() {
+            	# Disallow -funroll-all-loops, it causes problems
+            	filter-flags -funroll-all-loops
+
+            	emake -j1 -C src autoconf
+
+            	# This should fix a sandbox violation. The hvc things are for
+            	# ppc64 consoles.
+            	for file in /dev/pty/s* /dev/console /dev/hvc/* /dev/hvc*; do
+            		if [[ -e "${file}" ]]; then
+            			addwrite ${file}
+            		fi
+            	done
+
+            	# Let Portage do the stripping. Some people like that.
+            	export ac_cv_prog_STRIP="$(type -P true ) faking strip"
+
+            	local myconf=(
+            		--with-modified-by=MacaroniOS-{{ .Values.pv }}
+            		--enable-gui=no
+            		--without-x
+            		--disable-darwin
+            		--disable-perlinterp
+            		--disable-pythoninterp
+            		--disable-rubyinterp
+            		--disable-gpm
+            		--disable-selinux
+            		$(use_enable nls)
+            		$(use_enable acl)
+            	)
+
+            	econf "${myconf[@]}"
+            }
+
+            src_compile() {
+            	# The following allows emake to be used
+            	emake -j1 -C src auto/osdef.h objects
+
+            	emake tools
+            }
+
+            src_install() {
+            	local vimfiles=/usr/share/vim/vim{{ regexReplaceAll "\\." (regexFind "^[0-9]+\\.[0-9]+" .Values.pv) "" }}
+
+            	dodir /usr/{bin,share/{man/man1,vim}}
+            	emake -C src \
+            		installruntime \
+            		installmanlinks \
+            		installmacros \
+            		installtutor \
+            		installtutorbin \
+            		installtools \
+            		install-languages \
+            		DESTDIR="${D}" \
+            		BINDIR=/usr/bin \
+            		MANDIR=/usr/share/man \
+            		DATADIR=/usr/share
+
+            	keepdir ${vimfiles}/keymap
+
+            	# The default vimrc is installed by vim-core since it applies
+            	# to both vim and gvim
+            	insinto /etc/vim/
+            	newins "${FILESDIR}"/vimrc-r1 vimrc
+
+            	if use minimal ; then
+            		# To save space, install only a subset of the files.
+            		rm -rv "${ED}${vimfiles}"/{compiler,doc,ftplugin,indent} || die
+            		rm -rv "${ED}${vimfiles}"/{macros,print,tools,tutor} || die
+            		rm -v "${ED}"/usr/bin/vimtutor || die
+
+            		for f in "${ED}${vimfiles}"/colors/*.vim; do
+            			if [[ ${f} != */@(default).vim ]] ; then
+            				printf '%s\0' "${f}"
+            			fi
+            		done | xargs -0 rm -f || die
+
+            		for f in "${ED}${vimfiles}"/syntax/*.vim; do
+            			if [[ ${f} != */@(conf|crontab|fstab|inittab|resolv|sshdconfig|syntax|nosyntax|synload).vim ]] ; then
+            				printf '%s\0' "${f}"
+            			fi
+            		done | xargs -0 rm -f || die
+            	fi
+            	rm -f "${ED}${vimfiles}"/doc/tags || die
+
+            	newbashcomp "${FILESDIR}"/xxd-completion xxd
+
+            	# Install the gvim icon since both vim/gvim desktop files
+            	# reference it
+            	doicon -s scalable "${FILESDIR}"/gvim.svg
+            }
+
+            pkg_postinst() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Update icon cache
+            	xdg_icon_cache_update
+            }
+
+            pkg_postrm() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Update icon cache
+            	xdg_icon_cache_update
+            }
+
+    - gvim:
+        vars:
+          desc: GUI version of the Vim text editor
+          homepage: https://www.vim.org/ https://github.com/vim/vim
+          python_compat: python3+
+          extra_envs:
+            - LUA_COMPAT=( lua5-1 luajit )
+            - PYTHON_REQ_USE="threads(+)"
+            - USE_RUBY="ruby31"
+          inherit:
+            - bash-completion-r1
+            - flag-o-matic
+            - lua-single
+            - python-single-r1
+            - ruby-single
+            - vim-doc
+            - xdg-utils
+          iuse: acl crypt cscope debug lua minimal netbeans nls perl python ruby session sound tcl
+          required_use: |
+            lua? ( ${LUA_REQUIRED_USE} )
+            python? ( ${PYTHON_REQUIRED_USE} )
+          rdepend: |
+            ~app-editors/vim-core-{{ .Values.pv }}
+            >=app-eselect/eselect-vi-1.1
+            sys-libs/ncurses
+            x11-libs/libICE
+            x11-libs/libSM
+            x11-libs/libXext
+            x11-libs/libXt
+            acl? ( sys-apps/acl )
+            x11-libs/gtk+:3
+            x11-libs/libXft
+            crypt? ( dev-libs/libsodium:= )
+            cscope? ( dev-util/cscope )
+            lua? (
+              ${LUA_DEPS}
+              $(lua_gen_impl_dep 'deprecated' lua5-1)
+            )
+            nls? ( virtual/libintl )
+            perl? ( dev-lang/perl:= )
+            python? ( ${PYTHON_DEPS} )
+            ruby? ( ${RUBY_DEPS} )
+            sound? ( media-libs/libcanberra )
+            tcl? ( dev-lang/tcl:0= )
+          depend: '${RDEPEND}'
+          # configure runs the Lua interpreter
+          bdepend: |
+            sys-devel/autoconf
+            virtual/pkgconfig
+            lua? ( ${LUA_DEPS} )
+            nls? ( sys-devel/gettext )
+          body: |
+            pkg_setup() {
+            	# People with broken alphabets run into trouble.
+            	unset LANG LC_ALL
+            	export LC_COLLATE="C"
+
+            	use lua && lua-single_pkg_setup
+            	use python && python-single-r1_pkg_setup
+            }
+
+            src_prepare() {
+            	default
+
+            	# Fix up a script to use awk instead of nawk
+            	sed -i -e '1s|.*|#!/usr/bin/awk -f|' \
+            		"${S}"/runtime/tools/mve.awk || die "mve.awk sed failed"
+
+            	# Read vimrc and gvimrc from /etc/vim
+            	echo '#define SYS_VIMRC_FILE "/etc/vim/vimrc"' \
+            		>> "${S}"/src/feature.h || die "echo failed"
+            	echo '#define SYS_GVIMRC_FILE "/etc/vim/gvimrc"' \
+            		>> "${S}"/src/feature.h || die "echo failed"
+
+            	# Use exuberant ctags which installs as /usr/bin/exuberant-ctags.
+            	# Hopefully this pattern won't break for a while at least.
+            	sed -i -e \
+            		's/\<ctags\("\| [-*.]\)/exuberant-&/g' \
+            		"${S}"/runtime/doc/syntax.txt \
+            		"${S}"/runtime/doc/tagsrch.txt \
+            		"${S}"/runtime/doc/usr_29.txt \
+            		"${S}"/runtime/menu.vim \
+            		"${S}"/src/configure.ac || die 'sed failed'
+
+            	# Don't be fooled by /usr/include/libc.h. When found, vim thinks
+            	# this is NeXT, but it's actually just a file in dev-libs/9libs
+            	sed -i -e \
+            		's/ libc\.h / /' "${S}"/src/configure.ac || die 'sed failed'
+
+            	# Try to avoid sandbox problems in the po test target.
+            	if [[ -d "${S}"/src/po ]]; then
+            		sed -i -e \
+            			'/-S check.vim/s,..VIM.,ln -s $(VIM) testvim \; ./testvim -X,' \
+            			"${S}"/src/po/Makefile || die
+            	fi
+
+            	cp -v "${S}"/src/config.mk.dist "${S}"/src/auto/config.mk || die "Failed to copy config.mk."
+
+            	# Build properly with >=perl-core/ExtUtils-ParseXS-3.20.0
+            	sed -i -e \
+            		"s:\\\$(PERLLIB)/ExtUtils/xsubpp:/usr/bin/xsubpp:" \
+            		"${S}"/src/Makefile || die 'sed for ExtUtils-ParseXS failed'
+
+            	# Prevent "make" from the following chain:
+            	# (1) Notice configure.ac is newer than auto/configure
+            	# (2) Rebuild auto/configure
+            	# (3) Notice auto/configure is newer than auto/config.mk
+            	# (4) Run ./configure (with wrong args) to remake auto/config.mk
+            	sed -i -e \
+            		's# auto/config\.mk:#:#' src/Makefile || die "Makefile sed failed"
+            	rm -v src/auto/configure || die "rm failed"
+
+            	# --with-features=huge forces on cscope even if we --disable it,
+            	# so sed it out of feature.h to avoid screwiness.
+            	if ! use cscope; then
+            		sed -i -e \
+            			'/# define FEAT_CSCOPE/d' src/feature.h || die "couldn't disable cscope"
+            	fi
+            }
+
+            src_configure() {
+            	# Disallow -funroll-all-loops, it causes problems
+            	filter-flags -funroll-all-loops
+
+            	# -O3 causes problems, use -O2 instead
+            	replace-flags -O3 -O2
+
+            	emake -j1 -C src autoconf
+
+            	# This should fix a sandbox violation. The hvc things are for
+            	# ppc64 consoles.
+            	local file
+            	for file in /dev/pty/s* /dev/console /dev/hvc/* /dev/hvc*; do
+            		if [[ -e ${file} ]]; then
+            			addwrite $file
+            		fi
+            	done
+
+            	use debug && append-flags "-DDEBUG"
+
+            	local myconf=(
+            		--with-features=huge
+            		--disable-gpm
+            		--with-gnome=no
+            		$(use_enable sound canberra)
+            		$(use_enable acl)
+            		$(use_enable crypt libsodium)
+            		$(use_enable cscope)
+            		$(use_enable netbeans)
+            		$(use_enable nls)
+            		$(use_enable perl perlinterp)
+            		$(use_enable python python3interp)
+            		$(use_with python python3-command "${PYTHON}")
+            		$(use_enable ruby rubyinterp)
+            		$(use_enable session xsmp)
+            		$(use_enable tcl tclinterp)
+            		--enable-gtk3-check
+            		--enable-gui=gtk3
+            		--with-x
+            		--with-vim-name=gvim
+            		--with-modified-by=MacaroniOS-{{ .Values.pv }}
+            		)
+
+            	if use lua; then
+            		# -DLUA_COMPAT_OPENLIB=1 is required to enable the
+            		# luaL_openlib API deprecated in lua 5.1
+            		use lua_single_target_lua5-1 && append-cppflags -DLUA_COMPAT_OPENLIB=1
+
+            		myconf+=(
+            			--enable-luainterp
+            			$(use_with lua_single_target_luajit luajit)
+            			--with-lua-prefix="/usr"
+            		)
+            	fi
+
+            	# let package manager strip binaries
+            	export ac_cv_prog_STRIP="$(type -P true ) faking strip"
+
+            	econf "${myconf[@]}"
+            }
+
+            src_compile() {
+            	# The following allows emake to be used
+            	emake -j1 -C src auto/osdef.h objects
+
+            	emake
+            }
+
+            # Call eselect vi update with --if-unset to respect user's choice
+            eselect_vi_update() {
+            	ebegin "Calling eselect vi update"
+            	eselect vi update --if-unset
+            	eend $?
+            }
+
+            src_install() {
+            	dobin src/gvim
+            	dosym gvim /usr/bin/gvimdiff
+            	dosym gvim /usr/bin/evim
+            	dosym gvim /usr/bin/eview
+            	dosym gvim /usr/bin/gview
+            	dosym gvim /usr/bin/rgvim
+            	dosym gvim /usr/bin/rgview
+
+            	emake -C src DESTDIR="${D}" DATADIR=/usr/share install-icons
+
+            	dodir /usr/share/man/man1
+            	echo ".so vim.1" > "${ED}"/usr/share/man/man1/gvim.1 || die "echo failed"
+            	echo ".so vim.1" > "${ED}"/usr/share/man/man1/gview.1 || die "echo failed"
+            	echo ".so vimdiff.1" > "${ED}"/usr/share/man/man1/gvimdiff.1 || die "echo failed"
+
+            	insinto /etc/vim
+            	newins "${FILESDIR}"/gvimrc-r1 gvimrc
+
+            	# Bash completion script
+            	newbashcomp "${FILESDIR}"/{{ .Values.pn }}-completion {{ .Values.pn }}
+            	bashcomp_alias {{ .Values.pn }} gvimdiff
+            	bashcomp_alias {{ .Values.pn }} evim
+            	bashcomp_alias {{ .Values.pn }} eview
+            	bashcomp_alias {{ .Values.pn }} gview
+            	bashcomp_alias {{ .Values.pn }} rgvim
+            	bashcomp_alias {{ .Values.pn }} rgview
+
+            	# Don't install the vim desktop file, gvim ships its own
+            	rm -v "${ED}"/usr/share/applications/vim.desktop || die "failed to remove vim.desktop"
+            }
+
+            pkg_postinst() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Update fdo mime stuff
+            	xdg_desktop_database_update
+
+            	# Update icon cache
+            	xdg_icon_cache_update
+
+            	# Call eselect vi update
+            	eselect_vi_update
+            }
+
+            pkg_postrm() {
+            	# Update documentation tags (from vim-doc.eclass)
+            	update_vim_helptags
+
+            	# Update fdo mime stuff
+            	xdg_desktop_database_update
+
+            	# Update icon cache
+            	xdg_icon_cache_update
+
+            	# Call eselect vi update
+            	eselect_vi_update
+            }

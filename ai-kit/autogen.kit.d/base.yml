@@ -558,12 +558,19 @@ codex:
         # for the binary flavour. The .zst/.sigstore/.dmg/.exe/.whl
         # assets are for other platforms or verification and are skipped
         # (mark is linux-only).
+        # The complete upstream package asset, not the bare codex binary:
+        # the CLI runs a background app-server daemon and refuses to start
+        # without an InstallContext package layout (codex-package.json +
+        # bin/ + codex-resources/ + codex-path/), and its search check
+        # needs the bundled ripgrep shipped in codex-path/rg
+        # (macaroni-os/mark-issues#867 review). The tarball root has no
+        # top-level directory, so S stays the workdir.
         assets:
           - name: 'codex-bin-{{ .Values.version }}-amd64-linux.tar.gz'
-            matcher: '^codex-x86_64-unknown-linux-musl\.tar\.gz$'
+            matcher: '^codex-package-x86_64-unknown-linux-musl\.tar\.gz$'
             use: amd64
           - name: 'codex-bin-{{ .Values.version }}-arm64-linux.tar.gz'
-            matcher: '^codex-aarch64-unknown-linux-musl\.tar\.gz$'
+            matcher: '^codex-package-aarch64-unknown-linux-musl\.tar\.gz$'
             use: arm64
         vars:
           iuse: amd64 arm64
@@ -573,22 +580,45 @@ codex:
           restrict: strip
           # /usr/bin/codex is also shipped by the source flavour below;
           # the pair mutually blocks (the opencode/pi idiom).
-          rdepend: '!app-ai/codex'
+          # RDEPEND on the distro packages per the review on this PR:
+          # bubblewrap for the sandboxing backend and ripgrep for the
+          # doctor search check (shipped as sys-apps/ripgrep-bin in
+          # macaroni-os/kit-fixups#571). The package also carries its
+          # own verified copies under codex-resources/.
+          rdepend: |
+            !app-ai/codex
+            sys-apps/bubblewrap
+            sys-apps/ripgrep-bin
           # The asset unpacks the single executable at the archive root
           # under its raw target-triple name (codex-x86_64-unknown-linux-
           # musl / codex-aarch64-unknown-linux-musl), so S is the workdir
           # and src_install globs the name, which differs per USE arch.
           s: '${WORKDIR}'
           extra_envs:
-            - 'QA_PREBUILT="/usr/bin/codex"'
+            - 'QA_PREBUILT="/usr/lib/codex/bin/* /usr/lib/codex/codex-resources/voice/bin/* /usr/lib/codex/codex-resources/voice/lib/*"'
+          # Install shape per the macaroni-os/mark-issues#867 review:
+          # the whole upstream package under /usr/lib/codex and
+          # /usr/bin/codex as a symlink into it (install-context resolves
+          # the package layout from the real executable path).
           body: |
             src_install() {
-              # Exactly one of the two USE-gated assets is fetched per
-              # profile, so there is a single binary in the workdir.
-              local bin=$(find . -maxdepth 1 -type f \
-                -name 'codex-*-unknown-linux-musl' -print -quit)
-              [[ -n ${bin} ]] || die "codex binary not found in ${S}"
-              newbin "${bin}" codex
+              local required
+              for required in codex-package.json bin/codex bin/codex-code-mode-host ; do
+                [[ -f ${required} ]] || die "upstream package is missing ${required}"
+                if [[ ${required} != codex-package.json ]]; then
+                  [[ -x ${required} ]] || die "upstream helper is not executable: ${required}"
+                fi
+              done
+
+              dodir /usr/lib/codex
+              cp -a codex-package.json bin codex-path codex-resources \
+                "${ED}/usr/lib/codex/" || die "failed to install upstream package"
+              # The bundled helpers are distro packages here: bwrap from
+              # sys-apps/bubblewrap and rg from sys-apps/ripgrep-bin
+              # (RDEPEND), per the review on this PR.
+              rm -f "${ED}"/usr/lib/codex/codex-resources/bwrap \
+                "${ED}"/usr/lib/codex/codex-path/rg || die "failed to drop bundled helpers"
+              dosym ../lib/codex/bin/codex /usr/bin/codex
             }
 
     - codex:

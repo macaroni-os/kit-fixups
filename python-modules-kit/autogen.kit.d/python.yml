@@ -114,6 +114,18 @@ flit_modules:
 
     - click:
 
+    - tomli:
+        # The tomllib provider for python < 3.11 (tomllib is stdlib
+        # since 3.11; the tree default is python 3.9). Needed by
+        # app-ai/codex behind its `toml` USE flag
+        # (macaroni-os/kit-fixups#570 review).
+        pydeps:
+          py:all:build:
+            - flit_core
+        vars:
+          desc: A lil' TOML parser (tomllib backport for Python < 3.11)
+          license: MIT
+
     - arrow:
         pydeps:
           py:all:both:

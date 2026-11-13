@@ -1016,6 +1016,49 @@ dev_github:
               einstalldocs
             }
 
+    - ripgrep-bin:
+        # Upstream musl binaries. Needed as a tree package for the
+        # app-ai/codex RDEPEND (it needs `rg` for its doctor search
+        # check, macaroni-os/mark-issues#867). The source flavour via
+        # the rust extension is not usable yet: the repository tags
+        # every workspace crate (wincolor-*, grep-*, ...), so the tag
+        # listing never reaches the plain `15.2.0` tag and, with
+        # ignore_tags, the release target_commitish is the branch name
+        # ("master") which the mark-rust-bundle naming cannot use
+        # (mark-devkit panics on sha[:7] with a 6-char value) — a
+        # tooling follow-up, the -bin flavour is not affected.
+        category: sys-apps
+        github:
+          user: BurntSushi
+          repo: ripgrep
+          ignore_tags: true
+        # Assets are ripgrep-<v>-<triple>-unknown-linux-musl.tar.gz
+        # (the *.sha256 companions are excluded by the anchored
+        # matcher); the tarball root is the versioned per-target
+        # directory, hence S=workdir and the find in src_install.
+        assets:
+          - name: 'ripgrep-bin-{{ .Values.version }}-amd64-linux.tar.gz'
+            matcher: '^ripgrep-[0-9][0-9.]*-x86_64-unknown-linux-musl\.tar\.gz$'
+            use: amd64
+          - name: 'ripgrep-bin-{{ .Values.version }}-arm64-linux.tar.gz'
+            matcher: '^ripgrep-[0-9][0-9.]*-aarch64-unknown-linux-musl\.tar\.gz$'
+            use: arm64
+        vars:
+          iuse: amd64 arm64
+          desc: ripgrep, a fast recursive grep (upstream binary)
+          restrict: strip
+          s: '${WORKDIR}'
+          extra_envs:
+            - 'QA_PREBUILT="/usr/bin/rg"'
+          body: |
+            src_install() {
+              local bin=$(find . -maxdepth 2 -type f -name rg -print -quit)
+              [[ -n ${bin} ]] || die "rg binary not found in ${S}"
+              newbin "${bin}" rg
+              # README ships inside the versioned per-target dir.
+              dodoc "$(dirname "${bin}")/README.md"
+            }
+
     - cmake:
         template: ../../templates/simple-github.tmpl
         github:

@@ -1,0 +1,22 @@
+sources:
+# We need this to inherit the eclass used for kit cache JSON generation
+- name: "core-kit"
+  url: "https://github.com/macaroni-os/core-kit"
+  branch: "mark-unstable"
+
+target:
+  name: editors-kit
+  url: "https://github.com/macaroni-os/editors-kit"
+  branch: mark-unstable
+
+  fixups:
+    include:
+
+  atoms_defaults:
+    max_versions: 3
+
+  atoms:
+
+    - pkg: app-editors/gvim
+    - pkg: app-editors/vim-core
+    - pkg: app-editors/vim

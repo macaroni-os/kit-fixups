@@ -273,6 +273,17 @@ target:
 
   atoms:
     - pkg: app-arch/brotli
+
+    # 1.13 track: still served on release branches carrying gzip-1.13
+    - pkg: app-arch/gzip
+      conditions:
+        - '>=app-arch/gzip-1.13'
+        - '<app-arch/gzip-1.14'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: app-arch/gzip
+      conditions:
+        - '>=app-arch/gzip-1.14'
     - pkg: app-arch/sharutils
     - pkg: app-arch/tar
 

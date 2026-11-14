@@ -550,6 +550,58 @@ core_dirlisting:
               sed -e "s:/usr::" -i "${ED}"/bin/gunzip || die
             }
 
+    - diffutils:
+        dir:
+          url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: Tools to make diffs and compare files
+          homepage: https://www.gnu.org/software/diffutils/
+          license: GPL-2
+          iuse: nls static
+          inherit:
+            - flag-o-matic
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - NEWS
+            - README
+            - THANKS
+            - TODO
+          # xz-utils unpacks the .tar.xz distfile; gettext is only needed with NLS on
+          bdepend: |
+            app-arch/xz-utils
+            nls? ( sys-devel/gettext )
+          body: |
+            src_configure() {
+              use static && append-ldflags -static
+
+              # Disable automagic dependency over libsigsegv.
+              export ac_cv_libsigsegv=no
+
+              # required for >=glibc-2.26
+              use elibc_glibc && export gl_cv_func_getopt_gnu=yes
+
+              local myeconfargs=(
+                --with-packager="Mark"
+                --with-packager-version="{{ .Values.pv }}"
+                --with-packager-bug-reports="https://github.com/macaroni-os/mark-issues/issues"
+                $(use_enable nls)
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_test() {
+              # explicitly allow parallel testing
+              emake check
+            }
+
     - mime-types:
         category: app-misc
         dir:

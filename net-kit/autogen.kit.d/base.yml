@@ -4515,3 +4515,106 @@ rustfs:
             }
         selector:
           - '>=1.0.0'
+
+lynx:
+  generator: builtin-github
+  defaults:
+    category: www-client
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: ThomasDickey
+      repo: lynx-snapshots
+      query: tags
+    # Upstream publishes stable release tags as v2-9-X and snapshot tags with
+    # letter/underscore suffixes. Keep only the stable release tags.
+    exclude:
+      - '[a-z]'
+      - '_'
+    transform:
+      - kind: string
+        match: '-'
+        replace: '.'
+    # The upstream repository is a snapshot mirror; the tag tarball still
+    # carries the generated configure and lynx.cfg.
+
+  packages:
+    - lynx:
+        vars:
+          desc: An excellent console-based web browser with ssl support
+          homepage: https://lynx.invisible-island.net/
+          license: GPL-2
+          iuse: bzip2 cjk gnutls idn ipv6 nls ssl unicode
+          rdepend: |
+            sys-libs/ncurses:0=
+            sys-libs/zlib
+            nls? ( virtual/libintl )
+            ssl? (
+              !gnutls? ( dev-libs/openssl:0= )
+              gnutls? (
+                dev-libs/libgcrypt:0=
+                >=net-libs/gnutls-2.6.4:=
+              )
+            )
+            bzip2? ( app-arch/bzip2 )
+            idn? ( net-dns/libidn:0= )
+          depend: |
+            ${RDEPEND}
+            nls? ( sys-devel/gettext )
+            virtual/pkgconfig
+          patches:
+            - lynx-mint.patch
+          body: |
+            pkg_setup() {
+              use ssl || elog "SSL support disabled; you will not be able to access secure websites."
+            }
+
+            src_configure() {
+              local myconf=(
+                --enable-nested-tables
+                --enable-cgi-links
+                --enable-persistent-cookies
+                --enable-prettysrc
+                --enable-nsl-fork
+                --enable-file-upload
+                --enable-read-eta
+                --enable-color-style
+                --enable-scrollbar
+                --enable-included-msgs
+                --enable-externs
+                --with-zlib
+                $(use_enable nls)
+                $(use_enable idn idna)
+                $(use_enable ipv6)
+                $(use_enable cjk)
+                $(use_enable unicode japanese-utf8)
+                $(use_with bzip2 bzlib)
+                $(usex ssl "--with-$(usex gnutls gnutls ssl)=/usr" "")
+                --with-screen=$(usex unicode "ncursesw" "ncurses")
+              )
+
+              econf "${myconf[@]}"
+            }
+
+            src_compile() {
+              # generating translation files in parallel is currently broken
+              use nls && emake -C po -j1
+              emake
+            }
+
+            src_install() {
+              emake install DESTDIR="${D}"
+
+              sed -i \
+                -e "s|^HELPFILE.*$|HELPFILE:file://localhost/usr/share/doc/${PF}/lynx_help/lynx_help_main.html|" \
+                -e "s|STARTFILE:https://lynx.invisible-island.net/|STARTFILE:https://www.macaronios.org/|" \
+                "${ED}"/etc/lynx.cfg || die "lynx.cfg not found"
+
+              if use unicode ; then
+                sed -i '/^#CHARACTER_SET:/ c\CHARACTER_SET:utf-8' \
+                    "${ED}"/etc/lynx.cfg || die "lynx.cfg not found"
+              fi
+
+              dodoc CHANGES COPYHEADER PROBLEMS README
+              dodoc -r docs lynx_help
+            }

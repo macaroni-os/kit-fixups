@@ -208,6 +208,39 @@ core_dirlisting:
             }
 
 
+    - cpio:
+        category: app-arch
+        dir:
+          url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: A file archival tool which can also read and write tar files
+          homepage: https://www.gnu.org/software/cpio/cpio.html
+          license: GPL-3
+          iuse: nls
+          # 2.15 already contains the gcc-10 duplicate-declaration fix and the
+          # CVE-2021-38185 rewrite (both tree patches reverse/fail with
+          # patch -p1 --dry-run); it still needs the ATTRIB_PACKED fallback for
+          # non-GNU compilers, which this patch applies (offset -1).
+          patches:
+            - cpio-2.12-non-gnu-compilers.patch
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                $(use_enable nls)
+                --bindir=/bin
+                --with-rmt=/usr/sbin/rmt
+              )
+              econf "${myeconfargs[@]}"
+            }
+
     - coreutils:
         dir:
           url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'

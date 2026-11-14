@@ -286,6 +286,17 @@ target:
         - '>=app-arch/gzip-1.14'
 
     - pkg: app-arch/lz4
+
+    # 2.13 track: still served on release branches carrying cpio-2.13
+    - pkg: app-arch/cpio
+      conditions:
+        - '>=app-arch/cpio-2.13'
+        - '<app-arch/cpio-2.14'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: app-arch/cpio
+      conditions:
+        - '>=app-arch/cpio-2.14'
     - pkg: app-arch/sharutils
     - pkg: app-arch/tar
 

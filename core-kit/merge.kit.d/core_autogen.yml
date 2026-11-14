@@ -304,6 +304,17 @@ target:
     - pkg: sys-apps/attr
     - pkg: sys-apps/coreutils
     - pkg: sys-apps/debianutils
+
+    # 3.10 track: still served in-tree and on release branches carrying diffutils-3.10
+    - pkg: sys-apps/diffutils
+      conditions:
+        - '>=sys-apps/diffutils-3.10'
+        - '<sys-apps/diffutils-3.11'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/diffutils
+      conditions:
+        - '>=sys-apps/diffutils-3.12'
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

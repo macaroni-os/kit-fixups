@@ -1924,3 +1924,33 @@ util_linux:
               find "${ED}"/usr/$(get_libdir) -maxdepth 1 \( -name 'libblkid.*' -o -name 'libmount.*' \) -delete || die
               find "${ED}" -name "*.la" -delete || die
             }
+
+lz4:
+  generator: builtin-github
+
+  defaults:
+    category: app-arch
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: lz4
+      query: tags
+
+  packages:
+    - lz4:
+        vars:
+          desc: Extremely Fast Compression algorithm
+          homepage: https://github.com/lz4/lz4
+          license: 'BSD-2 GPL-2'
+          slot: '0/1'
+          iuse: static-libs
+          inherit:
+            - cmake
+          body: |
+            CMAKE_USE_DIR="${S}/build/cmake"
+
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_STATIC_LIBS=$(usex static-libs)
+              )
+              cmake_src_configure
+            }

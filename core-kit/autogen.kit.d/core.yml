@@ -2315,6 +2315,101 @@ pxz:
     - pxz:
 
 
+libpcre2:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    github:
+      user: PCRE2Project
+      repo: pcre2
+      query: releases
+      # `query: releases` derives the version from the release TITLE, and the
+      # PCRE2 titles are not uniform: the modern ones are "PCRE2 10.NN" or
+      # "PCRE2-10.NN", while the historic 10.3x/10.4x entries carry free text
+      # ("PCRE2-10.35 Historic release copied here") or a lowercase prefix.
+      # Keep only the clean titles (live probe 2026-11-15: 30 releases, the
+      # newest being pcre2-10.49 titled "PCRE2 10.49"). This also drops the
+      # -RC* pre-releases structurally, so no `exclude:` is needed.
+      match: '^PCRE2[- ]\d+\.\d+$'
+    transform:
+      - kind: string
+        match: 'PCRE2 '
+        replace: ''
+      - kind: string
+        match: 'PCRE2-'
+        replace: ''
+    # Upstream publishes the official tarballs as release assets next to
+    # .gz/.zip and their .sig files (probed 2026-11-15). Pin the .tar.bz2
+    # flavour the tree Manifest already uses; the anchored matcher keeps the
+    # sig/gz/zip siblings out. The distfile keeps the upstream name
+    # (pcre2-<ver>) so it stays byte-identical with the tree distfile.
+    assets:
+      - name: 'pcre2-{{ .Values.pv }}.tar.bz2'
+        matcher: '^pcre2-[0-9]+\.[0-9]+\.tar\.bz2$'
+    vars:
+      desc: Perl-compatible regular expression library
+      homepage: https://www.pcre.org/
+      license: BSD
+      iuse: bzip2 +jit libedit pcre16 +pcre32 +readline +recursion-limit static-libs unicode zlib
+      required_use: '?? ( libedit readline )'
+      inherit:
+        - autotools
+        - libtool
+      rdepend: |
+        bzip2? ( app-arch/bzip2 )
+        zlib? ( sys-libs/zlib )
+        libedit? ( dev-libs/libedit )
+        readline? ( sys-libs/readline:0= )
+      # The tree guarded this with `userland_GNU?`; the Macaroni profiles set
+      # USERLAND="GNU" (captured 2026-11-15), so the dependency is always on.
+      depend: |
+        ${RDEPEND}
+        >=sys-apps/findutils-4.4.0
+      bdepend: virtual/pkgconfig
+      # The upstream tarball root is pcre2-<ver> (the atom keeps the `lib`
+      # prefix, the distfile does not), so the default ${WORKDIR}/${P}
+      # directory does not exist.
+      s: '${WORKDIR}/pcre2-{{ .Values.pv }}'
+      body: |
+        src_prepare() {
+          default
+          elibtoolize
+        }
+
+        src_configure() {
+          local myeconfargs=(
+            --enable-pcre2-8
+            --enable-shared
+            --htmldir=/usr/share/doc/${PF}/html
+            --with-match-limit-depth=$(usex recursion-limit 8192 MATCH_LIMIT)
+            $(use_enable bzip2 pcre2grep-libbz2)
+            $(use_enable libedit pcre2test-libedit)
+            $(use_enable readline pcre2test-libreadline)
+            $(use_enable zlib pcre2grep-libz)
+            $(use_enable jit)
+            $(use_enable jit pcre2grep-jit)
+            $(use_enable pcre16 pcre2-16)
+            $(use_enable pcre32 pcre2-32)
+            $(use_enable static-libs static)
+            $(use_enable unicode)
+          )
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+
+        src_compile() {
+          emake V=1
+        }
+
+        src_install() {
+          emake DESTDIR="${D}" install
+          find "${ED}" -name "*.la" -delete || die
+        }
+
+  packages:
+    - libpcre2:
+
 libxml2:
   generator: builtin-dirlisting
   generator_opts:

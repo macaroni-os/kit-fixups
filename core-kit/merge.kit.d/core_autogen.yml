@@ -367,6 +367,17 @@ target:
 
     - pkg: sys-devel/gettext
 
+    # 1.4.19 track: still served on release branches carrying m4-1.4.19
+    - pkg: sys-devel/m4
+      conditions:
+        - '>=sys-devel/m4-1.4.19'
+        - '<sys-devel/m4-1.4.20'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-devel/m4
+      conditions:
+        - '>=sys-devel/m4-1.4.20'
+
     - pkg: sys-libs/libcap
     - pkg: sys-libs/libcap-ng
     - pkg: sys-libs/glibc:2.2

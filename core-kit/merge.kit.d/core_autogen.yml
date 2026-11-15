@@ -600,3 +600,7 @@ target:
       conditions:
         - '>=sys-devel/automake-1.20'
         - '<sys-devel/automake-1.21'
+
+    # Pinned builtin-noop (distro content, no upstream). Unconditional:
+    # every release branch carries baselayout-3.0-r1.
+    - pkg: sys-apps/baselayout

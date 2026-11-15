@@ -1391,6 +1391,56 @@ app_arch_github:
             }
 
 
+pxz:
+  generator: builtin-noop
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: app-arch
+    template: ../../templates/simple.tmpl
+    # Upstream publishes no GitHub releases and carries no tags at all (live
+    # probe 2026-11-15: releases=0, tags=0) and its home page has no distfile
+    # listing, so there is nothing machine-readable to track: this is a pinned
+    # builtin-noop. Upstream is NOT dormant - master still moves by commit
+    # (latest 824de5dd, 2026-03-17) and the Fedora dist-git spec tracks that
+    # same commit - so the pin follows the current master. Bump = update
+    # `versions` and `sha` together.
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}-{{ substr 0 7 .Values.sha }}.tar.gz'
+        url: 'https://github.com/jnovy/pxz/archive/{{ .Values.sha }}.tar.gz'
+    vars:
+      versions:
+        - '5.0_pre20260317'
+      sha: 824de5dd22df3ba54bfe2cdd76029a62e53201fe
+      desc: Parallel implementation of the XZ compression utility
+      homepage: https://jnovy.fedorapeople.org/pxz/
+      license: GPL-2
+      inherit:
+        - toolchain-funcs
+      # Needs the library from xz-utils and the libgomp runtime from gcc.
+      rdepend: |
+        app-arch/xz-utils
+        sys-devel/gcc:*[openmp]
+      depend: '${RDEPEND}'
+      body: |
+        # The distfile name carries the commit sha (review ask), so vcs-snapshot
+        # no longer renames the archive root: move it into ${S} explicitly.
+        post_src_unpack() {
+          mv ${WORKDIR}/{{ .Values.pn }}-* "${S}"
+        }
+
+        src_prepare() {
+          tc-check-openmp
+          tc-export CC
+          export BINDIR=/usr/bin
+          export MANDIR=/usr/share/man
+          default
+        }
+
+  packages:
+    - pxz:
+
+
 libxml2:
   generator: builtin-dirlisting
   generator_opts:

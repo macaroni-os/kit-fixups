@@ -1,0 +1,58 @@
+From 9b0f10610f1a5e7b22a60872349abbad5282f78e Mon Sep 17 00:00:00 2001
+From: Michael Matz <matz@suse.de>
+Date: Tue, 18 Apr 2023 16:16:01 +0200
+Subject: [PATCH 40/41] section-select: Fix performance problem (PR30367)
+
+when using many wild-statements with non-wildcard filenames we
+were running into quadraticness via repeatedly using lookup_name
+on a long list of loaded files.  I've originally retained using
+lookup_name because that preserved existing behaviour most obviously.
+In particular in matching wild-statements when using a non-wildcard
+filename it matches against local_sym_name, not the filename member.
+If the wildspec would have an archive-spec or a wildcard it would use
+the filename member, though.  Also it would load the named file
+(and ignore it, as being not equal to the currently considered
+input-statement).
+
+Rewrite this to not use lookup_name but retain the comparison
+against local_sym_name with a comment to that effect.
+
+	PR 30367
+	* ldlang.c (walk_wild_section_match): Don't use lookup_name
+	but directly compare spec and local_sym_name.
+
+(cherry picked from commit 8f5cd47bee6c07c33aeda758d8d8db5f81ae03e7)
+---
+ ld/ldlang.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/ld/ldlang.c b/ld/ldlang.c
+index 6aaf8e99bfa..9b92e4a801a 100644
+--- a/ld/ldlang.c
++++ b/ld/ldlang.c
+@@ -431,10 +431,18 @@ walk_wild_section_match (lang_wild_statement_type *ptr,
+     }
+   else
+     {
+-      lang_input_statement_type *f;
+-      /* Perform the iteration over a single file.  */
+-      f = lookup_name (file_spec);
+-      if (f != file)
++      /* XXX Matching against non-wildcard filename in wild statements
++	 was done by going through lookup_name, which uses
++	 ->local_sym_name to compare against, not ->filename.  We retain
++	 this behaviour even though the above code paths use filename.
++	 It would be more logical to use it here as well, in which
++	 case the above wildcard() arm could be folded into this by using
++	 name_match.  This would also solve the worry of what to do
++	 about unset local_sym_name (in which case lookup_name simply adds
++	 the input file again).  */
++      const char *filename = file->local_sym_name;
++      if (filename == NULL
++	  || filename_cmp (filename, file_spec) != 0)
+ 	return;
+     }
+ 
+-- 
+2.39.2
+

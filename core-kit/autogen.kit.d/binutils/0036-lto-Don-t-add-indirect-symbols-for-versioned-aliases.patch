@@ -1,0 +1,102 @@
+From 8d34aa5a21bd83330b582b153ca3f082552e3a35 Mon Sep 17 00:00:00 2001
+From: "H.J. Lu" <hjl.tools@gmail.com>
+Date: Wed, 29 Mar 2023 13:06:26 -0700
+Subject: [PATCH 36/41] lto: Don't add indirect symbols for versioned aliases
+ in IR
+
+Linker adds indirect symbols for versioned symbol aliases, which are
+created by ".symver foo, foo@FOO", by checking symbol type, value and
+section so that references to foo will be replaced by references to
+foo@FOO if foo and foo@FOO have the same symbol type, value and section.
+But in IR, since all symbols of the same type have the same value and
+section, we can't tell if a symbol is an alias of another symbol by
+their types, values and sections.  We shouldn't add indirect symbols
+for versioned symbol aliases in IR.
+
+bfd/
+
+	PR ld/30281
+	* elflink.c (elf_link_add_object_symbols): Don't add indirect
+	symbols for ".symver foo, foo@FOO" aliases in IR.
+
+ld/
+
+	PR ld/30281
+	* testsuite/ld-plugin/lto.exp: Add PR ld/30281 test.
+	* testsuite/ld-plugin/pr30281.t: New file.
+	* testsuite/ld-plugin/pr30281.c: Likewise.
+
+(cherry picked from commit 79cfb928f552401e3cec7a208a87eb74aa0d2d8b)
+(cherry picked from commit ded035f913e4d8c989880cf5928b6b5fca9466ae)
+---
+ bfd/elflink.c                    | 9 ++++++++-
+ ld/testsuite/ld-plugin/lto.exp   | 9 +++++++++
+ ld/testsuite/ld-plugin/pr30281.c | 4 ++++
+ ld/testsuite/ld-plugin/pr30281.t | 4 ++++
+ 4 files changed, 25 insertions(+), 1 deletion(-)
+ create mode 100644 ld/testsuite/ld-plugin/pr30281.c
+ create mode 100644 ld/testsuite/ld-plugin/pr30281.t
+
+diff --git a/bfd/elflink.c b/bfd/elflink.c
+index 7bf337c7d44..98468acca6c 100644
+--- a/bfd/elflink.c
++++ b/bfd/elflink.c
+@@ -5382,7 +5382,14 @@ elf_link_add_object_symbols (bfd *abfd, struct bfd_link_info *info)
+ 	      h->unique_global = (flags & BSF_GNU_UNIQUE) != 0;
+ 	    }
+ 
+-	  if (definition && !dynamic)
++	  /* Don't add indirect symbols for .symver x, x@FOO aliases
++	     in IR.  Since all data or text symbols in IR have the
++	     same type, value and section, we can't tell if a symbol
++	     is an alias of another symbol by their types, values and
++	     sections.  */
++	  if (definition
++	      && !dynamic
++	      && (abfd->flags & BFD_PLUGIN) == 0)
+ 	    {
+ 	      char *p = strchr (name, ELF_VER_CHR);
+ 	      if (p != NULL && p[1] != ELF_VER_CHR)
+diff --git a/ld/testsuite/ld-plugin/lto.exp b/ld/testsuite/ld-plugin/lto.exp
+index 6c1322e43e0..083cf627968 100644
+--- a/ld/testsuite/ld-plugin/lto.exp
++++ b/ld/testsuite/ld-plugin/lto.exp
+@@ -530,6 +530,15 @@ set lto_link_elf_tests [list \
+    {} \
+    "pr29086" \
+   ] \
++  [list \
++   "Build pr30281.so" \
++   "-shared -Wl,--version-script,pr30281.t \
++    -O2 -fPIC -flto-partition=max -flto=2" \
++   "-O2 -fPIC -flto-partition=max -flto=2" \
++   {pr30281.c} \
++   "" \
++   "pr30281.so" \
++  ] \
+ ]
+ 
+ # PR 14918 checks that libgcc is not spuriously included in a shared link of
+diff --git a/ld/testsuite/ld-plugin/pr30281.c b/ld/testsuite/ld-plugin/pr30281.c
+new file mode 100644
+index 00000000000..ba9722a389c
+--- /dev/null
++++ b/ld/testsuite/ld-plugin/pr30281.c
+@@ -0,0 +1,4 @@
++extern __inline __attribute__((__gnu_inline__)) void foo(void) {}
++__attribute__((__symver__("foo@GLIBC_2.2.5")))
++int __collector_foo_2_2(void) {}
++void foo(void) {}
+diff --git a/ld/testsuite/ld-plugin/pr30281.t b/ld/testsuite/ld-plugin/pr30281.t
+new file mode 100644
+index 00000000000..3169ad398c9
+--- /dev/null
++++ b/ld/testsuite/ld-plugin/pr30281.t
+@@ -0,0 +1,4 @@
++GLIBC_2.2.5 {
++  global:
++    foo;
++};
+-- 
+2.39.2
+

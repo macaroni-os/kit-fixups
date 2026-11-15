@@ -1,0 +1,121 @@
+From c4dac798487426902366d5c065dfd3da7ab27adf Mon Sep 17 00:00:00 2001
+From: Alan Modra <amodra@gmail.com>
+Date: Mon, 6 Feb 2023 12:46:52 +1030
+Subject: [PATCH 25/41] ppc32 and "LOAD segment with RWX permissions"
+
+When using a bss-plt we'll always trigger the RWX warning, which
+disturbs gcc test results.  On the other hand, there may be reason to
+want the warning when gcc is configured with --enable-secureplt.
+So turning off the warning entirely for powerpc might not be the best
+solution.  Instead, we'll turn off the warning whenever a bss-plt is
+generated, unless the user explicitly asked for the warning.
+
+bfd/
+	* elf32-ppc.c (ppc_elf_select_plt_layout): Set
+	no_warn_rwx_segments on generating a bss plt, unless explicity
+	enabled by the user.  Also show the bss-plt warning when
+	--warn-rwx-segments is given without --bss-plt.
+include/
+	* bfdlink.h (struct bfd_link_info): Add user_warn_rwx_segments.
+ld/
+	* lexsup.c (parse_args): Set user_warn_rwx_segments.
+	* testsuite/ld-elf/elf.exp: Pass --secure-plt for powerpc to
+	the rwx tests.
+
+(cherry picked from commit 84789002905d6db444ee76431705c86cbcde5616)
+(cherry picked from commit 5c87fb1d59b8414796016af7e5ea8c97675e1141)
+---
+ bfd/elf32-ppc.c             | 17 ++++++++++++-----
+ include/bfdlink.h           |  3 +++
+ ld/lexsup.c                 |  2 ++
+ ld/testsuite/ld-elf/elf.exp |  8 ++++++++
+ 4 files changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/bfd/elf32-ppc.c b/bfd/elf32-ppc.c
+index a8234f27a8a..833bc744563 100644
+--- a/bfd/elf32-ppc.c
++++ b/bfd/elf32-ppc.c
+@@ -4020,12 +4020,19 @@ ppc_elf_select_plt_layout (bfd *output_bfd ATTRIBUTE_UNUSED,
+ 	  htab->plt_type = plt_type;
+ 	}
+     }
+-  if (htab->plt_type == PLT_OLD && htab->params->plt_style == PLT_NEW)
++  if (htab->plt_type == PLT_OLD)
+     {
+-      if (htab->old_bfd != NULL)
+-	_bfd_error_handler (_("bss-plt forced due to %pB"), htab->old_bfd);
+-      else
+-	_bfd_error_handler (_("bss-plt forced by profiling"));
++      if (!info->user_warn_rwx_segments)
++	info->no_warn_rwx_segments = 1;
++      if (htab->params->plt_style == PLT_NEW
++	  || (htab->params->plt_style != PLT_OLD
++	      && !info->no_warn_rwx_segments))
++	{
++	  if (htab->old_bfd != NULL)
++	    _bfd_error_handler (_("bss-plt forced due to %pB"), htab->old_bfd);
++	  else
++	    _bfd_error_handler (_("bss-plt forced by profiling"));
++	}
+     }
+ 
+   BFD_ASSERT (htab->plt_type != PLT_VXWORKS);
+diff --git a/include/bfdlink.h b/include/bfdlink.h
+index 26c459c3815..840790a298c 100644
+--- a/include/bfdlink.h
++++ b/include/bfdlink.h
+@@ -501,6 +501,9 @@ struct bfd_link_info
+   /* TRUE if warnings should not be generated for TLS segments with eXecute
+      permission or LOAD segments with RWX permissions.  */
+   unsigned int no_warn_rwx_segments: 1;
++  /* TRUE if the user gave either --warn-rwx-segments or
++     --no-warn-rwx-segments.  */
++  unsigned int user_warn_rwx_segments: 1;
+ 
+   /* TRUE if the stack can be made executable because of the absence of a
+      .note.GNU-stack section in an input file.  Note - even if this field
+diff --git a/ld/lexsup.c b/ld/lexsup.c
+index 950b6969cb8..10234cfb21d 100644
+--- a/ld/lexsup.c
++++ b/ld/lexsup.c
+@@ -948,9 +948,11 @@ parse_args (unsigned argc, char **argv)
+ 	  break;
+ 	case OPTION_WARN_RWX_SEGMENTS:
+ 	  link_info.no_warn_rwx_segments = 0;
++	  link_info.user_warn_rwx_segments = 1;
+ 	  break;
+ 	case OPTION_NO_WARN_RWX_SEGMENTS:
+ 	  link_info.no_warn_rwx_segments = 1;
++	  link_info.user_warn_rwx_segments = 1;
+ 	  break;
+ 	case 'e':
+ 	  lang_add_entry (optarg, true);
+diff --git a/ld/testsuite/ld-elf/elf.exp b/ld/testsuite/ld-elf/elf.exp
+index a3a8994749d..35235a08d8a 100644
+--- a/ld/testsuite/ld-elf/elf.exp
++++ b/ld/testsuite/ld-elf/elf.exp
+@@ -238,6 +238,12 @@ if {   [istarget *-*-*linux*]
+ 	return $text
+     }
+ 
++    set curr_ldflags $LDFLAGS
++    if { [istarget powerpc*-*-*] && ![istarget powerpc64*-*-*] } {
++	# Don't generate an executable .plt section
++	set LDFLAGS "$LDFLAGS --secure-plt"
++    }
++
+     # Since the warnings can be disabled by configure, ensure consistency
+     # of the first test by forcing the flags.
+     run_ld_link_tests [list \
+@@ -285,6 +291,8 @@ if {   [istarget *-*-*linux*]
+ 	    "rwx-segments-3.exe"] \
+ 	  ]
+ 
++    set LDFLAGS $curr_ldflags
++
+     if { [target_defaults_to_execstack] } {
+ 	run_ld_link_tests [list \
+ 	   [list "PR ld/29072 (warn about absent .note.GNU-stack)" \
+-- 
+2.39.2
+

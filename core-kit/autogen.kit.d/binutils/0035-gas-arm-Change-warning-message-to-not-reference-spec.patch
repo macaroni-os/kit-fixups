@@ -1,0 +1,788 @@
+From 8f053089ecb74bd805c63f01d06625b0befbf113 Mon Sep 17 00:00:00 2001
+From: Stam Markianos-Wright <stam.markianos-wright@arm.com>
+Date: Tue, 17 Jan 2023 13:37:40 +0000
+Subject: [PATCH 35/41] gas: arm: Change warning message to not reference
+ specific A-class architecture revision
+
+We noticed that a warning message about the use of scalar fp16
+instructions being UNPREDICTABLE when conditionalized in an IT
+block referenced the specific A-class architecture revision
+ARMv8.2-A.
+Many of these instructions are now also part of ARMv8.1-M, so
+the warning message had become misleading.  Here we just change
+the message to not specify an architecture revision at all and
+update all testing accordingly.  This was done with a simple
+find-n-replace within the binutils sources.  No tests have
+regressed for the arm target.
+
+gas/ChangeLog:
+
+        * config/tc-arm.c (do_scalar_fp16_v82_encode): Remove
+        ARMv8.2-A from the warning message.
+        (do_neon_movhf): Likewise
+        * testsuite/gas/arm/armv8-2-fp16-scalar-bad.l: Likewise
+        * testsuite/gas/arm/mve-vaddsub-it-bad.l: Likewise
+        * testsuite/gas/arm/mve-vcvtne-it-bad.l: Likewise
+        * testsuite/gas/arm/mve-vcvtne-it.d: Likewise
+
+(cherry picked from commit 74cb2ddeabcfe477eb93ee927a1921802c9c0594)
+---
+ gas/config/tc-arm.c                           |   4 +-
+ .../gas/arm/armv8-2-fp16-scalar-bad.l         | 420 +++++++++---------
+ gas/testsuite/gas/arm/mve-vaddsub-it-bad.l    |   8 +-
+ gas/testsuite/gas/arm/mve-vcvtne-it-bad.l     |   8 +-
+ gas/testsuite/gas/arm/mve-vcvtne-it.d         |   8 +-
+ 5 files changed, 224 insertions(+), 224 deletions(-)
+
+diff --git a/gas/config/tc-arm.c b/gas/config/tc-arm.c
+index d86a3750794..c0f6215fbc1 100644
+--- a/gas/config/tc-arm.c
++++ b/gas/config/tc-arm.c
+@@ -8360,7 +8360,7 @@ static void
+ do_scalar_fp16_v82_encode (void)
+ {
+   if (inst.cond < COND_ALWAYS)
+-    as_warn (_("ARMv8.2 scalar fp16 instruction cannot be conditional,"
++    as_warn (_("scalar fp16 instruction cannot be conditional,"
+ 	       " the behaviour is UNPREDICTABLE"));
+   constraint (!ARM_CPU_HAS_FEATURE (cpu_variant, arm_ext_fp16),
+ 	      _(BAD_FP16));
+@@ -20595,7 +20595,7 @@ do_neon_movhf (void)
+     {
+       if (thumb_mode)
+ 	{
+-	  as_warn (_("ARMv8.2 scalar fp16 instruction cannot be conditional,"
++	  as_warn (_("scalar fp16 instruction cannot be conditional,"
+ 		     " the behaviour is UNPREDICTABLE"));
+ 	}
+       else
+diff --git a/gas/testsuite/gas/arm/armv8-2-fp16-scalar-bad.l b/gas/testsuite/gas/arm/armv8-2-fp16-scalar-bad.l
+index 31ad82e0e45..3f5a2b8bcf6 100644
+--- a/gas/testsuite/gas/arm/armv8-2-fp16-scalar-bad.l
++++ b/gas/testsuite/gas/arm/armv8-2-fp16-scalar-bad.l
+@@ -3,401 +3,401 @@
+ .*:93: Error: immediate value out of range, expected range \[1, 32\] -- `vcvt.u32.f16 s11,s11,#0'
+ .*:94: Error: immediate value out of range -- `vcvt.f16.s32 s12,s12,#34'
+ .*:95: Error: immediate value out of range -- `vcvt.f16.u32 s12,s12,#-1'
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:98: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:12: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:12: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:99: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:100: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:28: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:28: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:101: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:36: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:36: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:102: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:44: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:44: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:103: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:52: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:52: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:104: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+-.*:60: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:60: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:105: *Info: macro .*
+ .*:68: Error: instruction cannot be conditional.*
+ .*:106: *Info: macro .*
+@@ -423,51 +423,51 @@
+ .*:106: *Info: macro .*
+ .*:68: Error: instruction cannot be conditional.*
+ .*:106: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+-.*:78: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++.*:78: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ .*:110: *Info: macro .*
+ .*:78: IT blocks containing 32-bit Thumb instructions are performance deprecated in ARMv8-A and ARMv8-R
+ .*:110: *Info: macro .*
+diff --git a/gas/testsuite/gas/arm/mve-vaddsub-it-bad.l b/gas/testsuite/gas/arm/mve-vaddsub-it-bad.l
+index 5f41bceaf40..13f464694fd 100644
+--- a/gas/testsuite/gas/arm/mve-vaddsub-it-bad.l
++++ b/gas/testsuite/gas/arm/mve-vaddsub-it-bad.l
+@@ -1,7 +1,7 @@
+ [^:]*: Assembler messages:
+-[^:]*:4: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-[^:]*:5: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-[^:]*:7: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-[^:]*:8: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:4: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:5: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:7: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:8: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ [^:]*:10: Error: selected FPU does not support instruction -- `vaddl.s8 q0,d1,d2'
+ [^:]*:11: Error: selected FPU does not support instruction -- `vsubl.s8 q0,d1,d2'
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
+index ca57a38537c..6f66e53240f 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
+@@ -3,15 +3,15 @@
+ [^:]*:4: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f64 s13,d8'
+ [^:]*:5: Error: thumb conditional instruction should be in IT block -- `vcvtne.s32.f32 s13,s8'
+ [^:]*:6: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f32 s13,s8'
+-[^:]*:7: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:7: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ [^:]*:7: Error: thumb conditional instruction should be in IT block -- `vcvtne.s32.f16 s13,s8'
+-[^:]*:8: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:8: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ [^:]*:8: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f16 s13,s8'
+ [^:]*:9: Error: thumb conditional instruction should be in IT block -- `vcvtne.f64.s32 d13,s8'
+ [^:]*:10: Error: thumb conditional instruction should be in IT block -- `vcvtne.f64.u32 d13,s8'
+ [^:]*:11: Error: thumb conditional instruction should be in IT block -- `vcvtne.f32.s32 s13,s8'
+ [^:]*:12: Error: thumb conditional instruction should be in IT block -- `vcvtne.f32.u32 s13,s8'
+-[^:]*:13: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:13: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ [^:]*:13: Error: thumb conditional instruction should be in IT block -- `vcvtne.f16.s32 s13,s8'
+-[^:]*:14: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:14: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ [^:]*:14: Error: thumb conditional instruction should be in IT block -- `vcvtne.f16.u32 s13,s8'
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it.d b/gas/testsuite/gas/arm/mve-vcvtne-it.d
+index 27e45753c64..87c3c592aed 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it.d
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it.d
+@@ -1,10 +1,10 @@
+ # name: Armv8.1-M Mainline vcvt instruction in it block (with MVE)
+ # as: -march=armv8.1-m.main+mve.fp+fp.dp
+ #warning: [^:]*: Assembler messages:
+-#warning: [^:]*:10: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-#warning: [^:]*:11: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-#warning: [^:]*:19: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+-#warning: [^:]*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:10: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:11: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:19: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:20: Warning: scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ # objdump: -dr --prefix-addresses --show-raw-insn -marmv8.1-m.main
+ 
+ .*: +file format .*arm.*
+-- 
+2.39.2
+

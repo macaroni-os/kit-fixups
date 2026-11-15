@@ -1,0 +1,209 @@
+From 3731cb8034b80a9cb378932f90457a90de7601ab Mon Sep 17 00:00:00 2001
+From: Stam Markianos-Wright <stam.markianos-wright@arm.com>
+Date: Tue, 17 Jan 2023 12:57:47 +0000
+Subject: [PATCH 34/41] gas: arm: Fix a further IT-predicated vcvt issue in the
+ presense of MVE vcvtn
+
+Previously we had experienced issues with assembling a "VCVTNE" instruction
+in the presence of the MVE architecture extension, because it could be
+interpreted both as:
+
+* The base instruction VCVT + NE for IT predication when inside an IT block.
+* The MVE instruction VCVTN + E in the Else of a VPT block.
+
+Given a C reproducer of:
+```
+int test_function(float value)
+{
+  int ret_val = 10;
+  if (value != 0.0)
+  {
+    ret_val = (int) value;
+  }
+  return ret_val;
+}
+```
+GCC generates a VCVTNE instruction based on the `truncsisf2_vfp`
+pattern, which will look like:
+`vcvtne.s32.f32 s-reg, s-reg`
+This still triggers an error due to being misidentified as "vcvtn+e"
+Similar errors were found with other type combinations and instruction
+patterns (these have all been added to the testing of this patch).
+
+This class of errors was previously worked around by:
+https://sourceware.org/pipermail/binutils/2020-August/112728.html
+which addressed this by looking at the operand types, however,
+that isn't adequate to cover all the extra cases that have been
+found.  Instead, we add some special-casing logic earlier when
+the instructions are parsed that is conditional on whether we are
+in a VPT block or not, when the instruction is parsed.
+
+gas/ChangeLog:
+
+	* config/tc-arm.c (opcode_lookup): Add special vcvtn handling.
+	* testsuite/gas/arm/mve-vcvtne-it-bad.l: Add further testing.
+	* testsuite/gas/arm/mve-vcvtne-it-bad.s: Likewise.
+	* testsuite/gas/arm/mve-vcvtne-it.d: Likewise.
+	* testsuite/gas/arm/mve-vcvtne-it.s: Likewise.
+
+(cherry picked from commit 570b9c09bbf4c6715c59b9dd6b49fb4fcd89099a)
+---
+ gas/config/tc-arm.c                       | 27 ++++++++++++++---------
+ gas/testsuite/gas/arm/mve-vcvtne-it-bad.l | 15 +++++++++++++
+ gas/testsuite/gas/arm/mve-vcvtne-it-bad.s | 11 +++++++++
+ gas/testsuite/gas/arm/mve-vcvtne-it.d     | 23 ++++++++++++++++++-
+ gas/testsuite/gas/arm/mve-vcvtne-it.s     | 18 ++++++++++++++-
+ 5 files changed, 82 insertions(+), 12 deletions(-)
+
+diff --git a/gas/config/tc-arm.c b/gas/config/tc-arm.c
+index a5687ba0f05..d86a3750794 100644
+--- a/gas/config/tc-arm.c
++++ b/gas/config/tc-arm.c
+@@ -19187,16 +19187,6 @@ do_neon_cvt_1 (enum neon_cvt_mode mode)
+       return;
+     }
+ 
+-  if ((rs == NS_FD || rs == NS_QQI) && mode == neon_cvt_mode_n
+-      && ARM_CPU_HAS_FEATURE (cpu_variant, mve_ext))
+-    {
+-      /* We are dealing with vcvt with the 'ne' condition.  */
+-      inst.cond = 0x1;
+-      inst.instruction = N_MNEM_vcvt;
+-      do_neon_cvt_1 (neon_cvt_mode_z);
+-      return;
+-    }
+-
+   /* VFP rather than Neon conversions.  */
+   if (flavour >= neon_cvt_flavour_first_fp)
+     {
+@@ -22792,6 +22782,23 @@ opcode_lookup (char **str)
+      cond = (const struct asm_cond *) str_hash_find_n (arm_vcond_hsh, affix, 1);
+      opcode = (const struct asm_opcode *) str_hash_find_n (arm_ops_hsh, base,
+ 							   affix - base);
++
++     /* A known edge case is a conflict between an 'e' as a suffix for an
++	Else of a VPT predication block and an 'ne' suffix for an IT block.
++	If we detect that edge case here and we are not in a VPT VECTOR_PRED
++	block, reset opcode and cond, so that the 'ne' case can be detected
++	in the next section for 2-character conditional suffixes.
++	An example where this is a problem is between the MVE 'vcvtn' and the
++	non-MVE 'vcvt' instructions. */
++     if (cond && opcode
++	 && cond->template_name[0] == 'e'
++	 && opcode->template_name[affix - base - 1] == 'n'
++	 && now_pred.type != VECTOR_PRED)
++       {
++	 opcode = NULL;
++	 cond = NULL;
++       }
++
+      /* If this opcode can not be vector predicated then don't accept it with a
+ 	vector predication code.  */
+      if (opcode && !opcode->mayBeVecPred)
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
+index 8765ae0d691..ca57a38537c 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.l
+@@ -1,2 +1,17 @@
+ [^:]*: Assembler messages:
+ [^:]*:3: Error: thumb conditional instruction should be in IT block -- `vcvtne.s32.f64 s13,d8'
++[^:]*:4: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f64 s13,d8'
++[^:]*:5: Error: thumb conditional instruction should be in IT block -- `vcvtne.s32.f32 s13,s8'
++[^:]*:6: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f32 s13,s8'
++[^:]*:7: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:7: Error: thumb conditional instruction should be in IT block -- `vcvtne.s32.f16 s13,s8'
++[^:]*:8: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:8: Error: thumb conditional instruction should be in IT block -- `vcvtne.u32.f16 s13,s8'
++[^:]*:9: Error: thumb conditional instruction should be in IT block -- `vcvtne.f64.s32 d13,s8'
++[^:]*:10: Error: thumb conditional instruction should be in IT block -- `vcvtne.f64.u32 d13,s8'
++[^:]*:11: Error: thumb conditional instruction should be in IT block -- `vcvtne.f32.s32 s13,s8'
++[^:]*:12: Error: thumb conditional instruction should be in IT block -- `vcvtne.f32.u32 s13,s8'
++[^:]*:13: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:13: Error: thumb conditional instruction should be in IT block -- `vcvtne.f16.s32 s13,s8'
++[^:]*:14: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++[^:]*:14: Error: thumb conditional instruction should be in IT block -- `vcvtne.f16.u32 s13,s8'
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.s b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.s
+index e4c1b999065..b7d83f6fe0d 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it-bad.s
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it-bad.s
+@@ -1,3 +1,14 @@
+ .syntax unified
+ .text
+ vcvtne.s32.f64	s13, d8
++vcvtne.u32.f64	s13, d8
++vcvtne.s32.f32	s13, s8
++vcvtne.u32.f32	s13, s8
++vcvtne.s32.f16	s13, s8
++vcvtne.u32.f16	s13, s8
++vcvtne.f64.s32	d13, s8
++vcvtne.f64.u32	d13, s8
++vcvtne.f32.s32	s13, s8
++vcvtne.f32.u32	s13, s8
++vcvtne.f16.s32	s13, s8
++vcvtne.f16.u32	s13, s8
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it.d b/gas/testsuite/gas/arm/mve-vcvtne-it.d
+index 2bc069a77e5..27e45753c64 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it.d
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it.d
+@@ -1,10 +1,31 @@
+ # name: Armv8.1-M Mainline vcvt instruction in it block (with MVE)
+ # as: -march=armv8.1-m.main+mve.fp+fp.dp
++#warning: [^:]*: Assembler messages:
++#warning: [^:]*:10: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:11: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:19: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
++#warning: [^:]*:20: Warning: ARMv8.2 scalar fp16 instruction cannot be conditional, the behaviour is UNPREDICTABLE
+ # objdump: -dr --prefix-addresses --show-raw-insn -marmv8.1-m.main
+ 
+ .*: +file format .*arm.*
+ 
+ Disassembly of section .text:
+-^[^>]*> bf18[ 	]+it[ 	]+ne
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
+ ^[^>]*> eefd 6bc8[ 	]+vcvtne.s32.f64[ 	]+s13, d8
++^[^>]*> eefc 6bc8[ 	]+vcvtne.u32.f64[ 	]+s13, d8
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
++^[^>]*> eefd 6ac4[ 	]+vcvtne.s32.f32[ 	]+s13, s8
++^[^>]*> eefc 6ac4[ 	]+vcvtne.u32.f32[ 	]+s13, s8
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
++^[^>]*> eefd 69c4[ 	]+vcvtne.s32.f16[ 	]+s13, s8.*
++^[^>]*> eefc 69c4[ 	]+vcvtne.u32.f16[ 	]+s13, s8.*
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
++^[^>]*> eeb8 dbc4[ 	]+vcvtne.f64.s32[ 	]+d13, s8
++^[^>]*> eeb8 db44[ 	]+vcvtne.f64.u32[ 	]+d13, s8
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
++^[^>]*> eef8 6ac4[ 	]+vcvtne.f32.s32[ 	]+s13, s8
++^[^>]*> eef8 6a44[ 	]+vcvtne.f32.u32[ 	]+s13, s8
++^[^>]*> bf1c[ 	]+itt[ 	]+ne
++^[^>]*> eef8 69c4[ 	]+vcvtne.f16.s32[ 	]+s13, s8.*
++^[^>]*> eef8 6944[ 	]+vcvtne.f16.u32[ 	]+s13, s8.*
+ #pass
+diff --git a/gas/testsuite/gas/arm/mve-vcvtne-it.s b/gas/testsuite/gas/arm/mve-vcvtne-it.s
+index a9f26068128..e8be576c296 100644
+--- a/gas/testsuite/gas/arm/mve-vcvtne-it.s
++++ b/gas/testsuite/gas/arm/mve-vcvtne-it.s
+@@ -1,4 +1,20 @@
+ .syntax unified
+ .text
+-it ne
++itt ne
+ vcvtne.s32.f64	s13, d8
++vcvtne.u32.f64	s13, d8
++itt ne
++vcvtne.s32.f32	s13, s8
++vcvtne.u32.f32	s13, s8
++itt ne
++vcvtne.s32.f16	s13, s8
++vcvtne.u32.f16	s13, s8
++itt ne
++vcvtne.f64.s32	d13, s8
++vcvtne.f64.u32	d13, s8
++itt ne
++vcvtne.f32.s32	s13, s8
++vcvtne.f32.u32	s13, s8
++itt ne
++vcvtne.f16.s32	s13, s8
++vcvtne.f16.u32	s13, s8
+-- 
+2.39.2
+

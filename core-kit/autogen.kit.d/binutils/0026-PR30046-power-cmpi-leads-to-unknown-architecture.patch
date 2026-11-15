@@ -1,0 +1,60 @@
+From f7ffd1d09f5370703f69061ced9d06a76b83d5e4 Mon Sep 17 00:00:00 2001
+From: Alan Modra <amodra@gmail.com>
+Date: Thu, 16 Feb 2023 20:47:44 +1030
+Subject: [PATCH 26/41] PR30046, power cmpi leads to unknown architecture
+
+PowerPC ELF always uses bfd_arch_powerpc, so we shouldn't allow the
+gas -mpwr, -mpwr2 or -mpwrx options to choose bfd_arch_rs6000.
+Given the possible values of ppc_cpu, I think the as_fatal at the end
+of ppc_arch will never be reached, so it can be deleted and the code
+simplified a little.
+
+	PR 30046
+	* config/tc-ppc.c (ppc_arch): Return bfd_arch_powerpc for ELF.
+	Delete dead code.
+
+(cherry picked from commit 4d826e132ccc38c3081209bf3a7a107f8b23ffd4)
+(cherry picked from commit 3d0046f39aa097e957c97f88ba24ccd87968f379)
+---
+ gas/config/tc-ppc.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/gas/config/tc-ppc.c b/gas/config/tc-ppc.c
+index 9450fa74de1..a3af5f5e276 100644
+--- a/gas/config/tc-ppc.c
++++ b/gas/config/tc-ppc.c
+@@ -1496,9 +1496,11 @@ ppc_set_cpu (void)
+ enum bfd_architecture
+ ppc_arch (void)
+ {
+-  const char *default_cpu = TARGET_CPU;
+   ppc_set_cpu ();
+ 
++#ifdef OBJ_ELF
++  return bfd_arch_powerpc;
++#else
+   if ((ppc_cpu & PPC_OPCODE_PPC) != 0)
+     return bfd_arch_powerpc;
+   if ((ppc_cpu & PPC_OPCODE_VLE) != 0)
+@@ -1507,14 +1509,12 @@ ppc_arch (void)
+     return bfd_arch_rs6000;
+   if ((ppc_cpu & (PPC_OPCODE_COMMON | PPC_OPCODE_ANY)) != 0)
+     {
+-      if (strcmp (default_cpu, "rs6000") == 0)
+-	return bfd_arch_rs6000;
+-      else if (startswith (default_cpu, "powerpc"))
++      const char *default_cpu = TARGET_CPU;
++      if (startswith (default_cpu, "powerpc"))
+ 	return bfd_arch_powerpc;
+     }
+-
+-  as_fatal (_("neither Power nor PowerPC opcodes were selected."));
+-  return bfd_arch_unknown;
++  return bfd_arch_rs6000;
++#endif
+ }
+ 
+ unsigned long
+-- 
+2.39.2
+

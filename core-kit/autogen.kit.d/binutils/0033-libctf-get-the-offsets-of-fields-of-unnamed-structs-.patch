@@ -1,0 +1,181 @@
+From 4537a11229eb0bd8771603d4718da53cea847736 Mon Sep 17 00:00:00 2001
+From: Nick Alcock <nick.alcock@oracle.com>
+Date: Thu, 23 Mar 2023 00:15:17 +0000
+Subject: [PATCH 33/41] libctf: get the offsets of fields of unnamed
+ structs/unions right
+
+We were failing to add the offsets of the containing struct/union
+in this case, leading to all offsets being relative to the unnamed
+struct/union itself.
+
+libctf/
+	PR libctf/30264
+	* ctf-types.c (ctf_member_info): Add the offset of the unnamed
+	member of the current struct as necessary.
+	* testsuite/libctf-lookup/unnamed-field-info*: New test.
+
+(cherry picked from commit bddd62e188c120600857209ede4a23ab3ccc4cac)
+---
+ libctf/ctf-types.c                            |  5 +-
+ .../libctf-lookup/unnamed-field-info-ctf.c    | 36 +++++++++
+ .../libctf-lookup/unnamed-field-info.c        | 79 +++++++++++++++++++
+ .../libctf-lookup/unnamed-field-info.lk       |  2 +
+ 4 files changed, 121 insertions(+), 1 deletion(-)
+ create mode 100644 libctf/testsuite/libctf-lookup/unnamed-field-info-ctf.c
+ create mode 100644 libctf/testsuite/libctf-lookup/unnamed-field-info.c
+ create mode 100644 libctf/testsuite/libctf-lookup/unnamed-field-info.lk
+
+diff --git a/libctf/ctf-types.c b/libctf/ctf-types.c
+index d21f6d5ff99..dd82053e1d7 100644
+--- a/libctf/ctf-types.c
++++ b/libctf/ctf-types.c
+@@ -1417,7 +1417,10 @@ ctf_member_info (ctf_dict_t *fp, ctf_id_t type, const char *name,
+ 	  && (ctf_type_kind (fp, memb.ctlm_type) == CTF_K_STRUCT
+ 	      || ctf_type_kind (fp, memb.ctlm_type) == CTF_K_UNION)
+ 	  && (ctf_member_info (fp, memb.ctlm_type, name, mip) == 0))
+-	return 0;
++	{
++	  mip->ctm_offset += (unsigned long) CTF_LMEM_OFFSET (&memb);
++	  return 0;
++	}
+ 
+       if (strcmp (membname, name) == 0)
+ 	{
+diff --git a/libctf/testsuite/libctf-lookup/unnamed-field-info-ctf.c b/libctf/testsuite/libctf-lookup/unnamed-field-info-ctf.c
+new file mode 100644
+index 00000000000..54d60f5b195
+--- /dev/null
++++ b/libctf/testsuite/libctf-lookup/unnamed-field-info-ctf.c
+@@ -0,0 +1,36 @@
++struct A
++{
++  int a;
++  char *b;
++  struct
++  {
++    struct
++    {
++      char *one;
++      int two;
++    };
++    union
++    {
++      char *three;
++    };
++  };
++  struct
++  {
++    int four;
++  };
++  union
++  {
++    struct
++    {
++      double x;
++      long y;
++    };
++    struct
++    {
++      struct { char *foo; } z;
++      float aleph;
++    };
++  };
++};
++
++struct A used;
+diff --git a/libctf/testsuite/libctf-lookup/unnamed-field-info.c b/libctf/testsuite/libctf-lookup/unnamed-field-info.c
+new file mode 100644
+index 00000000000..9abe8b026bb
+--- /dev/null
++++ b/libctf/testsuite/libctf-lookup/unnamed-field-info.c
+@@ -0,0 +1,79 @@
++/* Make sure unnamed field offsets are relative to the containing struct.  */
++
++#include <ctf-api.h>
++#include <stddef.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++#include "unnamed-field-info-ctf.c"
++
++static void
++verify_offsetof_matching (ctf_dict_t *fp, ctf_id_t type, const char *name, size_t offset)
++{
++  ctf_membinfo_t mi;
++
++  if (ctf_member_info (fp, type, name, &mi) < 0)
++    goto err;
++
++  if (mi.ctm_offset != offset * 8)
++    fprintf (stderr, "field %s inconsistency: offsetof() says %zi bits, CTF says %zi\n",
++	     name, offset * 8, mi.ctm_offset);
++
++  return;
++
++ err:
++  fprintf (stderr, "Cannot look up field %s: %s\n", name,
++	   ctf_errmsg (ctf_errno (fp)));
++  return;
++}
++
++int
++main (int argc, char *argv[])
++{
++  ctf_dict_t *fp;
++  ctf_archive_t *ctf;
++  ctf_id_t type;
++  int err;
++
++  if (argc != 2)
++    {
++      fprintf (stderr, "Syntax: %s PROGRAM\n", argv[0]);
++      exit(1);
++    }
++
++  if ((ctf = ctf_open (argv[1], NULL, &err)) == NULL)
++    goto open_err;
++  if ((fp = ctf_dict_open (ctf, NULL, &err)) == NULL)
++    goto open_err;
++
++  /* Dig out some structure members by name.  */
++
++  if ((type = ctf_lookup_by_name (fp, "struct A") ) == CTF_ERR)
++    goto err;
++
++  verify_offsetof_matching (fp, type, "a", offsetof (struct A, a));
++  verify_offsetof_matching (fp, type, "b", offsetof (struct A, b));
++  verify_offsetof_matching (fp, type, "one", offsetof (struct A, one));
++  verify_offsetof_matching (fp, type, "two", offsetof (struct A, two));
++  verify_offsetof_matching (fp, type, "three", offsetof (struct A, three));
++  verify_offsetof_matching (fp, type, "four", offsetof (struct A, four));
++  verify_offsetof_matching (fp, type, "x", offsetof (struct A, x));
++  verify_offsetof_matching (fp, type, "y", offsetof (struct A, y));
++  verify_offsetof_matching (fp, type, "z", offsetof (struct A, z));
++  verify_offsetof_matching (fp, type, "aleph", offsetof (struct A, aleph));
++
++  ctf_dict_close (fp);
++  ctf_arc_close (ctf);
++
++  printf ("Offset validation complete.\n");
++
++  return 0;
++
++ open_err:
++  fprintf (stderr, "%s: cannot open: %s\n", argv[0], ctf_errmsg (err));
++  return 1;
++
++ err:
++  fprintf (stderr, "Cannot look up type: %s\n", ctf_errmsg (ctf_errno (fp)));
++  return 1;
++}
+diff --git a/libctf/testsuite/libctf-lookup/unnamed-field-info.lk b/libctf/testsuite/libctf-lookup/unnamed-field-info.lk
+new file mode 100644
+index 00000000000..eae6a517d50
+--- /dev/null
++++ b/libctf/testsuite/libctf-lookup/unnamed-field-info.lk
+@@ -0,0 +1,2 @@
++# source: unnamed-field-info-ctf.c
++Offset validation complete.
+-- 
+2.39.2
+

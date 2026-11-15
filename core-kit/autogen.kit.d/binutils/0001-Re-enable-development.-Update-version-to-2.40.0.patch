@@ -1,0 +1,38 @@
+From 78eca0130feecb321bb6943045b2161583f61dd2 Mon Sep 17 00:00:00 2001
+From: Nick Clifton <nickc@redhat.com>
+Date: Sat, 14 Jan 2023 15:34:17 +0000
+Subject: [PATCH 01/41] Re-enable development.  Update version to 2.40.0
+
+---
+ bfd/development.sh | 2 +-
+ bfd/version.m4     | 2 +-
+ gas/doc/.dirstamp  | 0
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ delete mode 100644 gas/doc/.dirstamp
+
+diff --git a/bfd/development.sh b/bfd/development.sh
+index c0da031ca3c..bcf0daccc3f 100644
+--- a/bfd/development.sh
++++ b/bfd/development.sh
+@@ -16,7 +16,7 @@
+ # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+ # Controls whether to enable development-mode features by default.
+-development=false
++development=true
+ 
+ # Indicate whether this is a release branch.
+ experimental=false
+diff --git a/bfd/version.m4 b/bfd/version.m4
+index be6c77bb224..81737d8f9c7 100644
+--- a/bfd/version.m4
++++ b/bfd/version.m4
+@@ -1 +1 @@
+-m4_define([BFD_VERSION], [2.40])
++m4_define([BFD_VERSION], [2.40.0])
+diff --git a/gas/doc/.dirstamp b/gas/doc/.dirstamp
+deleted file mode 100644
+index e69de29bb2d..00000000000
+-- 
+2.39.2
+

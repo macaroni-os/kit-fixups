@@ -604,3 +604,10 @@ target:
     # Pinned builtin-noop (distro content, no upstream). Unconditional:
     # every release branch carries baselayout-3.0-r1.
     - pkg: sys-apps/baselayout
+
+    # The 2.40 line is the track served on every kit branch
+    # (binutils-2.40_p5-r1): see the binutils package comment in
+    # autogen.kit.d/core.yml.
+    - pkg: sys-devel/binutils
+      conditions:
+        - '>=sys-devel/binutils-2.40_p5'

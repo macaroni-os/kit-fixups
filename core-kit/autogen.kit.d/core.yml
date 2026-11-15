@@ -635,6 +635,51 @@ core_dirlisting:
               emake check
             }
 
+    - sed:
+        dir:
+          url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: Super-useful stream editor
+          homepage: https://www.gnu.org/software/sed/
+          license: GPL-3
+          iuse: acl nls static
+          inherit:
+            - flag-o-matic
+          rdepend: |
+            !static? (
+              acl? ( virtual/acl )
+              nls? ( virtual/libintl )
+            )
+          depend: |
+            ${RDEPEND}
+            static? (
+              acl? ( virtual/acl[static-libs(+)] )
+              nls? ( virtual/libintl[static-libs(+)] )
+            )
+          bdepend: |
+            app-arch/xz-utils
+            nls? ( sys-devel/gettext )
+          body: |
+            src_configure() {
+              use static && append-ldflags -static
+
+              local myconf=(
+                # essential binary: install into /bin like the tree's --exec-prefix
+                --bindir=/bin
+                $(use_enable acl)
+                $(use_enable nls)
+              )
+              econf "${myconf[@]}"
+            }
+
     - mime-types:
         category: app-misc
         dir:

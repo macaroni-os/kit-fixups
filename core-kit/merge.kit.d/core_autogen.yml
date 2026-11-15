@@ -326,6 +326,17 @@ target:
     - pkg: sys-apps/diffutils
       conditions:
         - '>=sys-apps/diffutils-3.12'
+
+    # 4.9 track: still served in-tree and on release branches carrying sed-4.9
+    - pkg: sys-apps/sed
+      conditions:
+        - '>=sys-apps/sed-4.9'
+        - '<sys-apps/sed-4.10'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/sed
+      conditions:
+        - '>=sys-apps/sed-4.10'
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

@@ -1102,6 +1102,96 @@ libtools_pkgs:
             match: '.tar.xz'
             replace: ''
 
+    - libtool:
+        category: sys-devel
+        # Same libtool tarball as the sibling dev-libs/libltdl entry; the
+        # matcher tracks only the real release tarballs (diff/xdelta sidecars
+        # end in .diff.gz/.xdelta and pre-2.4.2 releases have no .xz at all).
+        # libtool-2.6.2 is the current upstream stable line (2.6.0/2.6.1 were
+        # alpha/beta per the bundled NEWS).
+        dir:
+          url: https://ftp.wayne.edu/gnu/libtool/
+          matcher: "libtool-.*.tar.xz$"
+        transform:
+          - kind: string
+            match: 'libtool-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: A shared library tool for developers
+          homepage: https://www.gnu.org/software/libtool/
+          license: GPL-2
+          slot: '2'
+          iuse: vanilla
+          extra_envs:
+            - 'LIBTOOLIZE="true"'
+            - 'WANT_LIBTOOL="none"'
+          inherit:
+            - autotools
+            - epunt-cxx
+          rdepend: |
+            sys-devel/gnuconfig
+            >=sys-devel/autoconf-2.69
+            >=sys-devel/automake-1.13
+            dev-libs/libltdl:0
+            !<sys-apps/sandbox-2.10-r4
+          depend: |
+            ${RDEPEND}
+            app-arch/xz-utils
+          # Two of the twelve tree patches survive on 2.6.2 (both dry-run
+          # clean with offset only, and neither touches the amd64 path):
+          # the powerpc64le ELF emulation fix (upstream still maps
+          # powerpc64le only in the 32-bit branch of m4/libtool.m4) and the
+          # C++ -pthread/-lpthread workaround (Gentoo bug 650876; 2.6.2 only
+          # appends -pthread to new_inherited_linker_flags, it does not add
+          # -lpthread to deplibs for -nostdlib g++ linking). The other ten
+          # are dropped: link-specs, link-fsanitize, libtoolize-slow and
+          # sed-quote-speedup are absorbed upstream in 2.4.7 (its NEWS lists
+          # the -fsanitize=*/-specs=* linker pass-through, the libtoolize
+          # m4-recursion slowdown fix and the $SED $sed_quote_subst
+          # mitigation for bug#20006); link-fuse-ld (build-aux/ltmain.in
+          # already carries -fuse-ld=*) and libtoolize-delay-help
+          # (libtoolize.in carries the exact func_help override) are
+          # verbatim in 2.6.2; the fbsd/darwin/mint/eprefix patches target
+          # platforms this kit does not ship (no EPREFIX in new autogens).
+          patches:
+            - libtool-2.6.2-pthread_bootstrapped.patch
+            - libtool-2.6.2-ppc64le.patch
+          body: |
+            src_prepare() {
+              if use vanilla ; then
+                eapply_user
+                return 0
+              fi
+
+              default
+
+              pushd libltdl >/dev/null
+              AT_NOELIBTOOLIZE=yes eautoreconf
+              popd >/dev/null
+              AT_NOELIBTOOLIZE=yes eautoreconf
+              epunt_cxx
+
+              # Make sure timestamps don't trigger a rebuild of man pages.
+              touch doc/*.1
+              export HELP2MAN=false
+            }
+            src_configure() {
+              export CONFIG_SHELL="$(type -P bash)"
+              export ac_cv_path_SED="$(basename "$(type -P sed)")"
+              ECONF_SOURCE=${S} econf --disable-ltdl-install
+            }
+            src_install() {
+              default
+
+              local x
+              while read -d $'\0' -r x ; do
+                ln -sf /usr/share/gnuconfig/${x##*/} "${x}" || die
+              done < <(find "${ED}" '(' -name config.guess -o -name config.sub ')' -print0)
+            }
+
 
 savannah_sys_apps_http:
   generator: builtin-dirlisting

@@ -1672,6 +1672,106 @@ libtools_pkgs:
             replace: ''
 
 
+tcsh:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: app-shells
+    # astron.com publishes the official release tarballs with an Apache
+    # directory listing; the .asc signatures and the beta/ and old/
+    # directories are filtered out by the anchored matcher below.
+    dir:
+      url: 'https://astron.com/pub/tcsh/'
+      matcher: 'tcsh-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'tcsh-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: Enhanced version of the Berkeley C shell (csh)
+      homepage: https://www.tcsh.org/
+      license: BSD
+      iuse: nls
+      docs:
+        - FAQ
+        - Fixes
+        - Ported
+        - README.md
+        - WishList
+        - Y2K
+      inherit:
+        - flag-o-matic
+        - autotools
+      # we need gettext because we run autoconf (AM_ICONV)
+      rdepend: |
+        >=sys-libs/ncurses-5.1:0=
+        sys-libs/libxcrypt
+        virtual/libiconv
+      depend: |
+        ${RDEPEND}
+        sys-devel/gettext
+      restrict: test
+      patches:
+        - tcsh-6.24.01-ftbfs-gcc-10.patch
+        - tcsh-6.24.01-no-dot-in-default-path.patch
+        - tcsh-6.21.00-use-ncurses.patch
+      body: |
+        src_prepare() {
+          default
+
+          eautoreconf
+
+          # unify ECHO behaviour
+          echo "#undef ECHO_STYLE" >> config_f.h
+          echo "#define ECHO_STYLE BOTH_ECHO" >> config_f.h
+        }
+
+        src_configure() {
+          # tcsh compiles in the locations of the system startup files
+          # and the directories appended to its default PATH.
+          append-cppflags \
+            -D_PATH_DOTCSHRC="'\"/etc/csh.cshrc\"'" \
+            -D_PATH_DOTLOGIN="'\"/etc/csh.login\"'" \
+            -D_PATH_DOTLOGOUT="'\"/etc/csh.logout\"'" \
+            -D_PATH_USRBIN="'\"/usr/bin\"'" \
+            -D_PATH_BIN="'\"/bin\"'"
+
+          # musl's utmp is non-functional
+          if use elibc_musl ; then
+            export ac_cv_header_utmp_h=no
+            export ac_cv_header_utmpx_h=no
+          fi
+
+          local myeconfargs=(
+            # keep the binary in /bin as the other shells in the kit do
+            --bindir=/bin
+            --prefix=/usr
+            --datarootdir=/usr/share
+            $(use_enable nls)
+          )
+          econf "${myeconfargs[@]}"
+        }
+
+        src_install() {
+          emake DESTDIR="${D}" install install.man
+
+          einstalldocs
+
+          insinto /etc
+          doins "${FILESDIR}"/csh.cshrc "${FILESDIR}"/csh.login
+
+          # add csh -> tcsh symlink
+          dosym tcsh /bin/csh
+        }
+
+  packages:
+    - tcsh:
+
 savannah_sys_apps_http:
   generator: builtin-dirlisting
   defaults:

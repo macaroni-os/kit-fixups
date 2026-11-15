@@ -1,3 +1,44 @@
+gnuconfig:
+  generator: builtin-dirlisting
+
+  # Upstream ships dated snapshots (gnuconfig-YYYYMMDD.tar.xz), not versioned
+  # releases. The Gentoo distfiles project directory is a machine-readable
+  # listing, so a new snapshot is picked up automatically (the version is the
+  # date in the distfile name).
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-devel
+    dir:
+      url: https://distfiles.gentoo.org/pub/proj/base-system/gnuconfig
+      matcher: '^gnuconfig-[0-9]{8}\.tar\.xz$'
+    transform:
+      - kind: string
+        match: 'gnuconfig-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+  packages:
+    - gnuconfig:
+        vars:
+          desc: Updated config.sub and config.guess file from GNU
+          homepage: https://savannah.gnu.org/projects/config
+          license: GPL-3+-with-autoconf-exception
+          # The snapshot unpacks flat into ${WORKDIR} (there is no top-level
+          # directory in the distfile).
+          s: '${WORKDIR}'
+          body: |
+            src_compile() { :; }
+
+            src_install() {
+              insinto /usr/share/${PN}
+              doins config.{sub,guess} || die
+              fperms +x /usr/share/${PN}/config.{sub,guess}
+              dodoc ChangeLog
+            }
+
 arch_dirlisting:
   generator: builtin-dirlisting
 

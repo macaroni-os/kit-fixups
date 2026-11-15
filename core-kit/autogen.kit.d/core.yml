@@ -3566,6 +3566,115 @@ elfutils:
 
     - elfutils:
 
+zlib_ng:
+  generator: builtin-github
+
+  defaults:
+    category: sys-libs
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: zlib-ng
+      # Upstream publishes only prebuilt Windows binaries as release assets, so
+      # the source is the generator's api.github.com tarball and
+      # simple-github.tmpl moves its <user>-<repo>-<sha> unpack root into ${S}.
+      query: releases
+      # The tag of each release is cross-checked against the tags endpoint,
+      # whose page size is 30: 2.3.3 only shows up on page 3 (the first pages
+      # are filled with old version-sorting tags). The generator walks
+      # num_pages - 1 pages: 6 covers the current 109 tags with room to grow.
+      num_pages: 6
+    transform:
+      # Release titles sometimes carry a suffix ("2.3.2 - Hotfix").
+      - kind: string
+        match: " - Hotfix"
+        replace: ""
+
+  packages:
+    - zlib-ng:
+        vars:
+          desc: "zlib replacement with optimizations for 'next generation' systems."
+          homepage: https://github.com/zlib-ng/zlib-ng
+          license: ZLIB
+          inherit:
+            - cmake
+          # The supported cpu_flags_* surface lives in one variable and is
+          # rendered into IUSE with the template (media-kit pattern), not
+          # expanded at bash level.
+          # cpu_flags_x86_sse4a is the flag that used to drive the old
+          # WITH_SSE4 switch (renamed WITH_SSE42 in zlib-ng 2.1).
+          cpu_flags:
+            - x86_avx2
+            - x86_sse2
+            - x86_ssse3
+            - x86_sse4a
+            - x86_pclmul
+            - arm_crc32
+            - arm_neon
+            - ppc_vsx2
+          iuse: |
+            compat
+            {{- range $f := .Values.cpu_flags }}
+            cpu_flags_{{ $f }}
+            {{- end }}
+          # The compat build replaces the system zlib.
+          rdepend: 'compat? ( !sys-libs/zlib )'
+          # zlib-ng 2.3 only builds its gtest suite for static builds and the
+          # cmake eclass always sets BUILD_SHARED_LIBS=ON, so upstream disables
+          # WITH_GTEST itself and the remaining ctest suites need no extra dep.
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DZLIB_COMPAT="$(usex compat)"
+                # zlib-ng 2.2 removed the WITH_UNALIGNED switch (zbuild.h now
+                # follows __ARM_FEATURE_UNALIGNED); the test suite is not part
+                # of the package build.
+                -DBUILD_TESTING=OFF
+              )
+
+              # The intrinsics options are all defined conditionally, so we need
+              # to enable them on/off per-arch here for now.
+              if use amd64 || use x86 ; then
+                mycmakeargs+=(
+                  -DWITH_AVX2=$(usex cpu_flags_x86_avx2)
+                  -DWITH_SSE2=$(usex cpu_flags_x86_sse2)
+                  -DWITH_SSSE3=$(usex cpu_flags_x86_ssse3)
+                  -DWITH_SSE42=$(usex cpu_flags_x86_sse4a)
+                  -DWITH_PCLMULQDQ=$(usex cpu_flags_x86_pclmul)
+                )
+              fi
+
+              if use arm || use arm64 ; then
+                mycmakeargs+=(
+                  -DWITH_ARMV8=$(usex cpu_flags_arm_crc32)
+                  -DWITH_NEON=$(usex cpu_flags_arm_neon)
+                )
+              fi
+
+              if use ppc || use ppc64 ; then
+                # The POWER8 support is VSX which was introduced
+                # VSX2 was introduced with POWER8, so use that as a proxy for it
+                mycmakeargs+=(
+                  -DWITH_POWER8=$(usex cpu_flags_ppc_vsx2)
+                )
+              fi
+
+              # TODO: There's no s390x USE_EXPAND yet
+
+              cmake_src_configure
+            }
+
+            src_install() {
+              cmake_src_install
+
+              if use compat ; then
+                ewarn "zlib-ng is experimental and replacing the system zlib is dangerous"
+                ewarn "Please be careful!"
+                ewarn
+                ewarn "The following link explains the guarantees (and what is NOT guaranteed):"
+                ewarn "https://github.com/zlib-ng/zlib-ng/blob/2.0.x/PORTING.md"
+              fi
+            }
+
 util_linux:
   generator: builtin-github
   defaults:

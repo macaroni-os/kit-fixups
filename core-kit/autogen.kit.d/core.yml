@@ -76,6 +76,97 @@ arch_dirlisting:
             }
 
 
+    - dpkg:
+        # Keep the last dpkg release that works with the tree perl
+        # (dev-lang/perl-5.32.0, perl-kit): dpkg >= 1.22 needs perl >= 5.32.1
+        # and >= 1.23 needs perl >= 5.36.0 (m4/dpkg-progs.m4 of the release
+        # tarballs). Maintainer decision (geaaru, kit-fixups#587,
+        # 2026-11-15): keep the last version working with perl 5.32.0 via
+        # the selector; lift the cap when the kit perl moves past 5.32.1.
+        selector:
+          - '<1.22'
+        dir:
+          url: http://deb.debian.org/debian/pool/main/d/dpkg/
+          matcher: "dpkg_.*\\.tar\\.xz$"
+        transform:
+          - kind: string
+            match: "dpkg_"
+            replace: ""
+          - kind: string
+            match: ".tar.xz"
+            replace: ""
+        vars:
+          desc: Package maintenance system for Debian
+          homepage: https://packages.qa.debian.org/dpkg
+          license: GPL-2+
+          iuse: +bzip2 +lzma nls selinux static-libs unicode +update-alternatives +zstd +zlib
+          # perl coupling via subslot dep per maintainer review, kit-fixups#587
+          rdepend: |
+            dev-lang/perl:=
+            app-crypt/libmd
+            bzip2? ( app-arch/bzip2 )
+            lzma? ( app-arch/xz-utils )
+            nls? ( virtual/libintl )
+            selinux? ( sys-libs/libselinux )
+            zstd? ( app-arch/zstd )
+            zlib? ( >=sys-libs/zlib-1.1.4 )
+          depend: |
+            ${RDEPEND}
+            app-arch/xz-utils
+            virtual/pkgconfig
+            nls? (
+              app-text/po4a
+              >=sys-devel/gettext-0.18.2
+            )
+          inherit:
+            - eutils
+            - toolchain-funcs
+          docs:
+            - ChangeLog
+            - THANKS
+            - TODO
+          body: |
+            src_prepare() {
+              use nls && strip-linguas -i po
+
+              default
+            }
+
+            src_configure() {
+              tc-export CC
+              econf \
+                $(use_enable nls) \
+                $(use_enable static-libs static) \
+                $(use_enable unicode) \
+                $(use_enable update-alternatives) \
+                $(use_with bzip2 libbz2) \
+                $(use_with lzma liblzma) \
+                $(use_with selinux libselinux) \
+                $(use_with zstd libzstd) \
+                $(use_with zlib libz) \
+                --disable-compiler-warnings \
+                --disable-compiler-optimizations \
+                --disable-linker-optimizations \
+                --disable-dselect \
+                --disable-silent-rules \
+                --disable-start-stop-daemon \
+                --localstatedir=/var
+            }
+
+            src_compile() {
+              emake AR=$(tc-getAR)
+            }
+
+            src_install() {
+              default
+
+              keepdir \
+                /usr/$(get_libdir)/db/methods/{mnt,floppy,disk} \
+                /var/lib/dpkg/{alternatives,info,parts,updates}
+
+              find "${D}" -name '*.la' -type f -delete || die
+            }
+
     - sharutils:
         dir:
           url: https://ftp.gnu.org/gnu/sharutils/

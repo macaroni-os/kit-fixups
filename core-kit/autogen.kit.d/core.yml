@@ -1109,6 +1109,65 @@ core_dirlisting:
               find "${ED}" -name '*.la' -delete || die
             }
 
+    # RAR is proprietary freeware shipped by rarlab.com as PREBUILT Linux
+    # binaries: there is no source release, so this entry tracks the binary
+    # drop and the ebuild only installs the unpacked files.
+    - rar:
+        category: app-arch
+        # rarlab serves no directory listing (https://www.rarlab.com/rar/
+        # answers 403), but its download page is parseable HTML that links the
+        # current drops. Drop names carry a three-digit version
+        # (rarlinux-x64-723.tar.gz is 7.23) and beta drops a b suffix
+        # (rarlinux-x64-730b2.tar.gz); the matcher excludes those, and a
+        # negative probe with a b-only matcher proves the beta link is on the
+        # page (the run reaches it and stops with "No versions found").
+        dir:
+          url: 'https://www.rarlab.com/download.htm'
+          matcher: 'rarlinux-x64-[0-9]+\.tar\.gz$'
+        transform:
+          - kind: regex
+            match: '^rarlinux-x64-([0-9]+)\.tar\.gz$'
+            replace: '$1'
+          - kind: regex
+            match: '^([0-9])([0-9]+)$'
+            replace: '${1}.${2}'
+        vars:
+          desc: RAR compressor/uncompressor
+          homepage: https://rarlab.com/
+          license: RAR BSD BSD-2
+          # Only the x64 Linux drop exists upstream: the 32-bit
+          # rarlinux-<ver>.tar.gz is gone (404 since the 7.x line).
+          keywords: '-* ~amd64'
+          restrict: bindist
+          rdepend: 'sys-libs/glibc'
+          # The tarball unpacks into ${WORKDIR}/rar, without a versioned dir.
+          s: '${WORKDIR}/{{ .Values.pn }}'
+          # Prebuilt and already stripped: the same QA exemptions the tree
+          # ebuild declared.
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="opt/rar/rar opt/rar/unrar"'
+            - 'QA_PRESTRIPPED="opt/rar/rar opt/rar/unrar"'
+          body: |
+            src_compile() { :; }
+
+            src_prepare() {
+              default
+              rm -f license.txt || die
+            }
+
+            src_install() {
+              exeinto /opt/rar
+              doexe rar unrar || die
+
+              dodir /opt/bin
+              dosym ../rar/rar /opt/bin/rar || die
+              dosym ../rar/unrar /opt/bin/unrar || die
+
+              insinto /opt/rar
+              doins default.sfx rarfiles.lst || die
+              dodoc *.txt
+            }
+
 
 libtools_pkgs:
   generator: builtin-dirlisting

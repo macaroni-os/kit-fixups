@@ -875,6 +875,54 @@ core_dirlisting:
         assets:
           - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.xz"
 
+    # GNU serves libidn2 from the shared libidn/ directory, next to the
+    # unrelated libidn-1.x line, .tar.xz/.tar.lz variants, detached .sig
+    # proofs and a rolling libidn2-latest.tar.gz. The anchored matcher keeps
+    # all of those out so the generator only ever selects a stable
+    # libidn2-<ver>.tar.gz release (probed live: the newest is 2.3.8, also
+    # the newest tag on https://gitlab.com/libidn/libidn2).
+    - libidn2:
+        category: net-dns
+        dir:
+          url: https://ftp.gnu.org/gnu/libidn/
+          matcher: '^libidn2-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+        transform:
+          - kind: string
+            match: 'libidn2-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        vars:
+          desc: An implementation of the IDNA2008 specifications (RFCs 5890, 5891, 5892, 5893)
+          homepage: https://www.gnu.org/software/libidn/#libidn2 https://gitlab.com/libidn/libidn2
+          license: GPL-2+ LGPL-3+
+          slot: '0/2'
+          iuse: static-libs
+          inherit:
+            - toolchain-funcs
+          rdepend: |
+            dev-libs/libunistring
+          depend: |
+            ${RDEPEND}
+          bdepend: |
+            dev-lang/perl
+            sys-apps/help2man
+          body: |
+            src_configure() {
+              econf \
+                CC_FOR_BUILD="$(tc-getBUILD_CC)" \
+                $(use_enable static-libs static) \
+                --disable-doc \
+                --disable-gcc-warnings \
+                --disable-gtk-doc
+            }
+
+            src_install() {
+              default
+              find "${D}" -name '*.la' -delete || die
+            }
+
     - libcap-ng:
         category: sys-libs
         dir:

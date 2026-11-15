@@ -4147,3 +4147,81 @@ grep:
     - grep:
         selector:
           - '>=3.12'
+
+less:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    dir:
+      url: https://www.greenwoodsoftware.com/less/download.html
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)*\.tar\.gz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    # Upstream publishes a download page, not a directory autoindex; the
+    # generator joins dir.url + href verbatim (mark-devkit 0.36.1
+    # builtin_dirlisting.go), so pin the dist URL explicitly (libcap/elfutils
+    # precedent).
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+        url: 'https://www.greenwoodsoftware.com/less/{{ .Values.pn }}-{{ .Values.version }}.tar.gz'
+    vars:
+      desc: Excellent text file viewer
+      homepage: http://www.greenwoodsoftware.com/less/
+      license: '|| ( GPL-3 BSD-2 )'
+      iuse: pcre unicode
+      # Same dependency set for build and run as the tree ebuild's DEPEND
+      # with RDEPEND="${DEPEND}"; literals live in rdepend because the
+      # template emits RDEPEND before DEPEND.
+      rdepend: |
+        >=app-misc/editor-wrapper-3
+        >=sys-libs/ncurses-5.2:0=
+        pcre? ( dev-libs/libpcre2 )
+        sys-apps/groff
+      depend: '${RDEPEND}'
+      body: |
+        src_configure() {
+          export ac_cv_lib_ncursesw_initscr=$(usex unicode)
+          export ac_cv_lib_ncurses_initscr=$(usex !unicode)
+          local myeconfargs=(
+            --with-regex=$(usex pcre pcre2 posix)
+            --with-editor=/usr/libexec/editor
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          newbin "${FILESDIR}"/lesspipe-r1.sh lesspipe
+          newenvd "${FILESDIR}"/less.envd 70less
+        }
+
+  packages:
+    # 668 line: the merge atom carries conditions '>=sys-apps/less-668' +
+    # '<sys-apps/less-678' (core-kit@mark-unstable/mark-xl/mark-iii/mark-31/
+    # mark-v all serve less-668.ebuild), so this entry carries the matching
+    # selector and is GENERATED like the tip track. Upstream's download page
+    # currently jumps from 661 to 678 - no href for any 662..677 release, even
+    # though the tarballs are still served (less-668.tar.gz answers HTTP 200) -
+    # so the candidate comes from `versions` (the merged pxz spelling), which
+    # the dirlisting generator reads as the candidate set, while the selector
+    # still bounds it: pinning '661' here instead selects nothing (probe in the
+    # PR body), so a future release can never silently move this line off 668.
+    - less:
+        selector:
+          - '>=668'
+          - '<678'
+        vars:
+          versions:
+            - '668'
+
+    # Current line: the download-page tip (less-710 as of this round), the
+    # '>=sys-apps/less-678' line of the merge atom.
+    - less:
+        selector:
+          - '>=678'

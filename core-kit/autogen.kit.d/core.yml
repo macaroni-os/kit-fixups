@@ -2861,3 +2861,190 @@ bash:
         selector:
           - '>=5.3'
           - '<5.4'
+
+timezone_data:
+  # Rolling IANA tzdb releases (tzdata<YYYY><letter>): the releases dirlisting
+  # is the only machine-readable upstream channel (probed 2026-11-15:
+  # github.com/eggert/tz has 0 releases, iana/time-zones does not exist, no
+  # Forgejo). The <YYYY><letter> form is already a valid portage PV, so the
+  # transform only strips the tzdata prefix and the .tar.gz suffix; letter
+  # suffixes sort correctly (2026f > 2026a > 2025b > 2025a). The tree ebuild
+  # fetches a second tzcode<PV>.tar.gz distfile sharing the same version: it
+  # rides along as an asset so the generated Manifest covers every distfile.
+  # The end-anchored gz matcher structurally drops the .tar.lz/.Z siblings,
+  # the .asc/.sign files and the 2-digit-year entries; data.iana.org serves
+  # the exact same bytes as the tree Manifest hashes (no Content-Encoding).
+  # macaroni-os/mark-issues#925 (epic #880); conversion precedent #573.
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: sys-libs
+
+  packages:
+
+    - timezone-data:
+        dir:
+          url: https://data.iana.org/time-zones/releases/
+          matcher: 'tzdata[0-9]{4}[a-z]\.tar\.gz$'
+        transform:
+          - kind: string
+            match: 'tzdata'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        assets:
+          - name: 'tzdata{{ .Values.version }}.tar.gz'
+            url: 'https://data.iana.org/time-zones/releases/tzdata{{ .Values.version }}.tar.gz'
+          - name: 'tzcode{{ .Values.version }}.tar.gz'
+            url: 'https://data.iana.org/time-zones/releases/tzcode{{ .Values.version }}.tar.gz'
+        vars:
+          desc: Timezone data (/usr/share/zoneinfo) and utilities (tzselect/zic/zdump)
+          homepage: https://www.iana.org/time-zones
+          license: BSD public-domain
+          slot: '0'
+          iuse: nls leaps-timezone
+          inherit:
+            - toolchain-funcs
+            - flag-o-matic
+          s: '${WORKDIR}'
+          # simple.tmpl renders RDEPEND before DEPEND, so ${DEPEND} inside
+          # rdepend would render empty: write both literally (tree semantics:
+          # DEPEND=nls? ( virtual/libintl ), RDEPEND=${DEPEND} + glibc blocker).
+          depend: 'nls? ( virtual/libintl )'
+          rdepend: |
+            nls? ( virtual/libintl )
+            !sys-libs/glibc[vanilla(+)]
+          body: |
+            src_prepare() {
+              default
+
+              # check_web contacts validator.w3.org
+              sed -i -e 's/check_tables check_web/check_tables/g' \
+                Makefile || die "Failed to disable check_web"
+
+            }
+
+            src_configure() {
+              tc-export CC
+
+              append-lfs-flags
+
+              append-cppflags -DHAVE_GETTEXT=$(usex nls 1 0) -DTZ_DOMAIN='\"libc\"'
+              LDLIBS=""
+              if use nls ; then
+                # See if an external libintl is available.
+                local c="${T}/test"
+                echo 'main(){}' > "${c}.c"
+                if $(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} "${c}.c" -o "${c}" -lintl 2>/dev/null ; then
+                  LDLIBS+=" -lintl"
+                fi
+              fi
+            }
+
+            _emake() {
+              emake \
+                REDO=$(usex leaps-timezone posix_right posix_only) \
+                TZDATA_TEXT= \
+                ZICDIR='/usr/bin' \
+                "$@"
+            }
+
+            src_compile() {
+              _emake \
+                AR="$(tc-getAR)" \
+                cc="$(tc-getCC)" \
+                RANLIB="$(tc-getRANLIB)" \
+                CFLAGS="${CFLAGS} -std=gnu99 ${CPPFLAGS}" \
+                LDFLAGS="${LDFLAGS}" \
+                LDLIBS="${LDLIBS}"
+            }
+
+            src_install() {
+              local zic=""
+              _emake install ${zic} DESTDIR="${D}" LIBDIR="/nukeit"
+              rm -rf "${D}/nukeit" "${ED}/etc" || die
+
+              insinto /usr/share/zoneinfo
+              doins "${S}"/leap-seconds.list
+
+              # Delete man pages installed by man-pages package.
+              rm "${ED}"/usr/share/man/man5/tzfile.5* "${ED}"/usr/share/man/man8/{tzselect,zdump,zic}.8 || die
+              dodoc CONTRIBUTING README NEWS *.html
+            }
+
+            get_TIMEZONE() {
+              local tz src="/etc/timezone"
+              if [[ -e ${src} ]] ; then
+                tz=$(sed -e 's:#.*::' -e 's:[[:space:]]*::g' -e '/^$/d' "${src}")
+              else
+                tz="FOOKABLOIE"
+              fi
+              [[ -z ${tz} ]] && return 1 || echo "${tz}"
+            }
+
+            pkg_preinst() {
+              local tz=$(get_TIMEZONE)
+              if [[ ${tz} == right/* || ${tz} == posix/* ]] ; then
+                eerror "The right & posix subdirs are no longer installed as subdirs -- they have been"
+                eerror "relocated to match upstream paths as sibling paths.  Further, posix/xxx is the"
+                eerror "same as xxx, so you should simply drop the posix/ prefix.  You also should not"
+                eerror "be using right/xxx for the system timezone as it breaks programs."
+                die "Please fix your timezone setting"
+              fi
+
+              # Trim the symlink by hand to avoid portage's automatic protection checks.
+              rm -f /usr/share/zoneinfo/posix
+
+              if has_version "<=${CATEGORY}/${PN}-2015c" ; then
+                elog "Support for accessing posix/ and right/ directly has been dropped to match"
+                elog "upstream.  There is no need to set TZ=posix/xxx as it is the same as TZ=xxx."
+                elog "For TZ=right/, you can use TZ=../zoneinfo-leaps/xxx instead.  See this post"
+                elog "for details: https://mm.icann.org/pipermail/tz/2015-February/022024.html"
+              fi
+            }
+
+            configure_tz_data() {
+              # make sure the /etc/localtime file does not get stale
+              local tz src="/etc/timezone" etc_lt="/etc/localtime"
+
+              # If it's a symlink, assume the user knows what they're doing and
+              # they're managing it themselves.
+              if [[ -L "${etc_lt}" ]] ; then
+                einfo "Assuming your ${etc_lt} symlink is what you want; skipping update."
+                return 0
+              fi
+
+              if ! tz=$(get_TIMEZONE) ; then
+                einfo "Assuming your empty ${etc_lt} file is what you want; skipping update."
+                return 0
+              fi
+              if [[ "${tz}" == "FOOKABLOIE" ]] ; then
+                elog "You do not have TIMEZONE set in ${src}."
+
+                if [[ ! -e "${etc_lt}" ]] ; then
+                  cp -f /usr/share/zoneinfo/Factory "${etc_lt}"
+                  elog "Setting ${etc_lt} to Factory."
+                else
+                  elog "Skipping auto-update of ${etc_lt}."
+                fi
+                return 0
+              fi
+
+              if [[ ! -e "/usr/share/zoneinfo/${tz}" ]] ; then
+                elog "You have an invalid TIMEZONE setting in ${src}"
+                elog "Your ${etc_lt} has been reset to Factory; enjoy!"
+                tz="Factory"
+              fi
+              einfo "Updating ${etc_lt} with /usr/share/zoneinfo/${tz}"
+              cp -f "/usr/share/zoneinfo/${tz}" "${etc_lt}"
+            }
+
+            pkg_config() {
+              configure_tz_data
+            }
+
+            pkg_postinst() {
+              configure_tz_data
+            }

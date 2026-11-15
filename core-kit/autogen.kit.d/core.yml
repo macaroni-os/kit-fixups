@@ -2199,3 +2199,91 @@ lz4:
               )
               cmake_src_configure
             }
+
+zlib:
+  generator: builtin-github
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    category: sys-libs
+    template: ../../templates/simple.tmpl
+
+    github:
+      user: madler
+    transform:
+      # Release titles are "zlib 1.4" (libffi precedent).
+      - kind: string
+        match: 'zlib '
+        replace: ''
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '{{ .Values.pn }}-.*\.tar\.gz$'
+    vars:
+      desc: Standard (de)compression library
+      homepage: https://zlib.net/
+      license: ZLIB
+      iuse: minizip static-libs
+      inherit:
+        - autotools
+        - toolchain-funcs
+      # The tree ebuild sets AUTOTOOLS_AUTO_DEPEND=no and forms the autotools
+      # dependency only for the minizip flavour (eautoreconf runs in
+      # contrib/minizip only). extra_envs renders before the inherit line.
+      extra_envs:
+        - 'AUTOTOOLS_AUTO_DEPEND=no'
+      depend: |
+        minizip? ( ${AUTOTOOLS_DEPEND} )
+      patches:
+        - zlib-1.4-minizip-drop-crypt-header.patch
+      body: |
+        src_prepare() {
+          default
+          if use minizip ; then
+            cd contrib/minizip || die
+            eautoreconf
+          fi
+        }
+
+        src_configure() {
+          # not an autoconf script, so can't use econf
+          local uname=$(/usr/share/gnuconfig/config.sub "${CHOST}" | cut -d- -f3)
+          "${S}"/configure \
+            --shared \
+            --prefix=/usr \
+            --libdir=/usr/$(get_libdir) \
+            ${uname:+--uname=${uname}} \
+            || die
+
+          if use minizip ; then
+            local minizipdir="contrib/minizip"
+            cd ${minizipdir} || die
+            ECONF_SOURCE="${S}/${minizipdir}" \
+            econf $(use_enable static-libs static)
+          fi
+        }
+
+        src_compile() {
+          emake
+          use minizip && emake -C contrib/minizip
+        }
+
+        sed_macros() {
+          sed -i -r 's:\<(O[FN])\>:_Z_\1:g' "$@" || die
+        }
+
+        src_install() {
+          emake install DESTDIR="${D}" LDCONFIG=:
+          gen_usr_ldscript -a z
+          sed_macros "${ED}"/usr/include/*.h
+          if use minizip ; then
+            emake -C contrib/minizip install DESTDIR="${D}"
+            sed_macros "${ED}"/usr/include/minizip/*.h
+          fi
+          use static-libs || rm -f "${ED}"/usr/$(get_libdir)/lib{z,minizip}.{a,la}
+          dodoc FAQ README ChangeLog doc/*.txt
+          use minizip && dodoc contrib/minizip/*.txt
+        }
+
+  packages:
+    - zlib:
+        revision: 1

@@ -1141,7 +1141,6 @@ core_dirlisting:
               fi
             }
 
-
     - mime-types:
         category: app-misc
         dir:
@@ -4668,3 +4667,123 @@ minizip_ng:
           - '<5.0.0'
         vars:
           no_ppmd: true
+groff:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: Text formatter used for man pages
+      homepage: https://www.gnu.org/software/groff/groff.html
+      license: GPL-2
+      iuse: examples uchardet X
+      inherit:
+        - toolchain-funcs
+      docs:
+        - BUG-REPORT
+        - ChangeLog
+        - MORE.STUFF
+        - NEWS
+        - PROBLEMS
+        - PROJECTS
+        - README
+        - TODO
+      # utf8 hyphen handling in the man/mdoc local macros (tree payload, kept byte-identical)
+      patches:
+        - groff-1.19.2-man-unicode-dashes.patch
+      rdepend: |
+        uchardet? ( app-i18n/uchardet )
+        X? (
+          x11-libs/libICE
+          x11-libs/libSM
+          x11-libs/libX11
+          x11-libs/libXaw
+          x11-libs/libXmu
+          x11-libs/libXt
+        )
+      depend: '${RDEPEND}'
+      bdepend: |
+        dev-lang/perl
+        sys-apps/texinfo
+      body: |
+        src_prepare() {
+          default
+
+          # Honor the MacaroniOS docdir
+          sed -i -e "s|^docdir =.*|docdir = \"/usr/share/doc/${PF}\"|g" \
+            Makefile.in \
+            || die "failed to modify Makefile.in"
+
+          # OS stamp rendered into man page headers
+          cat <<-EOF >> tmac/mdoc.local || die
+          .ds volume-operating-system MacaroniOS
+          .ds operating-system MacaroniOS/${KERNEL}
+          .ds default-operating-system MacaroniOS/${KERNEL}
+          EOF
+
+          # make sure we don't get a crappy `g' nameprefix on UNIX systems with real
+          # troff (GROFF_G macro runs some test to see, its own troff doesn't satisfy)
+          sed -i -e 's/^[ \t]\+g=g$/g=/' configure || die
+        }
+        src_configure() {
+          local myeconfargs=(
+            --with-appdefdir="/usr/share/X11/app-defaults"
+            --without-compatibility-wrappers   # no Prefix support in the MacaroniOS trees; keep tree behavior
+            $(use_with uchardet)
+            $(use_with X x)
+          )
+
+          econf "${myeconfargs[@]}"
+        }
+        src_compile() {
+          emake AR="$(tc-getAR)"
+        }
+        src_install() {
+          default
+
+          # The following links are required for man
+          dosym eqn /usr/bin/geqn
+          dosym tbl /usr/bin/gtbl
+
+          if ! use examples ; then
+            # The pdf files might not be generated if ghostscript is unavailable
+            local pdf="${ED}/usr/share/doc/${PF}/examples/mom/mom-pdf.pdf"
+            if [[ -e ${pdf} ]] ; then
+              # Keep mom-pdf.pdf since it's more of a manual than an example
+              mv "${pdf}" "${ED}/usr/share/doc/${PF}/pdf/" || die
+            fi
+            rm -rf "${ED}/usr/share/doc/${PF}/examples"
+          fi
+        }
+  packages:
+    # Legacy 1.23.0 line: still served in-tree and on the release branches
+    # (core-kit@mark-unstable/mark-xl/mark-iii/mark-31/mark-i/mark-v all carry
+    # exactly groff-1.23.0.ebuild, contents API 2026-11-16). The merge atom
+    # defines this line with conditions '>=sys-apps/groff-1.23.0' +
+    # '<sys-apps/groff-1.24', so this entry mirrors that bound verbatim
+    # (macaroni-os/kit-fixups#596 review, thread 4592459818: N merge
+    # conditions == N selector'd packages entries — the merged grep shape of
+    # macaroni-os/kit-fixups#593). The GARR listing still carries
+    # groff-1.23.0.tar.gz (probed), so the candidate needs no `versions`
+    # pin: the selector alone bounds this line to 1.23.0.
+    - groff:
+        selector:
+          - '>=1.23.0'
+          - '<1.24'
+
+    # Current track: the dirlisting tip (groff-1.25.0 as of conversion), the
+    # '>=sys-apps/groff-1.24' line of the merge atom.
+    - groff:
+        selector:
+          - '>=1.24'

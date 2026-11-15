@@ -353,6 +353,17 @@ target:
     - pkg: sys-apps/sed
       conditions:
         - '>=sys-apps/sed-4.10'
+
+    # 5.1 track: still served on release branches carrying gawk-5.1.0
+    - pkg: sys-apps/gawk
+      conditions:
+        - '>=sys-apps/gawk-5.1.0'
+        - '<sys-apps/gawk-5.2'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/gawk
+      conditions:
+        - '>=sys-apps/gawk-5.2'
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

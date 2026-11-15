@@ -1823,6 +1823,90 @@ app_arch_github:
               cmake_src_configure
             }
 
+    - xz-utils:
+        # The official release tarball unpacks to xz-<pv> while pn is
+        # xz-utils, so the default ${WORKDIR}/${P} does NOT apply (probed
+        # with tar tzf on the 5.8.4 asset).
+        template: ../../templates/simple.tmpl
+        github:
+          user: tukaani-project
+          repo: xz
+          # Release titles are "XZ Utils <pv> (stable)"/"Stable"/"(old
+          # stable)" shaped; ancient ones lack the prefix ("5.4.2 Stable",
+          # "XZ 5.2.11 Old Stable"). Filter the mixed history on the raw
+          # title, then extract the version from the surviving titles.
+          match: '^XZ Utils '
+        transform:
+          - kind: regex
+            match: '^(XZ Utils )?(\S+).*$'
+            replace: '${2}'
+        # Unstable lines (5.7.x alpha/beta) are released with
+        # prerelease=true and are skipped by the generator; these excludes
+        # guard an experimental-mode run anyway.
+        exclude:
+          - 'alpha'
+          - 'beta'
+        assets:
+          - name: '{{ .Values.tname }}-{{ .Values.pv }}.tar.gz'
+            matcher: '{{ .Values.tname }}-{{ .Values.pv }}\.tar\.gz$'
+        vars:
+          tname: xz
+          s: '${WORKDIR}/xz-{{ .Values.pv }}'
+          desc: utils for managing LZMA compressed files
+          homepage: https://tukaani.org/xz/
+          license: public-domain LGPL-2.1+ GPL-2+
+          iuse: '+extra-filters nls static-libs'
+          inherit:
+            - libtool
+            - preserve-libs
+            - usr-ldscript
+          # House: no FreeBSD (elibc_FreeBSD dropped from the tree IUSE).
+          rdepend: |
+            !<app-arch/lzma-4.63
+            !<app-arch/p7zip-4.57
+            !<app-i18n/man-pages-de-2.16
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              elibtoolize
+            }
+
+            src_configure() {
+              local myconf=(
+                --enable-threads
+                $(use_enable nls)
+                $(use_enable static-libs static)
+              )
+              if ! use extra-filters ; then
+                myconf+=(
+                  # LZMA1 + LZMA2 for standard .lzma & .xz files
+                  --enable-encoders=lzma1,lzma2
+                  --enable-decoders=lzma1,lzma2
+                  # those are used by default, depending on preset
+                  --enable-match-finders=hc3,hc4,bt4
+                  # CRC64 is used by default, though some (old?) files use CRC32
+                  --enable-checks=crc32,crc64
+                )
+              fi
+              ECONF_SOURCE="${S}" econf "${myconf[@]}"
+            }
+
+            src_install() {
+              default
+              gen_usr_ldscript -a lzma
+              find "${ED}" -type f -name '*.la' -delete || die
+              rm "${ED}"/usr/share/doc/${PF}/COPYING* || die
+            }
+
+            pkg_preinst() {
+              preserve_old_lib /usr/$(get_libdir)/liblzma$(get_libname 0)
+            }
+
+            pkg_postinst() {
+              preserve_old_lib_notify /usr/$(get_libdir)/liblzma$(get_libname 0)
+            }
+
 
 pxz:
   generator: builtin-noop

@@ -300,6 +300,16 @@ target:
         - '>=app-arch/cpio-2.14'
     - pkg: app-arch/pax
     - pkg: app-arch/pxz
+    # 5.6 track: still served in-tree and on release branches carrying xz-utils-5.6.x
+    - pkg: app-arch/xz-utils
+      conditions:
+        - '>=app-arch/xz-utils-5.6.3'
+        - '<app-arch/xz-utils-5.7'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: app-arch/xz-utils
+      conditions:
+        - '>=app-arch/xz-utils-5.8'
     - pkg: app-arch/rar
     - pkg: app-arch/sharutils
     - pkg: app-arch/tar

@@ -390,6 +390,25 @@ target:
       conditions:
         - '>=sys-devel/m4-1.4.20'
 
+    # 2.7.6 track: still served on release branches carrying patch-2.7.6
+    # (mark-iii/mark-i/mark-v; mark-xl keeps it alongside the newer tracks)
+    - pkg: sys-devel/patch
+      conditions:
+        - '>=sys-devel/patch-2.7.6'
+        - '<sys-devel/patch-2.8'
+
+    # 2.8 track: still served on release branches carrying patch-2.8-r1
+    # (mark-31/mark-xl/mark-v) until the 2.8.1 tip propagates
+    - pkg: sys-devel/patch
+      conditions:
+        - '>=sys-devel/patch-2.8'
+        - '<sys-devel/patch-2.8.1'
+
+    # current track, auto-tracked by the generator (GNU patch 2.8.1 tip)
+    - pkg: sys-devel/patch
+      conditions:
+        - '>=sys-devel/patch-2.8.1'
+
     - pkg: sys-libs/libcap
     - pkg: sys-libs/libcap-ng
     - pkg: sys-libs/glibc:2.2

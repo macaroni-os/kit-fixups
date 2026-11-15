@@ -477,6 +477,26 @@ target:
     - pkg: sys-devel/m4
       conditions:
         - '>=sys-devel/m4-1.4.20'
+    # 4.2.x stable line — the selection every branch serves today
+    # (make-4.2.1-r4). Kept bounded so the release branches stay on the
+    # stable line while the 4.3+ line below floats forward
+    # (macaroni-os/kit-fixups#611 review); the >=4.3 whole-kit rebuild-sweep
+    # policy on the release branches stays a maintainer call
+    # (macaroni-os/mark-issues#919). Generator rationale lives in
+    # autogen.kit.d/core.yml.
+    - pkg: sys-devel/make
+      conditions:
+        - '>=sys-devel/make-4.2'
+        - '<sys-devel/make-4.3'
+
+    # new 4.3+ line: mark-unstable floats here (generator tip 4.4.1 at
+    # conversion, 2023-02-26); mark-iii/mark-xl keep 4.2.1-r4 via the
+    # conditions above until the >=4.3 rebuild sweep is decided
+    # (macaroni-os/kit-fixups#611 review, thread 4607038521).
+    - pkg: sys-devel/make
+      conditions:
+        - '>=sys-devel/make-4.3'
+
 
     # 2.7.6 track: still served on release branches carrying patch-2.7.6
     # (mark-iii/mark-i/mark-v; mark-xl keeps it alongside the newer tracks)

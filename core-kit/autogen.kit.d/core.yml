@@ -5533,3 +5533,145 @@ sysvinit:
         vars:
           patches: []
           gh_tarball: true
+
+# GNU make — the build tool behind every autoconf/automake package in every
+# kit. Converted merge-only -> autogen per macaroni-os/mark-issues#919.
+#
+# Two release lines (macaroni-os/kit-fixups#611 review), mirroring the merged
+# sysvinit and patch shapes in this file: the common body/deps live ONCE in
+# defaults.vars and each packages: entry carries only its line-specific keys
+# (selector, revision, patches).
+#   * stable 4.2.x line (selector >=4.2,<4.3, revision 4): what every branch
+#     serves today — mark-unstable, mark-iii and mark-xl all carry
+#     make-4.2.1-r4. The merge.kit.d/core_autogen.yml conditions keep this
+#     line served on the release branches; moving >=4.3 there is a whole-kit
+#     rebuild-sweep call that stays with the maintainers (4.3/4.4 changed
+#     pattern-rule and intermediate handling, the jobserver protocol, SHELL
+#     selection and .NOTINTERMEDIATE behavior).
+#   * tip line (selector >=4.3): mark-unstable floats forward here and the
+#     generator auto-tracks it (GNU make 4.4.1, 2023-02-26, at conversion).
+#     The 4.2.x patches are not carried on this track (patches: []) — the
+#     glob/perl526/pselect fixes are absorbed upstream and the darwin/cxx
+#     house patches conflict (patch --dry-run against 4.4.1 fails; PR
+#     evidence). The guile USE stays declared on both lines for ebuild
+#     parity; note upstream removed the guile extension itself in 4.4, where
+#     the configure flag degrades to a warning — simplifying the tip-side
+#     IUSE is a possible follow-up.
+#
+# Upstream probe 2026-11-15, https://ftp.gnu.org/gnu/make/ (full listing,
+# 47 entries): tip is make-4.4.1 (2023-02-26, .tar.gz/.tar.lz), then 4.4
+# (2022-10-31) and 4.3 (2020-01-19). The 4.2 line: 4.2 (2016-05-22) and
+# 4.2.1 (2016-06-10). >=4.3 ships no .tar.bz2 at all (the tree distfile for
+# 4.2.1 is .tar.bz2), so the tip entry overrides the bz2-anchored
+# matcher/transform pair with a gz-anchored one; the 4.2 line keeps the
+# defaults pair byte-identical to the served ebuild.
+# make pre-releases use .9x versions (make-4.2.90 … 4.4.0.91) and live only
+# on alpha.gnu.org, never in the stable directory scanned here; the
+# dir.exclude regexes pre-filter them should that ever change. (A
+# github-style match: key is inert for builtin-dirlisting — no Match field
+# on AutogenDirlistingProps in mark-devkit 0.36.1 — so the guards sit on
+# dir.exclude, which the generator does compile.) GitHub carries no
+# first-party make releases (gnu-mirror-unofficial/make: 0 releases, 0
+# tags), hence builtin-dirlisting and not builtin-github. GARR mirror
+# chosen per this file's existing GNU cluster: sha512 AND blake2b of
+# gnuftp.mirror.garr.it/make/make-4.2.1.tar.bz2 are byte-identical to the
+# tree Manifest digests (verified 2026-11-15).
+make:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: sys-devel
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.{{ .Values.tarball_ext }}$'
+      # pre-release guard: .9x betas (make-4.2.90.tar.bz2/4.4.0.91.tar.gz) never wanted
+      exclude: '\.9[0-9]+.*\.{{ .Values.tarball_ext }}$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.{{ .Values.tarball_ext }}'
+        replace: ''
+    vars:
+      desc: Standard tool to compile source trees
+      homepage: https://www.gnu.org/software/make/make.html
+      license: GPL-3+
+      iuse: guile nls static
+      inherit:
+        - flag-o-matic
+      # CDEPEND renders first in simple.tmpl, so the refs below resolve
+      cdepend: |
+        guile? ( >=dev-scheme/guile-1.8:= )
+      rdepend: |
+        ${CDEPEND}
+        nls? ( virtual/libintl )
+      depend: |
+        ${CDEPEND}
+        nls? ( sys-devel/gettext )
+      body: |
+        {{- if .Values.special_prepare }}src_prepare() {
+          default
+          # These patches require special handling as they modify configure.ac
+          # which in turn triggers maintainer-mode when being applied the
+          # usual way.
+          eapply -Z "${FILESDIR}"/make-4.2.1-glob-v2.patch \
+            "${FILESDIR}"/{{ .Values.p }}-guile-2.2.patch
+        }
+        {{ end -}}
+        src_configure() {
+          use static && append-ldflags -static
+          local myeconfargs=(
+            --program-prefix=g
+            $(use_with guile)
+            $(use_enable nls)
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          emake DESTDIR="${D}" install
+          dodoc AUTHORS NEWS README*
+          if [[ ${USERLAND} == "GNU" ]] ; then
+            # we install everywhere as 'gmake' but on GNU systems,
+            # symlink 'make' to 'gmake'
+            dosym gmake /usr/bin/make
+            dosym gmake.1 /usr/share/man/man1/make.1
+          fi
+        }
+
+  packages:
+
+    # Stable 4.2.x line: the selection every branch serves today
+    # (make-4.2.1-r4). Selector bounds mirror the merge atom's conditions
+    # one-for-one. The five PATCHES entries plus the two configure.ac
+    # patches applied through the guarded src_prepare (special_prepare,
+    # maintainer-mode trap) are 4.2.x-only.
+    - make:
+        selector:
+          - '>=4.2'
+          - '<4.3'
+        revision: 4
+        vars:
+          tarball_ext: tar.bz2
+          special_prepare: true
+          patches:
+            - make-3.82-darwin-library_search-dylib.patch
+            - make-4.2-default-cxx.patch
+            - make-4.2.1-perl526.patch
+            - make-4.2.1-glob-internals.patch
+            - make-4.2.1-pselect-non-blocking.patch
+
+    # Tip line: the generator floats to the GNU make tip (4.4.1 at
+    # conversion). No .tar.bz2 exists at >=4.3 on the mirror, so this entry
+    # pins only tarball_ext: tar.gz and the shared dir/transform pair above
+    # renders it; patches: [] because the 4.2.x set does not apply
+    # (dry-run conflicts, fixes absorbed). mark-iii/mark-xl keep the stable
+    # line above until the >=4.3 rebuild sweep is decided.
+    - make:
+        selector:
+          - '>=4.3'
+        vars:
+          tarball_ext: tar.gz
+          patches: []

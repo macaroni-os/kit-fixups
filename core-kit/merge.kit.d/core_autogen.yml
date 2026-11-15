@@ -383,3 +383,9 @@ target:
     - pkg: virtual/pager
     - pkg: virtual/shadow
     - pkg: virtual/tmpfiles
+
+    # one track everywhere: mark-xl, mark-iii and mark-31 all serve
+    # findutils-4.10.0 (core-kit contents API, 2026-11-15), so no bounded
+    # legacy atom is needed; the unbounded atom follows the GNU ftp line
+    # whose generator tip is 4.11.0.
+    - pkg: sys-apps/findutils

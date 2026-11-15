@@ -241,6 +241,71 @@ core_dirlisting:
               econf "${myeconfargs[@]}"
             }
 
+    - pax:
+        category: app-arch
+        # MirBSD has no GitHub/Forgejo repository: paxmirabilis ships as a flat
+        # cpio.gz in a machine-readable dist listing, so builtin-dirlisting tracks
+        # new releases automatically and selects the newest one (20240817 at
+        # conversion time; the tree carried 20161104). The official
+        # mbsd.evolvis.org mirror is used instead of www.mirbsd.org on purpose:
+        # the primary host sends `Content-Encoding: x-gzip`, which the mark-devkit
+        # Go HTTP client transparently decompresses, so its generated Manifest
+        # would hash the decompressed cpio (625664 B) while portage fetches the
+        # gzip (179245 B) and always fails the checksum. The mirror serves the
+        # identical bytes as application/octet-stream and its TLS endpoint works
+        # with current curl/OpenSSL.
+        dir:
+          url: 'https://mbsd.evolvis.org/MirOS/dist/mir/cpio/'
+          matcher: 'paxmirabilis-[0-9]+\.cpio\.gz$'
+        transform:
+          - kind: string
+            match: 'paxmirabilis-'
+            replace: ''
+          - kind: string
+            match: '.cpio.gz'
+            replace: ''
+        # The tree's files/pax-20160306-glibc-to-linux.patch is NOT carried over:
+        # upstream replaced those __GLIBC__ guards with HAVE_SETPGENT and all four
+        # hunks fail `patch -p1 --dry-run` on 20240817. dev-libs/libbsd is dropped
+        # as well - the 2024 sources bundle their own strmode/strtonum/reallocarray
+        # compat layer (verified: ldd shows only libc.so.6).
+        vars:
+          desc: A POSIX standard archive tool
+          homepage: https://www.mirbsd.org/pax.htm
+          license: BSD
+          inherit:
+            - unpacker
+            - toolchain-funcs
+            - flag-o-matic
+          # unpacker.eclass pipes the .cpio.gz through `gzip -dc | cpio`, so the
+          # cpio binary is the only extra build-time tool (unpacker_src_uri_depends).
+          bdepend: 'app-arch/cpio'
+          # The cpio payload unpacks to ${WORKDIR}/pax, not ${WORKDIR}/${P}.
+          s: '${WORKDIR}/{{ .Values.pn }}'
+          body: |
+            src_configure() {
+              tc-export CC
+              tc-getPROG SIZE size
+            }
+
+            # Upstream ships Build.sh, the supported way to build outside MirBSD;
+            # it probes the libc feature set (the 2016 hand-frozen CPPFLAGS no
+            # longer cover the 2024 sources) and also generates the man pages.
+            src_compile() {
+              sh ./Build.sh || die
+            }
+
+            src_install() {
+              dobin pax
+              doman pax.1
+
+              dosym pax /usr/bin/paxcpio
+              newman cpio.1 paxcpio.1
+
+              dosym pax /usr/bin/paxtar
+              newman tar.1 paxtar.1
+            }
+
     - coreutils:
         dir:
           url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'

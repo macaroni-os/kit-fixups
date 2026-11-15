@@ -551,3 +551,11 @@ target:
     - pkg: sys-libs/readline
 
     - pkg: sys-devel/gnuconfig
+    # 2.x API line: upstream maintains 2.x and 3.x in parallel;
+    # the tree carries slot 2 co-installed with slot 3.
+    - pkg: dev-libs/libsigc++:2
+        - '>=dev-libs/libsigc++-2.10'
+        - '<dev-libs/libsigc++-3'
+    # 3.x API line, auto-tracked by the generator
+    - pkg: dev-libs/libsigc++:3
+        - '>=dev-libs/libsigc++-3'

@@ -4174,6 +4174,67 @@ ncurses:
               preserve_old_lib_notify /$(get_libdir)/libncurses.so.5
               preserve_old_lib_notify /$(get_libdir)/libncursesw.so.5
             }
+libsigc++:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    github:
+      user: libsigcplusplus
+      repo: libsigcplusplus
+    assets:
+      # Uploaded release asset; the sibling .sha256sum files are filtered by
+      # the end anchor (regex matchers are substring searches by default).
+      - name: '{{ .Values.p }}.tar.xz'
+        matcher: '^libsigc\+\+-{{ .Values.pv }}\.tar\.xz$'
+    vars:
+      desc: Typesafe callback system for standard C++
+      homepage: http://libsigc.sourceforge.net/
+      license: LGPL-2.1+
+      # House platform: the doc/test USE flags of the autotools tree ebuilds
+      # are dropped (docs are read online, tests belong in workflows) and the
+      # multilib handling is not carried over; the meson
+      # build-{documentation,examples,tests} options are disabled
+      # unconditionally (build-examples/build-tests default to true).
+      inherit:
+        - meson
+        - flag-o-matic
+      iuse: static-libs
+      body: |
+        src_configure() {
+          # libsigc++ requires C++ exceptions; a -fno-exceptions in the
+          # environment breaks the build (filter kept from the tree ebuilds).
+          filter-flags -fno-exceptions
+          local emesonargs=(
+            -Dbuild-documentation=false
+            -Dbuild-examples=false
+            -Dbuild-tests=false
+            # meson has no static-libs option; default_library is the mapping
+            # used by the libxml2 cluster in this file.
+            -Ddefault_library=$(usex static-libs both shared)
+          )
+          meson_src_configure
+        }
+
+  packages:
+    # The 2.x and 3.x API lines are maintained in parallel upstream (releases
+    # published on both tracks) and are co-installable via SLOT=2/SLOT=3,
+    # mirroring the two legacy merge atoms. Modern libsigc++ is meson-only,
+    # hence the eclass switch from the autotools tree ebuilds.
+    - libsigc++:
+        selector:
+          - '>=2.10'
+          # The 2.99.x releases are the development series of the 3.0 API,
+          # not the 2.x maintenance line, and sort above 2.12.x.
+          - '<2.99'
+        vars:
+          slot: '2'
+    - libsigc++:
+        selector:
+          - '>=3'
+        vars:
+          slot: '3'
 
 libarchive:
   generator: builtin-github

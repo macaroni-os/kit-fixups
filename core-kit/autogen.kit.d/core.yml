@@ -3587,3 +3587,83 @@ patch:
     - patch:
         vars:
           patches: []
+
+grep:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      desc: GNU regular expression matcher
+      homepage: https://www.gnu.org/software/grep/
+      license: GPL-3
+      iuse: nls pcre static
+      inherit:
+        - flag-o-matic
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+        - README
+        - THANKS
+        - TODO
+      # USE=static links libpcre2 in at build time; the runtime dep carries only the shared library
+      rdepend: |
+        !static? ( pcre? ( dev-libs/libpcre2 ) )
+        nls? ( virtual/libintl )
+        virtual/libiconv
+      depend: |
+        ${RDEPEND}
+        static? ( pcre? ( dev-libs/libpcre2[static-libs(+)] ) )
+      bdepend: |
+        app-arch/xz-utils
+        virtual/pkgconfig
+        nls? ( sys-devel/gettext )
+      body: |
+        src_prepare() {
+          sed -i \
+            -e "s:@SHELL@:/bin/sh:g" \
+            -e "s:@grep@:/bin/grep:" \
+            src/egrep.sh || die
+
+          default
+        }
+        src_configure() {
+          use static && append-ldflags -static
+          # don't link against libsigsegv even when available
+          export ac_cv_libsigsegv=no
+
+          local myeconfargs=(
+            --bindir=/bin
+            $(use_enable nls)
+            $(use_enable pcre perl-regexp)
+          )
+          econf "${myeconfargs[@]}"
+        }
+
+  packages:
+    # Legacy 3.11 track: still served in-tree and on the release branches
+    # whose merge atom carries conditions >=sys-apps/grep-3.11 +
+    # <sys-apps/grep-3.12 (macaroni-os/kit-fixups#593 review, thread
+    # 4583240302: N merge conditions == N selector'd packages entries).
+    - grep:
+        selector:
+          - '>=3.11'
+          - '<3.12'
+
+    # Current track: the dirlisting tip (grep-3.12 as of conversion), the
+    # >=sys-apps/grep-3.12 line of the merge atom.
+    - grep:
+        selector:
+          - '>=3.12'

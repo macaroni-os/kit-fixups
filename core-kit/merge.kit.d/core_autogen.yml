@@ -581,3 +581,22 @@ target:
         - '>=dev-libs/libsigc++-3'
 
     - pkg: sys-libs/zlib-ng
+
+    # 1.16 track: the kit carries automake:1.16 on mark-unstable, mark-xl,
+    # mark-iii and mark-31. The generator caps the dirlisting selector below
+    # 1.17 (upstream ships 1.17/1.18/1.19 and a major re-slot is not part of
+    # macaroni-os/mark-issues#914), the same bound drives the clean/merge phases.
+    - pkg: sys-devel/automake:1.16
+      conditions:
+        - '>=sys-devel/automake-1.16'
+        - '<sys-devel/automake-1.17'
+
+    - pkg: sys-devel/automake:1.19
+      conditions:
+        - '>=sys-devel/automake-1.19'
+        - '<sys-devel/automake-1.20'
+
+    - pkg: sys-devel/automake:1.20
+      conditions:
+        - '>=sys-devel/automake-1.20'
+        - '<sys-devel/automake-1.21'

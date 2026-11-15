@@ -2287,6 +2287,146 @@ savannah_sys_apps_http:
             match: '.tar.gz'
             replace: ''
 
+automake:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-devel
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      desc: Used to generate Makefile.in from Makefile.am
+      homepage: https://www.gnu.org/software/automake/
+      license: GPL-2
+      rdepend: |
+        dev-lang/perl
+        >=sys-devel/automake-wrapper-11
+        >=sys-devel/autoconf-2.69:*
+        sys-devel/gnuconfig
+      depend: '${RDEPEND}'
+      bdepend: |
+        app-arch/gzip
+        sys-apps/help2man
+      patches:
+        - automake-1.16.2-py3-compile.patch
+        - automake-1.16.2-fix-instmany-python.sh-test.patch
+        - automake-1.16.2-fix-py-compile-basedir.sh-test.patch
+      body: |
+        src_prepare() {
+          default
+          export WANT_AUTOCONF=2.5
+          # Don't try wrapping the autotools this thing runs as it tends
+          # to be a bit esoteric, and the script does `set -e` itself.
+          if [[ ${SLOT} == 1.16 ]] ; then
+            ./bootstrap || die
+          fi
+          # Pin the API version the ebuild is slotted for.
+          sed -i -e "/APIVERSION=/s:=.*:=${SLOT}:" configure || die
+
+          # Without texinfo the shipped info pages are kept as is; refresh
+          # their stamps so the build does not try to regenerate them.
+          if ! has_version sys-apps/texinfo ; then
+            touch doc/{stamp-vti,version.texi,automake.info} || die
+          fi
+        }
+
+        src_configure() {
+          default
+        }
+
+        # Slot the info pages. Do this without munging the source so we
+        # don't have to depend on texinfo to regen things.
+        slot_info_pages() {
+          pushd "${ED}"/usr/share/info >/dev/null || die
+          rm -f dir
+
+          # Rewrite all the references to other pages.
+          # before: * aclocal-invocation: (automake)aclocal Invocation.   Generating aclocal.m4.
+          # after:  * aclocal-invocation v1.16: (automake-1.16)aclocal Invocation.   Generating aclocal.m4.
+          local p pages=( *.info ) args=()
+          for p in "${pages[@]/%.info}" ; do
+            args+=(
+              -e "/START-INFO-DIR-ENTRY/,/END-INFO-DIR-ENTRY/s|: (${p})| v${SLOT}&|"
+              -e "s:(${p}):(${p}-${SLOT}):g"
+            )
+          done
+          sed -i "${args[@]}" * || die
+
+          # Rewrite all the file references, and rename them in the process.
+          local f d
+          for f in * ; do
+            d=${f/.info/-${SLOT}.info}
+            mv "${f}" "${d}" || die
+            sed -i -e "s:${f}:${d}:g" * || die
+          done
+
+          popd >/dev/null || die
+        }
+
+        src_install() {
+          default
+
+          slot_info_pages
+          rm "${ED}"/usr/share/aclocal/README || die
+          rmdir "${ED}"/usr/share/aclocal || die
+          rm \
+            "${ED}"/usr/bin/{aclocal,automake} \
+            "${ED}"/usr/share/man/man1/{aclocal,automake}.1 || die
+
+          # Remove all config.guess and config.sub files, replacing them
+          # with a symlink to the gnuconfig version.
+          local x
+          for x in guess sub ; do
+            dosym ../gnuconfig/config.${x} \
+              /usr/share/${PN}-${SLOT}/config.${x}
+          done
+
+          # Avoid a QA message about a pre-compressed file in docs.
+          local tarfile="${ED}/usr/share/doc/${PF}/amhello-1.0.tar.gz"
+          if [[ -f "${tarfile}" ]] ; then
+            gunzip "${tarfile}" || die
+          fi
+        }
+
+  packages:
+    - automake:
+        # 1.16 track (current tree slot).
+        selector:
+          - '>=1.16'
+          - '<1.17'
+        vars:
+          slot: '1.16'
+    - automake:
+        # 1.19 track: 1.17/1.18 are skipped on purpose (review ask).
+        selector:
+          - '>=1.19'
+          - '<1.20'
+        vars:
+          slot: '1.19'
+          # py-compile/basedir fixes are upstream in this line; the test-only
+          # instmany limit patch still applies (dry-run verified).
+          patches:
+            - automake-1.16.2-fix-instmany-python.sh-test.patch
+    - automake:
+        # 1.20 track.
+        selector:
+          - '>=1.20'
+          - '<1.21'
+        vars:
+          slot: '1.20'
+          patches:
+            - automake-1.16.2-fix-instmany-python.sh-test.patch
+
 sys_apps_github:
   generator: builtin-github
   defaults:

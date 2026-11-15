@@ -4557,3 +4557,114 @@ less:
     - less:
         selector:
           - '>=678'
+
+minizip_ng:
+  generator: builtin-github
+
+  defaults:
+    category: sys-libs
+    template: ../../templates/simple.tmpl
+
+    github:
+      user: zlib-ng
+
+    # Upstream has never published a pre-release (probed 2026-11-15: 45/45
+    # releases and 86/86 tags, zero rc/beta); keep the filter so a future
+    # 4.3.0-rc can never be picked up by the floating track.
+    exclude:
+      - 'rc'
+      - 'beta'
+
+    vars:
+      inherit:
+        - cmake
+      desc: Fork of the popular zip manipulation library found in the zlib distribution.
+      homepage: https://github.com/zlib-ng/minizip-ng
+      license: ZLIB
+      slot: '0'
+      iuse: compat openssl zstd
+      # minizip-ng automagically prefers sys-libs/zlib-ng when it is installed,
+      # so depend on it explicitly: it is the better-tested zlib here. The
+      # compat USE flag provides zlib's own minizip API, so it blocks on it.
+      rdepend: |-
+        app-arch/bzip2
+        app-arch/xz-utils
+        sys-libs/zlib-ng
+        virtual/libiconv
+        compat? ( !sys-libs/zlib[minizip] )
+        openssl? ( dev-libs/openssl:= )
+        zstd? ( app-arch/zstd:= )
+      depend: |-
+        ${RDEPEND}
+      body: |
+        post_src_unpack() {
+          mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S} || die
+        }
+
+        src_configure() {
+          local mycmakeargs=(
+            -DMZ_COMPAT=$(usex compat)
+
+
+            -DMZ_FETCH_LIBS=OFF
+            -DMZ_FORCE_FETCH_LIBS=OFF
+
+            # Compression library options
+            -DMZ_ZLIB=ON
+            -DMZ_BZIP2=ON
+            -DMZ_LZMA=ON
+        {{- if .Values.no_ppmd }}
+            # The PPMD codec (4.2.0+) git-clones ip7z/7zip during configure:
+            # that clone_repo() call is not gated by MZ_FETCH_LIBS, so it
+            # cannot be satisfied under network-sandbox, and the 4.0.x line
+            # this package was built from has no PPMD support at all. Keep the
+            # codec off until its sources ship as a tracked distfile.
+            -DMZ_PPMD=OFF
+        {{- end }}
+            -DMZ_ZSTD=$(usex zstd)
+            -DMZ_LIBCOMP=OFF
+
+            # Encryption support options
+            -DMZ_PKCRYPT=ON
+            -DMZ_WZAES=ON
+            -DMZ_OPENSSL=$(usex openssl)
+            # MZ_LIBBSD -- Builds with libbsd crypto random
+            # Turning this option on breaks compilation on Funtoo next
+            -DMZ_LIBBSD=OFF
+            -DMZ_SIGNING=ON
+
+            # Character conversion options
+            -DMZ_ICONV=ON
+          )
+
+          cmake_src_configure
+        }
+
+        src_install() {
+          cmake_src_install
+
+          if use compat ; then
+            ewarn "minizip-ng is experimental and replacing the system zlib[minizip] is dangerous"
+            ewarn "Please be careful!"
+          fi
+        }
+
+  packages:
+    # 4.0.x track: the release line still served in-tree and on the release
+    # branches (mark-31 carries 4.0.9 + 4.0.10, mark-iii carries 4.0.8).
+    # PPMD does not exist here, so the codec stays untouched.
+    - minizip-ng:
+        selector:
+          - '>=4.0.0'
+          - '<4.0.10'
+
+    # current track: floats the upstream tip within the 4.x line. Upstream
+    # pins SOVERSION 4 for all of 4.x (CMakeLists set(SOVERSION "4") on both
+    # 4.0.10 and 4.2.2), so the library is ABI-stable inside the major and
+    # SLOT=0 holds; 5.0+ needs a slot review before it can be tracked.
+    - minizip-ng:
+        selector:
+          - '>=4.0.10'
+          - '<5.0.0'
+        vars:
+          no_ppmd: true

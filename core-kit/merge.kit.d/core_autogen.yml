@@ -451,6 +451,21 @@ target:
       conditions:
         - '>=sys-devel/patch-2.8.1'
 
+    # 4.0.x track: still served in-tree and on the release branches
+    # (mark-31 carries 4.0.9 + 4.0.10, mark-iii carries 4.0.8); kept by the
+    # clean phase while the generator floats the 4.x tip.
+    - pkg: sys-libs/minizip-ng
+      conditions:
+        - '>=sys-libs/minizip-ng-4.0.0'
+        - '<sys-libs/minizip-ng-4.0.10'
+
+    # current track, auto-tracked by the generator; capped at the SONAME
+    # boundary (upstream keeps SOVERSION 4 across all of 4.x)
+    - pkg: sys-libs/minizip-ng
+      conditions:
+        - '>=sys-libs/minizip-ng-4.0.10'
+        - '<sys-libs/minizip-ng-5.0.0'
+
     - pkg: sys-libs/libcap
     - pkg: sys-libs/libcap-ng
     - pkg: sys-libs/glibc:2.2

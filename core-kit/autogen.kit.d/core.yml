@@ -304,6 +304,53 @@ core_dirlisting:
 
               dosym pax /usr/bin/paxtar
               newman tar.1 paxtar.1
+    - dash:
+        category: app-shells
+        dir:
+          url: 'http://gondor.apana.org.au/~herbert/dash/files/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.gz'
+            replace: ''
+        vars:
+          desc: Debian Almquist Shell
+          homepage: http://gondor.apana.org.au/~herbert/dash/
+          license: BSD
+          inherit:
+            - flag-o-matic
+            - toolchain-funcs
+          iuse: libedit static
+          bdepend: virtual/pkgconfig
+          rdepend: |
+            !static? ( libedit? ( dev-libs/libedit ) )
+          depend: |
+            ${RDEPEND}
+            libedit? ( static? ( dev-libs/libedit[static-libs] ) )
+          body: |
+            src_prepare() {
+              default
+
+              # Use pkg-config for libedit linkage
+              sed -i \
+                -e "/LIBS/s:-ledit:\`$(tc-getPKG_CONFIG) --libs libedit $(usex static --static '')\`:" \
+                configure || die
+            }
+
+            src_configure() {
+              append-cppflags -DJOBS=$(usex libedit 1 0)
+              use static && append-ldflags -static
+
+              local myeconfargs=(
+                CC_FOR_BUILD="$(tc-getBUILD_CC)"
+                --bindir=/bin
+                --enable-fnmatch
+                $(use_with libedit)
+              )
+              econf "${myeconfargs[@]}"
             }
 
     - coreutils:

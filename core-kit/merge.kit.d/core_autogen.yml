@@ -305,6 +305,17 @@ target:
     - pkg: app-misc/ca-certificates
     - pkg: app-misc/mime-types
 
+    # 0.5.12 track: still served on release branches carrying dash-0.5.12
+    - pkg: app-shells/dash
+      conditions:
+        - '>=app-shells/dash-0.5.12'
+        - '<app-shells/dash-0.5.13'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: app-shells/dash
+      conditions:
+        - '>=app-shells/dash-0.5.13'
+
     - pkg: dev-libs/elfutils
     - pkg: dev-libs/expat
     # Python dep

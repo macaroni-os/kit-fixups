@@ -4878,3 +4878,147 @@ groff:
     - groff:
         selector:
           - '>=1.24'
+
+file:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    dir:
+      url: 'https://astron.com/pub/{{ .Values.pn }}/'
+      matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: Identify a file's format by scanning binary data for patterns
+      homepage: https://www.darwinsys.com/file/
+      license: BSD-2
+      iuse: bzip2 lzma python seccomp static-libs zlib
+      inherit:
+        - libtool
+        - toolchain-funcs
+      # sys-apps/grep backs the src_prepare getcwd guard in the seccomp sed
+      bdepend: sys-apps/grep
+      # The compression libs are USE-conditional build+runtime dependencies,
+      # not extra distfiles, so they stay deps (no assets: keys). simple.tmpl
+      # renders RDEPEND before DEPEND, so both are spelled out as literals
+      # (libedit pattern): RDEPEND = DEPEND + the runtime-only seccomp dep.
+      # The Python bindings are not part of this package anymore - they moved
+      # to the file_python definition below (macaroni-os/kit-fixups#603 review).
+      depend: |
+        bzip2? ( app-arch/bzip2 )
+        lzma? ( app-arch/xz-utils )
+        zlib? ( >=sys-libs/zlib-1.2.8-r1 )
+      rdepend: |
+        bzip2? ( app-arch/bzip2 )
+        lzma? ( app-arch/xz-utils )
+        zlib? ( >=sys-libs/zlib-1.2.8-r1 )
+        seccomp? ( sys-libs/libseccomp )
+      # The bindings package pulls this one in at runtime, so the parent pulls
+      # it in as a PDEPEND: that keeps Python out of the build-time closure of a
+      # core package (macaroni-os/kit-fixups#603 review 4583309456), the same
+      # shape as the merged sys-apps/util-linux entry.
+      pdepend: python? ( ~sys-apps/file-python-{{ .Values.pv }} )
+      body: |
+        src_prepare() {
+          # Allow getcwd in file's own seccomp filter so the portage
+          # sandbox keeps working during the build.
+          if ! $(grep getcwd src/seccomp.c) ; then
+            sed -i -e "/ALLOW_RULE(writev)/s@\$@\n\tALLOW_RULE(getcwd);\t// Used by Gentoo's portage sandbox@" \
+              src/seccomp.c || die
+          fi
+          default
+          elibtoolize
+        }
+        src_configure() {
+          local myeconfargs=(
+            --enable-fsect-man5
+            $(use_enable bzip2 bzlib)
+            $(use_enable lzma xzlib)
+            $(use_enable seccomp libseccomp)
+            $(use_enable static-libs static)
+            $(use_enable zlib)
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          dodoc ChangeLog MAINT
+
+          # Required for `file -C`
+          insinto /usr/share/misc/magic
+          doins -r magic/Magdir/*
+          find "${ED}" -type f -name "*.la" -delete || die
+        }
+
+  packages:
+    # 5.46 line: still served on the release branches (core-kit@mark-xl,
+    # mark-iii, mark-31 and mark-v carry file-5.46-r1; mark-unstable and
+    # mark-i carry file-5.46). Mirrors the merge atom conditions
+    # '>=sys-apps/file-5.46' + '<sys-apps/file-5.47'.
+    - file:
+        selector:
+          - '>=5.46'
+          - '<5.47'
+
+    # Current line: the astron.com listing tip (5.48 as of this round), the
+    # '>=sys-apps/file-5.47' line of the merge atom.
+    - file:
+        selector:
+          - '>=5.47'
+
+file_python:
+  generator: builtin-dirlisting
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    # Same upstream tarball as the parent: the listing, matcher and transforms
+    # carry the literal 'file-' prefix here because .Values.pn is file-python
+    # (the sys-apps/util-linux-python shape).
+    dir:
+      url: 'https://astron.com/pub/file/'
+      matcher: 'file-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'file-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: Python bindings for the libmagic library
+      homepage: https://www.darwinsys.com/file/
+      license: BSD-2
+      python_compat: python3+
+      required_use: ${PYTHON_REQUIRED_USE}
+      inherit:
+        - distutils-r1
+      # Pure-ctypes bindings (python/magic.py): they need the parent's libmagic
+      # at runtime and setuptools at build time; the version pin lives on this
+      # side so the PDEPEND of the parent stays cycle-free.
+      rdepend: |
+        ${PYTHON_DEPS}
+        ~sys-apps/file-{{ .Values.pv }}
+      depend: |
+        ${RDEPEND}
+        dev-python/setuptools[${PYTHON_USEDEP}]
+      # the tarball root is file-<PV>; the bindings live in its python/ dir
+      s: '${WORKDIR}/file-{{ .Values.pv }}/python'
+  packages:
+    # Both served lines, with the selectors of the parent file: entries above
+    # (macaroni-os/ai-agent-playbook#27: N merge conditions == N entries).
+    - file-python:
+        selector:
+          - '>=5.46'
+          - '<5.47'
+
+    - file-python:
+        selector:
+          - '>=5.47'

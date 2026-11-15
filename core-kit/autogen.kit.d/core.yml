@@ -953,6 +953,71 @@ core_dirlisting:
             }
 
 
+    - findutils:
+        dir:
+          url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: GNU utilities for finding files
+          homepage: https://www.gnu.org/software/findutils/
+          license: GPL-3+
+          iuse: nls selinux static
+          inherit:
+            - flag-o-matic
+          rdepend: |
+            selinux? ( sys-libs/libselinux )
+            nls? ( virtual/libintl )
+          depend: '${RDEPEND}'
+          # xz-utils unpacks the .tar.xz distfile; gettext is only needed with NLS on
+          bdepend: |
+            app-arch/xz-utils
+            nls? ( sys-devel/gettext )
+          body: |
+            pkg_setup() {
+              # enable long file name support for getcwd()
+              export gl_cv_func_getcwd_path_max=yes
+            }
+            src_prepare() {
+              # Don't build or install locate because it conflicts with mlocate,
+              # which is a secure version of locate.
+              sed \
+                -e '/^SUBDIRS/s@locate@@' \
+                -e '/^built_programs/s@ frcode locate updatedb@@' \
+                -i Makefile.in || die
+
+              default
+            }
+            src_configure() {
+              if use static; then
+                append-flags -pthread
+                append-ldflags -static
+              fi
+
+              program_prefix=$(usex userland_GNU '' g)
+              local myeconfargs=(
+                --with-packager="MacaroniOS"
+                --with-packager-version="{{ .Values.pv }}"
+                --with-packager-bug-reports="https://github.com/macaroni-os/mark-issues/issues"
+                --program-prefix=${program_prefix}
+                $(use_enable nls)
+                $(use_with selinux)
+                --libexecdir='$(libdir)'/find
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_compile() {
+              # We don't build locate, but the docs want a file in there.
+              emake -C locate dblocation.texi
+              default
+            }
+
 libtools_pkgs:
   generator: builtin-dirlisting
 

@@ -3243,6 +3243,47 @@ lz4:
               )
               cmake_src_configure
             }
+snappy:
+  generator: builtin-github
+
+  defaults:
+    category: app-arch
+    template: ../../templates/simple-github.tmpl
+    github:
+      user: google
+      repo: snappy
+      query: tags
+
+  packages:
+    - snappy:
+        vars:
+          desc: A high-speed compression/decompression library by Google
+          homepage: https://github.com/google/snappy
+          license: BSD
+          inherit:
+            - cmake
+          docs:
+            - format_description.txt
+            - framing_format.txt
+            - NEWS
+            - README.md
+          body: |
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=ON
+                # The test and benchmark frameworks live in the
+                # third_party/ git submodules, which are missing from
+                # the release source tarballs.
+                -DSNAPPY_BUILD_TESTS=OFF
+                -DSNAPPY_BUILD_BENCHMARKS=OFF
+                # Optional compression libs only used by tests and
+                # benchmarks, kept off as the tree ebuild did.
+                -DHAVE_LIBZ=NO
+                -DHAVE_LIBLZO2=NO
+                -DHAVE_LIBLZ4=NO
+              )
+              cmake_src_configure
+            }
 
 # sys-libs/ncurses (macaroni-os/mark-issues#923)
 #

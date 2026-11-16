@@ -275,6 +275,12 @@ target:
     - pkg: app-arch/brotli
     - pkg: app-arch/bzip2
 
+    # capped at <1.22: dpkg >= 1.22 needs perl >= 5.32.1 and >= 1.23 needs
+    # >= 5.36.0, the tree carries dev-lang/perl-5.32.0 (perl-kit)
+    - pkg: app-arch/dpkg
+      conditions:
+        - '<app-arch/dpkg-1.22'
+
     # 1.13 track: still served on release branches carrying gzip-1.13
     - pkg: app-arch/gzip
       conditions:

@@ -2129,6 +2129,81 @@ libcap:
   packages:
     - libcap:
 
+zstd:
+  generator: builtin-github
+
+  defaults:
+    category: app-arch
+    template: ../../templates/simple.tmpl
+    github:
+      # Upstream moved from facebook/zstd to meta/zstd (GitHub redirects the
+      # old owner); use the canonical one.
+      user: meta
+    # Release titles are "Zstandard v1.5.7": strip the product prefix (the
+    # leading v is removed by the generator itself).
+    transform:
+      - kind: string
+        match: "Zstandard v"
+        replace: ""
+
+  packages:
+    - zstd:
+        vars:
+          desc: zstd fast compression library
+          homepage: https://facebook.github.io/zstd/
+          license: '|| ( BSD GPL-2 )'
+          slot: '0/1'
+          inherit:
+            - flag-o-matic
+            - toolchain-funcs
+          iuse: lz4 static-libs +threads
+          rdepend: |
+            app-arch/xz-utils
+            lz4? ( app-arch/lz4 )
+          depend: '${RDEPEND}'
+          body: |
+            src_compile() {
+              export CC="$(tc-getCC)"
+              export CXX="$(tc-getCXX)"
+              export AR="$(tc-getAR)"
+              export PREFIX="/usr"
+              export LIBDIR="/usr/$(get_libdir)"
+
+              local libzstd_targets=( libzstd{,.a}$(usex threads '-mt' '') )
+
+              emake -C lib "${libzstd_targets[@]}" libzstd.pc
+
+              emake HAVE_LZ4="$(usex lz4 1 0)" zstd
+
+              emake -C contrib/pzstd
+            }
+
+            src_install() {
+              # src_install runs in its own shell, so re-export the install paths.
+              export PREFIX="/usr"
+              export LIBDIR="/usr/$(get_libdir)"
+
+              emake -C lib DESTDIR="${D}" install
+
+              emake -C programs DESTDIR="${D}" install
+
+              emake -C contrib/pzstd DESTDIR="${D}" install
+
+              einstalldocs
+
+              # src_install_all is not a valid phase in this portage
+              # (EAPI 7), so the tree's static-libs cleanup hook never ran.
+              # Keep the intended behaviour where it actually executes.
+              if ! use static-libs ; then
+                find "${ED}" -name "*.a" -delete || die
+              fi
+            }
+        assets:
+          # Official release tarball: unpacks into the default ${P} root,
+          # hence simple.tmpl and no post_src_unpack.
+          - name: '{{ .Values.p }}.tar.gz'
+            matcher: 'zstd-.*\.tar\.gz$'
+
 expat:
   generator: builtin-github
   defaults:

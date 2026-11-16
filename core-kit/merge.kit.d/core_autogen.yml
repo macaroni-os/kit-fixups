@@ -394,6 +394,17 @@ target:
       conditions:
         - '>=sys-apps/grep-3.12'
 
+    # 668 track: still served on release branches carrying less-668
+    - pkg: sys-apps/less
+      conditions:
+        - '>=sys-apps/less-668'
+        - '<sys-apps/less-678'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/less
+      conditions:
+        - '>=sys-apps/less-678'
+
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

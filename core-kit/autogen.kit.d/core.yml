@@ -868,16 +868,12 @@ core_dirlisting:
               use elibc_glibc && export gl_cv_func_getopt_gnu=yes
 
               local myeconfargs=(
-                --with-packager="Mark"
+                --with-packager="MacaroniOS"
                 --with-packager-version="{{ .Values.pv }}"
                 --with-packager-bug-reports="https://github.com/macaroni-os/mark-issues/issues"
                 $(use_enable nls)
               )
               econf "${myeconfargs[@]}"
-            }
-            src_test() {
-              # explicitly allow parallel testing
-              emake check
             }
 
     - sed:

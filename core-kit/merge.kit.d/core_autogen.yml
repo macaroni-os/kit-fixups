@@ -382,6 +382,17 @@ target:
     - pkg: sys-apps/gawk
       conditions:
         - '>=sys-apps/gawk-5.2'
+    # 3.11 track: still served in-tree and on release branches carrying grep-3.11
+    - pkg: sys-apps/grep
+      conditions:
+        - '>=sys-apps/grep-3.11'
+        - '<sys-apps/grep-3.12'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/grep
+      conditions:
+        - '>=sys-apps/grep-3.12'
+
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

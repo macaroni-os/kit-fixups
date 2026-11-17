@@ -2383,6 +2383,161 @@ sys_apps_github:
             matcher: "libffi-.*.tar.gz"
 
 
+readline:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-libs
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/readline/'
+      # GNU publishes consolidated patch-level tarballs
+      # (readline-X.Y.NN.tar.gz) next to the base release and the
+      # readline-X.Y-patches/ directories, so the upstream patch-set
+      # policy is "newest consolidated tarball": the anchored matcher
+      # below filters the .sig files, the -alpha/-beta/-rc tarballs and
+      # the patch-level directories.
+      matcher: '^readline-[0-9]+\.[0-9]+(\.[0-9]+)?\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'readline-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    # The listing already serves the 8.3 line (readline-8.3.tar.gz plus
+    # 8.3-alpha/-beta/-rcN): every core-kit branch ships the 8.2 track,
+    # so keep the 8.2.NN patch levels auto-tracked and cap the major.
+    # Drop this selector to follow the 8.3 line.
+    selector:
+      - '>=8.2'
+      - '<8.3'
+    vars:
+      desc: Another cute console display library
+      homepage: https://tiswww.case.edu/php/chet/readline/rltop.html
+      license: GPL-3
+      iuse: static-libs +unicode utils
+      inherit:
+        - flag-o-matic
+        - preserve-libs
+        - toolchain-funcs
+        - usr-ldscript
+      patches:
+        - readline-5.0-no_rpath.patch
+        - readline-6.2-rlfe-tgoto.patch
+        - readline-7.0-headers.patch
+        - readline-8.0-headers.patch
+      rdepend: |
+        >=sys-libs/ncurses-5.9-r3:=[static-libs?]
+      depend: |
+        ${RDEPEND}
+      bdepend: |
+        virtual/pkgconfig
+      extra_envs:
+        - 'HTML_DOCS="doc/history.html doc/readline.html doc/rluserman.html"'
+      body: |
+        src_prepare() {
+          default
+
+          # Force ncurses linking.
+          # Use pkg-config to get the right values.
+          local ncurses_libs=$($(tc-getPKG_CONFIG) ncurses$(usex unicode w '') --libs)
+
+          sed -i \
+            -e "/^SHLIB_LIBS=/s:=.*:='${ncurses_libs}':" \
+            support/shobj-conf || die
+          sed -i \
+            -e "/^[[:space:]]*LIBS=.-lncurses/s:-lncurses:${ncurses_libs}:" \
+            examples/rlfe/configure || die
+
+          ln -s ../.. examples/rlfe/readline || die # for local readline headers
+        }
+
+        src_configure() {
+          # fix implicit decls with widechar funcs
+          append-cppflags -D_GNU_SOURCE
+          # https://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
+          append-cppflags -Dxrealloc=_rl_realloc -Dxmalloc=_rl_malloc -Dxfree=_rl_free
+
+          # Make sure configure picks a better ar than the default one.
+          export ac_cv_prog_AR=$(tc-getAR)
+
+          # Force the test since we used sed above to force it.
+          export bash_cv_termcap_lib=ncurses
+
+          # This is for rlfe, but we need to make sure LDFLAGS doesn't
+          # change so we can re-use the config cache file between the two.
+          append-ldflags -L.
+
+          chmod +x configure
+
+          local myeconfargs=(
+            --cache-file="${S}"/config.cache
+            --with-curses
+            $(use_enable static-libs static)
+          )
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+
+          if use utils ; then
+            # code is full of AC_TRY_RUN()
+            mkdir -p examples/rlfe || die
+            cd examples/rlfe || die
+            ECONF_SOURCE="${S}"/examples/rlfe \
+              econf --cache-file="${S}"/config.cache
+          fi
+        }
+
+        src_compile() {
+          emake
+
+          if use utils ; then
+            # code is full of AC_TRY_RUN()
+            cd examples/rlfe || die
+            local l
+            for l in readline history ; do
+              ln -s ../../shlib/lib${l}$(get_libname)* lib${l}$(get_libname) || die
+              ln -s ../../lib${l}.a lib${l}.a || die
+            done
+            emake
+          fi
+        }
+
+        src_install() {
+          default
+
+          gen_usr_ldscript -a readline history
+
+          if use utils ; then
+            dobin examples/rlfe/rlfe
+          fi
+
+          einstalldocs
+          dodoc USAGE
+          docinto ps
+          dodoc doc/*.ps
+        }
+
+        pkg_preinst() {
+          # Keep old SONAMEs until the reverse dependencies are rebuilt.
+          preserve_old_lib \
+            /$(get_libdir)/lib{history,readline}$(get_libname 4) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 5) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 6) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 7)
+        }
+
+        pkg_postinst() {
+          preserve_old_lib_notify \
+            /$(get_libdir)/lib{history,readline}$(get_libname 4) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 5) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 6) \
+            /$(get_libdir)/lib{history,readline}$(get_libname 7)
+        }
+
+  packages:
+    - readline:
+
 app_arch_github:
   generator: builtin-github
   defaults:

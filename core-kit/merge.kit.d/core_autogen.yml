@@ -346,6 +346,16 @@ target:
     - pkg: dev-libs/icu
 
     - pkg: net-dns/libidn2
+    # 1.23.0 track: still served in-tree and on release branches carrying groff-1.23.0
+    - pkg: sys-apps/groff
+      conditions:
+        - '>=sys-apps/groff-1.23.0'
+        - '<sys-apps/groff-1.24'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/groff
+      conditions:
+        - '>=sys-apps/groff-1.24'
 
     - pkg: sys-apps/acl
     - pkg: sys-apps/attr

@@ -1506,6 +1506,146 @@ core_dirlisting:
               find "${ED}" -name '*.la' -delete || die
             }
 
+    - gmp:
+        category: dev-libs
+        dir:
+          url: 'https://gnuftp.mirror.garr.it/{{ .Values.pn }}/'
+          matcher: '{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.xz'
+            replace: ''
+        vars:
+          desc: Library for arbitrary-precision arithmetic on different type of numbers
+          homepage: https://gmplib.org/
+          license: '|| ( LGPL-3+ GPL-2+ )'
+          # Subslot reflects the C (libgmp.so.10) and C++ (libgmpxx.so.4) SONAMEs.
+          inherit:
+            - gnuconfig
+            - libtool
+            - toolchain-funcs
+          iuse: '+asm +cpudetection +cxx pic +static-libs'
+          required_use: 'cpudetection? ( asm )'
+          restrict: '!cpudetection? ( bindist )'
+          bdepend: |
+            app-arch/xz-utils
+            sys-devel/m4
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - NEWS
+            - README
+            - doc/configuration
+            - doc/isa_abi_headache
+          patches:
+            - gmp-6.1.0-noexecstack-detect.patch
+            - gmp-6.2.1-no-zarch.patch
+          body: |
+            src_prepare() {
+              default
+
+              # We cannot run autotools here as gcc depends on this package
+              elibtoolize
+
+              # GMP uses the "ABI" env var during configure as does portage
+              # (econf). To avoid patching the source constantly, wrap things
+              # up so GMP always sees the value it expects.
+              mv configure configure.wrapped || die
+              cat <<-\EOF > configure
+                #!/usr/bin/env sh
+                exec env ABI="${GMPABI}" "$0.wrapped" "$@"
+                EOF
+
+              # Patches to original configure might have lost the +x bit.
+              chmod a+rx configure{,.wrapped} || die
+
+              # Save the upstream files named config.{guess,sub} which are
+              # wrappers around the gnuconfig versions.
+              mkdir "${T}"/gmp-gnuconfig || die
+              mv config.guess "${T}"/gmp-gnuconfig/config.guess || die
+              mv config.sub "${T}"/gmp-gnuconfig/config.sub || die
+              # Grab fresh copies from gnuconfig.
+              touch config.guess config.sub || die
+              gnuconfig_update
+              # Rename the fresh copies to the filenames the wrappers from
+              # GMP expect.
+              mv config.guess configfsf.guess || die
+              mv config.sub configfsf.sub || die
+            }
+
+            src_configure() {
+              # ABI mappings (needs all architectures supported)
+              case ${ABI} in
+                32|x86) GMPABI=32 ;;
+                64|amd64|n64) GMPABI=64 ;;
+                [onx]32) GMPABI=${ABI} ;;
+              esac
+              export GMPABI
+
+              tc-export CC
+
+              # https://gmplib.org/manual/Notes-for-Package-Builds
+              local myeconfargs=(
+                CC_FOR_BUILD="$(tc-getBUILD_CC)"
+
+                --localstatedir=/var/state/gmp
+                --enable-shared
+
+                $(use_enable asm assembly)
+                # fat is needed to avoid gmp installing either purely generic
+                # or specific-to-used-CPU code: with it the build dispatches
+                # between CPU variants at runtime on amd64/x86.
+                $(use_enable cpudetection fat)
+                $(use_enable cxx)
+                $(use_enable static-libs static)
+
+                # --with-pic forces static libraries to be built as PIC
+                # and without TEXTRELs.
+                $(use pic && echo --with-pic)
+              )
+
+              # Move the wrappers from GMP back into place (may have been
+              # destroyed by previous econf run)
+              cp "${T}"/gmp-gnuconfig/config.guess "${S}"/config.guess || die
+              cp "${T}"/gmp-gnuconfig/config.sub "${S}"/config.sub || die
+
+              # Without the fat build, pin the build to the processor GMP's
+              # own config.guess reports so the tuned code paths match the
+              # build machine.
+              if ! use cpudetection ; then
+                local gmp_host=$("${S}"/config.guess || die "failed to run config.guess")
+
+                if [[ -z ${gmp_host} ]] ; then
+                  die "Empty result from GMP's custom config.guess!"
+                fi
+
+                einfo "GMP guessed processor type: ${gmp_host}"
+                ewarn "This build will only work on this machine. Enable USE=cpudetection for binary packages!"
+                export ac_cv_build="${gmp_host}"
+                export ac_cv_host="${gmp_host}"
+              fi
+
+              ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+            }
+
+            src_install() {
+              emake DESTDIR="${D}" install
+
+              # Should be a standalone lib
+              rm -f "${ED}"/usr/$(get_libdir)/libgmp.la
+
+              # This requires libgmp
+              local la="${ED}/usr/$(get_libdir)/libgmpxx.la"
+              if ! use static-libs ; then
+                rm -f "${la}" || die
+              fi
+
+              einstalldocs
+            }
+
     # RAR is proprietary freeware shipped by rarlab.com as PREBUILT Linux
     # binaries: there is no source release, so this entry tracks the binary
     # drop and the ebuild only installs the unpacked files.

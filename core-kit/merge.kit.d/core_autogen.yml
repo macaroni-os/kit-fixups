@@ -417,6 +417,28 @@ target:
       conditions:
         - '>=sys-apps/less-678'
 
+    # 5.46 track: still served on release branches carrying file-5.46-r1
+    - pkg: sys-apps/file
+      conditions:
+        - '>=sys-apps/file-5.46'
+        - '<sys-apps/file-5.47'
+
+    # current stable track, auto-tracked by the generator
+    - pkg: sys-apps/file
+      conditions:
+        - '>=sys-apps/file-5.47'
+
+    # Python bindings split out of sys-apps/file (macaroni-os/kit-fixups#603
+    # review 4583309456): the same two served lines as the parent atom, so
+    # every release line gets its own generated bindings package.
+    - pkg: sys-apps/file-python
+      conditions:
+        - '>=sys-apps/file-python-5.46'
+        - '<sys-apps/file-python-5.47'
+
+    - pkg: sys-apps/file-python
+      conditions:
+        - '>=sys-apps/file-python-5.47'
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
     - pkg: sys-apps/util-linux

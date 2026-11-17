@@ -441,6 +441,18 @@ target:
         - '>=sys-apps/file-python-5.47'
     - pkg: sys-apps/which
     - pkg: sys-apps/shadow
+    # 2.x line: the 3.x tags break the shipped shutdown-h/kexec patches
+    # (man hunks from 2.99, kexec re-implemented in 3.08) so the 2.x atoms stay
+    # capped below 2.99; 2.99 itself is intentionally served on no line
+    # (macaroni-os/mark-issues#912, kit-fixups#608 review 4580756429)
+    - pkg: sys-apps/sysvinit
+      conditions:
+        - '<sys-apps/sysvinit-2.99'
+
+    # new 3.x line: unpatched upstream releases from 3.0 up (kit-fixups#608)
+    - pkg: sys-apps/sysvinit
+      conditions:
+        - '>=sys-apps/sysvinit-3.0'
     - pkg: sys-apps/util-linux
     - pkg: sys-apps/util-linux-python
     - pkg: sys-apps/locale-gen

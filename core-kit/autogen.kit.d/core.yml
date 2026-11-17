@@ -5317,3 +5317,178 @@ file_python:
     - file-python:
         selector:
           - '>=5.47'
+# sys-apps/sysvinit dual-line spec: own definition key (kit-fixups#608 review 4580756429)
+# so the <3.0 line and the new releases each get their own selector; the shared spec,
+# vars and body (byte-identical between the lines) live once under defaults; entries
+# keep only their deltas (selector bound, distfile origin, per-track patches).
+sysvinit:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-apps
+    # Upstream moved from the savannah download area (frozen at 3.04,
+    # 2022-04-26) to the GitHub repo designated on the savannah project
+    # page, so version discovery follows GitHub tags (releases only cover
+    # 3.01+). The distfile stays the official savannah .tar.xz whose
+    # unpack root is ${P} (GitHub tag archives would be .tar.gz named
+    # with the tag and unpack as <repo>-<sha>; the .tar.xz anchor also
+    # keeps the tree distfile name/hash, see macaroni-os/mark-issues#912).
+    github:
+      user: slicer69
+      query: tags
+    exclude:
+      - '-beta'
+    vars:
+      license: GPL-2
+      desc: /sbin/init - parent of all processes
+      homepage: https://savannah.nongnu.org/projects/sysvinit
+      iuse: selinux ibm static
+      inherit:
+        - toolchain-funcs
+        - flag-o-matic
+      cdepend: |
+        selinux? (
+          >=sys-libs/libselinux-1.28
+        )
+      depend: |
+        ${CDEPEND}
+        virtual/os-headers
+      rdepend: |
+        ${CDEPEND}
+        selinux? ( sec-policy/selinux-shutdown )
+        !<sys-apps/openrc-0.13
+      body: |
+        {{- if .Values.gh_tarball }}post_src_unpack() {
+          mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* "${S}"
+        }
+        {{ end -}}
+        src_prepare() {
+          default
+
+          sed -i \
+            -e '/^CPPFLAGS =$/d' \
+            -e '/^override CFLAGS +=/s/ -fstack-protector-strong//' \
+            src/Makefile || die
+
+          # last/lastb/mesg/mountpoint/sulogin/utmpdump/wall have moved to util-linux
+          sed -i -r \
+            -e '/^(USR)?S?BIN/s:\<(last|lastb|mesg|mountpoint|sulogin|utmpdump|wall)\>::g' \
+            -e '/^MAN[18]/s:\<(last|lastb|mesg|mountpoint|sulogin|utmpdump|wall)[.][18]\>::g' \
+            src/Makefile || die
+
+          # pidof has moved to >=procps-3.3.9
+          sed -i -r \
+            -e '/\/bin\/pidof/d' \
+            -e '/^MAN8/s:\<pidof.8\>::g' \
+            src/Makefile || die
+
+          # logsave is already in e2fsprogs
+          sed -i -r \
+            -e '/^(USR)?S?BIN/s:\<logsave\>::g' \
+            -e '/^MAN8/s:\<logsave.8\>::g' \
+            src/Makefile || die
+
+          # Mung inittab for specific architectures
+          cd "${WORKDIR}" || die
+          cp "${FILESDIR}"/inittab-2.95 inittab || die "cp inittab"
+          local insert=()
+          use ppc && insert=( '#psc0:12345:respawn:/sbin/agetty 115200 ttyPSC0 linux' )
+          use arm && insert=( '#f0:12345:respawn:/sbin/agetty 9600 ttyFB0 vt100' )
+          use arm64 && insert=( 'f0:12345:respawn:/sbin/agetty 9600 ttyAMA0 vt100' )
+          use hppa && insert=( 'b0:12345:respawn:/sbin/agetty 9600 ttyB0 vt100' )
+          use s390 && insert=( 's0:12345:respawn:/sbin/agetty 38400 console dumb' )
+          if use ibm ; then
+            insert+=(
+              '#hvc0:2345:respawn:/sbin/agetty -L 9600 hvc0'
+              '#hvsi:2345:respawn:/sbin/agetty -L 19200 hvsi0'
+            )
+          fi
+          (use arm || use mips || use sh || use sparc) && sed -i '/ttyS0/s:#::' inittab
+          if use x86 || use amd64 ; then
+            sed -i \
+              -e '/ttyS[01]/s:9600:115200:' \
+              inittab
+          fi
+          if [[ ${#insert[@]} -gt 0 ]] ; then
+            printf '%s\n' '' '# Architecture specific features' "${insert[@]}" >> inittab
+          fi
+        }
+
+        src_compile() {
+          tc-export CC
+          append-lfs-flags
+          export DISTRO=
+          export VERSION="${PV}"
+          use static && append-ldflags -static
+          emake -C src $(usex selinux 'WITH_SELINUX=yes' '')
+        }
+
+        src_install() {
+          emake -C src install ROOT="${D}"
+          dodoc README doc/*
+
+          insinto /etc
+          doins "${WORKDIR}"/inittab
+
+          # dead symlink
+          rm "${ED}"/usr/bin/lastb || die
+
+          newinitd "${FILESDIR}"/bootlogd.initd bootlogd
+        }
+
+        pkg_postinst() {
+          # Reload init to fix unmounting problems of / on next reboot.
+          # This is really needed, as without the new version of init cause init
+          # not to quit properly on reboot, and causes a fsck of / on next reboot.
+          if [[ "${ROOT}" == "/" ]] || [[ "${ROOT}" == "" ]]; then
+            if [[ -e /dev/initctl && ! -e /run/initctl ]]; then
+              ln -s /dev/initctl /run/initctl
+            fi
+            # Do not return an error if this fails
+            /sbin/telinit U &>/dev/null
+          fi
+
+          elog "The last/lastb/mesg/mountpoint/sulogin/utmpdump/wall tools have been moved to"
+          elog "sys-apps/util-linux. The pidof tool has been moved to sys-process/procps."
+
+          # Required for new bootlogd service
+          if [[ ! -e "${EROOT}/var/log/boot" ]] ; then
+            touch "${EROOT}/var/log/boot"
+          fi
+        }
+  packages:
+    # Freeze the 2.x line (macaroni-os/mark-issues#912): the tree-shipped
+    # shutdown-h patch (standalone -h/-P/-H, bug 449354) fails its man-page
+    # hunk on every version from 2.99 on and is NOT absorbed upstream
+    # (patch -R dry-run fails even at tag 3.15), while the kexec patch
+    # conflicts from 3.08 where upstream re-implemented kexec itself.
+    # From 3.12 the Makefile installs pidof as $(base_bindir)/pidof, so the
+    # ebuild /bin/pidof prune below is a silent no-op there. Verified with
+    # patch -p1 --dry-run/-R --dry-run across tags 2.95..3.15 (PR evidence).
+    # The 3.x line rides the separate entry below (unpatched, tag-tarball
+    # distfile); measured at 3.15: merge rc=0 and the only installed-file delta
+    # vs 2.95-r1 is the new /bin/pidof -> /sbin/killall5 symlink; procps keeps
+    # /usr/bin/pidof, so there is no file collision on the current tree.
+    - sysvinit:
+        selector:
+          - '<2.99'
+        assets:
+          - name: '{{ .Values.p }}.tar.xz'
+            url: 'https://download.savannah.nongnu.org/releases/sysvinit/{{ .Values.p }}.tar.xz'
+        vars:
+          patches:
+            - sysvinit-2.86-kexec.patch
+            - sysvinit-2.94_beta-shutdown-single.patch
+            - sysvinit-2.95_beta-shutdown-h.patch
+    # New 3.x line (selector >=3.0): upstream re-implemented kexec from 3.08, the
+    # 2.95_beta shutdown-h man hunks never apply from 2.99 on and the savannah area is
+    # frozen at 3.04, so this track ships without the 2.x patches (patches: []) and
+    # takes the builtin-github tag-tarball recovery instead of the pinned savannah
+    # asset (gh_tarball: true renders the unpack-root mv).
+    - sysvinit:
+        selector:
+          - '>=3.0'
+        vars:
+          patches: []
+          gh_tarball: true

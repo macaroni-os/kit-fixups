@@ -3781,9 +3781,7 @@ binutils:
       desc: Tools necessary to build programs
       homepage: https://sourceware.org/binutils/
       license: GPL-3+
-      patch_version: '5'
       version_suffix: ''
-      slot: '0'
       s: '${WORKDIR}/{{ .Values.original_version | replace ".tar.xz" "" }}'
       inherit:
         - eutils
@@ -4051,9 +4049,6 @@ binutils:
         selector:
           - '>=2.46'
           - '<2.47'
-        vars:
-          version_suffix: ''
-          patches: []
 
 elfutils:
   generator: builtin-dirlisting

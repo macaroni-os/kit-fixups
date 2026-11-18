@@ -1,0 +1,57 @@
+From bf0d3938604cf8d704ba05c8781f50343ef85142 Mon Sep 17 00:00:00 2001
+From: Jan Beulich <jbeulich@suse.com>
+Date: Tue, 14 Feb 2023 08:35:02 +0100
+Subject: [PATCH 22/41] gas: correct symbol name comparison in
+ .startof./.sizeof. handling
+
+In 162c6aef1f3a ("gas: fold symbol table entries generated for
+.startof.() / .sizeof.()") I screwed up quite badly, inverting the case
+sensitive and case insensitive comparison functions.
+
+(cherry picked from commit b2bc62b7b4e7638c3a249d2d2728ceb4d5f2b22c)
+---
+ gas/expr.c                      | 4 ++--
+ gas/testsuite/gas/elf/startof.d | 2 ++
+ gas/testsuite/gas/elf/startof.s | 3 +++
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/gas/expr.c b/gas/expr.c
+index 28ec58c421b..ec51bda1aa9 100644
+--- a/gas/expr.c
++++ b/gas/expr.c
+@@ -149,8 +149,8 @@ symbol_lookup_or_make (const char *name, bool start)
+ 
+     name = S_GET_NAME (symbolP);
+     if ((symbols_case_sensitive
+-	 ? strcasecmp (buf, name)
+-	 : strcmp (buf, name)) == 0)
++	 ? strcmp (buf, name)
++	 : strcasecmp (buf, name)) == 0)
+       {
+ 	free (buf);
+ 	return symbolP;
+diff --git a/gas/testsuite/gas/elf/startof.d b/gas/testsuite/gas/elf/startof.d
+index 9cffa93e22b..d943bb87887 100644
+--- a/gas/testsuite/gas/elf/startof.d
++++ b/gas/testsuite/gas/elf/startof.d
+@@ -7,4 +7,6 @@ Symbol table .*
+ #...
+      [1-8]: 0+ .* UND \.startof\.\.text
+      [2-9]: 0+ .* UND \.sizeof\.\.text
++ +[1-9][0-9]*: 0+ .* UND \.startof\.\.Text
++ +[1-9][0-9]*: 0+ .* UND \.sizeof\.\.TEXT
+ #pass
+diff --git a/gas/testsuite/gas/elf/startof.s b/gas/testsuite/gas/elf/startof.s
+index a90e1160dd8..342011e0177 100644
+--- a/gas/testsuite/gas/elf/startof.s
++++ b/gas/testsuite/gas/elf/startof.s
+@@ -4,3 +4,6 @@
+ 	.dc.a	0
+ 	.dc.a	.sizeof.(.text)
+ 	.dc.a	.startof.(.text)
++	.dc.a	0
++	.dc.a	.startof.(.Text)
++	.dc.a	.sizeof.(.TEXT)
+-- 
+2.39.2
+

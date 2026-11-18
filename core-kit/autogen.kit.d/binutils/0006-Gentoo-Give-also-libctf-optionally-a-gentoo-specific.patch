@@ -1,0 +1,193 @@
+From c165894896d9bd8dfe795d9447f141623c986617 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20K=2E=20H=C3=BCttel?= <dilfridge@gentoo.org>
+Date: Sat, 24 Jul 2021 15:20:16 +0200
+Subject: [PATCH 06/41] Gentoo: Give also libctf optionally a gentoo-specific
+ soversion
+
+---
+ libctf/Makefile.am  | 14 +++++++++++++-
+ libctf/Makefile.in  |  9 ++++++++-
+ libctf/configure    | 35 +++++++++++++++++++++++++++++++++--
+ libctf/configure.ac | 10 ++++++++++
+ 4 files changed, 64 insertions(+), 4 deletions(-)
+
+diff --git a/libctf/Makefile.am b/libctf/Makefile.am
+index c4809f70bae..5571eef8aa1 100644
+--- a/libctf/Makefile.am
++++ b/libctf/Makefile.am
+@@ -26,6 +26,9 @@ info_TEXINFOS =
+ DISTCLEANFILES =
+ MAINTAINERCLEANFILES =
+ 
++EXTRA_SOVERSION_SUFFIX = @EXTRA_SOVERSION_SUFFIX@
++BFD_VERSION = @BFD_VERSION@
++
+ # This is where we get zlib from.  zlibdir is -L../zlib and zlibinc is
+ # -I../zlib, unless we were configured with --with-system-zlib, in which
+ # case both are empty.
+@@ -46,8 +49,17 @@ include_HEADERS =
+ noinst_LTLIBRARIES = libctf.la libctf-nobfd.la
+ endif
+ 
++# libctf by default uses libtool versioning. Unfortunately that keeps us from adding
++# a supplement to the soversion. So we need to switch tracks and be creative.
++
++if HAVE_EXTRA_SOVERSION_SUFFIX
++gentoo_ctf_soversion = "$(BFD_VERSION).$(EXTRA_SOVERSION_SUFFIX)"
++else
++gentoo_ctf_soversion = 0.0.0
++endif
++
+ libctf_nobfd_la_LIBADD = @CTF_LIBADD@ $(ZLIB)
+-libctf_ldflags_nover = -version-info 0:0:0 @SHARED_LDFLAGS@
++libctf_ldflags_nover = -release $(gentoo_ctf_soversion) @SHARED_LDFLAGS@
+ libctf_nobfd_la_LDFLAGS = $(libctf_ldflags_nover) @VERSION_FLAGS_NOBFD@
+ libctf_nobfd_la_CPPFLAGS = $(AM_CPPFLAGS) -DNOBFD=1
+ libctf_nobfd_la_SOURCES = ctf-archive.c ctf-dump.c ctf-create.c ctf-decl.c ctf-error.c \
+diff --git a/libctf/Makefile.in b/libctf/Makefile.in
+index f2b852e3fae..14fc79bf5a9 100644
+--- a/libctf/Makefile.in
++++ b/libctf/Makefile.in
+@@ -381,6 +381,7 @@ AUTOCONF = @AUTOCONF@
+ AUTOHEADER = @AUTOHEADER@
+ AUTOMAKE = @AUTOMAKE@
+ AWK = @AWK@
++BFD_VERSION = @BFD_VERSION@
+ CATALOGS = @CATALOGS@
+ CATOBJEXT = @CATOBJEXT@
+ CC = @CC@
+@@ -403,6 +404,7 @@ EXEEXT = @EXEEXT@
+ 
+ # Setup the testing framework, if you have one
+ EXPECT = expect
++EXTRA_SOVERSION_SUFFIX = @EXTRA_SOVERSION_SUFFIX@
+ FGREP = @FGREP@
+ GENCAT = @GENCAT@
+ GMSGFMT = @GMSGFMT@
+@@ -540,8 +542,13 @@ AM_CFLAGS = -std=gnu99 @ac_libctf_warn_cflags@ @warn@ @c_warn@ @WARN_PEDANTIC@ @
+ @INSTALL_LIBBFD_FALSE@include_HEADERS = 
+ @INSTALL_LIBBFD_TRUE@include_HEADERS = $(INCDIR)/ctf.h $(INCDIR)/ctf-api.h
+ @INSTALL_LIBBFD_FALSE@noinst_LTLIBRARIES = libctf.la libctf-nobfd.la
++@HAVE_EXTRA_SOVERSION_SUFFIX_FALSE@gentoo_ctf_soversion = 0.0.0
++
++# libctf by default uses libtool versioning. Unfortunately that keeps us from adding
++# a supplement to the soversion. So we need to switch tracks and be creative.
++@HAVE_EXTRA_SOVERSION_SUFFIX_TRUE@gentoo_ctf_soversion = "$(BFD_VERSION).$(EXTRA_SOVERSION_SUFFIX)"
+ libctf_nobfd_la_LIBADD = @CTF_LIBADD@ $(ZLIB)
+-libctf_ldflags_nover = -version-info 0:0:0 @SHARED_LDFLAGS@
++libctf_ldflags_nover = -release $(gentoo_ctf_soversion) @SHARED_LDFLAGS@
+ libctf_nobfd_la_LDFLAGS = $(libctf_ldflags_nover) @VERSION_FLAGS_NOBFD@
+ libctf_nobfd_la_CPPFLAGS = $(AM_CPPFLAGS) -DNOBFD=1
+ libctf_nobfd_la_SOURCES = ctf-archive.c ctf-dump.c ctf-create.c \
+diff --git a/libctf/configure b/libctf/configure
+index 17463a74cca..b0b5c78a7a6 100755
+--- a/libctf/configure
++++ b/libctf/configure
+@@ -646,6 +646,10 @@ BUILD_INFO_FALSE
+ BUILD_INFO_TRUE
+ NEED_CTF_QSORT_R_FALSE
+ NEED_CTF_QSORT_R_TRUE
++BFD_VERSION
++HAVE_EXTRA_SOVERSION_SUFFIX_FALSE
++HAVE_EXTRA_SOVERSION_SUFFIX_TRUE
++EXTRA_SOVERSION_SUFFIX
+ ENABLE_LIBCTF_HASH_DEBUGGING_FALSE
+ ENABLE_LIBCTF_HASH_DEBUGGING_TRUE
+ zlibinc
+@@ -807,6 +811,7 @@ enable_maintainer_mode
+ enable_install_libbfd
+ with_system_zlib
+ enable_libctf_hash_debugging
++with_extra_soversion_suffix
+ '
+       ac_precious_vars='build_alias
+ host_alias
+@@ -1464,6 +1469,8 @@ Optional Packages:
+                           both]
+   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
+   --with-system-zlib      use installed libz
++  --with-extra-soversion-suffix=SUFFIX
++                          Append '.SUFFIX' to SONAME [[default=]]
+ 
+ Some influential environment variables:
+   CC          C compiler command
+@@ -11632,7 +11639,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11635 "configure"
++#line 11665 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -11738,7 +11745,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11741 "configure"
++#line 11771 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -14305,6 +14312,26 @@ else
+ fi
+ 
+ 
++EXTRA_SOVERSION_SUFFIX=
++
++# Check whether --with-extra-soversion-suffix was given.
++if test "${with_extra_soversion_suffix+set}" = set; then :
++  withval=$with_extra_soversion_suffix; EXTRA_SOVERSION_SUFFIX="${withval}"
++fi
++
++
++ if test -n "${with_extra_soversion_suffix}"; then
++  HAVE_EXTRA_SOVERSION_SUFFIX_TRUE=
++  HAVE_EXTRA_SOVERSION_SUFFIX_FALSE='#'
++else
++  HAVE_EXTRA_SOVERSION_SUFFIX_TRUE='#'
++  HAVE_EXTRA_SOVERSION_SUFFIX_FALSE=
++fi
++
++
++BFD_VERSION=$(${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p')
++
++
+ # Similar to GDB_AC_CHECK_BFD.
+ OLD_CFLAGS=$CFLAGS
+ OLD_LDFLAGS=$LDFLAGS
+@@ -15199,6 +15226,10 @@ if test -z "${ENABLE_LIBCTF_HASH_DEBUGGING_TRUE}" && test -z "${ENABLE_LIBCTF_HA
+   as_fn_error $? "conditional \"ENABLE_LIBCTF_HASH_DEBUGGING\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${HAVE_EXTRA_SOVERSION_SUFFIX_TRUE}" && test -z "${HAVE_EXTRA_SOVERSION_SUFFIX_FALSE}"; then
++  as_fn_error $? "conditional \"HAVE_EXTRA_SOVERSION_SUFFIX\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ 
+ if test -z "${NEED_CTF_QSORT_R_TRUE}" && test -z "${NEED_CTF_QSORT_R_FALSE}"; then
+   as_fn_error $? "conditional \"NEED_CTF_QSORT_R\" was never defined.
+diff --git a/libctf/configure.ac b/libctf/configure.ac
+index a0148a4c328..1901ade381d 100644
+--- a/libctf/configure.ac
++++ b/libctf/configure.ac
+@@ -76,6 +76,16 @@ if test "${enable_libctf_hash_debugging}" = yes; then
+ fi
+ AM_CONDITIONAL(ENABLE_LIBCTF_HASH_DEBUGGING, test "${enable_libctf_hash_debugging}" = yes)
+ 
++EXTRA_SOVERSION_SUFFIX=
++AC_ARG_WITH(extra-soversion-suffix,
++  AS_HELP_STRING([--with-extra-soversion-suffix=SUFFIX],
++                 [Append '.SUFFIX' to SONAME [[default=]]]),
++[EXTRA_SOVERSION_SUFFIX="${withval}"])
++AC_SUBST(EXTRA_SOVERSION_SUFFIX)
++AM_CONDITIONAL([HAVE_EXTRA_SOVERSION_SUFFIX], [test -n "${with_extra_soversion_suffix}"])
++
++AC_SUBST(BFD_VERSION, $(${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'), [Version of the accompanying bfd linker])
++
+ # Similar to GDB_AC_CHECK_BFD.
+ OLD_CFLAGS=$CFLAGS
+ OLD_LDFLAGS=$LDFLAGS
+-- 
+2.39.2
+

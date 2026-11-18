@@ -1,0 +1,34 @@
+From cd50c95e8574e19a63dc6490b420ffdf7d4bd33a Mon Sep 17 00:00:00 2001
+From: Mike Frysinger <vapier@gentoo.org>
+Date: Fri, 7 Jan 2005 00:15:53 -0500
+Subject: [PATCH 03/41] Gentoo: libiberty: install PIC version of libiberty.a
+
+This will install a PIC version of libiberty.a by overwriting the non-PIC
+version of libiberty.a while compiling.  We do this because there is no
+shared version of libiberty for random apps to link against which means if
+someone wants to use this in a shared library or PIE, they're out of luck.
+It's arguable whether people should be able to use this in a shared lib,
+but usage in PIE should be fine.  You could argue that this penalizes the
+non-PIE users, but the counter point is that people using this library in
+general are fairly low, and we'd rather have things work for all of them.
+
+(cherry picked from commit 112aff9ad3e2675556370c4281117a6df0a879d9)
+---
+ libiberty/Makefile.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libiberty/Makefile.in b/libiberty/Makefile.in
+index f9fbba23e2c..d37488d1bf8 100644
+--- a/libiberty/Makefile.in
++++ b/libiberty/Makefile.in
+@@ -258,6 +258,7 @@ $(TARGETLIB): $(REQUIRED_OFILES) $(EXTRA_OFILES) $(LIBOBJS)
+ 	  $(AR) $(AR_FLAGS) $(TARGETLIB) \
+ 	    $(REQUIRED_OFILES) $(EXTRA_OFILES) $(LIBOBJS); \
+ 	  $(RANLIB) $(TARGETLIB); \
++	  cp $(TARGETLIB) ../ ; \
+ 	  cd ..; \
+ 	else true; fi; \
+ 	if [ x"$(NOASANFLAG)" != x ]; then \
+-- 
+2.39.2
+

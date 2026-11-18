@@ -1,0 +1,52 @@
+From fa10adef9f7782c7ce252665edc5f89857631fc5 Mon Sep 17 00:00:00 2001
+From: Alan Modra <amodra@gmail.com>
+Date: Mon, 6 Mar 2023 10:43:53 +1030
+Subject: [PATCH 28/41] PR30198, Assertion and segfault when linking x86_64 elf
+ and coff
+
+	PR 30198
+	* coff-x86_64.c (coff_amd64_reloc): Set *error_message when
+	returning bfd_reloc_dangerous.  Also check that __ImageBase is
+	defined before accessing h->u.def.
+
+(cherry picked from commit 889d15d574a8c43c44dc0983343897e47874a2b6)
+(cherry picked from commit 18bb604f1e13321347a8919eaec67db36bee76b4)
+---
+ bfd/coff-x86_64.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/bfd/coff-x86_64.c b/bfd/coff-x86_64.c
+index 13061cdacff..822504a339b 100644
+--- a/bfd/coff-x86_64.c
++++ b/bfd/coff-x86_64.c
+@@ -139,15 +139,19 @@ coff_amd64_reloc (bfd *abfd,
+ 	  break;
+ 	case bfd_target_elf_flavour:
+ 	  /* Subtract __ImageBase.  */
++	  h = NULL;
+ 	  link_info = _bfd_get_link_info (obfd);
+-	  if (link_info == NULL)
+-	    return bfd_reloc_dangerous;
+-	  h = bfd_link_hash_lookup (link_info->hash, "__ImageBase",
+-				    false, false, false);
+-	  if (h == NULL)
+-	    return bfd_reloc_dangerous;
+-	  while (h->type == bfd_link_hash_indirect)
+-	    h = h->u.i.link;
++	  if (link_info != NULL)
++	    h = bfd_link_hash_lookup (link_info->hash, "__ImageBase",
++				      false, false, true);
++	  if (h == NULL
++	      || (h->type != bfd_link_hash_defined
++		  && h->type != bfd_link_hash_defweak))
++	    {
++	      *error_message
++		= (char *) _("R_AMD64_IMAGEBASE with __ImageBase undefined");
++	      return bfd_reloc_dangerous;
++	    }
+ 	  /* ELF symbols in relocatable files are section relative,
+ 	     but in nonrelocatable files they are virtual addresses.  */
+ 	  diff -= (h->u.def.value
+-- 
+2.39.2
+

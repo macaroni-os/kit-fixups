@@ -1,0 +1,3617 @@
+From ac6e590c46736766157abb70de6c9111071a55f6 Mon Sep 17 00:00:00 2001
+From: Nick Clifton <nickc@redhat.com>
+Date: Mon, 27 Feb 2023 12:49:24 +0000
+Subject: [PATCH 24/41] Updated Serbian translations for gold, gprof and
+ opcodes sub-directories
+
+(cherry picked from commit 11f5c1ebf148a5baaaeafb9730b35ebaf18e0a2b)
+---
+ gold/ChangeLog    |   4 +
+ gold/po/sr.po     | 608 ++++++++++++++++++++++++----------------------
+ gprof/ChangeLog   |   4 +
+ gprof/po/sr.po    | 107 ++++----
+ opcodes/ChangeLog |   4 +
+ opcodes/po/sr.po  | 601 ++++++++++++++++++++++-----------------------
+ 6 files changed, 679 insertions(+), 649 deletions(-)
+
+diff --git a/gold/ChangeLog b/gold/ChangeLog
+index 0acc7ad9e5a..48a04ace7f8 100644
+--- a/gold/ChangeLog
++++ b/gold/ChangeLog
+@@ -1,3 +1,7 @@
++2023-02-27  Nick Clifton  <nickc@redhat.com>
++
++	* po/sr.po: Updates Serbian translation.
++
+ 2023-01-14  Nick Clifton  <nickc@redhat.com>
+ 
+ 	* 2.40 release point.
+diff --git a/gold/po/sr.po b/gold/po/sr.po
+index 3f6a4403145..1c97e400f02 100644
+--- a/gold/po/sr.po
++++ b/gold/po/sr.po
+@@ -1,13 +1,14 @@
+ # Serbian translation of gold.
+ # Copyright © 2020 Free Software Foundation, Inc.
+ # This file is distributed under the same license as the binutils package.
+-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2020–2022.
++# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2020–2023.
++#
+ msgid ""
+ msgstr ""
+-"Project-Id-Version: gold-2.38.90\n"
++"Project-Id-Version: gold-2.39.90\n"
+ "Report-Msgid-Bugs-To: https://sourceware.org/bugzilla/\n"
+-"POT-Creation-Date: 2022-07-08 10:58+0100\n"
+-"PO-Revision-Date: 2022-09-17 20:43+0200\n"
++"POT-Creation-Date: 2022-12-31 12:19+0000\n"
++"PO-Revision-Date: 2023-02-25 09:03+0100\n"
+ "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+ "Language-Team: Serbian <(nothing)>\n"
+ "Language: sr\n"
+@@ -16,7 +17,7 @@ msgstr ""
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
+-"X-Generator: Poedit 2.3\n"
++"X-Generator: Gtranslator 41.0\n"
+ 
+ #: aarch64-reloc-property.cc:173 arm-reloc-property.cc:303
+ #, c-format
+@@ -50,122 +51,122 @@ msgstr "недефинисан или одбачен локални симбол
+ msgid "undefined or discarded symbol %s in GOT"
+ msgstr "недефинисан или одбачен симбол „%s“ у „GOT“"
+ 
+-#: aarch64.cc:1931 arm.cc:6543 object.cc:901
++#: aarch64.cc:1932 arm.cc:6543 object.cc:901
+ #, c-format
+ msgid "invalid symbol table name index: %u"
+ msgstr "неисправан индекс назива табеле симбола: %u"
+ 
+-#: aarch64.cc:1939 arm.cc:6551 object.cc:907
++#: aarch64.cc:1940 arm.cc:6551 object.cc:907
+ #, c-format
+ msgid "symbol table name section has wrong type: %u"
+ msgstr "одељак назива табеле симбола има погрешну врсту: %u"
+ 
+-#: aarch64.cc:3831 arm.cc:10905 mips.cc:9608 powerpc.cc:2911 target.cc:94
++#: aarch64.cc:3832 arm.cc:10905 mips.cc:9608 powerpc.cc:2911 target.cc:94
+ #, c-format
+ msgid "%s: unsupported ELF file type %d"
+ msgstr "%s: неподржана „ELF“ врста датотеке %d"
+ 
+-#: aarch64.cc:4013 arm.cc:12181
++#: aarch64.cc:4014 arm.cc:12181
+ #, c-format
+ msgid "cannot handle branch to local %u in a merged section %s"
+ msgstr "не могу да рукујем грану на месно „%u“ у спојеном о%s“"
+ 
+-#: aarch64.cc:4378 arm.cc:7593 i386.cc:193 s390.cc:216 sparc.cc:1366
++#: aarch64.cc:4379 arm.cc:7593 i386.cc:193 s390.cc:216 sparc.cc:1366
+ #: tilegx.cc:182 x86_64.cc:314
+ msgid "** PLT"
+ msgstr "** „PLT“"
+ 
+-#: aarch64.cc:5553
++#: aarch64.cc:5554
+ #, c-format
+ msgid "Stub is too far away, try a smaller value for '--stub-group-size'. The current value is 0x%lx."
+ msgstr "Окрајак је предалеко, пробајте мању вредност за „--stub-group-size“. Тренутна вредност је 0×%lx."
+ 
+-#: aarch64.cc:6015 arm.cc:8477 i386.cc:1772 mips.cc:12461 powerpc.cc:7810
++#: aarch64.cc:6016 arm.cc:8477 i386.cc:1772 mips.cc:12461 powerpc.cc:7837
+ #: s390.cc:2185 s390.cc:2633 sparc.cc:2134 tilegx.cc:3137 tilegx.cc:3589
+-#: x86_64.cc:3471 x86_64.cc:3924
++#: x86_64.cc:3012 x86_64.cc:3459
+ #, c-format
+ msgid "%s: unsupported reloc %u against local symbol"
+ msgstr "%s: неподржан премештај „%u“ наспрам локалног симбола"
+ 
+-#: aarch64.cc:6056 powerpc.cc:7915 s390.cc:2259 sparc.cc:2230
++#: aarch64.cc:6057 powerpc.cc:7942 s390.cc:2259 sparc.cc:2230
+ msgid "requires unsupported dynamic reloc; recompile with -fPIC"
+ msgstr "захтева неподржани динамички премештај; поново преведите са „-fPIC“"
+ 
+-#: aarch64.cc:6078
++#: aarch64.cc:6079
+ #, c-format
+ msgid "%s: unsupported TLS reloc %s for IFUNC symbol"
+ msgstr "%s: неподржан „TLS“ премештај „%s“ за „IFUNC“ симбол"
+ 
+-#: aarch64.cc:6122 aarch64.cc:6186 aarch64.cc:6496
++#: aarch64.cc:6123 aarch64.cc:6187 aarch64.cc:6497
+ #, c-format
+ msgid "%s: unsupported reloc %u in pos independent link."
+ msgstr "%s: неподржан премештај „%u“ у пост независној вези."
+ 
+-#: aarch64.cc:6287
++#: aarch64.cc:6288
+ #, c-format
+ msgid "%s: unsupported TLSLE reloc %u in shared code."
+ msgstr "%s: неподржан „TLSLE“ премештај „%u“ у дељеном коду."
+ 
+-#: aarch64.cc:6372 arm.cc:8885 i386.cc:2127 mips.cc:12474 powerpc.cc:8750
++#: aarch64.cc:6373 arm.cc:8885 i386.cc:2127 mips.cc:12474 powerpc.cc:8777
+ #: s390.cc:3064 s390.cc:3081 sparc.cc:2572 tilegx.cc:3605 tilegx.cc:4144
+-#: x86_64.cc:3940 x86_64.cc:4446
++#: x86_64.cc:3475 x86_64.cc:3979
+ #, c-format
+ msgid "%s: unsupported reloc %u against global symbol %s"
+ msgstr "%s: неподржан премештај „%u“ наспрам општег симбола „%s“"
+ 
+-#: aarch64.cc:6722
++#: aarch64.cc:6723
+ #, c-format
+ msgid "%s: unsupported TLSLE reloc type %u in shared objects."
+ msgstr "%s: неподржана „TLSLE“ врста премештаја „%u“ у дељеним објектима."
+ 
+-#: aarch64.cc:6767
++#: aarch64.cc:6768
+ #, c-format
+ msgid "%s: unsupported reloc type in global scan"
+ msgstr "%s: неподржана врста премештаја у општем скенирању"
+ 
+-#: aarch64.cc:6907 powerpc.cc:9886 s390.cc:4014 sparc.cc:3164 tilegx.cc:4211
+-#: x86_64.cc:4511
++#: aarch64.cc:6908 powerpc.cc:9913 s390.cc:4014 sparc.cc:3164 tilegx.cc:4211
++#: x86_64.cc:4044
+ #, c-format
+ msgid "%s: unsupported REL reloc section"
+ msgstr "%s: неподжан „REL“ одељак премештаја"
+ 
+-#: aarch64.cc:7070 arm.cc:9615
++#: aarch64.cc:7071 arm.cc:9615
+ #, c-format
+ msgid "cannot relocate %s in object file"
+ msgstr "не могу да преместим „%s“ у објектној датотеци"
+ 
+-#: aarch64.cc:7343 i386.cc:2987 i386.cc:3753 mips.cc:10076 powerpc.cc:12236
+-#: s390.cc:3465 sparc.cc:3695 tilegx.cc:4726 x86_64.cc:5008
++#: aarch64.cc:7344 i386.cc:2987 i386.cc:3753 mips.cc:10076 powerpc.cc:12258
++#: s390.cc:3465 sparc.cc:3695 tilegx.cc:4726 x86_64.cc:4537
+ #, c-format
+ msgid "unexpected reloc %u in object file"
+ msgstr "неочекиван премештај „%u“ у објектној датотеци"
+ 
+-#: aarch64.cc:7349
++#: aarch64.cc:7350
+ #, c-format
+ msgid "unsupported reloc %s"
+ msgstr "неподржан премештај „%s“"
+ 
+-#: aarch64.cc:7361 arm.cc:10095 arm.cc:10713
++#: aarch64.cc:7362 arm.cc:10095 arm.cc:10713
+ #, c-format
+ msgid "relocation overflow in %s"
+ msgstr "прекорачење премештаја у „%s“"
+ 
+-#: aarch64.cc:7369 arm.cc:10103 arm.cc:10718
++#: aarch64.cc:7370 arm.cc:10103 arm.cc:10718
+ #, c-format
+ msgid "unexpected opcode while processing relocation %s"
+ msgstr "неочекивани опкод приликом обраде премештаја „%s“"
+ 
+-#: aarch64.cc:7465
++#: aarch64.cc:7466
+ #, c-format
+ msgid "unsupported gd_to_ie relaxation on %u"
+ msgstr "неочекивано „gd_to_ie“ опуштање на „%u“"
+ 
+-#: aarch64.cc:7637
++#: aarch64.cc:7638
+ #, c-format
+ msgid "%s: unsupported reloc %u in non-static TLSLE mode."
+ msgstr "%s: неподржан премештај „%u“ у не-статичком „TLSLE“ режиму."
+ 
+-#: aarch64.cc:7722
++#: aarch64.cc:7723
+ #, c-format
+ msgid "%s: unsupported TLS reloc %u."
+ msgstr "%s: неподржан „TLS“ премештај „%u“."
+@@ -178,32 +179,32 @@ msgstr "%s: неподржан „TLS“ премештај „%u“."
+ #. However the gd_to_le relaxation decision has been made early
+ #. in the scan stage, where we did not allocate a GOT entry for
+ #. this symbol. Therefore we have to exit and report an error now.
+-#: aarch64.cc:7779 aarch64.cc:7879
++#: aarch64.cc:7780 aarch64.cc:7880
+ #, c-format
+ msgid "unexpected reloc insn sequence while relaxing tls gd to le for reloc %u."
+ msgstr "неочекивани улазни знак премештаја приликом опуштања „tls gd to le“ за премештај „%u“."
+ 
+-#: aarch64.cc:7954
++#: aarch64.cc:7955
+ #, c-format
+ msgid "TLS variable referred by reloc %u is too far from TP."
+ msgstr "„TLS“ променљива на коју је упутио премештај „%u“ је предалеко од „TP“."
+ 
+-#: aarch64.cc:8024
++#: aarch64.cc:8025
+ #, c-format
+ msgid "TLS variable referred by reloc %u is too far from TP. We Can't do gd_to_le relaxation.\n"
+ msgstr "„TLS“ променљива на коју је упутио премештај „%u“ је предалеко од „TP“. Не можемо да одрадимо „gd_to_le“ опуштање.\n"
+ 
+-#: aarch64.cc:8048
++#: aarch64.cc:8049
+ #, c-format
+ msgid "unsupported tlsdesc gd_to_le optimization on reloc %u"
+ msgstr "неподржана „tlsdesc gd_to_le“ оптимизација на премештају „%u“"
+ 
+-#: aarch64.cc:8120
++#: aarch64.cc:8121
+ #, c-format
+ msgid "Don't support tlsdesc gd_to_ie optimization on reloc %u"
+ msgstr "Не подржавам „tlsdesc gd_to_le“ оптимизација на премештају „%u“"
+ 
+-#: aarch64.cc:8455
++#: aarch64.cc:8456
+ #, c-format
+ msgid "Erratum 835769 found and fixed at \"%s\", section %d, offset 0x%08x."
+ msgstr "Нађох грешку 835769 и поправих је на „%s“, одељак %d, померај 0x%08x."
+@@ -384,12 +385,12 @@ msgid "requires unsupported dynamic reloc %s; recompile with -fPIC"
+ msgstr "захтева неподржан динамички премештај „%s“; поново преведите са „-fPIC“"
+ 
+ #: arm.cc:8547 i386.cc:1786 s390.cc:2276 sparc.cc:2247 tilegx.cc:3223
+-#: x86_64.cc:3581
++#: x86_64.cc:3118
+ #, c-format
+ msgid "%s: unsupported TLS reloc %u for IFUNC symbol"
+ msgstr "%s: неподржан „TLS“ премештај „%u“ за „IFUNC“ симбол"
+ 
+-#: arm.cc:8643 i386.cc:1862 powerpc.cc:8219 s390.cc:2369 x86_64.cc:3679
++#: arm.cc:8643 i386.cc:1862 powerpc.cc:8246 s390.cc:2369 x86_64.cc:3216
+ #, c-format
+ msgid "section symbol %u has bad shndx %u"
+ msgstr "симбол одељка „%u“ има лош „shndx %u“"
+@@ -398,13 +399,13 @@ msgstr "симбол одељка „%u“ има лош „shndx %u“"
+ #. dynamic linker, and should never be seen here.
+ #: arm.cc:8752 arm.cc:9233 i386.cc:1950 i386.cc:2436 mips.cc:11258
+ #: s390.cc:2468 s390.cc:2902 sparc.cc:2553 sparc.cc:3033 tilegx.cc:3584
+-#: tilegx.cc:4139 x86_64.cc:3796 x86_64.cc:4319
++#: tilegx.cc:4139 x86_64.cc:3331 x86_64.cc:3852
+ #, c-format
+ msgid "%s: unexpected reloc %u in object file"
+ msgstr "%s: неочекивани премештај „%u“ у објектној датотеци"
+ 
+ #: arm.cc:8784 i386.cc:1984 mips.cc:10707 s390.cc:2512 sparc.cc:2452
+-#: tilegx.cc:3488 x86_64.cc:3828
++#: tilegx.cc:3488 x86_64.cc:3363
+ #, c-format
+ msgid "local symbol %u has bad shndx %u"
+ msgstr "локални симбол „%u“ има лош „shndx %u“"
+@@ -419,10 +420,10 @@ msgid "unable to provide V4BX reloc interworking fix up; the target profile does
+ msgstr "не могу да обезбедим међурадну поправку „V4BX“ премештаја; циљни профил не подржава „BX“ инструкцију"
+ 
+ #: arm.cc:10247 i386.cc:3019 i386.cc:3101 i386.cc:3166 i386.cc:3202
+-#: i386.cc:3274 mips.cc:12296 powerpc.cc:12350 s390.cc:3471 s390.cc:3542
++#: i386.cc:3274 mips.cc:12296 powerpc.cc:12372 s390.cc:3471 s390.cc:3542
+ #: s390.cc:3579 s390.cc:3601 s390.cc:3626 sparc.cc:3701 sparc.cc:3892
+-#: sparc.cc:3953 sparc.cc:4060 tilegx.cc:4732 x86_64.cc:5029 x86_64.cc:5155
+-#: x86_64.cc:5227 x86_64.cc:5261
++#: sparc.cc:3953 sparc.cc:4060 tilegx.cc:4732 x86_64.cc:4558 x86_64.cc:4684
++#: x86_64.cc:4756 x86_64.cc:4790
+ #, c-format
+ msgid "unsupported reloc %u"
+ msgstr "неподржан премештај „%u“"
+@@ -544,7 +545,7 @@ msgstr "не могу да отворим: %s: %s:"
+ msgid "out of patch space in section %s; relink with --incremental-full"
+ msgstr "нема више закрпног простора у одељаку „%s“; превежите са „--incremental-full“"
+ 
+-#: compressed_output.cc:320
++#: compressed_output.cc:347
+ msgid "not compressing section data: zlib error"
+ msgstr "не сажимам податке одељка: „zlib“ грешка"
+ 
+@@ -1059,8 +1060,8 @@ msgid "cannot mix split-stack '%s' and non-split-stack '%s' when using -r"
+ msgstr "не могу да помешам „split-stack“ „%s“ и „non-split-stack“ „%s“ када користим „-r“"
+ 
+ #. FIXME: This needs to specify the location somehow.
+-#: i386.cc:639 i386.cc:2800 sparc.cc:324 sparc.cc:3296 x86_64.cc:1074
+-#: x86_64.cc:4707
++#: i386.cc:639 i386.cc:2800 sparc.cc:324 sparc.cc:3296 x86_64.cc:962
++#: x86_64.cc:4238
+ msgid "missing expected TLS relocation"
+ msgstr "недостаје очекиван „TLS“ премештај"
+ 
+@@ -1098,7 +1099,7 @@ msgstr "„TLS“ премештаји и SUN и GNU модела"
+ msgid "unsupported reloc %u in object file"
+ msgstr "неподржан премештај „%u“ у објектној датотеци"
+ 
+-#: i386.cc:4036 powerpc.cc:9840 s390.cc:4886 x86_64.cc:6113
++#: i386.cc:4036 powerpc.cc:9867 s390.cc:4886 x86_64.cc:5642
+ #, c-format
+ msgid "failed to match split-stack sequence at section %u offset %0zx"
+ msgstr "нисам успе да упоредим „split-stack“ низ на одељку „%u“ померај %0zx"
+@@ -1192,134 +1193,139 @@ msgstr "„COMDAT“ група „%s“ укључена је два пута 
+ msgid "Unusually large LEB128 decoded, debug information may be corrupted"
+ msgstr "Необично велико „LEB128“ је декодирано, подаци прочишћавања могу бити оштећени"
+ 
+-#: layout.cc:228
++#: layout.cc:231
+ #, c-format
+ msgid "%s: total free lists: %u\n"
+ msgstr "%s: укупно слободних спискова: %u\n"
+ 
+-#: layout.cc:230
++#: layout.cc:233
+ #, c-format
+ msgid "%s: total free list nodes: %u\n"
+ msgstr "%s: укупно слободних чворова спискова: %u\n"
+ 
+-#: layout.cc:232
++#: layout.cc:235
+ #, c-format
+ msgid "%s: calls to Free_list::remove: %u\n"
+ msgstr "%s: позиви ка „Free_list::remove“: %u\n"
+ 
+-#: layout.cc:234 layout.cc:238
++#: layout.cc:237 layout.cc:241
+ #, c-format
+ msgid "%s: nodes visited: %u\n"
+ msgstr "%s: посећених чворова: %u\n"
+ 
+-#: layout.cc:236
++#: layout.cc:239
+ #, c-format
+ msgid "%s: calls to Free_list::allocate: %u\n"
+ msgstr "%s: позиви ка „Free_list::allocate“: %u\n"
+ 
+-#: layout.cc:974
++#: layout.cc:977
+ #, c-format
+ msgid "Unable to create output section '%s' because it is not allowed by the SECTIONS clause of the linker script"
+ msgstr "Не могу да направим излазни одељак „%s“ јер није допуштен „SECTIONS“ правилом скрипте повезивача"
+ 
+-#: layout.cc:2119
++#: layout.cc:2122
+ msgid "multiple '.interp' sections in input files may cause confusing PT_INTERP segment"
+ msgstr "више „.interp“ одељака у улазној датотеци могу довети до збуњивања „PT_INTERP“ подеока"
+ 
+-#: layout.cc:2183
++#: layout.cc:2186
+ #, c-format
+ msgid "%s: missing .note.GNU-stack section implies executable stack"
+ msgstr "%s: недостајући „.note.GNU-stack“ одељак подразумева извршиви спремник"
+ 
+-#: layout.cc:2194
++#: layout.cc:2197
+ #, c-format
+ msgid "%s: requires executable stack"
+ msgstr "%s: захтева извршиви спремник"
+ 
+-#: layout.cc:2223
++#: layout.cc:2226
+ #, c-format
+ msgid "%s: in .note.gnu.property section, pr_datasz must be 4 or 8"
+ msgstr "%s: у „.note.gnu.property“ одељку, „pr_datasz“ мора бити 4 или 8"
+ 
+-#: layout.cc:2356
++#: layout.cc:2359
+ #, c-format
+ msgid "%s: unknown program property type %d in .note.gnu.property section"
+ msgstr "%s: непозната врста својства програма „%d“ у „.note.gnu.property“ одељку"
+ 
+-#: layout.cc:2926
++#: layout.cc:2930
+ #, c-format
+ msgid "unable to open --section-ordering-file file %s: %s"
+ msgstr "не могу да отворим „--section-ordering-file“ датотеку „%s“: %s"
+ 
+-#: layout.cc:3373
++#: layout.cc:3377
+ msgid "one or more inputs require executable stack, but -z noexecstack was given"
+ msgstr "један или више улаза захтева извршиви спремник, али је дато „-z noexecstack“"
+ 
+-#: layout.cc:3446
++#: layout.cc:3450
+ #, c-format
+ msgid "--build-id=uuid failed: could not open /dev/urandom: %s"
+ msgstr "„--build-id=uuid“ није успело: не могу да отворим „/dev/urandom“: %s"
+ 
+-#: layout.cc:3453
++#: layout.cc:3457
+ #, c-format
+ msgid "/dev/urandom: read failed: %s"
+ msgstr "/dev/urandom: читање није успело: %s"
+ 
+-#: layout.cc:3455
++#: layout.cc:3459
+ #, c-format
+ msgid "/dev/urandom: expected %zu bytes, got %zd bytes"
+ msgstr "/dev/urandom: очекивах %zu бајта, добих %zd"
+ 
+-#: layout.cc:3467
++#: layout.cc:3471
+ msgid "--build-id=uuid failed: could not load rpcrt4.dll"
+ msgstr "„--build-id=uuid“ није успело: не могу да учитам „rpcrt4.dll“"
+ 
+-#: layout.cc:3473
++#: layout.cc:3477
+ msgid "--build-id=uuid failed: could not find UuidCreate"
+ msgstr "„--build-id=uuid“ није успело: не могу да нађем „UuidCreate“"
+ 
+-#: layout.cc:3475
++#: layout.cc:3479
+ msgid "__build_id=uuid failed: call UuidCreate() failed"
+ msgstr "„__build_id=uuid“ није успело: позив „UuidCreate()“ није успео"
+ 
+-#: layout.cc:3497
++#: layout.cc:3501
+ #, c-format
+ msgid "--build-id argument '%s' not a valid hex number"
+ msgstr "„--build-id“ аргумент „%s“ није исправан хексадецималан број"
+ 
+-#: layout.cc:3503
++#: layout.cc:3507
+ #, c-format
+ msgid "unrecognized --build-id argument '%s'"
+ msgstr "непознат „--build-id“ аргумент „%s“"
+ 
+-#: layout.cc:4081
++#: layout.cc:3561
++#, c-format
++msgid "error: --package-metadata=%s does not contain valid JSON: %s\n"
++msgstr "грешка: „--package-metadata=%s“ не садржи исправан JSON: %s\n"
++
++#: layout.cc:4131
+ #, c-format
+ msgid "load segment overlap [0x%llx -> 0x%llx] and [0x%llx -> 0x%llx]"
+ msgstr "преклапање учитавања подеока [0×%llx –> 0×%llx] и [0×%llx –> 0×%llx]"
+ 
+-#: layout.cc:4242 output.cc:4549
++#: layout.cc:4292 output.cc:4549
+ #, c-format
+ msgid "out of patch space for section %s; relink with --incremental-full"
+ msgstr "нема више закрпног простора за одељак „%s“; превежите са „--incremental-full“"
+ 
+-#: layout.cc:4251 output.cc:4557
++#: layout.cc:4301 output.cc:4557
+ #, c-format
+ msgid "%s: section changed size; relink with --incremental-full"
+ msgstr "%s: одељак је изменио величину; превежите са „--incremental-full“"
+ 
+-#: layout.cc:4506
++#: layout.cc:4556
+ msgid "out of patch space for symbol table; relink with --incremental-full"
+ msgstr "нема више закрпног простора за табелу симбола; превежите са „--incremental-full“"
+ 
+-#: layout.cc:4577
++#: layout.cc:4627
+ msgid "out of patch space for section header table; relink with --incremental-full"
+ msgstr "нема више закрпног простора за табелу заглавља симбола; превежите са „--incremental-full“"
+ 
+-#: layout.cc:5323
++#: layout.cc:5373
+ msgid "read-only segment has dynamic relocations"
+ msgstr "одељак само за читање има динамичке премештаје"
+ 
+-#: layout.cc:5326
++#: layout.cc:5376
+ msgid "shared library text segment is not shareable"
+ msgstr "део текста дељене библиотеке није дељив"
+ 
+@@ -1960,41 +1966,45 @@ msgstr "занемарујем „--icf“ за повећавајућу све
+ msgid "ignoring --compress-debug-sections for an incremental link"
+ msgstr "занемарујем „--compress-debug-sections“ за повећавајућу свезу"
+ 
+-#: options.cc:1510
++#: options.cc:1439
++msgid "--compress-debug-sections=zstd: gold is not built with zstd support"
++msgstr "--compress-debug-sections=zstd: „gold“ није изграђен са „zstd“ подршком"
++
++#: options.cc:1519
+ msgid "May not nest groups"
+ msgstr "Нећу моћи да угнездим групе"
+ 
+-#: options.cc:1512
++#: options.cc:1521
+ msgid "may not nest groups in libraries"
+ msgstr "нећу моћи да угнездим групе у библиотеке"
+ 
+-#: options.cc:1524
++#: options.cc:1533
+ msgid "Group end without group start"
+ msgstr "Група се завршава без почетка групе"
+ 
+-#: options.cc:1534
++#: options.cc:1543
+ msgid "may not nest libraries"
+ msgstr "нећу моћи да угнездим библиотеке"
+ 
+-#: options.cc:1536
++#: options.cc:1545
+ msgid "may not nest libraries in groups"
+ msgstr "нећу моћи да угнездим библиотеке у групе"
+ 
+-#: options.cc:1548
++#: options.cc:1557
+ msgid "lib end without lib start"
+ msgstr "библиотека се завршава без почетка библиотеке"
+ 
+ #. I guess it's neither a long option nor a short option.
+-#: options.cc:1613
++#: options.cc:1622
+ msgid "unknown option"
+ msgstr "непозната опција"
+ 
+-#: options.cc:1640
++#: options.cc:1649
+ #, c-format
+ msgid "%s: missing group end\n"
+ msgstr "%s: недостаје крај групе\n"
+ 
+-#: options.cc:1646
++#: options.cc:1655
+ #, c-format
+ msgid "%s: missing lib end\n"
+ msgstr "%s: недостаје крај библиотеке\n"
+@@ -2019,7 +2029,7 @@ msgstr "Није подржано"
+ msgid "Do not copy DT_NEEDED tags from shared libraries"
+ msgstr "Не умножава „DT_NEEDED“ ознаке из дељених библиотека"
+ 
+-#: options.h:689 options.h:1493
++#: options.h:689 options.h:1494
+ msgid "Allow multiple definitions of symbols"
+ msgstr "Допушта више дефиниција симбола"
+ 
+@@ -2051,7 +2061,7 @@ msgstr "Користи „DT_NEEDED“ само за дељене библиот
+ msgid "Use DT_NEEDED for all shared libraries"
+ msgstr "Користи „DT_NEEDED“ за све дељене библиотеке"
+ 
+-#: options.h:706 options.h:919 options.h:1381 options.h:1395
++#: options.h:706 options.h:919 options.h:1385 options.h:1399
+ msgid "Ignored"
+ msgstr "Занемарено"
+ 
+@@ -2079,8 +2089,8 @@ msgstr "[=СТИЛ]"
+ msgid "Chunk size for '--build-id=tree'"
+ msgstr "Величина окрњка за „--build-id=tree“"
+ 
+-#: options.h:727 options.h:732 options.h:1265 options.h:1274 options.h:1466
+-#: options.h:1491 options.h:1524
++#: options.h:727 options.h:732 options.h:1269 options.h:1278 options.h:1467
++#: options.h:1492 options.h:1525
+ msgid "SIZE"
+ msgstr "ВЕЛИЧИНА"
+ 
+@@ -2193,7 +2203,7 @@ msgid "Write a dependency file listing all files read"
+ msgstr "Записује датотеку зависности са списком свих читања датотека"
+ 
+ #: options.h:814 options.h:830 options.h:982 options.h:1011 options.h:1088
+-#: options.h:1200 options.h:1340 options.h:1372
++#: options.h:1204 options.h:1344 options.h:1376
+ msgid "FILE"
+ msgstr "ДАТОТЕКА"
+ 
+@@ -2233,8 +2243,8 @@ msgstr "(само „PowerPC“) Не етикетира окрајке пове
+ msgid "Set program start address"
+ msgstr "Поставља почетну адресу програма"
+ 
+-#: options.h:839 options.h:1343 options.h:1345 options.h:1347 options.h:1350
+-#: options.h:1352
++#: options.h:839 options.h:1347 options.h:1349 options.h:1351 options.h:1354
++#: options.h:1356
+ msgid "ADDRESS"
+ msgstr "АДРЕСА"
+ 
+@@ -2274,8 +2284,8 @@ msgstr "Не извози све динамичке симболе"
+ msgid "Export SYMBOL to dynamic symbol table"
+ msgstr "Извози „СИМБОЛ“ у динамичку табелу симбола"
+ 
+-#: options.h:863 options.h:885 options.h:1003 options.h:1020 options.h:1357
+-#: options.h:1426 options.h:1440
++#: options.h:863 options.h:885 options.h:1003 options.h:1020 options.h:1361
++#: options.h:1430 options.h:1444
+ msgid "SYMBOL"
+ msgstr "СИМБОЛ"
+ 
+@@ -2391,7 +2401,7 @@ msgstr "Ствара дељену библиотеку"
+ msgid "Set shared library name"
+ msgstr "Поставља назив дељене библиотеке"
+ 
+-#: options.h:939 options.h:1175 options.h:1239
++#: options.h:939 options.h:1179 options.h:1243
+ msgid "FILENAME"
+ msgstr "ДАТОТЕКА"
+ 
+@@ -2423,8 +2433,8 @@ msgstr "Истоветно увијање кода. „--icf=safe“ увија
+ msgid "Number of iterations of ICF (default 3)"
+ msgstr "Број понављања „ICF“-а (основно је 3)"
+ 
+-#: options.h:962 options.h:1259 options.h:1316 options.h:1318 options.h:1320
+-#: options.h:1322
++#: options.h:962 options.h:1263 options.h:1320 options.h:1322 options.h:1324
++#: options.h:1326
+ msgid "COUNT"
+ msgstr "БРОЈ"
+ 
+@@ -2520,7 +2530,7 @@ msgstr "Не ствара развијене податке за „PLT“"
+ msgid "Add directory to search path"
+ msgstr "Додаје директоријум у путању претраге"
+ 
+-#: options.h:1032 options.h:1214 options.h:1217 options.h:1221 options.h:1290
++#: options.h:1032 options.h:1218 options.h:1221 options.h:1225 options.h:1294
+ msgid "DIR"
+ msgstr "ДИР"
+ 
+@@ -2592,7 +2602,7 @@ msgstr "Страничи податке поравнања, чини текст
+ msgid "Use less memory and more disk I/O (included only for compatibility with GNU ld)"
+ msgstr "Користи мање меморије и више У/И диска (укључено само зарад сагласности са ГНУ „ld“-ом)"
+ 
+-#: options.h:1075 options.h:1468
++#: options.h:1075 options.h:1469
+ msgid "Report undefined symbols (even with --shared)"
+ msgstr "Исписује недефинисане симболе (чак и са „--shared“)"
+ 
+@@ -2636,631 +2646,631 @@ msgstr "[стави,одбаци,упозори,грешка]"
+ msgid "Ignored for ARM compatibility"
+ msgstr "Занемарено зарад „ARM“ сагласности"
+ 
+-#: options.h:1106 options.h:1109
++#: options.h:1106
++msgid "Generate package metadata note"
++msgstr "Ствара белешку метаподатака пакета"
++
++#: options.h:1107
++msgid "[=JSON]"
++msgstr "[=JSON]"
++
++#: options.h:1110 options.h:1113
+ msgid "Create a position independent executable"
+ msgstr "Ствара положајно независну извршну"
+ 
+-#: options.h:1107 options.h:1110
++#: options.h:1111 options.h:1114
+ msgid "Do not create a position independent executable"
+ msgstr "Не ствара положајно независну извршну"
+ 
+-#: options.h:1114
++#: options.h:1118
+ msgid "Force PIC sequences for ARM/Thumb interworking veneers"
+ msgstr "Приморава „PIC“ низове за „ARM/Thumb“ међурадне превлаке"
+ 
+-#: options.h:1118
++#: options.h:1122
+ msgid "(ARM only) Ignore for backward compatibility"
+ msgstr "(само „ARM“) Занемарено зарад повратне сагласности"
+ 
+-#: options.h:1121
++#: options.h:1125
+ msgid "(PowerPC only) Align PLT call stubs to fit cache lines"
+ msgstr "(само „PowerPC“) Поравнава „PLT“ окрајке позива да испуни редове оставе"
+ 
+-#: options.h:1122
++#: options.h:1126
+ msgid "[=P2ALIGN]"
+ msgstr "[=P2ALIGN]"
+ 
+-#: options.h:1125
++#: options.h:1129
+ msgid "(PowerPC64 only) Optimize calls to ELFv2 localentry:0 functions"
+ msgstr "(само „PowerPC64“) Оптимизује позиве ка „ELFv2“ локалном уносу:0 функција"
+ 
+-#: options.h:1126
++#: options.h:1130
+ msgid "(PowerPC64 only) Don't optimize ELFv2 calls"
+ msgstr "(само „PowerPC64“) Не оптимизује „ELFv2“ позиве"
+ 
+-#: options.h:1129
++#: options.h:1133
+ msgid "(PowerPC64 only) PLT call stubs should load r11"
+ msgstr "(само „PowerPC64“) „PLT“ окрајци позива треба да учитају „r11“"
+ 
+-#: options.h:1130
++#: options.h:1134
+ msgid "(PowerPC64 only) PLT call stubs should not load r11"
+ msgstr "(само „PowerPC64“) „PLT“ окрајци позива не треба да учитају „r11“"
+ 
+-#: options.h:1133
++#: options.h:1137
+ msgid "(PowerPC64 only) PLT call stubs with load-load barrier"
+ msgstr "(само „PowerPC64“) „PLT“ окрајци позива са учитај-учитај баријером"
+ 
+-#: options.h:1134
++#: options.h:1138
+ msgid "(PowerPC64 only) PLT call stubs without barrier"
+ msgstr "(само „PowerPC64“) „PLT“ окрајци позива без баријере"
+ 
+-#: options.h:1138
++#: options.h:1142
+ msgid "Load a plugin library"
+ msgstr "Учитава библиотеку прикључка"
+ 
+-#: options.h:1138 options.h:1143
++#: options.h:1142 options.h:1147
+ msgid "PLUGIN"
+ msgstr "ПРИКЉУЧАК"
+ 
+-#: options.h:1140
++#: options.h:1144
+ msgid "Pass an option to the plugin"
+ msgstr "Прослеђује опцију прикључку"
+ 
+-#: options.h:1140 options.h:1146
++#: options.h:1144 options.h:1150
+ msgid "OPTION"
+ msgstr "ОПЦИЈА"
+ 
+-#: options.h:1143
++#: options.h:1147
+ msgid "Load a plugin library (not supported)"
+ msgstr "Учитава библиотеку прикључка (није подржано)"
+ 
+-#: options.h:1145
++#: options.h:1149
+ msgid "Pass an option to the plugin (not supported)"
+ msgstr "Прослеђује опцију прикључку (није подржано)"
+ 
+-#: options.h:1150
++#: options.h:1154
+ msgid "Use posix_fallocate to reserve space in the output file"
+ msgstr "Користи „posix_fallocate“ за резервисање простора у излазној датотеци"
+ 
+-#: options.h:1151
++#: options.h:1155
+ msgid "Use fallocate or ftruncate to reserve space"
+ msgstr "Користи „fallocate“ или „ftruncate“ за резервисање простора"
+ 
+-#: options.h:1154
++#: options.h:1158
+ msgid "(PowerPC64 only) stubs use power10 insns"
+ msgstr "(само „PowerPC64“) окрајци користе „power10“ улазне знаке"
+ 
+-#: options.h:1155
++#: options.h:1159
+ msgid "[=auto,no,yes]"
+ msgstr "[=auto,no,yes]"
+ 
+-#: options.h:1157
++#: options.h:1161
+ msgid "(PowerPC64 only) stubs do not use power10 insns"
+ msgstr "(само „PowerPC64“) окрајци не користе „power10“ улазне знаке"
+ 
+-#: options.h:1160
++#: options.h:1164
+ msgid "Preread archive symbols when multi-threaded"
+ msgstr "Унапред прочита симболе архиве када су више-нитовани"
+ 
+-#: options.h:1163
++#: options.h:1167
+ msgid "List removed unused sections on stderr"
+ msgstr "Исписује уклоњене некоришћене одељке на стандардну грешку"
+ 
+-#: options.h:1164
++#: options.h:1168
+ msgid "Do not list removed unused sections"
+ msgstr "Не исписује уклоњене некоришћене одељке"
+ 
+-#: options.h:1167
++#: options.h:1171
+ msgid "List folded identical sections on stderr"
+ msgstr "Исписује увијене истоветне одељке на стандардну грешку"
+ 
+-#: options.h:1168
++#: options.h:1172
+ msgid "Do not list folded identical sections"
+ msgstr "Не исписује увијене истоветне одељке"
+ 
+-#: options.h:1171
++#: options.h:1175
+ msgid "Print default output format"
+ msgstr "Исписује основни излазни запис"
+ 
+-#: options.h:1174
++#: options.h:1178
+ msgid "Print symbols defined and used for each input"
+ msgstr "Исписује симболе дефинисане и коришћене за сваки улаз"
+ 
+-#: options.h:1178
++#: options.h:1182
+ msgid "Save the state of flags related to input files"
+ msgstr "Чува стање заставица које се односе на улазне датотеке"
+ 
+-#: options.h:1180
++#: options.h:1184
+ msgid "Restore the state of flags related to input files"
+ msgstr "Враћа стање заставица које се односе на улазне датотеке"
+ 
+-#: options.h:1185
++#: options.h:1189
+ msgid "Generate relocations in output"
+ msgstr "Ствара премештаје на излазу"
+ 
+-#: options.h:1188
++#: options.h:1192
+ msgid "Ignored for SVR4 compatibility"
+ msgstr "Занемарено зарад „SVR4“ сагласности"
+ 
+-#: options.h:1193
++#: options.h:1197
+ msgid "Generate relocatable output"
+ msgstr "Ствара преместиви излаз"
+ 
+-#: options.h:1196
++#: options.h:1200
+ msgid "Relax branches on certain targets"
+ msgstr "Опушта гране на одређеним метама"
+ 
+-#: options.h:1197
++#: options.h:1201
+ msgid "Do not relax branches"
+ msgstr "Не опушта гране"
+ 
+-#: options.h:1200
++#: options.h:1204
+ msgid "keep only symbols listed in this file"
+ msgstr "задржава само симболе исписане у овој датотеци"
+ 
+-#: options.h:1203
++#: options.h:1207
+ msgid "Put read-only non-executable sections in their own segment"
+ msgstr "Ставља не-извршиве одељке само за читање у њихове сопствене подеоке"
+ 
+-#: options.h:1204
++#: options.h:1208
+ msgid "Do not put read-only non-executable sections in their own segment"
+ msgstr "Не ставља не-извршиве одељке само за читање у њихове сопствене подеоке"
+ 
+-#: options.h:1207
++#: options.h:1211
+ msgid "Set offset between executable and read-only segments"
+ msgstr "Поставља померај између извршних и само за читање подеока"
+ 
+-#: options.h:1208
++#: options.h:1212
+ msgid "OFFSET"
+ msgstr "ПОМЕРАЈ"
+ 
+-#: options.h:1214 options.h:1217
++#: options.h:1218 options.h:1221
+ msgid "Add DIR to runtime search path"
+ msgstr "Додаје ДИР у путању претраге времена извршења"
+ 
+-#: options.h:1220
++#: options.h:1224
+ msgid "Add DIR to link time shared library search path"
+ msgstr "Додаје „DIR“ путањи претраге дељене библиотеке времена повезивања"
+ 
+-#: options.h:1226
++#: options.h:1230
+ msgid "Strip all symbols"
+ msgstr "Празни све симболе"
+ 
+-#: options.h:1228
++#: options.h:1232
+ msgid "Strip debugging information"
+ msgstr "Празни податке прочишћавања"
+ 
+-#: options.h:1230
++#: options.h:1234
+ msgid "Emit only debug line number information"
+ msgstr "Емитује само податке броја реда прочишћавања"
+ 
+-#: options.h:1232
++#: options.h:1236
+ msgid "Strip debug symbols that are unused by gdb (at least versions <= 7.4)"
+ msgstr "Празни симболе прочишћавања које не користи „gdb“ (најмање издање <= 7.4)"
+ 
+-#: options.h:1235
++#: options.h:1239
+ msgid "Strip LTO intermediate code sections"
+ msgstr "Празни „LTO“ посредничке одељке кода"
+ 
+-#: options.h:1238
++#: options.h:1242
+ msgid "Layout sections in the order specified"
+ msgstr "Одељцу сучеља по реду наведени"
+ 
+-#: options.h:1242
++#: options.h:1246
+ msgid "Set address of section"
+ msgstr "Поставља адресу одељка"
+ 
+-#: options.h:1242
++#: options.h:1246
+ msgid "SECTION=ADDRESS"
+ msgstr "ОДЕЉАК=АДРЕСА"
+ 
+-#: options.h:1245
++#: options.h:1249
+ msgid "(PowerPC only) Use new-style PLT"
+ msgstr "(само „PowerPC“) Користи ново стилни „PLT“"
+ 
+-#: options.h:1248
++#: options.h:1252
+ msgid "Sort common symbols by alignment"
+ msgstr "Ређа опште симболе поравнањем"
+ 
+-#: options.h:1249
++#: options.h:1253
+ msgid "[={ascending,descending}]"
+ msgstr "[={растуће,опадајуће}]"
+ 
+-#: options.h:1252
++#: options.h:1256
+ msgid "Sort sections by name.  '--no-text-reorder' will override '--sort-section=name' for .text"
+ msgstr "Ређа одељке по називу.  „--no-text-reorder“ ће преписати „--sort-section=name“ за „.text“"
+ 
+-#: options.h:1254
++#: options.h:1258
+ msgid "[none,name]"
+ msgstr "[ништа,назив]"
+ 
+-#: options.h:1258
++#: options.h:1262
+ msgid "Dynamic tag slots to reserve (default 5)"
+ msgstr "Утори динамичке ознаке за резервисање (основно је 5)"
+ 
+-#: options.h:1262
++#: options.h:1266
+ msgid "(ARM, PowerPC only) The maximum distance from instructions in a group of sections to their stubs. Negative values mean stubs are always after the group. 1 means use default size"
+ msgstr "(само „ARM, PowerPC“) Највеће растојање од имструкција у групи одељака до њихових окрајака. Негативне вредности значе да су окрајци увек након групе. 1 значи коришћење основне величине"
+ 
+-#: options.h:1268
++#: options.h:1272
+ msgid "(PowerPC only) Allow a group of stubs to serve multiple output sections"
+ msgstr "(само „PowerPC“) Допушта групи окрајака да служе више одељака излаза"
+ 
+-#: options.h:1270
++#: options.h:1274
+ msgid "(PowerPC only) Each output section has its own stubs"
+ msgstr "(само „PowerPC“) Сваки одељак излаза има свој сопствени окрајак"
+ 
+-#: options.h:1273
++#: options.h:1277
+ msgid "Stack size when -fsplit-stack function calls non-split"
+ msgstr "Величина спремника када „-fsplit-stack“ фунција позове „non-split“"
+ 
+-#: options.h:1279
++#: options.h:1283
+ msgid "Do not link against shared libraries"
+ msgstr "Не увезује наспрам дељених библиотека"
+ 
+-#: options.h:1282
++#: options.h:1286
+ msgid "Start a library"
+ msgstr "Покреће библиотеку"
+ 
+-#: options.h:1284
++#: options.h:1288
+ msgid "End a library "
+ msgstr "Завршава библиотеку "
+ 
+-#: options.h:1287
++#: options.h:1291
+ msgid "Print resource usage statistics"
+ msgstr "Исписује статистике коришћења ресурса"
+ 
+-#: options.h:1290
++#: options.h:1294
+ msgid "Set target system root directory"
+ msgstr "Поставља корени директоријум циљног система"
+ 
+-#: options.h:1295
++#: options.h:1299
+ msgid "Print the name of each input file"
+ msgstr "Исписује назив сваке улазне датотеке"
+ 
+-#: options.h:1298
++#: options.h:1302
+ msgid "(ARM only) Force R_ARM_TARGET1 type to R_ARM_ABS32"
+ msgstr "(само „ARM“) Присиљава „R_ARM_TARGET1“ врсту на „R_ARM_ABS32“"
+ 
+-#: options.h:1301
++#: options.h:1305
+ msgid "(ARM only) Force R_ARM_TARGET1 type to R_ARM_REL32"
+ msgstr "(само „ARM“) Присиљава „R_ARM_TARGET1“ врсту на „R_ARM_REL32“"
+ 
+-#: options.h:1304
++#: options.h:1308
+ msgid "(ARM only) Set R_ARM_TARGET2 relocation type"
+ msgstr "(само „ARM“) Поставља „R_ARM_TARGET2“ врсту премештаја"
+ 
+-#: options.h:1305
++#: options.h:1309
+ msgid "[rel, abs, got-rel"
+ msgstr "[rel, abs, got-rel"
+ 
+-#: options.h:1309
++#: options.h:1313
+ msgid "Enable text section reordering for GCC section names"
+ msgstr "Омогућава преуређивање одељка текста за „GCC“ називе одељка"
+ 
+-#: options.h:1310
++#: options.h:1314
+ msgid "Disable text section reordering for GCC section names"
+ msgstr "Онемогућава преуређивање одељка текста за „GCC“ називе одељка"
+ 
+-#: options.h:1313
++#: options.h:1317
+ msgid "Run the linker multi-threaded"
+ msgstr "Покреће повезивача вишенитно"
+ 
+-#: options.h:1314
++#: options.h:1318
+ msgid "Do not run the linker multi-threaded"
+ msgstr "Не покреће повезивача вишенитно"
+ 
+-#: options.h:1316
++#: options.h:1320
+ msgid "Number of threads to use"
+ msgstr "Број нити за коришћење"
+ 
+-#: options.h:1318
++#: options.h:1322
+ msgid "Number of threads to use in initial pass"
+ msgstr "Број нити за коришћење у почетном кораку"
+ 
+-#: options.h:1320
++#: options.h:1324
+ msgid "Number of threads to use in middle pass"
+ msgstr "Број нити за коришћење у средњем кораку"
+ 
+-#: options.h:1322
++#: options.h:1326
+ msgid "Number of threads to use in final pass"
+ msgstr "Број нити за коришћење у завршном кораку"
+ 
+-#: options.h:1325
++#: options.h:1329
+ msgid "(PowerPC/64 only) Optimize GD/LD/IE code to IE/LE"
+ msgstr "(само „PowerPC/64“) Оптимизује „GD/LD/IE“ код у „IE/LE“"
+ 
+-#: options.h:1326
++#: options.h:1330
+ msgid "(PowerPC/64 only) Don'''t try to optimize TLS accesses"
+ msgstr "(само „PowerPC/64“) Не покушава да оптимизује „TLS“ приступе"
+ 
+-#: options.h:1328
++#: options.h:1332
+ msgid "(PowerPC/64 only) Use a special __tls_get_addr call"
+ msgstr "(само „PowerPC/64“) Користи „special __tls_get_addr“ позив"
+ 
+-#: options.h:1329
++#: options.h:1333
+ msgid "(PowerPC/64 only) Don't use a special __tls_get_addr call"
+ msgstr "(само „PowerPC/64“) Не користи „special __tls_get_addr“ позив"
+ 
+-#: options.h:1332
++#: options.h:1336
+ msgid "(PowerPC64 only) Optimize TOC code sequences"
+ msgstr "(само „PowerPC64“) Оптимизује низове „TOC“ кода"
+ 
+-#: options.h:1333
++#: options.h:1337
+ msgid "(PowerPC64 only) Don't optimize TOC code sequences"
+ msgstr "(само „PowerPC64“) Не оптимизује низове „TOC“ кода"
+ 
+-#: options.h:1336
++#: options.h:1340
+ msgid "(PowerPC64 only) Sort TOC and GOT sections"
+ msgstr "(само „PowerPC64“) Ређа „TOC“ и „GOT“ одељке"
+ 
+-#: options.h:1337
++#: options.h:1341
+ msgid "(PowerPC64 only) Don't sort TOC and GOT sections"
+ msgstr "(само „PowerPC64“) Не ређа „TOC“ и „GOT“ одељке"
+ 
+-#: options.h:1340
++#: options.h:1344
+ msgid "Read linker script"
+ msgstr "Чита скрипту повезивача"
+ 
+-#: options.h:1343
++#: options.h:1347
+ msgid "Set the address of the bss segment"
+ msgstr "Поставља адресу „bss“ подеока"
+ 
+-#: options.h:1345
++#: options.h:1349
+ msgid "Set the address of the data segment"
+ msgstr "Поставља адресу подеока података"
+ 
+-#: options.h:1347 options.h:1349
++#: options.h:1351 options.h:1353
+ msgid "Set the address of the text segment"
+ msgstr "Поставља адресу подеока текста"
+ 
+-#: options.h:1352
++#: options.h:1356
+ msgid "Set the address of the rodata segment"
+ msgstr "Поставља адресу подеока ро-података"
+ 
+-#: options.h:1357
++#: options.h:1361
+ msgid "Create undefined reference to SYMBOL"
+ msgstr "Ствара недефинисане упуте на „SYMBOL“"
+ 
+-#: options.h:1360
++#: options.h:1364
+ msgid "How to handle unresolved symbols"
+ msgstr "Како да ради неређеним симболима"
+ 
+-#: options.h:1369
++#: options.h:1373
+ msgid "Alias for --debug=files"
+ msgstr "Алијас за „--debug=files“"
+ 
+-#: options.h:1372
++#: options.h:1376
+ msgid "Read version script"
+ msgstr "Чита скрипту издања"
+ 
+-#: options.h:1377
++#: options.h:1381
+ msgid "Warn about duplicate common symbols"
+ msgstr "Упозорава о удвострученим општим симболима"
+ 
+-#: options.h:1378
++#: options.h:1382
+ msgid "Do not warn about duplicate common symbols"
+ msgstr "Не упозорава о удвострученим општим симболима"
+ 
+-#: options.h:1384
++#: options.h:1388
+ msgid "Warn when discarding version information"
+ msgstr "Упозорава приликом одбацивања података издања"
+ 
+-#: options.h:1385
++#: options.h:1389
+ msgid "Do not warn when discarding version information"
+ msgstr "Не упозорава приликом одбацивања података издања"
+ 
+-#: options.h:1388
++#: options.h:1392
+ msgid "Warn if the stack is executable"
+ msgstr "Упозорава ако је спремник извршив"
+ 
+-#: options.h:1389
++#: options.h:1393
+ msgid "Do not warn if the stack is executable"
+ msgstr "Не упозорава ако је спремник извршив"
+ 
+-#: options.h:1392
++#: options.h:1396
+ msgid "Don't warn about mismatched input files"
+ msgstr "Не упозорава о неодговарајућим улазним датотекама"
+ 
+-#: options.h:1398
++#: options.h:1402
+ msgid "Warn when skipping an incompatible library"
+ msgstr "Упозорава приликом прескакања несагласну библиотеку"
+ 
+-#: options.h:1399
++#: options.h:1403
+ msgid "Don't warn when skipping an incompatible library"
+ msgstr "Не упозорава приликом прескакања несагласну библиотеку"
+ 
+-#: options.h:1402
++#: options.h:1406
+ msgid "Warn if text segment is not shareable"
+ msgstr "Упозорава ако подеок текста није дељив"
+ 
+-#: options.h:1403
++#: options.h:1407
+ msgid "Do not warn if text segment is not shareable"
+ msgstr "Не упозорава ако подеок текста није дељив"
+ 
+-#: options.h:1406
++#: options.h:1410
+ msgid "Report unresolved symbols as warnings"
+ msgstr "Исписује нрешене симболе као упозорења"
+ 
+-#: options.h:1410
++#: options.h:1414
+ msgid "Report unresolved symbols as errors"
+ msgstr "Исписује нрешене симболе као грешке"
+ 
+-#: options.h:1414
++#: options.h:1418
+ msgid "(ARM only) Do not warn about objects with incompatible wchar_t sizes"
+ msgstr "(само „ARM“) Не упозорава о објектима са несагласним „wchar_t“ величинама"
+ 
+-#: options.h:1418
++#: options.h:1422
+ msgid "Convert unresolved symbols to weak references"
+ msgstr "Претвара нерешене симболе у слабе упуте"
+ 
+-#: options.h:1422
++#: options.h:1426
+ msgid "Include all archive contents"
+ msgstr "Укључује сав садржај архиве"
+ 
+-#: options.h:1423
++#: options.h:1427
+ msgid "Include only needed archive contents"
+ msgstr "Укључује само потребан садржај архиве"
+ 
+-#: options.h:1426
++#: options.h:1430
+ msgid "Use wrapper functions for SYMBOL"
+ msgstr "Користи функције умотавача за „SYMBOL“"
+ 
+-#: options.h:1431
++#: options.h:1435
+ msgid "Delete all local symbols"
+ msgstr "Брише све локалне симболе"
+ 
+-#: options.h:1433
++#: options.h:1437
+ msgid "Delete all temporary local symbols"
+ msgstr "Брише све привремене локалне симболе"
+ 
+-#: options.h:1435
++#: options.h:1439
+ msgid "Keep all local symbols"
+ msgstr "Задржава све локалне симболе"
+ 
+-#: options.h:1440
++#: options.h:1444
+ msgid "Trace references to symbol"
+ msgstr "Прави траг упуте до симбола"
+ 
+-#: options.h:1443
++#: options.h:1447
+ msgid "Allow unused version in script"
+ msgstr "Допушта некоришћено издање у скрипти"
+ 
+-#: options.h:1444
++#: options.h:1448
+ msgid "Do not allow unused version in script"
+ msgstr "Не допушта некоришћено издање у скрипти"
+ 
+-#: options.h:1447
++#: options.h:1451
+ msgid "Default search path for Solaris compatibility"
+ msgstr "Подразумевана путања претраге зарад Соларис сагласности"
+ 
+-#: options.h:1448
++#: options.h:1452
+ msgid "PATH"
+ msgstr "ПУТАЊА"
+ 
+-#: options.h:1453
++#: options.h:1457
+ msgid "Start a library search group"
+ msgstr "Започиње групу претраге библиотеке"
+ 
+-#: options.h:1455
++#: options.h:1459
+ msgid "End a library search group"
+ msgstr "Завршава групу претраге библиотеке"
+ 
+-#: options.h:1460
+-msgid "(x86-64 only) Generate a BND PLT for Intel MPX"
+-msgstr "(само „x86-64“) Ствара „BND PLT“ за „Intel MPX“"
+-
+-#: options.h:1461
+-msgid "Generate a regular PLT"
+-msgstr "Ствара обичан „PLT“"
+-
+-#: options.h:1463
++#: options.h:1464
+ msgid "Sort dynamic relocs"
+ msgstr "Ређа динамичке премештаје"
+ 
+-#: options.h:1464
++#: options.h:1465
+ msgid "Do not sort dynamic relocs"
+ msgstr "Не ређа динамичке премештаје"
+ 
+-#: options.h:1466
++#: options.h:1467
+ msgid "Set common page size to SIZE"
+ msgstr "Поставља општу величину странице на „ВЕЛИЧИНА“"
+ 
+-#: options.h:1471
++#: options.h:1472
+ msgid "Mark output as requiring executable stack"
+ msgstr "Означава излаз као да захтева извршиви спремник"
+ 
+-#: options.h:1473
++#: options.h:1474
+ msgid "Make symbols in DSO available for subsequently loaded objects"
+ msgstr "Чини симболе у „DSO“ доступним за накнадно учитане објекте"
+ 
+-#: options.h:1476
++#: options.h:1477
+ msgid "Mark DSO to be initialized first at runtime"
+ msgstr "Означава „DSO“ да буде покренут први у време извршавања"
+ 
+-#: options.h:1479
++#: options.h:1480
+ msgid "Mark object to interpose all DSOs but executable"
+ msgstr "Обележава објекат за уметање свих „DSO“-а осим извршног"
+ 
+-#: options.h:1482
++#: options.h:1483
+ msgid "Mark DSO to be loaded at most once, and only in the main namespace"
+ msgstr "Означава да ДСО буде учитан највише једном и само у главном називном простору"
+ 
+-#: options.h:1483
++#: options.h:1484
+ msgid "Do not mark the DSO as one to be loaded only in the main namespace"
+ msgstr "Не означава ДСО као онај који ће бити учитан само у главном називном простору"
+ 
+-#: options.h:1485
++#: options.h:1486
+ msgid "Mark object for lazy runtime binding"
+ msgstr "Означава објекат за лењо увезивање времена извршавања"
+ 
+-#: options.h:1488
++#: options.h:1489
+ msgid "Mark object requiring immediate process"
+ msgstr "Означава објекат да захтева тренутну обраду"
+ 
+-#: options.h:1491
++#: options.h:1492
+ msgid "Set maximum page size to SIZE"
+ msgstr "Поставља највећу величину странице на „ВЕЛИЧИНА“"
+ 
+-#: options.h:1499
++#: options.h:1500
+ msgid "Do not create copy relocs"
+ msgstr "Не ствара премештаје умношка"
+ 
+-#: options.h:1501
++#: options.h:1502
+ msgid "Mark object not to use default search paths"
+ msgstr "Означава објекат да не користи основне путање претраге"
+ 
+-#: options.h:1504
++#: options.h:1505
+ msgid "Mark DSO non-deletable at runtime"
+ msgstr "Означава „DSO“ необрисивиму време извршавања"
+ 
+-#: options.h:1507
++#: options.h:1508
+ msgid "Mark DSO not available to dlopen"
+ msgstr "Означава „DSO“ недоступним за „dlopen“"
+ 
+-#: options.h:1510
++#: options.h:1511
+ msgid "Mark DSO not available to dldump"
+ msgstr "Означава „DSO“ недоступним за „dldump“"
+ 
+-#: options.h:1513
++#: options.h:1514
+ msgid "Mark output as not requiring executable stack"
+ msgstr "Означава излаз као да не захтева извршиви спремник"
+ 
+-#: options.h:1515
++#: options.h:1516
+ msgid "Mark object for immediate function binding"
+ msgstr "Означава објекат за тренутно увезивање функције"
+ 
+-#: options.h:1518
++#: options.h:1519
+ msgid "Mark DSO to indicate that needs immediate $ORIGIN processing at runtime"
+ msgstr "Означава „DSO“ да укаже да захтева тренутну „$ORIGIN“ обраду у време извршавања"
+ 
+-#: options.h:1521
++#: options.h:1522
+ msgid "Where possible mark variables read-only after relocation"
+ msgstr "Где је то могуће означава променљиве само за читање након премештаја"
+ 
+-#: options.h:1522
++#: options.h:1523
+ msgid "Don't mark variables read-only after relocation"
+ msgstr "Не означава променљиве само за читање након премештаја"
+ 
+-#: options.h:1524
++#: options.h:1525
+ msgid "Set PT_GNU_STACK segment p_memsz to SIZE"
+ msgstr "Поставља „PT_GNU_STACK“ подеок „p_memsz“ на „ВЕЛИЧИНА“"
+ 
+-#: options.h:1526
++#: options.h:1527
+ msgid "ELF symbol visibility for synthesized __start_* and __stop_* symbols"
+ msgstr "Видљивост ЕЛФ симбола за синтетизоване симболе „__start_*“ и „__stop_*“"
+ 
+-#: options.h:1531
++#: options.h:1532
+ msgid "Do not permit relocations in read-only segments"
+ msgstr "Не допушта премештаје у подеоцима само за читање"
+ 
+-#: options.h:1532 options.h:1534
++#: options.h:1533 options.h:1535
+ msgid "Permit relocations in read-only segments"
+ msgstr "Допушта премештаје у подеоцима само за читање"
+ 
+-#: options.h:1537
++#: options.h:1538
+ msgid "Move .text.unlikely sections to a separate segment."
+ msgstr "Премешта „.text.unlikely“ одељке у одвојени подеок."
+ 
+-#: options.h:1538
++#: options.h:1539
+ msgid "Do not move .text.unlikely sections to a separate segment."
+ msgstr "Не премешта „.text.unlikely“ одељке у одвојени подеок."
+ 
+-#: options.h:1541
++#: options.h:1542
+ msgid "Keep .text.hot, .text.startup, .text.exit and .text.unlikely as separate sections in the final binary."
+ msgstr "Задржава „.text.hot“, „.text.startup“, „.text.exit“ и „.text.unlikely“ као одвојене одељке у крајњој извршној."
+ 
+-#: options.h:1543
++#: options.h:1544
+ msgid "Merge all .text.* prefix sections."
+ msgstr "Стапа све „all .text.*“ одељке префикса."
+ 
+@@ -3500,96 +3510,96 @@ msgstr "%s:%s: грана у неизвршивом одељку, нема ок
+ msgid "%s: stub group size is too large; retrying with %#x"
+ msgstr "%s: величина групе окрајка је превелика; поново покушавам са „%#x“"
+ 
+-#: powerpc.cc:5729
++#: powerpc.cc:5730
+ msgid "** glink"
+ msgstr "** g_веза"
+ 
+-#: powerpc.cc:6394 powerpc.cc:7109
++#: powerpc.cc:6395 powerpc.cc:7110
+ #, c-format
+ msgid "linkage table error against `%s'"
+ msgstr "грешка табеле повезивања наспрам „%s“"
+ 
+-#: powerpc.cc:6397
++#: powerpc.cc:6398
+ #, c-format
+ msgid "linkage table error against `%s:[local %u]'"
+ msgstr "грешка табеле повезивања наспрам „%s:[local %u]“"
+ 
+-#: powerpc.cc:7236
++#: powerpc.cc:7237
+ msgid "** save/restore"
+ msgstr "** сачуај/поврати"
+ 
+-#: powerpc.cc:8008
++#: powerpc.cc:8035
+ #, c-format
+ msgid "%s: unsupported reloc %u for IFUNC symbol"
+ msgstr "%s: неподржан премештај „%u“ за „IFUNC“ симбол"
+ 
+-#: powerpc.cc:8274 powerpc.cc:9060
++#: powerpc.cc:8301 powerpc.cc:9087
+ #, c-format
+ msgid "tocsave symbol %u has bad shndx %u"
+ msgstr "симбол чувања табеле садржаја %u има лош „shndx %u“"
+ 
+-#: powerpc.cc:8565 powerpc.cc:9397
++#: powerpc.cc:8592 powerpc.cc:9424
+ #, c-format
+ msgid "%s: toc optimization is not supported for %#08x instruction"
+ msgstr "%s: оптимизација табеле садржаја није подржана за инструкцију „%#08x“"
+ 
+-#: powerpc.cc:8631 powerpc.cc:9459
++#: powerpc.cc:8658 powerpc.cc:9486
+ #, c-format
+ msgid "%s: unsupported -mbss-plt code"
+ msgstr "%s: неподржан „-mbss-plt“ код"
+ 
+-#: powerpc.cc:9806
++#: powerpc.cc:9833
+ #, c-format
+ msgid "split-stack stack size overflow at section %u offset %0zx"
+ msgstr "величина спремника „split-stack“ прекорачује на одељку %u померај %0zx"
+ 
+-#: powerpc.cc:9877
++#: powerpc.cc:9904
+ msgid "--plt-localentry is especially dangerous without ld.so support to detect ABI violations"
+ msgstr "„--plt-localentry“ је нарочито опасно без „ld.so“ подршке за откривање „ABI“ преступа"
+ 
+-#: powerpc.cc:9906
++#: powerpc.cc:9933
+ msgid "--plt-localentry is incompatible with power10 pc-relative code"
+ msgstr "„--plt-localentry“ је несагласно са „power10“ рачунарско-односним кодом"
+ 
+-#: powerpc.cc:10201 powerpc.cc:10207
++#: powerpc.cc:10228 powerpc.cc:10234
+ #, c-format
+ msgid "%s uses hard float, %s uses soft float"
+ msgstr "„%s“ користи хардверски покретни зарез, „%s“ користи софтверски покретни зарез"
+ 
+-#: powerpc.cc:10213 powerpc.cc:10220
++#: powerpc.cc:10240 powerpc.cc:10247
+ #, c-format
+ msgid "%s uses double-precision hard float, %s uses single-precision hard float"
+ msgstr "„%s“ користи хардверски покретни зарез двоструке тачности, „%s“ користи хардверски покретни зарез једне тачности"
+ 
+-#: powerpc.cc:10240 powerpc.cc:10246
++#: powerpc.cc:10267 powerpc.cc:10273
+ #, c-format
+ msgid "%s uses 64-bit long double, %s uses 128-bit long double"
+ msgstr "„%s“ користи 64-битни дуги дубл, „%s“ користи 128-битни дуги дубл"
+ 
+-#: powerpc.cc:10252 powerpc.cc:10258
++#: powerpc.cc:10279 powerpc.cc:10285
+ #, c-format
+ msgid "%s uses IBM long double, %s uses IEEE long double"
+ msgstr "„%s“ користи „IBM“ дуги дубл, „%s“ користи „IEEE“ дуги дубл"
+ 
+-#: powerpc.cc:10312 powerpc.cc:10318
++#: powerpc.cc:10339 powerpc.cc:10345
+ #, c-format
+ msgid "%s uses AltiVec vector ABI, %s uses SPE vector ABI"
+ msgstr "„%s“ користи „AltiVec“ вектор „ABI“, „%s“ користи „SPE“ вектор „ABI“"
+ 
+-#: powerpc.cc:10347 powerpc.cc:10354
++#: powerpc.cc:10374 powerpc.cc:10381
+ #, c-format
+ msgid "%s uses r3/r4 for small structure returns, %s uses memory"
+ msgstr "„%s“ користи „r3/r4“ за мале резултате структуре, „%s“ користи меморију"
+ 
+-#: powerpc.cc:10929
++#: powerpc.cc:10951
+ msgid "call lacks nop, can't restore toc; recompile with -fPIC"
+ msgstr "позиву недостаје „nop“, не могу да вратим табелу садржаја; поново преведите са „-fPIC“"
+ 
+-#: powerpc.cc:12381 s390.cc:3479
++#: powerpc.cc:12403 s390.cc:3479
+ msgid "relocation overflow"
+ msgstr "прекорачење премештаја"
+ 
+-#: powerpc.cc:12383
++#: powerpc.cc:12405
+ msgid "try relinking with a smaller --stub-group-size"
+ msgstr "покушајте поново да повежете са мањом „--stub-group-size“"
+ 
+@@ -3728,11 +3738,11 @@ msgstr "повезивач је дефинисан"
+ msgid "R_390_PC32DBL target misaligned at %llx"
+ msgstr "„R_390_PC32DBL“ циљ је лоше поравнат на „%llx“"
+ 
+-#: s390.cc:1099 tilegx.cc:2088 x86_64.cc:1809
++#: s390.cc:1099 tilegx.cc:2088 x86_64.cc:1697
+ msgid "out of patch space (PLT); relink with --incremental-full"
+ msgstr "нема више простора закрпе (PLT); поново повежите са „--incremental-full“"
+ 
+-#: s390.cc:3677 s390.cc:3733 x86_64.cc:5349
++#: s390.cc:3677 s390.cc:3733 x86_64.cc:4878
+ #, c-format
+ msgid "unsupported reloc type %u"
+ msgstr "неподржана врста премештаја %u"
+@@ -4174,7 +4184,7 @@ msgstr "премештај има лош померај %zu"
+ msgid "linker does not include stack split support required by %s"
+ msgstr "повезивач не укључује подршку поделе спремника коју тражи „%s“"
+ 
+-#: tilegx.cc:2738 x86_64.cc:3171
++#: tilegx.cc:2738 x86_64.cc:2714
+ msgid "TLS_DESC not yet supported for incremental linking"
+ msgstr "„TLS_DESC“ није још подржано за повећавајуће повезивање"
+ 
+@@ -4182,7 +4192,7 @@ msgstr "„TLS_DESC“ није још подржано за повећавај
+ msgid "TLS_DESC not yet supported for TILEGX"
+ msgstr "„TLS_DESC“ није још подржано за „TILEGX“"
+ 
+-#: tilegx.cc:3202 x86_64.cc:3559
++#: tilegx.cc:3202 x86_64.cc:3096
+ #, c-format
+ msgid "requires unsupported dynamic reloc %u; recompile with -fPIC"
+ msgstr "захтева неподржан динамички премештај „%u“; поново преведите са „-fPIC“"
+@@ -4217,49 +4227,55 @@ msgstr ""
+ msgid "%s failed: %s"
+ msgstr "„%s“ није успело: %s"
+ 
+-#: x86_64.cc:1612
++#: x86_64.cc:1500
+ #, c-format
+ msgid "%s: corrupt .note.gnu.property section (pr_datasz for property %d is not 4)"
+ msgstr "%s: оштећен „.note.gnu.property“ одељак („pr_datasz“ за својство %d није 4)"
+ 
+-#: x86_64.cc:1620
++#: x86_64.cc:1508
+ #, c-format
+ msgid "%s: unknown program property type 0x%x in .note.gnu.property section"
+ msgstr "%s: непозната врста својства програма „0×%x“ у „.note.gnu.property“ одељку"
+ 
+-#: x86_64.cc:2042
++#: x86_64.cc:1930
+ #, c-format
+ msgid "PC-relative offset overflow in PLT entry %d"
+ msgstr "Прекорачење „PC“-односног помераја у „PLT“ уносу %d"
+ 
+-#: x86_64.cc:2229 x86_64.cc:2468
++#: x86_64.cc:2140
+ #, c-format
+ msgid "PC-relative offset overflow in APLT entry %d"
+ msgstr "Прекорачење „PC“-односног помераја у „APLT“ уносу %d"
+ 
+-#: x86_64.cc:3524
++#: x86_64.cc:3064
+ msgid "requires dynamic R_X86_64_32 reloc which may overflow at runtime; recompile with -fPIC"
+ msgstr "захтева динамички „R_X86_64_32“ премештај који може да прекорачи у време извршавања; поново преведите са „-fPIC“"
+ 
+-#: x86_64.cc:3544
++#: x86_64.cc:3081
+ #, c-format
+ msgid "requires dynamic %s reloc against '%s' which may overflow at runtime; recompile with -fPIC"
+ msgstr "захтева динамички „%s“ премештај наспрам „%s“ који може да прекорачи у време извршавања; поново преведите са „-fPIC“"
+ 
+-#: x86_64.cc:5040
++#: x86_64.cc:4569
+ #, c-format
+ msgid "relocation overflow: reference to local symbol %u in %s"
+ msgstr "прекорачење премештаја: упућује на локални симбол %u у „%s“"
+ 
+-#: x86_64.cc:5047
++#: x86_64.cc:4576
+ #, c-format
+ msgid "relocation overflow: reference to '%s' defined in %s"
+ msgstr "прекорачење премештаја: упућује на „%s“ дефинисано у „%s“"
+ 
+-#: x86_64.cc:5055
++#: x86_64.cc:4584
+ #, c-format
+ msgid "relocation overflow: reference to '%s'"
+ msgstr "прекорачење премештаја: упућује на „%s“"
+ 
++#~ msgid "(x86-64 only) Generate a BND PLT for Intel MPX"
++#~ msgstr "(само „x86-64“) Ствара „BND PLT“ за „Intel MPX“"
++
++#~ msgid "Generate a regular PLT"
++#~ msgstr "Ствара обичан „PLT“"
++
+ #~ msgid "__tls_get_addr call lacks marker reloc"
+ #~ msgstr "„__tls_get_addr“ позиву недостаје премештај означавача"
+diff --git a/gprof/ChangeLog b/gprof/ChangeLog
+index aa04467c365..e8eb5904d05 100644
+--- a/gprof/ChangeLog
++++ b/gprof/ChangeLog
+@@ -1,3 +1,7 @@
++2023-02-27  Nick Clifton  <nickc@redhat.com>
++
++	* po/sr.po: Updates Serbian translation.
++
+ 2023-02-20  Nick Clifton  <nickc@redhat.com>
+ 
+ 	* po/ms.po: Updated Malayasian translation.
+diff --git a/gprof/po/sr.po b/gprof/po/sr.po
+index 54276b0904b..921f7ba66bb 100644
+--- a/gprof/po/sr.po
++++ b/gprof/po/sr.po
+@@ -1,13 +1,14 @@
+ # Serbian translation of gprof.
+ # Copyright © 2020 Free Software Foundation, Inc.
+ # This file is distributed under the same license as the binutils package.
+-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2020.
++# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2023.
++#
+ msgid ""
+ msgstr ""
+-"Project-Id-Version: gprof-2.33.90\n"
+-"Report-Msgid-Bugs-To: bug-binutils@gnu.org\n"
+-"POT-Creation-Date: 2020-01-18 14:04+0000\n"
+-"PO-Revision-Date: 2020-04-01 12:51+0200\n"
++"Project-Id-Version: gprof-2.39.90\n"
++"Report-Msgid-Bugs-To: https://sourceware.org/bugzilla/\n"
++"POT-Creation-Date: 2022-12-31 12:22+0000\n"
++"PO-Revision-Date: 2023-02-25 09:09+0100\n"
+ "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+ "Language-Team: Serbian <(nothing)>\n"
+ "Language: sr\n"
+@@ -15,7 +16,7 @@ msgstr ""
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+-"X-Generator: Virtaal 0.7.1\n"
++"X-Generator: Gtranslator 41.0\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
+ 
+ #: alpha.c:102 mips.c:54
+@@ -240,7 +241,7 @@ msgstr "<циклус %d>"
+ msgid "%s: unable to parse mapping file %s.\n"
+ msgstr "%s: не могу да обрадим датотеку мапирања %s.\n"
+ 
+-#: corefile.c:89 corefile.c:523
++#: corefile.c:89 corefile.c:524
+ #, c-format
+ msgid "%s: could not open %s.\n"
+ msgstr "%s: не могу да отворим %s.\n"
+@@ -270,107 +271,107 @@ msgstr "%s: не могу да обавим -c\n"
+ msgid "%s: -c not supported on architecture %s\n"
+ msgstr "%s: -c није подржано на архитектури %s\n"
+ 
+-#: corefile.c:532 corefile.c:637
++#: corefile.c:533 corefile.c:640
+ #, c-format
+ msgid "%s: file `%s' has no symbols\n"
+ msgstr "%s: датотека „%s“ нема симболе\n"
+ 
+-#: corefile.c:537
++#: corefile.c:538
+ #, c-format
+ msgid "%s: file `%s' has too many symbols\n"
+ msgstr "%s: датотека „%s“ има превише симбола\n"
+ 
+-#: corefile.c:904
++#: corefile.c:907
+ #, c-format
+ msgid "%s: somebody miscounted: ltab.len=%d instead of %ld\n"
+ msgstr "%s: неко је погрешно пребројан: ltab.len=%d уместо %ld\n"
+ 
+-#: gmon_io.c:83
++#: gmon_io.c:81
+ #, c-format
+ msgid "%s: address size has unexpected value of %u\n"
+ msgstr "%s: величина адресе имаше неочекивану вредност %u\n"
+ 
+-#: gmon_io.c:318 gmon_io.c:414
++#: gmon_io.c:298 gmon_io.c:394
+ #, c-format
+ msgid "%s: file too short to be a gmon file\n"
+ msgstr "%s: датотека је прекратка да би била гмон датотека\n"
+ 
+-#: gmon_io.c:328 gmon_io.c:457
++#: gmon_io.c:308 gmon_io.c:437
+ #, c-format
+ msgid "%s: file `%s' has bad magic cookie\n"
+ msgstr "%s: датотека „%s“ има лош колачић магије\n"
+ 
+-#: gmon_io.c:339
++#: gmon_io.c:319
+ #, c-format
+ msgid "%s: file `%s' has unsupported version %d\n"
+ msgstr "%s: датотека „%s“ има неподржано издање %d\n"
+ 
+-#: gmon_io.c:369
++#: gmon_io.c:349
+ #, c-format
+ msgid "%s: %s: found bad tag %d (file corrupted?)\n"
+ msgstr "%s: %s: пронађох лошу ознаку %d (оштећена датотека?)\n"
+ 
+-#: gmon_io.c:436
++#: gmon_io.c:416
+ #, c-format
+ msgid "%s: profiling rate incompatible with first gmon file\n"
+ msgstr "%s: проток профилисања није сагласан са првом гмон датотеком\n"
+ 
+-#: gmon_io.c:487
++#: gmon_io.c:467
+ #, c-format
+ msgid "%s: incompatible with first gmon file\n"
+ msgstr "%s: није сагласан са првом гмон датотеком\n"
+ 
+-#: gmon_io.c:517
++#: gmon_io.c:497
+ #, c-format
+ msgid "%s: file '%s' does not appear to be in gmon.out format\n"
+ msgstr "%s: датотека „%s“ не изгледа да је у гмон.out формату\n"
+ 
+-#: gmon_io.c:530
++#: gmon_io.c:510
+ #, c-format
+ msgid "%s: unexpected EOF after reading %d/%d bins\n"
+ msgstr "%s: неочекивани КРД након читања %d/%d блокова\n"
+ 
+-#: gmon_io.c:562
++#: gmon_io.c:542
+ #, c-format
+ msgid "time is in ticks, not seconds\n"
+ msgstr "време је у откуцајима, а не секунде\n"
+ 
+-#: gmon_io.c:568 gmon_io.c:748
++#: gmon_io.c:548 gmon_io.c:728
+ #, c-format
+ msgid "%s: don't know how to deal with file format %d\n"
+ msgstr "%s: не знам како да поступим са форматом датотеке %d\n"
+ 
+-#: gmon_io.c:578
++#: gmon_io.c:558
+ #, c-format
+ msgid "File `%s' (version %d) contains:\n"
+ msgstr "Датотека „%s“ (издање %d) садржи:\n"
+ 
+-#: gmon_io.c:581
++#: gmon_io.c:561
+ #, c-format
+ msgid "\t%d histogram record\n"
+ msgstr "\t%d снимак хистограма\n"
+ 
+-#: gmon_io.c:582
++#: gmon_io.c:562
+ #, c-format
+ msgid "\t%d histogram records\n"
+ msgstr "\t%d снимка хистограма\n"
+ 
+-#: gmon_io.c:584
++#: gmon_io.c:564
+ #, c-format
+ msgid "\t%d call-graph record\n"
+ msgstr "\t%d снимак графика позива\n"
+ 
+-#: gmon_io.c:585
++#: gmon_io.c:565
+ #, c-format
+ msgid "\t%d call-graph records\n"
+ msgstr "\t%d снимка графика позива\n"
+ 
+-#: gmon_io.c:587
++#: gmon_io.c:567
+ #, c-format
+ msgid "\t%d basic-block count record\n"
+ msgstr "\t%d снимак броја основног блока\n"
+ 
+-#: gmon_io.c:588
++#: gmon_io.c:568
+ #, c-format
+ msgid "\t%d basic-block count records\n"
+ msgstr "\t%d снимка броја основног блока\n"
+@@ -378,7 +379,7 @@ msgstr "\t%d снимка броја основног блока\n"
+ #: gprof.c:162
+ #, c-format
+ msgid ""
+-"Usage: %s [-[abcDhilLrsTvwxyz]] [-[ACeEfFJnNOpPqQRStZ][name]] [-I dirs]\n"
++"Usage: %s [-[abcDhilLrsTvwxyz]] [-[ABCeEfFJnNOpPqQRStZ][name]] [-I dirs]\n"
+ "\t[-d[num]] [-k from/to] [-m min-count] [-t table-length]\n"
+ "\t[--[no-]annotated-source[=name]] [--[no-]exec-counts[=name]]\n"
+ "\t[--[no-]flat-profile[=name]] [--[no-]graph[=name]]\n"
+@@ -392,72 +393,72 @@ msgid ""
+ "\t[--demangle[=STYLE]] [--no-demangle] [--external-symbol-table=name] [@FILE]\n"
+ "\t[image-file] [profile-file...]\n"
+ msgstr ""
+-"Употреба: %s [-[abcDhilLrsTvwxyz]] [-[ACeEfFJnNOpPqQRStZ][назив]] [-I дир-ма]\n"
+-"\t[-d[број]] [-k са/на] [-m бр-минута] [-t дужина-табеле]\n"
+-"\t[--[не-]прибележени-извор[=назив]] [--[не-]обављених-извршавања[=назив]]\n"
+-"\t[--[не-]обичан-профил[=назив]] [--[не-]график[=назив]]\n"
+-"\t[--[не-]време=назив] [--all-lines] [--brief] [--debug[=ниво]]\n"
++"Коришћење: %s [-[abcDhilLrsTvwxyz]] [-[ABCeEfFJnNOpPqQRStZ][назив]] [-I dirs]\n"
++"\t[-d[број]] [-k од/до] [-m најм-укупно] [-t дужина-табеле]\n"
++"\t[--[no-]annotated-source[=назив]] [--[no-]exec-counts[=назив]]\n"
++"\t[--[no-]flat-profile[=назив]] [--[no-]graph[=назив]]\n"
++"\t[--[no-]time=назив] [--all-lines] [--brief] [--debug[=ниво]]\n"
+ "\t[--function-ordering] [--file-ordering] [--inline-file-names]\n"
+-"\t[--directory-path=дир-ми] [--display-unused-functions]\n"
+-"\t[--file-format=назив] [--file-info] [--help] [--line] [--min-count=н]\n"
++"\t[--directory-path=дир-и] [--display-unused-functions]\n"
++"\t[--file-format=назив] [--file-info] [--help] [--line] [--min-count=n]\n"
+ "\t[--no-static] [--print-path] [--separate-files]\n"
+-"\t[--static-call-graph] [--sum] [--table-length=дуж] [--traditional]\n"
+-"\t[--version] [--width=н] [--ignore-non-functions]\n"
+-"\t[--demangle[=СТИЛ]] [--no-demangle] [--external-symbol-table=назив] [@ДАТОТЕКА]\n"
+-"\t[датотека-слике] [датотека-профила...]\n"
++"\t[--static-call-graph] [--sum] [--table-length=дужина] [--traditional]\n"
++"\t[--version] [--width=n] [--ignore-non-functions]\n"
++"\t[--demangle[=СТИЛ]] [--no-demangle] [--external-symbol-table=name] [@ДАТОТЕКА]\n"
++"\t[image-file] [profile-file...]\n"
+ 
+ #: gprof.c:178
+ #, c-format
+ msgid "Report bugs to %s\n"
+ msgstr "Грешке пријавите на %s\n"
+ 
+-#: gprof.c:254
++#: gprof.c:252
+ #, c-format
+ msgid "%s: debugging not supported; -d ignored\n"
+ msgstr "%s: уклањање грешака није подржано; занемарујем -d\n"
+ 
+-#: gprof.c:340
++#: gprof.c:338
+ #, c-format
+ msgid "%s: unknown file format %s\n"
+ msgstr "%s: непознат формат датотеке %s\n"
+ 
+ #. This output is intended to follow the GNU standards document.
+-#: gprof.c:428
++#: gprof.c:426
+ #, c-format
+ msgid "GNU gprof %s\n"
+ msgstr "ГНУ гпроф %s\n"
+ 
+-#: gprof.c:429
++#: gprof.c:427
+ #, c-format
+ msgid "Based on BSD gprof, copyright 1983 Regents of the University of California.\n"
+ msgstr "Засновано на БСД гпрофу, ауторских права 1983 Управа Универзитета Калифорније.\n"
+ 
+-#: gprof.c:430
++#: gprof.c:428
+ #, c-format
+ msgid "This program is free software.  This program has absolutely no warranty.\n"
+ msgstr "Овај програм је слободан софтвер.  Овај програм не пружа никакве гаранције.\n"
+ 
+-#: gprof.c:471
++#: gprof.c:469
+ #, c-format
+ msgid "%s: unknown demangling style `%s'\n"
+ msgstr "%s: непознат стил изопачивања „%s“\n"
+ 
+-#: gprof.c:494
++#: gprof.c:492
+ #, c-format
+ msgid "%s: Only one of --function-ordering and --file-ordering may be specified.\n"
+ msgstr "%s: Може бити наведено или само „--function-ordering“ или „--file-ordering“.\n"
+ 
+-#: gprof.c:546
++#: gprof.c:544
+ #, c-format
+ msgid "%s: sorry, file format `prof' is not yet supported\n"
+ msgstr "%s: извините, формат датотеке „prof“ још увек није подржан\n"
+ 
+-#: gprof.c:600
++#: gprof.c:598
+ #, c-format
+ msgid "%s: gmon.out file is missing histogram\n"
+ msgstr "%s: гмон.out датотеци недостаје хистограм\n"
+ 
+-#: gprof.c:607
++#: gprof.c:605
+ #, c-format
+ msgid "%s: gmon.out file is missing call-graph data\n"
+ msgstr "%s: гмон.out датотеци недостају подаци графика позива\n"
+@@ -584,17 +585,17 @@ msgstr "[find_call] 0x%lx: јал"
+ msgid "[find_call] 0x%lx: jalr\n"
+ msgstr "[find_call] 0x%lx: јалр\n"
+ 
+-#: source.c:162
++#: source.c:166
+ #, c-format
+ msgid "%s: could not locate `%s'\n"
+ msgstr "%s: не могу да одредим место „%s“\n"
+ 
+-#: source.c:237
++#: source.c:244
+ #, c-format
+ msgid "*** File %s:\n"
+ msgstr "*** Датотека %s:\n"
+ 
+-#: utils.c:106
++#: utils.c:105
+ #, c-format
+ msgid " <cycle %d>"
+ msgstr " <циклус %d>"
+diff --git a/opcodes/ChangeLog b/opcodes/ChangeLog
+index 760208539b2..0f5514247cf 100644
+--- a/opcodes/ChangeLog
++++ b/opcodes/ChangeLog
+@@ -1,3 +1,7 @@
++2023-02-27  Nick Clifton  <nickc@redhat.com>
++
++	* po/sr.po: Updates Serbian translation.
++
+ 2023-01-14  Nick Clifton  <nickc@redhat.com>
+ 
+ 	* 2.40 release point.
+diff --git a/opcodes/po/sr.po b/opcodes/po/sr.po
+index 430d785d7a0..2468b5f7eea 100644
+--- a/opcodes/po/sr.po
++++ b/opcodes/po/sr.po
+@@ -1,13 +1,14 @@
+ # Serbian translation of opcodes.
+ # Copyright © 2020 Free Software Foundation, Inc.
+ # This file is distributed under the same license as the binutils package.
+-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2016–2022.
++# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2016–2023.
++#
+ msgid ""
+ msgstr ""
+-"Project-Id-Version: opcodes-2.37.90\n"
++"Project-Id-Version: opcodes-2.39.90\n"
+ "Report-Msgid-Bugs-To: https://sourceware.org/bugzilla/\n"
+-"POT-Creation-Date: 2022-01-22 12:21+0000\n"
+-"PO-Revision-Date: 2022-02-15 21:04+0200\n"
++"POT-Creation-Date: 2022-12-31 12:18+0000\n"
++"PO-Revision-Date: 2023-02-26 09:01+0100\n"
+ "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
+ "Language-Team: Serbian <(nothing)>\n"
+ "Language: sr\n"
+@@ -16,6 +17,7 @@ msgstr ""
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+ "X-Bugs: Report translation errors to the Language-Team address.\n"
++"X-Generator: Gtranslator 41.0\n"
+ 
+ #: aarch64-asm.c:821
+ msgid "specified register cannot be read from"
+@@ -26,22 +28,22 @@ msgid "specified register cannot be written to"
+ msgstr "не могу да пишем у наведени регистар"
+ 
+ #. Invalid option.
+-#: aarch64-dis.c:94 arc-dis.c:802 arm-dis.c:11670
++#: aarch64-dis.c:103 arc-dis.c:807 arm-dis.c:12303
+ #, c-format
+ msgid "unrecognised disassembler option: %s"
+ msgstr "непозната опција разложитеља: %s"
+ 
+-#: aarch64-dis.c:3395
++#: aarch64-dis.c:3574
+ #, c-format
+ msgid "this `%s' should have an immediately preceding `%s'"
+ msgstr "ово „%s“ треба да има одмах претходеће „%s“"
+ 
+-#: aarch64-dis.c:3402
++#: aarch64-dis.c:3581
+ #, c-format
+ msgid "expected `%s' after previous `%s'"
+ msgstr "очекивах „%s“ након претходног „%s“"
+ 
+-#: aarch64-dis.c:3806
++#: aarch64-dis.c:4000
+ #, c-format
+ msgid ""
+ "\n"
+@@ -52,7 +54,7 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „AARCH64“ су подржане за коришћење\n"
+ "са прекидачем „-M“ (више опција треба да се раздвајају зарезима):\n"
+ 
+-#: aarch64-dis.c:3810
++#: aarch64-dis.c:4004
+ #, c-format
+ msgid ""
+ "\n"
+@@ -61,7 +63,7 @@ msgstr ""
+ "\n"
+ "  no-aliases         Не исписује алијасе инструкције.\n"
+ 
+-#: aarch64-dis.c:3813
++#: aarch64-dis.c:4007
+ #, c-format
+ msgid ""
+ "\n"
+@@ -70,7 +72,7 @@ msgstr ""
+ "\n"
+ "  aliases            Исписује алијасе инструкције.\n"
+ 
+-#: aarch64-dis.c:3816
++#: aarch64-dis.c:4010
+ #, c-format
+ msgid ""
+ "\n"
+@@ -79,7 +81,7 @@ msgstr ""
+ "\n"
+ "  no-notes           Не исписује напомене инструкције.\n"
+ 
+-#: aarch64-dis.c:3819
++#: aarch64-dis.c:4013
+ #, c-format
+ msgid ""
+ "\n"
+@@ -88,7 +90,7 @@ msgstr ""
+ "\n"
+ "  notes              Исписује напомене инструкције.\n"
+ 
+-#: aarch64-dis.c:3823
++#: aarch64-dis.c:4017
+ #, c-format
+ msgid ""
+ "\n"
+@@ -97,281 +99,281 @@ msgstr ""
+ "\n"
+ "  debug_dump         Временски прекидач за праћење прочишћавања.\n"
+ 
+-#: aarch64-dis.c:3827 arc-dis.c:1551 arc-dis.c:1572 arc-dis.c:1575
+-#: loongarch-dis.c:306 mips-dis.c:2807 mips-dis.c:2817 mips-dis.c:2820
+-#: nfp-dis.c:2993 riscv-dis.c:1140 riscv-dis.c:1143
++#: aarch64-dis.c:4021 arc-dis.c:1607 arc-dis.c:1630 arc-dis.c:1633
++#: loongarch-dis.c:306 mips-dis.c:2897 mips-dis.c:2909 mips-dis.c:2912
++#: nfp-dis.c:2993 riscv-dis.c:1282 riscv-dis.c:1285
+ #, c-format
+ msgid "\n"
+ msgstr "\n"
+ 
+-#: aarch64-opc.c:1365
++#: aarch64-opc.c:1357
+ msgid "immediate value"
+ msgstr "вредност непосредног"
+ 
+-#: aarch64-opc.c:1375
++#: aarch64-opc.c:1367
+ msgid "immediate offset"
+ msgstr "померај непосредног"
+ 
+-#: aarch64-opc.c:1385
++#: aarch64-opc.c:1377
+ msgid "register number"
+ msgstr "број регистра"
+ 
+-#: aarch64-opc.c:1395
++#: aarch64-opc.c:1387
+ msgid "register element index"
+ msgstr "индекс елемента регистра"
+ 
+-#: aarch64-opc.c:1405
++#: aarch64-opc.c:1397
+ msgid "shift amount"
+ msgstr "износ помака"
+ 
+-#: aarch64-opc.c:1417
++#: aarch64-opc.c:1409
+ msgid "multiplier"
+ msgstr "множилац"
+ 
+-#: aarch64-opc.c:1491
++#: aarch64-opc.c:1483
+ msgid "reg pair must start from even reg"
+ msgstr "пар израза мора почети на парном изразу"
+ 
+-#: aarch64-opc.c:1497
++#: aarch64-opc.c:1489
+ msgid "reg pair must be contiguous"
+ msgstr "пар израза мора бити непрекидан"
+ 
+-#: aarch64-opc.c:1511
++#: aarch64-opc.c:1503
+ msgid "extraneous register"
+ msgstr "страни регистар"
+ 
+-#: aarch64-opc.c:1517
++#: aarch64-opc.c:1509
+ msgid "missing register"
+ msgstr "недостаје регистар"
+ 
+-#: aarch64-opc.c:1528
++#: aarch64-opc.c:1520
+ msgid "stack pointer register expected"
+ msgstr "очекиван је регистар показивача спремника"
+ 
+-#: aarch64-opc.c:1553
++#: aarch64-opc.c:1545
+ msgid "z0-z15 expected"
+ msgstr "очекивано је „z0-z15“"
+ 
+-#: aarch64-opc.c:1554
++#: aarch64-opc.c:1546
+ msgid "z0-z7 expected"
+ msgstr "очекивано је „z0-z7“"
+ 
+-#: aarch64-opc.c:1580
++#: aarch64-opc.c:1572
+ msgid "invalid register list"
+ msgstr "неисправан списак регистра"
+ 
+-#: aarch64-opc.c:1594
++#: aarch64-opc.c:1586
+ msgid "p0-p7 expected"
+ msgstr "очекивано је „p0-p7“"
+ 
+-#: aarch64-opc.c:1620 aarch64-opc.c:1628
++#: aarch64-opc.c:1612 aarch64-opc.c:1620
+ msgid "unexpected address writeback"
+ msgstr "неочекивано повратно писање адресе"
+ 
+-#: aarch64-opc.c:1639
++#: aarch64-opc.c:1631
+ msgid "address writeback expected"
+ msgstr "очекивано је повратно писање адресе"
+ 
+-#: aarch64-opc.c:1686
++#: aarch64-opc.c:1678
+ msgid "negative or unaligned offset expected"
+ msgstr "очекиван је негативан или непоравнат померај"
+ 
+-#: aarch64-opc.c:1743
++#: aarch64-opc.c:1735
+ msgid "invalid register offset"
+ msgstr "неисправан померај регистра"
+ 
+-#: aarch64-opc.c:1765
++#: aarch64-opc.c:1757
+ msgid "invalid post-increment amount"
+ msgstr "неисправан износ пост-увећања"
+ 
+-#: aarch64-opc.c:1781 aarch64-opc.c:2299
++#: aarch64-opc.c:1773 aarch64-opc.c:2293
+ msgid "invalid shift amount"
+ msgstr "неисправан износ помака"
+ 
+-#: aarch64-opc.c:1794
++#: aarch64-opc.c:1786
+ msgid "invalid extend/shift operator"
+ msgstr "неисправан оператор проширења/помака"
+ 
+-#: aarch64-opc.c:1840 aarch64-opc.c:2101 aarch64-opc.c:2136 aarch64-opc.c:2155
+-#: aarch64-opc.c:2163 aarch64-opc.c:2252 aarch64-opc.c:2429 aarch64-opc.c:2529
+-#: aarch64-opc.c:2542
++#: aarch64-opc.c:1832 aarch64-opc.c:2093 aarch64-opc.c:2128 aarch64-opc.c:2147
++#: aarch64-opc.c:2155 aarch64-opc.c:2246 aarch64-opc.c:2423 aarch64-opc.c:2523
++#: aarch64-opc.c:2536
+ msgid "immediate out of range"
+ msgstr "непосредни је ван опсега"
+ 
+-#: aarch64-opc.c:1870 aarch64-opc.c:1912 aarch64-opc.c:1975 aarch64-opc.c:2009
++#: aarch64-opc.c:1862 aarch64-opc.c:1904 aarch64-opc.c:1967 aarch64-opc.c:2001
+ msgid "invalid addressing mode"
+ msgstr "непознат режим адресирања"
+ 
+-#: aarch64-opc.c:1967
++#: aarch64-opc.c:1959
+ msgid "index register xzr is not allowed"
+ msgstr "регистар индекса „xzr“ није допуштен"
+ 
+-#: aarch64-opc.c:2089 aarch64-opc.c:2111 aarch64-opc.c:2332 aarch64-opc.c:2340
+-#: aarch64-opc.c:2406 aarch64-opc.c:2435
++#: aarch64-opc.c:2081 aarch64-opc.c:2103 aarch64-opc.c:2326 aarch64-opc.c:2334
++#: aarch64-opc.c:2400 aarch64-opc.c:2429
+ msgid "invalid shift operator"
+ msgstr "неисправан оператор помака"
+ 
+-#: aarch64-opc.c:2095
++#: aarch64-opc.c:2087
+ msgid "shift amount must be 0 or 12"
+ msgstr "износ помака мора бити 0 или 12"
+ 
+-#: aarch64-opc.c:2118
++#: aarch64-opc.c:2110
+ msgid "shift amount must be a multiple of 16"
+ msgstr "износ помака мора бити множилац од 16"
+ 
+-#: aarch64-opc.c:2130
++#: aarch64-opc.c:2122
+ msgid "negative immediate value not allowed"
+ msgstr "негативна вредност непосредног није дозвољена"
+ 
+-#: aarch64-opc.c:2263
++#: aarch64-opc.c:2257
+ msgid "immediate zero expected"
+ msgstr "очекиван је непосредни нула"
+ 
+-#: aarch64-opc.c:2277
++#: aarch64-opc.c:2271
+ msgid "rotate expected to be 0, 90, 180 or 270"
+ msgstr "очекивано је да заокрет буде 0, 90, 180 или 270"
+ 
+-#: aarch64-opc.c:2288
++#: aarch64-opc.c:2282
+ msgid "rotate expected to be 90 or 270"
+ msgstr "очекивано је да заокрет буде 90 или 270"
+ 
+-#: aarch64-opc.c:2348
++#: aarch64-opc.c:2342
+ msgid "shift is not permitted"
+ msgstr "помак није допуштен"
+ 
+-#: aarch64-opc.c:2373
++#: aarch64-opc.c:2367
+ msgid "invalid value for immediate"
+ msgstr "неисправна вредност за непосредног"
+ 
+-#: aarch64-opc.c:2398
++#: aarch64-opc.c:2392
+ msgid "shift amount must be 0 or 16"
+ msgstr "износ помака мора бити 0 или 16"
+ 
+-#: aarch64-opc.c:2419
++#: aarch64-opc.c:2413
+ msgid "floating-point immediate expected"
+ msgstr "очекиван је непосредни са покретним зарезом"
+ 
+-#: aarch64-opc.c:2453
++#: aarch64-opc.c:2447
+ msgid "no shift amount allowed for 8-bit constants"
+ msgstr "износ помака није допуштен за 8-битне константе"
+ 
+-#: aarch64-opc.c:2463
++#: aarch64-opc.c:2457
+ msgid "shift amount must be 0 or 8"
+ msgstr "износ помака мора бити 0 или 8"
+ 
+-#: aarch64-opc.c:2476
++#: aarch64-opc.c:2470
+ msgid "immediate too big for element size"
+ msgstr "непосредни је превелик за величину елеммента"
+ 
+-#: aarch64-opc.c:2483
++#: aarch64-opc.c:2477
+ msgid "invalid arithmetic immediate"
+ msgstr "неисправан непосредни аритметике"
+ 
+-#: aarch64-opc.c:2497
++#: aarch64-opc.c:2491
+ msgid "floating-point value must be 0.5 or 1.0"
+ msgstr "вредност покретног зареза мора бити 0.5 или 1.0"
+ 
+-#: aarch64-opc.c:2507
++#: aarch64-opc.c:2501
+ msgid "floating-point value must be 0.5 or 2.0"
+ msgstr "вредност покретног зареза мора бити 0.5 или 2.0"
+ 
+-#: aarch64-opc.c:2517
++#: aarch64-opc.c:2511
+ msgid "floating-point value must be 0.0 or 1.0"
+ msgstr "вредност покретног зареза мора бити 0.0 или 1.0"
+ 
+-#: aarch64-opc.c:2548
++#: aarch64-opc.c:2542
+ msgid "invalid replicated MOV immediate"
+ msgstr "неисправан реплицирани „MOV“ непосредни"
+ 
+-#: aarch64-opc.c:2656
++#: aarch64-opc.c:2650
+ msgid "extend operator expected"
+ msgstr "очекиван је проширени оператор"
+ 
+-#: aarch64-opc.c:2669
++#: aarch64-opc.c:2663
+ msgid "missing extend operator"
+ msgstr "недостаје проширени оператор"
+ 
+-#: aarch64-opc.c:2675
++#: aarch64-opc.c:2669
+ msgid "'LSL' operator not allowed"
+ msgstr "„LSL“ оператор није допуштен"
+ 
+-#: aarch64-opc.c:2696
++#: aarch64-opc.c:2690
+ msgid "W register expected"
+ msgstr "„W“ регистар је очекиван"
+ 
+-#: aarch64-opc.c:2707
++#: aarch64-opc.c:2701
+ msgid "shift operator expected"
+ msgstr "очекиван је оператор помака"
+ 
+-#: aarch64-opc.c:2714
++#: aarch64-opc.c:2708
+ msgid "'ROR' operator not allowed"
+ msgstr "„ROR“ оператор није допуштен"
+ 
+-#: aarch64-opc.c:3852
++#: aarch64-opc.c:3998
+ msgid "reading from a write-only register"
+ msgstr "читам из регистра само за писање"
+ 
+-#: aarch64-opc.c:3854
++#: aarch64-opc.c:4000
+ msgid "writing to a read-only register"
+ msgstr "пишем у регистар само за читање"
+ 
+-#: aarch64-opc.c:5445
++#: aarch64-opc.c:5606
+ msgid "the three register operands must be distinct from one another"
+ msgstr "операнди три регистра морају бити различити"
+ 
+-#: aarch64-opc.c:5556
++#: aarch64-opc.c:5717
+ msgid "destination register differs from preceding instruction"
+ msgstr "регистар одредишта се разликује од претходеће инструкције"
+ 
+-#: aarch64-opc.c:5559
++#: aarch64-opc.c:5720
+ msgid "source register differs from preceding instruction"
+ msgstr "регистар изворишта се разликује од претходеће инструкције"
+ 
+-#: aarch64-opc.c:5562
++#: aarch64-opc.c:5723
+ msgid "size register differs from preceding instruction"
+ msgstr "регистар величине се разликује од претходеће инструкције"
+ 
+-#: aarch64-opc.c:5610
++#: aarch64-opc.c:5771
+ msgid "instruction opens new dependency sequence without ending previous one"
+ msgstr "инструкција је отворила нови низ зависности а да није завршила претходни"
+ 
+-#: aarch64-opc.c:5639
++#: aarch64-opc.c:5800
+ msgid "previous `movprfx' sequence not closed"
+ msgstr "претходни „movprfx“ низ није затворен"
+ 
+-#: aarch64-opc.c:5658
++#: aarch64-opc.c:5819
+ msgid "SVE instruction expected after `movprfx'"
+ msgstr "инструкција „SVE“ је очекивана након „movprfx“"
+ 
+-#: aarch64-opc.c:5671
++#: aarch64-opc.c:5832
+ msgid "SVE `movprfx' compatible instruction expected"
+ msgstr "очекивана је „SVE movprfx“ сагласна инструкција"
+ 
+-#: aarch64-opc.c:5759
++#: aarch64-opc.c:5920
+ msgid "predicated instruction expected after `movprfx'"
+ msgstr "предвиђена инструкција је очекивана након „movprfx“"
+ 
+-#: aarch64-opc.c:5771
++#: aarch64-opc.c:5932
+ msgid "merging predicate expected due to preceding `movprfx'"
+ msgstr "стапање предиката је очекивано услед претходећег „movprfx“"
+ 
+-#: aarch64-opc.c:5783
++#: aarch64-opc.c:5944
+ msgid "predicate register differs from that in preceding `movprfx'"
+ msgstr "регистрар предиката се разликује од оног у претходећем „movprfx“"
+ 
+-#: aarch64-opc.c:5802
++#: aarch64-opc.c:5963
+ msgid "output register of preceding `movprfx' not used in current instruction"
+ msgstr "регистар излаза претходеће „movprfx“ није коришћен у текућој инструкцији"
+ 
+-#: aarch64-opc.c:5815
++#: aarch64-opc.c:5976
+ msgid "output register of preceding `movprfx' expected as output"
+ msgstr "регистар излаза претходеће „movprfx“ је очекиван као излаз"
+ 
+-#: aarch64-opc.c:5827
++#: aarch64-opc.c:5988
+ msgid "output register of preceding `movprfx' used as input"
+ msgstr "регистар излаза претходеће „movprfx“ је коришћен као улаз"
+ 
+-#: aarch64-opc.c:5843
++#: aarch64-opc.c:6004
+ msgid "register size not compatible with previous `movprfx'"
+ msgstr "величина регистра није сагласна са претходним „movprfx“"
+ 
+@@ -383,7 +385,7 @@ msgstr "операнд гране није поравнат"
+ msgid "jump hint unaligned"
+ msgstr "погодак скока није поравнат"
+ 
+-#: arc-dis.c:379
++#: arc-dis.c:380
+ msgid ""
+ "\n"
+ "Warning: disassembly may be wrong due to guessed opcode class choice.\n"
+@@ -395,16 +397,16 @@ msgstr ""
+ "Користите „-M<class[,class]>“ да изаберете исправан разред опкода.\n"
+ "\t\t\t\t"
+ 
+-#: arc-dis.c:440
++#: arc-dis.c:442
+ msgid "An error occurred while generating the extension instruction operations"
+ msgstr "Дошло је до грешке приликом стварања радњи инструкција проширења"
+ 
+-#: arc-dis.c:845
++#: arc-dis.c:850
+ #, c-format
+ msgid "unrecognised disassembler CPU option: %s"
+ msgstr "непозната опција процесора разложитеља: %s"
+ 
+-#: arc-dis.c:1283
++#: arc-dis.c:1323
+ msgid ""
+ "\n"
+ "Warning: illegal use of double register pair.\n"
+@@ -412,47 +414,47 @@ msgstr ""
+ "\n"
+ "Упозорење: неисправна употреба двоструког пара регистра.\n"
+ 
+-#: arc-dis.c:1433
++#: arc-dis.c:1489
+ msgid "Enforce the designated architecture while decoding."
+ msgstr "Приморава осмишљену архитектуру приликом декодирања."
+ 
+-#: arc-dis.c:1435
++#: arc-dis.c:1491
+ msgid "Recognize DSP instructions."
+ msgstr "Препознаје „DSP“ инструкције."
+ 
+-#: arc-dis.c:1437
++#: arc-dis.c:1493
+ msgid "Recognize FPX SP instructions."
+ msgstr "Препознаје „FPX SP“ инструкције."
+ 
+-#: arc-dis.c:1439
++#: arc-dis.c:1495
+ msgid "Recognize FPX DP instructions."
+ msgstr "Препознаје „FPX DP“ инструкције."
+ 
+-#: arc-dis.c:1441
++#: arc-dis.c:1497
+ msgid "Recognize FPU QuarkSE-EM instructions."
+ msgstr "Препознаје „FPU QuarkSE-EM“ инструкције."
+ 
+-#: arc-dis.c:1443
++#: arc-dis.c:1499
+ msgid "Recognize double assist FPU instructions."
+ msgstr "Препознаје двоструко припомогнуте „FPU“ инструкције."
+ 
+-#: arc-dis.c:1445
++#: arc-dis.c:1501
+ msgid "Recognize single precision FPU instructions."
+ msgstr "Препознаје „FPU“ инструкције једноструке тачности."
+ 
+-#: arc-dis.c:1447
++#: arc-dis.c:1503
+ msgid "Recognize double precision FPU instructions."
+ msgstr "Препознаје „FPU“ инструкције двоструке тачности."
+ 
+-#: arc-dis.c:1449
++#: arc-dis.c:1505
+ msgid "Recognize NPS400 instructions."
+ msgstr "Препознаје „NPS400“ инструкције."
+ 
+-#: arc-dis.c:1451
++#: arc-dis.c:1507
+ msgid "Use only hexadecimal number to print immediates."
+ msgstr "Користи само хексадецимални број за исписивање непосредних."
+ 
+-#: arc-dis.c:1526
++#: arc-dis.c:1582
+ #, c-format
+ msgid ""
+ "\n"
+@@ -463,7 +465,7 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „ARC“ су подржане за коришћење\n"
+ "са прекидачем „-M“ (више опција треба да се раздвајају зарезима):\n"
+ 
+-#: arc-dis.c:1558 mips-dis.c:2812 riscv-dis.c:1135
++#: arc-dis.c:1616 mips-dis.c:2904 riscv-dis.c:1277
+ #, c-format
+ msgid ""
+ "\n"
+@@ -474,7 +476,7 @@ msgstr ""
+ "  За опције изнад, следеће опције су подржане за „%s“:\n"
+ "   "
+ 
+-#: arc-dis.c:1568
++#: arc-dis.c:1626
+ #, c-format
+ msgid ""
+ "\n"
+@@ -680,31 +682,31 @@ msgstr "Бира посебне називе регистра који се ко
+ msgid "Enable CDE extensions for coprocessor N space"
+ msgstr "Укључује „CDE“ проширења за N простор копроцесора"
+ 
+-#: arm-dis.c:8390
++#: arm-dis.c:8530
+ msgid "<illegal precision>"
+ msgstr "<неисправна тачност>"
+ 
+-#: arm-dis.c:11631
++#: arm-dis.c:12264
+ #, c-format
+ msgid "unrecognised register name set: %s"
+ msgstr "непознат назив регистра је подешен: %s"
+ 
+-#: arm-dis.c:11645
++#: arm-dis.c:12278
+ #, c-format
+ msgid "cde coprocessor not between 0-7: %s"
+ msgstr "„cde“ копроцесор није између 0-7: %s"
+ 
+-#: arm-dis.c:11651
++#: arm-dis.c:12284
+ #, c-format
+ msgid "coproc must have an argument: %s"
+ msgstr "копроцесор мора имати аргумент: %s"
+ 
+-#: arm-dis.c:11664
++#: arm-dis.c:12297
+ #, c-format
+ msgid "coprocN argument takes options \"generic\", \"cde\", or \"CDE\": %s"
+ msgstr "аргумент копроцN може да има опције „generic“, „cde“, или „CDE“: %s"
+ 
+-#: arm-dis.c:12374
++#: arm-dis.c:13009
+ #, c-format
+ msgid ""
+ "\n"
+@@ -715,17 +717,17 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „ARM“ су подржане за коришћење са\n"
+ "прекидачем „-M“:\n"
+ 
+-#: avr-dis.c:124 avr-dis.c:145
++#: avr-dis.c:130 avr-dis.c:152
+ #, c-format
+ msgid "undefined"
+ msgstr "неодређено"
+ 
+-#: avr-dis.c:236
++#: avr-dis.c:251
+ #, c-format
+ msgid "internal disassembler error"
+ msgstr "унутрашња грешка разложитеља"
+ 
+-#: avr-dis.c:290
++#: avr-dis.c:312
+ #, c-format
+ msgid "unknown constraint `%c'"
+ msgstr "непознато ограничење „%c“"
+@@ -736,7 +738,7 @@ msgstr "очекивах 16, 32 или 64 у"
+ 
+ #: bpf-asm.c:181 epiphany-asm.c:456 fr30-asm.c:311 frv-asm.c:1264
+ #: ip2k-asm.c:512 iq2000-asm.c:460 lm32-asm.c:350 m32c-asm.c:1585
+-#: m32r-asm.c:329 mep-asm.c:1287 mt-asm.c:596 or1k-asm.c:576 xc16x-asm.c:377
++#: m32r-asm.c:329 mep-asm.c:1287 mt-asm.c:596 or1k-asm.c:576
+ #: xstormy16-asm.c:277
+ #, c-format
+ msgid "internal error: unrecognized field %d while parsing"
+@@ -744,7 +746,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ 
+ #: bpf-asm.c:233 epiphany-asm.c:508 fr30-asm.c:363 frv-asm.c:1316
+ #: ip2k-asm.c:564 iq2000-asm.c:512 lm32-asm.c:402 m32c-asm.c:1637
+-#: m32r-asm.c:381 mep-asm.c:1339 mt-asm.c:648 or1k-asm.c:628 xc16x-asm.c:429
++#: m32r-asm.c:381 mep-asm.c:1339 mt-asm.c:648 or1k-asm.c:628
+ #: xstormy16-asm.c:329
+ msgid "missing mnemonic in syntax string"
+ msgstr "недостаје мнемоник у нисци синтаксе"
+@@ -760,15 +762,14 @@ msgstr "недостаје мнемоник у нисци синтаксе"
+ #: m32c-asm.c:1972 m32r-asm.c:516 m32r-asm.c:520 m32r-asm.c:609 m32r-asm.c:716
+ #: mep-asm.c:1474 mep-asm.c:1478 mep-asm.c:1567 mep-asm.c:1674 mt-asm.c:783
+ #: mt-asm.c:787 mt-asm.c:876 mt-asm.c:983 or1k-asm.c:763 or1k-asm.c:767
+-#: or1k-asm.c:856 or1k-asm.c:963 xc16x-asm.c:564 xc16x-asm.c:568
+-#: xc16x-asm.c:657 xc16x-asm.c:764 xstormy16-asm.c:464 xstormy16-asm.c:468
++#: or1k-asm.c:856 or1k-asm.c:963 xstormy16-asm.c:464 xstormy16-asm.c:468
+ #: xstormy16-asm.c:557 xstormy16-asm.c:664
+ msgid "unrecognized instruction"
+ msgstr "непозната инструкција"
+ 
+ #: bpf-asm.c:415 epiphany-asm.c:690 fr30-asm.c:545 frv-asm.c:1498
+ #: ip2k-asm.c:746 iq2000-asm.c:694 lm32-asm.c:584 m32c-asm.c:1819
+-#: m32r-asm.c:563 mep-asm.c:1521 mt-asm.c:830 or1k-asm.c:810 xc16x-asm.c:611
++#: m32r-asm.c:563 mep-asm.c:1521 mt-asm.c:830 or1k-asm.c:810
+ #: xstormy16-asm.c:511
+ #, c-format
+ msgid "syntax error (expected char `%c', found `%c')"
+@@ -776,7 +777,7 @@ msgstr "грешка синтаксе (очекивах знак „%c“, на
+ 
+ #: bpf-asm.c:425 epiphany-asm.c:700 fr30-asm.c:555 frv-asm.c:1508
+ #: ip2k-asm.c:756 iq2000-asm.c:704 lm32-asm.c:594 m32c-asm.c:1829
+-#: m32r-asm.c:573 mep-asm.c:1531 mt-asm.c:840 or1k-asm.c:820 xc16x-asm.c:621
++#: m32r-asm.c:573 mep-asm.c:1531 mt-asm.c:840 or1k-asm.c:820
+ #: xstormy16-asm.c:521
+ #, c-format
+ msgid "syntax error (expected char `%c', found end of instruction)"
+@@ -784,21 +785,21 @@ msgstr "грешка синтаксе (очекивах знак „%c“, на
+ 
+ #: bpf-asm.c:455 epiphany-asm.c:730 fr30-asm.c:585 frv-asm.c:1538
+ #: ip2k-asm.c:786 iq2000-asm.c:734 lm32-asm.c:624 m32c-asm.c:1859
+-#: m32r-asm.c:603 mep-asm.c:1561 mt-asm.c:870 or1k-asm.c:850 xc16x-asm.c:651
++#: m32r-asm.c:603 mep-asm.c:1561 mt-asm.c:870 or1k-asm.c:850
+ #: xstormy16-asm.c:551
+ msgid "junk at end of line"
+ msgstr "ђубре на крају реда"
+ 
+ #: bpf-asm.c:567 epiphany-asm.c:842 fr30-asm.c:697 frv-asm.c:1650
+ #: ip2k-asm.c:898 iq2000-asm.c:846 lm32-asm.c:736 m32c-asm.c:1971
+-#: m32r-asm.c:715 mep-asm.c:1673 mt-asm.c:982 or1k-asm.c:962 xc16x-asm.c:763
++#: m32r-asm.c:715 mep-asm.c:1673 mt-asm.c:982 or1k-asm.c:962
+ #: xstormy16-asm.c:663
+ msgid "unrecognized form of instruction"
+ msgstr "непознат облик инструкције"
+ 
+ #: bpf-asm.c:581 epiphany-asm.c:856 fr30-asm.c:711 frv-asm.c:1664
+ #: ip2k-asm.c:912 iq2000-asm.c:860 lm32-asm.c:750 m32c-asm.c:1985
+-#: m32r-asm.c:729 mep-asm.c:1687 mt-asm.c:996 or1k-asm.c:976 xc16x-asm.c:777
++#: m32r-asm.c:729 mep-asm.c:1687 mt-asm.c:996 or1k-asm.c:976
+ #: xstormy16-asm.c:677
+ #, c-format
+ msgid "bad instruction `%.50s...'"
+@@ -806,7 +807,7 @@ msgstr "лоша инструкција „%.50s...“"
+ 
+ #: bpf-asm.c:584 epiphany-asm.c:859 fr30-asm.c:714 frv-asm.c:1667
+ #: ip2k-asm.c:915 iq2000-asm.c:863 lm32-asm.c:753 m32c-asm.c:1988
+-#: m32r-asm.c:732 mep-asm.c:1690 mt-asm.c:999 or1k-asm.c:979 xc16x-asm.c:780
++#: m32r-asm.c:732 mep-asm.c:1690 mt-asm.c:999 or1k-asm.c:979
+ #: xstormy16-asm.c:680
+ #, c-format
+ msgid "bad instruction `%.50s'"
+@@ -830,14 +831,13 @@ msgstr "унутрашња грешка: bpf_cgen_cpu_open: нису навед
+ #. Default text to print if an instruction isn't recognized.
+ #: bpf-dis.c:41 epiphany-dis.c:41 fr30-dis.c:41 frv-dis.c:41 ip2k-dis.c:41
+ #: iq2000-dis.c:41 lm32-dis.c:41 m32c-dis.c:41 m32r-dis.c:41 mep-dis.c:41
+-#: mmix-dis.c:293 mt-dis.c:41 nds32-dis.c:64 or1k-dis.c:41 xc16x-dis.c:41
+-#: xstormy16-dis.c:41
++#: mmix-dis.c:293 mt-dis.c:41 nds32-dis.c:64 or1k-dis.c:41 xstormy16-dis.c:41
+ msgid "*unknown*"
+ msgstr "*непознато*"
+ 
+ #: bpf-dis.c:203 epiphany-dis.c:279 fr30-dis.c:300 frv-dis.c:397
+ #: ip2k-dis.c:289 iq2000-dis.c:190 lm32-dis.c:148 m32c-dis.c:892
+-#: m32r-dis.c:280 mep-dis.c:1188 mt-dis.c:291 or1k-dis.c:175 xc16x-dis.c:421
++#: m32r-dis.c:280 mep-dis.c:1188 mt-dis.c:288 or1k-dis.c:175
+ #: xstormy16-dis.c:169
+ #, c-format
+ msgid "internal error: unrecognized field %d while printing insn"
+@@ -846,7 +846,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:166 epiphany-ibld.c:166 fr30-ibld.c:166 frv-ibld.c:166
+ #: ip2k-ibld.c:166 iq2000-ibld.c:166 lm32-ibld.c:166 m32c-ibld.c:166
+ #: m32r-ibld.c:166 mep-ibld.c:166 mt-ibld.c:166 or1k-ibld.c:166
+-#: xc16x-ibld.c:166 xstormy16-ibld.c:166
++#: xstormy16-ibld.c:166
+ #, c-format
+ msgid "operand out of range (%ld not between %ld and %lu)"
+ msgstr "операнд је ван опсега (%ld није између %ld и %lu)"
+@@ -854,7 +854,7 @@ msgstr "операнд је ван опсега (%ld није између %ld 
+ #: bpf-ibld.c:187 epiphany-ibld.c:187 fr30-ibld.c:187 frv-ibld.c:187
+ #: ip2k-ibld.c:187 iq2000-ibld.c:187 lm32-ibld.c:187 m32c-ibld.c:187
+ #: m32r-ibld.c:187 mep-ibld.c:187 mt-ibld.c:187 or1k-ibld.c:187
+-#: xc16x-ibld.c:187 xstormy16-ibld.c:187
++#: xstormy16-ibld.c:187
+ #, c-format
+ msgid "operand out of range (0x%lx not between 0 and 0x%lx)"
+ msgstr "операнд је ван опсега (0x%lx није између 0 и 0x%lx)"
+@@ -862,7 +862,7 @@ msgstr "операнд је ван опсега (0x%lx није између 0 
+ #: bpf-ibld.c:203 cgen-asm.c:351 epiphany-ibld.c:203 fr30-ibld.c:203
+ #: frv-ibld.c:203 ip2k-ibld.c:203 iq2000-ibld.c:203 lm32-ibld.c:203
+ #: m32c-ibld.c:203 m32r-ibld.c:203 mep-ibld.c:203 mt-ibld.c:203
+-#: or1k-ibld.c:203 xc16x-ibld.c:203 xstormy16-ibld.c:203
++#: or1k-ibld.c:203 xstormy16-ibld.c:203
+ #, c-format
+ msgid "operand out of range (%ld not between %ld and %ld)"
+ msgstr "операнд је ван опсега (%ld није између %ld и %ld)"
+@@ -870,7 +870,7 @@ msgstr "операнд је ван опсега (%ld није између %ld 
+ #: bpf-ibld.c:630 epiphany-ibld.c:885 fr30-ibld.c:740 frv-ibld.c:866
+ #: ip2k-ibld.c:617 iq2000-ibld.c:723 lm32-ibld.c:644 m32c-ibld.c:1741
+ #: m32r-ibld.c:675 mep-ibld.c:1218 mt-ibld.c:759 or1k-ibld.c:738
+-#: xc16x-ibld.c:762 xstormy16-ibld.c:688
++#: xstormy16-ibld.c:688
+ #, c-format
+ msgid "internal error: unrecognized field %d while building insn"
+ msgstr "унутрашња грешка: непознато поље %d приликом изградње инсн-а"
+@@ -878,7 +878,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:714 epiphany-ibld.c:1180 fr30-ibld.c:946 frv-ibld.c:1184
+ #: ip2k-ibld.c:693 iq2000-ibld.c:899 lm32-ibld.c:749 m32c-ibld.c:2903
+ #: m32r-ibld.c:813 mep-ibld.c:1818 mt-ibld.c:980 or1k-ibld.c:897
+-#: xc16x-ibld.c:983 xstormy16-ibld.c:835
++#: xstormy16-ibld.c:835
+ #, c-format
+ msgid "internal error: unrecognized field %d while decoding insn"
+ msgstr "унутрашња грешка: непознато поље %d приликом декодирања инсн-а"
+@@ -886,7 +886,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:783 epiphany-ibld.c:1324 fr30-ibld.c:1093 frv-ibld.c:1463
+ #: ip2k-ibld.c:768 iq2000-ibld.c:1031 lm32-ibld.c:839 m32c-ibld.c:3521
+ #: m32r-ibld.c:927 mep-ibld.c:2289 mt-ibld.c:1181 or1k-ibld.c:993
+-#: xc16x-ibld.c:1205 xstormy16-ibld.c:946
++#: xstormy16-ibld.c:946
+ #, c-format
+ msgid "internal error: unrecognized field %d while getting int operand"
+ msgstr "унутрашња грешка: непознато поље %d приликом добављања инт операнда"
+@@ -894,7 +894,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:834 epiphany-ibld.c:1450 fr30-ibld.c:1222 frv-ibld.c:1724
+ #: ip2k-ibld.c:825 iq2000-ibld.c:1145 lm32-ibld.c:911 m32c-ibld.c:4121
+ #: m32r-ibld.c:1023 mep-ibld.c:2742 mt-ibld.c:1364 or1k-ibld.c:1071
+-#: xc16x-ibld.c:1409 xstormy16-ibld.c:1039
++#: xstormy16-ibld.c:1039
+ #, c-format
+ msgid "internal error: unrecognized field %d while getting vma operand"
+ msgstr "унутрашња грешка: непознато поље %d приликом добављања вма операнда"
+@@ -902,7 +902,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:892 epiphany-ibld.c:1583 fr30-ibld.c:1354 frv-ibld.c:1992
+ #: ip2k-ibld.c:885 iq2000-ibld.c:1266 lm32-ibld.c:990 m32c-ibld.c:4709
+ #: m32r-ibld.c:1125 mep-ibld.c:3156 mt-ibld.c:1554 or1k-ibld.c:1156
+-#: xc16x-ibld.c:1614 xstormy16-ibld.c:1139
++#: xstormy16-ibld.c:1139
+ #, c-format
+ msgid "internal error: unrecognized field %d while setting int operand"
+ msgstr "унутрашња грешка: непознато поље %d приликом подешавања инт операнда"
+@@ -910,7 +910,7 @@ msgstr "унутрашња грешка: непознато поље %d прил
+ #: bpf-ibld.c:940 epiphany-ibld.c:1706 fr30-ibld.c:1476 frv-ibld.c:2250
+ #: ip2k-ibld.c:935 iq2000-ibld.c:1377 lm32-ibld.c:1059 m32c-ibld.c:5287
+ #: m32r-ibld.c:1217 mep-ibld.c:3560 mt-ibld.c:1734 or1k-ibld.c:1231
+-#: xc16x-ibld.c:1809 xstormy16-ibld.c:1229
++#: xstormy16-ibld.c:1229
+ #, c-format
+ msgid "internal error: unrecognized field %d while setting vma operand"
+ msgstr "унутрашња грешка: непознато поље %d приликом подешавања вма операнда"
+@@ -951,17 +951,17 @@ msgstr "<непознат регистар %d>"
+ msgid "Unknown error %d\n"
+ msgstr "Непозната грешка %d\n"
+ 
+-#: dis-buf.c:70
++#: dis-buf.c:67
+ #, c-format
+-msgid "Address 0x%s is out of bounds.\n"
+-msgstr "Адреса 0х%s је изван граница.\n"
++msgid "Address 0x%<PRIx64> is out of bounds.\n"
++msgstr "Адреса 0х%<PRIx64> је изван граница.\n"
+ 
+-#: disassemble.c:859
++#: disassemble.c:876
+ #, c-format
+ msgid "assertion fail %s:%d"
+ msgstr "неуспех тврдње „%s:%d“"
+ 
+-#: disassemble.c:860
++#: disassemble.c:877
+ msgid "Please report this bug"
+ msgstr "Известите о овој грешци"
+ 
+@@ -1102,11 +1102,11 @@ msgstr "Hmmmm 0x%x"
+ msgid "Don't understand 0x%x \n"
+ msgstr "Не разумем 0x%x \n"
+ 
+-#: i386-dis.c:8528
++#: i386-dis.c:8839
+ msgid "<internal disassembler error>"
+ msgstr "<унутрашња грешка разложитеља>"
+ 
+-#: i386-dis.c:8802
++#: i386-dis.c:9065
+ #, c-format
+ msgid ""
+ "\n"
+@@ -1117,32 +1117,32 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „i386/x86-64“ су подржане за коришћење\n"
+ "са прекидачем „-M“ (више опција треба да се раздвајају зарезима):\n"
+ 
+-#: i386-dis.c:8806
++#: i386-dis.c:9069
+ #, c-format
+ msgid "  x86-64      Disassemble in 64bit mode\n"
+ msgstr "  x86-64      Разлаже у режиму 64-бита\n"
+ 
+-#: i386-dis.c:8807
++#: i386-dis.c:9070
+ #, c-format
+ msgid "  i386        Disassemble in 32bit mode\n"
+ msgstr "  i386        Разлаже у режиму 32-бита\n"
+ 
+-#: i386-dis.c:8808
++#: i386-dis.c:9071
+ #, c-format
+ msgid "  i8086       Disassemble in 16bit mode\n"
+ msgstr "  i8086       Разлаже у режиму 16-бита\n"
+ 
+-#: i386-dis.c:8809
++#: i386-dis.c:9072
+ #, c-format
+ msgid "  att         Display instruction in AT&T syntax\n"
+ msgstr "  att         Приказује инструкцију у синтакси „AT&T“-ја\n"
+ 
+-#: i386-dis.c:8810
++#: i386-dis.c:9073
+ #, c-format
+ msgid "  intel       Display instruction in Intel syntax\n"
+ msgstr "  intel       Приказује инструкцију у синтакси Интела\n"
+ 
+-#: i386-dis.c:8811
++#: i386-dis.c:9074
+ #, c-format
+ msgid ""
+ "  att-mnemonic\n"
+@@ -1151,7 +1151,7 @@ msgstr ""
+ "  att-mnemonic\n"
+ "              Приказује инструкцију у мнемонику „AT&T“-а\n"
+ 
+-#: i386-dis.c:8813
++#: i386-dis.c:9076
+ #, c-format
+ msgid ""
+ "  intel-mnemonic\n"
+@@ -1160,165 +1160,175 @@ msgstr ""
+ "  intel-mnemonic\n"
+ "              Приказује инструкцију у мнемонику Интела\n"
+ 
+-#: i386-dis.c:8815
++#: i386-dis.c:9078
+ #, c-format
+ msgid "  addr64      Assume 64bit address size\n"
+ msgstr "  addr64      Претпоставља величину адресе од 64 бита\n"
+ 
+-#: i386-dis.c:8816
++#: i386-dis.c:9079
+ #, c-format
+ msgid "  addr32      Assume 32bit address size\n"
+ msgstr "  addr32      Претпоставља величину адресе од 32 бита\n"
+ 
+-#: i386-dis.c:8817
++#: i386-dis.c:9080
+ #, c-format
+ msgid "  addr16      Assume 16bit address size\n"
+ msgstr "  addr16      Претпоставља величину адресе од 16 бита\n"
+ 
+-#: i386-dis.c:8818
++#: i386-dis.c:9081
+ #, c-format
+ msgid "  data32      Assume 32bit data size\n"
+ msgstr "  data32      Претпоставља величину података од 32 бита\n"
+ 
+-#: i386-dis.c:8819
++#: i386-dis.c:9082
+ #, c-format
+ msgid "  data16      Assume 16bit data size\n"
+ msgstr "  data16      Претпоставља величину података од 16 бита\n"
+ 
+-#: i386-dis.c:8820
++#: i386-dis.c:9083
+ #, c-format
+ msgid "  suffix      Always display instruction suffix in AT&T syntax\n"
+ msgstr "  suffix      Увек приказује суфикс инструкције у синтакси „AT&T“-ја\n"
+ 
+-#: i386-dis.c:8821
++#: i386-dis.c:9084
+ #, c-format
+ msgid "  amd64       Display instruction in AMD64 ISA\n"
+ msgstr "  amd64       Приказује инструкцију у „AMD64 ISA“\n"
+ 
+-#: i386-dis.c:8822
++#: i386-dis.c:9085
+ #, c-format
+ msgid "  intel64     Display instruction in Intel64 ISA\n"
+ msgstr "  intel64     Приказује инструкције у „Intel64 ISA“\n"
+ 
+-#: i386-dis.c:9402
++#: i386-dis.c:9773
+ msgid "64-bit address is disabled"
+ msgstr "64-битна адреса је искључена"
+ 
+-#: i386-gen.c:856
++#: i386-gen.c:560
+ #, c-format
+ msgid "%s: error: "
+ msgstr "%s: грешка: "
+ 
+-#: i386-gen.c:1012
++#: i386-gen.c:686
+ #, c-format
+ msgid "%s: %d: unknown bitfield: %s\n"
+ msgstr "%s: %d: непознато поље бита: %s\n"
+ 
+-#: i386-gen.c:1014
++#: i386-gen.c:688 i386-gen.c:755
+ #, c-format
+ msgid "unknown bitfield: %s\n"
+ msgstr "непознато поље бита: %s\n"
+ 
+-#: i386-gen.c:1077
++#: i386-gen.c:820
+ #, c-format
+ msgid "%s: %d: missing `)' in bitfield: %s\n"
+ msgstr "%s: %d: недостаје ) у пољу бита: %s\n"
+ 
+-#: i386-gen.c:1178
++#: i386-gen.c:920
++#, c-format
++msgid "%s: %d: no memory operand\n"
++msgstr "%s: %d: нема операнда меморије\n"
++
++#: i386-gen.c:956
+ #, c-format
+-msgid "unknown broadcast operand: %s\n"
+-msgstr "непознат операнд емитовања: %s\n"
++msgid "%s: %d: unknown element size: %s\n"
++msgstr "%s: %d: непозната величина елемента: %s\n"
+ 
+-#: i386-gen.c:1233
++#: i386-gen.c:1013
+ #, c-format
+ msgid "%s:%d: Conflicting opcode space specifications\n"
+ msgstr "%s:%d: Сукобљавајуће одредбе опкод размака\n"
+ 
+-#: i386-gen.c:1237
++#: i386-gen.c:1017
+ #, c-format
+ msgid "%s:%d: Warning: redundant opcode space specification\n"
+ msgstr "%s:%d: Упозорење: понављајућа одредба опкод размака\n"
+ 
+-#: i386-gen.c:1246
++#: i386-gen.c:1026
+ #, c-format
+ msgid "%s:%d: Conflicting prefix specifications\n"
+ msgstr "%s:%d: Сукобљавајуће одредбе префикса\n"
+ 
+-#: i386-gen.c:1250
++#: i386-gen.c:1030
+ #, c-format
+ msgid "%s:%d: Warning: redundant prefix specification\n"
+ msgstr "%s:%d: Упозорење: понављајућа одредба префикса\n"
+ 
+-#: i386-gen.c:1460
++#: i386-gen.c:1239
+ #, c-format
+ msgid "%s:%d: %s: unrecognized opcode encoding space\n"
+ msgstr "%s:%d: %s: непознат размак опкод кодирања\n"
+ 
+-#: i386-gen.c:1466
++#: i386-gen.c:1245
+ #, c-format
+ msgid "%s:%d: %s: residual opcode (0x%0*llx) too large\n"
+ msgstr "%s:%d: %s: заостали опкод (0x%0*llx) је превелик\n"
+ 
+-#: i386-gen.c:1888
++#: i386-gen.c:1612
++#, c-format
++msgid "%s: %d: (continued) line too long\n"
++msgstr "%s: %d: (настављено) ред је предуг\n"
++
++#: i386-gen.c:1719
+ #, c-format
+ msgid "can't find i386-reg.tbl for reading, errno = %s\n"
+ msgstr "не могу да нађем „i386-reg.tbl“ за читање, грешка = %s\n"
+ 
+-#: i386-gen.c:1966
++#: i386-gen.c:1796
+ #, c-format
+ msgid "can't create i386-init.h, errno = %s\n"
+ msgstr "не могу да направим „i386-init.h“, грешка = %s\n"
+ 
+-#: i386-gen.c:2056 ia64-gen.c:2829
++#: i386-gen.c:1911 ia64-gen.c:2819
+ #, c-format
+ msgid "unable to change directory to \"%s\", errno = %s\n"
+ msgstr "не могу да пређем у директоријум „%s“, гршка = %s\n"
+ 
+-#: i386-gen.c:2070 i386-gen.c:2075
++#: i386-gen.c:1925 i386-gen.c:1930
+ #, c-format
+ msgid "CpuMax != %d!\n"
+ msgstr "CpuMax != %d!\n"
+ 
+-#: i386-gen.c:2079
++#: i386-gen.c:1934
+ #, c-format
+ msgid "%d unused bits in i386_cpu_flags.\n"
+ msgstr "%d некоришћена бита у „i386_cpu_flags“.\n"
+ 
+-#: i386-gen.c:2094
++#: i386-gen.c:1949
+ #, c-format
+ msgid "%d unused bits in i386_operand_type.\n"
+ msgstr "%d некоришћена бита у „i386_operand_type“.\n"
+ 
+-#: i386-gen.c:2108
++#: i386-gen.c:1963
+ #, c-format
+ msgid "can't create i386-tbl.h, errno = %s\n"
+ msgstr "не могу да направим „i386-tbl.h“, грешка = %s\n"
+ 
+-#: ia64-gen.c:306
++#: ia64-gen.c:297
+ #, c-format
+ msgid "%s: Error: "
+ msgstr "%s: Грешка: "
+ 
+-#: ia64-gen.c:319
++#: ia64-gen.c:310
+ #, c-format
+ msgid "%s: Warning: "
+ msgstr "%s: Упозорење: "
+ 
+-#: ia64-gen.c:505 ia64-gen.c:736
++#: ia64-gen.c:496 ia64-gen.c:727
+ #, c-format
+ msgid "multiple note %s not handled\n"
+ msgstr "нисам одрадио више белешки „%s“\n"
+ 
+-#: ia64-gen.c:616
++#: ia64-gen.c:607
+ msgid "can't find ia64-ic.tbl for reading\n"
+ msgstr "не могу да нађем „ia64-ic.tbl“ за читање\n"
+ 
+-#: ia64-gen.c:818
++#: ia64-gen.c:809
+ #, c-format
+ msgid "can't find %s for reading\n"
+ msgstr "не могу да нађем „%s“ за читање\n"
+ 
+-#: ia64-gen.c:1050
++#: ia64-gen.c:1041
+ #, c-format
+ msgid ""
+ "most recent format '%s'\n"
+@@ -1327,77 +1337,77 @@ msgstr ""
+ "најновији формат „%s“\n"
+ "изгледа ограниченији него „%s“\n"
+ 
+-#: ia64-gen.c:1061
++#: ia64-gen.c:1052
+ #, c-format
+ msgid "overlapping field %s->%s\n"
+ msgstr "преклапам поље %s—>%s\n"
+ 
+-#: ia64-gen.c:1258
++#: ia64-gen.c:1249
+ #, c-format
+ msgid "overwriting note %d with note %d (IC:%s)\n"
+ msgstr "преписујем белешку %d белешком %d (IC:%s)\n"
+ 
+-#: ia64-gen.c:1465
++#: ia64-gen.c:1456
+ #, c-format
+ msgid "don't know how to specify %% dependency %s\n"
+ msgstr "не знам како да наведем %% зависност „%s“\n"
+ 
+-#: ia64-gen.c:1487
++#: ia64-gen.c:1478
+ #, c-format
+ msgid "Don't know how to specify # dependency %s\n"
+ msgstr "Не знам како да наведем # зависност „%s“\n"
+ 
+-#: ia64-gen.c:1526
++#: ia64-gen.c:1517
+ #, c-format
+ msgid "IC:%s [%s] has no terminals or sub-classes\n"
+ msgstr "„IC:%s“ [%s] нема терминале или под-класе\n"
+ 
+-#: ia64-gen.c:1529
++#: ia64-gen.c:1520
+ #, c-format
+ msgid "IC:%s has no terminals or sub-classes\n"
+ msgstr "„IC:%s“ нема терминале или под-класе\n"
+ 
+-#: ia64-gen.c:1538
++#: ia64-gen.c:1529
+ #, c-format
+ msgid "no insns mapped directly to terminal IC %s [%s]"
+ msgstr "ниједна инструкција није мапирана директно у терминал „IC %s“ [%s]"
+ 
+-#: ia64-gen.c:1541
++#: ia64-gen.c:1532
+ #, c-format
+ msgid "no insns mapped directly to terminal IC %s\n"
+ msgstr "ниједна инструкција није мапирана директно у терминал „IC %s“\n"
+ 
+-#: ia64-gen.c:1552
++#: ia64-gen.c:1543
+ #, c-format
+ msgid "class %s is defined but not used\n"
+ msgstr "класа „%s“ је дефинисана али се не користи\n"
+ 
+-#: ia64-gen.c:1565
++#: ia64-gen.c:1556
+ #, c-format
+ msgid "Warning: rsrc %s (%s) has no chks\n"
+ msgstr "Упозорење: „rsrc“ „%s“ (%s) нема „chks“\n"
+ 
+-#: ia64-gen.c:1568
++#: ia64-gen.c:1559
+ #, c-format
+ msgid "Warning: rsrc %s (%s) has no chks or regs\n"
+ msgstr "Упозорење: „rsrc“ „%s“ (%s) нема „chks“ или „regs“\n"
+ 
+-#: ia64-gen.c:1572
++#: ia64-gen.c:1563
+ #, c-format
+ msgid "rsrc %s (%s) has no regs\n"
+ msgstr "„rsrc“ „%s“ (%s) нема „regs“\n"
+ 
+-#: ia64-gen.c:2464
++#: ia64-gen.c:2455
+ #, c-format
+ msgid "IC note %d in opcode %s (IC:%s) conflicts with resource %s note %d\n"
+ msgstr "ИЦ белешка %d у опкоду „%s“ (IC:%s) се сукобљава са извориштем „%s“ белешка %d\n"
+ 
+-#: ia64-gen.c:2492
++#: ia64-gen.c:2483
+ #, c-format
+ msgid "IC note %d for opcode %s (IC:%s) conflicts with resource %s note %d\n"
+ msgstr "ИЦ белешка %d за опкод „%s“ (IC:%s) се сукобљава са извориштем „%s“ белешка %d\n"
+ 
+-#: ia64-gen.c:2506
++#: ia64-gen.c:2497
+ #, c-format
+ msgid "opcode %s has no class (ops %d %d %d)\n"
+ msgstr "опкод „%s“ нема класу (опције %d %d %d)\n"
+@@ -1661,12 +1671,12 @@ msgstr "унутрашња грешка: m32r_cgen_cpu_open: неподржан
+ msgid "internal error: m32r_cgen_cpu_open: no endianness specified"
+ msgstr "унутрашња грешка: m32r_cgen_cpu_open: нису наведене крајњости"
+ 
+-#: m68k-dis.c:1294
++#: m68k-dis.c:1288
+ #, c-format
+ msgid "<function code %d>"
+ msgstr "<код функције %d>"
+ 
+-#: m68k-dis.c:1457
++#: m68k-dis.c:1451
+ #, c-format
+ msgid "<internal error in opcode table: %s %s>\n"
+ msgstr "<унутрашња грешка у табели опкода: %s %s>\n"
+@@ -1719,24 +1729,24 @@ msgstr "унутрашња грешка: mep_cgen_cpu_open: неподржан 
+ msgid "internal error: mep_cgen_cpu_open: no endianness specified"
+ msgstr "унутрашња грешка: mep_cgen_cpu_open: нису наведене крајњости"
+ 
+-#: mips-dis.c:1834 mips-dis.c:2060
++#: mips-dis.c:1904 mips-dis.c:2137
+ #, c-format
+ msgid "# internal error, undefined operand in `%s %s'"
+ msgstr "# унутрашња грешка, неодређени операнд у „%s %s“"
+ 
+-#: mips-dis.c:2649
++#: mips-dis.c:2739
+ msgid "Use canonical instruction forms.\n"
+ msgstr "Користи облике прописне инструкције.\n"
+ 
+-#: mips-dis.c:2651
++#: mips-dis.c:2741
+ msgid "Recognize MSA instructions.\n"
+ msgstr "Препознаје „MSA“ инструкције.\n"
+ 
+-#: mips-dis.c:2653
++#: mips-dis.c:2743
+ msgid "Recognize the virtualization ASE instructions.\n"
+ msgstr "Препознаје „ASE“ инструкције виртуелизације.\n"
+ 
+-#: mips-dis.c:2655
++#: mips-dis.c:2745
+ msgid ""
+ "Recognize the eXtended Physical Address (XPA) ASE\n"
+ "                  instructions.\n"
+@@ -1744,27 +1754,27 @@ msgstr ""
+ "Препознаје „eXtended Physical Address (XPA) ASE“\n"
+ "                  инструкције.\n"
+ 
+-#: mips-dis.c:2658
++#: mips-dis.c:2748
+ msgid "Recognize the Global INValidate (GINV) ASE instructions.\n"
+ msgstr "Препознаје „Global INValidate (GINV) ASE“ инструкције.\n"
+ 
+-#: mips-dis.c:2662
++#: mips-dis.c:2752
+ msgid "Recognize the Loongson MultiMedia extensions Instructions (MMI) ASE instructions.\n"
+ msgstr "Препознаје „Loongson MultiMedia extensions Instructions (MMI) ASE“ инструкције.\n"
+ 
+-#: mips-dis.c:2666
++#: mips-dis.c:2756
+ msgid "Recognize the Loongson Content Address Memory (CAM)  instructions.\n"
+ msgstr "Препознаје „Loongson Content Address Memory (CAM)“ инструкције.\n"
+ 
+-#: mips-dis.c:2670
++#: mips-dis.c:2760
+ msgid "Recognize the Loongson EXTensions (EXT)  instructions.\n"
+ msgstr "Препознаје „Loongson EXTensions (EXT)“ инструкције.\n"
+ 
+-#: mips-dis.c:2674
++#: mips-dis.c:2764
+ msgid "Recognize the Loongson EXTensions R2 (EXT2)  instructions.\n"
+ msgstr "Препознаје „Loongson EXTensions R2 (EXT2)“ инструкције.\n"
+ 
+-#: mips-dis.c:2677
++#: mips-dis.c:2767
+ msgid ""
+ "Print GPR names according to specified ABI.\n"
+ "                  Default: based on binary being disassembled.\n"
+@@ -1772,7 +1782,7 @@ msgstr ""
+ "Исписује „GPR“ називе у складу са наведеним „ABI“-јем.\n"
+ "                   Основно: у зависности од разложеног бинарног.\n"
+ 
+-#: mips-dis.c:2680
++#: mips-dis.c:2770
+ msgid ""
+ "Print FPR names according to specified ABI.\n"
+ "                  Default: numeric.\n"
+@@ -1780,7 +1790,7 @@ msgstr ""
+ "Исписује „FPR“ називе у складу са наведеним „ABI“-јем.\n"
+ "                   Основно: број.\n"
+ 
+-#: mips-dis.c:2683
++#: mips-dis.c:2773
+ msgid ""
+ "Print CP0 register names according to specified architecture.\n"
+ "                  Default: based on binary being disassembled.\n"
+@@ -1788,7 +1798,7 @@ msgstr ""
+ "Исписује „CP0“ називе регистра у складу са наведеном архитектуром.\n"
+ "                   Основно: у зависности од разложеног бинарног.\n"
+ 
+-#: mips-dis.c:2687
++#: mips-dis.c:2777
+ msgid ""
+ "Print HWR names according to specified architecture.\n"
+ "                  Default: based on binary being disassembled.\n"
+@@ -1796,11 +1806,11 @@ msgstr ""
+ "Исписује „HWR“ називе у складу са наведеном архитектуром.\n"
+ "                   Основно: у зависности од разложеног бинарног.\n"
+ 
+-#: mips-dis.c:2690
++#: mips-dis.c:2780
+ msgid "Print GPR and FPR names according to specified ABI.\n"
+ msgstr "Исписује „GPR“ и „FPR“ називе у складу са наведеним „ABI“-јем.\n"
+ 
+-#: mips-dis.c:2692
++#: mips-dis.c:2782
+ msgid ""
+ "Print CP0 register and HWR names according to specified\n"
+ "                  architecture."
+@@ -1808,7 +1818,7 @@ msgstr ""
+ "Исписује „CP0“ регистар и „HWR“ називе у складу са наведеном\n"
+ "                   архитектуром."
+ 
+-#: mips-dis.c:2778
++#: mips-dis.c:2868
+ #, c-format
+ msgid ""
+ "\n"
+@@ -2034,12 +2044,12 @@ msgstr "унутрашња грешка: or1k_cgen_cpu_open: неподржан
+ msgid "internal error: or1k_cgen_cpu_open: no endianness specified"
+ msgstr "унутрашња грешка: or1k_cgen_cpu_open: нису наведене крајњости"
+ 
+-#: ppc-dis.c:396
++#: ppc-dis.c:418
+ #, c-format
+ msgid "warning: ignoring unknown -M%s option"
+ msgstr "упозорење: занемарујем непознату опцију „-M%s“"
+ 
+-#: ppc-dis.c:1110
++#: ppc-dis.c:1256
+ #, c-format
+ msgid ""
+ "\n"
+@@ -2050,175 +2060,175 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „PPC“ су подржане за коришћење са\n"
+ "прекидачем „-M“:\n"
+ 
+-#: ppc-opc.c:51 ppc-opc.c:74 ppc-opc.c:100 ppc-opc.c:130
++#: ppc-opc.c:52 ppc-opc.c:75 ppc-opc.c:101 ppc-opc.c:131
+ msgid "invalid register"
+ msgstr "неисправан регистар"
+ 
+-#: ppc-opc.c:396
++#: ppc-opc.c:397
+ msgid "invalid conditional option"
+ msgstr "неисправна условна опција"
+ 
+-#: ppc-opc.c:399
++#: ppc-opc.c:400
+ msgid "invalid counter access"
+ msgstr "неисправан приступ бројача"
+ 
+-#: ppc-opc.c:463
++#: ppc-opc.c:464
+ msgid "BO value implies no branch hint, when using + or - modifier"
+ msgstr "„BO“ вредност подразумева без поготка гране, када користим + или - измењивач"
+ 
+-#: ppc-opc.c:468
++#: ppc-opc.c:469
+ msgid "attempt to set y bit when using + or - modifier"
+ msgstr "покуђавам да подесим „y“ бит када користим + или - измењивач"
+ 
+-#: ppc-opc.c:470
++#: ppc-opc.c:471
+ msgid "attempt to set 'at' bits when using + or - modifier"
+ msgstr "покуђавам да подесим „at“ битове када користим + или - измењивач"
+ 
+-#: ppc-opc.c:574
++#: ppc-opc.c:575
+ msgid "invalid offset: must be in the range [-512, -8] and be a multiple of 8"
+ msgstr "неисправан померај: мора бити у опсегу [-512, -8] и мора бити производ 8"
+ 
+-#: ppc-opc.c:705
++#: ppc-opc.c:706
+ msgid "invalid R operand"
+ msgstr "неисправан „R“ операнд"
+ 
+-#: ppc-opc.c:760
++#: ppc-opc.c:761
+ msgid "invalid mask field"
+ msgstr "неисправно поље маске"
+ 
+-#: ppc-opc.c:783
++#: ppc-opc.c:784
+ msgid "invalid mfcr mask"
+ msgstr "неисправна „mfcr“ маска"
+ 
+-#: ppc-opc.c:901 ppc-opc.c:919
++#: ppc-opc.c:902 ppc-opc.c:920
+ msgid "illegal L operand value"
+ msgstr "неисправна вредност „L“ операнда"
+ 
+-#: ppc-opc.c:942
++#: ppc-opc.c:943
+ msgid "illegal WC operand value"
+ msgstr "неисправна вредност „WC“ операнда"
+ 
+-#: ppc-opc.c:1039
++#: ppc-opc.c:1040
+ msgid "incompatible L operand value"
+ msgstr "несагласна вредност „L“ операнда"
+ 
+-#: ppc-opc.c:1079 ppc-opc.c:1114
++#: ppc-opc.c:1239 ppc-opc.c:1274
+ msgid "illegal bitmask"
+ msgstr "неисправна битмаска"
+ 
+-#: ppc-opc.c:1201
++#: ppc-opc.c:1418
+ msgid "address register in load range"
+ msgstr "регистар адресе у опсегу учитавања"
+ 
+-#: ppc-opc.c:1241
++#: ppc-opc.c:1458
+ msgid "illegal PL operand value"
+ msgstr "неисправна вредност „PL“ операнда"
+ 
+-#: ppc-opc.c:1302
++#: ppc-opc.c:1539
+ msgid "index register in load range"
+ msgstr "регистар индекса у опсегу учитавања"
+ 
+-#: ppc-opc.c:1331 ppc-opc.c:1417
++#: ppc-opc.c:1568 ppc-opc.c:1654
+ msgid "source and target register operands must be different"
+ msgstr "операнди изворног и циљног регистра морају бити различити"
+ 
+-#: ppc-opc.c:1362
++#: ppc-opc.c:1599
+ msgid "invalid register operand when updating"
+ msgstr "неисправан операнд регистра приликом освежавања"
+ 
+-#: ppc-opc.c:1480
++#: ppc-opc.c:1717
+ msgid "illegal immediate value"
+ msgstr "неисправна вредност непосредног"
+ 
+-#: ppc-opc.c:1585
++#: ppc-opc.c:2024
+ msgid "invalid bat number"
+ msgstr "неисправан бат број"
+ 
+-#: ppc-opc.c:1620
++#: ppc-opc.c:2059
+ msgid "invalid sprg number"
+ msgstr "неисправан спрг број"
+ 
+-#: ppc-opc.c:1657
++#: ppc-opc.c:2096
+ msgid "invalid tbr number"
+ msgstr "неисправан тбр број"
+ 
+-#: ppc-opc.c:1743 ppc-opc.c:1789
++#: ppc-opc.c:2203 ppc-opc.c:2271
+ msgid "VSR overlaps ACC operand"
+ msgstr "„VSR“ преклапа „ACC“ операнд"
+ 
+-#: ppc-opc.c:1896
++#: ppc-opc.c:2380
+ msgid "invalid constant"
+ msgstr "неисправна константа"
+ 
+-#: ppc-opc.c:1998 ppc-opc.c:2021 ppc-opc.c:2044 ppc-opc.c:2067
++#: ppc-opc.c:2482 ppc-opc.c:2505 ppc-opc.c:2528 ppc-opc.c:2551
+ msgid "UIMM = 00000 is illegal"
+ msgstr "„UIMM = 00000“ је неисправно"
+ 
+-#: ppc-opc.c:2090
++#: ppc-opc.c:2574
+ msgid "UIMM values >7 are illegal"
+ msgstr "„UIMM“ вредности >7 су неисправне"
+ 
+-#: ppc-opc.c:2113
++#: ppc-opc.c:2597
+ msgid "UIMM values >15 are illegal"
+ msgstr "„UIMM“ вредности >15 су неисправне"
+ 
+-#: ppc-opc.c:2136
++#: ppc-opc.c:2620
+ msgid "GPR odd is illegal"
+ msgstr "непарно „GPR“ је неисправно"
+ 
+-#: ppc-opc.c:2159 ppc-opc.c:2182
++#: ppc-opc.c:2643 ppc-opc.c:2666
+ msgid "invalid offset"
+ msgstr "неисправан померај"
+ 
+-#: ppc-opc.c:2205
++#: ppc-opc.c:2689
+ msgid "invalid Ddd value"
+ msgstr "неисправна „Ddd“ вредност"
+ 
+-#: ppc-opc.c:2258 ppc-opc.c:2285
++#: ppc-opc.c:2742 ppc-opc.c:2769
+ msgid "invalid TH value"
+ msgstr "неисправна „TH“ вредност"
+ 
+ #. The option without '=' should be defined above.
+-#: riscv-dis.c:103 riscv-dis.c:140
++#: riscv-dis.c:117 riscv-dis.c:154
+ #, c-format
+ msgid "unrecognized disassembler option: %s"
+ msgstr "непозната опција разложитеља: %s"
+ 
+ #. Invalid options with '=', no option name before '=',
+ #. and no value after '='.
+-#: riscv-dis.c:111
++#: riscv-dis.c:125
+ #, c-format
+ msgid "unrecognized disassembler option with '=': %s"
+ msgstr "непозната опција разложитеља са знаком =: %s"
+ 
+-#: riscv-dis.c:125
++#: riscv-dis.c:139
+ #, c-format
+ msgid "unknown privileged spec set by %s=%s"
+ msgstr "непозната одредба привилегије постављена са „%s=%s“"
+ 
+-#: riscv-dis.c:132
++#: riscv-dis.c:146
+ #, c-format
+ msgid "mis-matched privilege spec set by %s=%s, the elf privilege attribute is %s"
+ msgstr "неодговарајућу одредбу привилегије је поставио „%s=%s“, атрибут елф привилегије је „%s“"
+ 
+-#: riscv-dis.c:526
++#: riscv-dis.c:631
+ #, c-format
+ msgid "# internal error, undefined modifier (%c)"
+ msgstr "# унутрашња грешка, неодређени измењивач (%c)"
+ 
+-#: riscv-dis.c:1018
++#: riscv-dis.c:1158
+ msgid "Print numeric register names, rather than ABI names."
+ msgstr "Исписује бројчане називе регистра, уместо „ABI“ називе."
+ 
+-#: riscv-dis.c:1021
++#: riscv-dis.c:1161
+ msgid "Disassemble only into canonical instructions."
+ msgstr "Рашчлањује само у канонске инструкције."
+ 
+-#: riscv-dis.c:1024
++#: riscv-dis.c:1164
+ msgid "Print the CSR according to the chosen privilege spec."
+ msgstr "Исписује „CSR“ у складу са изабраном одредбом привилегије."
+ 
+-#: riscv-dis.c:1100
++#: riscv-dis.c:1240
+ #, c-format
+ msgid ""
+ "\n"
+@@ -2278,7 +2288,7 @@ msgstr "Исписује непознате инструкције у склад
+ msgid "unknown S/390 disassembler option: %s"
+ msgstr "непозната опција „S/390“ разложитеља: %s"
+ 
+-#: s390-dis.c:416
++#: s390-dis.c:471
+ #, c-format
+ msgid ""
+ "\n"
+@@ -2433,45 +2443,6 @@ msgstr ""
+ "Следеће опције разложитеља специфичне за „WebAssembly“ су подржане за коришћење са\n"
+ "прекидачем „-M“:\n"
+ 
+-#: xc16x-asm.c:66
+-msgid "Missing '#' prefix"
+-msgstr "Недостаје префикс „#“"
+-
+-#: xc16x-asm.c:82
+-msgid "Missing '.' prefix"
+-msgstr "Недостаје префикс „.“"
+-
+-#: xc16x-asm.c:98
+-msgid "Missing 'pof:' prefix"
+-msgstr "Недостаје префикс „pof:“"
+-
+-#: xc16x-asm.c:114
+-msgid "Missing 'pag:' prefix"
+-msgstr "Недостаје префикс „pag:“"
+-
+-#: xc16x-asm.c:130
+-msgid "Missing 'sof:' prefix"
+-msgstr "Недостаје префикс „sof:“"
+-
+-#: xc16x-asm.c:146
+-msgid "Missing 'seg:' prefix"
+-msgstr "Недостаје префикс „seg:“"
+-
+-#: xc16x-desc.c:3350
+-#, c-format
+-msgid "internal error: xc16x_cgen_rebuild_tables: conflicting insn-chunk-bitsize values: `%d' vs. `%d'"
+-msgstr "унутрашња грешка: xc16x_cgen_rebuild_tables: сукобљене „insn-chunk-bitsize“ вредности: %d наспрам %d"
+-
+-#: xc16x-desc.c:3438
+-#, c-format
+-msgid "internal error: xc16x_cgen_cpu_open: unsupported argument `%d'"
+-msgstr "унутрашња грешка: xc16x_cgen_cpu_open: неподржан аргумент „%d“"
+-
+-#: xc16x-desc.c:3457
+-#, c-format
+-msgid "internal error: xc16x_cgen_cpu_open: no endianness specified"
+-msgstr "унутрашња грешка: xc16x_cgen_cpu_open: нису наведене крајњости"
+-
+ #: xstormy16-asm.c:71
+ msgid "Bad register in preincrement"
+ msgstr "Лош регистар у предувећању"
+@@ -2527,6 +2498,36 @@ msgstr "унутрашња грешка: xstormy16_cgen_cpu_open: неподрж
+ msgid "internal error: xstormy16_cgen_cpu_open: no endianness specified"
+ msgstr "унутрашња грешка: xstormy16_cgen_cpu_open: нису наведене крајњости"
+ 
++#~ msgid "unknown broadcast operand: %s\n"
++#~ msgstr "непознат операнд емитовања: %s\n"
++
++#~ msgid "Missing '#' prefix"
++#~ msgstr "Недостаје префикс „#“"
++
++#~ msgid "Missing '.' prefix"
++#~ msgstr "Недостаје префикс „.“"
++
++#~ msgid "Missing 'pof:' prefix"
++#~ msgstr "Недостаје префикс „pof:“"
++
++#~ msgid "Missing 'pag:' prefix"
++#~ msgstr "Недостаје префикс „pag:“"
++
++#~ msgid "Missing 'sof:' prefix"
++#~ msgstr "Недостаје префикс „sof:“"
++
++#~ msgid "Missing 'seg:' prefix"
++#~ msgstr "Недостаје префикс „seg:“"
++
++#~ msgid "internal error: xc16x_cgen_rebuild_tables: conflicting insn-chunk-bitsize values: `%d' vs. `%d'"
++#~ msgstr "унутрашња грешка: xc16x_cgen_rebuild_tables: сукобљене „insn-chunk-bitsize“ вредности: %d наспрам %d"
++
++#~ msgid "internal error: xc16x_cgen_cpu_open: unsupported argument `%d'"
++#~ msgstr "унутрашња грешка: xc16x_cgen_cpu_open: неподржан аргумент „%d“"
++
++#~ msgid "internal error: xc16x_cgen_cpu_open: no endianness specified"
++#~ msgstr "унутрашња грешка: xc16x_cgen_cpu_open: нису наведене крајњости"
++
+ #~ msgid ""
+ #~ "\n"
+ #~ "  no-aliases      Disassemble only into canonical instructions, rather\n"
+-- 
+2.39.2
+

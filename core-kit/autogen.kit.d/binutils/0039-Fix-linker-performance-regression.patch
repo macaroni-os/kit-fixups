@@ -1,0 +1,44 @@
+From 758a6e42906e7be2ea4f58c8e4368f6a97836322 Mon Sep 17 00:00:00 2001
+From: Michael Matz <matz@suse.de>
+Date: Fri, 5 May 2023 19:14:52 +0200
+Subject: [PATCH 39/41] Fix linker performance regression
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Source: https://sourceware.org/bugzilla/show_bug.cgi?id=30358#c11
+(see also comments 15 and 16)
+
+Bug: https://sourceware.org/bugzilla/show_bug.cgi?id=30358
+Signed-off-by: Andreas K. Hüttel <dilfridge@gentoo.org>
+---
+ ld/ldlang.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/ld/ldlang.c b/ld/ldlang.c
+index f3c282e15c6..6aaf8e99bfa 100644
+--- a/ld/ldlang.c
++++ b/ld/ldlang.c
+@@ -676,6 +676,19 @@ output_section_callback_sort (lang_wild_statement_type *ptr,
+   if (unique_section_p (section, os))
+     return;
+ 
++  /* Don't add sections to the tree when we already know that
++     lang_add_section won't do anything with it.  */
++  if (section->output_section != NULL)
++    {
++      if (!link_info.non_contiguous_regions)
++       return;
++
++      /* SECTION has already been handled in a special way
++        (eg. LINK_ONCE): skip it.  */
++      if (bfd_is_abs_section (section->output_section))
++       return;
++    }
++
+   node = (lang_section_bst_type *) xmalloc (sizeof (lang_section_bst_type));
+   node->left = 0;
+   node->right = 0;
+-- 
+2.39.2
+

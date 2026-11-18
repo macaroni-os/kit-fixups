@@ -1,0 +1,84 @@
+From 7a4c72b2692654c609afe803b940b8bc940a22e2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20K=2E=20H=C3=BCttel?= <dilfridge@gentoo.org>
+Date: Wed, 22 Feb 2023 20:05:35 +0100
+Subject: [PATCH 29/41] Apply a similar libiberty fix as in 7d53105d for
+ libopcodes and libgprofng
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bug: https://sourceware.org/bugzilla/show_bug.cgi?id=29042
+Bug: https://bugs.gentoo.org/834720
+Signed-off-by: Andreas K. Hüttel <dilfridge@gentoo.org>
+---
+ gprofng/src/Makefile.am | 3 ++-
+ gprofng/src/Makefile.in | 3 ++-
+ opcodes/configure       | 4 ++--
+ opcodes/configure.ac    | 4 ++--
+ 4 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/gprofng/src/Makefile.am b/gprofng/src/Makefile.am
+index ab90bb08c5f..96256faf788 100644
+--- a/gprofng/src/Makefile.am
++++ b/gprofng/src/Makefile.am
+@@ -131,7 +131,8 @@ libgprofng_la_LDFLAGS = -version-info 0:0:0
+ # Pass -lpthread instead of $(PTHREAD_LIBS) due to $(PTHREAD_LIBS) being empty
+ # when -nostdlib is passed to libtool.
+ # See bug 29364 - libgprofng.so: needs to link against -pthread
+-libgprofng_la_LIBADD = $(top_builddir)/../opcodes/libopcodes.la \
++libgprofng_la_LIBADD = $(GPROFNG_LIBADD) \
++	$(top_builddir)/../opcodes/libopcodes.la \
+ 	$(top_builddir)/../bfd/libbfd.la \
+ 	$(GPROFNG_LIBADD) \
+ 	-lpthread -ldl
+diff --git a/gprofng/src/Makefile.in b/gprofng/src/Makefile.in
+index 605fa4f6fd4..f968d8d6e59 100644
+--- a/gprofng/src/Makefile.in
++++ b/gprofng/src/Makefile.in
+@@ -555,7 +555,8 @@ libgprofng_la_LDFLAGS = -version-info 0:0:0
+ # Pass -lpthread instead of $(PTHREAD_LIBS) due to $(PTHREAD_LIBS) being empty
+ # when -nostdlib is passed to libtool.
+ # See bug 29364 - libgprofng.so: needs to link against -pthread
+-libgprofng_la_LIBADD = $(top_builddir)/../opcodes/libopcodes.la \
++libgprofng_la_LIBADD = $(GPROFNG_LIBADD) \
++	$(top_builddir)/../opcodes/libopcodes.la \
+ 	$(top_builddir)/../bfd/libbfd.la \
+ 	$(GPROFNG_LIBADD) \
+ 	-lpthread -ldl
+diff --git a/opcodes/configure b/opcodes/configure
+index d2364991ee8..1f483e37fc9 100755
+--- a/opcodes/configure
++++ b/opcodes/configure
+@@ -12445,10 +12445,10 @@ if test "$enable_shared" = "yes"; then
+   case "${host}" in
+     *-*-cygwin*)
+       SHARED_LDFLAGS="-no-undefined"
+-      SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"
++      SHARED_LIBADD="$SHARED_LIBADD -L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"
+       ;;
+     *)
+-      SHARED_LIBADD="../bfd/libbfd.la ${SHARED_LIBADD}"
++      SHARED_LIBADD="${SHARED_LIBADD} ../bfd/libbfd.la ${SHARED_LIBADD}"
+       SHARED_DEPENDENCIES="../bfd/libbfd.la"
+       ;;
+   esac
+diff --git a/opcodes/configure.ac b/opcodes/configure.ac
+index 1beb72e87e0..79310916f7d 100644
+--- a/opcodes/configure.ac
++++ b/opcodes/configure.ac
+@@ -193,10 +193,10 @@ if test "$enable_shared" = "yes"; then
+   case "${host}" in
+     *-*-cygwin*)
+       SHARED_LDFLAGS="-no-undefined"
+-      SHARED_LIBADD="-L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"
++      SHARED_LIBADD="$SHARED_LIBADD -L`pwd`/../bfd -lbfd -L`pwd`/../libiberty -liberty $SHARED_LIBADD"
+       ;;
+     *)
+-      SHARED_LIBADD="../bfd/libbfd.la ${SHARED_LIBADD}"
++      SHARED_LIBADD="${SHARED_LIBADD} ../bfd/libbfd.la ${SHARED_LIBADD}"
+       SHARED_DEPENDENCIES="../bfd/libbfd.la"
+       ;;
+   esac
+-- 
+2.39.2
+

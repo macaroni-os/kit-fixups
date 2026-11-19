@@ -2975,6 +2975,90 @@ libpcre2:
   packages:
     - libpcre2:
 
+libpcre:
+  generator: builtin-noop
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: dev-libs
+    # `assets` carries the real download address at the definition level (not
+    # inside vars): mark-devkit downloads it and computes the Manifest digest
+    # from it, while `mirror://` URLs are only resolved for old/legacy ebuilds
+    # and macaroni bundles.
+    assets:
+      - name: 'pcre-{{ .Values.pv }}.tar.bz2'
+        url: 'https://downloads.sourceforge.net/pcre/pcre-{{ .Values.pv }}.tar.bz2'
+
+    vars:
+      versions:
+        - '8.44'
+      desc: Perl-compatible regular expression library
+      homepage: http://www.pcre.org/
+      license: BSD
+      slot: '3'
+      iuse: bzip2 +cxx +jit libedit pcre16 +pcre32 +readline +recursion-limit static-libs unicode zlib
+      required_use: 'readline? ( !libedit ) libedit? ( !readline )'
+      # Bump = update versions + the definition-level assets together.
+      # PCRE1 is end-of-life upstream (pcre.org states 8.45 is the final
+      # release) and both original hosts are gone; the SF mirror still serves
+      # 8.44. This is a deliberately pinned builtin-noop (§3.2), not a tracker.
+      inherit:
+        - flag-o-matic
+        - libtool
+        - toolchain-funcs
+        - usr-ldscript
+      rdepend: |
+        bzip2? ( app-arch/bzip2 )
+        zlib? ( sys-libs/zlib )
+        libedit? ( dev-libs/libedit )
+        readline? ( sys-libs/readline:0= )
+      depend: '${RDEPEND}'
+      bdepend: virtual/pkgconfig
+      patches:
+        - libpcre-8.41-fix-stack-size-detection.patch
+      s: '${WORKDIR}/pcre-{{ .Values.pv }}'
+      body: |
+        src_prepare() {
+          default
+          sed -i -e "s:-lpcre ::" libpcrecpp.pc.in || die
+          elibtoolize
+        }
+
+        src_configure() {
+          local myeconfargs=(
+            --with-match-limit-recursion=$(usex recursion-limit 8192 MATCH_LIMIT)
+            $(use_enable bzip2 pcregrep-libbz2)
+            $(use_enable cxx cpp)
+            $(use_enable jit)
+            $(use_enable jit pcregrep-jit)
+            $(use_enable pcre16)
+            $(use_enable pcre32)
+            $(use_enable libedit pcretest-libedit)
+            $(use_enable readline pcretest-libreadline)
+            $(use_enable static-libs static)
+            $(use_enable unicode utf)
+            $(use_enable unicode unicode-properties)
+            $(use_enable zlib pcregrep-libz)
+            --enable-pcre8
+            --enable-shared
+          )
+          econf "${myeconfargs[@]}"
+        }
+
+        src_compile() {
+          emake V=1
+        }
+
+        src_install() {
+          emake DESTDIR="${D}" install
+          gen_usr_ldscript -a pcre
+          find "${ED}" -name "*.la" -delete || die
+        }
+
+  packages:
+    - libpcre:
+
 libxml2:
   generator: builtin-dirlisting
   generator_opts:

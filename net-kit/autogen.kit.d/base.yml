@@ -3844,9 +3844,11 @@ netanalyzer_dirlisting:
           required_use: |
             system-lua? ( nse ${LUA_REQUIRED_USE} )
 
+          # configure auto-detects the system PCRE2 (pcre2.h / pcre2-8);
+          # the bundled libpcre/ tree is PCRE2 as well.
           rdepend: |
             dev-libs/liblinear:=
-            dev-libs/libpcre
+            dev-libs/libpcre2:=
             net-libs/libpcap
             libssh2? (
               net-libs/libssh2[zlib]
@@ -3896,7 +3898,6 @@ netanalyzer_dirlisting:
                 $(usex nse --with-zlib) \
                 --cache-file="${S}"/config.cache \
                 --with-libdnet=included \
-                --with-pcre=/usr \
                 --without-ndiff \
                 --without-zenmap
             }

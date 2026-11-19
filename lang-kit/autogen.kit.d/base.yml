@@ -370,8 +370,9 @@ swig:
       license: GPL-3+ BSD BSD-2
       homepage: http://www.swig.org/
       iuse: ccache pcre
+      # SWIG's --with-pcre has been PCRE2-only for a long time.
       rdepend: |
-        pcre? ( dev-libs/libpcre )
+        pcre? ( dev-libs/libpcre2 )
         ccache? ( sys-libs/zlib )
       depend: '${RDEPEND}'
       docs:

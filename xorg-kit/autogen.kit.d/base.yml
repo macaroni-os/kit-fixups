@@ -2643,7 +2643,7 @@ gnome_sources:
             - toolchain-funcs
           iuse: dbus fam gtk-doc +mime selinux static-libs systemtap xattr
           rdepend: |
-            dev-libs/libpcre[static-libs?]
+            dev-libs/libpcre2[static-libs?]
             virtual/libiconv
             virtual/libffi:=
             virtual/libintl
@@ -2697,8 +2697,6 @@ gnome_sources:
                 fi
                 export LIBFFI_CFLAGS="-I$(echo /usr/$(get_libdir)/libffi-*/include)"
                 export LIBFFI_LIBS="-lffi"
-                export PCRE_CFLAGS=" " # test -n "$PCRE_CFLAGS" needs to pass
-                export PCRE_LIBS="-lpcre"
               fi
               local emesonargs=(
                 -Dc_args="${CFLAGS}"

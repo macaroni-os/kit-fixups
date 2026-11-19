@@ -360,11 +360,13 @@ wwwservers_nginx_github:
         - toolchain-funcs
         - perl-module
         - user
+      # nginx builds against PCRE2 by default (upstream removed the PCRE1
+      # path); the old per-library atoms are migrated.
       rdepend: |-
         google_perftools? ( dev-util/google-perftools )
         http-cache? ( dev-libs/openssl:0= )
-        pcre? ( dev-libs/libpcre )
-        pcre-jit? ( dev-libs/libpcre[jit] )
+        pcre? ( dev-libs/libpcre2 )
+        pcre-jit? ( dev-libs/libpcre2[jit] )
         ssl? ( dev-libs/openssl:0= )
         http2? ( dev-libs/openssl:0= )
         nginx_modules_external_brotli? ( app-arch/brotli )
@@ -374,7 +376,7 @@ wwwservers_nginx_github:
         nginx_modules_http_gzip_static? ( sys-libs/zlib )
         nginx_modules_http_image_filter? ( media-libs/gd[jpeg,png] )
         nginx_modules_http_perl? ( >=dev-lang/perl-5.8:= )
-        nginx_modules_http_rewrite? ( dev-libs/libpcre )
+        nginx_modules_http_rewrite? ( dev-libs/libpcre2 )
         nginx_modules_http_secure_link? ( dev-libs/openssl:0= )
         nginx_modules_http_xslt? ( dev-libs/libxml2 dev-libs/libxslt )
         nginx_modules_external_lua? ( dev-lang/luajit:2= )
@@ -751,7 +753,9 @@ wwwservers_nginx_github:
           use google_perftools   && nginx_configure+=" --with-google_perftools_module"
           use http2              && nginx_configure+=" --with-http_v2_module"
           use libatomic          && nginx_configure+=" --with-libatomic"
-          use pcre               && nginx_configure+=" --with-pcre"
+          # --with-pcre forces the (removed) PCRE1 library; PCRE2 is the
+          # upstream default, so only disable it when the USE flag is off.
+          use pcre || nginx_configure+=" --without-pcre2"
           use pcre-jit           && nginx_configure+=" --with-pcre-jit"
           use threads            && nginx_configure+=" --with-threads"
 

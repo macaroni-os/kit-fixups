@@ -611,3 +611,9 @@ target:
     - pkg: sys-devel/binutils
       conditions:
         - '>=sys-devel/binutils-2.40_p5'
+
+    # Skeleton package: patchless, no distfile, exact-pinned with
+    # sys-devel/binutils-2.40_p5-r1 (see the binutils-libs entry in
+    # autogen.kit.d/core.yml). Unconditional: every release branch serves
+    # binutils-libs-2.40_p5-r1, so there is a single track to keep.
+    - pkg: sys-libs/binutils-libs

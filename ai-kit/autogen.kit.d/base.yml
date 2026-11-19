@@ -1139,3 +1139,206 @@ llama_cpp:
         vars:
           cdepend_extra: |
             !app-ai/llama-cpp:snapshot
+
+strata:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    # Upstream (Niko1221/Strata) release ASSETS are tens-of-GB model packs
+    # (*.pack) plus installers: runtime downloads, never part of SRC_URI.
+    # The atom tracks the tag line: v-prefixed semver with interleaved
+    # four-segment patch tags (v0.2.14.1, v0.2.13.1), all valid Portage PVs
+    # once the leading v is stripped. query: tags because the release
+    # TITLES are free text ("Strata 0.2.16: Strata's own engine code,
+    # ..."); github.match then keeps only pure-version tags - upstream also
+    # carries a v0.2.0-beta that is NOT marked as a pre-release and would
+    # fail the whole version selection when parsed as a Portage PV.
+    github:
+      user: Niko1221
+      repo: Strata
+      query: tags
+      match: '^v[0-9][0-9.]*$'
+  packages:
+
+    - strata:
+        assets:
+          - name: "{{ .Values.p }}.tar.gz"
+            url: "https://api.github.com/repos/Niko1221/Strata/tarball/v{{ .Values.pv }}"
+        vars:
+          inherit:
+            - cmake
+          desc: Local inference engine for Qwen3.8-Flash-Next on NVIDIA GPUs
+          homepage: https://github.com/Niko1221/Strata
+          license: MIT
+          # Upstream's own recipe (tools/packaging/build_cuda_linux.sh)
+          # always configures Release. The cmake eclass build type does not
+          # define NDEBUG, and on this engine family a non-NDEBUG CUDA build
+          # keeps driver-API error paths that the link line does not carry
+          # (macaroni-os/kit-fixups#628). Set before inherit, hence
+          # extra_envs (same shape as app-shells/fish).
+          extra_envs:
+            - 'CMAKE_BUILD_TYPE=Release'
+          # The single source of truth for the NVIDIA compute capabilities
+          # this kit can target (same rendering pattern as app-ai/ollama and
+          # app-ai/maya). Strata refuses compute capabilities below 7.5
+          # (cmake/backends/cuda.cmake: "needs an NVIDIA GPU of compute
+          # capability 7.5 or newer"), so unlike ollama this list starts at
+          # Turing; sm_52/sm_60/sm_70 exist upstream only as the experimental
+          # -DSTRATA_EXPERIMENTAL_SM60=ON CUDA 12.x builds and are not
+          # exposed here.
+          gpus:
+            #   turing
+            - sm_75
+            #   ampere
+            - sm_80
+            - sm_86
+            - sm_87
+            #   ada
+            - sm_89
+            #   hopper
+            - sm_90
+            - sm_90a
+            #   blackwell
+            - sm_100
+            - sm_101
+            - sm_103
+            - sm_110
+            - sm_120
+            - sm_121
+          # Default target when USE=cuda without any cuda_sm_* flag:
+          # upstream's own default (cmake/backends/cuda.cmake sets
+          # CMAKE_CUDA_ARCHITECTURES to 120).
+          nvidia_cuda_capability:
+            - 120
+          # There is no CPU-only engine: the strata executable is defined by
+          # cmake/strata_gpu_engine.cmake only inside if(STRATA_ENABLE_CUDA
+          # OR STRATA_ENABLE_HIP), so without USE=cuda the package installs
+          # the GGUF artifact tools (strata-plan, strata-gguf, strata-dequant)
+          # only. The HIP backend (STRATA_ENABLE_HIP, needs ROCm hipcc) and
+          # the SYCL backend (STRATA_ENABLE_SYCL, a separate sycl/ project
+          # needing icpx + oneMKL) are follow-ups: the tree has no matching
+          # toolkit; Metal is Apple-only. The upstream test suite is never
+          # built (STRATA_BUILD_TESTS=OFF, house rule). ggml is vendored in
+          # the tag tarball (engine/third_party/strata-ggml) and in this
+          # Release configuration is not even configured (configure line:
+          # "Strata: no ggml in this build"): nothing is downloaded.
+          iuse: |-
+            cuda cuda-native
+            {{- range $g := .Values.gpus }}
+            cuda_{{ $g }}
+            {{- end }}
+          required_use: |-
+            {{- range $g := .Values.gpus }}
+            cuda_{{ $g }}? ( cuda )
+            {{- end }}
+          cdepend: |
+            cuda? (
+              dev-util/nvidia-cuda-toolkit
+            )
+          rdepend: '${CDEPEND}'
+          depend: '${CDEPEND}'
+          body: |
+            src_prepare() {
+              # The CMake project root is engine/, not the tag tarball's root
+              # (which also holds terminal/ and app/). _cmake_check_build_dir
+              # takes CMAKE_USE_DIR as-is, so set it globally here and both
+              # cmake_src_prepare and cmake_src_configure use it; BUILD_DIR
+              # stays the eclass out-of-source default.
+              CMAKE_USE_DIR="${S}/engine"
+              cmake_src_prepare
+            }
+            src_configure() {
+              addpredict /proc/self/task
+              local mycmakeargs=(
+                -DSTRATA_BUILD_TESTS=OFF
+                -DSTRATA_WERROR=OFF
+                -DSTRATA_PORTABLE=ON
+                -DSTRATA_ENABLE_CUDA=$(usex cuda ON OFF)
+              )
+              local cuda_archs= cuda_major= cuda_supported=
+              local arch cuda_flagged=() cuda_dropped=()
+              if use cuda ; then
+                # The architecture list comes from the enabled cuda_sm_*
+                # flags, filtered against the set the installed toolkit
+                # major can target (same per-major sets as app-ai/ollama;
+                # CUDA only drops architectures at major boundaries, and
+                # sm_101 is renumbered to sm_110 in the 13.x toolkits).
+                cuda_major=$(
+                  nvcc --version 2>/dev/null |
+                  sed -n 's/.*release \([0-9][0-9]*\).*/\1/p'
+                )
+                case ${cuda_major:-13} in
+                  13)
+                    cuda_supported="75 80 86 87 89 90 90a 100 103 110 120 121"
+                    ;;
+                  *)
+                    [[ -z ${cuda_major} ]] && \
+                      ewarn "Could not detect the CUDA toolkit major version (nvcc not found); defaulting to the CUDA 12 supported set"
+                    cuda_supported="60 61 70 75 80 86 87 89 90 90a 100 103 120 121"
+                    ;;
+                esac
+                for arch in {{ range $i, $g := .Values.gpus }}{{ trimPrefix "sm_" $g }} {{ end }}; do
+                  use cuda_sm_${arch} || continue
+                  if has "${arch}" ${cuda_supported} ; then
+                    cuda_flagged+=("${arch}")
+                  else
+                    cuda_dropped+=("${arch}")
+                  fi
+                done
+                if [[ ${#cuda_flagged[@]} -gt 0 || ${#cuda_dropped[@]} -gt 0 ]] ; then
+                  if [[ ${#cuda_dropped[@]} -gt 0 ]] ; then
+                    ewarn "Dropping CUDA architectures unsupported by the installed toolkit (major ${cuda_major:-unknown}): $(join ' ' "${cuda_dropped[@]}")"
+                  fi
+                  if [[ ${#cuda_flagged[@]} -eq 0 ]] ; then
+                    die "all enabled cuda_sm_* flags are unsupported by the installed CUDA toolkit; enable flags matching your card, or override with MYCMAKEARGS=\"-DCMAKE_CUDA_ARCHITECTURES=...\""
+                  fi
+                  cuda_archs="$(join ';' "${cuda_flagged[@]}")"
+                fi
+              fi
+              # Precedence (as in app-ai/llama-cpp and app-ai/maya): the
+              # enabled cuda_sm_* flags, then the explicit cuda-native USE
+              # flag, then the package default. A raw -D in MYCMAKEARGS
+              # still speaks last.
+              if [[ -z ${cuda_archs} ]] ; then
+                if use cuda-native ; then
+                  cuda_archs=native
+                else
+                  cuda_archs='{{ .Values.nvidia_cuda_capability | join ";" }}'
+                fi
+              fi
+              if use cuda ; then
+                mycmakeargs+=(
+                  -DCMAKE_CUDA_ARCHITECTURES="${cuda_archs}"
+                )
+              fi
+              cmake_src_configure
+            }
+            src_install() {
+              # Upstream's CMake project defines no install() rules; stage
+              # the built executables by name (the cmake eclass builds in
+              # BUILD_DIR). The Qwen3.6 sibling binaries (strata-q36,
+              # strata-device, strata-load, ...) are development/diagnostic
+              # programs; upstream's package recipe stages the engine plus
+              # the artifact tools only.
+              local t
+              for t in strata-plan strata-gguf strata-dequant ; do
+                test -x "${BUILD_DIR}"/${t} || die "${t} was not built"
+                dobin "${BUILD_DIR}"/${t}
+              done
+              if use cuda ; then
+                test -x "${BUILD_DIR}"/strata || die "the strata engine was not built although USE=cuda"
+                dobin "${BUILD_DIR}"/strata
+              fi
+              dodoc README.md LICENSE
+            }
+            pkg_postinst() {
+              elog "app-ai/strata installs Strata's C++ inference engine (the"
+              elog "strata binary is built only with USE=cuda; upstream provides"
+              elog "no CPU-only engine) and its GGUF artifact tools. The engine"
+              elog "needs an NVIDIA driver (libcuda.so.1) at run time and is"
+              elog "driven by Strata's terminal/desktop layer together with model"
+              elog "packs downloaded at run time; nothing model-related ships"
+              elog "with the package (see macaroni-os/mark-issues#933)."
+            }

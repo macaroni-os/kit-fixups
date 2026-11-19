@@ -3690,6 +3690,70 @@ binutils_libs:
           version_suffix: ''
           patches: []
 
+autoconf:
+  generator: builtin-dirlisting
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: "{{ .Values.pn }}"
+    category: sys-devel
+    dir:
+      url: 'https://gnuftp.mirror.garr.it/autoconf/'
+      # Stable release tarballs only; alpha/beta tarballs are not published
+      # on the mirror listing used here.
+      matcher: '^autoconf-[0-9]+(\.[0-9]+)*\.tar\.xz$'
+    transform:
+      - kind: string
+        match: 'autoconf-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+    vars:
+      desc: Used to create autoconfiguration files
+      homepage: https://www.gnu.org/software/autoconf/autoconf.html
+      license: GPL-3+
+      iuse: emacs
+      # Maintainer decision on macaroni-os/mark-issues#913: keep only the
+      # latest SLOT for the autogen conversion.
+      slot: latest
+      bdepend: |
+        sys-apps/texinfo
+        >=dev-lang/perl-5.10
+        >=sys-devel/m4-1.4.16
+      # simple.tmpl renders RDEPEND before DEPEND; keep the shared list on the
+      # RDEPEND side.
+      rdepend: |
+        sys-apps/texinfo
+        >=dev-lang/perl-5.10
+        >=sys-devel/m4-1.4.16
+        >=sys-devel/autoconf-wrapper-13
+        sys-devel/gnuconfig
+      depend: |
+        ${RDEPEND}
+      pdepend: 'emacs? ( app-emacs/autoconf-mode )'
+      body: |
+        src_prepare() {
+          find -name Makefile.in -exec sed -i '/^pkgdatadir/s:$:-@VERSION@:' {} + || die
+          default
+        }
+        src_configure() {
+          export EMACS=no
+          local myconf=(
+            --program-suffix="-{{ .Values.pv }}"
+          )
+          econf "${myconf[@]}" || die
+          # econf updates config.{sub,guess} which forces the manpages
+          # to be regenerated which we don't want to do.
+          touch man/*.1
+        }
+        src_install() {
+          default
+        }
+
+  packages:
+    - autoconf:
+
 glibc:
   generator: builtin-dirlisting
   defaults:

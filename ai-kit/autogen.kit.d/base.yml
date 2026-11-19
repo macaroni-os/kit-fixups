@@ -1676,3 +1676,327 @@ maya:
               elog "unaffected. Nothing model-related ships with the package."
             }
 
+strata_bin:
+  generator: builtin-github
+  defaults:
+    category: app-ai
+    # One payload directory for BOTH Strata atoms (the review ask on
+    # macaroni-os/kit-fixups#631: "I think that both strata and
+    # strata-bin could share the same directory"): a LITERAL files_dir,
+    # not the "{{ .Values.pn }}" default the ai_github cluster uses --
+    # PN is strata-bin here, yet the files live together with the
+    # source atom's unit files in ai-kit/autogen.kit.d/strata/. Each
+    # entry installs only its own PN-named set from that shared
+    # directory (strata-control.* below, strata.* in app-ai/strata),
+    # so the two atoms stay co-installable with disjoint file sets.
+    files_dir: strata
+    # simple.tmpl, not simple-github.tmpl: only prebuilt release assets are
+    # downloaded, so there is no <user>-<repo>-* unpack dir for the generated
+    # post_src_unpack() to rename (opencode-bin idiom).
+    template: ../../templates/simple.tmpl
+    github:
+      user: Niko1221
+      # PN is strata-bin; pin the repository name explicitly (pi-bin idiom).
+      repo: Strata
+      # Release titles are free text ("Strata 0.2.16: Strata's own engine
+      # code, ..."); the transform chain on the package entry reduces the
+      # title to the bare version (probe evidence captured in
+      # macaroni-os/kit-fixups#631: without it the run fails with
+      # "No versions found").
+      query: releases
+  packages:
+
+    - strata-bin:
+        # Release titles are free text ("Strata 0.2.16: Strata's own engine
+        # code, a new folder layout, ...") and builtin-github parses the
+        # TITLE in releases mode: reduce it to the bare version (strip the
+        # leading product word, then cut the message tail at the first
+        # colon -- the string/regex transform idiom of
+        # net-im/mattermost-desktop-bin). Upstream title-format drift then
+        # fails loudly as "No versions found" at the next bump, which is
+        # the honest outcome for a release-asset atom.
+        transform:
+          - kind: string
+            match: 'Strata '
+            replace: ''
+          - kind: regex
+            match: ':.*$'
+            replace: ''
+        # The strata-control release tarball: upstream's self-contained
+        # Terminal distribution (bin/strata launcher + relocatable private
+        # CPython 3.12 + every wheel it imports, see BUNDLE.json), a release
+        # asset of every APP tag (v0.2.16 ships control 0.1.62). It extracts
+        # with stock unpack() and runs fully headless: ldd over the extracted
+        # tree needs nothing beyond the glibc base.
+        #
+        # VERSION SKEW (the design point of this entry): control/engine
+        # components version INDEPENDENTLY of the app tags and can even be
+        # hotfixed inside an existing release (v0.2.15 ships control 0.1.61
+        # where v0.2.16 ships 0.1.62; v0.2.14 hosts BOTH 0.1.60 and the
+        # 0.1.60.1 reupload), so the DOWNLOAD URL must not be templated from
+        # {{ .Values.version }}: the version-free matcher lets
+        # builtin-github resolve the control tarball from the selected
+        # release itself -- the component version rides per tag with no
+        # pins (selector probes: v0.2.16 -> control-0.1.62, v0.2.15 ->
+        # control-0.1.61). The local distfile name is app-versioned (the
+        # asset carries the component version upstream, so the two names
+        # differ by design -- the name/url two-var rule of the kit-fixups
+        # assets convention keeps every PV's distfile unique in DISTDIR).
+        # The per-release install-manifest.txt and strata-feed.json assets
+        # carry the platform -> component version + sha256 mapping for
+        # bump-time cross-checks. Known multi-match nuance (probed): on a
+        # historical tag hosting two control versions side by side (v0.2.14:
+        # 0.1.60 + the 0.1.60.1 reupload that its install-manifest.txt marks
+        # canonical) the matcher resolves deterministically to 0.1.60 --
+        # buildable and self-consistent, just not the reupload; pin a one-off
+        # url: asset if such a tag ever needs the hotfixed bytes. The
+        # shipping flow is unaffected: upstream posts hotfix reuploads with
+        # the next app tag (0.1.61 shipped on v0.2.15) and the tip release
+        # carries exactly one linux-x86_64 control asset.
+        # USE surface for the engines, as prescribed by the maintainer on
+        # macaroni-os/kit-fixups#631 review (2026-11-19): one custom USE
+        # per backend, plus REQUIRED_USE relationships to the arch flags,
+        # because mark-devkit assets carry a single USE condition per
+        # entry -- "arm64? ( cuda13? ( <URL> ) )" is not expressible, "we
+        # use a custom USEs and later on required_use we add relationship
+        # to the arches uses amd64 and arm64". USE names cannot carry
+        # hyphens, so upstream backend ids map 1:1 with _ for -:
+        # cuda-cuda13 -> cuda13, hip-rx6000 -> hip_rx6000, sycl -> sycl;
+        # the arm64 side takes the arm64_ prefix. Real linux asset matrix
+        # (captured per-tag sweep, table in the PR body): x86_64 ships
+        # cuda-cuda12, cuda-cuda13, hip-rx6000, hip-rx7900, hip-rx9070,
+        # hip-halo, sycl; aarch64 ships cuda-cuda13 only; the hip-rdna2/
+        # hip-rdna3 ids of the review sketch exist on WINDOWS only.
+        # Engines are OFF by default: the control-only install is the
+        # verified green default and upstream's signed runtime feed
+        # ("strata-control update") keeps working either way.
+        # Distfile names follow the maintainer's sketch,
+        # '{{ .Values.p }}-<component>-<arch>[-<backend>].tar.gz': the
+        # pn-PV prefix keeps every PV's distfiles unique in DISTDIR while
+        # the URL side stays a version-free matcher (the skew note above).
+        # Fluctuation caveat (repro in the PR body): upstream does not
+        # ship a stable asset set per tag -- v0.2.15 has ZERO linux-x86_64
+        # engine assets, v0.2.14 lacks sycl, aarch64 starts at v0.2.7 --
+        # and generation resolves and downloads EVERY asset regardless of
+        # USE, with no per-asset optional field (AutogenAsset: use/name/
+        # matcher/prefix/url/local). A historical tag missing a gated
+        # backend therefore fails generation with the hard error "no asset
+        # found for matcher"; the shipping flow (the tip release, which
+        # carries the full matrix) is unaffected.
+        assets:
+          - name: '{{ .Values.p }}-strata-control-linux-x86_64.tar.gz'
+            matcher: '^strata-control-[0-9.]+-linux-x86_64\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-strata-control-linux-aarch64.tar.gz'
+            matcher: '^strata-control-[0-9.]+-linux-aarch64\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-cuda-cuda12.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-cuda-cuda12\.tar\.gz$'
+            use: cuda12
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-cuda-cuda13.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-cuda-cuda13\.tar\.gz$'
+            use: cuda13
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-hip-rx6000.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-hip-rx6000\.tar\.gz$'
+            use: hip_rx6000
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-hip-rx7900.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-hip-rx7900\.tar\.gz$'
+            use: hip_rx7900
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-hip-rx9070.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-hip-rx9070\.tar\.gz$'
+            use: hip_rx9070
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-hip-halo.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-hip-halo\.tar\.gz$'
+            use: hip_halo
+          - name: '{{ .Values.p }}-strata-engine-linux-x86_64-sycl.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-x86_64-sycl\.tar\.gz$'
+            use: sycl
+          - name: '{{ .Values.p }}-strata-engine-linux-aarch64-cuda-cuda13.tar.gz'
+            matcher: '^strata-engine-[0-9.]+-linux-aarch64-cuda-cuda13\.tar\.gz$'
+            use: arm64_cuda13
+        vars:
+          # systemd_dounit needs the systemd eclass inherited. (The
+          # in-kit ollama entry calls systemd_dounit without inheriting
+          # it -- a latent bug on ollama's systemd side; this PR does
+          # not touch ollama.)
+          inherit:
+            - systemd
+          # Single source of truth for the engine USE surface, rendered at
+          # template level, not expanded at bash level (the app-ai/maya
+          # cuda_* and media-kit ffmpeg cpu_flags_* clusters' idiom). One
+          # assets entry above per flag; keep the two in sync.
+          engine_uses_amd64:
+            - cuda12
+            - cuda13
+            - hip_rx6000
+            - hip_rx7900
+            - hip_rx9070
+            - hip_halo
+            - sycl
+          engine_uses_arm64:
+            - cuda13
+          # amd64/arm64 come from the arch-gated control assets, the
+          # opencode-bin/claude-code-bin precedent in this kit. The
+          # systemd flag selects the unit flavour of the service
+          # payload (the app-ai/ollama idiom: systemd unit with the
+          # flag, OpenRC init.d without it; /etc/conf.d installs in
+          # both cases and the unit reads it through EnvironmentFile).
+          # No sys-apps/systemd dependency: exactly the ollama
+          # precedent, which declares nothing for the systemd USE.
+          iuse: |-
+            amd64 arm64 systemd
+            {{- range $f := .Values.engine_uses_amd64 }} {{ $f }}{{ end }}
+            {{- range $f := .Values.engine_uses_arm64 }} arm64_{{ $f }}{{ end }}
+          # Each backend USE requires its architecture, exactly the
+          # relationship the review asked for: enabling an engine on an
+          # arch without assets becomes unsatisfiable instead of silently
+          # fetching nothing.
+          required_use: |-
+            {{- range $f := .Values.engine_uses_amd64 }} {{ $f }}? ( amd64 ){{ end }}
+            {{- range $f := .Values.engine_uses_arm64 }} arm64_{{ $f }}? ( arm64 ){{ end }}
+          desc: Strata Terminal and serving API for local AI (upstream binary)
+          homepage: https://github.com/Niko1221/Strata
+          # The repository license is MIT (GitHub license API: spdx_id MIT);
+          # the bundle vendors CPython 3.12 and its wheels -- their licences
+          # ship inside the tree (BUNDLE.json records the exact set).
+          license: MIT
+          # Prebuilt ELFs: the embedded CPython interpreter, its extension
+          # modules and the bundled shared libraries must not be stripped.
+          restrict: strip
+          # Self-contained by design: python/bin/python3.12 --version and
+          # the serve-dependency import probe (jinja2, yaml, regex, psutil,
+          # requests, numpy, PIL, ssl, sqlite3) all pass from the moved
+          # tree, and ldd over every extracted ELF resolves all 0 misses
+          # outside the bundle except the glibc object files. The engine
+          # bundles say the same (engine-component.json records relative
+          # paths + sha256; SYSTEM-LIBS.txt lists only glibc objects plus
+          # libstdc++/libgcc_s, both from the system toolchain every stage
+          # ships; the relocated cuda13 tree ran "strata 0.1.62" rc 0 with
+          # bundled libcublas/libcublasLt/libcudart resolving at the new
+          # paths -- headless, no GPU executed).
+          rdepend: |
+            sys-libs/glibc
+          # The control tarball is FLAT (6931 entries at the root: bin/,
+          # python/, serve/, strata.py, ...); custom src_unpack below
+          # extracts it into ${S} and each engine bundle into its own
+          # directory (see the collision note in src_install).
+          s: '${WORKDIR}/control'
+          extra_envs:
+            # Every ELF under /usr/lib/strata-bin is an upstream prebuild,
+            # the USE-gated engine subtrees included; browser-kit's
+            # QA_PREBUILT="*" is the whole-tree precedent and
+            # app-ai/codex-bin the /usr/lib/<pn>/* one.
+            - 'QA_PREBUILT="/usr/lib/strata-bin/*"'
+          body: |
+            src_unpack() {
+              # All distfiles here are FLAT archives (no top-level dir) and
+              # the engine bundles share file names with each other (each
+              # ships its own ./strata, BUILD.json, engine-component.json),
+              # so they must extract into separate directories; portage's
+              # unpack() cannot target one, hence direct tar with the
+              # control bundle at ${S} (the cp -a idiom of the control-only
+              # shape this entry keeps) and each engine under
+              # ${WORKDIR}/engine-dist/<distfile>/.
+              mkdir -p "${S}" || die
+              local f d have_control=0
+              for f in ${A}; do
+                d="${WORKDIR}/engine-dist/${f}"
+                case "${f}" in
+                  *-strata-control-*)
+                    d="${S}"
+                    have_control=1
+                    ;;
+                esac
+                mkdir -p "${d}" || die
+                tar xzf "${DISTDIR}/${f}" -C "${d}" || die "unpacking ${f}"
+              done
+              [ "${have_control}" -eq 1 ] ||
+                die "no strata-control distfile for this architecture"
+            }
+
+            src_install() {
+              local dest=/usr/lib/strata-bin
+              dodir "${dest}"
+              # Keep the bundle layout and upstream's exec bits (108
+              # executables including the interpreter and bin/strata; doins
+              # would flatten them to 644) via the cp -a idiom.
+              cp -a "${S}/." "${D}${dest}/" || die "installing strata-control tree"
+              # The bundle's launcher resolves its own path following
+              # symlinks on purpose ("so `strata` can live on PATH", see
+              # the header of bin/strata) -- sandbox-proved: dosym'd into
+              # /usr/bin, --version rc 0 from the moved tree. The public
+              # name is strata-control, NOT strata: app-ai/strata, the
+              # SOURCE atom of the same upstream
+              # (macaroni-os/kit-fixups#630), installs /usr/bin/strata --
+              # file sets stay disjoint by construction, so no mutual
+              # block is needed.
+              dosym "${dest}/bin/strata" /usr/bin/strata-control
+
+              # USE-selected engine bundles -> ${dest}/engines/<backend>/
+              # (upstream's own backend token, e.g. cuda-cuda13). NOT
+              # /usr/bin: the engine's main binary is also named strata
+              # and must not collide with app-ai/strata (#630); the
+              # directory is wired in by 'strata components add-build'
+              # below, which is exactly its folder contract (strata, its
+              # libraries and BUILD.json).
+              local f name backend
+              for f in "${WORKDIR}/engine-dist/"*-strata-engine-*; do
+                [ -d "${f}" ] || continue
+                name="$(basename "${f}")"
+                backend="${name#*-strata-engine-}"
+                backend="${backend%.tar.gz}"
+                backend="${backend#linux-x86_64-}"
+                backend="${backend#linux-aarch64-}"
+                dodir "${dest}/engines/${backend}"
+                cp -a "${f}/." "${D}${dest}/engines/${backend}/" ||
+                  die "installing strata engine ${backend}"
+              done
+
+              # Service payload from the shared strata/ files_dir (the
+              # macaroni-os/kit-fixups#631 review ask): conf.d always,
+              # then exactly ONE init flavour (geaaru's rule on
+              # kit-fixups#511 -- the init script goes in the else).
+              # strata-control.service reads the same
+              # /etc/conf.d/strata-control through EnvironmentFile-,
+              # like the ollama unit reads /etc/conf.d/ollama.
+              newconfd "${FILESDIR}"/strata-control.confd strata-control
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/strata-control.service
+              else
+                newinitd "${FILESDIR}"/strata-control.initd strata-control
+              fi
+            }
+
+            pkg_postinst() {
+              elog "${PF} is the upstream strata-control bundle installed"
+              elog "under /usr/lib/strata-bin; start it as"
+              elog "/usr/bin/strata-control."
+              elog "Engines enabled via USE install under"
+              elog "/usr/lib/strata-bin/engines/<backend>/ (NOT on PATH:"
+              elog "the engine binary is also named strata and belongs to"
+              elog "app-ai/strata, kit-fixups#630). Wire one up with the"
+              elog "CLI's own contract (docs/SOURCE_INSTALL.md:"
+              elog "'strata components add-build <folder>', the folder"
+              elog "holding strata, its libraries and BUILD.json), e.g."
+              elog "  strata-control components add-build \\"
+              elog "    /usr/lib/strata-bin/engines/cuda-cuda13"
+              elog "-- it is then a local, unsigned engine in use; 'use"
+              elog "newest' goes back to upstream's signed runtime feed,"
+              elog "which 'strata-control update' keeps serving either way"
+              elog "(see macaroni-os/mark-issues#949)."
+              elog "Headless serving: create a model run config first"
+              elog "with 'strata-control launch' (the guided flow, or"
+              elog "--yes --no-tui; that flow is where models are"
+              elog "downloaded and prepared), point STRATA_PROFILE in"
+              elog "/etc/conf.d/strata-control at its JSON path, then"
+              elog "enable the service -- rc-update add"
+              elog "strata-control default (OpenRC) or systemctl enable"
+              elog "strata-control (USE=systemd, which installs the"
+              elog "unit instead of the init script). The service runs"
+              elog "'strata-control serve' and never downloads:"
+              elog "without STRATA_PROFILE it refuses to start, on"
+              elog "purpose. app-ai/strata, the source atom of the same"
+              elog "upstream, ships the matching strata unit set from"
+              elog "the same shared payload directory (the follow-up to"
+              elog "macaroni-os/kit-fixups#631)."
+            }

@@ -1,0 +1,40 @@
+# Configuration for the Strata serving API (/etc/init.d/strata-control
+# and strata-control.service, from app-ai/strata-bin). This is the
+# product service: the Terminal's foreground server -- OpenAI-
+# compatible /v1 plus the Anthropic-compatible endpoint; the
+# strata-control subcommands status, monitor, logs and connect talk to
+# it. It starts the engine of the run config as its resident
+# `strata --serve` child (that worker can also run standalone through
+# strata.service of app-ai/strata; the run config names its engine by
+# absolute path, docs/SOURCE_INSTALL.md).
+
+# STRATA_PROFILE: REQUIRED, the run config to serve: the JSON of one
+# prepared model ("exe", "tokenizer" and "args"; a path-like value is
+# used as-is, strata_control/profiles.py resolve()). Create it with
+# `strata-control launch` -- the guided flow, or non-interactive:
+#   strata-control launch --family qwen --model q2_0 --yes --no-tui
+# (docs/TERMINAL_LAUNCH.md). That flow is where models get downloaded
+# and prepared; the SERVICE never downloads ("starting and serving
+# never do this", `strata-control install --help`), so the unit refuses
+# to start until STRATA_PROFILE names an existing file. `strata-control
+# models list` shows the run configs that setup wrote.
+STRATA_PROFILE=""
+
+# Where the server listens. The serve defaults are 127.0.0.1:8095
+# (strata_cli/cli.py); `strata-control launch` writes its own address
+# into the run config it serves (the documented default endpoint is
+# http://127.0.0.1:8080). Beyond localhost keep a real API key
+# (docs/DOCKER.md, "The API key").
+STRATA_HOST="127.0.0.1"
+STRATA_PORT="8095"
+
+# The key clients must send as Authorization: Bearer. The server reads
+# STRATA_API_KEY from the environment (this file) or api_key from the
+# run config; GET /health answers without a key. Uncomment to set:
+#STRATA_API_KEY=""
+
+# Extra `strata serve` flags (see `strata-control serve --help`):
+# --offline disables remote image fetches and MCP/tool subprocesses,
+# --parallel N requests answered at once, --max-queue N. Paths with
+# spaces are not supported by the shipped units.
+#STRATA_SERVE_ARGS="--offline"

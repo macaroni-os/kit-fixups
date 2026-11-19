@@ -1,0 +1,36 @@
+# Configuration for the strata engine worker (/etc/init.d/strata and
+# strata.service, from app-ai/strata). The serving front-end of the
+# same product is app-ai/strata-bin (strata-control.service).
+#
+# What this unit runs: `/usr/bin/strata --serve`, the engine's request
+# protocol over stdin/stdout (READY at start, then GEN <max_new> <ids>
+# lines in, T <id> lines out; `strata --help`). It is exactly the
+# child process Strata's HTTP server keeps resident ("StrataEngine
+# keeps one strata --serve process resident"; the server's start line
+# is [exe, "--serve", *args] with the run config's args). The
+# OpenAI/Anthropic-compatible endpoint itself belongs to that server,
+# i.e. to strata-control.service of app-ai/strata-bin, whose run
+# config names its engine by absolute path (docs/SOURCE_INSTALL.md).
+# This unit makes the same worker a supervised service of this atom;
+# the stdio end-point is the FIFO named by STRATA_IO.
+#
+# The engine needs a model: STRATA_ENGINE_ARGS takes the args of the
+# model's run config (the "args" array of the strata-<model>.json that
+# setup writes, docs/SOURCE_INSTALL.md). The unit REFUSES to start
+# without them, and serving downloads nothing: `install` is the only
+# component that does ("starting and serving never do this",
+# `strata-control install --help`).
+
+STRATA_ENGINE_ARGS=""
+# Example (a prepared pack with its required PLE table):
+#STRATA_ENGINE_ARGS="--pack /srv/strata/packs/qwen-iq3_xxs --ple-gguf /srv/strata/models/qwen-iq3_xxs/ple.gguf --max-context 131072 --kv int8"
+
+# stdio end-point of the worker (FIFO, mode 0600; the server or any
+# other GEN/T client opens it). Paths with spaces are not supported by
+# the shipped units.
+STRATA_IO="/run/strata/engine.io"
+
+# Memory: serving loads tens of GB into RAM. On systemd cap the unit
+# with MemoryMax= (via a drop-in), never MemoryHigh= -- MemoryHigh
+# counts the page cache that --mmap-experts reads from
+# (docs/AMD_HIP.md).

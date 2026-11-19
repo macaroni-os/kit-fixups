@@ -1,0 +1,45 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Strata engine worker (strata --serve, the stdio protocol of app-ai/strata)"
+: ${STRATA_ENGINE_ARGS:=}
+: ${STRATA_IO:=/run/strata/engine.io}
+PIDFILE=/run/strata.pid
+
+depend() {
+	need localmount
+}
+
+start_pre() {
+	checkpath -q -d -m 0755 -o root:root "$(dirname "${STRATA_IO}")" || return 1
+	if [ ! -x /usr/bin/strata ] ; then
+		eerror "strata: /usr/bin/strata is not installed; the engine binary is built only with USE=cuda of app-ai/strata"
+		return 1
+	fi
+	if [ -z "${STRATA_ENGINE_ARGS}" ] ; then
+		eerror "strata: set STRATA_ENGINE_ARGS in /etc/conf.d/strata to the run-config args of your model first; the engine serves nothing without a model and never downloads one"
+		return 1
+	fi
+	[ -p "${STRATA_IO}" ] || mkfifo -m 0600 "${STRATA_IO}" || return 1
+	return 0
+}
+
+start() {
+	ebegin "Starting ${SVCNAME}"
+	# stdin and stdout ride one O_RDWR fd on the FIFO, so the protocol
+	# stream has no premature EOF -- the same shape as when Strata's
+	# HTTP server keeps this child resident.
+	start-stop-daemon --start --quiet --background \
+		--make-pidfile --pidfile "${PIDFILE}" \
+		--stderr "/var/log/${SVCNAME}.log" \
+		-- /bin/sh -c "exec 3<>\"${STRATA_IO}\" && exec /usr/bin/strata --serve ${STRATA_ENGINE_ARGS} <&3 >&3"
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ${SVCNAME}"
+	start-stop-daemon --stop --quiet --pidfile "${PIDFILE}"
+	local rc=$?
+	rm -f "${PIDFILE}" "${STRATA_IO}"
+	eend ${rc}
+}

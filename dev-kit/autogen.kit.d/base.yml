@@ -1016,6 +1016,40 @@ dev_github:
               einstalldocs
             }
 
+    - ripgrep:
+        # Source flavour (macaroni-os/mark-issues#867): rust extension +
+        # cargo eclass (bindgen/cbindgen shape), vendored through the
+        # mark-rust-bundle so the build is offline. num_pages: 10 is
+        # required: the repository tags every workspace crate and the
+        # plain version tags are ordered behind them, so the release/tag
+        # cross-check only reaches a real commit sha with deeper tag
+        # pages (macaroni-os/mark-issues#878).
+        extensions:
+          - rust
+        category: sys-apps
+        github:
+          user: BurntSushi
+          repo: ripgrep
+          num_pages: 10
+        vars:
+          inherit:
+            - cargo
+          # Same /usr/bin/rg as the -bin flavour: the pair mutually
+          # blocks (opencode/pi idiom).
+          rdepend: '!sys-apps/ripgrep-bin'
+          extra_envs:
+            - 'QA_FLAGS_IGNORED="/usr/bin/rg"'
+          body: |
+            src_unpack() {
+              cargo_src_unpack
+              rm -rf ${S}
+              mv ${WORKDIR}/{{ .Values.github_user}}-{{ .Values.github_repo }}-* ${S} || die
+            }
+            src_install() {
+              cargo_src_install
+              einstalldocs
+            }
+
     - ripgrep-bin:
         # Upstream musl binaries. Needed as a tree package for the
         # app-ai/codex RDEPEND (it needs `rg` for its doctor search
@@ -1046,6 +1080,9 @@ dev_github:
         vars:
           iuse: amd64 arm64
           desc: ripgrep, a fast recursive grep (upstream binary)
+          # Same /usr/bin/rg as the source flavour above; the pair
+          # mutually blocks (opencode/pi idiom).
+          rdepend: '!sys-apps/ripgrep'
           restrict: strip
           s: '${WORKDIR}'
           extra_envs:

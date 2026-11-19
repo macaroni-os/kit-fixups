@@ -1,0 +1,37 @@
+# Configuration for the Maya dashboard service (/etc/init.d/maya and
+# maya.service, from app-ai/maya). Both run the packaged launcher
+# /usr/bin/maya-server (exec python3 /usr/share/maya/serve/server.py
+# "$@"), the one canonical entry point: starting it by hand takes the
+# same arguments as below (maya-server --help).
+
+# Binding address. 127.0.0.1 (the default) serves this machine only.
+# Upstream: when you listen on another address without a key the
+# server prints a warning; always set a key when you do (SECURITY.md).
+MAYA_HOST="127.0.0.1"
+
+# Port. The units always pass --port explicitly: maya.py's serve flow
+# defaults to 8080, serve/server.py's own default is 8095.
+MAYA_PORT="8080"
+
+# API key for /v1/* and the dashboard data endpoints (Authorization:
+# Bearer ..., or x-api-key; several separated by commas;
+# serve/server.py reads $MAYA_API_KEY). Upstream ships none: always
+# set one before binding MAYA_HOST to a routable address.
+#MAYA_API_KEY="change-me"
+
+# The model to serve is named by its run config, which the setup
+# flows write as maya-<model>.json; put the server arguments here:
+#MAYA_SERVER_ARGS="--engine maya --config /var/lib/maya/maya-<model>.json"
+MAYA_SERVER_ARGS=""
+# Without them the service answers from the scripted mock engine and
+# the model list is empty -- serving never downloads a model (the
+# dashboard's Models page puller is the only downloader and it acts
+# only on an explicit pull request). Quoting follows serve/server.py
+# --help; paths with spaces are not supported by the shipped units.
+
+# The service runs as user maya with HOME=/var/lib/maya, so a pull
+# started through the dashboard lands the model under
+# /var/lib/maya/Maya-data/models (the packaged default is
+# $HOME/Maya-data/models). MAYA_* names are the settings the server
+# reads (tools/maya_names.py); MAYA_MODEL_MANAGEMENT=0 also turns the
+# dashboard's load/unload endpoints off.

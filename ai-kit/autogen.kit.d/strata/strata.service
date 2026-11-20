@@ -1,0 +1,20 @@
+[Unit]
+Description=Strata engine worker (strata --serve stdio protocol)
+After=local-fs.target
+
+[Service]
+# STRATA_ENGINE_ARGS (the run-config args of your model; the unit
+# refuses to start without them, serving never downloads) and
+# STRATA_IO (the FIFO carrying the READY/GEN/T protocol) come from
+# /etc/conf.d/strata. Cap the model load with MemoryMax= through a
+# drop-in, never MemoryHigh= (docs/AMD_HIP.md).
+EnvironmentFile=-/etc/conf.d/strata
+RuntimeDirectory=strata
+RuntimeDirectoryMode=0755
+# The protocol rides one O_RDWR fd on the FIFO, the same shape as when
+# Strata's HTTP server (strata-control.service of app-ai/strata-bin)
+# keeps this child resident.
+ExecStart=/bin/sh -c '[ -n "${STRATA_ENGINE_ARGS}" ] || { echo "strata.service: set STRATA_ENGINE_ARGS in /etc/conf.d/strata to the run-config args of your model; the engine serves nothing without a model and never downloads one"; exit 1; }; umask 077; [ -p "${STRATA_IO}" ] || mkfifo "${STRATA_IO}"; exec 3<>"${STRATA_IO}"; exec /usr/bin/strata --serve ${STRATA_ENGINE_ARGS} <&3 >&3'
+
+[Install]
+WantedBy=multi-user.target

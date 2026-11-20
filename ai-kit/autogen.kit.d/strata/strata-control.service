@@ -1,0 +1,19 @@
+[Unit]
+Description=Strata serving API (Terminal server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# STRATA_PROFILE (required: the run config of one prepared model;
+# creating it is `strata-control launch`'s job -- the service itself
+# never downloads), STRATA_HOST/STRATA_PORT and the optional
+# STRATA_API_KEY / STRATA_SERVE_ARGS come from
+# /etc/conf.d/strata-control. Cap the model load with MemoryMax=
+# through a drop-in, never MemoryHigh= (docs/AMD_HIP.md).
+EnvironmentFile=-/etc/conf.d/strata-control
+ExecStart=/usr/bin/strata-control serve --profile ${STRATA_PROFILE} --host ${STRATA_HOST} --port ${STRATA_PORT} --quiet $STRATA_SERVE_ARGS
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

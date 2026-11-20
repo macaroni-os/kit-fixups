@@ -1,0 +1,24 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Strata serving API (Terminal server of app-ai/strata-bin)"
+: ${STRATA_PROFILE:=}
+: ${STRATA_HOST:=127.0.0.1}
+: ${STRATA_PORT:=8095}
+PIDFILE=/run/strata-control.pid
+command="/usr/bin/strata-control"
+command_args="serve --profile ${STRATA_PROFILE} --host ${STRATA_HOST} --port ${STRATA_PORT} --quiet ${STRATA_SERVE_ARGS}"
+start_stop_daemon_args="--background --make-pidfile --pidfile ${PIDFILE} --stderr /var/log/${SVCNAME}.log"
+
+depend() {
+	need net
+}
+
+start_pre() {
+	if [ -z "${STRATA_PROFILE}" ] || [ ! -f "${STRATA_PROFILE}" ] ; then
+		eerror "strata-control: STRATA_PROFILE must name a run config (the JSON of one prepared model) in /etc/conf.d/strata-control."
+		eerror "Create one with 'strata-control launch' (that flow downloads and prepares the model; the service itself never does) and point STRATA_PROFILE at it; 'strata-control models list' shows existing run configs."
+		return 1
+	fi
+	return 0
+}

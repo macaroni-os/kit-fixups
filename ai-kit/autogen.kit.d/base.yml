@@ -1144,7 +1144,15 @@ strata:
   generator: builtin-github
   defaults:
     category: app-ai
-    files_dir: "{{ .Values.pn }}"
+    # Service payload directory SHARED with app-ai/strata-bin (the
+    # macaroni-os/kit-fixups#631 review ask: "I think that both strata
+    # and strata-bin could share the same directory"). Literal, not the
+    # "{{ .Values.pn }}" default, so the sharing is explicit and PN-
+    # independent: ai-kit/autogen.kit.d/strata/ holds both unit sets,
+    # each atom installs only its own PN-named files from it (strata.*
+    # here, strata-control.* in app-ai/strata-bin), so the file sets
+    # stay disjoint and the atoms remain co-installable.
+    files_dir: strata
     template: ../../templates/simple-github.tmpl
     # Upstream (Niko1221/Strata) release ASSETS are tens-of-GB model packs
     # (*.pack) plus installers: runtime downloads, never part of SRC_URI.
@@ -1167,8 +1175,12 @@ strata:
           - name: "{{ .Values.p }}.tar.gz"
             url: "https://api.github.com/repos/Niko1221/Strata/tarball/v{{ .Values.pv }}"
         vars:
+          # systemd: systemd_dounit needs the systemd eclass inherited
+          # (the in-kit ollama entry calls it without inheriting -- a
+          # latent bug on ollama's systemd side; not this PR's scope).
           inherit:
             - cmake
+            - systemd
           desc: Local inference engine for Qwen3.8-Flash-Next on NVIDIA GPUs
           homepage: https://github.com/Niko1221/Strata
           license: MIT
@@ -1224,8 +1236,14 @@ strata:
           # the tag tarball (engine/third_party/strata-ggml) and in this
           # Release configuration is not even configured (configure line:
           # "Strata: no ggml in this build"): nothing is downloaded.
+          # systemd selects the unit flavour of the service payload
+          # (app-ai/ollama idiom: systemd unit with the flag, OpenRC
+          # conf.d + init.d without it; /etc/conf.d installs in both
+          # cases and the unit reads it through EnvironmentFile). No
+          # sys-apps/systemd dependency: exactly the ollama precedent,
+          # which declares nothing for the systemd USE.
           iuse: |-
-            cuda cuda-native
+            cuda cuda-native systemd
             {{- range $g := .Values.gpus }}
             cuda_{{ $g }}
             {{- end }}
@@ -1332,6 +1350,21 @@ strata:
                 dobin "${BUILD_DIR}"/strata
               fi
               dodoc README.md LICENSE
+              # Service payload from the strata/ files_dir shared with
+              # app-ai/strata-bin (macaroni-os/kit-fixups#631 review):
+              # conf.d always, then exactly ONE init flavour (geaaru's
+              # rule on kit-fixups#511 -- the init script goes in the
+              # else). The shipped unit and init script refuse to
+              # start, with a plain message, when the engine binary is
+              # absent (no USE=cuda) or STRATA_ENGINE_ARGS is unset --
+              # the engine serves its GEN/T protocol only for a model
+              # that already exists on disk (docs/SOURCE_INSTALL.md).
+              newconfd "${FILESDIR}"/strata.confd strata
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}"/strata.service
+              else
+                newinitd "${FILESDIR}"/strata.initd strata
+              fi
             }
             pkg_postinst() {
               elog "app-ai/strata installs Strata's C++ inference engine (the"
@@ -1341,6 +1374,17 @@ strata:
               elog "driven by Strata's terminal/desktop layer together with model"
               elog "packs downloaded at run time; nothing model-related ships"
               elog "with the package (see macaroni-os/mark-issues#933)."
+              elog "Service: /etc/conf.d/strata plus /etc/init.d/strata"
+              elog "(or /usr/lib/systemd/system/strata.service with"
+              elog "USE=systemd) supervise the engine's --serve request"
+              elog "protocol (READY/GEN/T over stdin/stdout; the stdio"
+              elog "end-point is a FIFO, see the conf.d comments). Set"
+              elog "STRATA_ENGINE_ARGS to the args of your model's run"
+              elog "config before enabling it; without USE=cuda there"
+              elog "is no engine binary to run. The HTTP front-end that"
+              elog "drives this worker ships with app-ai/strata-bin"
+              elog "(strata-control.service, from the same shared"
+              elog "payload directory; macaroni-os/kit-fixups#631)."
             }
 maya:
   generator: builtin-github

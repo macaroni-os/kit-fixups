@@ -34,11 +34,17 @@ hatchling_modules:
           license: MIT
 
     - platformdirs:
+        # >=4.14.6 requires python-sbom[hatch]>=0.1.2 as a build hook, but
+        # every python-sbom release requires python >=3.11 (unpackageable for
+        # the current 3.9 target). Drop this cap with the 3.11 migration.
+        selector:
+          - '<4.14.6'
         vars:
           desc: A small Python package for determining appropriate platform-specific dirs
         pydeps:
           py:all:build:
             - hatch-vcs
+            - hatch-fancy-pypi-readme
 
     - urllib3:
         vars:

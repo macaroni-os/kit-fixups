@@ -66,6 +66,11 @@ hatchling_modules:
           use:brotli:both:
             - brotlipy
 
+    - pygments:
+        pypi_name: pygments
+        vars:
+          license: BSD-2
+
 flit_modules:
   generator: builtin-pypi
   template:
@@ -242,6 +247,27 @@ flit_modules:
           desc: Command line tool for manipulating wheel files, as defined in PEP 427
           homepage: https://github.com/pypa/wheel/ https://pypi.org/project/wheel/
           license: MIT
+
+    - mdurl:
+        vars:
+          license: MIT
+
+    - markdown-it-py:
+        pydeps:
+          py:all:both:
+            - mdurl >= 0.1
+            - mdurl < 0.2
+        vars:
+          license: MIT
+
+    - mdit-py-plugins:
+        pypi_name: mdit_py_plugins
+        vars:
+          license: MIT
+        pydeps:
+          py:all:both:
+            - markdown-it-py >= 1.0.0
+            - markdown-it-py < 4.0.0
 
 setuptools_modules:
   generator: builtin-pypi
@@ -664,6 +690,16 @@ setuptools_modules:
           license: MPL-2.0 MIT
           desc: Fast, Extensible Progress Meter
           homepage: https://tqdm.github.io https://github.com/tqdm/tqdm https://pypi.org/project/tqdm/
+    - uc-micro-py:
+        vars:
+          license: MIT
+
+    - linkify-it-py:
+        pydeps:
+          py:all:both:
+            - uc-micro-py
+        vars:
+          license: MIT
 
 mesonpy_modules:
   generator: builtin-pypi
@@ -823,6 +859,30 @@ poetry_modules:
     - aiohappyeyeballs:
 
     - qrcode:
+
+    - rich:
+        pydeps:
+          py:all:both:
+            - markdown-it-py
+            - pygments
+        vars:
+          license: MIT
+
+    - textual:
+        pydeps:
+          py:all:both:
+            - linkify-it-py
+            - markdown-it-py >= 2.1.0
+            - mdit-py-plugins
+            - platformdirs >= 3.6.0
+            - platformdirs < 5
+            - pygments >= 2.19.2
+            - pygments < 3.0.0
+            - rich >= 14.2.0
+            - typing-extensions >= 4.4.0
+            - typing-extensions < 5.0.0
+        vars:
+          license: MIT
 
 standalone_modules:
   generator: builtin-pypi

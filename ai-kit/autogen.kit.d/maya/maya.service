@@ -1,0 +1,19 @@
+[Unit]
+Description=Maya dashboard server (OpenAI/Anthropic-compatible endpoint, app-ai/maya)
+After=network-online.target
+
+[Service]
+# MAYA_HOST, MAYA_PORT, MAYA_API_KEY and MAYA_SERVER_ARGS come from
+# /etc/conf.d/maya, the file the OpenRC flavour reads; see the
+# comments there (serving never downloads a model; always set a key
+# before binding a routable MAYA_HOST).
+EnvironmentFile=-/etc/conf.d/maya
+Environment=HOME=/var/lib/maya
+ExecStart=/usr/bin/maya-server --host ${MAYA_HOST:-127.0.0.1} --port ${MAYA_PORT:-8080} ${MAYA_SERVER_ARGS}
+User=maya
+Group=maya
+WorkingDirectory=/var/lib/maya
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

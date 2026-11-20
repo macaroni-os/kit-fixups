@@ -1,0 +1,38 @@
+#!/sbin/openrc-run
+# Distributed under the terms of the GNU General Public License v2
+
+description="Maya dashboard server (OpenAI/Anthropic-compatible endpoint, app-ai/maya)"
+: ${MAYA_HOST:=127.0.0.1}
+: ${MAYA_PORT:=8080}
+: ${MAYA_SERVER_ARGS:=}
+command="/usr/bin/maya-server"
+command_args="--host ${MAYA_HOST} --port ${MAYA_PORT} ${MAYA_SERVER_ARGS}"
+command_user="maya:maya"
+command_background="yes"
+pidfile="/run/${SVCNAME}.pid"
+start_stop_daemon_args="--env HOME=/var/lib/maya --stdout /var/log/${SVCNAME}.log --stderr /var/log/${SVCNAME}.log"
+
+if [ -n "${MAYA_API_KEY}" ] ; then
+	start_stop_daemon_args="${start_stop_daemon_args} --env MAYA_API_KEY=${MAYA_API_KEY}"
+fi
+
+depend() {
+	need net
+}
+
+start_pre() {
+	checkpath -q -d -m 0750 -o maya:maya /var/lib/maya || return 1
+	# start-stop-daemon opens --stdout/--stderr after the uid switch:
+	# the log has to exist owned by maya already.
+	checkpath -q -f -m 0640 -o maya:maya /var/log/${SVCNAME}.log || return 1
+	if [ ! -f /usr/share/maya/serve/server.py ] ; then
+		eerror "maya: the dashboard layer (/usr/share/maya/serve) is not installed"
+		return 1
+	fi
+	case ${MAYA_PORT} in
+		''|*[!0-9]*)
+			eerror "maya: MAYA_PORT must be a port number (got '${MAYA_PORT}') in /etc/conf.d/maya"
+			return 1 ;;
+	esac
+	return 0
+}

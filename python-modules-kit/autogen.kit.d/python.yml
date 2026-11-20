@@ -652,6 +652,19 @@ setuptools_modules:
 
     - spidev:
 
+    - tqdm:
+        # setuptools-scm is a PEP 517 build requirement declared only in
+        # upstream pyproject.toml's build-system table (dynamic version).
+        pydeps:
+          py:all:build:
+            - setuptools_scm
+        vars:
+          # Upstream metadata says "MPL-2.0 AND MIT"; the ebuild license
+          # expression spells a conjunction by juxtaposition.
+          license: MPL-2.0 MIT
+          desc: Fast, Extensible Progress Meter
+          homepage: https://tqdm.github.io https://github.com/tqdm/tqdm https://pypi.org/project/tqdm/
+
 mesonpy_modules:
   generator: builtin-pypi
   template:

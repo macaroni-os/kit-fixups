@@ -3559,7 +3559,6 @@ binutils_libs:
       # Base upstream tarball, named exactly as the selected listing link
       # (binutils-2.40.tar.xz).
       - name: '{{ .Values.original_version }}'
-    revision: 1
     vars:
       desc: Core binutils libraries (libbfd, libopcodes, libiberty, libctf, libsframe)
       homepage: https://sourceware.org/binutils/
@@ -3589,11 +3588,8 @@ binutils_libs:
         MY_BUILDDIR="${WORKDIR}/build"
 
         src_prepare() {
-          # The Gentoo patchset is vendored under files/ and applied via
-          # PATCHES; no external patch tarball is fetched on bumps.
           default
 
-          # 9999-Gentoo-We-make-a-release.patch as a plain sed (review ask).
           sed -i -e 's:^development=true$:development=false:' bfd/development.sh || die
           # Run misc portage update scripts
           gnuconfig_update
@@ -3716,10 +3712,21 @@ binutils_libs:
             mkdir -p "${D}/usr/$n"
             cp -a "$d"/* "${D}/usr/$n"/ 2>/dev/null || true
           done
+
+          # Some things land in /usr/lib and others in /usr/lib64, which
+          # makes Portage complain and abort. Combine them:
+          if [ -d "${D}"/usr/lib ] && [ -d "${D}"/usr/lib64 ]; then
+            mv "${D}"/usr/lib/* "${D}"/usr/lib64
+            rm -rf "${D}"/usr/lib
+          fi
+          rm -rf "${ED}"/usr/include || die
+
+          use static-libs || find "${ED}" -name '*.la' -delete
         }
 
   packages:
     - binutils-libs:
+        revision: 1
         # 2.40 line with the vendored Gentoo patch series.
         selector:
           - '>=2.40'
@@ -4171,7 +4178,6 @@ binutils:
       # Base upstream tarball, named exactly as the selected listing link
       # (binutils-2.40.tar.xz).
       - name: '{{ .Values.original_version }}'
-    revision: 1
     vars:
       desc: Tools necessary to build programs
       homepage: https://sourceware.org/binutils/
@@ -4347,8 +4353,7 @@ binutils:
           use static-libs || find "${ED}" -name '*.la' -delete
 
           # Headers and libraries are owned by sys-libs/binutils-libs.
-          rm -rf "${ED}"/usr/include || die
-          rm -f "${ED}"/usr/lib*/lib{bfd,opcodes,iberty,ctf,sframe}* 2>/dev/null || true
+          rm -f "${ED}"/usr/lib*/lib{bfd,opcodes,iberty,ctf,sframe,gprofng}* 2>/dev/null || true
 
           cd "${S}"
           dodoc README
@@ -4397,6 +4402,7 @@ binutils:
         selector:
           - '>=2.40'
           - '<2.41'
+        revision: 1
         vars:
           version_suffix: '_p5'
           patches:

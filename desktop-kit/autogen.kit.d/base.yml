@@ -718,6 +718,92 @@ wm_github:
             }
 
 
+wm_i3_github:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: x11-wm
+    github:
+      user: i3
+      repo: i3
+      query: tags
+      match: '^4\.[0-9]+(\.[0-9]+)?$'
+
+  packages:
+    - i3:
+        vars:
+          desc: A tiling window manager for X11
+          homepage: https://i3wm.org/
+          license: BSD
+          iuse: doc
+          inherit:
+            - meson
+          rdepend: |
+            dev-libs/libev
+            dev-libs/libpcre2
+            dev-libs/yajl
+            x11-libs/cairo[X,xcb(+)]
+            x11-libs/libxcb[xkb]
+            x11-libs/libxkbcommon[X]
+            x11-libs/pango[X]
+            x11-libs/startup-notification
+            x11-libs/xcb-util
+            x11-libs/xcb-util-cursor
+            x11-libs/xcb-util-keysyms
+            x11-libs/xcb-util-wm
+            x11-libs/xcb-util-xrm
+            x11-misc/xkeyboard-config
+            dev-lang/perl
+            dev-perl/AnyEvent-I3
+            dev-perl/JSON-XS
+          depend: |
+            ${RDEPEND}
+            doc? (
+              app-text/asciidoc
+              app-text/xmlto
+              dev-lang/perl
+            )
+          bdepend: virtual/pkgconfig
+          body: |
+            src_prepare() {
+              default
+
+              cat > "${T}"/i3wm <<- EOF || die
+                #!/bin/sh
+                exec /usr/bin/i3
+              EOF
+            }
+
+            src_configure() {
+              local emesonargs=(
+                -Ddocdir=/usr/share/doc/{{ .Values.pf }}
+                $(meson_use doc docs)
+                $(meson_use doc mans)
+              )
+
+              meson_src_configure
+            }
+
+            src_install() {
+              meson_src_install
+
+              exeinto /etc/X11/Sessions
+              doexe "${T}"/i3wm
+            }
+
+            pkg_postinst() {
+              # Only show the elog information on a new install
+              if [[ ! ${REPLACING_VERSIONS} ]]; then
+                elog "There are several packages that you may find useful with ${PN} and"
+                elog "their usage is suggested by the upstream maintainers, namely:"
+                elog "  x11-misc/dmenu"
+                elog "  x11-misc/i3status"
+                elog "  x11-misc/i3lock"
+                elog "Please refer to their description for additional info."
+              fi
+            }
+
 general_github:
   generator: builtin-github
   defaults:

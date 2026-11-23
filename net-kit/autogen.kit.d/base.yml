@@ -1620,6 +1620,73 @@ git_servers:
               tmpfiles_process gitea.conf
             }
 
+atftp:
+  generator: builtin-github
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple-github.tmpl
+    category: net-ftp
+    github:
+      user: madmartin
+      repo: atftp
+      query: tags
+      match: '^v0\.8\.'
+    vars:
+      desc: Advanced TFTP implementation client/server
+      homepage: https://sourceforge.net/projects/atftp/
+      license: GPL-2+
+      iuse: selinux systemd tcpd readline pcre
+      inherit:
+        - autotools
+        - flag-o-matic
+        - systemd
+      # --enable-libpcre has meant PCRE2 since the 0.8 series.
+      rdepend: |
+        tcpd? ( sys-apps/tcp-wrappers )
+        readline? ( sys-libs/readline:0= )
+        pcre? ( dev-libs/libpcre2 )
+        !net-ftp/netkit-tftp
+        !net-ftp/tftp-hpa
+        !net-ftp/uftpd
+        selinux? ( sec-policy/selinux-tftp )
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          append-cppflags -D_REENTRANT -DRATE_CONTROL
+          # restore pre-GCC5 inline semantics, as the tree ebuild did
+          append-cflags -std=gnu89
+          default
+          eautoreconf
+        }
+
+        src_configure() {
+          econf \
+            $(use_enable tcpd libwrap) \
+            $(use_enable readline libreadline) \
+            $(use_enable pcre libpcre) \
+            --enable-mtftp
+        }
+
+        src_install() {
+          default
+
+          if use systemd ; then
+            systemd_dounit "${FILESDIR}"/atftp.service
+            systemd_install_serviced "${FILESDIR}"/atftp.service.conf
+          else
+            newinitd "${FILESDIR}"/atftp.init atftp
+            newconfd "${FILESDIR}"/atftp.confd atftp
+          fi
+
+          dodoc README* BUGS FAQ Changelog INSTALL TODO
+          if [ -d docs ] ; then
+            dodoc docs/*
+          fi
+        }
+
+  packages:
+    - atftp:
+
 thunderbird:
   generator: builtin-dirlisting
 

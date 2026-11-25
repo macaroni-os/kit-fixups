@@ -23,7 +23,11 @@ target:
   atoms:
     - pkg: app-ai/ollama
     - pkg: app-ai/llama-cpp:0
+      conditions:
+        - '>app-ai/llama-cpp-0.1.0:0'
     - pkg: app-ai/llama-cpp:snapshot
+      conditions:
+        - '<app-ai/llama-cpp-0.1.0:snapshot'
 
     - pkg: app-ai/docker-agent
     - pkg: app-ai/docker-model

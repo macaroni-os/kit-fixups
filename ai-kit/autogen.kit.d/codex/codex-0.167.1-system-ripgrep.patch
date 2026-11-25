@@ -1,0 +1,14 @@
+--- a/codex-rs/app-server-daemon/src/prepare_install.rs
++++ b/codex-rs/app-server-daemon/src/prepare_install.rs
+@@ -515,11 +515,6 @@
+         "codex-package.json",
+         entrypoint,
+         code_mode_host.as_ref(),
+-        if cfg!(windows) {
+-            "codex-path/rg.exe"
+-        } else {
+-            "codex-path/rg"
+-        },
+     ];
+     if cfg!(windows) {
+         names.extend([

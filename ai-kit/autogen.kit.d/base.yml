@@ -638,7 +638,13 @@ codex:
         # libssl/libcrypto/libz (ldd-verified); 'codex --version' smoke
         # -> codex-cli 0.167.0.
         vars:
-          desc: OpenAI's Codex CLI coding agent (built from sources)
+
+          python_compat: python3+
+          iuse: voice
+          inherit:
+            - python-any-r1
+            - toolchain-funcs
+          desc: OpenAI's Codex CLI coding agent
           # Cargo resolves the whole workspace lock at build time, which
           # pins ~1296 crates.io packages plus 13 git dependencies
           # (forks of crossterm, tungstenite, sqlx, rmcp, h3, nucleo,
@@ -660,35 +666,138 @@ codex:
           # to extensions: [rust] + inherit: cargo is then a two-line
           # change.
           restrict: network-sandbox
-          # Upstream pins rust 1.95.0 (codex-rs/rust-toolchain.toml):
-          # the let-chain match guards in codex-core are E0658 with 1.94
-          # (observed in the sandbox) and compile with 1.96; the tree
-          # offers 1.96/1.98, so the floor is the 1.96 rust virtual.
           bdepend: |
             >=virtual/rust-1.96
             dev-libs/openssl
             virtual/pkgconfig
             sys-libs/zlib
+            sys-apps/coreutils
+
+          # These the libraries needed for voice:
+          # libgstapp.so
+          # libgstaudioconvert.so
+          # libgstaudioresample.so
+          # libgstcoreelements.so
+          # libgstopus.so
+          # libgstrtp.so
+          # libgstrtpmanager.so
           rdepend: |
             !app-ai/codex-bin
             dev-libs/openssl
             sys-libs/zlib
+            voice? (
+              media-libs/gstreamer
+              media-libs/gst-plugins-good
+              media-libs/gst-plugins-bad[opus]
+            )
+            || (
+              sys-apps/ripgrep-bin
+              sys-apps/ripgrep
+            )
+            sys-apps/bubblewrap
           depend: '${RDEPEND}'
+          patches:
+            - codex-0.167.1-python39.patch
+            - codex-0.167.1-system-ripgrep.patch
+            - codex-0.167.1-system-voice.patch
+
+            #src_compile() {
+              # Keep the cargo registry and git checkouts in the build
+              # area (they are fetched by src_compile, not src_unpack,
+              # because the dependency graph is network-resolved).
+            #  export CARGO_HOME="${T}/cargo-home"
+            #  cd codex-rs || die
+            #  cargo build --release -p codex-cli --bin codex \
+            #    --target-dir target || die
+            #}
           body: |
             src_compile() {
               # Keep the cargo registry and git checkouts in the build
               # area (they are fetched by src_compile, not src_unpack,
               # because the dependency graph is network-resolved).
               export CARGO_HOME="${T}/cargo-home"
-              cd codex-rs || die
-              cargo build --release -p codex-cli --bin codex \
-                --target-dir target || die
-            }
+              export CARGO_TARGET_DIR="${S}/codex-rs/target"
+              export CODEX_REPO_ROOT="${S}"
+              export TMPDIR="${T}"
+              export STABLE_GIT_COMMIT="{{ .Values.sha }}"
 
+              local rust_target
+              rust_target=$(rustc -vV | sed -n 's/^host: //p') || die
+              [[ -n ${rust_target} ]] || die "could not determine the native Rust target"
+              case ${rust_target} in
+                x86_64-unknown-linux-gnu|aarch64-unknown-linux-gnu) ;;
+                *) die "native voice resources require x86_64 or aarch64 glibc Linux" ;;
+              esac
+
+              # Use the externally packaged sandbox; Codex embeds its exact digest.
+              local bwrap
+              bwrap=$(command -v bwrap) || die "bwrap (sys-apps/bubblewrap) must be installed."
+              CODEX_BWRAP_SHA256=$(sha256sum "${bwrap}") || die
+              export CODEX_BWRAP_SHA256=${CODEX_BWRAP_SHA256%% *}
+
+              local rg_bin
+              rg_bin=$(command -v rg) || die "ripgrep must be installed."
+
+              cd "${S}" || die
+              # Upstream builds codex, code-mode-host and exec-server, configures the
+              # matching checksum-verified V8 artifacts, and writes the package manifest.
+              ${EPYTHON} scripts/build_codex_package.py \
+                --bwrap-bin "${bwrap}" \
+                --rg-bin "${rg_bin}" \
+                --target "${rust_target}" \
+                --variant codex \
+                --package-version "{{ .Values.pv }}" \
+                --cargo-profile release \
+                --strip all --strip-tool "$(tc-getSTRIP)" \
+                --package-dir "${T}/codex-package" --force || die "assembling Codex package failed"
+
+              if use voice ; then
+
+                # Use the system GStreamer ABI and the seven explicitly loaded plugins.
+                local gst_libdir plugin
+
+                gst_libdir=$(pkg-config --variable=libdir gstreamer-1.0) || die
+                export CODEX_SYSTEM_GSTREAMER_CORE="${gst_libdir}/libgstreamer-1.0.so.0"
+                CODEX_SYSTEM_GSTREAMER_PLUGIN_DIR=$(pkg-config --variable=pluginsdir gstreamer-1.0) || die
+                export CODEX_SYSTEM_GSTREAMER_PLUGIN_DIR
+                [[ -f ${CODEX_SYSTEM_GSTREAMER_CORE} ]] || die "system GStreamer library is missing"
+                [[ -n ${CODEX_SYSTEM_GSTREAMER_PLUGIN_DIR} ]] || die "system GStreamer plugin path is missing"
+                for plugin in app audioconvert audioresample coreelements opus rtp rtpmanager; do
+                  [[ -f ${CODEX_SYSTEM_GSTREAMER_PLUGIN_DIR}/libgst${plugin}.so ]] || die "missing GStreamer plugin: ${plugin}"
+                done
+
+                ${EPYTHON} "${FILESDIR}/build_codex_voice.py" \
+                  --source "${S}" \
+                  --package "${T}/codex-package" \
+                  --output "${T}/codex-package-voice" \
+                  --target "${rust_target}" \
+                  --commit "${STABLE_GIT_COMMIT}" --version "{{ .Values.pv }}" \
+                  --pkg-config "pkg-config" \
+                  --strip "$(tc-getSTRIP)" \
+                  || die "building and assembling voice resources failed"
+              fi
+            }
             src_install() {
-              newbin codex-rs/target/release/codex codex
+              local package_dir="${T}"/codex-package
+              for b in codex codex-code-mode-host codex-exec-server ; do
+                dobin "${package_dir}"/bin/${b}
+              done
+              # Remove bwrap and ripgrep binary and the bin/*. We use the packages.
+              rm -rf "${package_dir}"/codex-path "${package_dir}"/bin/
+              dodir /usr/lib/codex/
+              cp -a "${package_dir}/codex-package.json" "${package_dir}/codex-resources/" \
+                "${ED}/usr/lib/codex/" || die
+              if use voice ; then
+                  cp -a "${T}"/codex-package-voice/codex-resources \
+                  "${ED}/usr/lib/codex/" || die
+              fi
+              rm "${ED}"/usr/lib/codex/codex-resources/bwrap || true
+              # Executables were stripped before the voice manifest was generated.
+              # Preserve all bytes covered by its checksums and the embedded bwrap digest.
+              dostrip -x /usr/lib/codex
               dodoc README.md
             }
+
 
 # pi-bin and pi track the same upstream repository (earendil-works/pi),
 # so per the macaroni-os/kit-fixups#512 review they live in a dedicated

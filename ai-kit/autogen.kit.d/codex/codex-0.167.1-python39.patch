@@ -1,0 +1,88 @@
+--- a/scripts/codex_package/archive.py
++++ b/scripts/codex_package/archive.py
+@@ -1,4 +1,6 @@
+ """Archive writers for canonical Codex package directories."""
++
++from __future__ import annotations
+ 
+ import shutil
+ import subprocess
+--- a/scripts/codex_package/cargo.py
++++ b/scripts/codex_package/cargo.py
+@@ -1,4 +1,6 @@
+ """Cargo builds for source-built Codex package artifacts."""
++
++from __future__ import annotations
+ 
+ import os
+ import subprocess
+--- a/scripts/codex_package/cli.py
++++ b/scripts/codex_package/cli.py
+@@ -1,4 +1,6 @@
+ """Command-line interface for building Codex package directories."""
++
++from __future__ import annotations
+ 
+ import argparse
+ import re
+--- a/scripts/codex_package/dotslash.py
++++ b/scripts/codex_package/dotslash.py
+@@ -1,4 +1,6 @@
+ """Fetch executable artifacts from checked-in DotSlash manifests."""
++
++from __future__ import annotations
+ 
+ import gzip
+ import hashlib
+--- a/scripts/codex_package/layout.py
++++ b/scripts/codex_package/layout.py
+@@ -1,4 +1,6 @@
+ """Canonical Codex package directory layout."""
++
++from __future__ import annotations
+ 
+ import json
+ import shutil
+--- a/scripts/codex_package/ripgrep.py
++++ b/scripts/codex_package/ripgrep.py
+@@ -1,4 +1,6 @@
+ """Fetch ripgrep from the DotSlash manifest used by the package builder."""
++
++from __future__ import annotations
+ 
+ from pathlib import Path
+ 
+--- a/scripts/codex_package/symbols.py
++++ b/scripts/codex_package/symbols.py
+@@ -4,6 +4,8 @@
+ may already be signed, and resources such as bwrap have integrity hashes that
+ must survive staging. Windows MSVC symbols live in separate PDB files.
+ """
++
++from __future__ import annotations
+ 
+ import platform
+ import shutil
+--- a/scripts/codex_package/targets.py
++++ b/scripts/codex_package/targets.py
+@@ -1,4 +1,6 @@
+ """Supported package targets and default binary discovery."""
++
++from __future__ import annotations
+ 
+ import os
+ import platform
+--- a/scripts/codex_package/v8.py
++++ b/scripts/codex_package/v8.py
+@@ -99,7 +99,10 @@
+ 
+ 
+ def resolved_v8_crate_version() -> str:
+-    import tomllib
++    try:
++        import tomllib
++    except ModuleNotFoundError:
++        import tomli as tomllib
+ 
+     cargo_lock = tomllib.loads((REPO_ROOT / "codex-rs" / "Cargo.lock").read_text())
+     versions = sorted(

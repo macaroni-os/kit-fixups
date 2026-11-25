@@ -1,0 +1,78 @@
+--- a/codex-rs/voice-host/Cargo.toml
++++ b/codex-rs/voice-host/Cargo.toml
+@@ -31,9 +31,9 @@
+ [target.'cfg(any(target_os = "macos", all(target_os = "linux", target_env = "gnu"), all(windows, target_env = "msvc")))'.dependencies]
+ cpal = "=0.18.2"
+ crossbeam-queue = "0.3.12"
+-gstreamer = { version = "=0.25.3", features = ["v1_28"] }
+-gstreamer-app = { version = "=0.25.2", features = ["v1_28"] }
+-gstreamer-audio = { version = "=0.25.3", features = ["v1_28"] }
++gstreamer = { version = "=0.25.3", features = ["v1_26"] }
++gstreamer-app = { version = "=0.25.2", features = ["v1_26"] }
++gstreamer-audio = { version = "=0.25.3", features = ["v1_26"] }
+ opus = "=0.4.0"
+ rubato = { version = "=5.0.0", default-features = false }
+ sonora = { version = "=0.2.0", default-features = false }
+--- a/codex-rs/voice-host/src/runtime.rs
++++ b/codex-rs/voice-host/src/runtime.rs
+@@ -1,4 +1,4 @@
+-//! Initialize only the physical package's native runtime on the helper worker.
++//! Initialize the configured native runtime on the helper worker.
+ //!
+ //! GStreamer registers process-global callbacks. Keep every opened library loaded
+ //! through process exit, including partial initialization failures. This private
+@@ -52,8 +52,10 @@
+             )
+         } else if cfg!(all(target_os = "linux", target_env = "gnu")) {
+             (
+-                "lib/libgstreamer-1.0.so.0",
+-                "lib/gstreamer-1.0",
++                option_env!("CODEX_SYSTEM_GSTREAMER_CORE")
++                    .unwrap_or("lib/libgstreamer-1.0.so.0"),
++                option_env!("CODEX_SYSTEM_GSTREAMER_PLUGIN_DIR")
++                    .unwrap_or("lib/gstreamer-1.0"),
+                 "libgst",
+                 ".so",
+             )
+@@ -127,6 +129,16 @@
+ 
+ fn private_file(root: &Path, relative: &str) -> io::Result<PathBuf> {
+     let path = root.join(relative);
++    // Distribution builds use package-managed system libraries and plugins.
++    #[cfg(all(target_os = "linux", target_env = "gnu"))]
++    if Path::new(relative).is_absolute() {
++        let physical = path.canonicalize()?;
++        return if physical.is_file() {
++            Ok(physical)
++        } else {
++            Err(runtime_error())
++        };
++    }
+     if path.canonicalize()? != path || !path.is_file() {
+         return Err(runtime_error());
+     }
+@@ -134,8 +146,8 @@
+ }
+ 
+ fn load(path: &Path) -> io::Result<ManuallyDrop<Library>> {
+-    // SAFETY: Callers supply only absolute, physical paths inside the installed
+-    // trusted package. Native code runs only in this expendable helper process.
++    // SAFETY: Callers supply only absolute, physical paths from the installed
++    // trusted package or explicitly configured system library directories. Native code runs only in this expendable helper process.
+     #[cfg(unix)]
+     let library = unsafe {
+         libloading::os::unix::Library::open(
+--- a/codex-rs/realtime-webrtc/src/session.rs
++++ b/codex-rs/realtime-webrtc/src/session.rs
+@@ -178,6 +178,11 @@
+ // Availability is not proof of runtime integrity, device access, or session connectivity.
+ fn package_has_runtime(package: &std::path::Path) -> bool {
+     let voice = package.join("codex-resources/voice");
++    #[cfg(all(target_os = "linux", target_env = "gnu"))]
++    if let Some(core) = option_env!("CODEX_SYSTEM_GSTREAMER_CORE") {
++        return voice.join("bin/codex-voice-host").is_file()
++            && std::path::Path::new(core).is_file();
++    }
+     let (helper, runtime) = if cfg!(target_os = "macos") {
+         ("bin/codex-voice-host", "lib/libgstreamer-1.0.0.dylib")
+     } else if cfg!(windows) {

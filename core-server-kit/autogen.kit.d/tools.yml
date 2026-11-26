@@ -1810,6 +1810,78 @@ github_pkgs:
 
   packages:
 
+    - metalog:
+        category: app-admin
+        github:
+          user: hvisage
+          repo: metalog
+          query: tags
+          match: '^metalog-[0-9]+$'
+        transform:
+          - kind: string
+            match: 'metalog-'
+            replace: ''
+        vars:
+          desc: A highly configurable replacement for syslogd/klogd
+          homepage: https://github.com/hvisage/metalog
+          license: GPL-2
+          iuse: systemd unicode
+          inherit:
+            - autotools
+            - systemd
+          bdepend: |
+            sys-devel/autoconf-archive
+            virtual/pkgconfig
+          # Current upstream metalog requires libpcre2-8 through pkg-config
+          # and zlib for rotated-log compression.
+          rdepend: |
+            dev-libs/libpcre2
+            sys-libs/zlib
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+
+            src_configure() {
+              econf $(use_with unicode)
+            }
+
+            src_install() {
+              emake DESTDIR="${D}" install
+              dodoc AUTHORS ChangeLog README NEWS metalog.conf
+
+              into /
+              dosbin "${FILESDIR}"/consolelog.sh
+
+              newconfd "${FILESDIR}"/metalog.confd metalog
+              if use systemd ; then
+                systemd_newunit "${FILESDIR}/metalog.service-r1" "metalog.service"
+              else
+                newinitd "${FILESDIR}"/metalog.initd-r1 metalog
+              fi
+            }
+
+            pkg_preinst() {
+              if [[ -d "${ROOT}"/etc/metalog ]] && [[ ! -e "${ROOT}"/etc/metalog.conf ]] ; then
+                mv -f "${ROOT}"/etc/metalog/metalog.conf "${ROOT}"/etc/metalog.conf
+                rmdir "${ROOT}"/etc/metalog
+                export MOVED_METALOG_CONF=true
+              else
+                export MOVED_METALOG_CONF=false
+              fi
+            }
+
+            pkg_postinst() {
+              if ${MOVED_METALOG_CONF} ; then
+                ewarn "The default metalog.conf file has been moved"
+                ewarn "from /etc/metalog/metalog.conf to just"
+                ewarn "/etc/metalog.conf.  If you had a standard"
+                ewarn "setup, the file has been moved for you."
+              fi
+            }
+
     - incus-ui:
         category: www-apps
         github:

@@ -58,6 +58,46 @@ dev_github:
               emake DESTDIR="${D}" install
             }
 
+    - editorconfig-core-c:
+        github:
+          user: editorconfig
+          repo: editorconfig-core-c
+          match: '^v[0-9]+\.[0-9]+\.[0-9]+$'
+        vars:
+          desc: EditorConfig core library written in C
+          homepage: https://editorconfig.org/
+          license: BSD-2
+          # Upstream CMake already requires PCRE2 (find_package(PCRE2 REQUIRED)).
+          inherit:
+            - cmake
+          iuse: cli doc
+          rdepend: |
+            dev-libs/libpcre2
+            cli? ( !dev-python/editorconfig-core-py[cli] )
+          depend: '${RDEPEND}'
+          bdepend: |
+            doc? ( app-doc/doxygen )
+          body: |
+            src_prepare() {
+              # Serialise the build (the tree ebuild did the same) and make the
+              # shared library use the name the CLI expects.
+              export MAKEOPTS="-j1"
+              sed -e 's:OUTPUT_NAME editorconfig_static:OUTPUT_NAME editorconfig:' \
+                -i src/lib/CMakeLists.txt || die
+              cmake_src_prepare
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DBUILD_TESTING=OFF
+                -DINSTALL_HTML_DOC=$(usex doc ON OFF)
+              )
+              cmake_src_configure
+            }
+            src_install() {
+              cmake_src_install
+              use cli || rm -rf "${ED}/usr/bin"
+            }
+
     - qpdf:
         github:
           user: qpdf

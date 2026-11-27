@@ -902,6 +902,49 @@ gnupg_libs:
               find "${ED}" -type f -name '*.la' -delete || die
             }
 
+    - libassuan:
+        category: dev-libs
+        # libassuan >= 3.0 is API version 3 (libassuan-config --api-version -> 3)
+        # and app-crypt/gnupg-2.3.7 configure hard-fails on it:
+        # "checking LIBASSUAN API version... does not match.  want=2 got=3."
+        # Cap on the 2.5 line until a gnupg >= 2.5 bump lands in the tree.
+        selector:
+          - '<3.0.0'
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: IPC library used by GnuPG and GPGME
+          homepage: https://www.gnupg.org/related_software/libassuan/
+          license: 'GPL-3 LGPL-2.1'
+          inherit:
+            - libtool
+          # configure.ac floor is AM_PATH_GPG_ERROR(1.17) on both the 2.5 and
+          # 3.0 lines (verified on 2.5.7/3.0.2); tree serves >=1.46, so the
+          # plain atom matches the tree ebuild's dep semantics.
+          rdepend: |
+            dev-libs/libgpg-error
+          body: |
+            src_configure() {
+              local myeconfargs=(
+                --disable-static
+                GPG_ERROR_CONFIG="/usr/bin/gpg-error-config"
+                $("${S}/configure" --help | grep -o -- '--without-.*-prefix')
+              )
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+              # ppl need to use libassuan-config for --cflags and --libs
+              find "${ED}" -type f -name '*.la' -delete || die
+            }
+
     - gpgme:
         dir:
           matcher: '{{ .Values.pn }}-.*.tar.bz2$'

@@ -1160,3 +1160,36 @@ pinentry:
 
   packages:
     - pinentry:
+
+pwgen:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: app-admin
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+
+    dir:
+      url: https://sourceforge.net/projects/{{ .Values.pn }}/files/{{ .Values.pn }}/
+      matcher: 'files/{{ .Values.pn }}/[0-9]+(\.[0-9]+)+/$'
+
+    assets:
+      - name: "{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+        url: "https://download.sourceforge.net/{{ .Values.pn }}/{{ .Values.pn }}-{{ .Values.version }}.tar.gz"
+
+    vars:
+      desc: Password Generator
+      homepage: https://sourceforge.net/projects/pwgen/
+      license: GPL-2
+      iuse: livecd
+      body: |
+        src_configure() {
+          econf --sysconfdir=/etc/pwgen
+        }
+        src_install() {
+          default
+          use livecd && newinitd "${FILESDIR}"/pwgen.rc pwgen
+        }
+
+  packages:
+    - pwgen:

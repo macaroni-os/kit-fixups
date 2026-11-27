@@ -253,6 +253,78 @@ privoxy_dirlisting:
   packages:
     - privoxy:
 
+rhash:
+  generator: builtin-github
+
+  defaults:
+    category: app-crypt
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    github:
+      query: tags
+
+  packages:
+    - rhash:
+        github:
+          user: rhash
+          repo: RHash
+          match: '^v[0-9]+\.[0-9]+\.[0-9]+$'
+        assets:
+          # Upstream publishes only detached signatures (.asc) as release assets;
+          # the source tarball is generated from the tag and unpacks as RHash-<pv>,
+          # so use it with simple.tmpl and the matching ${S} (not simple-github.tmpl,
+          # whose post_src_unpack would expect rhash-RHash-*).
+          - name: '{{ .Values.p }}.tar.gz'
+            url: 'https://github.com/rhash/RHash/archive/refs/tags/v{{ .Values.pv }}.tar.gz'
+        vars:
+          desc: Console utility and library for computing and verifying file hash sums
+          homepage: https://rhash.sourceforge.net/
+          # Upstream relicensed from MIT to the BSD Zero Clause License in 1.3.9.
+          license: 0BSD
+          iuse: debug nls ssl static-libs
+          # librhash's SONAME changed from .so.0 (1.3.x) to .so.1 (1.4.x), so
+          # dependents must be rebuilt on the version bump.
+          slot: '0/1'
+          inherit:
+            - toolchain-funcs
+          rdepend: |
+            ssl? ( dev-libs/openssl:0= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            nls? ( sys-devel/gettext )
+          s: '${WORKDIR}/RHash-{{ .Values.pv }}'
+          body: |
+            src_configure() {
+              set -- \
+                ./configure \
+                --target="${CHOST}" \
+                --cc="$(tc-getCC)" \
+                --ar="$(tc-getAR)" \
+                --extra-cflags="${CFLAGS}" \
+                --extra-ldflags="${LDFLAGS}" \
+                --prefix="${EPREFIX}"/usr \
+                --libdir="${EPREFIX}"/usr/$(get_libdir) \
+                --sysconfdir="${EPREFIX}"/etc \
+                --disable-openssl-runtime \
+                --disable-static \
+                --enable-lib-shared \
+                $(use_enable debug) \
+                $(use_enable nls gettext) \
+                $(use_enable ssl openssl) \
+                $(use_enable static-libs lib-static)
+
+              echo "${@}"
+              "${@}" || die "configure failed"
+            }
+
+            src_install() {
+              # -j1 needed due to race condition.
+              emake DESTDIR="${D}" -j1 \
+                install{,-lib-headers,-pkg-config} \
+                $(use nls && echo install-gmo) \
+                install-lib-so-link
+            }
+
 noop_pkgs:
   generator: builtin-noop
   defaults:

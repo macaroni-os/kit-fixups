@@ -1030,6 +1030,41 @@ gnupg_libs:
               cmake_src_configure
             }
 
+    - npth:
+        category: dev-libs
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: New GNU Portable Threads Library
+          homepage: https://gnupg.org/software/npth/index.html
+          license: 'LGPL-2.1+'
+          depend: ''
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # tests are built by default upstream; keep them out of the build.
+              # npth >= 1.7 installs npth-config only on request; app-crypt/gnupg
+              # still calls configure with NPTH_CONFIG=/usr/bin/npth-config.
+              econf --disable-static --disable-tests --enable-install-npth-config
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -name '*.la' -delete || die
+            }
+
 pinentry:
   generator: builtin-dirlisting
   generator_opts:

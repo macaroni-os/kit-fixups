@@ -35,6 +35,10 @@ target:
 
     - pkg: app-misc/pax-utils
 
+    - pkg: dev-libs/libassuan
+      conditions:
+        - '<dev-libs/libassuan-3.0.0'
+
     - pkg: dev-libs/libgpg-error
 
     - pkg: dev-libs/npth

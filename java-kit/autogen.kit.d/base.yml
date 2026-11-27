@@ -65,4 +65,490 @@ dev_java_dirlisting:
               dosym /usr/bin/ant-${SLOT} /usr/bin/ant
             }
 
+openjdk_bin:
+  generator: builtin-github
+  template:
+    engine: helm
 
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-java
+    github:
+      user: adoptium
+      match: '^jdk-[0-9]'
+      # The per-major repos carry hundreds of -ea-beta tags, so the GA
+      # update tags are not on the first tags page.
+      ignore_tags: true
+    transform:
+      - kind: string
+        match: 'jdk-'
+        replace: ''
+      - kind: string
+        match: '+'
+        replace: '_p'
+    vars:
+      inherit:
+        - java-vm-2
+      license: GPL-2-with-classpath-exception
+      restrict: preserve-libs splitdebug
+      extra_envs:
+        - 'QA_PREBUILT="*"'
+      homepage: https://adoptium.net
+      desc: Prebuilt Java JDK binaries provided by Eclipse Temurin
+      # riscv64/arm are not gated: Temurin publishes no glibc linux build
+      # for arm and the riscv64 builds lag the release tags (probed 2026-11-22).
+      iuse: alsa cups headless-awt selinux source
+      rdepend: |
+        >=sys-apps/baselayout-java-0.1.0-r1
+        media-libs/fontconfig:1.0
+        media-libs/freetype:2
+        media-libs/harfbuzz
+        sys-libs/glibc
+        sys-libs/zlib
+        alsa? ( media-libs/alsa-lib )
+        cups? ( net-print/cups )
+        selinux? ( sec-policy/selinux-java )
+        !headless-awt? (
+          x11-libs/libX11
+          x11-libs/libXext
+          x11-libs/libXi
+          x11-libs/libXrender
+          x11-libs/libXtst
+        )
+      s: '${WORKDIR}/jdk-{{ .Values.pv | replace "_p" "+" }}'
+      body: |
+        src_install() {
+          local dest="/opt/${P}"
+          local ddest="${ED}/${dest#/}"
+
+          # media-libs provides both libraries; upstream bundles libfreetype
+          # only on x86_64. Both are dlopened by libfontmanager.so.
+          rm -vf lib/libfreetype.so || die
+          rm -vf lib/libharfbuzz.so || die
+
+          if ! use alsa ; then
+            rm -v lib/libjsound.* || die
+          fi
+
+          if use headless-awt ; then
+            rm -v lib/lib*{[jx]awt,splashscreen}* || die
+          fi
+
+          if ! use source ; then
+            rm -v lib/src.zip || die
+          fi
+
+          rm -v lib/security/cacerts || die
+          dosym ../../../../etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
+
+          dodir "${dest}"
+          cp -pPR * "${ddest}" || die
+
+          dosym "${P}" "/opt/${PN}-${SLOT}"
+
+          java-vm_install-env "${FILESDIR}"/${PN}.env.sh
+          java-vm_set-pax-markings "${ddest}"
+          java-vm_revdep-mask
+          java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
+        }
+
+        pkg_postinst() {
+          java-vm-2_pkg_postinst
+        }
+
+  packages:
+    # Java 21 LTS
+    - openjdk-bin:
+        github:
+          repo: temurin21-binaries
+        selector:
+          - '>=21'
+          - '<22'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK21U-jdk_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK21U-jdk_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK21U-jdk_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+          - name: '{{ .Values.p }}-riscv64.tar.gz'
+            matcher: '^OpenJDK21U-jdk_riscv64_linux_hotspot_.*\.tar\.gz$'
+            use: riscv64
+        vars:
+          # The 21 line keeps riscv64: Temurin ships a riscv64 glibc build for
+          # every 21 tag (21.0.13.1+2 included) and the legacy 21 ebuilds carry it.
+          iuse: alsa cups headless-awt riscv64 selinux source
+          slot: "21"
+
+    # Java 25 LTS
+    - openjdk-bin:
+        github:
+          repo: temurin25-binaries
+        selector:
+          - '>=25'
+          - '<26'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK25U-jdk_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK25U-jdk_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK25U-jdk_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+        vars:
+          slot: "25"
+
+    # Java 27: 27.0.1.1+4 has no linux-glibc aarch64 asset, so 27.0.1.0.2+1
+    # is the newest tag serving amd64/arm64/ppc64 (probed 2026-11-22).
+    - openjdk-bin:
+        github:
+          repo: temurin27-binaries
+        exclude:
+          - '^27\.0\.1\.1'
+        selector:
+          - '>=27'
+          - '<28'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK27U-jdk_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK27U-jdk_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK27U-jdk_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+        vars:
+          slot: "27"
+
+openjdk_jre_bin:
+  generator: builtin-github
+  template:
+    engine: helm
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-java
+    github:
+      user: adoptium
+      match: '^jdk-[0-9]'
+      # The per-major repos carry hundreds of -ea-beta tags, so the GA
+      # update tags are not on the first tags page.
+      ignore_tags: true
+    transform:
+      - kind: string
+        match: 'jdk-'
+        replace: ''
+      - kind: string
+        match: '+'
+        replace: '_p'
+    vars:
+      inherit:
+        - java-vm-2
+      license: GPL-2-with-classpath-exception
+      restrict: preserve-libs splitdebug
+      extra_envs:
+        - 'QA_PREBUILT="*"'
+      homepage: https://adoptium.net
+      desc: Prebuilt Java JRE binaries provided by Eclipse Temurin
+      iuse: alsa cups +gentoo-vm headless-awt selinux
+      rdepend: |
+        media-libs/fontconfig:1.0
+        media-libs/freetype:2
+        >net-libs/libnet-1.1
+        >=sys-apps/baselayout-java-0.1.0-r1
+        sys-libs/glibc
+        sys-libs/zlib
+        alsa? ( media-libs/alsa-lib )
+        cups? ( net-print/cups )
+        selinux? ( sec-policy/selinux-java )
+        !headless-awt? (
+          x11-libs/libX11
+          x11-libs/libXext
+          x11-libs/libXi
+          x11-libs/libXrender
+          x11-libs/libXtst
+        )
+      s: '${WORKDIR}/jdk-{{ .Values.pv | replace "_p" "+" }}-jre'
+      body: |
+        src_install() {
+          local dest="/opt/${PN}-${SLOT}"
+          local ddest="${ED}/${dest#/}"
+
+          # media-libs provides libfreetype; upstream bundles it only on x86_64.
+          rm -vf lib/libfreetype.so || die
+
+          if ! use alsa ; then
+            rm -v lib/libjsound.* || die
+          fi
+
+          if use headless-awt ; then
+            rm -v lib/lib*{[jx]awt,splashscreen}* || die
+          fi
+
+          rm -v lib/security/cacerts || die
+          dosym ../../../../../etc/ssl/certs/java/cacerts "${dest}"/lib/security/cacerts
+
+          dodir "${dest}"
+          cp -pPR * "${ddest}" || die
+
+          java-vm_install-env "${FILESDIR}"/${PN}.env.sh
+          java-vm_set-pax-markings "${ddest}"
+          java-vm_revdep-mask
+          java-vm_sandbox-predict /dev/random /proc/self/coredump_filter
+        }
+
+        pkg_postinst() {
+          java-vm-2_pkg_postinst
+        }
+
+  packages:
+    # Java 21 LTS
+    - openjdk-jre-bin:
+        github:
+          repo: temurin21-binaries
+        selector:
+          - '>=21'
+          - '<22'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK21U-jre_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK21U-jre_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK21U-jre_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+          - name: '{{ .Values.p }}-riscv64.tar.gz'
+            matcher: '^OpenJDK21U-jre_riscv64_linux_hotspot_.*\.tar\.gz$'
+            use: riscv64
+        vars:
+          iuse: alsa cups +gentoo-vm headless-awt riscv64 selinux
+          slot: "21"
+
+    # Java 25 LTS
+    - openjdk-jre-bin:
+        github:
+          repo: temurin25-binaries
+        selector:
+          - '>=25'
+          - '<26'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK25U-jre_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK25U-jre_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK25U-jre_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+        vars:
+          slot: "25"
+
+    # Java 27: see the openjdk_bin cluster (27.0.1.1+4 lacks linux-glibc aarch64).
+    - openjdk-jre-bin:
+        github:
+          repo: temurin27-binaries
+        exclude:
+          - '^27\.0\.1\.1'
+        selector:
+          - '>=27'
+          - '<28'
+        assets:
+          - name: '{{ .Values.p }}-amd64.tar.gz'
+            matcher: '^OpenJDK27U-jre_x64_linux_hotspot_.*\.tar\.gz$'
+            use: amd64
+          - name: '{{ .Values.p }}-arm64.tar.gz'
+            matcher: '^OpenJDK27U-jre_aarch64_linux_hotspot_.*\.tar\.gz$'
+            use: arm64
+          - name: '{{ .Values.p }}-ppc64.tar.gz'
+            matcher: '^OpenJDK27U-jre_ppc64le_linux_hotspot_.*\.tar\.gz$'
+            use: ppc64
+        vars:
+          slot: "27"
+
+virtual_jdk:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+    vars:
+      desc: Virtual for Java Development Kit (JDK)
+      iuse: headless-awt
+
+  packages:
+    - jdk:
+        revision: 5
+        vars:
+          slot: "1.8"
+          versions:
+            - "1.8.0"
+          rdepend: |
+            || (
+              dev-java/icedtea-bin:8[headless-awt=]
+              dev-java/openjdk-bin:8[gentoo-vm(+),headless-awt=]
+              dev-java/icedtea:8[headless-awt=]
+              dev-java/openjdk:8[gentoo-vm(+),headless-awt=]
+            )
+
+    - jdk:
+        revision: 2
+        vars:
+          slot: "11"
+          versions:
+            - "11"
+          rdepend: |
+            || (
+              dev-java/openjdk-bin:11[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk:11[gentoo-vm(+),headless-awt=]
+            )
+
+    - jdk:
+        revision: 1
+        vars:
+          slot: "17"
+          versions:
+            - "17"
+          rdepend: |
+            || (
+              dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk:${SLOT}[gentoo-vm(+),headless-awt=]
+            )
+
+    - jdk:
+        vars:
+          slot: "21"
+          versions:
+            - "21"
+          rdepend: |
+            || (
+              dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk:${SLOT}[gentoo-vm(+),headless-awt=]
+            )
+
+    - jdk:
+        vars:
+          slot: "25"
+          versions:
+            - "25"
+          rdepend: |
+            || (
+              dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk:${SLOT}[gentoo-vm(+),headless-awt=]
+            )
+
+    - jdk:
+        vars:
+          slot: "27"
+          versions:
+            - "27"
+          rdepend: |
+            || (
+              dev-java/oracle-jdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk-bin:${SLOT}[gentoo-vm(+),headless-awt=]
+              dev-java/openjdk:${SLOT}[gentoo-vm(+),headless-awt=]
+            )
+
+virtual_jre:
+  generator: builtin-noop
+  template:
+    engine: helm
+
+  defaults:
+    template: ../../templates/simple.tmpl
+    category: virtual
+    vars:
+      desc: Virtual for Java Runtime Environment (JRE)
+
+  packages:
+    - jre:
+        revision: 2
+        vars:
+          slot: "1.8"
+          versions:
+            - "1.8.0"
+          rdepend: |
+            || (
+              virtual/jdk:1.8
+              dev-java/openjdk-jre-bin:8[gentoo-vm(+)]
+            )
+
+    - jre:
+        revision: 1
+        vars:
+          slot: "11"
+          versions:
+            - "11"
+          rdepend: |
+            || (
+              virtual/jdk:11
+              dev-java/openjdk-jre-bin:11[gentoo-vm(+)]
+            )
+
+    - jre:
+        revision: 1
+        vars:
+          slot: "17"
+          versions:
+            - "17"
+          rdepend: |
+            || (
+              virtual/jdk:${SLOT}
+              dev-java/oracle-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre:${SLOT}[gentoo-vm(+)]
+            )
+
+    - jre:
+        vars:
+          slot: "21"
+          versions:
+            - "21"
+          rdepend: |
+            || (
+              virtual/jdk:${SLOT}
+              dev-java/oracle-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre:${SLOT}[gentoo-vm(+)]
+            )
+
+    - jre:
+        vars:
+          slot: "25"
+          versions:
+            - "25"
+          rdepend: |
+            || (
+              virtual/jdk:${SLOT}
+              dev-java/oracle-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre:${SLOT}[gentoo-vm(+)]
+            )
+
+    - jre:
+        vars:
+          slot: "27"
+          versions:
+            - "27"
+          rdepend: |
+            || (
+              virtual/jdk:${SLOT}
+              dev-java/oracle-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre-bin:${SLOT}[gentoo-vm(+)]
+              dev-java/openjdk-jre:${SLOT}[gentoo-vm(+)]
+            )

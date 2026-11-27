@@ -27,3 +27,86 @@ target:
   atoms:
 
     - pkg: dev-java/ant-bin
+
+    # Java 21 LTS
+    - pkg: dev-java/openjdk-bin:21
+      conditions:
+        - '>=dev-java/openjdk-bin-21'
+        - '<dev-java/openjdk-bin-22'
+
+    - pkg: dev-java/openjdk-jre-bin:21
+      conditions:
+        - '>=dev-java/openjdk-jre-bin-21'
+        - '<dev-java/openjdk-jre-bin-22'
+
+    # Java 25 LTS
+    - pkg: dev-java/openjdk-bin:25
+      conditions:
+        - '>=dev-java/openjdk-bin-25'
+        - '<dev-java/openjdk-bin-26'
+
+    - pkg: dev-java/openjdk-jre-bin:25
+      conditions:
+        - '>=dev-java/openjdk-jre-bin-25'
+        - '<dev-java/openjdk-jre-bin-26'
+
+    # Java 27
+    - pkg: dev-java/openjdk-bin:27
+      conditions:
+        - '>=dev-java/openjdk-bin-27'
+        - '<dev-java/openjdk-bin-28'
+
+    - pkg: dev-java/openjdk-jre-bin:27
+      conditions:
+        - '>=dev-java/openjdk-jre-bin-27'
+        - '<dev-java/openjdk-jre-bin-28'
+
+    - pkg: virtual/jdk:11
+      conditions:
+        - '>=virtual/jdk-11:11'
+        - '<virtual/jdk-12:11'
+
+    - pkg: virtual/jdk:17
+      conditions:
+        - '>=virtual/jdk-17:17'
+        - '<virtual/jdk-18:17'
+
+    - pkg: virtual/jdk:21
+      conditions:
+        - '>=virtual/jdk-21:21'
+        - '<virtual/jdk-22:21'
+
+    - pkg: virtual/jdk:25
+      conditions:
+        - '>=virtual/jdk-25:25'
+        - '<virtual/jdk-26:25'
+
+    - pkg: virtual/jdk:27
+      conditions:
+        - '>=virtual/jdk-27:27'
+        - '<virtual/jdk-28:27'
+
+    - pkg: virtual/jre:11
+      conditions:
+        - '>=virtual/jre-11:11'
+        - '<virtual/jre-12:11'
+
+    - pkg: virtual/jre:17
+      conditions:
+        - '>=virtual/jre-17:17'
+        - '<virtual/jre-18:17'
+
+    - pkg: virtual/jre:21
+      conditions:
+        - '>=virtual/jre-21:21'
+        - '<virtual/jre-22:21'
+
+    - pkg: virtual/jre:25
+      conditions:
+        - '>=virtual/jre-25:25'
+        - '<virtual/jre-26:25'
+
+    - pkg: virtual/jre:27
+      conditions:
+        - '>=virtual/jre-27:27'
+        - '<virtual/jre-28:27'

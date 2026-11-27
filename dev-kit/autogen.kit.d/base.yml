@@ -3574,3 +3574,85 @@ freetds:
           - rc
           - beta
           - alpha
+
+rasqal_dirlisting:
+  generator: builtin-dirlisting
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: dev-libs
+    dir:
+      url: http://download.librdf.org/source/
+      matcher: '^rasqal-0\.9\.[0-9]+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'rasqal-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    assets:
+      - name: 'rasqal-{{ .Values.pv }}.tar.gz'
+        url: 'http://download.librdf.org/source/rasqal-{{ .Values.pv }}.tar.gz'
+    vars:
+      desc: Library that handles Resource Description Framework (RDF)
+      homepage: http://librdf.org/rasqal/
+      license: Apache-2.0 GPL-2 LGPL-2.1
+      iuse: +crypt gmp +mhash pcre static-libs xml
+      inherit:
+        - libtool
+      docs:
+        - AUTHORS
+        - ChangeLog
+        - NEWS
+        - README
+      bdepend: |
+        >=sys-devel/bison-3
+        >=sys-devel/flex-2.5.36
+        virtual/pkgconfig
+      # The 0.9.33 release only knows PCRE1; PCRE2 appears in unreleased
+      # master only (configure.ac checks pcre2-config >= 10.37).
+      rdepend: |
+        >=media-libs/raptor-2.0.15
+        crypt? (
+          !mhash? ( dev-libs/libgcrypt:0 )
+          mhash? ( app-crypt/mhash )
+        )
+        !gmp? ( dev-libs/mpfr:= )
+        gmp? ( dev-libs/gmp:= )
+        sys-apps/util-linux
+        pcre? ( dev-libs/libpcre )
+        xml? ( dev-libs/libxml2 )
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          default
+          elibtoolize # g/fbsd .so versioning
+        }
+
+        src_configure() {
+          local myeconfargs=(
+            --with-decimal=$(usex gmp gmp mpfr)
+            --with-uuid-library=libuuid
+            $(use_enable pcre)
+            --with-regex-library=$(usex pcre pcre posix)
+            $(use_enable static-libs static)
+            $(use_enable xml xml2)
+          )
+
+          if use crypt; then
+            myeconfargs+=( --with-digest-library=$(usex mhash mhash gcrypt) )
+          else
+            myeconfargs+=( --with-digest-library=internal )
+          fi
+
+          econf "${myeconfargs[@]}"
+        }
+
+        src_install() {
+          default
+          find "${D}" -name '*.la' -delete || die
+        }
+
+  packages:
+    - rasqal:

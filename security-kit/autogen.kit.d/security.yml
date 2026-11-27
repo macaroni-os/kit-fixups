@@ -1238,3 +1238,61 @@ pinentry:
 
   packages:
     - pinentry:
+
+app_admin_pkgs:
+  generator: builtin-github
+  defaults:
+    category: app-admin
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    github:
+      query: tags
+  packages:
+
+    - sshguard:
+        github:
+          user: SSHGuard
+        # Upstream publishes the release tarballs on SourceForge only and the
+        # GitHub tag archives contain neither the generated configure script
+        # nor the pre-built man pages.
+        assets:
+          - name: 'sshguard-{{ .Values.pv }}.tar.gz'
+            url: 'https://downloads.sourceforge.net/sshguard/sshguard-{{ .Values.pv }}.tar.gz'
+        vars:
+          desc: protects hosts from brute-force attacks against ssh
+          homepage: https://www.sshguard.net/
+          license: BSD
+          keywords: "*"
+          iuse: systemd
+          inherit:
+            - systemd
+          docs:
+            - CHANGELOG.rst
+            - CONTRIBUTING.rst
+            - README.rst
+            - examples/net.sshguard.plist
+            - examples/whitelistfile.example
+          rdepend: 'virtual/logger'
+          depend: 'sys-devel/flex ${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              # Upstream points the backend examples at /usr/local/libexec while
+              # the ebuild installs the backends in /usr/libexec.
+              sed -i "s|/usr/local/libexec/|/usr/libexec/|g" examples/sshguard.conf.sample || die
+            }
+
+            src_install() {
+              default
+
+              if use systemd ; then
+                systemd_dounit "${FILESDIR}/sshguard.service"
+              else
+                newinitd "${FILESDIR}/sshguard.initd-r2" sshguard
+              fi
+
+              newconfd "${FILESDIR}/sshguard.confd" sshguard
+
+              insinto /etc
+              newins examples/sshguard.conf.sample sshguard.conf
+            }

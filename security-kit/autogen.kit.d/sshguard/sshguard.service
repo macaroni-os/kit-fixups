@@ -1,0 +1,17 @@
+# Based on the upstream examples/sshguard.service of sshguard 2.6.0,
+# with the daemon path adjusted for the /usr prefix.
+
+[Unit]
+Description=SSHGuard - blocks brute-force login attempts
+After=iptables.target
+After=ip6tables.target
+After=libvirtd.service
+After=firewalld.service
+
+[Service]
+ExecStartPre=-/usr/sbin/iptables -N sshguard
+ExecStart=/usr/sbin/sshguard
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1128,6 +1128,34 @@ gnupg_libs:
               find "${ED}" -name '*.la' -delete || die
             }
 
+paperkey:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: app-crypt
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://www.jabberwocky.com/software/paperkey/
+      matcher: 'paperkey-[0-9.]+\.tar\.gz$'
+      # skip pre-release tarballs; the page also lists .sig and win32 files,
+      # which the anchored matcher already excludes
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: 'paperkey-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: OpenPGP key archiver
+      homepage: https://www.jabberwocky.com/software/paperkey/
+      license: GPL-2
+
+  packages:
+    - paperkey:
+
 pinentry:
   generator: builtin-dirlisting
   generator_opts:

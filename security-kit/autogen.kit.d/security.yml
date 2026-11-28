@@ -1295,3 +1295,132 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# net-libs/gnutls — A secure communications library implementing SSL/TLS/DTLS.
+# Conversion of the frozen tree ebuild, macaroni-os/mark-issues#1025.
+#
+# Upstream publishes under per-series directories
+# (https://www.gnupg.org/ftp/gcrypt/gnutls/ holds v1.0 … v3.8, each with its own
+# releases), so a dirlisting URL has to name one series. v3.7/ is the series the
+# tree serves and the only one this branch can build today: v3.8/ (tip 3.8.14)
+# hard-requires nettle >= 3.10 (m4/hooks.m4:71) while security-kit serves only
+# nettle-3.7.3, so its configure stops with "*** Libnettle 3.10 was not found".
+# Tracking v3.8/ is a one-line URL edit once nettle >= 3.10 lands in the tree
+# (macaroni-os/mark-issues#1018); the 3.7 -> 3.8 option and dependency drift is
+# recorded on macaroni-os/mark-issues#1025.
+#
+# The listing also carries .sig siblings and -w32/-w64 zip assets per release;
+# the anchored matcher keeps exactly one distfile per release (libtasn1 and
+# libunistring pattern).
+gnutls:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: net-libs
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/
+      matcher: '^{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+  packages:
+    - gnutls:
+        vars:
+          desc: A secure communications library implementing the SSL, TLS and DTLS protocols
+          homepage: https://www.gnutls.org/
+          license: 'GPL-3 LGPL-2.1+'
+          # Subslot is <libgnutls.so soname>.<libgnutlsxx.so soname>, read off
+          # the built ABI: objdump -p gives libgnutls.so.30 and
+          # libgnutlsxx.so.30 (m4/hooks.m4 LT_CURRENT-LT_AGE = 30 and
+          # CXX_LT_CURRENT-CXX_LT_AGE = 30).
+          slot: '0/30.30'
+          iuse: brotli +cxx dane doc +idn nls +openssl +pkcs11 sslv2 sslv3 static-libs +tls-heartbeat tools zlib zstd
+          # gnulib's configure probes reference these as implicit function
+          # declarations; they are macros, not missing prototypes.
+          extra_envs:
+            - 'QA_CONFIG_IMPL_DECL_SKIP=( MIN alignof static_assert )'
+          docs:
+            - README.md
+            - doc/certtool.cfg
+          # Upstream floors are nettle 3.6, libtasn1 4.9, p11-kit 0.23.1 and
+          # libidn2 2.0.0 (m4/hooks.m4, configure.ac); the tree serves 3.7.3,
+          # 4.21.0, 0.24.1 and 2.3.0, so plain atoms carry the same semantics.
+          rdepend: |
+            dev-libs/libtasn1:=
+            dev-libs/libunistring:=
+            dev-libs/nettle:=[gmp]
+            dev-libs/gmp:=
+            brotli? ( app-arch/brotli:= )
+            dane? ( net-dns/unbound:= )
+            nls? ( virtual/libintl:= )
+            pkcs11? ( app-crypt/p11-kit )
+            idn? ( net-dns/libidn2:= )
+            zlib? ( sys-libs/zlib )
+            zstd? ( app-arch/zstd:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( dev-util/gtk-doc-am dev-util/gtk-doc )
+            nls? ( sys-devel/gettext )
+          body: |
+            src_prepare() {
+              default
+
+              # certificate and self-test timestamps must not depend on the
+              # build host timezone
+              export TZ=UTC
+
+              if use doc ; then
+                HTML_DOCS+=( doc/gnutls.html )
+              fi
+            }
+            src_configure() {
+              LINGUAS="${LINGUAS//en/en@boldquot en@quot}"
+
+              # -fanalyzer is upstream static analysis; it only slows the build down
+              export gl_cv_warn_c__fanalyzer=no
+
+              local myeconfargs=(
+                --disable-valgrind-tests
+                $(use_enable doc gtk-doc)
+                $(use_enable doc)
+                --disable-tests
+                --without-tpm
+                --without-tpm2
+                --disable-rpath
+                --with-default-trust-store-file=/etc/ssl/certs/ca-certificates.crt
+                --with-unbound-root-key-file=/etc/dnssec/root-anchors.txt
+                --without-included-libtasn1
+                $(use_enable tools)
+                $(use_enable cxx)
+                $(use_enable dane libdane)
+                $(use_enable nls)
+                $(use_enable openssl openssl-compatibility)
+                $(use_enable sslv2 ssl2-support)
+                $(use_enable sslv3 ssl3-support)
+                $(use_enable static-libs static)
+                $(use_enable tls-heartbeat heartbeat-support)
+                $(use_with brotli)
+                $(use_with idn)
+                $(use_with pkcs11 p11-kit)
+                $(use_with zlib)
+                $(use_with zstd)
+                $("${S}/configure" --help | grep -o -- '--without-.*-prefix')
+              )
+
+              ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+
+              # no static archives
+              find "${ED}" -type f -name '*.la' -delete || die
+            }

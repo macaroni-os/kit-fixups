@@ -1295,3 +1295,65 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/p11-kit — standard configuration setup for installing PKCS#11
+# modules. Conversion of the frozen tree ebuild, macaroni-os/mark-issues#998.
+#
+# Upstream GitHub releases (tip 0.26.6) ship the dist tarball
+# p11-kit-<ver>.tar.xz with a .sig sibling; the anchored matcher pins the
+# uploaded release artefact — the api.github.com tag snapshot has no generated
+# configure or Makefile.in (0 of each) and cannot be built with autotools.
+# Tags and release titles are plain versions, so no transform is needed; the
+# tarball unpacks to ${P}.
+#
+# The tree serves 0.24.1; 0.25/0.26 are the stable series and carry the
+# CVE-2026-18938, CVE-2026-13757 and CVE-2026-2100 fixes. The libp11-kit
+# soname is unchanged (CURRENT 4 - AGE 4 = 0, configure.ac), no consumer pins
+# a subslot, so the float needs no cross-kit edits.
+p11-kit:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    github:
+      user: p11-glue
+    assets:
+      - name: '{{ .Values.p }}.tar.xz'
+        matcher: '^{{ .Values.p }}\.tar\.xz$'
+  packages:
+    - p11-kit:
+        vars:
+          desc: Provides a standard configuration setup for installing PKCS#11
+          homepage: https://p11-glue.github.io/p11-glue/p11-kit.html https://github.com/p11-glue/p11-kit
+          license: MIT
+          iuse: +asn1 debug doc +libffi +trust
+          required_use: 'trust? ( asn1 )'
+          # Upstream floors are libtasn1 2.3 and libffi 3.0.0
+          # (configure.ac:305/325); the tree serves 4.21.0 and 3.5.2, so plain
+          # atoms carry the same semantics as the tree's >= bounds.
+          rdepend: |
+            asn1? ( dev-libs/libtasn1 )
+            libffi? ( dev-libs/libffi )
+            trust? ( app-misc/ca-certificates )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( dev-util/gtk-doc )
+          body: |
+            src_configure() {
+              # the trust module reads the system CA bundle
+              ECONF_SOURCE="${S}" econf \
+                $(use_enable trust trust-module) \
+                $(use_with trust trust-paths /etc/ssl/certs/ca-certificates.crt) \
+                $(use_enable debug) \
+                $(use_enable doc) \
+                $(use_with libffi) \
+                $(use_with asn1 libtasn1)
+            }
+            src_install() {
+              default
+              einstalldocs
+
+              # no libtool archives; pkcs11 modules are dlopened by path
+              find "${ED}" -name '*.la' -delete || die
+            }

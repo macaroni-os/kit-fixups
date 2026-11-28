@@ -1295,3 +1295,53 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+libunistring:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    # GNU serves libunistring as libunistring-<ver>.tar.gz with detached .sig
+    # siblings, a .tar.xz twin per release and a libunistring-latest alias
+    # (probed live 2026-11-27, newest 1.5). The anchored matcher keeps exactly
+    # one distfile per release and drops the alias (libtasn1/libidn2 pattern).
+    dir:
+      url: https://ftp.gnu.org/gnu/libunistring/
+      matcher: '^{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+
+  packages:
+    - libunistring:
+        vars:
+          desc: Library for manipulating Unicode and C strings according to Unicode standard
+          homepage: https://www.gnu.org/software/libunistring/
+          license: 'LGPL-3 GPL-3'
+          # subslot = libunistring soname: LTV_CURRENT(7) - LTV_AGE(2) = 5 in
+          # 1.5 lib/Makefile.am (verified against the installed
+          # libunistring.so.5). Consumers pin := or :0= (gnutls, libpsl, sssd,
+          # rygel, guile) — none hard-code the old 0/2 subslot.
+          slot: '0/5'
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - NEWS
+            - README
+            - THANKS
+          body: |
+            src_configure() {
+              econf --disable-static
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -type f -name '*.la' -delete || die
+            }

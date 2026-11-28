@@ -1238,3 +1238,81 @@ pinentry:
 
   packages:
     - pinentry:
+
+libpwquality:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    github:
+      query: releases
+
+  packages:
+    - libpwquality:
+        github:
+          user: libpwquality
+        transform:
+          - kind: string
+            match: 'libpwquality-'
+            replace: ''
+        assets:
+          - name: '{{ .Values.p }}.tar.bz2'
+            matcher: 'libpwquality-[0-9.]+[.]tar[.]bz2$'
+        vars:
+          homepage: https://github.com/libpwquality/libpwquality
+          desc: Library for password quality checking and generating random passwords
+          license: '|| ( BSD GPL-2 )'
+          python_compat: python3+
+          iuse: pam python static-libs
+          required_use: 'python? ( ${PYTHON_REQUIRED_USE} )'
+          inherit:
+            - ltprune
+            - pam
+            - python-r1
+          bdepend: |
+            sys-devel/gettext
+            virtual/pkgconfig
+          rdepend: |
+            sys-libs/cracklib:=[static-libs(+)?]
+            pam? ( sys-libs/pam )
+            python? ( ${PYTHON_DEPS} )
+          depend: '${RDEPEND}'
+          body: |
+            src_prepare() {
+              default
+              use python && python_copy_sources
+            }
+            src_configure() {
+              configuring() {
+                local myeconfargs=(
+                  --libdir=/usr/$(get_libdir)
+                  $(use_enable pam)
+                  --with-securedir=$(getpam_mod_dir)
+                  $(use_enable python python-bindings)
+                  $(use_enable static-libs static)
+                )
+                if use python; then
+                  myeconfargs+=(
+                    --with-python-binary="${PYTHON}"
+                    --with-pythonsitedir="$(python_get_sitedir)"
+                  )
+                fi
+                econf "${myeconfargs[@]}"
+              }
+              if_use_python_python_foreach_impl configuring
+            }
+            src_compile() {
+              if_use_python_python_foreach_impl default
+            }
+            src_install() {
+              if_use_python_python_foreach_impl default
+              prune_libtool_files --modules
+            }
+            if_use_python_python_foreach_impl() {
+              if use python; then
+                python_foreach_impl run_in_build_dir "$@"
+              else
+                "$@"
+              fi
+            }

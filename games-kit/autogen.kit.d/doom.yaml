@@ -1,0 +1,550 @@
+doom_github:
+  generator: builtin-github
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+
+  packages:
+
+    - odamex:
+        assets:
+          - name: '{{ .Values.pn }}-{{ .Values.version }}.tar.xz'
+            matcher: '{{ .Values.pn }}-src-{{ .Values.version }}.tar.xz$'
+        transform:
+          - kind: string
+            match: 'Odamex '
+            replace: ''
+        category: games-engines
+        github:
+          user: odamex
+          repo: odamex
+          query: releases
+        vars:
+          desc: Online multiplayer, free software engine for Doom and Doom II
+          homepage: https://odamex.net
+          license: GPL
+          slot: 0
+          keywords: '*'
+          iuse: +client master +odalaunch server upnp X
+          required_use: |
+            || ( client master server )
+            odalaunch? ( client X )
+          s: '${WORKDIR}/${PN}-src-${PV}'
+
+          # protobuf is still bundled. Unfortunately an old version is required for C++98
+          # compatibility. We could use C++11, but upstream is concerned about using a
+          # completely different protobuf version on a multiplayer-focused engine.
+          restrict: network-sandbox
+
+          inherit:
+            - cmake
+            - desktop
+            - gnome2-utils
+            - readme.gentoo-r1
+            - wxwidgets
+
+          rdepend: |-
+            app-arch/zstd
+            net-misc/curl
+            sys-libs/zlib
+            client? (
+              dev-libs/jsoncpp
+              media-libs/libpng:0=
+              media-libs/libsdl2[joystick,sound,video]
+              media-libs/sdl2-mixer[midi,timidity]
+              net-misc/curl
+            )
+            odalaunch? ( x11-libs/wxGTK:${WX_GTK_VER}[X] )
+          depend: ${RDEPEND}
+          bdepend: |-
+            >=dev-util/cmake-3.13
+            games-util/deutex
+
+          extra_envs:
+            - WX_GTK_VER='3.0-gtk3'
+            - |-
+              DOC_CONTENTS="
+              	This is just the engine, you will need doom resource files in order to play.
+              	Check: http://odamex.net/wiki/FAQ#What_data_files_are_required.3F"
+
+          body: |-
+            src_prepare() {
+              cmake_src_prepare
+
+            }
+            src_configure() {
+              # We don't have miniupnp in our tree, so use internal
+              # We also don't have new enough fltk in our tree,
+              #   so use internal there too
+              local mycmakeargs=(
+                -DUSE_INTERNAL_FLTK=1
+                -DUSE_INTERNAL_JSONCPP=0
+                -DUSE_INTERNAL_LIBS=0
+                -DUSE_INTERNAL_MINIUPNP=$(usex upnp)
+                -DBUILD_CLIENT=$(usex client)
+                -DBUILD_LAUNCHER=$(usex odalaunch)
+                -DBUILD_MASTER=$(usex master)
+                -DBUILD_SERVER=$(usex server)
+                -DBUILD_OR_FAIL=1
+                -DENABLE_PORTMIDI=no
+                -DUSE_MINIUPNP=$(usex upnp)
+                -DUSE_INTERNAL_ZSTD=0
+              )
+              append-cxxflags -std=c++11
+
+              cmake_src_configure
+            }
+            src_compile() {
+              cmake_src_compile
+            }
+            src_install() {
+              cmake_src_install
+              readme.gentoo_create_doc
+
+              if use client ; then
+                for size in 96 128 256 512; do
+                  newicon -s ${size} "${S}/media/icon_${PN}_${size}.png" "${PN}.png"
+                done
+                make_desktop_entry "${PN}" "Odamex"
+
+                if use odalaunch ; then
+                  for size in 96 128 256 512; do
+                    newicon -s ${size} "${S}/media/icon_odalaunch_${size}.png" "odalaunch.png"
+                  done
+                  make_desktop_entry odalaunch "Odamex Launcher" odalaunch
+                fi
+              fi
+            }
+            pkg_postinst() {
+              gnome2_icon_cache_update
+              readme.gentoo_print_elog
+            }
+            pkg_postrm() {
+              gnome2_icon_cache_update
+            }
+
+    - doomrunner:
+        category: games-util
+        github:
+          user: Youda008
+          repo: DoomRunner
+          query: tags
+        vars:
+          desc: Preset-oriented graphical launcher of various ported Doom engines (an alternative to ZDL)
+          homepage: https://github.com/Youda008/DoomRunner
+          iuse: ""
+          keywords: "*"
+          license: GPL-3
+          slot: 0
+          inherit:
+            - qmake-utils
+          rdepend: |-
+            dev-qt/qtbase:6
+          depend: ${RDEPEND}
+          bdepend: dev-util/cmake
+          body: |-
+            _get_qt6_qmake() {
+                echo "${EPREFIX}/usr/$(get_libdir)/qt6/bin/qmake"
+            }
+            post_src_unpack() {
+              mv {{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              default
+              eapply_user
+            }
+            src_configure() {
+              $(_get_qt6_qmake) \
+                DoomRunner.pro -spec linux-g++ CONFIG+="release"  PREFIX="/usr"
+            }
+            src_install() {
+              emake INSTALL_ROOT="${D}" install
+            }
+
+    - deutex:
+        category: games-util
+        github:
+          user: Doom-Utils
+          repo: deutex
+          query: releases
+        transform:
+          - kind: string
+            match: 'DeuTex '
+            replace: ''
+        vars:
+          desc: A wad composer for Doom, Heretic, Hexen and Strife
+          homepage: http://www.teaser.fr/~amajorel/deutex/
+          inherit:
+            - eutils
+            - toolchain-funcs
+          iuse: doc
+          keywords: '*'
+          license: GPL-2+ LGPL-2+ HPND
+          slot: 0
+
+          rdepend: ''
+          depend: ${RDEPEND}
+          bdepend: doc? ( app-text/asciidoc )
+
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+          body: |-
+            post_src_unpack() {
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              ./bootstrap
+              default
+            }
+
+            src_install() {
+              dobin src/deutex
+              use doc && doman man/deutex.6
+              dodoc AUTHORS COPYING COPYING.LIB LICENSE NEWS.adoc README.adoc
+            }
+
+    - freedoom:
+        category: games-fps
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+        transform:
+          - kind: string
+            match: 'Freedoom '
+            replace: ''
+        vars:
+          desc: A complete free-content single-player focused game based on the Doom engine
+          homepage: https://freedoom.github.io
+          license: BSD
+          slot: 0
+          keywords: '*'
+          rdepend: |-
+            =games-fps/freedoom-data-${PV}
+            || (
+              games-engines/gzdoom
+              games-engines/odamex
+              games-fps/doomsday
+            )
+
+          body: |-
+            post_src_unpack() {
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              eapply_user
+            }
+            src_configure() {
+              :
+            }
+            src_compile() {
+              :
+            }
+            src_install() {
+              :
+            }
+            pkg_postinst() {
+              elog "If you are looking for a multiplayer-focused deathmatch game, please install games-fps/freedm."
+            }
+
+    - freedoom-data:
+        category: games-fps
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+        transform:
+          - kind: string
+            match: 'Freedoom '
+            replace: ''
+        vars:
+          desc: 'Game resources for Freedoom: Phase 1+2'
+          homepage: https://freedoom.github.io
+          license: BSD
+          slot: 0
+          keywords: '*'
+          bdepend: |-
+            dev-python/pillow
+            games-util/deutex
+
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+          extra_envs:
+            - DOOMWADPATH=/usr/share/doom
+
+          body: |-
+            post_src_unpack() {
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_install() {
+              insinto ${DOOMWADPATH}
+              doins wads/freedoom1.wad
+              doins wads/freedoom2.wad
+              dodoc CREDITS README.adoc
+            }
+
+            pkg_postinst() {
+              elog "Freedoom WAD files installed into ${DOOMWADPATH} directory."
+            }
+
+    - freedm:
+        category: games-fps
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+        transform:
+          - kind: string
+            match: 'Freedoom '
+            replace: ''
+        vars:
+          desc: A 32-level game designed for competitive deathmatch play.
+          homepage: https://freedoom.github.io
+          license: BSD
+          slot: 0
+          keywords: '*'
+          rdepend: |-
+            =games-fps/freedm-data-${PV}
+            || (
+              games-engines/gzdoom
+              games-engines/odamex
+              games-fps/doomsday
+            )
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+
+          body: |-
+            post_src_unpack() {
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_prepare() {
+              eapply_user
+            }
+            src_configure() {
+              :
+            }
+            src_compile() {
+              :
+            }
+            src_install() {
+              :
+            }
+            pkg_postinst() {
+              elog "If you are looking for a single-player or cooperative game, please install games-fps/freedoom."
+            }
+
+
+    - freedm-data:
+        category: games-fps
+        github:
+          user: freedoom
+          repo: freedoom
+          query: releases
+        transform:
+          - kind: string
+            match: 'Freedoom '
+            replace: ''
+        vars:
+          desc: Game resources for FreeDM
+          homepage: https://freedoom.github.io
+          license: BSD
+          bdepend: |-
+            dev-python/pillow
+            games-util/deutex
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+          extra_envs:
+            - DOOMWADPATH=/usr/share/doom
+
+          body: |-
+            post_src_unpack() {
+              mv ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-* ${S}
+            }
+            src_install() {
+              insinto ${DOOMWADPATH}
+              doins wads/freedm.wad
+              dodoc CREDITS README.adoc
+            }
+
+            pkg_postinst() {
+              elog "FreeDM WAD files installed into ${DOOMWADPATH} directory."
+            }
+
+    - gzdoom:
+        category: games-engines
+        github:
+          user: ZDoom
+          repo: gzdoom
+          query: releases
+        transform:
+          - kind: string
+            match: 'GZDoom '
+            replace: ''
+          - kind: string
+            match: 'g'
+            replace: ''
+        vars:
+          desc: A modder-friendly OpenGL source port based on the DOOM engine
+          homepage: https://zdoom.org
+          license: |-
+            Apache-2.0 BSD BZIP2 GPL-3 LGPL-2.1+ LGPL-3 MIT
+            non-free? ( Activision ChexQuest3 DOOM-COLLECTORS-EDITION freedist WidePix )
+          slot: 0
+          keywords: '*'
+          iuse: debug gles2 gtk +non-free openmp +swr telemetry vulkan
+          inherit:
+            - cmake
+            - desktop
+            - flag-o-matic
+            - xdg
+
+          patches:
+            - ${PN}-4.7.1-Introduce-the-BUILD_NONFREE-option.patch
+
+          rdepend: |-
+            app-arch/bzip2
+            media-libs/libjpeg-turbo:0=
+            media-libs/libsdl2[gles2?,opengl,vulkan?]
+            media-libs/libvpx:=
+            media-libs/libwebp
+            media-libs/openal
+            >=media-libs/zmusic-1.1.14
+            sys-libs/zlib
+            gtk? ( x11-libs/gtk+:3 )
+          depend: |-
+            ${RDEPEND}
+
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+          extra_envs:
+            - 'DOOMDIR="${EPREFIX}/usr/share/doom"'
+
+          body: |-
+            src_prepare() {
+              rm -rf docs/licenses || die
+              rm -rf libraries/{bzip2,jpeg,zlib} || die
+              if ! use non-free ; then
+                rm -rf wadsrc_bm wadsrc_extra wadsrc_widepix || die
+              fi
+
+              cat <<- EOF > "${S}/src/gitinfo.h" || die
+              	// 0
+              	// The above line prevents UpdateRevision.cmake from replacing this file.
+              	// This file was generated by the MARK ebuild.
+              	#define GIT_DESCRIPTION "g${PV}"
+              	#define GIT_HASH "0"
+              	#define GIT_TIME ""
+              EOF
+
+              cat "${S}/src/gitinfo.h" || die
+
+              cmake_src_prepare
+            }
+
+
+            src_configure() {
+              # https://bugs.gentoo.org/858749
+              filter-lto
+              append-flags -fno-strict-aliasing
+
+              local mycmakeargs=(
+                -DBUILD_SHARED_LIBS=OFF
+                -DINSTALL_DOCS_PATH="${EPREFIX}/usr/share/doc/${PF}"
+                -DINSTALL_PK3_PATH="${DOOMDIR}"
+                -DINSTALL_SOUNDFONT_PATH="${DOOMDIR}"
+                -DDYN_OPENAL=OFF
+                -DNO_GTK=$(usex !gtk)
+                -DNO_OPENAL=OFF
+                -DHAVE_VULKAN=$(usex vulkan)
+                -DHAVE_GLES2=$(usex gles2)
+                -DNO_OPENMP=$(usex !openmp)
+                -DZDOOM_ENABLE_SWR=$(usex swr)
+                -DBUILD_NONFREE=$(usex non-free)
+              )
+
+              use debug || append-cppflags -DNDEBUG
+              use telemetry || append-cppflags -DNO_SEND_STATS
+
+              cmake_src_configure
+            }
+
+            src_install() {
+              newicon src/posix/zdoom.xpm "${PN}.xpm"
+              make_desktop_entry "${PN}" "GZDoom" "${PN}" "Game;ActionGame"
+              dodir /usr/share/doom
+              cmake_src_install
+            }
+
+            pkg_postinst() {
+              xdg_pkg_postinst
+
+              if ! use non-free; then
+                ewarn
+                ewarn "GZDoom installed without non-free compoents."
+                ewarn "Note: The non-free game_support.pk3 file is needed to play"
+                ewarn "      games natively supported by GZDoom."
+                ewarn "A list of games natively supported by GZDoom is available"
+                ewarn "on the ZDoom wiki: https://zdoom.org/wiki/IWAD"
+                ewarn
+              fi
+            }
+
+    - zmusic:
+        category: media-libs
+        github:
+          user: ZDoom
+          repo: ZMusic
+          query: releases
+        transform:
+          - kind: string
+            match: 'ZMusic '
+            replace: ''
+
+        vars:
+          desc: GZDoom's music system as a standalone library
+          homepage: https://zdoom.org
+          inherit:
+            - cmake
+            - flag-o-matic
+          license: BSD DUMB-0.9.3 GPL-3 LGPL-2.1+ LGPL-3 MIT
+          slot: 0
+          keywords: '*'
+          iuse: alsa +fluidsynth mpg123 +sndfile
+
+          depend: |-
+            sys-libs/zlib
+            alsa? ( media-libs/alsa-lib )
+            fluidsynth? ( media-sound/fluidsynth:= )
+            mpg123? ( media-sound/mpg123 )
+            sndfile? ( media-libs/libsndfile[-minimal] )
+
+          rdepend: ${DEPEND}
+
+          s: ${WORKDIR}/{{ .Values.github_user }}-{{ .Values.github_repo }}-{{ substr 0 7 .Values.sha }}
+
+          body: |-
+            src_prepare() {
+              rm -rf licenses || die
+              cmake_src_prepare
+            }
+
+            src_configure() {
+              # -Werror=odr
+              # # https://bugs.gentoo.org/860117
+              # # https://github.com/ZDoom/ZMusic/issues/56
+              filter-lto
+
+              local mycmakeargs=(
+                -DDYN_FLUIDSYNTH=OFF
+                -DDYN_MPG123=OFF
+                -DDYN_SNDFILE=OFF
+                -DCMAKE_DISABLE_FIND_PACKAGE_ALSA=$(usex !alsa)
+                -DCMAKE_DISABLE_FIND_PACKAGE_FluidSynth=$(usex !fluidsynth)
+                -DCMAKE_DISABLE_FIND_PACKAGE_MPG123=$(usex !mpg123)
+                -DCMAKE_DISABLE_FIND_PACKAGE_SndFile=$(usex !sndfile)
+                -DBUILD_SHARED_LIBS=ON
+              )
+
+              cmake_src_configure
+            }
+
+doom_virtual:
+  generator: builtin-simple
+  defaults:
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'

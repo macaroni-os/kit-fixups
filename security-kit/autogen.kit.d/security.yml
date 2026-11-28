@@ -276,6 +276,26 @@ noop_pkgs:
                 dosym libsystemd.so.0 /usr/$(get_libdir)/libsystemd.so
             }
 
+virtual_noop:
+  generator: builtin-noop
+  defaults:
+    category: virtual
+    template: ../../templates/simple.tmpl
+  packages:
+    - ssh:
+        vars:
+          desc: Virtual for SSH client and server
+          versions:
+            - "0"
+          iuse: minimal
+          rdepend: |
+            minimal? (
+              || ( net-misc/dropbear net-misc/openssh )
+            )
+            !minimal? (
+              || ( net-misc/openssh net-misc/dropbear )
+            )
+
 sys_auth_pkgs:
   generator: builtin-github
   defaults:

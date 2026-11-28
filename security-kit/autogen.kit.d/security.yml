@@ -1295,3 +1295,78 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+libgcrypt:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: dev-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://gnupg.org/ftp/gcrypt/libgcrypt/
+      # Only plain x.y.z release tarballs: the directory also carries
+      # -alpha/-beta/-rc archives and a "1.9.0_do_not_use" entry.
+      matcher: 'libgcrypt-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'libgcrypt-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: General purpose crypto library based on the code used in GnuPG
+      homepage: https://www.gnupg.org/
+      license: 'LGPL-2.1 MIT'
+      slot: '0/20'
+      iuse: +asm cpu_flags_x86_aes cpu_flags_x86_avx cpu_flags_x86_avx2 cpu_flags_x86_avx512f cpu_flags_x86_padlock cpu_flags_x86_sha cpu_flags_x86_sse4_1 static-libs
+      inherit:
+        - autotools
+        - flag-o-matic
+        - toolchain-funcs
+      rdepend: dev-libs/libgpg-error
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          default
+          eautoreconf
+        }
+
+        src_configure() {
+          local myeconfargs=(
+            CC_FOR_BUILD="$(tc-getBUILD_CC)"
+
+            --enable-noexecstack
+            $(use_enable cpu_flags_x86_aes aesni-support)
+            $(use_enable cpu_flags_x86_avx avx-support)
+            $(use_enable cpu_flags_x86_avx2 avx2-support)
+            $(use_enable cpu_flags_x86_avx512f avx512-support)
+            $(use_enable cpu_flags_x86_padlock padlock-support)
+            $(use_enable cpu_flags_x86_sha shaext-support)
+            $(use_enable cpu_flags_x86_sse4_1 sse41-support)
+            # required for sys-power/suspend[crypt], bug 751568
+            $(use_enable static-libs static)
+
+            # disabled due to various applications requiring privileges
+            # after libgcrypt drops them (bug #468616)
+            --without-capabilities
+
+            $(use asm || echo "--disable-asm")
+
+            GPG_ERROR_CONFIG="${EROOT}/usr/bin/gpg-error-config"
+
+            $("${S}/configure" --help | grep -o -- '--without-.*-prefix')
+          )
+
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+
+        src_install() {
+          default
+          find "${ED}" -type f -name '*.la' -delete || die
+        }
+
+  packages:
+    - libgcrypt:

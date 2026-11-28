@@ -1238,3 +1238,51 @@ pinentry:
 
   packages:
     - pinentry:
+
+pkcs11_helper:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    github:
+      query: releases
+
+  packages:
+    - pkcs11-helper:
+        github:
+          user: OpenSC
+        transform:
+          - kind: string
+            match: 'pkcs11-helper-'
+            replace: ''
+        assets:
+          - name: '{{ .Values.p }}.tar.bz2'
+            matcher: 'pkcs11-helper-.*\.tar\.bz2$'
+        vars:
+          desc: PKCS#11 helper library
+          homepage: https://github.com/OpenSC/pkcs11-helper
+          license: '|| ( BSD GPL-2 )'
+          iuse: doc gnutls nss static-libs
+          rdepend: |
+            dev-libs/openssl:0=
+            gnutls? ( net-libs/gnutls )
+            nss? ( dev-libs/nss )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+          body: |
+            src_configure() {
+              econf \
+                --disable-crypto-engine-polarssl \
+                --disable-crypto-engine-mbedtls \
+                $(use_enable doc) \
+                $(use_enable gnutls crypto-engine-gnutls) \
+                $(use_enable nss crypto-engine-nss) \
+                $(use_enable static-libs static)
+            }
+            src_install() {
+              default
+              find "${D}" -name '*.la' -delete || die
+            }

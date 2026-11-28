@@ -402,6 +402,40 @@ sys_auth_pkgs:
               udev_reload
             }
 
+    - google-authenticator:
+        github:
+          user: google
+          repo: google-authenticator-libpam
+        vars:
+          desc: PAM Module for two step verification via mobile platform
+          homepage: https://github.com/google/google-authenticator-libpam
+          license: Apache-2.0
+          inherit:
+            - autotools
+          rdepend: sys-libs/pam
+          depend: ${RDEPEND}
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # pamdir = $(libdir)/security (Makefile.am:4)
+              econf --libdir="/$(get_libdir)"
+            }
+            src_install() {
+              default
+              find "${D}" -name '*.la' -delete || die
+            }
+            pkg_postinst() {
+              if [[ -z ${REPLACING_VERSIONS} ]] ; then
+                elog "For further information see"
+                elog "https://wiki.gentoo.org/wiki/Google_Authenticator"
+                elog ""
+                elog "If you want support for QR-Codes, install media-gfx/qrencode."
+              fi
+            }
+
     - polkit:
         github:
           user: polkit-org

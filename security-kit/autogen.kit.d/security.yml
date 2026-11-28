@@ -1295,3 +1295,87 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+net_libs:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    category: net-libs
+    # gsasl 2.x renamed the release tarballs from libgsasl-<ver>.tar.gz to
+    # gsasl-<ver>.tar.gz (probed live on 2026-11-28). The anchored matcher
+    # keeps the 1.x libgsasl-* names, the gsasl-v<ver>-src.tar.gz git-archive
+    # tarball, and the .sig/.proof files out of the version scan.
+    dir:
+      url: https://ftp.gnu.org/gnu/gsasl/
+      matcher: '^gsasl-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: 'gsasl-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    assets:
+      - name: 'gsasl-{{ .Values.pv }}.tar.gz'
+        url: 'https://ftp.gnu.org/gnu/gsasl/gsasl-{{ .Values.pv }}.tar.gz'
+    vars:
+      desc: The GNU SASL library
+      homepage: https://www.gnu.org/software/gsasl/
+      # COPYING is GPL-3 (tools/CLI), COPYING.LESSER is LGPL-2.1+ (libgsasl),
+      # see also the License section of README.
+      license: 'GPL-3 LGPL-2.1+'
+      # libgsasl.so.18 since 2.x (LT_CURRENT=18, LT_AGE=0); the 1.8 tree
+      # ebuild provided libgsasl.so.7.
+      slot: '0/18'
+      iuse: gcrypt idn kerberos nls ntlm static-libs
+      inherit:
+        - autotools
+      s: '${WORKDIR}/gsasl-{{ .Values.pv }}'
+      bdepend: |
+        nls? ( sys-devel/gettext )
+      rdepend: |
+        gcrypt? ( dev-libs/libgcrypt:0 )
+        idn? ( net-dns/libidn )
+        kerberos? ( virtual/krb5 )
+        ntlm? ( net-libs/libntlm )
+        !net-misc/gsasl
+      depend: '${RDEPEND}'
+      body: |
+        src_configure() {
+          local krb5_impl="--with-gssapi-impl=no"
+          if use kerberos; then
+            if has_version app-crypt/mit-krb5; then
+              krb5_impl="--with-gssapi-impl=mit"
+            else
+              krb5_impl="--with-gssapi-impl=heimdal"
+            fi
+          fi
+          local myeconfargs=(
+            # 2.2.4 enables non-fatal compiler warnings by default; these two
+            # are the upstream-documented opt-outs (also used by Gentoo).
+            --disable-gcc-warnings
+            --disable-valgrind-tests
+            $(use_enable kerberos gssapi)
+            $(use_enable kerberos gs2)
+            ${krb5_impl}
+            $(use_with gcrypt libgcrypt)
+            $(use_with idn stringprep)
+            $(use_enable nls)
+            $(use_enable ntlm)
+            $(use_enable static-libs static)
+          )
+          econf "${myeconfargs[@]}"
+        }
+        src_install() {
+          default
+          if ! use static-libs; then
+            find "${ED}" -name '*.la' -delete || die
+          fi
+        }
+
+  packages:
+    - libgsasl:

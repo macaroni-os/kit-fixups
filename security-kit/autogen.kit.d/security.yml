@@ -1295,3 +1295,57 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+libtasn1:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple.tmpl
+    # GNU serves libtasn1 as libtasn1-<ver>.tar.gz with detached .sig and
+    # .proof siblings plus libtasn1-v<ver>-src.tar.gz duplicates (probed
+    # live 2026-11-27, newest 4.21.0). The anchored matcher keeps all of
+    # those out so only stable releases are selected (libidn2 pattern).
+    dir:
+      url: https://ftp.gnu.org/gnu/libtasn1/
+      matcher: '^{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.gz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+
+  packages:
+    - libtasn1:
+        vars:
+          desc: ASN.1 library
+          homepage: https://www.gnu.org/software/libtasn1/
+          license: 'LGPL-2.1+'
+          # subslot = libtasn1 soname: LT_CURRENT(12) - LT_AGE(6) = 6 in
+          # 4.19.0 and 4.21.0 configure.ac; net-libs/gnutls deps on :=.
+          slot: '0/6'
+          bdepend: |
+            sys-apps/help2man
+            virtual/yacc
+          docs:
+            - AUTHORS
+            - ChangeLog
+            - NEWS
+            - README.md
+            - THANKS
+          body: |
+            src_configure() {
+              # -fanalyzer is upstream static analysis; it only slows the build down
+              export gl_cv_warn_c__fanalyzer=no
+
+              econf --disable-static
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -type f -name '*.la' -delete || die
+            }

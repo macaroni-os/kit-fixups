@@ -1295,3 +1295,73 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+nettle:
+  generator: builtin-dirlisting
+  generator_opts:
+    # Limit rate at 1reqs/sec
+    rate_limiter: "1"
+
+  defaults:
+    category: dev-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://ftp.gnu.org/gnu/nettle/
+      matcher: 'nettle-.*\.tar\.gz$'
+      exclude: 'rc|beta|alpha'
+    transform:
+      - kind: string
+        match: 'nettle-'
+        replace: ''
+      - kind: string
+        match: '.tar.gz'
+        replace: ''
+    vars:
+      desc: Low-level cryptographic library
+      homepage: http://www.lysator.liu.se/~nisse/nettle/
+      license: '|| ( LGPL-3 LGPL-2.1 )'
+      # subslot = libnettle - libhogweed soname version
+      slot: '0/8-6'
+      iuse: +asm cpu_flags_arm_neon +gmp cpu_flags_x86_aes cpu_flags_x86_sha static-libs
+      inherit:
+        - autotools
+        - toolchain-funcs
+      rdepend: |
+        gmp? ( dev-libs/gmp:0 )
+      depend: '${RDEPEND}'
+      body: |
+        src_prepare() {
+          default
+
+          sed -e '/CFLAGS=/s: -ggdb3::' \
+            -i configure.ac || die
+
+          eautoreconf
+        }
+        src_configure() {
+          local myeconfargs=(
+            CC_FOR_BUILD="$(tc-getBUILD_CC)"
+            $(tc-is-static-only && echo --disable-shared)
+            $(use_enable asm assembler)
+            $(use_enable gmp public-key)
+            $(use_enable static-libs static)
+            $(use_enable cpu_flags_x86_aes x86-aesni)
+            $(use_enable cpu_flags_x86_sha x86-sha-ni)
+            $(use_enable cpu_flags_arm_neon arm-neon)
+            --disable-fat
+            # --disable-openssl bug #427526
+            --disable-openssl
+            --libdir="${EPREFIX}"/usr/$(get_libdir)
+          )
+          ECONF_SOURCE="${S}" econf "${myeconfargs[@]}"
+        }
+
+  packages:
+    - nettle:
+        # nettle 4.0 is a major ABI/API break (libnettle.so.9 /
+        # libhogweed.so.7, changed _digest prototypes) and net-libs/gnutls-3.7.11
+        # does not build against it, so track the latest 3.x release until
+        # gnutls is ported to the nettle-4 API.
+        selector:
+          - '<4'

@@ -1275,3 +1275,72 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+libmcrypt:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: dev-libs
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+
+    # SourceForge keeps one folder per release under Libmcrypt/.
+    dir:
+      url: https://sourceforge.net/projects/mcrypt/files/Libmcrypt/
+      matcher: 'files/Libmcrypt/[0-9]+(\.[0-9]+)+/$'
+
+    assets:
+      - name: '{{ .Values.pn }}-{{ .Values.pv }}.tar.gz'
+        url: 'https://downloads.sourceforge.net/mcrypt/{{ .Values.pn }}-{{ .Values.pv }}.tar.gz'
+
+    vars:
+      desc: Provides an uniform interface to access several encryption algorithms
+      homepage: https://mcrypt.sourceforge.net
+      license: GPL-2+ LGPL-2.1+
+      inherit:
+        - autotools
+        - flag-o-matic
+      docs:
+        - AUTHORS
+        - NEWS
+        - README
+        - THANKS
+        - TODO
+        - ChangeLog
+        - doc/README.config
+        - doc/README.key
+        - doc/README.xtea
+        - doc/example.c
+      patches:
+        - libmcrypt-2.5.8-rotate-mask.patch
+        - libmcrypt-2.5.8-autoconf-2.70.patch
+        - libmcrypt-2.5.8-uninitialized.patch
+        - libmcrypt-2.5.8-prototypes.patch
+        - libmcrypt-2.5.8-c99.patch
+        - libmcrypt-2.5.8-c99-2.patch
+      body: |
+        src_prepare() {
+          default
+
+          mv configure.in configure.ac || die
+          mv libltdl/configure.in libltdl/configure.ac || die
+          sed -i 's/AM_CONFIG_HEADER/AC_CONFIG_HEADERS/g' configure.ac libltdl/configure.ac || die
+
+          eautoreconf # update stale autotools
+        }
+
+        src_configure() {
+          append-flags -fno-strict-aliasing
+          filter-lto
+
+          default
+        }
+
+        src_install() {
+          default
+          find "${ED}" -type f -name '*.la' -delete || die
+        }
+
+  packages:
+    - libmcrypt:
+        revision: 5

@@ -1295,3 +1295,138 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# net-libs/mbedtls — Cryptographic library for embedded systems. Conversion
+# of the frozen tree ebuild, macaroni-os/mark-issues#1024.
+#
+# Line selection: the 3.6 LTS line, capped below 4.0.0. The tree serves the
+# EOL 2.17.0 (the whole 2.x branch is end-of-life upstream). 4.x is NOT
+# servable to the consumer set: media-kit/obs-studio has an unconditional
+# net-libs/mbedtls:= RDEPEND and requires find_package(MbedTLS 3...<4)
+# (obs-studio-33.0.1 plugins/obs-outputs/CMakeLists.txt:3 and
+# frontend/cmake/feature-whatsnew.cmake:9), and core-server-kit/curl-8.12.1
+# predates the 4.x API. 3.6.8 is the current LTS tip; built SONAMEs are
+# libmbedtls.so.21 / libmbedx509.so.7 / libmbedcrypto.so.16 (objdump -p on
+# the real install). Every consumer builds against it except
+# net-kit/libssh-0.9.8, whose 2.x-only crypto backend needs libssh >= 0.10
+# (cross-kit requirement recorded on macaroni-os/mark-issues#1024).
+#
+# Upstream publishes mbedtls-<ver>.tar.bz2 + mbedtls-<ver>-sha256sum.txt
+# assets (no detached signature); the anchored matcher pins the dist
+# tarball and structurally drops the sha256sum sibling. The tarball unpacks
+# to ${P}, so the tree's S=${WORKDIR}/${PN}-${P} (needed by the retired
+# ARMmbed archive endpoint) is not carried. Release titles are
+# "Mbed TLS <ver>" with variants (leading space, "Mbedtls", trailing
+# "LTS"), so the transform strips leading non-digits and trailing words;
+# the repo carries dual tags (v<ver> and mbedtls-<ver>) plus yotta-* spam,
+# so releases are tracked with ignore_tags.
+#
+# USE drift 2.17 -> 3.6, verified against the shipped tarball:
+# MBEDTLS_ZLIB_SUPPORT and MBEDTLS_HAVEGE_C were removed in 3.0
+# (include/mbedtls/check_config.h hard-#errors on both), so the zlib and
+# havege USE flags and the ENABLE_ZLIB_SUPPORT cmake option are dropped.
+# MBEDTLS_HAVE_SSE2 (mbedtls_config.h:111, used by library/bn_mul.h) and
+# MBEDTLS_THREADING_C/PTHREAD survive and now sed
+# include/mbedtls/mbedtls_config.h (config.h was renamed in 3.0). The
+# programs? openssl RDEPEND is dead: programs/CMakeLists.txt has zero
+# openssl references in 3.x. test USE dropped per house rule
+# (ENABLE_TESTING=OFF); multilib-minimal collapsed (cmake eclass provides
+# BUILD_DIR); cmake-utils -> cmake; libressl dropped (not in tree);
+# BSD/Darwin KEYWORDS replaced by the template default "*".
+mbedtls:
+  generator: builtin-github
+  defaults:
+    category: net-libs
+    template: ../../templates/simple.tmpl
+    github:
+      user: Mbed-TLS
+      ignore_tags: true
+    transform:
+      - kind: regex
+        match: '^[^0-9]+'
+        replace: ''
+      - kind: regex
+        match: ' .*'
+        replace: ''
+    assets:
+      - name: '{{ .Values.p }}.tar.bz2'
+        matcher: '^{{ .Values.p }}\.tar\.bz2$'
+  packages:
+    - mbedtls:
+        selector:
+          - '<4.0.0'
+        vars:
+          desc: Cryptographic library for embedded systems
+          homepage: https://mbed-tls.readthedocs.io/ https://github.com/Mbed-TLS/mbedtls
+          # LICENSE: dual Apache-2.0 OR GPL-2.0-or-later
+          license: 'Apache-2.0 GPL-2+'
+          # subslot is the libmbedtls.so soname, read off the built ABI
+          slot: '0/21'
+          iuse: cpu_flags_x86_sse2 doc programs -static-libs threads
+          inherit:
+            - cmake
+          bdepend: |
+            doc? ( app-doc/doxygen media-gfx/graphviz )
+          body: |
+            enable_mbedtls_option() {
+              # config header renamed to mbedtls_config.h in 3.0
+              sed -i -e "s://#define ${1}:#define ${1}:" \
+                include/mbedtls/mbedtls_config.h || die
+            }
+            src_prepare() {
+              cmake_src_prepare
+
+              if use cpu_flags_x86_sse2 ; then
+                enable_mbedtls_option MBEDTLS_HAVE_SSE2
+              fi
+              if use threads ; then
+                enable_mbedtls_option MBEDTLS_THREADING_C
+                enable_mbedtls_option MBEDTLS_THREADING_PTHREAD
+              fi
+            }
+            src_configure() {
+              local mycmakeargs=(
+                -DENABLE_PROGRAMS=$(usex programs ON OFF)
+                -DUSE_STATIC_MBEDTLS_LIBRARY=$(usex static-libs)
+                -DENABLE_TESTING=OFF
+                -DUSE_SHARED_MBEDTLS_LIBRARY=ON
+                -DINSTALL_MBEDTLS_HEADERS=ON
+                -DLIB_INSTALL_DIR="/usr/$(get_libdir)"
+              )
+
+              cmake_src_configure
+            }
+            src_compile() {
+              cmake_src_compile
+
+              if use doc ; then
+                # graphviz (doxygen dot graphs) refreshes the fontconfig
+                # cache; keep the sandbox happy (kde-kit kdsoap precedent)
+                addpredict /usr/share/fonts
+                emake -C "${S}" apidoc
+              fi
+            }
+            src_install() {
+              cmake_src_install
+
+              if use doc ; then
+                HTML_DOCS=( "${S}/apidoc" )
+              fi
+
+              einstalldocs
+
+              if use programs ; then
+                # avoid file collisions with sys-apps/coreutils
+                local p e
+                for p in "${ED%/}"/usr/bin/* ; do
+                  if [[ -x "${p}" && ! -d "${p}" ]] ; then
+                    mv "${p}" "${ED%/}"/usr/bin/mbedtls_${p##*/} || die
+                  fi
+                done
+                for e in aes hash pkey ssl test ; do
+                  docinto "${e}"
+                  dodoc programs/"${e}"/*.c
+                  dodoc programs/"${e}"/*.txt
+                done
+              fi
+            }

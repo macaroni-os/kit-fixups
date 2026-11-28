@@ -75,3 +75,7 @@ target:
     - pkg: virtual/ssh
 
     - pkg: net-proxy/privoxy
+
+    - pkg: net-libs/mbedtls
+      conditions:
+        - '<net-libs/mbedtls-4.0.0'

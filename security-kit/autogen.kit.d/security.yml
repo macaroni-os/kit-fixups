@@ -1295,3 +1295,66 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/tpm2-tss-engine — OpenSSL Engine for TPM2 devices. Conversion of the
+# frozen tree ebuild, macaroni-os/mark-issues#1007.
+# Upstream GitHub releases (tip 1.2.0) ship the dist tarball
+# tpm2-tss-engine-<ver>.tar.gz with a .asc sibling; the anchored matcher pins the
+# uploaded release artefact and structurally drops the signature file. The
+# tarball unpacks to ${P} and carries a pre-generated configure, so simple.tmpl +
+# default src_unpack works. rc releases are marked prerelease and filtered
+# natively. Tags are mixed-style (v1.1.0 and older, 1.2.0 without the prefix);
+# mark-devkit strips the leading v, so no transform is needed.
+# The tree's OpenSSL bound (>=1.1.1 plus <3.0.0) is stale: 1.2.0 configures,
+# builds and links against the tree's OpenSSL 3 (libcrypto.so.3), with only
+# -Wdeprecated-declarations for the still-exported ENGINE API, so the atom is a
+# plain dev-libs/openssl:= (no floor: configure only wants libcrypto >= 1.0.2g).
+# The musl-tests patch is dead against 1.2.0 — upstream absorbed it before the
+# release and it only guards test/ code built under --enable-unit — so no files
+# are carried.
+tpm2-tss-engine:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    github:
+      user: tpm2-software
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '^{{ .Values.p }}\.tar\.gz$'
+  packages:
+    - tpm2-tss-engine:
+        vars:
+          desc: OpenSSL Engine for TPM2 devices
+          homepage: https://github.com/tpm2-software/tpm2-tss-engine
+          license: BSD
+          # Subslot tracks the selected version, as the tree ebuild had it.
+          slot: '0/{{ .Values.pv }}'
+          rdepend: |
+            app-crypt/tpm2-tss:=
+            dev-libs/openssl:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-devel/autoconf-archive
+            virtual/pkgconfig
+          inherit:
+            - autotools
+            - bash-completion-r1
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # --disable-defaultflags: keep upstream from overriding CFLAGS
+              econf \
+                --disable-defaultflags \
+                --disable-static \
+                --with-completionsdir="$(get_bashcompdir)"
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -name '*.la' -delete || die
+              dobashcomp bash-completion/*
+            }

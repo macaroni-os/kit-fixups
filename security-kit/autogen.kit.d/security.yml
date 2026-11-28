@@ -1238,3 +1238,63 @@ pinentry:
 
   packages:
     - pinentry:
+
+libb2:
+  generator: builtin-github
+
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    github:
+      query: releases
+
+  packages:
+    - libb2:
+        github:
+          user: BLAKE2
+        # Upstream publishes the official autotools dist tarball (generated
+        # configure/Makefile.in) as a release asset; take it instead of the
+        # api.github.com source archive.
+        assets:
+          - name: '{{ .Values.p }}.tar.gz'
+            matcher: 'libb2-.*\.tar\.gz$'
+        vars:
+          desc: C library providing BLAKE2b, BLAKE2s, BLAKE2bp, BLAKE2sp
+          homepage: https://github.com/BLAKE2/libb2
+          license: CC0-1.0
+          inherit:
+            - toolchain-funcs
+          iuse: static-libs native-cflags openmp
+          rdepend: |
+            openmp? ( || ( sys-devel/gcc:*[openmp] sys-devel/clang-runtime:*[openmp] ) )
+          depend: '${RDEPEND}'
+          body: |
+            pkg_setup() {
+              if [[ ${MERGE_TYPE} != "binary" ]] && use openmp && ! tc-has-openmp; then
+                ewarn "You are using a compiler without OpenMP support"
+                die "Need an OpenMP capable compiler"
+              fi
+            }
+
+            src_configure() {
+              econf \
+                $(use_enable static-libs static) \
+                $(use_enable native-cflags native) \
+                $(use_enable openmp)
+            }
+
+            do_make() {
+              # respect our CFLAGS when native-cflags is not in effect
+              local openmp=$(use openmp && echo -fopenmp)
+              emake $(use native-cflags && echo no)CFLAGS="${CFLAGS} ${openmp}" "$@"
+            }
+
+            src_compile() {
+              do_make
+            }
+
+            src_install() {
+              default
+              einstalldocs
+              find "${ED}" -name '*.la' -type f -delete || die
+            }

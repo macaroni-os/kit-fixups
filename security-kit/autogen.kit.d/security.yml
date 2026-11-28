@@ -1238,3 +1238,49 @@ pinentry:
 
   packages:
     - pinentry:
+
+net_proxy_pkgs:
+  generator: builtin-github
+
+  defaults:
+    category: net-proxy
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: tags
+
+  packages:
+
+    - torsocks:
+        github:
+          user: dgoulet
+        vars:
+          desc: Use most socks-friendly applications with Tor
+          homepage: https://github.com/dgoulet/torsocks
+          license: GPL-2
+          inherit:
+            - autotools
+          iuse: static-libs
+          body: |
+            src_prepare() {
+              # Disable tests requiring network access.
+              local test
+              for test in dns fd_passing getpeername; do
+                grep -qF "	test_${test} \\" tests/Makefile.am || \
+                  die "network test ${test} not found in tests/Makefile.am"
+                sed -i -e "/^	test_${test} \\\\\$/d" tests/Makefile.am || \
+                  die "failed to disable network test ${test}"
+              done
+
+              default
+              eautoreconf
+            }
+
+            src_configure() {
+              econf $(use_enable static-libs static)
+            }
+
+            src_install() {
+              default
+
+              find "${ED}" -type f -name '*.la' -delete || die
+            }

@@ -1238,3 +1238,48 @@ pinentry:
 
   packages:
     - pinentry:
+
+argon2:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: releases
+  packages:
+    - argon2:
+        github:
+          user: P-H-C
+          repo: phc-winner-argon2
+        vars:
+          desc: Password hashing software that won the Password Hashing Competition (PHC)
+          homepage: https://github.com/P-H-C/phc-winner-argon2
+          license: '|| ( Apache-2.0 CC0-1.0 )'
+          slot: '0/1'
+          iuse: static-libs
+          inherit:
+            - toolchain-funcs
+          docs:
+            - argon2-specs.pdf
+            - CHANGELOG.md
+            - README.md
+          body: |
+            src_prepare() {
+              default
+              if ! use static-libs; then
+                sed -i -e 's/LIBRARIES = \$(LIB_SH) \$(LIB_ST)/LIBRARIES = \$(LIB_SH)/' Makefile || die "sed failed!"
+              fi
+              sed -i -e 's/-O3 //' -e 's/-g //' -e "s/-march=\$(OPTTARGET) /${CFLAGS} /" -e 's/CFLAGS += -march=\$(OPTTARGET)//' Makefile || die "sed failed!"
+
+              tc-export CC
+            }
+            src_compile() {
+              # Makefile LIBRARY_REL defaults to lib/x86_64-linux-gnu on Linux-x86_64
+              # and ARGON2_VERSION to ZERO; both feed the generated libargon2.pc.
+              emake ARGON2_VERSION="{{ .Values.pv }}" LIBRARY_REL="$(get_libdir)"
+            }
+            src_install() {
+              emake DESTDIR="${ED}" ARGON2_VERSION="{{ .Values.pv }}" LIBRARY_REL="$(get_libdir)" install
+              einstalldocs
+              doman man/{{ .Values.pn }}.1
+            }

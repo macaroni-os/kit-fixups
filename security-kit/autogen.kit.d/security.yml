@@ -1238,3 +1238,53 @@ pinentry:
 
   packages:
     - pinentry:
+cryptopp:
+  generator: builtin-github
+
+  defaults:
+    category: dev-libs
+    template: ../../templates/simple-github.tmpl
+    github:
+      query: tags
+
+  packages:
+    - crypto++:
+        github:
+          user: weidai11
+          repo: cryptopp
+        transform:
+          - kind: string
+            match: 'CRYPTOPP_'
+            replace: ''
+          - kind: string
+            match: '_'
+            replace: '.'
+        vars:
+          desc: C++ class library of cryptographic schemes
+          homepage: https://cryptopp.com
+          license: BSL-1.0
+          iuse: +asm static-libs
+          inherit:
+            - toolchain-funcs
+          body: |
+            config_uncomment() {
+              sed -i -e "s://\s*\(#define\s*$1\):\1:" config_asm.h || die
+            }
+            src_prepare() {
+              default
+              use asm || config_uncomment CRYPTOPP_DISABLE_ASM
+            }
+            src_configure() {
+              export CXX="$(tc-getCXX)"
+              export LIBDIR="/usr/$(get_libdir)"
+              export PREFIX="/usr"
+              tc-export AR RANLIB
+              default
+            }
+            src_compile() {
+              emake -f GNUmakefile all shared libcryptopp.pc
+            }
+            src_install() {
+              default
+              use static-libs || rm -f "${ED}"/usr/$(get_libdir)/*.a
+            }

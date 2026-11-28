@@ -1295,3 +1295,75 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/tpm2-abrmd — TPM2 Access Broker & Resource Manager daemon.
+# Conversion of the frozen tree ebuild, macaroni-os/mark-issues#1003.
+# Upstream GitHub releases (tip 3.1.0) ship the dist tarball
+# tpm2-abrmd-<ver>.tar.gz with a .asc sibling; the anchored matcher pins the
+# uploaded release artefact (the same URL the tree ebuild used) and
+# structurally drops the signature file. The tarball unpacks to ${P}, so
+# simple.tmpl + default src_unpack works. rc releases are marked prerelease
+# upstream and filtered natively. The OpenRC service payload lives in
+# autogen.kit.d/tpm2-abrmd/ and is installed with newinitd/newconfd.
+tpm2-abrmd:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+    github:
+      user: tpm2-software
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '^{{ .Values.p }}\.tar\.gz$'
+  packages:
+    - tpm2-abrmd:
+        revision: 1
+        vars:
+          desc: TPM2 Access Broker & Resource Manager
+          homepage: https://github.com/tpm2-software/tpm2-abrmd
+          license: BSD
+          rdepend: |
+            sys-apps/dbus
+            dev-libs/glib:=
+            app-crypt/tpm2-tss:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            dev-util/gdbus-codegen
+          inherit:
+            - autotools
+            - flag-o-matic
+            - systemd
+            - user
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # upstream CI never builds with LTO; keep the release build safe
+              filter-lto
+              econf \
+                --disable-static \
+                --disable-defaultflags \
+                --with-dbuspolicydir="/etc/dbus-1/system.d" \
+                --with-systemdpresetdir="$(systemd_get_systemunitdir)/../system-preset" \
+                --with-systemdpresetdisable \
+                --with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -name '*.la' -delete || die
+              newinitd "${FILESDIR}"/${PN}.initd ${PN}
+              newconfd "${FILESDIR}"/${PN}.confd ${PN}
+            }
+            pkg_preinst() {
+              enewgroup tss 59
+              enewuser tss 59 -1 /dev/null tss
+            }
+            pkg_postinst() {
+              einfo "As of tpm2-abrmd 3.0.0, users must be in the tss group"
+              einfo "to access the TPM"
+            }

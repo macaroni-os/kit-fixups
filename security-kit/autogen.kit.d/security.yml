@@ -1295,3 +1295,70 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/tpm2-tools — Tools for the TPM 2.0 TSS. Conversion of the frozen
+# tree ebuild, macaroni-os/mark-issues#1004.
+# Upstream GitHub releases (tip 5.8) ship the dist tarball
+# tpm2-tools-<ver>.tar.gz with a .asc sibling; the anchored matcher pins the
+# uploaded release artefact (the same URL the tree ebuild used) and
+# structurally drops the signature file. The tarball unpacks to ${P} and
+# carries a pre-generated configure, so simple.tmpl + default src_unpack
+# works. rc releases are marked prerelease upstream and filtered natively.
+# Both files/ patches are dead against 5.x tip and were never applied by the
+# tree ebuild (no PATCHES array): upstream absorbed the efivar
+# --with-efivar auto-detect in configure.ac and the testparms negative-test
+# fix, so no files are carried. Python is needed only by the test suite
+# (configure probes it under --enable-unit), so with the test USE dropped
+# the python-any-r1 inherit goes too.
+tpm2-tools:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    github:
+      user: tpm2-software
+    transform:
+      # Some release titles carry a date suffix ("5.6 - 2023-11-08",
+      # "5.3 2022-09-27"): strip everything from the first space so every
+      # candidate parses as a plain version (the raw trailing number would
+      # otherwise sort above the real tip).
+      - kind: regex
+        match: ' .*'
+        replace: ''
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '^{{ .Values.p }}\.tar\.gz$'
+  packages:
+    - tpm2-tools:
+        vars:
+          desc: Tools for the TPM 2.0 TSS
+          homepage: https://github.com/tpm2-software/tpm2-tools
+          license: BSD
+          iuse: +fapi
+          rdepend: |
+            >=app-crypt/tpm2-tss-3.0.1:=[fapi?]
+            dev-libs/openssl:=
+            net-misc/curl
+            sys-libs/efivar:=
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+            sys-devel/autoconf-archive
+          inherit:
+            - bash-completion-r1
+            - flag-o-matic
+          body: |
+            src_configure() {
+              # upstream CI never builds with LTO; keep the release build safe
+              filter-lto
+              econf \
+                $(use_enable fapi) \
+                --with-bashcompdir=$(get_bashcompdir) \
+                --enable-hardening
+            }
+            src_install() {
+              default
+              mv "${ED}"/$(get_bashcompdir)/tpm2{_completion.bash,} || die
+              local utils=( "${ED}"/usr/bin/tpm2_* )
+              bashcomp_alias tpm2 "${utils[@]##*/}"
+            }

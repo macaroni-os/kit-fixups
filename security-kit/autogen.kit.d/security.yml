@@ -1294,4 +1294,43 @@ makepasswd_dirlisting:
               dobin makepasswd
               doman makepasswd.1
               einstalldocs
+
+sys_boot_pkgs:
+  generator: builtin-github
+
+  defaults:
+    category: sys-boot
+    files_dir: "{{ .Values.pn }}"
+    template: ../../templates/simple.tmpl
+    github:
+      query: releases
+
+  packages:
+    - mokutil:
+        github:
+          user: lcp
+          # Tags carry no leading "v"; only plain x.y[.z] release names are tracked.
+          match: '^[0-9]+\.[0-9]+(\.[0-9]+)?$'
+        assets:
+          # mokutil publishes no release assets: fetch the tag archive instead,
+          # which unpacks to mokutil-<pv> (simple.tmpl + explicit S below).
+          - name: '{{ .Values.pn }}-{{ .Values.pv }}.tar.gz'
+            url: 'https://github.com/lcp/mokutil/archive/refs/tags/{{ .Values.pv }}.tar.gz'
+        vars:
+          s: '${WORKDIR}/mokutil-{{ .Values.pv }}'
+          desc: The utility to manipulate machines owner keys which managed in shim
+          homepage: https://github.com/lcp/mokutil
+          license: GPL-3
+          rdepend: |
+            dev-libs/openssl:=
+            sys-apps/keyutils:=
+            sys-libs/efivar:=
+          depend: '${RDEPEND}'
+          bdepend: virtual/pkgconfig
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
             }

@@ -1108,6 +1108,57 @@ gnupg_libs:
               find "${ED}" -name '*.la' -delete || die
             }
 
+    - libksba:
+        category: dev-libs
+        # No files_dir/patches: the tree's libksba-1.6.0-no-fgrep-ksba-config.patch
+        # is dead upstream. 1.6.2 src/ksba-config.in hardcoded `fgrep`; 1.9.1 uses
+        # the autoconf @FGREP@ substitution, so `patch -p1 --dry-run` fails both
+        # hunks against 1.9.1.
+        dir:
+          matcher: '{{ .Values.pn }}-.*.tar.bz2$'
+        transform:
+          - kind: string
+            match: '{{ .Values.pn }}-'
+            replace: ''
+          - kind: string
+            match: '.tar.bz2'
+            replace: ''
+        vars:
+          desc: X.509 and CMS (PKCS#7) library
+          homepage: https://www.gnupg.org/related_software/libksba
+          license: 'LGPL-3+ GPL-2+ GPL-3'
+          inherit:
+            - toolchain-funcs
+          # configure.ac sets NEED_GPG_ERROR_VERSION=1.28 (AM_PATH_GPG_ERROR);
+          # the tree serves dev-libs/libgpg-error-1.61, so the plain atom keeps
+          # the tree ebuild's dep semantics (libassuan pattern).
+          rdepend: |
+            dev-libs/libgpg-error
+          # src/Makefile.am regenerates asn1-parse.c from asn1-parse.y; the
+          # release tarball ships it pre-generated, configure only warns without
+          # bison, but the tree declares it and a bump with a newer .y needs it.
+          bdepend: |
+            sys-devel/bison
+          body: |
+            src_configure() {
+              export CC_FOR_BUILD="$(tc-getBUILD_CC)"
+
+              local myeconfargs=(
+                --disable-static
+
+                GPG_ERROR_CONFIG="/usr/bin/gpg-error-config"
+                LIBGCRYPT_CONFIG="/usr/bin/libgcrypt-config"
+              )
+
+              econf "${myeconfargs[@]}"
+            }
+            src_install() {
+              default
+
+              # People need to use ksba-config for --cflags and --libs
+              find "${ED}" -type f -name '*.la' -delete || die
+            }
+
 pinentry:
   generator: builtin-dirlisting
   generator_opts:

@@ -1275,3 +1275,101 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/libsecret — GObject-based library for the freedesktop.org Secret
+# Service API. Conversion of the frozen tree ebuild, macaroni-os/mark-issues#996.
+#
+# The tree ebuild tracked no release: it pinned a GitHub commit tarball
+# (GNOME/libsecret@0936f74, stamped 0.21.7) with an S= override for the
+# GNOME-libsecret-0936f74 unpack root. GNOME publishes release tarballs with
+# sha256sums on download.gnome.org, and the GitHub mirror GNOME/libsecret has
+# zero releases (probed live 2026-11-28: gh api repos/GNOME/libsecret/releases
+# -> []), so builtin-github has nothing to track and dirlisting the canonical
+# GNOME directory is the evidenced choice. The release tarball unpacks to ${P},
+# so the S= override and the snapshot root are gone.
+#
+# The listing carries .news and .sha256sum siblings plus a LATEST-IS-<ver>
+# marker per release; the anchored matcher keeps exactly one distfile per
+# release (libtasn1/gnutls pattern). GNOME hosts one directory per API series,
+# so moving past 0.21 is a one-line URL edit.
+libsecret:
+  generator: builtin-dirlisting
+  generator_opts:
+    rate_limiter: "1"
+
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    dir:
+      url: https://download.gnome.org/sources/libsecret/0.21/
+      matcher: '^{{ .Values.pn }}-[0-9]+(\.[0-9]+)+\.tar\.xz$'
+    transform:
+      - kind: string
+        match: '{{ .Values.pn }}-'
+        replace: ''
+      - kind: string
+        match: '.tar.xz'
+        replace: ''
+
+  packages:
+    - libsecret:
+        vars:
+          desc: A GObject-based library for accessing the Secret Service API of the freedesktop.org project, a cross-desktop effort to access passwords, tokens and other types of secrets.
+          homepage: https://wiki.gnome.org/Projects/Libsecret
+          license: 'LGPL-2.1+'
+          # gnome3 is dropped: on EAPI 7 it exports no src_unpack, its
+          # src_prepare/src_configure are overridden by the ebuild phases and
+          # its src_compile/src_install by the later meson inherit, so the
+          # only phases it actually runs are the pkg_preinst/postinst/postrm
+          # gsettings/icon/mime cache hooks — no-ops for a package that
+          # installs none of those file classes.
+          inherit:
+            - bash-completion-r1
+            - meson
+            - vala
+          iuse: bash-completion +crypt +gnome-keyring gtk-doc +introspection tpm +vala
+          required_use: 'gtk-doc? ( crypt ) vala? ( introspection )'
+          # Floors re-derived from the release: glib 2.44, libgcrypt 1.2.2
+          # and tss2 3.0.3 are the min_*_version values in meson.build,
+          # gi-docgen 2021.7 comes from docs/reference/libsecret/meson.build;
+          # gettext 0.19.8 and gobject-introspection 1.29 are the tree's own
+          # floors, kept verbatim.
+          rdepend: |
+            >=dev-libs/glib-2.44.0
+            crypt? ( >=dev-libs/libgcrypt-1.2.2 )
+            bash-completion? ( app-shells/bash-completion )
+            tpm? ( >=app-crypt/tpm2-tss-3.0.3 )
+          depend: '${RDEPEND}'
+          bdepend: |
+            >=sys-devel/gettext-0.19.8
+            virtual/pkgconfig
+            gtk-doc? ( >=dev-util/gi-docgen-2021.7 )
+            introspection? ( >=dev-libs/gobject-introspection-1.29 )
+            vala? ( $(vala_depend) )
+          pdepend: 'gnome-keyring? ( gnome-base/gnome-keyring )'
+          body: |
+            src_prepare() {
+              # this portage's default does not dispatch the vala eclass'
+              # exported src_prepare, so vala_src_prepare must stay explicit
+              use vala && vala_src_prepare
+              default
+
+              # gi-docgen runs graphviz, whose fontconfig refresh rewrites the
+              # system font cache and trips the sandbox (kdsoap precedent)
+              export FC_CACHEDIR="${T}/fontconfig"
+              addpredict /usr/share/fonts
+            }
+            src_configure() {
+              local emesonargs=(
+                $(meson_feature bash-completion bash_completion)
+                -Dbashcompdir="$(get_bashcompdir)"
+                # crypto is a combo of libgcrypt/gnutls/disabled
+                # (meson_options.txt); USE=-crypt must not link libgcrypt
+                -Dcrypto="$(usex crypt libgcrypt disabled)"
+                $(meson_use gtk-doc gtk_doc)
+                $(meson_use introspection)
+                $(meson_use tpm tpm2)
+                $(meson_use vala vapi)
+              )
+              meson_src_configure
+            }

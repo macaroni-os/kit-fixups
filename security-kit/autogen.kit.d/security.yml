@@ -1295,3 +1295,101 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/tpm2-tss — TCG TPM2 Software Stack. Conversion of the frozen tree
+# ebuild, macaroni-os/mark-issues#1006. Upstream GitHub releases ship the dist
+# tarball tpm2-tss-<ver>.tar.gz with a .asc sibling; the anchored matcher pins
+# the uploaded release artefact (the same URL the tree ebuild used) and
+# structurally drops the signature file. rc releases are marked prerelease
+# upstream and filtered natively. The odd tags 4.2.2s/4.1.6s (prerelease=false)
+# carry no distfile matching their version (4.2.2s has no assets at all, 4.1.6s
+# ships the 4.1.6 tarball), so they are excluded at atom level and selection
+# can never land on them. The tree's "Dont-run-systemd-sysusers-in-Makefile"
+# patch is dead against 4.x: upstream added DESTDIR guards to install-dirs and
+# make_tss_user_and_group and downgraded the useradd/groupadd configure checks
+# to warnings, so no files are carried.
+tpm2-tss:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    github:
+      user: tpm2-software
+    exclude:
+      - '[0-9]s$'
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '^{{ .Values.p }}\.tar\.gz$'
+  packages:
+    - tpm2-tss:
+        vars:
+          desc: TCG Trusted Platform Module 2.0 Software Stack
+          homepage: https://github.com/tpm2-software/tpm2-tss
+          license: BSD-2
+          # Subslot tracks the upstream major: the library sonames are unchanged
+          # from 3.x to 4.x (esys 0, fapi 1, sys 1, mu/rc/tcti* 0) but the ABI
+          # is not compatible across the major, so := consumers must rebuild.
+          slot: '0/4'
+          iuse: doc +fapi +openssl mbedtls
+          required_use: '^^ ( mbedtls openssl ) fapi? ( openssl !mbedtls )'
+          rdepend: |
+            fapi? ( dev-libs/json-c:=
+              >=net-misc/curl-7.80.0
+              sys-apps/util-linux )
+            mbedtls? ( net-libs/mbedtls:= )
+            openssl? ( dev-libs/openssl:= )
+          depend: '${RDEPEND}'
+          bdepend: |
+            sys-apps/acl
+            virtual/pkgconfig
+            doc? ( app-doc/doxygen )
+          inherit:
+            - autotools
+            - flag-o-matic
+            - linux-info
+            - tmpfiles
+            - udev
+            - user
+          body: |
+            pkg_setup() {
+              local CONFIG_CHECK=" \
+                ~TCG_TPM
+              "
+              linux-info_pkg_setup
+              kernel_is ge 4 12 0 || ewarn "At least kernel 4.12.0 is required"
+            }
+            src_configure() {
+              # upstream CI never builds with LTO; keep the release build safe
+              filter-lto
+              econf \
+                --localstatedir=/var \
+                $(use_enable doc doxygen-doc) \
+                $(use_enable fapi) \
+                --disable-policy \
+                --disable-static \
+                --disable-tcti-libtpms \
+                --disable-defaultflags \
+                --disable-weakcrypto \
+                --with-crypto="$(usex mbedtls mbed ossl)" \
+                --with-runstatedir=/run \
+                --with-udevrulesdir="$(get_udevdir)/rules.d" \
+                --with-udevrulesprefix=60- \
+                --with-sysusersdir="/usr/lib/sysusers.d" \
+                --with-tmpfilesdir="/usr/lib/tmpfiles.d"
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -name '*.la' -delete || die
+            }
+            pkg_preinst() {
+              enewgroup tss 59
+              enewuser tss 59 -1 /dev/null tss
+            }
+            pkg_postinst() {
+              tmpfiles_process tpm2-tss-fapi.conf
+              udev_reload
+            }
+            pkg_postrm() {
+              udev_reload
+            }

@@ -1295,3 +1295,58 @@ makepasswd_dirlisting:
               doman makepasswd.1
               einstalldocs
             }
+
+# app-crypt/tpm2-totp — TPM2 time-based OTP attestation (library, CLI and
+# plymouth plugin). Conversion of the frozen tree ebuild, macaroni-os/mark-issues#1005.
+# Upstream GitHub releases (tip v0.3.0) ship the dist tarball
+# tpm2-totp-<ver>.tar.gz with a .asc sibling; the anchored matcher pins the
+# uploaded release artefact (stable name/hash, the same URL the tree ebuild
+# used) and structurally drops the signature file. The tarball unpacks to
+# ${P}, so simple.tmpl + default src_unpack works (freetds pattern).
+# The 0.3.0 Makefile.am still carries the bogus '(tpm2_totp)' LDFLAGS value
+# (Gentoo bug 777291); upstream master has the fix, so a future release track
+# must drop the patch entry.
+tpm2-totp:
+  generator: builtin-github
+  defaults:
+    category: app-crypt
+    template: ../../templates/simple.tmpl
+    files_dir: '{{ .Values.pn }}'
+    github:
+      user: tpm2-software
+    assets:
+      - name: '{{ .Values.p }}.tar.gz'
+        matcher: '^{{ .Values.p }}\.tar\.gz$'
+  packages:
+    - tpm2-totp:
+        revision: 1
+        vars:
+          desc: Attest the trustworthiness of a device against a human using time-based OTP
+          homepage: https://github.com/tpm2-software/tpm2-totp
+          license: BSD
+          iuse: plymouth
+          patches:
+            - tpm2-totp-0.3.0-Remove-bogus-value-from-Makefile.am
+          rdepend: |
+            app-crypt/tpm2-tss:=
+            media-gfx/qrencode
+            plymouth? ( sys-boot/plymouth )
+          depend: '${RDEPEND}'
+          bdepend: |
+            virtual/pkgconfig
+          inherit:
+            - autotools
+          body: |
+            src_prepare() {
+              default
+              eautoreconf
+            }
+            src_configure() {
+              # --disable-defaultflags: keep upstream from overriding CFLAGS
+              econf --disable-static --disable-defaultflags $(use_enable plymouth)
+            }
+            src_install() {
+              default
+              # no static archives
+              find "${ED}" -name '*.la' -delete || die
+            }

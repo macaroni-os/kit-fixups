@@ -1,0 +1,10 @@
+--- a/python/setup.py.in
++++ b/python/setup.py.in
+@@ -23,6 +23,7 @@
+     Extension("_cracklib",
+         ["@srcdir@/_cracklib.c"],
+         include_dirs = ["@top_builddir@", "@top_srcdir@/lib"],
++        define_macros = [("LOCALEDIR", '"/usr/share/locale"')],
+         libraries = ["crack"],
+         library_dirs = ["@top_builddir@/lib/.libs"]),
+ ]

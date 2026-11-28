@@ -1238,3 +1238,40 @@ pinentry:
 
   packages:
     - pinentry:
+
+makepasswd_dirlisting:
+  generator: builtin-dirlisting
+
+  defaults:
+    category: app-admin
+    template: ../../templates/simple.tmpl
+
+  packages:
+    - makepasswd:
+        dir:
+          url: http://ftp.debian.org/debian/pool/main/m/makepasswd/
+          matcher: 'makepasswd_.*\.orig\.tar\.gz$'
+        transform:
+          - kind: string
+            match: 'makepasswd_'
+            replace: ''
+          - kind: string
+            match: '.orig.tar.gz'
+            replace: ''
+        assets:
+          - name: 'makepasswd_{{ .Values.version }}.orig.tar.gz'
+            url: 'http://ftp.debian.org/debian/pool/main/m/makepasswd/makepasswd_{{ .Values.version }}.orig.tar.gz'
+        vars:
+          desc: Random password generator
+          homepage: https://packages.debian.org/stable/admin/makepasswd
+          license: GPL-2
+          rdepend: dev-lang/perl
+          docs:
+            - README
+            - CHANGES
+          body: |
+            src_install() {
+              dobin makepasswd
+              doman makepasswd.1
+              einstalldocs
+            }
